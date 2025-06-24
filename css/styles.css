@@ -101,7 +101,12 @@ html, body {
   transition: background-color 0.2s ease;
 }
 
-.nav-menu a:hover {
+.nav-menu a:visited {
+  color: white;
+}
+
+.nav-menu a:hover,
+.nav-menu a:visited:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
@@ -249,8 +254,13 @@ button:focus {
   text-decoration: none;
 }
 
-.pool-card a:hover {
-  text-decoration: underline;
+.pool-card a:visited {
+  color: #0078d4;
+}
+
+.pool-card a:hover,
+.pool-card a:visited:hover {
+  color: #005fa1;
 }
 
 .features {
@@ -303,6 +313,19 @@ button:focus {
   gap: 0.5rem;
 }
 
+.copilot-response h4 {
+  color: #005fa1;
+  margin: 1.5rem 0 0.75rem 0;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.copilot-response h4:first-of-type {
+  margin-top: 1rem;
+}
+
 .copilot-response p {
   margin: 0.75rem 0;
   color: #333;
@@ -333,6 +356,25 @@ button:focus {
   border-radius: 6px;
   border-left: 3px solid #0078d4;
   font-weight: 500;
+}
+
+.schedule-location {
+  font-weight: bold;
+  color: #005fa1;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  background: #f0f8ff;
+  border-radius: 4px;
+}
+
+.schedule-day {
+  font-weight: bold;
+  color: #005fa1;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  background: #f0f8ff;
+  border-radius: 4px;
+  border-left: 3px solid #0078d4;
 }
 
 .team-overview {
@@ -381,9 +423,62 @@ button:focus {
   transition: background-color 0.2s ease;
 }
 
-.team-link:hover {
+.team-link:visited {
+  color: white !important;
+}
+
+.team-link:hover,
+.team-link:visited:hover {
   background: #005fa1;
   text-decoration: none;
+  color: white !important;
+}
+
+/* Global Link Styling */
+a {
+  color: #0078d4;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: #005fa1;
+}
+
+a:visited {
+  color: #0078d4;
+}
+
+a:visited:hover {
+  color: #005fa1;
+}
+
+/* Footer */
+.footer {
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 1rem;
+  margin-top: auto;
+}
+
+.footer a {
+  color: #4cc2ff;
+}
+
+.footer a:visited {
+  color: #4cc2ff;
+}
+
+.footer a:hover,
+.footer a:visited:hover {
+  color: #85d4ff;
+}
+
+/* Quick Links Styling */
+.quick-links h2 {
+  color: #005fa1;
+  margin-bottom: 1rem;
 }
 
 /* Accessibility */
