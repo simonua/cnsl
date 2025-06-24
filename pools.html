@@ -36,6 +36,7 @@
           id="poolQuery" 
           placeholder="e.g., Where do the Long Reach Marlins practice?"
           aria-label="Pool search"
+          onkeydown="if(event.key === 'Enter') handlePoolSearch()"
         />
         <button onclick="handlePoolSearch()" aria-label="Search">Ask</button>
         <button onclick="startPoolVoice()" aria-label="Speak your question">🎤</button>
