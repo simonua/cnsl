@@ -1,0 +1,231 @@
+{
+  "regular_meets": [
+    {
+      "date": "2025-06-14",
+      "visiting_team": "Phelps Luck",
+      "home_team": "Oakland Mills",
+      "location": "Stevens Forest Pool"
+    },
+    {
+      "date": "2025-06-14",
+      "visiting_team": "Wilde Lake",
+      "home_team": "Dorsey Search",
+      "location": "Dorsey Hall Pool"
+    },
+    {
+      "date": "2025-06-14",
+      "visiting_team": "Thunder Hill",
+      "home_team": "Pheasant Ridge",
+      "location": "River Hill Pool"
+    },
+    {
+      "date": "2025-06-14",
+      "visiting_team": "Clemens Crossing",
+      "home_team": "Huntington",
+      "location": "Huntington Pool"
+    },
+    {
+      "date": "2025-06-14",
+      "visiting_team": "Long Reach",
+      "home_team": "Clary\u2019s Forest, Hawthorn, Swansfield",
+      "location": "Swansfield Pool"
+    },
+    {
+      "date": "2025-06-14",
+      "visiting_team": "Owen Brown",
+      "home_team": "Kings Contrivance",
+      "location": "Macgill\u2019s Common Pool"
+    },
+    {
+      "date": "2025-06-14",
+      "visiting_team": "Pointers Run",
+      "home_team": "Harper\u2019s Choice",
+      "location": "Longfellow Pool"
+    },
+    {
+      "date": "2025-06-21",
+      "visiting_team": "Clary's Forest, Hawthorn, Swansfield",
+      "home_team": "Clemens Crossing",
+      "location": "Clemens Crossing Pool"
+    },
+    {
+      "date": "2025-06-21",
+      "visiting_team": "Dorsey Search",
+      "home_team": "Thunder Hill",
+      "location": "Thunder Hill Pool"
+    },
+    {
+      "date": "2025-06-21",
+      "visiting_team": "Wilde Lake",
+      "home_team": "Harper\u2019s Choice",
+      "location": "Longfellow Pool"
+    },
+    {
+      "date": "2025-06-21",
+      "visiting_team": "Phelps Luck",
+      "home_team": "Long Reach",
+      "location": "Kendall Ridge Pool"
+    },
+    {
+      "date": "2025-06-21",
+      "visiting_team": "Oakland Mills",
+      "home_team": "Owen Brown",
+      "location": "Dasher Green Pool"
+    },
+    {
+      "date": "2025-06-21",
+      "visiting_team": "Pointers Run",
+      "home_team": "Pheasant Ridge",
+      "location": "River Hill Pool"
+    },
+    {
+      "date": "2025-06-21",
+      "visiting_team": "Huntington",
+      "home_team": "Kings Contrivance",
+      "location": "Macgill\u2019s Common Pool"
+    },
+    {
+      "date": "2025-06-28",
+      "visiting_team": "Pheasant Ridge",
+      "home_team": "Phelps Luck",
+      "location": "Phelps Luck Pool"
+    },
+    {
+      "date": "2025-06-28",
+      "visiting_team": "Harper\u2019s Choice",
+      "home_team": "Long Reach",
+      "location": "Kendall Ridge Pool"
+    },
+    {
+      "date": "2025-06-28",
+      "visiting_team": "Owen Brown",
+      "home_team": "Wilde Lake",
+      "location": "Faulkner Ridge Pool"
+    },
+    {
+      "date": "2025-06-28",
+      "visiting_team": "Kings Contrivance",
+      "home_team": "Pointers Run",
+      "location": "River Hill Pool"
+    },
+    {
+      "date": "2025-06-28",
+      "visiting_team": "Clemens Crossing",
+      "home_team": "Oakland Mills",
+      "location": "Stevens Forest Pool"
+    },
+    {
+      "date": "2025-06-28",
+      "visiting_team": "Thunder Hill",
+      "home_team": "Clary\u2019s Forest, Hawthorn, Swansfield",
+      "location": "Swansfield Pool"
+    },
+    {
+      "date": "2025-06-28",
+      "visiting_team": "Huntington",
+      "home_team": "Dorsey Search",
+      "location": "Dorsey Hall Pool"
+    },
+    {
+      "date": "2025-07-12",
+      "visiting_team": "Dorsey Search",
+      "home_team": "Oakland Mills",
+      "location": "Stevens Forest Pool"
+    },
+    {
+      "date": "2025-07-12",
+      "visiting_team": "Clary's Forest, Hawthorn, Swansfield",
+      "home_team": "Owen Brown",
+      "location": "Dasher Green Pool"
+    },
+    {
+      "date": "2025-07-12",
+      "visiting_team": "Wilde Lake",
+      "home_team": "Huntington",
+      "location": "Huntington Pool"
+    },
+    {
+      "date": "2025-07-12",
+      "visiting_team": "Harper\u2019s Choice",
+      "home_team": "Pheasant Ridge",
+      "location": "River Hill Pool"
+    },
+    {
+      "date": "2025-07-12",
+      "visiting_team": "Thunder Hill",
+      "home_team": "Phelps Luck",
+      "location": "Phelps Luck Pool"
+    },
+    {
+      "date": "2025-07-12",
+      "visiting_team": "Kings Contrivance",
+      "home_team": "Long Reach",
+      "location": "Kendall Ridge Pool"
+    },
+    {
+      "date": "2025-07-12",
+      "visiting_team": "Pointers Run",
+      "home_team": "Clemens Crossing",
+      "location": "Clemens Crossing Pool"
+    },
+    {
+      "date": "2025-07-19",
+      "visiting_team": "Oakland Mills",
+      "home_team": "Wilde Lake",
+      "location": "Faulkner Ridge Pool"
+    },
+    {
+      "date": "2025-07-19",
+      "visiting_team": "Dorsey Search",
+      "home_team": "Clary\u2019s Forest, Hawthorn, Swansfield",
+      "location": "Swansfield Pool"
+    },
+    {
+      "date": "2025-07-19",
+      "visiting_team": "Huntington",
+      "home_team": "Thunder Hill",
+      "location": "Thunder Hill Pool"
+    },
+    {
+      "date": "2025-07-19",
+      "visiting_team": "Phelps Luck",
+      "home_team": "Clemens Crossing",
+      "location": "Clemens Crossing Pool"
+    },
+    {
+      "date": "2025-07-19",
+      "visiting_team": "Pheasant Ridge",
+      "home_team": "Kings Contrivance",
+      "location": "Macgill\u2019s Common Pool"
+    },
+    {
+      "date": "2025-07-19",
+      "visiting_team": "Owen Brown",
+      "home_team": "Harper\u2019s Choice",
+      "location": "Longfellow Pool"
+    },
+    {
+      "date": "2025-07-19",
+      "visiting_team": "Long Reach",
+      "home_team": "Pointers Run",
+      "location": "River Hill Pool"
+    }
+  ],
+  "special_meets": [
+    {
+      "date": "2025-06-07",
+      "name": "Time Trials",
+      "location": "Each Team\u2019s Home Pool (Pheasant Ridge at Jeffers Hill Pool)"
+    },
+    {
+      "date": "2025-07-25",
+      "name": "All-City Championship Meet Part 1 (8 and younger swimmers)",
+      "location": "Phelps Luck Pool"
+    },
+    {
+      "date": "2025-07-26",
+      "name": "All-City Championship Meet Part 2 (13-18 year olds, 9-12 year old swimmers)",
+      "location": "Phelps Luck Pool"
+    }
+  ]
+}
