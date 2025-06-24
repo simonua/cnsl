@@ -135,10 +135,7 @@
     "lng": -76.8717,
     "features": ["lap", "dive", "splash", "slide"],
     "openNow": true,
-    "team": {
-      "name": "Running Brook Rapids",
-      "url": "https://www.gomotionapp.com/team/reccnslrb/page/home"
-    }
+    "team": null
   },
   {
     "name": "River Hill",
