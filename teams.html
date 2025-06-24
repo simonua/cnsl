@@ -2,7 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-wi        `;
+          
+          teamList.appendChild(teamCard);
+        } catch (error) {
+          console.error(`Error processing team at index ${index}:`, error, team);
+          
+          // Create a basic card for the team with error handling
+          const errorCard = document.createElement('div');
+          errorCard.className = 'pool-card error-card';
+          errorCard.innerHTML = `
+            <h3>${team && team.name ? team.name : 'Team Data Error'}</h3>
+            <p>There was an error processing this team's data.</p>
+          `;
+          teamList.appendChild(errorCard);
+        }
+      });
+    }le=1.0"/>
   <title>Swim Teams – Columbia Association Pool Copilot</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
@@ -90,24 +106,48 @@
       const teamList = document.getElementById('teamList');
       teamList.innerHTML = '';
       
-      teams.forEach(team => {
-        const teamCard = document.createElement('div');
-        teamCard.className = 'pool-card';
-        
-        const homePoolNames = team.homePools.join(', ');
-        const practicePoolNames = team.practicePools.join(', ');
-        
-        teamCard.innerHTML = `
-          <h3>${team.name}</h3>
-          <p><strong>Home Pool${team.homePools.length > 1 ? 's' : ''}:</strong> ${homePoolNames}</p>
-          <p><strong>Practice Pool${team.practicePools.length > 1 ? 's' : ''}:</strong> ${practicePoolNames}</p>
-          <p>
-            <a href="${team.url}" target="_blank" rel="noopener">Team Website</a>
-            <a href="${team.practice.url}" target="_blank" rel="noopener">Practice Schedule</a>
-          </p>
-        `;
-        
-        teamList.appendChild(teamCard);
+      teams.forEach((team, index) => {
+        try {
+          const teamCard = document.createElement('div');
+          teamCard.className = 'pool-card';
+          
+          // Check if properties exist before using them
+          if (!team.homePools) {
+            console.error(`Team at index ${index} is missing homePools property:`, team);
+            team.homePools = [];
+          }
+          
+          if (!team.practicePools) {
+            console.error(`Team at index ${index} is missing practicePools property:`, team);
+            team.practicePools = [];
+          }
+          
+          const homePoolNames = team.homePools.join(', ');
+          const practicePoolNames = team.practicePools.join(', ');
+          
+          teamCard.innerHTML = `
+            <h3>${team.name || 'Unknown Team'}</h3>
+            <p><strong>Home Pool${team.homePools.length > 1 ? 's' : ''}:</strong> ${homePoolNames}</p>
+            <p><strong>Practice Pool${team.practicePools.length > 1 ? 's' : ''}:</strong> ${practicePoolNames}</p>
+            <p>
+              <a href="${team.url || '#'}" target="_blank" rel="noopener">Team Website</a>
+              <a href="${team.practice && team.practice.url ? team.practice.url : '#'}" target="_blank" rel="noopener">Practice Schedule</a>
+            </p>
+          `;
+          
+          teamList.appendChild(teamCard);
+        } catch (error) {
+          console.error(`Error processing team at index ${index}:`, error, team);
+          
+          // Create a basic card for the team with error handling
+          const errorCard = document.createElement('div');
+          errorCard.className = 'pool-card error-card';
+          errorCard.innerHTML = `
+            <h3>${team && team.name ? team.name : 'Team Data Error'}</h3>
+            <p>There was an error processing this team's data.</p>
+          `;
+          teamList.appendChild(errorCard);
+        }
       });
     }
 
