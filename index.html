@@ -18,9 +18,8 @@
       <section class="copilot-search" aria-labelledby="site-title">
         <label for="copilotQuery" class="visually-hidden">Ask a pool, meet, or team question</label>
         <input type="text" id="copilotQuery" placeholder="Ask about a team or meet..." />
-        <button onclick="startCopilotVoice()">🎙️</button>
+        <button onclick="startCopilotVoice()" aria-label="Speak your question">🎙️</button>
         <button onclick="handleSearch()">Search</button>
-        <button onclick="startListening()" aria-label="Speak your question">🎤</button>
       </section>
 
       <section id="copilotResponse" class="response" aria-live="polite"></section>

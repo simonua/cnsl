@@ -2,14 +2,30 @@ let teamData = [];
 
 document.addEventListener("DOMContentLoaded", () => {
   fetch("assets/data/teams.json")
-    .then(res => res.json())
+    .then(res => {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    })
     .then(data => {
       teamData = data;
+    })
+    .catch(error => {
+      console.error("Failed to load team data:", error);
+      const output = document.getElementById("copilotResponse");
+      if (output) {
+        output.innerHTML = "<p>⚠️ Team data is currently unavailable. Please try again later.</p>";
+      }
     });
 });
 
 function startCopilotVoice() {
-  const recognition = new webkitSpeechRecognition() || new SpeechRecognition();
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    alert('Speech recognition is not supported in this browser. Please try Chrome or Edge.');
+    return;
+  }
+  
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recognition = new SpeechRecognition();
   recognition.lang = 'en-US';
   recognition.onresult = e => {
     document.getElementById("copilotQuery").value = e.results[0][0].transcript;
@@ -17,6 +33,7 @@ function startCopilotVoice() {
   };
   recognition.onerror = e => {
     console.error("Speech recognition error:", e);
+    alert('Speech recognition failed. Please try again or type your question.');
   };
   recognition.start();
 }

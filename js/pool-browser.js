@@ -3,11 +3,21 @@ let userCoords = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   fetch("assets/data/pools.json")
-    .then(res => res.json())
+    .then(res => {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    })
     .then(data => {
       poolData = data;
       getUserLocation();
       renderPools(data);
+    })
+    .catch(error => {
+      console.error("Failed to load pool data:", error);
+      const list = document.getElementById("poolList");
+      if (list) {
+        list.innerHTML = "<p>⚠️ Pool data is currently unavailable. Please try again later.</p>";
+      }
     });
 });
 
@@ -120,11 +130,21 @@ function handlePoolSearch() {
 }
 
 function startPoolVoice() {
-  const recognition = new webkitSpeechRecognition();
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    alert('Speech recognition is not supported in this browser. Please try Chrome or Edge.');
+    return;
+  }
+  
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recognition = new SpeechRecognition();
   recognition.lang = 'en-US';
   recognition.onresult = e => {
     document.getElementById("poolQuery").value = e.results[0][0].transcript;
     handlePoolSearch();
+  };
+  recognition.onerror = e => {
+    console.error("Speech recognition error:", e);
+    alert('Speech recognition failed. Please try again or type your question.');
   };
   recognition.start();
 }

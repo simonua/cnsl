@@ -3,9 +3,9 @@
   "short_name": "Pool Copilot",
   "icons": [
     {
-      "src": "/assets/images/cnsl-icon.png",
+      "src": "/assets/images/cnsl-logo.jpg",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/jpeg"
     }
   ],
   "start_url": "/",

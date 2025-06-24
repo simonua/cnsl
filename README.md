@@ -61,7 +61,7 @@ All content is built on publicly available resources from the Columbia Neighborh
 This site is hosted via **GitHub Pages**:
 
 - Repo: [github.com/simonua/cnsl](https://github.com/simonua/cnsl)
-- Live site: [www.columbiapoolcopilot.com](https://www.columbiapoolcopilot.com)
+- Live site: [cnsl.longreachmarlins.org](https://cnsl.longreachmarlins.org)
 
 Custom domain configured with GitHub DNS and secured with HTTPS.
 
