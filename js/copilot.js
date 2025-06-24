@@ -74,11 +74,41 @@ function handleSearch() {
   let response = `<div class="copilot-response"><h3>🏊‍♀️ ${match.name}</h3>`;
 
   if (input.includes("practice")) {
-    response += `<p>Here's when they practice:</p><div class="practice-schedule">`;
-    response += match.practice.map(p =>
-      `<div class="schedule-item">📅 <strong>${p.day}:</strong> ${p.time} at ${p.location}</div>`
-    ).join("");
-    response += `</div>`;
+    response += `<p>Here's when they practice:</p>`;
+    
+    if (Array.isArray(match.practice)) {
+      // Handle simple practice format (legacy)
+      response += `<div class="practice-schedule">`;
+      response += match.practice.map(p =>
+        `<div class="schedule-item">📅 <strong>${p.day}:</strong> ${p.time} at ${p.location}</div>`
+      ).join("");
+      response += `</div>`;
+    } else if (match.practice && match.practice.regular) {
+      // Handle detailed practice format
+      const regular = match.practice.regular;
+      
+      if (regular.morning) {
+        response += `<h4>🌅 Morning Practice (${regular.morning.days})</h4>`;
+        response += `<div class="practice-schedule">`;
+        response += `<div class="schedule-location">📍 ${regular.morning.location}</div>`;
+        response += regular.morning.sessions.map(s =>
+          `<div class="schedule-item">⏰ ${s.time} - ${s.group}</div>`
+        ).join("");
+        response += `</div>`;
+      }
+      
+      if (regular.evening && regular.evening.length > 0) {
+        response += `<h4>🌆 Evening Practice</h4>`;
+        regular.evening.forEach(day => {
+          response += `<div class="practice-schedule">`;
+          response += `<div class="schedule-day"><strong>${day.day}</strong> at ${day.location}</div>`;
+          response += day.sessions.map(s =>
+            `<div class="schedule-item">⏰ ${s.time} - ${s.group}</div>`
+          ).join("");
+          response += `</div>`;
+        });
+      }
+    }
   } else if (input.includes("meet")) {
     if (match.meets && match.meets.length > 0) {
       response += `<p>Their meet schedule:</p><div class="meet-schedule">`;
@@ -102,8 +132,25 @@ function handleSearch() {
         </div>
         <div class="info-section">
           <h4>📅 Practice Schedule</h4>
-          <div class="practice-schedule">
-            ${match.practice.map(p => `<div class="schedule-item">${p.day}: ${p.time} at ${p.location}</div>`).join("")}
+          <div class="practice-schedule">`;
+    
+    if (Array.isArray(match.practice)) {
+      // Handle simple practice format
+      response += match.practice.map(p => `<div class="schedule-item">${p.day}: ${p.time} at ${p.location}</div>`).join("");
+    } else if (match.practice && match.practice.regular) {
+      // Handle detailed practice format - show summary
+      const regular = match.practice.regular;
+      if (regular.morning) {
+        response += `<div class="schedule-item">Morning: ${regular.morning.days} at ${regular.morning.location}</div>`;
+      }
+      if (regular.evening && regular.evening.length > 0) {
+        regular.evening.forEach(day => {
+          response += `<div class="schedule-item">${day.day} Evening: ${day.location}</div>`;
+        });
+      }
+    }
+    
+    response += `
           </div>
         </div>
       </div>
