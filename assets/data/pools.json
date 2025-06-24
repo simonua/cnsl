@@ -5,7 +5,10 @@
     "mapsQuery": "Kendall Ridge Pool Columbia MD",
     "lat": 39.2035,
     "lng": -76.8382,
-    "features": ["lap", "splash"],
+    "features": [
+      "lap",
+      "splash"
+    ],
     "openNow": true,
     "team": {
       "name": "Long Reach Marlins",
@@ -18,7 +21,10 @@
     "mapsQuery": "Jeffers Hill Pool Columbia MD",
     "lat": 39.2106,
     "lng": -76.8398,
-    "features": ["lap", "dive"],
+    "features": [
+      "lap",
+      "dive"
+    ],
     "openNow": false,
     "team": {
       "name": "Long Reach Marlins",
@@ -31,7 +37,9 @@
     "mapsQuery": "Stevens Forest Pool Columbia MD",
     "lat": 39.2082,
     "lng": -76.8385,
-    "features": ["lap"],
+    "features": [
+      "lap"
+    ],
     "openNow": true,
     "team": {
       "name": "Long Reach Marlins",
@@ -44,7 +52,11 @@
     "mapsQuery": "Hopewell Pool Columbia MD",
     "lat": 39.1886,
     "lng": -76.8394,
-    "features": ["lap", "splash", "slide"],
+    "features": [
+      "lap",
+      "splash",
+      "slide"
+    ],
     "openNow": true,
     "team": {
       "name": "Hopewell Hurricanes",
@@ -57,7 +69,11 @@
     "mapsQuery": "Bryant Woods Pool Columbia MD",
     "lat": 39.2142,
     "lng": -76.8754,
-    "features": ["lap", "splash", "dive"],
+    "features": [
+      "lap",
+      "splash",
+      "dive"
+    ],
     "openNow": true,
     "team": {
       "name": "Bryant Woods Barracudas",
@@ -70,7 +86,9 @@
     "mapsQuery": "Dorsey Hall Pool Columbia MD",
     "lat": 39.2424,
     "lng": -76.8509,
-    "features": ["lap"],
+    "features": [
+      "lap"
+    ],
     "openNow": true,
     "team": null
   },
@@ -80,7 +98,11 @@
     "mapsQuery": "Faulkner Ridge Pool Columbia MD",
     "lat": 39.2223,
     "lng": -76.8876,
-    "features": ["lap", "slide", "basketball"],
+    "features": [
+      "lap",
+      "slide",
+      "basketball"
+    ],
     "openNow": true,
     "team": null
   },
@@ -90,7 +112,10 @@
     "mapsQuery": "Hawthorn Pool Columbia MD",
     "lat": 39.2213,
     "lng": -76.8706,
-    "features": ["lap", "dive"],
+    "features": [
+      "lap",
+      "dive"
+    ],
     "openNow": true,
     "team": null
   },
@@ -100,7 +125,11 @@
     "mapsQuery": "Hobbit's Glen Pool Columbia MD",
     "lat": 39.2302,
     "lng": -76.9071,
-    "features": ["lap", "dive", "shade"],
+    "features": [
+      "lap",
+      "dive",
+      "shade"
+    ],
     "openNow": true,
     "team": null
   },
@@ -110,7 +139,9 @@
     "mapsQuery": "Macgill's Common Pool Columbia MD",
     "lat": 39.2333,
     "lng": -76.9017,
-    "features": ["lap"],
+    "features": [
+      "lap"
+    ],
     "openNow": true,
     "team": null
   },
@@ -120,7 +151,11 @@
     "mapsQuery": "Phelps Luck Pool Columbia MD",
     "lat": 39.2235,
     "lng": -76.8326,
-    "features": ["lap", "splash", "slide"],
+    "features": [
+      "lap",
+      "splash",
+      "slide"
+    ],
     "openNow": false,
     "team": {
       "name": "Phelps Luck Piranhas",
@@ -133,7 +168,12 @@
     "mapsQuery": "Running Brook Pool Columbia MD",
     "lat": 39.2255,
     "lng": -76.8717,
-    "features": ["lap", "dive", "splash", "slide"],
+    "features": [
+      "lap",
+      "dive",
+      "splash",
+      "slide"
+    ],
     "openNow": true,
     "team": null
   },
@@ -143,7 +183,11 @@
     "mapsQuery": "River Hill Pool Columbia MD",
     "lat": 39.2057,
     "lng": -76.9439,
-    "features": ["lap", "dive", "shade"],
+    "features": [
+      "lap",
+      "dive",
+      "shade"
+    ],
     "openNow": true,
     "team": {
       "name": "River Hill Hurricanes",
@@ -156,7 +200,10 @@
     "mapsQuery": "Dasher Green Pool Columbia MD",
     "lat": 39.1902,
     "lng": -76.8370,
-    "features": ["lap", "wading"],
+    "features": [
+      "lap",
+      "wading"
+    ],
     "openNow": false,
     "team": {
       "name": "Dasher Green Dolphins",
@@ -169,7 +216,10 @@
     "mapsQuery": "Dickinson Pool Columbia MD",
     "lat": 39.1776,
     "lng": -76.8521,
-    "features": ["lap", "shade"],
+    "features": [
+      "lap",
+      "shade"
+    ],
     "openNow": true,
     "team": null
   },
@@ -179,7 +229,10 @@
     "mapsQuery": "Forest Ridge Pool Columbia MD",
     "lat": 39.2043,
     "lng": -76.8357,
-    "features": ["lap", "splash"],
+    "features": [
+      "lap",
+      "splash"
+    ],
     "openNow": false,
     "team": null
   },
@@ -189,7 +242,10 @@
     "mapsQuery": "Locust Park Pool Columbia MD",
     "lat": 39.2101,
     "lng": -76.8395,
-    "features": ["splash", "wading"],
+    "features": [
+      "splash",
+      "wading"
+    ],
     "openNow": true,
     "team": null
   },
@@ -199,7 +255,10 @@
     "mapsQuery": "Longfellow Pool Columbia MD",
     "lat": 39.2262,
     "lng": -76.8865,
-    "features": ["lap", "shade"],
+    "features": [
+      "lap",
+      "shade"
+    ],
     "openNow": false,
     "team": {
       "name": "Longfellow Lightning",
@@ -212,7 +271,9 @@
     "mapsQuery": "Martin Road Pool Columbia MD",
     "lat": 39.2087,
     "lng": -76.8877,
-    "features": ["lap"],
+    "features": [
+      "lap"
+    ],
     "openNow": true,
     "team": null
   },
@@ -222,7 +283,10 @@
     "mapsQuery": "Talbott Springs Pool Columbia MD",
     "lat": 39.2122,
     "lng": -76.8384,
-    "features": ["splash", "wading"],
+    "features": [
+      "splash",
+      "wading"
+    ],
     "openNow": false,
     "team": null
   },
@@ -232,7 +296,11 @@
     "mapsQuery": "Thunder Hill Pool Columbia MD",
     "lat": 39.2077,
     "lng": -76.8471,
-    "features": ["lap", "splash", "dive"],
+    "features": [
+      "lap",
+      "splash",
+      "dive"
+    ],
     "openNow": true,
     "team": {
       "name": "Thunder Hill Thunderbolts",
@@ -245,7 +313,9 @@
     "mapsQuery": "Swansfield Pool Columbia MD",
     "lat": 39.2104,
     "lng": -76.8910,
-    "features": ["lap"],
+    "features": [
+      "lap"
+    ],
     "openNow": true,
     "team": {
       "name": "Swansfield Stingrays",

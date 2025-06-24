@@ -2,108 +2,225 @@
   {
     "id": "cfhss",
     "name": "Clary's Forest/Hawthorn/Swansfield Sundevils",
-    "keywords": ["sundevils", "clary's forest", "hawthorn", "swansfield", "clary forest"],
+    "keywords": [
+      "sundevils",
+      "clary's forest",
+      "hawthorn",
+      "swansfield",
+      "clary forest"
+    ],
     "url": "http://www.teamunify.com/reccnslcfhss/",
-    "pools": ["Clary's Forest", "Hawthorn", "Swansfield"],
+    "pools": [
+      "Clary's Forest",
+      "Hawthorn",
+      "Swansfield"
+    ],
     "practice": {
       "url": "http://www.teamunify.com/reccnslcfhss/page/team-info/practice-schedule",
       "sessions": [
-        { "day": "Mon–Fri", "time": "8:30 AM – 10:00 AM", "location": "Swansfield" },
-        { "day": "Tue/Thu", "time": "6:00 PM – 7:30 PM", "location": "Clary's Forest" }
+        {
+          "day": "Mon–Fri",
+          "time": "8:30 AM – 10:00 AM",
+          "location": "Swansfield"
+        },
+        {
+          "day": "Tue/Thu",
+          "time": "6:00 PM – 7:30 PM",
+          "location": "Clary's Forest"
+        }
       ]
     },
     "meets": [
-      { "type": "home", "location": "Swansfield", "days": ["Saturday"] }
+      {
+        "type": "home",
+        "location": "Swansfield",
+        "days": [
+          "Saturday"
+        ]
+      }
     ]
   },
   {
     "id": "ccc",
     "name": "Clemens Crossing Cyclones",
-    "keywords": ["cyclones", "clemens crossing"],
+    "keywords": [
+      "cyclones",
+      "clemens crossing"
+    ],
     "url": "http://www.teamunify.com/reccnslccc/",
-    "pools": ["Clemens Crossing"],
+    "pools": [
+      "Clemens Crossing"
+    ],
     "practice": {
       "url": "http://www.teamunify.com/reccnslccc/page/team-info/practice-schedule",
       "sessions": [
-        { "day": "Mon–Fri", "time": "8:30 AM – 10:00 AM", "location": "Clemens Crossing" },
-        { "day": "Mon/Wed", "time": "6:00 PM – 7:30 PM", "location": "Clemens Crossing" }
+        {
+          "day": "Mon–Fri",
+          "time": "8:30 AM – 10:00 AM",
+          "location": "Clemens Crossing"
+        },
+        {
+          "day": "Mon/Wed",
+          "time": "6:00 PM – 7:30 PM",
+          "location": "Clemens Crossing"
+        }
       ]
     },
     "meets": [
-      { "type": "home", "location": "Clemens Crossing", "days": ["Saturday"] }
+      {
+        "type": "home",
+        "location": "Clemens Crossing",
+        "days": [
+          "Saturday"
+        ]
+      }
     ]
   },
   {
     "id": "dsd",
     "name": "Dorsey Search Dolphins",
-    "keywords": ["dolphins", "dorsey search"],
+    "keywords": [
+      "dolphins",
+      "dorsey search"
+    ],
     "url": "http://www.teamunify.com/reccnsldsd/",
-    "pools": ["Dorsey Hall"],
+    "pools": [
+      "Dorsey Hall"
+    ],
     "practice": {
       "url": "http://www.teamunify.com/reccnsldsd/page/team-info/practice-schedule",
       "sessions": [
-        { "day": "Mon–Fri", "time": "8:30 AM – 10:00 AM", "location": "Dorsey Hall" }
+        {
+          "day": "Mon–Fri",
+          "time": "8:30 AM – 10:00 AM",
+          "location": "Dorsey Hall"
+        }
       ]
     },
     "meets": [
-      { "type": "home", "location": "Dorsey Hall", "days": ["Saturday"] }
+      {
+        "type": "home",
+        "location": "Dorsey Hall",
+        "days": [
+          "Saturday"
+        ]
+      }
     ]
   },
   {
     "id": "hcc",
     "name": "Harpers Choice Challenge",
-    "keywords": ["challenge", "harpers choice"],
+    "keywords": [
+      "challenge",
+      "harpers choice"
+    ],
     "url": "http://www.teamunify.com/reccnslhcc/",
-    "pools": ["Longfellow", "Hawthorn"],
+    "pools": [
+      "Longfellow",
+      "Hawthorn"
+    ],
     "practice": {
       "url": "http://www.teamunify.com/reccnslhcc/page/team-info/practice-schedule",
       "sessions": [
-        { "day": "Mon–Fri", "time": "9:00 AM – 10:30 AM", "location": "Longfellow" }
+        {
+          "day": "Mon–Fri",
+          "time": "9:00 AM – 10:30 AM",
+          "location": "Longfellow"
+        }
       ]
     },
     "meets": [
-      { "type": "home", "location": "Longfellow", "days": ["Saturday"] }
+      {
+        "type": "home",
+        "location": "Longfellow",
+        "days": [
+          "Saturday"
+        ]
+      }
     ]
   },
   {
     "id": "hd",
     "name": "Huntington Dolphins",
-    "keywords": ["dolphins", "huntington"],
+    "keywords": [
+      "dolphins",
+      "huntington"
+    ],
     "url": "http://www.teamunify.com/reccnslhd/",
-    "pools": ["Huntington"],
+    "pools": [
+      "Huntington"
+    ],
     "practice": {
       "url": "http://www.teamunify.com/reccnslhd/page/team-info/practice-schedule",
       "sessions": [
-        { "day": "Mon–Fri", "time": "8:30 AM – 10:00 AM", "location": "Huntington" }
+        {
+          "day": "Mon–Fri",
+          "time": "8:30 AM – 10:00 AM",
+          "location": "Huntington"
+        }
       ]
     },
     "meets": [
-      { "type": "home", "location": "Huntington", "days": ["Saturday"] }
+      {
+        "type": "home",
+        "location": "Huntington",
+        "days": [
+          "Saturday"
+        ]
+      }
     ]
   },
   {
     "id": "kcw",
     "name": "Kings Contrivance Waves",
-    "keywords": ["waves", "kings contrivance"],
+    "keywords": [
+      "waves",
+      "kings contrivance"
+    ],
     "url": "http://www.teamunify.com/reccnslkcw/",
-    "pools": ["MacGills Common", "Dickinson"],
+    "pools": [
+      "MacGills Common",
+      "Dickinson"
+    ],
     "practice": {
       "url": "http://www.teamunify.com/reccnslkcw/page/team-info/practice-schedule",
       "sessions": [
-        { "day": "Mon–Fri", "time": "8:30 AM – 10:00 AM", "location": "MacGills Common" },
-        { "day": "Mon/Wed", "time": "6:00 PM – 7:30 PM", "location": "Dickinson" }
+        {
+          "day": "Mon–Fri",
+          "time": "8:30 AM – 10:00 AM",
+          "location": "MacGills Common"
+        },
+        {
+          "day": "Mon/Wed",
+          "time": "6:00 PM – 7:30 PM",
+          "location": "Dickinson"
+        }
       ]
     },
     "meets": [
-      { "type": "home", "location": "MacGills Common", "days": ["Saturday"] }
+      {
+        "type": "home",
+        "location": "MacGills Common",
+        "days": [
+          "Saturday"
+        ]
+      }
     ]
   },
   {
     "id": "lrm",
     "name": "Long Reach Marlins",
-    "keywords": ["marlins", "long reach"],
+    "keywords": [
+      "marlins",
+      "long reach"
+    ],
     "url": "http://www.teamunify.com/reccnsllrm/",
-    "pools": ["Kendall Ridge", "Jeffers Hill", "Stevens Forest", "Locust Park"],
+    "pools": [
+      "Kendall Ridge",
+      "Jeffers Hill",
+      "Stevens Forest",
+      "Locust Park"
+    ],
     "practice": {
       "url": "http://www.teamunify.com/reccnsllrm/page/team-info/practice-schedule",
       "preseason": [
@@ -113,10 +230,22 @@
           "location": "Locust Park Pool",
           "address": "8995 Lambskin Ln, Columbia, MD 21045",
           "sessions": [
-            { "time": "5:00 - 5:30pm", "group": "First Splash (new swimmers)" },
-            { "time": "5:30 - 6:00pm", "group": "8 and under" },
-            { "time": "6:00 - 6:30pm", "group": "9 - 12" },
-            { "time": "6:30 - 7:00pm", "group": "13 and over" }
+            {
+              "time": "5:00 - 5:30pm",
+              "group": "First Splash (new swimmers)"
+            },
+            {
+              "time": "5:30 - 6:00pm",
+              "group": "8 and under"
+            },
+            {
+              "time": "6:00 - 6:30pm",
+              "group": "9 - 12"
+            },
+            {
+              "time": "6:30 - 7:00pm",
+              "group": "13 and over"
+            }
           ]
         },
         {
@@ -124,10 +253,22 @@
           "days": "Monday - Friday",
           "location": "Locust Park Pool",
           "sessions": [
-            { "time": "5:00 - 5:30pm", "group": "Lap requirement training" },
-            { "time": "5:30 - 6:00pm", "group": "8 and under" },
-            { "time": "6:00 - 6:30pm", "group": "9 - 12" },
-            { "time": "6:30 - 7:00pm", "group": "13 and over" }
+            {
+              "time": "5:00 - 5:30pm",
+              "group": "Lap requirement training"
+            },
+            {
+              "time": "5:30 - 6:00pm",
+              "group": "8 and under"
+            },
+            {
+              "time": "6:00 - 6:30pm",
+              "group": "9 - 12"
+            },
+            {
+              "time": "6:30 - 7:00pm",
+              "group": "13 and over"
+            }
           ]
         }
       ],
@@ -138,9 +279,18 @@
           "location": "Kendall Ridge Pool",
           "address": "8245 Tamar Dr, Columbia, MD 21045",
           "sessions": [
-            { "time": "8:00 - 8:45am", "group": "13 and over" },
-            { "time": "8:45 - 9:30am", "group": "9 - 12" },
-            { "time": "9:30 - 10:00am", "group": "8 and under" }
+            {
+              "time": "8:00 - 8:45am",
+              "group": "13 and over"
+            },
+            {
+              "time": "8:45 - 9:30am",
+              "group": "9 - 12"
+            },
+            {
+              "time": "9:30 - 10:00am",
+              "group": "8 and under"
+            }
           ]
         },
         "evening": [
@@ -149,8 +299,14 @@
             "location": "Stevens Forest Pool",
             "address": "6061 Stevens Forest Rd, Columbia, MD 21045",
             "sessions": [
-              { "time": "6:30 - 7:15pm", "group": "10 and under" },
-              { "time": "7:15 - 8:00pm", "group": "11 and over" }
+              {
+                "time": "6:30 - 7:15pm",
+                "group": "10 and under"
+              },
+              {
+                "time": "7:15 - 8:00pm",
+                "group": "11 and over"
+              }
             ]
           },
           {
@@ -158,8 +314,14 @@
             "location": "Kendall Ridge Pool",
             "address": "8245 Tamar Dr, Columbia, MD 21045",
             "sessions": [
-              { "time": "5:00 - 5:45pm", "group": "10 and under" },
-              { "time": "5:45 - 6:30pm", "group": "11 and over" }
+              {
+                "time": "5:00 - 5:45pm",
+                "group": "10 and under"
+              },
+              {
+                "time": "5:45 - 6:30pm",
+                "group": "11 and over"
+              }
             ]
           },
           {
@@ -167,128 +329,251 @@
             "location": "Jeffers Hill Pool",
             "address": "6031 Tamar Dr, Columbia, MD 21045",
             "sessions": [
-              { "time": "5:00 - 5:45pm", "group": "10 and under" },
-              { "time": "5:45 - 6:30pm", "group": "11 and over" }
+              {
+                "time": "5:00 - 5:45pm",
+                "group": "10 and under"
+              },
+              {
+                "time": "5:45 - 6:30pm",
+                "group": "11 and over"
+              }
             ]
           }
         ]
       }
     },
     "meets": [
-      { "type": "home", "location": "Kendall Ridge", "days": ["Saturday"] }
+      {
+        "type": "home",
+        "location": "Kendall Ridge",
+        "days": [
+          "Saturday"
+        ]
+      }
     ]
   },
   {
     "id": "omts",
     "name": "Oakland Mills Tigersharks",
-    "keywords": ["tigersharks", "oakland mills"],
+    "keywords": [
+      "tigersharks",
+      "oakland mills"
+    ],
     "url": "https://www.teamunify.com/Home.jsp?team=reccnslomts",
-    "pools": ["Thunder Hill", "Talbott Springs"],
+    "pools": [
+      "Thunder Hill",
+      "Talbott Springs"
+    ],
     "practice": {
       "url": "https://www.teamunify.com/team/reccnslomts/page/team-info/practice-schedule",
       "sessions": [
-        { "day": "Mon–Fri", "time": "8:30 AM – 10:00 AM", "location": "Talbott Springs" }
+        {
+          "day": "Mon–Fri",
+          "time": "8:30 AM – 10:00 AM",
+          "location": "Talbott Springs"
+        }
       ]
     },
     "meets": [
-      { "type": "home", "location": "Talbott Springs", "days": ["Saturday"] }
+      {
+        "type": "home",
+        "location": "Talbott Springs",
+        "days": [
+          "Saturday"
+        ]
+      }
     ]
   },
   {
     "id": "obb",
     "name": "Owen Brown Barracudas",
-    "keywords": ["barracudas", "owen brown"],
+    "keywords": [
+      "barracudas",
+      "owen brown"
+    ],
     "url": "http://www.teamunify.com/reccnslobb/",
-    "pools": ["Owen Brown"],
+    "pools": [
+      "Owen Brown"
+    ],
     "practice": {
       "url": "http://www.teamunify.com/reccnslobb/page/team-info/practice-schedule",
       "sessions": [
-        { "day": "Mon/Wed/Fri", "time": "7:00 AM – 8:30 AM", "location": "Owen Brown" }
+        {
+          "day": "Mon/Wed/Fri",
+          "time": "7:00 AM – 8:30 AM",
+          "location": "Owen Brown"
+        }
       ]
     },
     "meets": [
-      { "type": "home", "location": "Owen Brown", "days": ["Saturday"] }
+      {
+        "type": "home",
+        "location": "Owen Brown",
+        "days": [
+          "Saturday"
+        ]
+      }
     ]
   },
   {
     "id": "prr",
     "name": "Pheasant Ridge Rapids",
-    "keywords": ["rapids", "pheasant ridge"],
+    "keywords": [
+      "rapids",
+      "pheasant ridge"
+    ],
     "url": "http://www.teamunify.com/reccnslprr/",
-    "pools": ["Pheasant Ridge"],
+    "pools": [
+      "Pheasant Ridge"
+    ],
     "practice": {
       "url": "http://www.teamunify.com/reccnslprr/page/team-info/practice-schedule",
       "sessions": [
-        { "day": "Mon–Fri", "time": "8:30 AM – 10:00 AM", "location": "Pheasant Ridge" }
+        {
+          "day": "Mon–Fri",
+          "time": "8:30 AM – 10:00 AM",
+          "location": "Pheasant Ridge"
+        }
       ]
     },
     "meets": [
-      { "type": "home", "location": "Pheasant Ridge", "days": ["Saturday"] }
+      {
+        "type": "home",
+        "location": "Pheasant Ridge",
+        "days": [
+          "Saturday"
+        ]
+      }
     ]
   },
   {
     "id": "pls",
     "name": "Phelps Luck Snappers",
-    "keywords": ["snappers", "phelps luck"],
+    "keywords": [
+      "snappers",
+      "phelps luck"
+    ],
     "url": "http://www.teamunify.com/reccnslpls/",
-    "pools": ["Phelps Luck"],
+    "pools": [
+      "Phelps Luck"
+    ],
     "practice": {
       "url": "http://www.teamunify.com/reccnslpls/page/team-info/practice-schedule",
       "sessions": [
-        { "day": "Mon–Fri", "time": "9:00 AM – 10:30 AM", "location": "Phelps Luck" }
+        {
+          "day": "Mon–Fri",
+          "time": "9:00 AM – 10:30 AM",
+          "location": "Phelps Luck"
+        }
       ]
     },
     "meets": [
-      { "type": "home", "location": "Phelps Luck", "days": ["Saturday"] }
+      {
+        "type": "home",
+        "location": "Phelps Luck",
+        "days": [
+          "Saturday"
+        ]
+      }
     ]
   },
   {
     "id": "prp",
     "name": "Pointers Run Piranhas",
-    "keywords": ["piranhas", "pointers run"],
+    "keywords": [
+      "piranhas",
+      "pointers run"
+    ],
     "url": "http://www.teamunify.com/reccnslprp/",
-    "pools": ["River Hill"],
+    "pools": [
+      "River Hill"
+    ],
     "practice": {
       "url": "http://www.teamunify.com/reccnslprp/page/team-info/practice-schedule",
       "sessions": [
-        { "day": "Mon–Fri", "time": "8:30 AM – 10:00 AM", "location": "River Hill" }
+        {
+          "day": "Mon–Fri",
+          "time": "8:30 AM – 10:00 AM",
+          "location": "River Hill"
+        }
       ]
     },
     "meets": [
-      { "type": "home", "location": "River Hill", "days": ["Saturday"] }
+      {
+        "type": "home",
+        "location": "River Hill",
+        "days": [
+          "Saturday"
+        ]
+      }
     ]
   },
   {
     "id": "thl",
     "name": "Thunder Hill Lightning",
-    "keywords": ["lightning", "thunder hill"],
+    "keywords": [
+      "lightning",
+      "thunder hill"
+    ],
     "url": "http://www.teamunify.com/reccnslthl/",
-    "pools": ["Thunder Hill"],
+    "pools": [
+      "Thunder Hill"
+    ],
     "practice": {
       "url": "http://www.teamunify.com/reccnslthl/page/team-info/practice-schedule",
       "sessions": [
-        { "day": "Mon–Fri", "time": "8:30 AM – 10:00 AM", "location": "Thunder Hill" },
-        { "day": "Wed", "time": "6:00 PM – 7:30 PM", "location": "Thunder Hill" }
+        {
+          "day": "Mon–Fri",
+          "time": "8:30 AM – 10:00 AM",
+          "location": "Thunder Hill"
+        },
+        {
+          "day": "Wed",
+          "time": "6:00 PM – 7:30 PM",
+          "location": "Thunder Hill"
+        }
       ]
     },
     "meets": [
-      { "type": "home", "location": "Thunder Hill", "days": ["Saturday"] }
+      {
+        "type": "home",
+        "location": "Thunder Hill",
+        "days": [
+          "Saturday"
+        ]
+      }
     ]
   },
   {
     "id": "wlw",
     "name": "Wilde Lake Watercats",
-    "keywords": ["watercats", "wilde lake"],
+    "keywords": [
+      "watercats",
+      "wilde lake"
+    ],
     "url": "http://www.teamunify.com/reccnslwlw/",
-    "pools": ["Bryant Woods", "Running Brook"],
+    "pools": [
+      "Bryant Woods",
+      "Running Brook"
+    ],
     "practice": {
       "url": "http://www.teamunify.com/reccnslwlw/page/team-info/practice-schedule",
       "sessions": [
-        { "day": "Mon–Fri", "time": "8:30 AM – 10:00 AM", "location": "Bryant Woods" }
+        {
+          "day": "Mon–Fri",
+          "time": "8:30 AM – 10:00 AM",
+          "location": "Bryant Woods"
+        }
       ]
     },
     "meets": [
-      { "type": "home", "location": "Bryant Woods", "days": ["Saturday"] }
+      {
+        "type": "home",
+        "location": "Bryant Woods",
+        "days": [
+          "Saturday"
+        ]
+      }
     ]
   }
 ]
