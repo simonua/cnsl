@@ -65,14 +65,6 @@ function handleSearch() {
   }
 
   output.innerHTML = response;
-  speakCopilot(output.innerText || output.textContent);
-}
+  speak(output.innerText || output.textContent);
 
-function speakCopilot(text) {
-  const utter = new SpeechSynthesisUtterance();
-  utter.text = text.replace(/<\/?[^>]+(>|$)/g, " "); // Strip HTML
-  utter.lang = "en-US";
-  utter.rate = 1;
-  speechSynthesis.cancel(); // Stop any ongoing speech
-  speechSynthesis.speak(utter);
 }

@@ -27,7 +27,7 @@ function calcDistance(lat1, lng1, lat2, lng2) {
   const R = 6371;
   const dLat = toRad(lat2 - lat1);
   const dLng = toRad(lng2 - lng1);
-  const a = Math.sin(dLat/2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2) ** 2;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
@@ -66,6 +66,8 @@ function renderPools(data) {
       </article>
     `;
   }).join("");
+
+  describePools(poolData);
 }
 
 function applyFilters() {
@@ -125,4 +127,16 @@ function startPoolVoice() {
     handlePoolSearch();
   };
   recognition.start();
+}
+
+function describePools(pools) {
+  if (!Array.isArray(pools)) return;
+
+  if (pools.length === 0) {
+    speak("No pools match your filters.");
+  } else {
+    const highlights = pools.slice(0, 3).map(p => p.name).join(", ");
+    const phrase = `I found ${pools.length} pool${pools.length > 1 ? "s" : ""}. ${highlights} are nearby.`;
+    speak(phrase);
+  }
 }
