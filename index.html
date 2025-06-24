@@ -12,7 +12,22 @@
     <header class="header">
       <img src="assets/images/cnsl-logo.jpg" alt="CNSL Logo" class="logo" />
       <h1 id="site-title">Ask the Pool Copilot</h1>
+      <button class="hamburger" onclick="toggleMenu()" aria-label="Toggle navigation menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
     </header>
+
+    <nav class="nav-menu" id="navMenu">
+      <a href="index.html" class="active">🏠 Home</a>
+      <a href="pools.html">🏊 Pools</a>
+      <a href="teams.html">👕 Teams</a>
+      <a href="meets.html">📅 Meets</a>
+      <a href="faq.html">📚 FAQs</a>
+    </nav>
+
+    <div class="nav-overlay" id="navOverlay" onclick="closeMenu()"></div>
 
     <main class="container" role="main">
       <section class="copilot-search" aria-labelledby="site-title">
@@ -47,6 +62,26 @@
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/service-worker.js');
+    }
+
+    function toggleMenu() {
+      const navMenu = document.getElementById('navMenu');
+      const navOverlay = document.getElementById('navOverlay');
+      const hamburger = document.querySelector('.hamburger');
+      
+      navMenu.classList.toggle('active');
+      navOverlay.classList.toggle('active');
+      hamburger.classList.toggle('active');
+    }
+
+    function closeMenu() {
+      const navMenu = document.getElementById('navMenu');
+      const navOverlay = document.getElementById('navOverlay');
+      const hamburger = document.querySelector('.hamburger');
+      
+      navMenu.classList.remove('active');
+      navOverlay.classList.remove('active');
+      hamburger.classList.remove('active');
     }
   </script>
 </body>
