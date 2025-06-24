@@ -5,39 +5,50 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Columbia Pool Copilot</title>
   <link rel="stylesheet" href="css/styles.css" />
+  <link rel="manifest" href="manifest.webmanifest" />
 </head>
 <body>
-  <header class="header">
-    <img src="assets/images/cnsl-logo.png" alt="CNSL Logo" class="logo" />
-    <h1>Ask the Pool Copilot</h1>
-  </header>
+  <div class="page-wrap">
+    <header class="header">
+      <img src="assets/images/cnsl-logo.png" alt="CNSL Logo" class="logo" />
+      <h1 id="site-title">Ask the Pool Copilot</h1>
+    </header>
 
-  <main class="container">
-    <section class="copilot-search">
-      <input 
-        type="text" 
-        id="copilotQuery" 
-        placeholder="Try 'Where do the Barracudas practice today'" 
-        autofocus
-      />
-      <button onclick="handleSearch()">Ask</button>
-    </section>
+    <main class="container" role="main">
+      <section class="copilot-search" aria-labelledby="site-title">
+        <label for="copilotQuery" class="visually-hidden">Ask a pool, meet, or team question</label>
+        <input 
+          type="text" 
+          id="copilotQuery" 
+          placeholder="Try: Where do the Barracudas practice today" 
+          aria-label="Ask a question"
+          autofocus
+        />
+        <button onclick="handleSearch()" aria-label="Submit text prompt">Ask</button>
+        <button onclick="startListening()" aria-label="Speak your question">🎤</button>
+      </section>
 
-    <div id="copilotResponse" class="response"></div>
+      <section id="copilotResponse" class="response" aria-live="polite"></section>
 
-    <section class="quick-links">
-      <h2>Browse by Section</h2>
-      <a href="pools.html" class="button">🏊 Pools</a>
-      <a href="teams.html" class="button">👕 Teams</a>
-      <a href="meets.html" class="button">📅 Meets</a>
-      <a href="faq.html" class="button">📚 FAQs</a>
-    </section>
-  </main>
+      <nav class="quick-links" aria-label="Supplementary Navigation">
+        <h2>Browse Sections</h2>
+        <a href="pools.html" class="button">🏊 Pools</a>
+        <a href="teams.html" class="button">👕 Teams</a>
+        <a href="meets.html" class="button">📅 Meets</a>
+        <a href="faq.html" class="button">📚 FAQs</a>
+      </nav>
+    </main>
+  </div>
 
   <footer class="footer">
     <p>Maintained by <a href="mailto:simonkurtz@gmail.com?cnsl">Simon Kurtz</a>.</p>
   </footer>
 
-  <script src="js/copilot.js"></script>
+  <script src="js/copilot.js" defer></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js');
+    }
+  </script>
 </body>
 </html>
