@@ -120,15 +120,21 @@ function handleSearch() {
       response += `<p>🤷‍♀️ I don't have their meet schedule handy right now.</p>`;
     }
   } else if (input.includes("where") || input.includes("swim") || input.includes("pool")) {
-    response += `<p>They practice at these pools:</p>`;
-    response += `<div class="pool-list-compact">${match.pools.map(pool => `<span class="pool-badge">🏊 ${pool}</span>`).join("")}</div>`;
+    response += `<p>Their home pool${match.homePools.length > 1 ? 's are' : ' is'}:</p>`;
+    response += `<div class="pool-list-compact">${match.homePools.map(pool => `<span class="pool-badge">🏠 ${pool}</span>`).join("")}</div>`;
+    
+    response += `<p>They practice at these pool${match.practicePools.length > 1 ? 's' : ''}:</p>`;
+    response += `<div class="pool-list-compact">${match.practicePools.map(pool => `<span class="pool-badge">🏊 ${pool}</span>`).join("")}</div>`;
   } else {
     // General team info
     response += `
       <div class="team-overview">
         <div class="info-section">
-          <h4>🏊 Practice Pools</h4>
-          <div class="pool-list-compact">${match.pools.map(pool => `<span class="pool-badge">${pool}</span>`).join("")}</div>
+          <h4>� Home Pools</h4>
+          <div class="pool-list-compact">${match.homePools.map(pool => `<span class="pool-badge">${pool}</span>`).join("")}</div>
+          
+          <h4>�🏊 Practice Pools</h4>
+          <div class="pool-list-compact">${match.practicePools.map(pool => `<span class="pool-badge">${pool}</span>`).join("")}</div>
         </div>
         <div class="info-section">
           <h4>📅 Practice Schedule</h4>

@@ -94,11 +94,13 @@
         const teamCard = document.createElement('div');
         teamCard.className = 'pool-card';
         
-        const poolNames = team.pools.join(', ');
+        const homePoolNames = team.homePools.join(', ');
+        const practicePoolNames = team.practicePools.join(', ');
         
         teamCard.innerHTML = `
           <h3>${team.name}</h3>
-          <p><strong>Home Pool${team.pools.length > 1 ? 's' : ''}:</strong> ${poolNames}</p>
+          <p><strong>Home Pool${team.homePools.length > 1 ? 's' : ''}:</strong> ${homePoolNames}</p>
+          <p><strong>Practice Pool${team.practicePools.length > 1 ? 's' : ''}:</strong> ${practicePoolNames}</p>
           <p>
             <a href="${team.url}" target="_blank" rel="noopener">Team Website</a>
             <a href="${team.practice.url}" target="_blank" rel="noopener">Practice Schedule</a>

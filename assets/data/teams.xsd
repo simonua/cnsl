@@ -131,7 +131,14 @@
         </xs:complexType>
       </xs:element>
       <xs:element name="url" type="nonEmptyString"/>
-      <xs:element name="pools">
+      <xs:element name="homePools">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="pool" type="nonEmptyString" minOccurs="1" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="practicePools">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="pool" type="nonEmptyString" minOccurs="1" maxOccurs="unbounded"/>

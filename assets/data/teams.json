@@ -10,7 +10,10 @@
       "clary forest"
     ],
     "url": "http://www.teamunify.com/reccnslcfhss/",
-    "pools": [
+    "homePools": [
+      "Swansfield"
+    ],
+    "practicePools": [
       "Clary's Forest",
       "Hawthorn",
       "Swansfield"
@@ -48,7 +51,10 @@
       "clemens crossing"
     ],
     "url": "http://www.teamunify.com/reccnslccc/",
-    "pools": [
+    "homePools": [
+      "Clemens Crossing"
+    ],
+    "practicePools": [
       "Clemens Crossing"
     ],
     "practice": {
@@ -84,7 +90,10 @@
       "dorsey search"
     ],
     "url": "http://www.teamunify.com/reccnsldsd/",
-    "pools": [
+    "homePools": [
+      "Dorsey Hall"
+    ],
+    "practicePools": [
       "Dorsey Hall"
     ],
     "practice": {
@@ -115,7 +124,10 @@
       "harpers choice"
     ],
     "url": "http://www.teamunify.com/reccnslhcc/",
-    "pools": [
+    "homePools": [
+      "Longfellow"
+    ],
+    "practicePools": [
       "Longfellow",
       "Hawthorn"
     ],
@@ -147,7 +159,10 @@
       "huntington"
     ],
     "url": "http://www.teamunify.com/reccnslhd/",
-    "pools": [
+    "homePools": [
+      "Huntington"
+    ],
+    "practicePools": [
       "Huntington"
     ],
     "practice": {
@@ -178,7 +193,10 @@
       "kings contrivance"
     ],
     "url": "http://www.teamunify.com/reccnslkcw/",
-    "pools": [
+    "homePools": [
+      "MacGills Common"
+    ],
+    "practicePools": [
       "MacGills Common",
       "Dickinson"
     ],
@@ -215,7 +233,10 @@
       "long reach"
     ],
     "url": "http://www.teamunify.com/reccnsllrm/",
-    "pools": [
+    "homePools": [
+      "Kendall Ridge"
+    ],
+    "practicePools": [
       "Kendall Ridge",
       "Jeffers Hill",
       "Stevens Forest",
@@ -360,7 +381,10 @@
       "oakland mills"
     ],
     "url": "https://www.teamunify.com/Home.jsp?team=reccnslomts",
-    "pools": [
+    "homePools": [
+      "Talbott Springs"
+    ],
+    "practicePools": [
       "Thunder Hill",
       "Talbott Springs"
     ],
@@ -392,7 +416,10 @@
       "owen brown"
     ],
     "url": "http://www.teamunify.com/reccnslobb/",
-    "pools": [
+    "homePools": [
+      "Owen Brown"
+    ],
+    "practicePools": [
       "Owen Brown"
     ],
     "practice": {
@@ -423,7 +450,10 @@
       "pheasant ridge"
     ],
     "url": "http://www.teamunify.com/reccnslprr/",
-    "pools": [
+    "homePools": [
+      "Pheasant Ridge"
+    ],
+    "practicePools": [
       "Pheasant Ridge"
     ],
     "practice": {
@@ -454,7 +484,10 @@
       "phelps luck"
     ],
     "url": "http://www.teamunify.com/reccnslpls/",
-    "pools": [
+    "homePools": [
+      "Phelps Luck"
+    ],
+    "practicePools": [
       "Phelps Luck"
     ],
     "practice": {
@@ -485,7 +518,10 @@
       "pointers run"
     ],
     "url": "http://www.teamunify.com/reccnslprp/",
-    "pools": [
+    "homePools": [
+      "River Hill"
+    ],
+    "practicePools": [
       "River Hill"
     ],
     "practice": {
@@ -516,7 +552,10 @@
       "thunder hill"
     ],
     "url": "http://www.teamunify.com/reccnslthl/",
-    "pools": [
+    "homePools": [
+      "Thunder Hill"
+    ],
+    "practicePools": [
       "Thunder Hill"
     ],
     "practice": {
@@ -552,7 +591,10 @@
       "wilde lake"
     ],
     "url": "http://www.teamunify.com/reccnslwlw/",
-    "pools": [
+    "homePools": [
+      "Bryant Woods"
+    ],
+    "practicePools": [
       "Bryant Woods",
       "Running Brook"
     ],
