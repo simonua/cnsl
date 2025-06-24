@@ -143,13 +143,22 @@ html, body {
 /* Search and input styling */
 .copilot-search {
   display: flex;
+  flex-direction: column;
   gap: 0.75rem;
   margin: 0 0 1.5rem 0;
-  align-items: stretch;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.button-group {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
 }
 
 input[type="text"] {
-  flex: 1;
   font-size: 1rem;
   padding: 0.75rem;
   border: 2px solid #ddd;
@@ -488,6 +497,13 @@ a:visited:hover {
   width: 1px;
   height: 1px;
   overflow: hidden;
+}
+
+/* GitHub icon styling */
+.github-icon {
+  vertical-align: text-bottom;
+  margin-right: 0.25rem;
+  fill: currentColor;
 }
 
 /* Responsive design */
