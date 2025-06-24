@@ -17,14 +17,9 @@
     <main class="container" role="main">
       <section class="copilot-search" aria-labelledby="site-title">
         <label for="copilotQuery" class="visually-hidden">Ask a pool, meet, or team question</label>
-        <input 
-          type="text" 
-          id="copilotQuery" 
-          placeholder="Try: Where do the Barracudas practice today" 
-          aria-label="Ask a question"
-          autofocus
-        />
-        <button onclick="handleSearch()" aria-label="Submit text prompt">Ask</button>
+        <input type="text" id="copilotQuery" placeholder="Ask about a team or meet..." />
+        <button onclick="startCopilotVoice()">🎙️</button>
+        <button onclick="handleSearch()">Search</button>
         <button onclick="startListening()" aria-label="Speak your question">🎤</button>
       </section>
 

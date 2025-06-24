@@ -1,3 +1,27 @@
+let teamData = [];
+
+document.addEventListener("DOMContentLoaded", () => {
+  fetch("assets/data/teams.json")
+    .then(res => res.json())
+    .then(data => {
+      teamData = data;
+    });
+});
+
+function startCopilotVoice() {
+  const recognition = new webkitSpeechRecognition() || new SpeechRecognition();
+  recognition.lang = 'en-US';
+  recognition.onresult = e => {
+    document.getElementById("copilotQuery").value = e.results[0][0].transcript;
+    handleSearch();
+  };
+  recognition.onerror = e => {
+    console.error("Speech recognition error:", e);
+  };
+  recognition.start();
+}
+
+
 function handleSearch() {
   const input = document.getElementById("copilotQuery").value.toLowerCase();
   const output = document.getElementById("copilotResponse");
@@ -7,28 +31,48 @@ function handleSearch() {
     return;
   }
 
-  if (input.includes("barracudas") && input.includes("practice")) {
-    output.innerHTML = "<p><strong>Barracudas</strong> practice at Clemens Crossing Pool – Mon, Wed, Fri at 7:00 AM.</p>";
-  } else {
-    output.innerHTML = "<p>I’m still learning! Try rephrasing or browse the <a href='faq.html'>FAQs</a>.</p>";
-  }
-}
+  const match = teamData.find(team =>
+    team.keywords.some(k => input.includes(k))
+  );
 
-function startListening() {
-  if (!('webkitSpeechRecognition' in window)) {
-    alert("Your browser doesn't support speech recognition.");
+  if (!match) {
+    output.innerHTML = `<p>I’m still learning! Try asking about a team or browse the <a href='faq.html'>FAQs</a>.</p>`;
     return;
   }
 
-  const recognition = new webkitSpeechRecognition();
-  recognition.lang = 'en-US';
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 1;
+  let response = `<p><strong>${match.name}</strong></p>`;
 
-  recognition.onresult = function (event) {
-    document.getElementById("copilotQuery").value = event.results[0][0].transcript;
-    handleSearch();
-  };
+  if (input.includes("practice")) {
+    response += match.practice.map(p =>
+      `<p>🕒 ${p.day}: ${p.time} at ${p.location}</p>`
+    ).join("");
+  } else if (input.includes("meet")) {
+    response += match.meets?.map(m =>
+      `<p>📍 ${m.type === "home" ? "Home" : "Away"} meet at ${m.location} on ${m.days.join(", ")}</p>`
+    ).join("") || "<p>No meet info available.</p>";
+  } else if (input.includes("where") || input.includes("swim")) {
+    response += `<p>🏊 Practices at: ${match.pools.join(", ")}</p>`;
+  } else {
+    response += `
+      <p>🏊 Pools: ${match.pools.join(", ")}</p>
+      <p>🕒 Practice:</p>
+      ${match.practice.map(p => `<p>${p.day}: ${p.time} at ${p.location}</p>`).join("")}
+    `;
+  }
 
-  recognition.start();
+  if (match.url) {
+    response += `<p><a href="${match.url}" target="_blank">Team Website</a></p>`;
+  }
+
+  output.innerHTML = response;
+  speakCopilot(output.innerText || output.textContent);
+}
+
+function speakCopilot(text) {
+  const utter = new SpeechSynthesisUtterance();
+  utter.text = text.replace(/<\/?[^>]+(>|$)/g, " "); // Strip HTML
+  utter.lang = "en-US";
+  utter.rate = 1;
+  speechSynthesis.cancel(); // Stop any ongoing speech
+  speechSynthesis.speak(utter);
 }
