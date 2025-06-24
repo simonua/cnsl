@@ -1,0 +1,258 @@
+[
+  {
+    "name": "Kendall Ridge",
+    "address": "8245 Tamar Dr, Columbia, MD 21045",
+    "mapsQuery": "Kendall Ridge Pool Columbia MD",
+    "lat": 39.2035,
+    "lng": -76.8382,
+    "features": ["lap", "splash"],
+    "openNow": true,
+    "team": {
+      "name": "Long Reach Marlins",
+      "url": "https://www.gomotionapp.com/team/reccnsllrm/page/home"
+    }
+  },
+  {
+    "name": "Jeffers Hill",
+    "address": "6031 Tamar Dr, Columbia, MD 21045",
+    "mapsQuery": "Jeffers Hill Pool Columbia MD",
+    "lat": 39.2106,
+    "lng": -76.8398,
+    "features": ["lap", "dive"],
+    "openNow": false,
+    "team": {
+      "name": "Long Reach Marlins",
+      "url": "https://www.gomotionapp.com/team/reccnsllrm/page/home"
+    }
+  },
+  {
+    "name": "Stevens Forest",
+    "address": "6061 Stevens Forest Rd, Columbia, MD 21045",
+    "mapsQuery": "Stevens Forest Pool Columbia MD",
+    "lat": 39.2082,
+    "lng": -76.8385,
+    "features": ["lap"],
+    "openNow": true,
+    "team": {
+      "name": "Long Reach Marlins",
+      "url": "https://www.gomotionapp.com/team/reccnsllrm/page/home"
+    }
+  },
+  {
+    "name": "Hopewell",
+    "address": "9200 Rustling Leaf, Columbia, MD 21045",
+    "mapsQuery": "Hopewell Pool Columbia MD",
+    "lat": 39.1886,
+    "lng": -76.8394,
+    "features": ["lap", "splash", "slide"],
+    "openNow": true,
+    "team": {
+      "name": "Hopewell Hurricanes",
+      "url": "https://www.gomotionapp.com/team/reccnslhh/page/home"
+    }
+  },
+  {
+    "name": "Bryant Woods",
+    "address": "10451 Green Mountain Cir, Columbia, MD 21044",
+    "mapsQuery": "Bryant Woods Pool Columbia MD",
+    "lat": 39.2142,
+    "lng": -76.8754,
+    "features": ["lap", "splash", "dive"],
+    "openNow": true,
+    "team": {
+      "name": "Bryant Woods Barracudas",
+      "url": "https://www.gomotionapp.com/team/reccnslbwb/page/home"
+    }
+  },
+  {
+    "name": "Dorsey Hall",
+    "address": "4649 Columbia Rd, Ellicott City, MD 21042",
+    "mapsQuery": "Dorsey Hall Pool Columbia MD",
+    "lat": 39.2424,
+    "lng": -76.8509,
+    "features": ["lap"],
+    "openNow": true,
+    "team": null
+  },
+  {
+    "name": "Faulkner Ridge",
+    "address": "10518 Marble Faun Ln, Columbia, MD 21044",
+    "mapsQuery": "Faulkner Ridge Pool Columbia MD",
+    "lat": 39.2223,
+    "lng": -76.8876,
+    "features": ["lap", "slide", "basketball"],
+    "openNow": true,
+    "team": null
+  },
+  {
+    "name": "Hawthorn",
+    "address": "6175 Sunny Spring, Columbia, MD 21044",
+    "mapsQuery": "Hawthorn Pool Columbia MD",
+    "lat": 39.2213,
+    "lng": -76.8706,
+    "features": ["lap", "dive"],
+    "openNow": true,
+    "team": null
+  },
+  {
+    "name": "Hobbit's Glen",
+    "address": "11130 Willowbottom Dr, Columbia, MD 21044",
+    "mapsQuery": "Hobbit's Glen Pool Columbia MD",
+    "lat": 39.2302,
+    "lng": -76.9071,
+    "features": ["lap", "dive", "shade"],
+    "openNow": true,
+    "team": null
+  },
+  {
+    "name": "Macgill's Common",
+    "address": "10901 Rock Coast Rd, Columbia, MD 21044",
+    "mapsQuery": "Macgill's Common Pool Columbia MD",
+    "lat": 39.2333,
+    "lng": -76.9017,
+    "features": ["lap"],
+    "openNow": true,
+    "team": null
+  },
+  {
+    "name": "Phelps Luck",
+    "address": "5355 Phelps Luck Dr, Columbia, MD 21045",
+    "mapsQuery": "Phelps Luck Pool Columbia MD",
+    "lat": 39.2235,
+    "lng": -76.8326,
+    "features": ["lap", "splash", "slide"],
+    "openNow": false,
+    "team": {
+      "name": "Phelps Luck Piranhas",
+      "url": "https://www.gomotionapp.com/team/reccnsllpl/page/home"
+    }
+  },
+  {
+    "name": "Running Brook",
+    "address": "5730 Columbia Rd, Columbia, MD 21044",
+    "mapsQuery": "Running Brook Pool Columbia MD",
+    "lat": 39.2255,
+    "lng": -76.8717,
+    "features": ["lap", "dive", "splash", "slide"],
+    "openNow": true,
+    "team": {
+      "name": "Running Brook Rapids",
+      "url": "https://www.gomotionapp.com/team/reccnslrb/page/home"
+    }
+  },
+  {
+    "name": "River Hill",
+    "address": "6330 Trotter Rd, Clarksville, MD 21029",
+    "mapsQuery": "River Hill Pool Columbia MD",
+    "lat": 39.2057,
+    "lng": -76.9439,
+    "features": ["lap", "dive", "shade"],
+    "openNow": true,
+    "team": {
+      "name": "River Hill Hurricanes",
+      "url": "https://www.gomotionapp.com/team/reccnslrh/page/home"
+    }
+  },
+  {
+    "name": "Dasher Green",
+    "address": "6800 Cradlerock Way, Columbia, MD 21045",
+    "mapsQuery": "Dasher Green Pool Columbia MD",
+    "lat": 39.1902,
+    "lng": -76.8370,
+    "features": ["lap", "wading"],
+    "openNow": false,
+    "team": {
+      "name": "Dasher Green Dolphins",
+      "url": "https://www.gomotionapp.com/team/reccnsldg/page/home"
+    }
+  },
+  {
+    "name": "Dickinson",
+    "address": "7425 Weather Worn Way, Columbia, MD 21046",
+    "mapsQuery": "Dickinson Pool Columbia MD",
+    "lat": 39.1776,
+    "lng": -76.8521,
+    "features": ["lap", "shade"],
+    "openNow": true,
+    "team": null
+  },
+  {
+    "name": "Forest Ridge",
+    "address": "6000 Tamar Dr, Columbia, MD 21045",
+    "mapsQuery": "Forest Ridge Pool Columbia MD",
+    "lat": 39.2043,
+    "lng": -76.8357,
+    "features": ["lap", "splash"],
+    "openNow": false,
+    "team": null
+  },
+  {
+    "name": "Locust Park",
+    "address": "8995 Lambskin Ln, Columbia, MD 21045",
+    "mapsQuery": "Locust Park Pool Columbia MD",
+    "lat": 39.2101,
+    "lng": -76.8395,
+    "features": ["splash", "wading"],
+    "openNow": true,
+    "team": null
+  },
+  {
+    "name": "Longfellow",
+    "address": "5267 Eliots Oak Rd, Columbia, MD 21044",
+    "mapsQuery": "Longfellow Pool Columbia MD",
+    "lat": 39.2262,
+    "lng": -76.8865,
+    "features": ["lap", "shade"],
+    "openNow": false,
+    "team": {
+      "name": "Longfellow Lightning",
+      "url": "https://www.gomotionapp.com/team/reccnslll/page/home"
+    }
+  },
+  {
+    "name": "Martin Road",
+    "address": "6700 Martin Rd, Columbia, MD 21044",
+    "mapsQuery": "Martin Road Pool Columbia MD",
+    "lat": 39.2087,
+    "lng": -76.8877,
+    "features": ["lap"],
+    "openNow": true,
+    "team": null
+  },
+  {
+    "name": "Talbott Springs",
+    "address": "9660 Basket Ring Rd, Columbia, MD 21045",
+    "mapsQuery": "Talbott Springs Pool Columbia MD",
+    "lat": 39.2122,
+    "lng": -76.8384,
+    "features": ["splash", "wading"],
+    "openNow": false,
+    "team": null
+  },
+  {
+    "name": "Thunder Hill",
+    "address": "9205 Log Chain Rd, Columbia, MD 21045",
+    "mapsQuery": "Thunder Hill Pool Columbia MD",
+    "lat": 39.2077,
+    "lng": -76.8471,
+    "features": ["lap", "splash", "dive"],
+    "openNow": true,
+    "team": {
+      "name": "Thunder Hill Thunderbolts",
+      "url": "https://www.gomotionapp.com/team/reccnslth/page/home"
+    }
+  },
+  {
+    "name": "Swansfield",
+    "address": "5659 Cedar Ln, Columbia, MD 21044",
+    "mapsQuery": "Swansfield Pool Columbia MD",
+    "lat": 39.2104,
+    "lng": -76.8910,
+    "features": ["lap"],
+    "openNow": true,
+    "team": {
+      "name": "Swansfield Stingrays",
+      "url": "https://www.gomotionapp.com/team/reccnslsw/page/home"
+    }
+  }
+]

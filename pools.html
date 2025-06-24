@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Find a Pool – Columbia Pool Copilot</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="page-wrap">
+    <header class="header">
+      <h1 id="pools-title">Pool Directory</h1>
+      <p class="subhead">Ask a question or filter by features below</p>
+    </header>
+
+    <main class="container">
+      <section class="copilot-search" aria-labelledby="pools-title">
+        <label for="poolQuery" class="visually-hidden">Ask a pool-related question</label>
+        <input 
+          type="text" 
+          id="poolQuery" 
+          placeholder="e.g., Where do the Long Reach Marlins practice?"
+          aria-label="Pool search"
+        />
+        <button onclick="handlePoolSearch()" aria-label="Search">Ask</button>
+        <button onclick="startPoolVoice()" aria-label="Speak your question">🎤</button>
+      </section>
+
+      <section class="filters">
+        <label><input type="checkbox" id="filterOpenNow" onchange="applyFilters()"> Open Now</label>
+        <label><input type="checkbox" id="filterSplash" onchange="applyFilters()"> Splash Pad</label>
+        <label><input type="checkbox" id="filterLap" onchange="applyFilters()"> Lap Lanes</label>
+        <label><input type="checkbox" id="filterDive" onchange="applyFilters()"> Diving Board</label>
+      </section>
+
+      <section id="poolList" class="pool-list" aria-live="polite">
+        <p>Loading pool data…</p>
+      </section>
+    </main>
+  </div>
+
+  <footer class="footer">
+    <p>Maintained by <a href="mailto:simonkurtz@gmail.com?cnsl">Simon Kurtz</a>.</p>
+  </footer>
+
+  <script src="js/pool-browser.js" defer></script>
+</body>
+</html>
