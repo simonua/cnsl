@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Swim Teams – Columbia Association Pool Copilot</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="page-wrap">
+    <header class="header">
+      <img src="assets/images/cnsl-logo.jpg" alt="CNSL Logo" class="logo" />
+      <h1 id="teams-title">Swim Teams</h1>
+      <button class="hamburger" onclick="toggleMenu()" aria-label="Toggle navigation menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </header>
+
+    <nav class="nav-menu" id="navMenu">
+      <a href="index.html">🏠 Home</a>
+      <a href="pools.html">🏊 Pools</a>
+      <a href="teams.html" class="active">👕 Teams</a>
+      <a href="meets.html">📅 Meets</a>
+      <a href="faq.html">📚 FAQs</a>
+    </nav>
+
+    <div class="nav-overlay" id="navOverlay" onclick="closeMenu()"></div>
+
+    <main class="container">
+      <section class="copilot-search" aria-labelledby="teams-title">
+        <label for="teamQuery" class="visually-hidden">Ask a team-related question</label>
+        <input 
+          type="text" 
+          id="teamQuery" 
+          placeholder="e.g., When do the Long Reach Marlins practice?"
+          aria-label="Team search"
+        />
+        <button onclick="handleTeamSearch()" aria-label="Search">Ask</button>
+      </section>
+
+      <section id="teamList" class="pool-list" aria-live="polite">
+        <p>Loading team data…</p>
+      </section>
+    </main>
+  </div>
+
+  <footer class="footer">
+    <p>Maintained by <a href="mailto:simonkurtz@gmail.com?cnsl">Simon Kurtz</a>.</p>
+  </footer>
+
+  <script src="js/copilot.js" defer></script>
+
+  <script>
+    function toggleMenu() {
+      const navMenu = document.getElementById('navMenu');
+      const navOverlay = document.getElementById('navOverlay');
+      const hamburger = document.querySelector('.hamburger');
+      
+      navMenu.classList.toggle('active');
+      navOverlay.classList.toggle('active');
+      hamburger.classList.toggle('active');
+    }
+
+    function closeMenu() {
+      const navMenu = document.getElementById('navMenu');
+      const navOverlay = document.getElementById('navOverlay');
+      const hamburger = document.querySelector('.hamburger');
+      
+      navMenu.classList.remove('active');
+      navOverlay.classList.remove('active');
+      hamburger.classList.remove('active');
+    }
+
+    // Load and display teams
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const response = await fetch('assets/data/teams.json');
+        const teams = await response.json();
+        
+        displayTeams(teams);
+      } catch (error) {
+        console.error('Error loading team data:', error);
+        document.getElementById('teamList').innerHTML = '<p>Error loading team data. Please try again later.</p>';
+      }
+    });
+
+    function displayTeams(teams) {
+      const teamList = document.getElementById('teamList');
+      teamList.innerHTML = '';
+      
+      teams.forEach(team => {
+        const teamCard = document.createElement('div');
+        teamCard.className = 'pool-card';
+        
+        const poolNames = team.pools.join(', ');
+        
+        teamCard.innerHTML = `
+          <h3>${team.name}</h3>
+          <p><strong>Home Pool${team.pools.length > 1 ? 's' : ''}:</strong> ${poolNames}</p>
+          <p>
+            <a href="${team.url}" target="_blank" rel="noopener">Team Website</a>
+            <a href="${team.practice.url}" target="_blank" rel="noopener">Practice Schedule</a>
+          </p>
+        `;
+        
+        teamList.appendChild(teamCard);
+      });
+    }
+
+    function handleTeamSearch() {
+      const query = document.getElementById('teamQuery').value.trim();
+      if (query) {
+        // Redirect to the index page with the query
+        window.location.href = `index.html?q=${encodeURIComponent(query)}`;
+      }
+    }
+  </script>
+</body>
+</html>
