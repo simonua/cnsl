@@ -15,10 +15,14 @@ html, body {
 }
 
 .header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   background-color: #005fa1;
   color: white;
   padding: 1rem;
   text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .logo {
@@ -179,28 +183,107 @@ button:focus {
   display: none;
 }
 
-/* Quick links navigation */
-.quick-links {
-  margin-top: 2rem;
-  text-align: center;
+/* Enhanced Copilot Response Styling */
+.copilot-response {
+  background: linear-gradient(135deg, #f8fdff 0%, #e3f2fd 100%);
+  border-left: 4px solid #0078d4;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 120, 212, 0.1);
+  font-size: 1.05rem;
+  line-height: 1.6;
 }
 
-.quick-links h2 {
+.copilot-response h3 {
   color: #005fa1;
-  margin-bottom: 1rem;
+  margin: 0 0 1rem 0;
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-/* Footer */
-.footer {
-  background-color: #333;
-  color: white;
-  text-align: center;
+.copilot-response p {
+  margin: 0.75rem 0;
+  color: #333;
+}
+
+.copilot-response ul {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+}
+
+.copilot-response li {
+  margin: 0.5rem 0;
+  color: #555;
+}
+
+.practice-schedule, .meet-schedule {
+  background: white;
+  border-radius: 8px;
   padding: 1rem;
-  margin-top: auto;
+  margin: 1rem 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.footer a {
-  color: #4cc2ff;
+.schedule-item {
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border-left: 3px solid #0078d4;
+  font-weight: 500;
+}
+
+.team-overview {
+  display: grid;
+  gap: 1.5rem;
+  margin: 1rem 0;
+}
+
+.info-section h4 {
+  color: #005fa1;
+  margin: 0 0 0.75rem 0;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pool-list-compact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+}
+
+.pool-badge {
+  background: #0078d4;
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.team-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #0078d4;
+  color: white !important;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  margin-top: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+.team-link:hover {
+  background: #005fa1;
+  text-decoration: none;
 }
 
 /* Accessibility */
@@ -239,5 +322,11 @@ button:focus {
   
   .container {
     padding: 0.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .team-overview {
+    grid-template-columns: 1fr 1fr;
   }
 }

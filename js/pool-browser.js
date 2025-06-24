@@ -150,13 +150,6 @@ function startPoolVoice() {
 }
 
 function describePools(pools) {
-  if (!Array.isArray(pools)) return;
-
-  if (pools.length === 0) {
-    speak("No pools match your filters.");
-  } else {
-    const highlights = pools.slice(0, 3).map(p => p.name).join(", ");
-    const phrase = `I found ${pools.length} pool${pools.length > 1 ? "s" : ""}. ${highlights} are nearby.`;
-    speak(phrase);
-  }
+  // Remove speech synthesis - just focus on visual feedback
+  return;
 }

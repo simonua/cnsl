@@ -1,6 +1,6 @@
 self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open("copilot-static-v2").then(cache =>
+    caches.open("copilot-static-v3").then(cache =>
       cache.addAll([
         "/",
         "/index.html",
@@ -8,7 +8,6 @@ self.addEventListener("install", event => {
         "/css/styles.css",
         "/js/copilot.js",
         "/js/pool-browser.js",
-        "/js/speech.js",
         "/assets/data/teams.json",
         "/assets/data/pools.json",
         "/assets/images/cnsl-logo.jpg",

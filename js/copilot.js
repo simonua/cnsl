@@ -38,13 +38,21 @@ function startCopilotVoice() {
   recognition.start();
 }
 
-
 function handleSearch() {
   const input = document.getElementById("copilotQuery").value.toLowerCase();
   const output = document.getElementById("copilotResponse");
 
   if (!input.trim()) {
-    output.innerHTML = "<p>Please ask something like a team name or meet day.</p>";
+    output.innerHTML = `
+      <div class="copilot-response">
+        <p>👋 Hey there! I'm your Pool Copilot. Try asking me something like:</p>
+        <ul>
+          <li>"Where do the Marlins practice?"</li>
+          <li>"When do the Barracudas have meets?"</li>
+          <li>"What pools are open today?"</li>
+        </ul>
+      </div>
+    `;
     return;
   }
 
@@ -53,35 +61,59 @@ function handleSearch() {
   );
 
   if (!match) {
-    output.innerHTML = `<p>I’m still learning! Try asking about a team or browse the <a href='faq.html'>FAQs</a>.</p>`;
+    output.innerHTML = `
+      <div class="copilot-response">
+        <p>🤔 Hmm, I'm not quite sure about that one yet. I'm still learning about all the teams!</p>
+        <p>💡 Try asking about teams like the <strong>Marlins</strong>, <strong>Barracudas</strong>, or <strong>Thunderbolts</strong>.</p>
+        <p>Or check out the <a href='pools.html'>🏊 Pools section</a> for more options!</p>
+      </div>
+    `;
     return;
   }
 
-  let response = `<p><strong>${match.name}</strong></p>`;
+  let response = `<div class="copilot-response"><h3>🏊‍♀️ ${match.name}</h3>`;
 
   if (input.includes("practice")) {
+    response += `<p>Here's when they practice:</p><div class="practice-schedule">`;
     response += match.practice.map(p =>
-      `<p>🕒 ${p.day}: ${p.time} at ${p.location}</p>`
+      `<div class="schedule-item">📅 <strong>${p.day}:</strong> ${p.time} at ${p.location}</div>`
     ).join("");
+    response += `</div>`;
   } else if (input.includes("meet")) {
-    response += match.meets?.map(m =>
-      `<p>📍 ${m.type === "home" ? "Home" : "Away"} meet at ${m.location} on ${m.days.join(", ")}</p>`
-    ).join("") || "<p>No meet info available.</p>";
-  } else if (input.includes("where") || input.includes("swim")) {
-    response += `<p>🏊 Practices at: ${match.pools.join(", ")}</p>`;
+    if (match.meets && match.meets.length > 0) {
+      response += `<p>Their meet schedule:</p><div class="meet-schedule">`;
+      response += match.meets.map(m =>
+        `<div class="schedule-item">🏆 ${m.type === "home" ? "🏠 Home" : "✈️ Away"} meets at <strong>${m.location}</strong> on ${m.days.join(", ")}</div>`
+      ).join("");
+      response += `</div>`;
+    } else {
+      response += `<p>🤷‍♀️ I don't have their meet schedule handy right now.</p>`;
+    }
+  } else if (input.includes("where") || input.includes("swim") || input.includes("pool")) {
+    response += `<p>They practice at these pools:</p>`;
+    response += `<div class="pool-list-compact">${match.pools.map(pool => `<span class="pool-badge">🏊 ${pool}</span>`).join("")}</div>`;
   } else {
+    // General team info
     response += `
-      <p>🏊 Pools: ${match.pools.join(", ")}</p>
-      <p>🕒 Practice:</p>
-      ${match.practice.map(p => `<p>${p.day}: ${p.time} at ${p.location}</p>`).join("")}
+      <div class="team-overview">
+        <div class="info-section">
+          <h4>🏊 Practice Pools</h4>
+          <div class="pool-list-compact">${match.pools.map(pool => `<span class="pool-badge">${pool}</span>`).join("")}</div>
+        </div>
+        <div class="info-section">
+          <h4>📅 Practice Schedule</h4>
+          <div class="practice-schedule">
+            ${match.practice.map(p => `<div class="schedule-item">${p.day}: ${p.time} at ${p.location}</div>`).join("")}
+          </div>
+        </div>
+      </div>
     `;
   }
 
   if (match.url) {
-    response += `<p><a href="${match.url}" target="_blank">Team Website</a></p>`;
+    response += `<p><a href="${match.url}" target="_blank" class="team-link">🌐 Visit Team Website</a></p>`;
   }
 
+  response += `</div>`;
   output.innerHTML = response;
-  speak(output.innerText || output.textContent);
-
 }
