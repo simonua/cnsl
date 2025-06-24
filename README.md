@@ -3,7 +3,7 @@
 ![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)
 
 
-# Columbia Pool Copilot
+# Columbia Association Pool Copilot
 
 A lightweight, mobile-first web app that helps Columbia Neighborhood Swim League (CNSL) swimmers, families, and fans quickly find information about pool openings, team practices, meets, and league policies. Includes natural language search and voice input for on-the-go access.
 
