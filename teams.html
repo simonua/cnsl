@@ -36,6 +36,7 @@
           id="teamQuery" 
           placeholder="e.g., When do the Long Reach Marlins practice?"
           aria-label="Team search"
+          onkeydown="if(event.key === 'Enter') handleTeamSearch()"
         />
         <button onclick="handleTeamSearch()" aria-label="Search">Ask</button>
       </section>

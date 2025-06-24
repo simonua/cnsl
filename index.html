@@ -32,7 +32,7 @@
     <main class="container" role="main">
       <section class="copilot-search" aria-labelledby="site-title">
         <label for="copilotQuery" class="visually-hidden">Ask a pool, meet, or team question</label>
-        <input type="text" id="copilotQuery" placeholder="Ask about a team or meet..." />
+        <input type="text" id="copilotQuery" placeholder="Ask about a team or meet..." onkeydown="if(event.key === 'Enter') handleSearch()" />
         <button onclick="startCopilotVoice()" aria-label="Speak your question">🎙️</button>
         <button onclick="handleSearch()">Search</button>
       </section>
