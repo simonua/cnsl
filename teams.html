@@ -2,23 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-wi        `;
-          
-          teamList.appendChild(teamCard);
-        } catch (error) {
-          console.error(`Error processing team at index ${index}:`, error, team);
-          
-          // Create a basic card for the team with error handling
-          const errorCard = document.createElement('div');
-          errorCard.className = 'pool-card error-card';
-          errorCard.innerHTML = `
-            <h3>${team && team.name ? team.name : 'Team Data Error'}</h3>
-            <p>There was an error processing this team's data.</p>
-          `;
-          teamList.appendChild(errorCard);
-        }
-      });
-    }le=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Swim Teams – Columbia Association Pool Copilot</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
