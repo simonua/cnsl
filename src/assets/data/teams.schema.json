@@ -1,0 +1,214 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/teams.schema.json",
+  "title": "Team Data Schema",
+  "description": "Schema for team data containing practice schedules and team information",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference"
+    },
+    "teams": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Team"
+      },
+      "minItems": 1
+    }
+  },
+  "required": ["teams"],
+  "additionalProperties": false,
+  "definitions": {
+    "Team": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "name": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "keywords": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/NonEmptyString"
+          },
+          "minItems": 1
+        },
+        "url": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "homePools": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/NonEmptyString"
+          },
+          "minItems": 1
+        },
+        "practicePools": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/NonEmptyString"
+          },
+          "minItems": 1
+        },
+        "practice": {
+          "$ref": "#/definitions/DetailedPractice"
+        }
+      },
+      "required": ["id", "name", "keywords", "url", "homePools", "practicePools", "practice"],
+      "additionalProperties": false
+    },
+    "DetailedPractice": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "preseason": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PreseasonPractice"
+          }
+        },
+        "regular": {
+          "$ref": "#/definitions/RegularPractice"
+        },
+        "sessions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SimplePracticeSession"
+          }
+        }
+      },
+      "required": ["url"],
+      "additionalProperties": false
+    },
+    "PreseasonPractice": {
+      "type": "object",
+      "properties": {
+        "period": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "days": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "location": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "address": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "sessions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Session"
+          },
+          "minItems": 1
+        }
+      },
+      "required": ["period", "days", "location", "sessions"],
+      "additionalProperties": false
+    },
+    "RegularPractice": {
+      "type": "object",
+      "properties": {
+        "season": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "morning": {
+          "$ref": "#/definitions/MorningPractice"
+        },
+        "evening": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EveningPractice"
+          },
+          "minItems": 1
+        }
+      },
+      "required": ["season", "morning", "evening"],
+      "additionalProperties": false
+    },
+    "MorningPractice": {
+      "type": "object",
+      "properties": {
+        "days": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "location": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "address": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "sessions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Session"
+          },
+          "minItems": 1
+        }
+      },
+      "required": ["days", "location", "sessions"],
+      "additionalProperties": false
+    },
+    "EveningPractice": {
+      "type": "object",
+      "properties": {
+        "day": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "location": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "address": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "sessions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Session"
+          },
+          "minItems": 1
+        }
+      },
+      "required": ["day", "location", "sessions"],
+      "additionalProperties": false
+    },
+    "Session": {
+      "type": "object",
+      "properties": {
+        "time": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "group": {
+          "$ref": "#/definitions/NonEmptyString"
+        }
+      },
+      "required": ["time", "group"],
+      "additionalProperties": false
+    },
+    "SimplePracticeSession": {
+      "type": "object",
+      "properties": {
+        "day": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "time": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "location": {
+          "$ref": "#/definitions/NonEmptyString"
+        }
+      },
+      "required": ["day", "time", "location"],
+      "additionalProperties": false
+    },
+    "NonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/meets.schema.json",
+  "title": "Meet Data Schema",
+  "description": "Schema for meet data containing regular and special meets",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference"
+    },
+    "url": {
+      "$ref": "#/definitions/NonEmptyString"
+    },
+    "regular_meets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/RegularMeet"
+      }
+    },
+    "special_meets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SpecialMeet"
+      }
+    }
+  },
+  "required": ["url", "regular_meets", "special_meets"],
+  "additionalProperties": false,
+  "definitions": {
+    "RegularMeet": {
+      "type": "object",
+      "properties": {
+        "date": {
+          "$ref": "#/definitions/DateFormat"
+        },
+        "visiting_team": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "home_team": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "location": {
+          "$ref": "#/definitions/NonEmptyString"
+        }
+      },
+      "required": ["date", "visiting_team", "home_team", "location"],
+      "additionalProperties": false
+    },
+    "SpecialMeet": {
+      "type": "object",
+      "properties": {
+        "date": {
+          "$ref": "#/definitions/DateFormat"
+        },
+        "name": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "location": {
+          "$ref": "#/definitions/NonEmptyString"
+        }
+      },
+      "required": ["date", "name", "location"],
+      "additionalProperties": false
+    },
+    "NonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "DateFormat": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    }
+  }
+}

@@ -1,4 +1,6 @@
 {
+  "$schema": "meets.schema.json",
+  "url": "https://www.gomotionapp.com/reccnsl/UserFiles/Image/QuickUpload/cnsl-meet-schedule-2025---final_026345.pdf",
   "regular_meets": [
     {
       "date": "2025-06-14",
