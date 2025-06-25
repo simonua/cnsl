@@ -109,25 +109,43 @@ function handleTeamQuery(query) {
   }
   
   // Look for team names in the query
-  const matchingTeams = teamData.filter(team => 
-    query.includes(team.name.toLowerCase()) || 
-    query.includes(team.nickname.toLowerCase())
-  );
+  const matchingTeams = teamData.filter(team => {
+    // Add safety checks before calling toLowerCase()
+    const name = team.name ? team.name.toLowerCase() : '';
+    const nickname = team.nickname ? team.nickname.toLowerCase() : '';
+    
+    return query.includes(name) || query.includes(nickname);
+  });
   
   if (matchingTeams.length === 0) {
+    // Safely map team nicknames with fallback for undefined values
+    const teamNames = teamData
+      .map(t => t.nickname || t.name || 'Unknown Team')
+      .filter(Boolean)
+      .join(", ");
+      
     return "<p>I couldn't find information about that team. Try asking about a specific team by name.</p>" +
-           "<p>Available teams: " + teamData.map(t => t.nickname).join(", ") + "</p>";
+           "<p>Available teams: " + teamNames + "</p>";
   }
   
   // Build response for matching teams
-  const teamInfo = matchingTeams.map(team => `
+  const teamInfo = matchingTeams.map(team => {
+    // Add safety checks for all team properties
+    const name = team.name || 'Unknown Team';
+    const nickname = team.nickname || '';
+    const homePool = team.homePool || 'TBA';
+    const practiceTimes = team.practiceTimes || 'TBA';
+    const coaches = Array.isArray(team.coaches) ? team.coaches.join(", ") : 'TBA';
+    
+    return `
     <div class="team-info">
-      <h3>${team.name} (${team.nickname})</h3>
-      <p><strong>Home Pool:</strong> ${team.homePool}</p>
-      <p><strong>Practice Times:</strong> ${team.practiceTimes}</p>
-      <p><strong>Coaches:</strong> ${team.coaches.join(", ")}</p>
+      <h3>${name} ${nickname ? `(${nickname})` : ''}</h3>
+      <p><strong>Home Pool:</strong> ${homePool}</p>
+      <p><strong>Practice Times:</strong> ${practiceTimes}</p>
+      <p><strong>Coaches:</strong> ${coaches}</p>
     </div>
-  `).join("");
+    `;
+  }).join("");
   
   return teamInfo;
 }
@@ -143,23 +161,40 @@ function handlePoolQuery(query) {
   }
   
   // Look for pool names in the query
-  const matchingPools = poolData.filter(pool => 
-    query.includes(pool.name.toLowerCase())
-  );
+  const matchingPools = poolData.filter(pool => {
+    // Add safety check before calling toLowerCase()
+    const name = pool.name ? pool.name.toLowerCase() : '';
+    
+    return query.includes(name);
+  });
   
   if (matchingPools.length === 0) {
     return "<p>I couldn't find information about that pool. Try asking about a specific pool by name or check the pools page.</p>";
   }
   
   // Build response for matching pools
-  const poolInfo = matchingPools.map(pool => `
+  const poolInfo = matchingPools.map(pool => {
+    // Add safety checks for all pool properties
+    const name = pool.name || 'Unknown Pool';
+    const address = pool.address || '';
+    const city = pool.city || '';
+    const state = pool.state || '';
+    const zip = pool.zip || '';
+    
+    // Build location query string safely
+    const locationQuery = encodeURIComponent(
+      [address, city, state, zip].filter(Boolean).join(', ')
+    );
+    
+    return `
     <div class="pool-info">
-      <h3>${pool.name}</h3>
-      <p>${pool.address}, ${pool.city}, ${pool.state} ${pool.zip}</p>
-      <p><a href="https://maps.google.com/?q=${encodeURIComponent(pool.address + ' ' + pool.city + ', ' + pool.state + ' ' + pool.zip)}" 
+      <h3>${name}</h3>
+      <p>${address}${address && (city || state || zip) ? ', ' : ''}${city}${city && (state || zip) ? ', ' : ''}${state} ${zip}</p>
+      <p><a href="https://maps.google.com/?q=${locationQuery}" 
         target="_blank" rel="noopener" class="btn btn-secondary">Get Directions</a></p>
     </div>
-  `).join("");
+    `;
+  }).join("");
   
   return poolInfo;
 }
