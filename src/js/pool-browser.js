@@ -160,6 +160,33 @@ function renderPools(pools) {
       `;
     }
 
+    // Format opening hours for display
+    let hoursHtml = '';
+    if (pool.hours) {
+      const openStatusIcon = pool.openNow ? '🟢' : '🔴';
+      const openStatusText = pool.openNow ? 'Open Now' : 'Closed';
+      
+      hoursHtml = `
+        <div class="pool-hours">
+          <strong>🕒 Hours:</strong> <span class="open-status">${openStatusIcon} ${openStatusText}</span><br>
+          <div class="hours-details">
+            ${pool.hours.weekdays ? `Mon-Fri: ${pool.hours.weekdays}<br>` : ''}
+            ${pool.hours.weekends ? `Sat-Sun: ${pool.hours.weekends}` : ''}
+          </div>
+        </div>
+      `;
+    } else if (pool.openNow !== undefined) {
+      // Fallback for pools without detailed hours but with openNow status
+      const openStatusIcon = pool.openNow ? '🟢' : '🔴';
+      const openStatusText = pool.openNow ? 'Open Now' : 'Closed';
+      
+      hoursHtml = `
+        <div class="pool-hours">
+          <strong>🕒 Status:</strong> <span class="open-status">${openStatusIcon} ${openStatusText}</span>
+        </div>
+      `;
+    }
+
     return `
       <div class="pool-card" data-pool-id="${poolId}">
         <div class="pool-header">
@@ -169,17 +196,15 @@ function renderPools(pools) {
         <div class="pool-details">
           <div class="address-section">
             <strong>📍 Address:</strong><br>
-            ${fullAddress || 'Address not available'}
-          </div>
-          ${featuresHtml}
-          <div class="pool-actions">
-            <a href="https://maps.google.com/?q=${locationQuery}" 
+            <a href="maps:?q=${locationQuery}" 
                target="_blank" 
                rel="noopener" 
-               class="button button-secondary">
-              🗺️ Get Directions
+               class="address-link">
+              ${fullAddress || 'Address not available'}
             </a>
           </div>
+          ${featuresHtml}
+          ${hoursHtml}
         </div>
       </div>
     `;

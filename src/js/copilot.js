@@ -113,6 +113,11 @@ function processQuery(query) {
     return handleMeetQuery(query);
   }
   
+  // Check for hours/opening time related queries
+  if (query.includes("hour") || query.includes("open") || query.includes("close") || query.includes("time") || query.includes("when does")) {
+    return handleHoursQuery(query);
+  }
+  
   // Check for feature queries (slides, diving, etc.)
   if (query.includes("slide") || query.includes("diving") || query.includes("lap") || query.includes("feature")) {
     return handleFeatureQuery(query);
@@ -129,6 +134,9 @@ function processQuery(query) {
         </div>
         <div class="suggestion-item">
           <strong>Pools:</strong> "Where is the Phelps Luck pool?"
+        </div>
+        <div class="suggestion-item">
+          <strong>Hours:</strong> "What are the pool hours?" or "Which pools are open now?"
         </div>
         <div class="suggestion-item">
           <strong>Features:</strong> "Which pools have slides?"
@@ -279,23 +287,48 @@ function handlePoolQuery(query) {
     
     const fullAddress = [address, city, state, zip].filter(Boolean).join(', ');
     
+    // Format opening hours
+    let hoursInfo = '';
+    if (pool.hours) {
+      const openStatusIcon = pool.openNow ? '🟢' : '🔴';
+      const openStatusText = pool.openNow ? 'Open Now' : 'Closed';
+      
+      hoursInfo = `
+        <div class="detail-item">
+          <strong>🕒 Hours:</strong> <span style="color: ${pool.openNow ? 'var(--success-color)' : 'var(--error-color)'}; font-weight: 600;">${openStatusIcon} ${openStatusText}</span><br>
+          <div style="margin-left: 1.5rem; color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem;">
+            ${pool.hours.weekdays ? `Mon-Fri: ${pool.hours.weekdays}<br>` : ''}
+            ${pool.hours.weekends ? `Sat-Sun: ${pool.hours.weekends}` : ''}
+          </div>
+        </div>
+      `;
+    } else if (pool.openNow !== undefined) {
+      // Fallback for pools without detailed hours but with openNow status
+      const openStatusIcon = pool.openNow ? '🟢' : '🔴';
+      const openStatusText = pool.openNow ? 'Open Now' : 'Closed';
+      
+      hoursInfo = `
+        <div class="detail-item">
+          <strong>🕒 Status:</strong> <span style="color: ${pool.openNow ? 'var(--success-color)' : 'var(--error-color)'}; font-weight: 600;">${openStatusIcon} ${openStatusText}</span>
+        </div>
+      `;
+    }
+    
     return `
       <div class="pool-card">
         <h3>${name}</h3>
         <div class="pool-details">
           <div class="detail-item">
-            <strong>📍 Address:</strong> ${fullAddress || 'Address not available'}
-          </div>
-          ${locationQuery ? `
-          <div class="detail-item">
-            <a href="https://maps.google.com/?q=${locationQuery}" 
+            <strong>📍 Address:</strong><br>
+            <a href="maps:?q=${locationQuery}" 
                target="_blank" 
                rel="noopener" 
-               class="button button-secondary">
-              🗺️ Get Directions
+               class="address-link"
+               style="color: var(--primary-color); text-decoration: none; margin-top: 0.25rem; display: inline-block;">
+              ${fullAddress || 'Address not available'}
             </a>
           </div>
-          ` : ''}
+          ${hoursInfo}
         </div>
       </div>
     `;
@@ -355,12 +388,35 @@ function handleFeatureQuery(query) {
       ? pool.features.join(', ') 
       : pool.features || 'Features not listed';
     
+    // Format opening hours for feature search
+    let hoursInfo = '';
+    if (pool.hours) {
+      const openStatusIcon = pool.openNow ? '🟢' : '🔴';
+      const openStatusText = pool.openNow ? 'Open Now' : 'Closed';
+      
+      hoursInfo = `
+        <div class="detail-item">
+          <strong>🕒 Status:</strong> <span style="color: ${pool.openNow ? 'var(--success-color)' : 'var(--error-color)'}; font-weight: 600;">${openStatusIcon} ${openStatusText}</span>
+        </div>
+      `;
+    } else if (pool.openNow !== undefined) {
+      const openStatusIcon = pool.openNow ? '🟢' : '🔴';
+      const openStatusText = pool.openNow ? 'Open Now' : 'Closed';
+      
+      hoursInfo = `
+        <div class="detail-item">
+          <strong>🕒 Status:</strong> <span style="color: ${pool.openNow ? 'var(--success-color)' : 'var(--error-color)'}; font-weight: 600;">${openStatusIcon} ${openStatusText}</span>
+        </div>
+      `;
+    }
+    
     return `
       <div class="pool-card">
         <h4>${name}</h4>
         <div class="detail-item">
           <strong>🎯 Features:</strong> ${features}
         </div>
+        ${hoursInfo}
       </div>
     `;
   }).join("");
@@ -430,6 +486,159 @@ function handleMeetQuery(query) {
       <h3>📅 Upcoming Meets</h3>
       ${meetList}
       <p><a href="meets.html" class="button">View All Meets</a></p>
+    </div>
+  `;
+}
+
+/**
+ * Handles queries related to pool opening hours
+ * @param {string} query - The user's search query
+ * @returns {string} HTML content to display as a response
+ */
+function handleHoursQuery(query) {
+  if (!poolData || !poolData.length) {
+    return `
+      <div class="copilot-response info">
+        <h3>🕒 Pool Hours Information</h3>
+        <p>Pool hours information is not available at the moment. Please check back later or contact the pool directly for current hours.</p>
+        <p><a href="pools.html" class="button">Browse All Pools</a></p>
+      </div>
+    `;
+  }
+
+  // Check if asking about a specific pool
+  const specificPool = poolData.find(pool => {
+    const poolName = pool.name ? pool.name.toLowerCase() : '';
+    return poolName && query.toLowerCase().includes(poolName);
+  });
+
+  if (specificPool) {
+    // Show hours for specific pool
+    let hoursInfo = '';
+    if (specificPool.hours) {
+      const openStatusIcon = specificPool.openNow ? '🟢' : '🔴';
+      const openStatusText = specificPool.openNow ? 'Open Now' : 'Closed';
+      
+      hoursInfo = `
+        <div class="pool-card">
+          <h4>${specificPool.name}</h4>
+          <div class="detail-item">
+            <strong>🕒 Status:</strong> <span style="color: ${specificPool.openNow ? 'var(--success-color)' : 'var(--error-color)'}; font-weight: 600;">${openStatusIcon} ${openStatusText}</span>
+          </div>
+          <div class="detail-item">
+            <strong>📅 Hours:</strong><br>
+            <span style="margin-left: 1.5rem; color: var(--text-muted);">
+              Mon-Fri: ${specificPool.hours.weekdays}<br>
+              Sat-Sun: ${specificPool.hours.weekends}
+            </span>
+          </div>
+        </div>
+      `;
+    } else {
+      const openStatusIcon = specificPool.openNow ? '🟢' : '🔴';
+      const openStatusText = specificPool.openNow ? 'Open Now' : 'Closed';
+      
+      hoursInfo = `
+        <div class="pool-card">
+          <h4>${specificPool.name}</h4>
+          <div class="detail-item">
+            <strong>🕒 Status:</strong> <span style="color: ${specificPool.openNow ? 'var(--success-color)' : 'var(--error-color)'}; font-weight: 600;">${openStatusIcon} ${openStatusText}</span>
+          </div>
+          <div class="detail-item">
+            <em>Detailed hours not available. Please contact the pool directly for current hours.</em>
+          </div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="copilot-response success">
+        <h3>🕒 Pool Hours</h3>
+        ${hoursInfo}
+      </div>
+    `;
+  }
+
+  // Show all open pools or pools with hours
+  const poolsWithHours = poolData.filter(pool => pool.hours);
+  const openPools = poolData.filter(pool => pool.openNow);
+
+  if (query.toLowerCase().includes("open") || query.toLowerCase().includes("now")) {
+    // Show currently open pools
+    if (openPools.length === 0) {
+      return `
+        <div class="copilot-response warning">
+          <h3>🔴 No Pools Currently Open</h3>
+          <p>It looks like no pools are currently open. Check back during regular hours or view all pools for more information.</p>
+          <p><a href="pools.html" class="button">Browse All Pools</a></p>
+        </div>
+      `;
+    }
+
+    const openPoolsList = openPools.map(pool => {
+      const name = pool.name || 'Unknown Pool';
+      let hoursDisplay = '';
+      
+      if (pool.hours) {
+        hoursDisplay = `        <div class="detail-item">
+          <strong>📅 Hours:</strong> Mon-Fri: ${pool.hours.weekdays}, Sat-Sun: ${pool.hours.weekends}
+        </div>
+        `;
+      }
+      
+      return `
+        <div class="pool-card">
+          <h4>${name}</h4>
+          <div class="detail-item">
+            <strong>🕒 Status:</strong> <span style="color: var(--success-color); font-weight: 600;">🟢 Open Now</span>
+          </div>
+          ${hoursDisplay}
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <div class="copilot-response success">
+        <h3>🟢 Currently Open Pools</h3>
+        ${openPoolsList}
+      </div>
+    `;
+  }
+
+  // Show all pools with available hours information
+  if (poolsWithHours.length === 0) {
+    return `
+      <div class="copilot-response info">
+        <h3>🕒 Pool Hours</h3>
+        <p>Detailed hours information is being updated. Please visit the pools page to see current status and contact information.</p>
+        <p><a href="pools.html" class="button">Browse All Pools</a></p>
+      </div>
+    `;
+  }
+
+  const hoursPoolsList = poolsWithHours.slice(0, 6).map(pool => {
+    const name = pool.name || 'Unknown Pool';
+    const openStatusIcon = pool.openNow ? '🟢' : '🔴';
+    const openStatusText = pool.openNow ? 'Open Now' : 'Closed';
+    
+    return `
+      <div class="pool-card">
+        <h4>${name}</h4>
+        <div class="detail-item">
+          <strong>🕒 Status:</strong> <span style="color: ${pool.openNow ? 'var(--success-color)' : 'var(--error-color)'}; font-weight: 600;">${openStatusIcon} ${openStatusText}</span>
+        </div>
+        <div class="detail-item">
+          <strong>📅 Hours:</strong> Mon-Fri: ${pool.hours.weekdays}, Sat-Sun: ${pool.hours.weekends}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div class="copilot-response success">
+      <h3>🕒 Pool Hours</h3>
+      ${hoursPoolsList}
+      ${poolsWithHours.length > 6 ? '<p><a href="pools.html" class="button">View All Pools</a></p>' : ''}
     </div>
   `;
 }
