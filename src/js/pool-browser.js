@@ -85,7 +85,12 @@ function renderPools(pools) {
   
   // Safety check - ensure pools is an array
   if (!Array.isArray(pools) || pools.length === 0) {
-    list.innerHTML = "<p>No pool information available.</p>";
+    list.innerHTML = `
+      <div class="pool-card error">
+        <h3>⚠️ No pools available</h3>
+        <p>Pool information is currently unavailable. Please try again later.</p>
+      </div>
+    `;
     return;
   }
 
@@ -122,7 +127,7 @@ function renderPools(pools) {
     });
   }
 
-  // Generate HTML for each pool
+  // Generate HTML for each pool with mobile-optimized cards
   const html = sortedPools.map(pool => {
     // Safety checks for all pool properties
     const poolName = pool.name || 'Unknown Pool';
@@ -131,10 +136,11 @@ function renderPools(pools) {
     const poolCity = pool.city || '';
     const poolState = pool.state || '';
     const poolZip = pool.zip || '';
+    const features = pool.features || [];
     
     let distanceHtml = '';
     if (pool.distance !== undefined && !isNaN(pool.distance)) {
-      distanceHtml = `<span class="distance">${pool.distance.toFixed(1)} mi</span>`;
+      distanceHtml = `<span class="distance-badge">📍 ${pool.distance.toFixed(1)} mi</span>`;
     }
 
     // Build the location query safely
@@ -142,14 +148,38 @@ function renderPools(pools) {
       [poolAddress, poolCity, poolState, poolZip].filter(Boolean).join(', ')
     );
 
+    const fullAddress = [poolAddress, poolCity, poolState, poolZip].filter(Boolean).join(', ');
+
+    // Format features for display
+    let featuresHtml = '';
+    if (Array.isArray(features) && features.length > 0) {
+      featuresHtml = `
+        <div class="pool-features">
+          <strong>🎯 Features:</strong> ${features.join(', ')}
+        </div>
+      `;
+    }
+
     return `
-      <div class="pool-item" data-pool-id="${poolId}">
-        <h3>${poolName} ${distanceHtml}</h3>
-        <p>${poolAddress}</p>
-        <p>${poolCity}${poolCity && poolState ? ', ' : ''}${poolState} ${poolZip}</p>
-        <div class="pool-buttons">
-          <a href="https://maps.google.com/?q=${locationQuery}" 
-            target="_blank" rel="noopener" class="btn btn-secondary">Directions</a>
+      <div class="pool-card" data-pool-id="${poolId}">
+        <div class="pool-header">
+          <h3>${poolName}</h3>
+          ${distanceHtml}
+        </div>
+        <div class="pool-details">
+          <div class="address-section">
+            <strong>📍 Address:</strong><br>
+            ${fullAddress || 'Address not available'}
+          </div>
+          ${featuresHtml}
+          <div class="pool-actions">
+            <a href="https://maps.google.com/?q=${locationQuery}" 
+               target="_blank" 
+               rel="noopener" 
+               class="button button-secondary">
+              🗺️ Get Directions
+            </a>
+          </div>
         </div>
       </div>
     `;

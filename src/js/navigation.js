@@ -34,6 +34,25 @@ function toggleMenu() {
   }
 }
 
+/**
+ * Handles sticky footer visibility based on scroll position
+ */
+function handleStickyFooter() {
+  const footer = document.querySelector('footer');
+  if (!footer) return;
+  
+  const windowHeight = window.innerHeight;
+  const documentHeight = document.documentElement.scrollHeight;
+  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  const scrolledToBottom = windowHeight + scrollTop >= documentHeight - 10; // 10px threshold
+  
+  if (scrolledToBottom) {
+    footer.classList.add('visible');
+  } else {
+    footer.classList.remove('visible');
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   // Close menu when clicking outside of it
   document.addEventListener('click', (event) => {
@@ -47,4 +66,22 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   });
+  
+  // Initialize sticky footer
+  handleStickyFooter();
+  
+  // Handle scroll events for sticky footer
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(() => {
+        handleStickyFooter();
+        ticking = false;
+      });
+      ticking = true;
+    }
+  });
+  
+  // Handle resize events
+  window.addEventListener('resize', handleStickyFooter);
 });

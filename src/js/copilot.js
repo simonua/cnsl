@@ -59,18 +59,37 @@ function handleSearch() {
   const query = queryInput.value.trim().toLowerCase();
   
   if (!query) {
-    responseElement.innerHTML = "<p>Please enter a question or search term.</p>";
+    responseElement.innerHTML = `
+      <div class="copilot-response error">
+        <h3>⚠️ Please enter a question</h3>
+        <p>Type your question in the search box above or use the voice button to speak your question.</p>
+      </div>
+    `;
     return;
   }
   
-  responseElement.innerHTML = "<p>Searching...</p>";
+  // Show loading state with mobile-friendly feedback
+  responseElement.innerHTML = `
+    <div class="copilot-response info">
+      <h3>🔍 Searching...</h3>
+      <p>Looking for information about "${query}"</p>
+    </div>
+  `;
   
   // Process the query and provide a response
-  const response = processQuery(query);
-  responseElement.innerHTML = response;
-  
-  // Scroll to response
-  responseElement.scrollIntoView({ behavior: "smooth" });
+  setTimeout(() => {
+    const response = processQuery(query);
+    responseElement.innerHTML = response;
+    
+    // Scroll to response with mobile optimization
+    responseElement.scrollIntoView({ 
+      behavior: "smooth", 
+      block: "start" 
+    });
+    
+    // Clear search input for mobile UX
+    queryInput.value = '';
+  }, 300);
 }
 
 /**
@@ -80,22 +99,46 @@ function handleSearch() {
  */
 function processQuery(query) {
   // Check for team related queries
-  if (query.includes("team") || query.includes("practice")) {
+  if (query.includes("team") || query.includes("practice") || query.includes("coach")) {
     return handleTeamQuery(query);
   }
   
   // Check for pool related queries
-  if (query.includes("pool") || query.includes("swim") || query.includes("where")) {
+  if (query.includes("pool") || query.includes("swim") || query.includes("where") || query.includes("location") || query.includes("address")) {
     return handlePoolQuery(query);
   }
   
   // Check for meet related queries
-  if (query.includes("meet") || query.includes("event") || query.includes("when") || query.includes("schedule")) {
+  if (query.includes("meet") || query.includes("event") || query.includes("when") || query.includes("schedule") || query.includes("competition")) {
     return handleMeetQuery(query);
   }
   
-  // Default response if no patterns match
-  return "<p>I'm not sure how to answer that question. Try asking about teams, pools, or meets.</p>";
+  // Check for feature queries (slides, diving, etc.)
+  if (query.includes("slide") || query.includes("diving") || query.includes("lap") || query.includes("feature")) {
+    return handleFeatureQuery(query);
+  }
+  
+  // Default response with helpful suggestions
+  return `
+    <div class="copilot-response error">
+      <h3>🤔 I'm not sure about that</h3>
+      <p>I couldn't understand your question. Try asking about:</p>
+      <div class="suggestion-grid">
+        <div class="suggestion-item">
+          <strong>Teams:</strong> "When do the Marlins practice?"
+        </div>
+        <div class="suggestion-item">
+          <strong>Pools:</strong> "Where is the Phelps Luck pool?"
+        </div>
+        <div class="suggestion-item">
+          <strong>Features:</strong> "Which pools have slides?"
+        </div>
+        <div class="suggestion-item">
+          <strong>Meets:</strong> "When is the next swim meet?"
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 /**
@@ -105,7 +148,12 @@ function processQuery(query) {
  */
 function handleTeamQuery(query) {
   if (!teamData || !teamData.length) {
-    return "<p>Sorry, team information is not available right now.</p>";
+    return `
+      <div class="copilot-response error">
+        <h3>⚠️ Team Information Unavailable</h3>
+        <p>Sorry, team information is not available right now. Please try again later.</p>
+      </div>
+    `;
   }
   
   // Look for team names in the query
@@ -122,10 +170,19 @@ function handleTeamQuery(query) {
     const teamNames = teamData
       .map(t => t.nickname || t.name || 'Unknown Team')
       .filter(Boolean)
+      .slice(0, 8) // Limit for mobile display
       .join(", ");
       
-    return "<p>I couldn't find information about that team. Try asking about a specific team by name.</p>" +
-           "<p>Available teams: " + teamNames + "</p>";
+    return `
+      <div class="copilot-response warning">
+        <h3>🏊‍♀️ Team Not Found</h3>
+        <p>I couldn't find information about that team. Try asking about a specific team by name.</p>
+        <div class="team-list">
+          <h4>Available teams include:</h4>
+          <p>${teamNames}</p>
+        </div>
+      </div>
+    `;
   }
   
   // Build response for matching teams
@@ -138,16 +195,29 @@ function handleTeamQuery(query) {
     const coaches = Array.isArray(team.coaches) ? team.coaches.join(", ") : 'TBA';
     
     return `
-    <div class="team-info">
-      <h3>${name} ${nickname ? `(${nickname})` : ''}</h3>
-      <p><strong>Home Pool:</strong> ${homePool}</p>
-      <p><strong>Practice Times:</strong> ${practiceTimes}</p>
-      <p><strong>Coaches:</strong> ${coaches}</p>
-    </div>
+      <div class="team-card">
+        <h3>${name} ${nickname ? `(${nickname})` : ''}</h3>
+        <div class="team-details">
+          <div class="detail-item">
+            <strong>🏊‍♀️ Home Pool:</strong> ${homePool}
+          </div>
+          <div class="detail-item">
+            <strong>⏰ Practice Times:</strong> ${practiceTimes}
+          </div>
+          <div class="detail-item">
+            <strong>👨‍🏫 Coaches:</strong> ${coaches}
+          </div>
+        </div>
+      </div>
     `;
   }).join("");
   
-  return teamInfo;
+  return `
+    <div class="copilot-response success">
+      <h3>🏆 Team Information</h3>
+      ${teamInfo}
+    </div>
+  `;
 }
 
 /**
@@ -157,7 +227,12 @@ function handleTeamQuery(query) {
  */
 function handlePoolQuery(query) {
   if (!poolData || !poolData.length) {
-    return "<p>Sorry, pool information is not available right now.</p>";
+    return `
+      <div class="copilot-response error">
+        <h3>⚠️ Pool Information Unavailable</h3>
+        <p>Sorry, pool information is not available right now. Please try again later.</p>
+      </div>
+    `;
   }
   
   // Look for pool names in the query
@@ -169,7 +244,23 @@ function handlePoolQuery(query) {
   });
   
   if (matchingPools.length === 0) {
-    return "<p>I couldn't find information about that pool. Try asking about a specific pool by name or check the pools page.</p>";
+    const poolNames = poolData
+      .map(p => p.name || 'Unknown Pool')
+      .filter(Boolean)
+      .slice(0, 6) // Limit for mobile display
+      .join(", ");
+      
+    return `
+      <div class="copilot-response warning">
+        <h3>🏊‍♀️ Pool Not Found</h3>
+        <p>I couldn't find information about that pool. Try asking about a specific pool by name.</p>
+        <div class="pool-list">
+          <h4>Available pools include:</h4>
+          <p>${poolNames}</p>
+        </div>
+        <p><a href="pools.html" class="button">Browse All Pools</a></p>
+      </div>
+    `;
   }
   
   // Build response for matching pools
@@ -186,17 +277,100 @@ function handlePoolQuery(query) {
       [address, city, state, zip].filter(Boolean).join(', ')
     );
     
+    const fullAddress = [address, city, state, zip].filter(Boolean).join(', ');
+    
     return `
-    <div class="pool-info">
-      <h3>${name}</h3>
-      <p>${address}${address && (city || state || zip) ? ', ' : ''}${city}${city && (state || zip) ? ', ' : ''}${state} ${zip}</p>
-      <p><a href="https://maps.google.com/?q=${locationQuery}" 
-        target="_blank" rel="noopener" class="btn btn-secondary">Get Directions</a></p>
-    </div>
+      <div class="pool-card">
+        <h3>${name}</h3>
+        <div class="pool-details">
+          <div class="detail-item">
+            <strong>📍 Address:</strong> ${fullAddress || 'Address not available'}
+          </div>
+          ${locationQuery ? `
+          <div class="detail-item">
+            <a href="https://maps.google.com/?q=${locationQuery}" 
+               target="_blank" 
+               rel="noopener" 
+               class="button button-secondary">
+              🗺️ Get Directions
+            </a>
+          </div>
+          ` : ''}
+        </div>
+      </div>
     `;
   }).join("");
   
-  return poolInfo;
+  return `
+    <div class="copilot-response success">
+      <h3>🏊‍♀️ Pool Information</h3>
+      ${poolInfo}
+    </div>
+  `;
+}
+
+/**
+ * Handles queries related to pool features
+ * @param {string} query - The user's search query
+ * @returns {string} HTML content to display as a response
+ */
+function handleFeatureQuery(query) {
+  if (!poolData || !poolData.length) {
+    return `
+      <div class="copilot-response error">
+        <h3>⚠️ Pool Information Unavailable</h3>
+        <p>Sorry, pool information is not available right now. Please try again later.</p>
+      </div>
+    `;
+  }
+  
+  // Look for pools with specific features
+  const featurePools = poolData.filter(pool => {
+    if (!pool.features) return false;
+    
+    const features = Array.isArray(pool.features) 
+      ? pool.features.join(' ').toLowerCase() 
+      : pool.features.toLowerCase();
+    
+    if (query.includes("slide")) return features.includes("slide");
+    if (query.includes("diving")) return features.includes("diving");
+    if (query.includes("lap")) return features.includes("lap");
+    
+    return false;
+  });
+  
+  if (featurePools.length === 0) {
+    return `
+      <div class="copilot-response warning">
+        <h3>🔍 No Matching Features Found</h3>
+        <p>I couldn't find pools with that specific feature. Try browsing all pools to see available features.</p>
+        <p><a href="pools.html" class="button">Browse All Pools</a></p>
+      </div>
+    `;
+  }
+  
+  const poolList = featurePools.map(pool => {
+    const name = pool.name || 'Unknown Pool';
+    const features = Array.isArray(pool.features) 
+      ? pool.features.join(', ') 
+      : pool.features || 'Features not listed';
+    
+    return `
+      <div class="pool-card">
+        <h4>${name}</h4>
+        <div class="detail-item">
+          <strong>🎯 Features:</strong> ${features}
+        </div>
+      </div>
+    `;
+  }).join("");
+  
+  return `
+    <div class="copilot-response success">
+      <h3>🎯 Pools with Matching Features</h3>
+      ${poolList}
+    </div>
+  `;
 }
 
 /**
@@ -206,10 +380,56 @@ function handlePoolQuery(query) {
  */
 function handleMeetQuery(query) {
   if (!meetData || !meetData.length) {
-    return "<p>Sorry, meet information is not available right now.</p>";
+    return `
+      <div class="copilot-response info">
+        <h3>📅 Meet Information</h3>
+        <p>Meet schedules are typically updated closer to the season. Please check back later or visit our meets page for the most current information.</p>
+        <p><a href="meets.html" class="button">Browse Meet Schedule</a></p>
+      </div>
+    `;
   }
   
-  // Look for meet information
-  // This would need to be expanded based on your meet data structure
-  return "<p>Please check our schedule page for upcoming meets and events.</p>";
+  // If we have meet data, process it here
+  const upcomingMeets = meetData.filter(meet => {
+    // Add logic to filter upcoming meets
+    return true; // Placeholder - implement date filtering
+  });
+  
+  if (upcomingMeets.length === 0) {
+    return `
+      <div class="copilot-response info">
+        <h3>📅 No Upcoming Meets</h3>
+        <p>There are no upcoming meets scheduled at this time. Please check back later.</p>
+        <p><a href="meets.html" class="button">View Meet Archive</a></p>
+      </div>
+    `;
+  }
+  
+  const meetList = upcomingMeets.slice(0, 3).map(meet => {
+    const name = meet.name || 'Swim Meet';
+    const date = meet.date || 'TBA';
+    const location = meet.location || 'TBA';
+    
+    return `
+      <div class="meet-card">
+        <h4>${name}</h4>
+        <div class="meet-details">
+          <div class="detail-item">
+            <strong>📅 Date:</strong> ${date}
+          </div>
+          <div class="detail-item">
+            <strong>📍 Location:</strong> ${location}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+  
+  return `
+    <div class="copilot-response success">
+      <h3>📅 Upcoming Meets</h3>
+      ${meetList}
+      <p><a href="meets.html" class="button">View All Meets</a></p>
+    </div>
+  `;
 }

@@ -1,11 +1,47 @@
+/* Mobile-first CSS Variables */
+:root {
+  --primary-color: #0078d4;
+  --primary-dark: #005a9e;
+  --primary-light: #40e0d0;
+  --secondary-color: #6c757d;
+  --success-color: #28a745;
+  --warning-color: #ffc107;
+  --error-color: #dc3545;
+  --info-color: #17a2b8;
+  --light-bg: #f8f9fa;
+  --white: #ffffff;
+  --text-dark: #212529;
+  --text-muted: #6c757d;
+  --border-color: #dee2e6;
+  --shadow: 0 2px 10px rgba(0,0,0,0.1);
+  --shadow-hover: 0 4px 20px rgba(0,0,0,0.15);
+  --header-height: 70px;
+  --footer-height: 60px;
+  --border-radius: 12px;
+  --transition: all 0.3s ease;
+}
+
+/* Reset and base styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
 html, body {
   height: 100%;
-  margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: #f4faff;
-  color: #222;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  line-height: 1.6;
+  color: var(--text-dark);
+  background-color: var(--light-bg);
   display: flex;
   flex-direction: column;
+  padding-bottom: var(--footer-height);
 }
 
 .page-wrap {
@@ -14,60 +50,86 @@ html, body {
   flex-direction: column;
 }
 
+/* Container */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Header - Sticky at top */
 .header {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: var(--white);
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   position: sticky;
   top: 0;
-  z-index: 100;
-  background-color: #005fa1;
-  color: white;
-  padding: 0.5rem 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  min-height: 50px;
+  z-index: 1000;
+  box-shadow: var(--shadow);
+  min-height: var(--header-height);
+}
+
+.header .logo {
+  height: 50px;
+  width: auto;
+  border-radius: 8px;
+  transition: var(--transition);
+}
+
+.header .logo:hover {
+  transform: scale(1.05);
 }
 
 .header h1 {
+  font-size: 1.25rem;
+  font-weight: 600;
   margin: 0;
-  font-size: 1.2rem;
-  flex-grow: 1;
   text-align: center;
+  flex: 1;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
 .header a {
   display: flex;
   align-items: center;
   text-decoration: none;
+  color: inherit;
 }
 
-.logo {
-  height: 40px;
-  margin-right: 1rem;
-}
-
-/* Hamburger Menu */
+/* Navigation Toggle Button */
 .hamburger {
   display: flex;
   flex-direction: column;
-  cursor: pointer;
-  padding: 0.25rem;
-  background: none;
+  justify-content: space-between;
+  width: 24px;
+  height: 18px;
+  background: transparent;
   border: none;
-  color: white;
+  cursor: pointer;
+  z-index: 1010;
+  transition: var(--transition);
+  padding: 4px;
+}
+
+.hamburger:hover {
+  opacity: 0.8;
 }
 
 .hamburger span {
-  width: 25px;
-  height: 3px;
-  background-color: white;
-  margin: 2px 0;
-  transition: 0.3s;
+  width: 100%;
+  height: 2px;
+  background: var(--white);
   border-radius: 2px;
+  transition: var(--transition);
+  display: block;
 }
 
 .hamburger.active span:nth-child(1) {
-  transform: rotate(-45deg) translate(-5px, 6px);
+  transform: translateY(8px) rotate(45deg);
 }
 
 .hamburger.active span:nth-child(2) {
@@ -75,23 +137,23 @@ html, body {
 }
 
 .hamburger.active span:nth-child(3) {
-  transform: rotate(45deg) translate(-5px, -6px);
+  transform: translateY(-8px) rotate(-45deg);
 }
 
 /* Navigation Menu */
 .nav-menu {
   position: fixed;
-  top: 60px;
+  top: 0;
   right: -100%;
-  width: 300px;
-  height: calc(100vh - 60px);
-  background-color: #005fa1;
-  display: flex;
-  flex-direction: column;
-  padding: 1rem 0;
+  width: 80%;
+  max-width: 320px;
+  height: 100vh;
+  background: linear-gradient(180deg, var(--primary-color), var(--primary-dark));
+  padding-top: var(--header-height);
   transition: right 0.3s ease;
-  z-index: 99;
-  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15);
+  z-index: 999;
+  box-shadow: -4px 0 20px rgba(0,0,0,0.3);
+  backdrop-filter: blur(10px);
 }
 
 .nav-menu.active {
@@ -99,118 +161,646 @@ html, body {
 }
 
 .nav-menu a {
-  color: white;
+  display: block;
+  padding: 1.25rem 1.5rem;
+  color: var(--white);
   text-decoration: none;
-  padding: 1rem 1.5rem;
   font-size: 1.1rem;
+  font-weight: 500;
+  transition: var(--transition);
+  border-left: 4px solid transparent;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Pool, Team, and Meet lists */
-.pool-list, .team-list, .meet-list, .faq-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+.nav-menu a:hover,
+.nav-menu a:focus,
+.nav-menu a.active {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-left-color: var(--primary-light);
+  transform: translateX(4px);
+}
+
+/* Navigation Overlay */
+.nav-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 998;
+  opacity: 0;
+  visibility: hidden;
+  transition: var(--transition);
+}
+
+.nav-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Main Content */
+main {
+  flex: 1;
+  padding: 1.5rem 0;
+  margin-top: 1rem;
+}
+
+/* Search Section */
+.copilot-search {
+  text-align: center;
   margin-bottom: 2rem;
 }
 
-.pool-item, .team-item, .faq-item {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
+.copilot-search h2 {
+  font-size: 1.5rem;
+  color: var(--primary-dark);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
 }
 
-.pool-item h3, .team-item h3, .faq-item h3 {
-  margin-top: 0;
-  color: #005fa1;
+.copilot-search p {
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
 }
 
-.meet-date {
-  margin: 1.5rem 0 0.5rem;
-  color: #005fa1;
-  border-bottom: 2px solid #dbeeff;
-  padding-bottom: 0.5rem;
+/* Search Input */
+input[type="text"], input[type="search"] {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  font-size: 1.1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 50px;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+  background: var(--white);
 }
 
-.meet-date:first-child {
-  margin-top: 0;
+input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.1);
+  transform: translateY(-2px);
 }
 
-.meet-group {
+input::placeholder {
+  color: var(--text-muted);
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* Button Group */
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Buttons */
+button, .btn {
+  padding: 0.875rem 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: var(--transition);
+  min-width: 140px;
+  box-shadow: var(--shadow);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: var(--white);
+}
+
+button::before, .btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+button:hover::before, .btn:hover::before {
+  left: 100%;
+}
+
+button:hover, button:focus, .btn:hover, .btn:focus {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+  background: linear-gradient(135deg, var(--primary-dark), #003d70);
+}
+
+button:active, .btn:active {
+  transform: translateY(-1px);
+}
+
+button[aria-label*="voice"], button[aria-label*="Speak"] {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  padding: 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  color: var(--text-dark);
+  border: 2px solid var(--border-color);
+}
+
+button[aria-label*="voice"]:hover, button[aria-label*="Speak"]:hover {
+  background: linear-gradient(135deg, #e9ecef, #dee2e6);
+  border-color: var(--primary-color);
+}
+
+/* ===== Consistent Link Colors ===== */
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+a:visited {
+  color: var(--primary-color);
+}
+
+a:hover,
+a:focus {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+
+a:active {
+  color: var(--primary-color);
+}
+
+/* Override for specific components that should maintain their styling */
+.site-title,
+.site-title:visited,
+.site-title:hover,
+.site-title:focus {
+  color: var(--white);
+  text-decoration: none;
+}
+
+nav a,
+nav a:visited,
+nav a:hover,
+nav a:focus {
+  color: var(--white);
+  text-decoration: none;
+}
+
+.quick-link-card,
+.quick-link-card:visited,
+.quick-link-card:hover,
+.quick-link-card:focus {
+  color: var(--text-dark);
+  text-decoration: none;
+}
+
+.quick-link-card h3 {
+  color: var(--primary-color);
+}
+
+/* Button links should maintain button styling */
+.button,
+.button:visited,
+.button:hover,
+.button:focus {
+  color: var(--white);
+  text-decoration: none;
+}
+
+.button-secondary,
+.button-secondary:visited,
+.button-secondary:hover,
+.button-secondary:focus {
+  color: var(--white);
+  text-decoration: none;
+}
+
+/* Results Section */
+.response, #copilotResponse {
+  margin-top: 2rem;
+}
+
+/* Status Cards */
+.copilot-response, .status-card {
+  background: var(--white);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow);
+  border-left: 4px solid transparent;
+  transition: var(--transition);
+}
+
+.copilot-response:hover, .status-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.copilot-response h3, .status-card h3 {
+  margin-bottom: 1rem;
+  color: var(--primary-dark);
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.copilot-response.success, .status-card.success {
+  border-left-color: var(--success-color);
+  background: linear-gradient(135deg, var(--white), #f8fff9);
+}
+
+.copilot-response.info, .status-card.info {
+  border-left-color: var(--info-color);
+  background: linear-gradient(135deg, var(--white), #f0faff);
+}
+
+.copilot-response.warning, .status-card.warning {
+  border-left-color: var(--warning-color);
+  background: linear-gradient(135deg, var(--white), #fffef0);
+}
+
+.copilot-response.error, .status-card.error {
+  border-left-color: var(--error-color);
+  background: linear-gradient(135deg, var(--white), #fff5f5);
+}
+
+/* ===== Enhanced Mobile App Components ===== */
+
+/* Response Cards */
+.copilot-response {
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+  border-left: 4px solid;
+  box-shadow: var(--shadow);
+  background: var(--white);
+}
+
+.copilot-response.success {
+  background-color: #f8fff9;
+  border-left-color: var(--success-color);
+}
+
+.copilot-response.error {
+  background-color: #fff8f8;
+  border-left-color: var(--error-color);
+}
+
+.copilot-response.warning {
+  background-color: #fffdf8;
+  border-left-color: var(--warning-color);
+}
+
+.copilot-response.info {
+  background-color: #f8fbff;
+  border-left-color: var(--info-color);
+}
+
+/* Enhanced Cards */
+.team-card,
+.pool-card,
+.meet-card {
+  background: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.team-card:hover,
+.pool-card:hover,
+.meet-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+}
+
+.team-card h3,
+.pool-card h3,
+.meet-card h3,
+.team-card h4,
+.pool-card h4,
+.meet-card h4 {
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.team-details,
+.pool-details,
+.meet-details {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
-.meet-item {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
+.detail-item {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.meet-teams, .meet-name {
-  font-weight: bold;
-  font-size: 1.1rem;
+.detail-item:last-child {
+  border-bottom: none;
 }
 
-.meet-details {
+.detail-item strong {
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+/* Pool Header */
+.pool-header {
   display: flex;
   justify-content: space-between;
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-  color: #666;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
-.special-meet {
-  background-color: #f0f7ff;
-  border-left: 3px solid #0078d4;
+.distance-badge {
+  background-color: var(--primary-color);
+  color: var(--white);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--border-radius);
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
-.meet-name {
-  color: #0078d4;
+/* Pool Features */
+.pool-features {
+  background-color: var(--light-bg);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  margin: 1rem 0;
 }
 
-.meet-today {
-  background-color: #fffde6;
-  border-left: 3px solid #ffc107;
-  position: relative;
+.pool-actions {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
 }
 
-.meet-upcoming {
-  border-left: 3px solid #4caf50;
+/* Address Section */
+.address-section {
+  background-color: var(--light-bg);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  margin: 0.75rem 0;
 }
 
-.meet-past {
-  opacity: 0.8;
+/* Suggestions */
+.suggestion-grid {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
 }
 
-.today-tag {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background-color: #ffc107;
-  color: #000;
-  font-size: 0.7rem;
-  font-weight: bold;
-  padding: 0.2rem 0.5rem;
-  border-radius: 2px;
+.suggestion-item {
+  background-color: var(--light-bg);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  border-left: 3px solid var(--primary-color);
 }
 
-.location-link {
-  color: #0078d4;
-  text-decoration: none;
-  border-bottom: 1px dotted #0078d4;
+/* Schedule Items */
+.schedule-item {
+  background-color: var(--light-bg);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  margin-bottom: 0.75rem;
+  border-left: 3px solid var(--info-color);
 }
 
-.location-link:hover, .location-link:focus {
-  color: #005a9e;
-  border-bottom: 1px solid #005a9e;
+.schedule-item p {
+  margin: 0;
 }
 
+/* Team and Pool Lists */
+.team-list,
+.pool-list {
+  background-color: var(--light-bg);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  margin-top: 1rem;
+}
+
+.team-list h4,
+.pool-list h4 {
+  margin-bottom: 0.75rem;
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+/* Enhanced Quick Link Cards */
+.quick-link-card .card-content {
+  text-align: center;
+}
+
+.quick-link-card .card-content h3 {
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.quick-link-card .card-content p {
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Enhanced Voice Button Feedback */
+button[onclick*="Voice"]:hover,
+button[aria-label*="Voice"]:hover {
+  background-color: var(--primary-dark);
+  transform: scale(1.05);
+}
+
+button[onclick*="Voice"]:active,
+button[aria-label*="Voice"]:active {
+  transform: scale(0.95);
+}
+
+/* Loading state */
 .loading {
   text-align: center;
   padding: 2rem;
-  color: #888;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Utility Classes */
+.text-center {
+  text-align: center;
+}
+
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  :root {
+    --header-height: 60px;
+    --footer-height: 50px;
+  }
+  
+  .container {
+    padding: 0.75rem;
+  }
+  
+  .header h1 {
+    font-size: 1.1rem;
+  }
+  
+  .copilot-search h2 {
+    font-size: 1.3rem;
+  }
+  
+  button, .btn {
+    min-width: 120px;
+    padding: 0.75rem 1.25rem;
+  }
+  
+  .pool-list, .team-list, .meet-list, .faq-list {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .filters {
+    grid-template-columns: 1fr;
+  }
+  
+  .nav-menu {
+    width: 90%;
+    max-width: 280px;
+  }
+}
+
+@media (min-width: 769px) {
+  .container {
+    padding: 1.5rem;
+  }
+  
+  .copilot-search {
+    margin-bottom: 3rem;
+  }
+  
+  .pool-list, .team-list, .meet-list, .faq-list {
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  }
+  
+  .filters {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+}
+
+@media (min-width: 1200px) {
+  .pool-list, .team-list, .meet-list, .faq-list {
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  }
+}
+
+/* Enhanced Focus States for Accessibility */
+.button:focus,
+button:focus,
+.quick-link-card:focus {
+  outline: 3px solid var(--primary-light);
+  outline-offset: 2px;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 3px solid var(--primary-light);
+  outline-offset: 2px;
+}
+
+/* Loading States */
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid var(--primary-color);
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Enhanced Error States */
+.error-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-muted);
+}
+
+.error-state h3 {
+  color: var(--error-color);
+  margin-bottom: 1rem;
+}
+
+/* Success States */
+.success-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--success-color);
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .team-card,
+  .pool-card,
+  .meet-card,
+  .copilot-response {
+    border-width: 2px;
+  }
+  
+  .distance-badge {
+    border: 2px solid var(--white);
+  }
 }
