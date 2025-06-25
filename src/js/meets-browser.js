@@ -139,7 +139,7 @@ function renderMeets(meets) {
         
         meetContent = `
           <div class="${meetClasses}">
-            <div class="meet-teams">${visitingTeam} vs. ${homeTeam}</div>
+            <div class="meet-teams">${homeTeam} vs. ${visitingTeam}</div>
             <div class="meet-details">
               <span class="meet-location">${locationLink}</span>
               <span class="meet-time">${time}</span>
