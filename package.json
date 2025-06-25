@@ -5,7 +5,10 @@
   "main": "service-worker.js",
   "scripts": {
     "build": "node posthtml.js",
-    "watch": "nodemon --watch src -e html posthtml.js",
+    "watch": "nodemon --watch src -e html,css,js posthtml.js",
+    "serve": "http-server ./out -p 9090 -c-1 -o",
+    "dev": "npm run build && npm run serve",
+    "start": "npm run dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -21,6 +24,7 @@
   },
   "homepage": "https://github.com/simonua/cnsl#readme",
   "devDependencies": {
+    "http-server": "^14.1.1",
     "jstransformer-markdown-it": "^3.0.0",
     "jstransformer-yaml": "^0.0.0",
     "nodemon": "^3.1.10",
