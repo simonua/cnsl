@@ -1,0 +1,68 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "CNSL: Start Development Server",
+      "type": "shell",
+      "command": "npm",
+      "args": ["start"],
+      "group": "build",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "cnsl-dev",
+        "pattern": {
+          "regexp": "^❌\\s+\\[(.*)\\]\\s+Error\\s+processing\\s+(.*?):\\s+(.*)$",
+          "file": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "🔨.*Starting build process",
+          "endsPattern": "✅.*Build completed"
+        }
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "CNSL: Build Only",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "build"],
+      "group": "build",
+      "problemMatcher": {
+        "owner": "cnsl-build",
+        "pattern": {
+          "regexp": "^❌\\s+\\[(.*)\\]\\s+Error\\s+processing\\s+(.*?):\\s+(.*)$",
+          "file": 2,
+          "message": 3
+        }
+      }
+    },
+    {
+      "label": "CNSL: Stop Development Server",
+      "type": "shell",
+      "command": "taskkill",
+      "args": ["/F", "/IM", "node.exe"],
+      "group": "build",
+      "windows": {
+        "command": "taskkill",
+        "args": ["/F", "/IM", "node.exe"]
+      },
+      "linux": {
+        "command": "pkill",
+        "args": ["-f", "node"]
+      },
+      "osx": {
+        "command": "pkill",
+        "args": ["-f", "node"]
+      }
+    }
+  ]
+}

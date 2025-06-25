@@ -5,10 +5,13 @@
   "main": "service-worker.js",
   "scripts": {
     "build": "node posthtml.js",
-    "watch": "nodemon --watch src -e html,css,js posthtml.js",
+    "watch": "nodemon --watch src -e html,css,js --exec \"node posthtml.js\"",
     "serve": "http-server ./out -p 9090 -c-1 -o",
+    "serve-live": "live-server ./out --port=9090 --open --no-css-inject",
     "dev": "npm run build && npm run serve",
-    "start": "npm run dev",
+    "dev:watch": "concurrently \"npm run watch\" \"npm run serve-live\"",
+    "start": "npm run dev:watch",
+    "start:simple": "npm run dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -24,9 +27,11 @@
   },
   "homepage": "https://github.com/simonua/cnsl#readme",
   "devDependencies": {
+    "concurrently": "^9.2.0",
     "http-server": "^14.1.1",
     "jstransformer-markdown-it": "^3.0.0",
     "jstransformer-yaml": "^0.0.0",
+    "live-server": "^1.2.2",
     "nodemon": "^3.1.10",
     "posthtml": "^0.16.6",
     "posthtml-cli": "^0.10.0",

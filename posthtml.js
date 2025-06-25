@@ -4,6 +4,11 @@ const posthtml = require('posthtml');
 const include = require('posthtml-include')({ root: './src/views' });
 const extend = require('posthtml-extend')({ root: './src/views/layouts' });
 
+// Add timestamp for build logging
+const timestamp = () => new Date().toLocaleTimeString();
+
+console.log(`🔨 [${timestamp()}] Starting build process...`);
+
 // Helper function to read component file
 function readComponent(name) {
   const filePath = path.join('./src/views', name);
@@ -53,15 +58,15 @@ if (!fs.existsSync(outDir)) {
 }
 
 // Copy assets directory
-console.log('Copying assets directory...');
+console.log(`📁 [${timestamp()}] Copying assets directory...`);
 copyDir('./src/assets', path.join(outDir, 'assets'));
 
 // Copy CSS directory
-console.log('Copying CSS directory...');
+console.log(`🎨 [${timestamp()}] Copying CSS directory...`);
 copyDir('./src/css', path.join(outDir, 'css'));
 
 // Copy JS directory
-console.log('Copying JS directory...');
+console.log(`⚙️ [${timestamp()}] Copying JS directory...`);
 copyDir('./src/js', path.join(outDir, 'js'));
 
 // Copy static files from root, handling service worker specially
@@ -98,6 +103,9 @@ const files = fs.readdirSync(srcDir)
   .filter(file => file.endsWith('.html'));
 
 // Process each file
+let processedCount = 0;
+const totalFiles = files.length;
+
 files.forEach(file => {
   const srcPath = path.join(srcDir, file);
   const outPath = path.join(outDir, file);
@@ -110,9 +118,15 @@ files.forEach(file => {
     .process(html)
     .then(result => {
       fs.writeFileSync(outPath, result.html);
-      console.log(`Generated ${outPath}`);
+      processedCount++;
+      console.log(`📄 [${timestamp()}] Generated ${outPath}`);
+      
+      // Log completion when all files are processed
+      if (processedCount === totalFiles) {
+        console.log(`✅ [${timestamp()}] Build completed! Processed ${totalFiles} HTML files.`);
+      }
     })
     .catch(error => {
-      console.error(`Error processing ${file}:`, error);
+      console.error(`❌ [${timestamp()}] Error processing ${file}:`, error);
     });
 });

@@ -1,0 +1,25 @@
+# Live Server Configuration
+# This file helps configure the development server for optimal hot reloading
+
+# Directories to watch for changes
+watch_dirs = ["src/"]
+
+# File extensions to watch
+watch_extensions = ["html", "css", "js", "json"]
+
+# Output directory for built files
+output_dir = "out"
+
+# Development server settings
+port = 9090
+open_browser = true
+livereload = true
+
+# Ignore patterns (files/folders to not watch)
+ignore_patterns = [
+  "node_modules/",
+  ".git/",
+  "out/",
+  "*.tmp",
+  "*.log"
+]
