@@ -35,6 +35,12 @@ html, body {
   text-align: center;
 }
 
+.header a {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
 .logo {
   height: 40px;
   margin-right: 1rem;

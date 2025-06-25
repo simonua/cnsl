@@ -64,8 +64,8 @@ copyDir('./src/css', path.join(outDir, 'css'));
 console.log('Copying JS directory...');
 copyDir('./src/js', path.join(outDir, 'js'));
 
-// Copy static files from root
-const rootStaticFiles = ['browserconfig.xml', 'CNAME', 'LICENSE', 'manifest.webmanifest', 'service-worker.js', 'site.webmanifest'];
+// Copy static files from root, handling service worker specially
+const rootStaticFiles = ['browserconfig.xml', 'CNAME', 'LICENSE', 'manifest.webmanifest', 'site.webmanifest'];
 rootStaticFiles.forEach(file => {
   if (fs.existsSync(file)) {
     fs.copyFileSync(file, path.join(outDir, file));
@@ -74,6 +74,24 @@ rootStaticFiles.forEach(file => {
     console.warn(`Static file not found: ${file}`);
   }
 });
+
+// Handle service-worker.js specially to update the cache version
+const serviceWorkerPath = 'service-worker.js';
+if (fs.existsSync(serviceWorkerPath)) {
+  const buildDate = new Date().toISOString().split('T')[0].replace(/-/g, '');
+  let swContent = fs.readFileSync(serviceWorkerPath, 'utf8');
+  
+  // Replace the cache version with the current date
+  swContent = swContent.replace(
+    /const CACHE_VERSION = .*?;/,
+    `const CACHE_VERSION = '${buildDate}';`
+  );
+  
+  fs.writeFileSync(path.join(outDir, serviceWorkerPath), swContent);
+  console.log(`Updated and copied service-worker.js with cache version: ${buildDate}`);
+} else {
+  console.warn(`Service worker file not found: ${serviceWorkerPath}`);
+}
 
 // Get all HTML files from src directory
 const files = fs.readdirSync(srcDir)
