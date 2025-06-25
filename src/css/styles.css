@@ -105,3 +105,101 @@ html, body {
   font-size: 1.1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
+
+/* Pool, Team, and Meet lists */
+.pool-list, .team-list, .meet-list, .faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.pool-item, .team-item, .faq-item {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+}
+
+.pool-item h3, .team-item h3, .faq-item h3 {
+  margin-top: 0;
+  color: #005fa1;
+}
+
+.meet-date {
+  margin: 1.5rem 0 0.5rem;
+  color: #005fa1;
+  border-bottom: 2px solid #dbeeff;
+  padding-bottom: 0.5rem;
+}
+
+.meet-date:first-child {
+  margin-top: 0;
+}
+
+.meet-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.meet-item {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+}
+
+.meet-teams, .meet-name {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.meet-details {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.special-meet {
+  background-color: #f0f7ff;
+  border-left: 3px solid #0078d4;
+}
+
+.meet-name {
+  color: #0078d4;
+}
+
+.meet-today {
+  background-color: #fffde6;
+  border-left: 3px solid #ffc107;
+  position: relative;
+}
+
+.meet-upcoming {
+  border-left: 3px solid #4caf50;
+}
+
+.meet-past {
+  opacity: 0.8;
+}
+
+.today-tag {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background-color: #ffc107;
+  color: #000;
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 0.2rem 0.5rem;
+  border-radius: 2px;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #888;
+}
