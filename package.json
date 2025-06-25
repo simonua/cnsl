@@ -1,0 +1,34 @@
+{
+  "name": "cnsl",
+  "version": "1.0.0",
+  "description": "![GitHub Pages](https://img.shields.io/badge/hosted%20on-GitHub%20Pages-121013?logo=github&logoColor=white&style=flat-square)\r ![PWA Ready](https://img.shields.io/badge/PWA-ready-0abf53?logo=googlechrome&logoColor=white&style=flat-square)\r ![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)",
+  "main": "service-worker.js",
+  "scripts": {
+    "build": "node posthtml.js",
+    "watch": "nodemon --watch src -e html posthtml.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/simonua/cnsl.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/simonua/cnsl/issues"
+  },
+  "homepage": "https://github.com/simonua/cnsl#readme",
+  "devDependencies": {
+    "jstransformer-markdown-it": "^3.0.0",
+    "jstransformer-yaml": "^0.0.0",
+    "nodemon": "^3.1.10",
+    "posthtml": "^0.16.6",
+    "posthtml-cli": "^0.10.0",
+    "posthtml-expressions": "^1.11.4",
+    "posthtml-extend": "^0.6.5",
+    "posthtml-include": "^2.0.1",
+    "posthtml-modules": "^0.9.1"
+  }
+}

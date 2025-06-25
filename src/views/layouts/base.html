@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CNSL Pool Assistant</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/favicons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicons/favicon-16x16.png">
+  <link rel="shortcut icon" href="assets/favicons/favicon.ico">
+  <meta name="msapplication-TileColor" content="#2b5797">
+  <meta name="msapplication-config" content="browserconfig.xml">
+  <meta name="theme-color" content="#0078d4">
+  <block name="head"></block>
+</head>
+<body>
+  <div class="page-wrap">
+    <include src="components/header.html"></include>
+    
+    <include src="components/nav.html"></include>
+
+    <div class="nav-overlay" id="navOverlay" onclick="closeMenu()"></div>
+
+    <main class="container" role="main">
+      <block name="content"></block>
+    </main>
+  </div>
+
+  <include src="components/footer.html"></include>
+
+  <script src="js/speech.js" defer></script>
+  <script src="js/pool-browser.js" defer></script>
+  <script src="js/copilot.js" defer></script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js');
+    }
+  </script>
+  <block name="scripts"></block>
+</body>
+</html>

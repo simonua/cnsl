@@ -9,6 +9,52 @@ A lightweight, mobile-first web app that helps Columbia Neighborhood Swim League
 
 ---
 
+## Development
+
+### Setup
+
+```bash
+# Install dependencies
+npm install
+```
+
+### Building HTML
+
+This project uses PostHTML for component-based HTML development. The source files are in the `src/views` directory and compiled to the `/out` directory.
+
+```bash
+# Build HTML files once
+npm run build
+
+# Build and watch for changes
+npm run watch
+```
+
+### Project Structure
+
+- `src/views/*.html` - Source HTML files with PostHTML syntax
+- `src/views/layouts/*.html` - Layout templates 
+- `src/views/components/*.html` - Reusable components
+- `src/css/` - Stylesheets
+- `src/js/` - JavaScript files
+- `src/assets/` - Images, data files, and other static assets
+- `/out/` - Build output directory (generated files for deployment)
+
+### GitHub Actions Workflow
+
+This project uses GitHub Actions to automatically build and deploy the website to GitHub Pages when changes are pushed to the main branch. The workflow:
+
+1. Checks out the repository
+2. Sets up Node.js
+3. Installs dependencies
+4. Builds the project using PostHTML
+5. Uploads the built files as an artifact
+6. Deploys the artifact to GitHub Pages
+
+The workflow configuration is located in `.github/workflows/build-deploy.yml`.
+
+---
+
 ## 🔍 Features
 
 - Natural language search ("Where do the Barracudas swim today?")
@@ -26,15 +72,21 @@ A lightweight, mobile-first web app that helps Columbia Neighborhood Swim League
 ## 🧱 Repo Structure
 
 /CNSL
-├── index.html                 # Copilot homepage with natural language search
-├── pools.html                 # Pool directory with filters (coming soon)
-├── teams.html                 # Team cards and practice info (coming soon)
-├── meets.html                 # Meet schedule with closures (coming soon)
-├── faq.html                   # CNSL documents and policies (coming soon)
-├── css/
-│   └── styles.css             # Site-wide responsive and accessible styles
-├── js/
-│   └── copilot.js             # Copilot logic + voice input
+├── index.html                 # Copilot homepage with natural language search (generated)
+├── pools.html                 # Pool directory with filters (generated)
+├── teams.html                 # Team cards and practice info (generated)
+├── meets.html                 # Meet schedule with closures (generated)
+├── faq.html                   # CNSL documents and policies (generated)
+├── src/
+│   ├── views/                 # Source HTML files
+│   │   ├── components/        # Reusable HTML components
+│   │   └── layouts/           # HTML layout templates
+│   ├── css/
+│   │   └── styles.css         # Site-wide responsive and accessible styles
+│   └── js/
+│       ├── copilot.js         # Copilot logic
+│       ├── pool-browser.js    # Pool browser functionality
+│       └── speech.js          # Voice input functionality
 ├── manifest.webmanifest       # PWA configuration
 ├── service-worker.js          # Offline asset caching
 ├── CNAME                      # Custom domain declaration
