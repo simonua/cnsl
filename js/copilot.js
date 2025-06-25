@@ -19,6 +19,12 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function startCopilotVoice() {
+  // Check if we already have a recognition instance running
+  if (window.copilotRecognitionActive) {
+    console.log('Speech recognition already active');
+    return;
+  }
+
   if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
     alert('Speech recognition is not supported in this browser. Please try Chrome or Edge.');
     return;
@@ -26,6 +32,8 @@ function startCopilotVoice() {
   
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   const recognition = new SpeechRecognition();
+  window.copilotRecognitionActive = true;
+  
   recognition.lang = 'en-US';
   recognition.onresult = e => {
     document.getElementById("copilotQuery").value = e.results[0][0].transcript;
@@ -34,6 +42,10 @@ function startCopilotVoice() {
   recognition.onerror = e => {
     console.error("Speech recognition error:", e);
     alert('Speech recognition failed. Please try again or type your question.');
+    window.copilotRecognitionActive = false;
+  };
+  recognition.onend = () => {
+    window.copilotRecognitionActive = false;
   };
   recognition.start();
 }
@@ -41,6 +53,25 @@ function startCopilotVoice() {
 function handleSearch() {
   const input = document.getElementById("copilotQuery").value.toLowerCase();
   const output = document.getElementById("copilotResponse");
+
+  // If team data is not loaded yet, try to load it first
+  if (!teamData || teamData.length === 0) {
+    fetch("assets/data/teams.json")
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        teamData = data;
+        // Call handleSearch again once data is loaded
+        handleSearch();
+      })
+      .catch(error => {
+        console.error("Failed to load team data:", error);
+        output.innerHTML = "<p>⚠️ Team data is currently unavailable. Please try again later.</p>";
+      });
+    return;
+  }
 
   if (!input.trim()) {
     output.innerHTML = `

@@ -101,6 +101,28 @@ function applyFilters() {
 }
 
 function handlePoolSearch() {
+  // If pool data is not loaded yet, try to load it first
+  if (!poolData || poolData.length === 0) {
+    fetch("assets/data/pools.json")
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        poolData = data;
+        // Call handlePoolSearch again once data is loaded
+        handlePoolSearch();
+      })
+      .catch(error => {
+        console.error("Failed to load pool data:", error);
+        const list = document.getElementById("poolList");
+        if (list) {
+          list.innerHTML = "<p>⚠️ Pool data is currently unavailable. Please try again later.</p>";
+        }
+      });
+    return;
+  }
+
   const query = document.getElementById("poolQuery").value.toLowerCase();
   const requiredFeatures = [];
   if (query.includes("dive")) requiredFeatures.push("dive");
@@ -130,6 +152,12 @@ function handlePoolSearch() {
 }
 
 function startPoolVoice() {
+  // Check if we already have a recognition instance running
+  if (window.poolRecognitionActive) {
+    console.log('Speech recognition already active');
+    return;
+  }
+  
   if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
     alert('Speech recognition is not supported in this browser. Please try Chrome or Edge.');
     return;
@@ -137,6 +165,8 @@ function startPoolVoice() {
   
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   const recognition = new SpeechRecognition();
+  window.poolRecognitionActive = true;
+  
   recognition.lang = 'en-US';
   recognition.onresult = e => {
     document.getElementById("poolQuery").value = e.results[0][0].transcript;
@@ -145,11 +175,15 @@ function startPoolVoice() {
   recognition.onerror = e => {
     console.error("Speech recognition error:", e);
     alert('Speech recognition failed. Please try again or type your question.');
+    window.poolRecognitionActive = false;
+  };
+  recognition.onend = () => {
+    window.poolRecognitionActive = false;
   };
   recognition.start();
 }
 
 function describePools(pools) {
-  // Remove speech synthesis - just focus on visual feedback
+  // This function no longer uses speech synthesis
   return;
 }

@@ -39,13 +39,7 @@
     <main class="container" role="main">
       <section class="copilot-search" aria-labelledby="site-title">
         <label for="copilotQuery" class="visually-hidden">Ask a pool, meet, or team question</label>
-        <input 
-          type="text" 
-          id="copilotQuery" 
-          placeholder="Ask about a team or meet..." 
-          onkeydown="if(event.key === 'Enter') handleSearch()"
-          class="full-width" 
-        />
+        <input type="text" id="copilotQuery" placeholder="Ask about a team or meet..." onkeydown="if(event.key === 'Enter') handleSearch()" class="full-width" />
         <div class="button-group">
           <button onclick="startCopilotVoice()" aria-label="Speak your question">🎙️</button>
           <button onclick="handleSearch()">Search</button>
@@ -66,37 +60,18 @@
 
   <footer class="footer">
     <p>
-      Maintained by <a href="mailto:simonkurtz@gmail.com?cnsl">Simon Kurtz</a><br/>
+      Maintained by <a href="mailto:simonkurtz@gmail.com?subject=cnsl">Simon Kurtz</a><br/>
       This is an unofficial app.
     </p>
   </footer>
 
+  <script src="js/speech.js" defer></script>
   <script src="js/pool-browser.js" defer></script>
   <script src="js/copilot.js" defer></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/service-worker.js');
-    }
-
-    function toggleMenu() {
-      const navMenu = document.getElementById('navMenu');
-      const navOverlay = document.getElementById('navOverlay');
-      const hamburger = document.querySelector('.hamburger');
-      
-      navMenu.classList.toggle('active');
-      navOverlay.classList.toggle('active');
-      hamburger.classList.toggle('active');
-    }
-
-    function closeMenu() {
-      const navMenu = document.getElementById('navMenu');
-      const navOverlay = document.getElementById('navOverlay');
-      const hamburger = document.querySelector('.hamburger');
-      
-      navMenu.classList.remove('active');
-      navOverlay.classList.remove('active');
-      hamburger.classList.remove('active');
     }
   </script>
 </body>
