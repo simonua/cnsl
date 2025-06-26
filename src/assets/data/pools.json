@@ -9,933 +9,232 @@
       "lng": -76.8736,
       "features": [
         "lap",
-        "wading"
+        "wading",
+        "wifi",
+        "hot tub",
+        "pool lift"
       ],
+      "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Bryant_Woods.pdf",
       "schedules": [
         {
           "startDate": "2025-05-24",
-          "endDate": "2025-09-01",
-          "url": "https://www.columbiaassociation.org/wp-content/uploads/Bryant_Woods.pdf",
+          "endDate": "2025-05-26",
           "hours": [
             {
-              "weekDay": "Saturday",
-              "startTime": "10:30am",
+              "weekDays": [
+                "Sat",
+                "Sun",
+                "Mon"
+              ],
+              "startTime": "12:00pm",
               "endTime": "7:00pm",
               "type": [
-                "Rec"
+                "Laps",
+                "Rec Swim"
+              ]
+            }
+          ]
+        },
+        {
+          "startDate": "2025-05-27",
+          "endDate": "2025-06-18",
+          "hours": [
+            {
+              "weekDays": [
+                "Mon",
+                "Wed",
+                "Thu",
+                "Fri"
+              ],
+              "startTime": "4:00pm",
+              "endTime": "7:00pm",
+              "type": [
+                "Laps",
+                "Rec Swim"
               ]
             },
             {
-              "weekDay": "Sunday",
-              "startTime": "11:00am",
+              "weekDays": [
+                "Tue"
+              ],
+              "notes": "Closed to public"
+            },
+            {
+              "weekDays": [
+                "Sat",
+                "Sun"
+              ],
+              "startTime": "12:00pm",
               "endTime": "7:00pm",
               "type": [
-                "Rec"
+                "Laps",
+                "Rec Swim"
               ]
             }
           ]
-        }
-      ]
-    },
-    {
-      "name": "Clarys Forest",
-      "address": "11615 Little Patuxent Pkwy, Columbia, MD 21044",
-      "mapsQuery": "Clarys Forest Pool Columbia MD",
-      "lat": 39.2102,
-      "lng": -76.8862,
-      "features": [
-        "volleyball",
-        "lap"
-      ],
-      "schedules": [
+        },
         {
-          "startDate": "2025-05-24",
-          "endDate": "2025-09-01",
-          "url": "https://www.columbiaassociation.org/wp-content/uploads/Clarys_Forest.pdf",
+          "startDate": "2025-06-19",
+          "endDate": "2025-08-10",
           "hours": [
             {
-              "weekDay": "Sunday",
-              "startTime": "11:00am",
-              "endTime": "7:00pm",
+              "weekDays": [
+                "Mon",
+                "Wed",
+                "Thu"
+              ],
+              "startTime": "10:45am",
+              "endTime": "12:00pm",
               "type": [
-                "Rec"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Clemens Crossing",
-      "address": "6400 Martin Rd, Columbia, MD 21044",
-      "mapsQuery": "Clemens Crossing Pool Columbia MD",
-      "lat": 39.2005,
-      "lng": -76.8823,
-      "features": [
-        "lap"
-      ],
-      "schedules": [
-        {
-          "startDate": "2025-05-24",
-          "endDate": "2025-09-01",
-          "url": "https://www.columbiaassociation.org/wp-content/uploads/Clemens_Crossing.pdf",
-          "hours": [
-            {
-              "weekDay": "Sunday",
-              "startTime": "10:00am",
-              "endTime": "5:00pm",
-              "type": [
-                "Rec"
+                "Aqua Fitness"
               ]
             },
             {
-              "weekDay": "Sunday",
-              "startTime": "11:00am",
-              "endTime": "7:00pm",
+              "weekDays": [
+                "Mon",
+                "Wed",
+                "Thu"
+              ],
+              "startTime": "12:00pm",
+              "endTime": "5:45pm",
               "type": [
-                "Rec"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Dasher Green",
-      "address": "6800 Cradlerock Way, Columbia, MD 21045",
-      "mapsQuery": "Dasher Green Pool Columbia MD",
-      "lat": 39.1889,
-      "lng": -76.8372,
-      "features": [
-        "lap"
-      ],
-      "schedules": [
-        {
-          "startDate": "2025-05-24",
-          "endDate": "2025-09-01",
-          "url": "https://www.columbiaassociation.org/wp-content/uploads/Dasher_Green.pdf",
-          "hours": [
-            {
-              "weekDay": "Tuesday",
-              "startTime": "10:00am",
-              "endTime": "5:00pm",
-              "type": [
-                "Rec"
+                "Laps",
+                "Rec Swim"
               ]
             },
             {
-              "weekDay": "Sunday",
-              "startTime": "11:00am",
-              "endTime": "7:00pm",
-              "type": [
-                "Rec"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Dickinson Pool",
-      "address": "TBD, Columbia, MD",
-      "mapsQuery": "Dickinson Pool Pool Columbia MD",
-      "lat": 0.0,
-      "lng": 0.0,
-      "features": [
-        "volleyball",
-        "lap"
-      ],
-      "schedules": [
-        {
-          "startDate": "2025-05-24",
-          "endDate": "2025-09-01",
-          "url": "https://www.columbiaassociation.org/wp-content/uploads/Dickinson_Pool.pdf",
-          "hours": [
-            {
-              "weekDay": "Friday",
-              "startTime": "10:00am",
+              "weekDays": [
+                "Mon",
+                "Wed",
+                "Thu"
+              ],
+              "startTime": "5:45pm",
               "endTime": "8:00pm",
-              "type": [
-                "Rec"
-              ]
-            },
-            {
-              "weekDay": "Sunday",
-              "startTime": "11:00am",
-              "endTime": "7:00pm",
-              "type": [
-                "Rec"
-              ]
-            },
-            {
-              "weekDay": "Monday",
-              "startTime": "10:00am",
-              "endTime": "8:00pm",
-              "type": [
-                "Rec"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Dorsey Hall",
-      "address": "4649 Columbia Rd, Ellicott City, MD 21042",
-      "mapsQuery": "Dorsey Hall Pool Columbia MD",
-      "lat": 39.2397,
-      "lng": -76.8378,
-      "features": [
-        "volleyball",
-        "lap",
-        "wading"
-      ],
-      "schedules": [
-        {
-          "startDate": "2025-05-24",
-          "endDate": "2025-09-01",
-          "url": "https://www.columbiaassociation.org/wp-content/uploads/Dorsey_Hall.pdf",
-          "hours": [
-            {
-              "weekDay": "Saturday",
-              "startTime": "10:00am",
-              "endTime": "8:00pm",
-              "type": [
-                "Rec"
-              ]
-            },
-            {
-              "weekDay": "Sunday",
-              "startTime": "11:00am",
-              "endTime": "7:00pm",
-              "type": [
-                "Rec"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Faulkner Ridge",
-      "address": "10518 Marble Faun Ln, Columbia, MD 21044",
-      "mapsQuery": "Faulkner Ridge Pool Columbia MD",
-      "lat": 39.2191,
-      "lng": -76.8824,
-      "features": [
-        "lap"
-      ],
-      "schedules": [
-        {
-          "startDate": "2025-05-24",
-          "endDate": "2025-09-01",
-          "url": "https://www.columbiaassociation.org/wp-content/uploads/Faulkner_Ridge.pdf",
-          "hours": [
-            {
-              "weekDay": "Sunday",
-              "startTime": "11:00am",
-              "endTime": "7:00pm",
-              "type": [
-                "Rec"
-              ]
-            },
-            {
-              "weekDay": "Wednesday",
-              "startTime": "10:00am",
-              "endTime": "5:00pm",
-              "type": [
-                "Rec"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Hawthorn",
-      "address": "6175 Sunny Spring, Columbia, MD 21044",
-      "mapsQuery": "Hawthorn Pool Columbia MD",
-      "lat": 39.2153,
-      "lng": -76.8849,
-      "features": [
-        "lap",
-        "wading"
-      ],
-      "schedules": [
-        {
-          "startDate": "2025-05-24",
-          "endDate": "2025-09-01",
-          "url": "https://www.columbiaassociation.org/wp-content/uploads/Hawthorn.pdf",
-          "hours": [
-            {
-              "weekDay": "Saturday",
-              "startTime": "10:00am",
-              "endTime": "8:00pm",
-              "type": [
-                "Rec"
-              ]
-            },
-            {
-              "weekDay": "Sunday",
-              "startTime": "11:00am",
-              "endTime": "7:00pm",
-              "type": [
-                "Rec"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Hobbits Glen",
-      "address": "11130 Willowbottom Dr, Columbia, MD 21044",
-      "mapsQuery": "Hobbits Glen Pool Columbia MD",
-      "lat": 39.2243,
-      "lng": -76.9201,
-      "features": [
-        "lap"
-      ],
-      "schedules": [
-        {
-          "startDate": "2025-05-24",
-          "endDate": "2025-09-01",
-          "url": "https://www.columbiaassociation.org/wp-content/uploads/Hobbits_Glen.pdf",
-          "hours": [
-            {
-              "weekDay": "Sunday",
-              "startTime": "11:00am",
-              "endTime": "3:00pm",
-              "type": [
-                "Rec"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Hopewell",
-      "address": "9200 Rustling Leaf, Columbia, MD 21045",
-      "mapsQuery": "Hopewell Pool Columbia MD",
-      "lat": 39.2012,
-      "lng": -76.8379,
-      "features": [
-        "lap"
-      ],
-      "schedules": [
-        {
-          "startDate": "2025-05-24",
-          "endDate": "2025-09-01",
-          "url": "https://www.columbiaassociation.org/wp-content/uploads/Hopewell.pdf",
-          "hours": [
-            {
-              "weekDay": "Sunday",
-              "startTime": "11:00am",
-              "endTime": "7:00pm",
-              "type": [
-                "Rec"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Huntington",
-      "address": "7625 Murray Hill Rd, Columbia, MD 21046",
-      "mapsQuery": "Huntington Pool Columbia MD",
-      "lat": 39.1652,
-      "lng": -76.8563,
-      "features": [
-        "lap"
-      ],
-      "schedules": [
-        {
-          "startDate": "2025-05-24",
-          "endDate": "2025-09-01",
-          "url": "https://www.columbiaassociation.org/wp-content/uploads/Huntington.pdf",
-          "hours": [
-            {
-              "weekDay": "Sunday",
-              "startTime": "11:00am",
-              "endTime": "7:00pm",
-              "type": [
-                "Rec"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Jeffers Hill",
-      "address": "6030 Tamar Dr, Columbia, MD 21045",
-      "mapsQuery": "Jeffers Hill Pool Columbia MD",
-      "lat": 39.2103,
-      "lng": -76.8265,
-      "features": [
-        "volleyball",
-        "lap"
-      ],
-      "schedules": [
-        {
-          "startDate": "2025-05-24",
-          "endDate": "2025-09-01",
-          "url": "https://www.columbiaassociation.org/wp-content/uploads/Jeffers_Hill.pdf",
-          "hours": [
-            {
-              "weekDay": "Sunday",
-              "startTime": "11:00am",
-              "endTime": "7:00pm",
-              "type": [
-                "Rec"
-              ]
-            },
-            {
-              "weekDay": "Sunday",
-              "startTime": "9:00am",
-              "endTime": "7:00pm",
-              "type": [
-                "Closed"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Kendall Ridge",
-      "address": "8245 Tamar Dr, Columbia, MD 21045",
-      "mapsQuery": "Kendall Ridge Pool Columbia MD",
-      "lat": 39.2035,
-      "lng": -76.8382,
-      "features": [
-        "volleyball",
-        "lap",
-        "wading"
-      ],
-      "schedules": [
-        {
-          "startDate": "2025-05-24",
-          "endDate": "2025-09-01",
-          "url": "https://www.columbiaassociation.org/wp-content/uploads/Kendall_Ridge.pdf",
-          "hours": [
-            {
-              "weekDay": "Saturday",
-              "startTime": "10:00am",
-              "endTime": "8:00pm",
-              "type": [
-                "Rec"
-              ]
-            },
-            {
-              "weekDay": "Sunday",
-              "startTime": "11:00am",
-              "endTime": "7:00pm",
-              "type": [
-                "Rec"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Locust Park",
-      "address": "8995 Lambskin Ln, Columbia, MD 21045",
-      "mapsQuery": "Locust Park Pool Columbia MD",
-      "lat": 39.2156,
-      "lng": -76.8371,
-      "features": [
-        "basketball",
-        "lap"
-      ],
-      "schedules": [
-        {
-          "startDate": "2025-05-24",
-          "endDate": "2025-09-01",
-          "url": "https://www.columbiaassociation.org/wp-content/uploads/Locust_Park.pdf",
-          "hours": [
-            {
-              "weekDay": "Sunday",
-              "startTime": "11:00am",
-              "endTime": "7:00pm",
-              "type": [
-                "Rec"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Longfellow",
-      "address": "5267 Eliots Oak Rd, Columbia, MD 21044",
-      "mapsQuery": "Longfellow Pool Columbia MD",
-      "lat": 39.2262,
-      "lng": -76.8841,
-      "features": [
-        "lap"
-      ],
-      "schedules": [
-        {
-          "startDate": "2025-05-24",
-          "endDate": "2025-09-01",
-          "url": "https://www.columbiaassociation.org/wp-content/uploads/Longfellow.pdf",
-          "hours": [
-            {
-              "weekDay": "Sunday",
-              "startTime": "11:00am",
-              "endTime": "7:00pm",
-              "type": [
-                "Rec"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Macgills Common",
-      "address": "6110 Foreland Garth, Columbia, MD 21045",
-      "mapsQuery": "Macgills Common Pool Columbia MD",
-      "lat": 39.2047,
-      "lng": -76.8268,
-      "features": [
-        "basketball",
-        "volleyball",
-        "lap"
-      ],
-      "schedules": [
-        {
-          "startDate": "2025-05-24",
-          "endDate": "2025-09-01",
-          "url": "https://www.columbiaassociation.org/wp-content/uploads/Macgills_Common.pdf",
-          "hours": [
-            {
-              "weekDay": "Sunday",
-              "startTime": "10:00am",
-              "endTime": "5:00pm",
-              "type": [
-                "Rec"
-              ]
-            },
-            {
-              "weekDay": "Saturday",
-              "startTime": "7:00am",
-              "endTime": "12:30pm",
-              "type": [
-                "Rec"
-              ]
-            },
-            {
-              "weekDay": "Sunday",
-              "startTime": "11:00am",
-              "endTime": "7:00pm",
-              "type": [
-                "Rec"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Phelps Luck",
-      "address": "5370 Old Stone Ct, Columbia, MD 21045",
-      "mapsQuery": "Phelps Luck Pool Columbia MD",
-      "lat": 39.2212,
-      "lng": -76.8263,
-      "features": [
-        "lap"
-      ],
-      "schedules": [
-        {
-          "startDate": "2025-05-24",
-          "endDate": "2025-09-01",
-          "url": "https://www.columbiaassociation.org/wp-content/uploads/Phelps_Luck.pdf",
-          "hours": [
-            {
-              "weekDay": "Wednesday",
-              "startTime": "10:00am",
-              "endTime": "5:00pm",
-              "type": [
-                "Rec"
-              ]
-            },
-            {
-              "weekDay": "Sunday",
-              "startTime": "11:00am",
-              "endTime": "7:00pm",
-              "type": [
-                "Rec"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "River Hill",
-      "address": "6330 Trotter Rd, Clarksville, MD 21029",
-      "mapsQuery": "River Hill Pool Columbia MD",
-      "lat": 39.2063,
-      "lng": -76.9457,
-      "features": [
-        "lap",
-        "wading"
-      ],
-      "schedules": [
-        {
-          "startDate": "2025-05-24",
-          "endDate": "2025-09-01",
-          "url": "https://www.columbiaassociation.org/wp-content/uploads/River_Hill.pdf",
-          "hours": [
-            {
-              "weekDay": "Saturday",
-              "startTime": "10:00am",
-              "endTime": "8:30pm",
-              "type": [
-                "Rec"
-              ]
-            },
-            {
-              "weekDay": "Saturday",
-              "startTime": "7:00am",
-              "endTime": "12:30pm",
-              "type": [
-                "Rec"
-              ]
-            },
-            {
-              "weekDay": "Sunday",
-              "startTime": "11:00am",
-              "endTime": "7:00pm",
-              "type": [
-                "Rec"
-              ]
-            },
-            {
-              "weekDay": "Saturday",
-              "startTime": "7:00am",
-              "endTime": "12:30pm",
-              "type": [
-                "Rec"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Running Brook",
-      "address": "5730 Columbia Rd, Columbia, MD 21044",
-      "mapsQuery": "Running Brook Pool Columbia MD",
-      "lat": 39.2209,
-      "lng": -76.8785,
-      "features": [
-        "lap"
-      ],
-      "schedules": [
-        {
-          "startDate": "2025-05-24",
-          "endDate": "2025-09-01",
-          "url": "https://www.columbiaassociation.org/wp-content/uploads/Running_Brook.pdf",
-          "hours": [
-            {
-              "weekDay": "Sunday",
-              "startTime": "11:00am",
-              "endTime": "7:00pm",
-              "type": [
-                "Rec"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Stevens Forest",
-      "address": "6061 Stevens Forest Rd, Columbia, MD 21045",
-      "mapsQuery": "Stevens Forest Pool Columbia MD",
-      "lat": 39.2053,
-      "lng": -76.8442,
-      "features": [
-        "lap"
-      ],
-      "schedules": [
-        {
-          "startDate": "2025-05-24",
-          "endDate": "2025-09-01",
-          "url": "https://www.columbiaassociation.org/wp-content/uploads/Stevens_Forest.pdf",
-          "hours": [
-            {
-              "weekDay": "Sunday",
-              "startTime": "10:30am",
-              "endTime": "6:30pm",
-              "type": [
-                "Rec"
-              ]
-            },
-            {
-              "weekDay": "Monday",
-              "startTime": "11:00am",
-              "endTime": "5:00pm",
-              "type": [
-                "Closed"
-              ]
-            },
-            {
-              "weekDay": "Saturday",
-              "startTime": "10:00am",
-              "endTime": "8:00pm",
-              "type": [
-                "Rec"
-              ]
-            },
-            {
-              "weekDay": "Monday",
-              "startTime": "11:00am",
-              "endTime": "5:00pm",
-              "type": [
-                "Closed"
-              ]
-            },
-            {
-              "weekDay": "Monday",
-              "startTime": "10:30am",
-              "endTime": "4:30pm",
-              "type": [
-                "Closed"
-              ]
-            },
-            {
-              "weekDay": "Tuesday",
-              "startTime": "10:30am",
-              "endTime": "4:30pm",
-              "type": [
-                "Closed"
-              ]
-            },
-            {
-              "weekDay": "Monday",
-              "startTime": "10:30am",
-              "endTime": "5:00pm",
-              "type": [
-                "Closed"
-              ]
-            },
-            {
-              "weekDay": "Tuesday",
-              "startTime": "10:30am",
-              "endTime": "6:30pm",
-              "type": [
-                "Rec"
-              ]
-            },
-            {
-              "weekDay": "Monday",
-              "startTime": "9:00am",
-              "endTime": "4:00pm",
-              "type": [
-                "Rec"
-              ]
-            },
-            {
-              "weekDay": "Tuesday",
-              "startTime": "9:00am",
-              "endTime": "4:00pm",
-              "type": [
-                "Rec"
-              ]
-            },
-            {
-              "weekDay": "Saturday",
-              "startTime": "10:00am",
-              "endTime": "7:00pm",
-              "type": [
-                "Rec"
-              ]
-            },
-            {
-              "weekDay": "Monday",
-              "startTime": "5:30am",
-              "endTime": "10:30am",
               "type": [
                 "Laps"
               ]
+            },
+            {
+              "weekDays": [
+                "Tue"
+              ],
+              "startTime": "10:45am",
+              "endTime": "12:00pm",
+              "type": [
+                "Aqua Fitness"
+              ]
+            },
+            {
+              "weekDays": [
+                "Tue"
+              ],
+              "startTime": "12:00pm",
+              "endTime": "8:00pm",
+              "type": [
+                "Closed"
+              ],
+              "notes": "Closed to public"
             }
           ]
-        }
-      ]
-    },
-    {
-      "name": "Swansfield",
-      "address": "5659 Cedar Ln, Columbia, MD 21044",
-      "mapsQuery": "Swansfield Pool Columbia MD",
-      "lat": 39.2107,
-      "lng": -76.8845,
-      "features": [
-        "lap",
-        "splash",
-        "wading"
-      ],
-      "schedules": [
+        },
         {
-          "startDate": "2025-05-24",
-          "endDate": "2025-09-01",
-          "url": "https://www.columbiaassociation.org/wp-content/uploads/Swansfield.pdf",
+          "startDate": "2025-08-11",
+          "endDate": "2025-08-24",
           "hours": [
             {
-              "weekDay": "Sunday",
-              "startTime": "10:00am",
-              "endTime": "5:00pm",
+              "weekDays": [
+                "Mon",
+                "Wed",
+                "Thu",
+                "Fri"
+              ],
+              "startTime": "12:00pm",
+              "endTime": "4:30pm",
               "type": [
-                "Rec"
+                "Laps",
+                "Rec Swim"
               ]
             },
             {
-              "weekDay": "Friday",
-              "startTime": "10:00am",
-              "endTime": "8:00pm",
-              "type": [
-                "Rec"
-              ]
-            },
-            {
-              "weekDay": "Saturday",
-              "startTime": "10:00am",
-              "endTime": "8:00pm",
-              "type": [
-                "Rec"
-              ]
-            },
-            {
-              "weekDay": "Sunday",
-              "startTime": "11:00am",
+              "weekDays": [
+                "Mon",
+                "Wed",
+                "Thu",
+                "Fri"
+              ],
+              "startTime": "4:30pm",
               "endTime": "7:00pm",
               "type": [
-                "Rec"
+                "Laps"
               ]
             },
             {
-              "weekDay": "Monday",
-              "startTime": "9:00am",
+              "weekDays": [
+                "Tue"
+              ],
+              "type": [
+                "Closed"
+              ],
+              "notes": "Closed to public"
+            },
+            {
+              "weekDays": [
+                "Sat",
+                "Sun"
+              ],
+              "startTime": "12:00pm",
               "endTime": "7:00pm",
               "type": [
-                "Rec"
-              ]
-            },
-            {
-              "weekDay": "Thursday",
-              "startTime": "9:00am",
-              "endTime": "7:00pm",
-              "type": [
-                "Rec"
-              ]
-            },
-            {
-              "weekDay": "Friday",
-              "startTime": "9:00am",
-              "endTime": "8:00pm",
-              "type": [
-                "Rec"
-              ]
-            },
-            {
-              "weekDay": "Monday",
-              "startTime": "11:00am",
-              "endTime": "7:00pm",
-              "type": [
-                "Rec"
-              ]
-            },
-            {
-              "weekDay": "Monday",
-              "startTime": "10:00am",
-              "endTime": "8:00pm",
-              "type": [
-                "Rec"
-              ]
-            },
-            {
-              "weekDay": "Tuesday",
-              "startTime": "10:00am",
-              "endTime": "8:00pm",
-              "type": [
-                "Rec"
+                "Laps",
+                "Rec Swim"
               ]
             }
           ]
-        }
-      ]
-    },
-    {
-      "name": "Talbott Springs",
-      "address": "9660 Basket Ring Rd, Columbia, MD 21045",
-      "mapsQuery": "Talbott Springs Pool Columbia MD",
-      "lat": 39.2101,
-      "lng": -76.8374,
-      "features": [
-        "lap"
-      ],
-      "schedules": [
+        },
         {
-          "startDate": "2025-05-24",
-          "endDate": "2025-09-01",
-          "url": "https://www.columbiaassociation.org/wp-content/uploads/Talbott_Springs.pdf",
+          "startDate": "2025-08-25",
+          "endDate": "2025-08-31",
           "hours": [
             {
-              "weekDay": "Wednesday",
-              "startTime": "10:00am",
-              "endTime": "5:00pm",
+              "weekDays": [
+                "Mon",
+                "Tue",
+                "Wed",
+                "Thu",
+                "Fri"
+              ],
               "type": [
-                "Rec"
-              ]
+                "Closed"
+              ],
+              "notes": "Closed to public"
             },
             {
-              "weekDay": "Sunday",
-              "startTime": "11:00am",
-              "endTime": "7:00pm",
+              "weekDays": [
+                "Sat",
+                "Sun"
+              ],
+              "startTime": "12:00pm",
+              "endTime": "6:00pm",
               "type": [
-                "Rec"
+                "Laps",
+                "Rec Swim"
               ]
             }
           ]
-        }
-      ]
-    },
-    {
-      "name": "Thunder Hill",
-      "address": "9200 Logan Dr, Columbia, MD 21045",
-      "mapsQuery": "Thunder Hill Pool Columbia MD",
-      "lat": 39.2165,
-      "lng": -76.8376,
-      "features": [
-        "volleyball",
-        "lap"
-      ],
-      "schedules": [
+        },
         {
-          "startDate": "2025-05-24",
+          "startDate": "2025-09-01",
           "endDate": "2025-09-01",
-          "url": "https://www.columbiaassociation.org/wp-content/uploads/Thunder_Hill.pdf",
           "hours": [
             {
-              "weekDay": "Sunday",
-              "startTime": "11:00am",
-              "endTime": "7:00pm",
+              "weekDays": [
+                "Mon"
+              ],
+              "startTime": "12:00pm",
+              "endTime": "6:00pm",
               "type": [
-                "Rec"
-              ]
-            },
-            {
-              "weekDay": "Tuesday",
-              "startTime": "10:00am",
-              "endTime": "5:00pm",
-              "type": [
-                "Rec"
+                "Laps",
+                "Rec Swim"
               ]
             }
           ]
