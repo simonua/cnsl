@@ -135,15 +135,15 @@ function renderMeets(meets) {
         // If we have a matching pool with address or coordinates
         if (poolMatch.address) {
           const encodedAddress = encodeURIComponent(poolMatch.address);
-          locationLink = `<a href="maps:?q=${encodedAddress}" target="_blank" rel="noopener" class="location-link">${location}</a>`;
+          locationLink = `<a href="https://www.google.com/maps/search/?api=1&query=${encodedAddress}" target="_blank" rel="noopener" class="location-link">${location}</a>`;
         } else {
-          locationLink = `<a href="maps:?q=${poolMatch.lat},${poolMatch.lng}" target="_blank" rel="noopener" class="location-link">${location}</a>`;
+          locationLink = `<a href="https://www.google.com/maps/search/?api=1&query=${poolMatch.lat},${poolMatch.lng}" target="_blank" rel="noopener" class="location-link">${location}</a>`;
         }
       } else {
         // If we don't have a matching pool, just use the location name
         // Try to build a search query based on the location name
         const searchQuery = encodeURIComponent(`${location} Columbia MD`);
-        locationLink = `<a href="maps:?q=${searchQuery}" target="_blank" rel="noopener" class="location-link">${location}</a>`;
+        locationLink = `<a href="https://www.google.com/maps/search/?api=1&query=${searchQuery}" target="_blank" rel="noopener" class="location-link">${location}</a>`;
       }
       
       // Check if it's a special meet (has name property) or regular meet
