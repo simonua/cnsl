@@ -57,7 +57,9 @@
               "weekDays": [
                 "Tue"
               ],
-              "types": "Closed to Public"
+              "types": [
+                "Closed to Public"
+              ]
             },
             {
               "weekDays": [
@@ -81,7 +83,8 @@
               "weekDays": [
                 "Mon",
                 "Wed",
-                "Thu"
+                "Thu",
+                "Fri"
               ],
               "startTime": "10:45am",
               "endTime": "12:00pm",
@@ -93,7 +96,8 @@
               "weekDays": [
                 "Mon",
                 "Wed",
-                "Thu"
+                "Thu",
+                "Fri"
               ],
               "startTime": "12:00pm",
               "endTime": "5:45pm",
@@ -132,6 +136,58 @@
               "endTime": "8:00pm",
               "types": [
                 "Closed to Public"
+              ]
+            },
+            {
+              "weekDays": [
+                "Fri"
+              ],
+              "startTime": "5:45pm",
+              "endTime": "7:00pm",
+              "types": [
+                "Laps"
+              ]
+            },
+            {
+              "weekDays": [
+                "Fri"
+              ],
+              "startTime": "7:00pm",
+              "endTime": "10:00pm",
+              "types": [
+                "Adult Swim"
+              ]
+            },
+            {
+              "weekDays": [
+                "Sat"
+              ],
+              "startTime": "9:30am",
+              "endTime": "10:25am",
+              "types": [
+                "Aqua Fitness"
+              ]
+            },
+            {
+              "weekDays": [
+                "Sat"
+              ],
+              "startTime": "10:30am",
+              "endTime": "7:00pm",
+              "types": [
+                "Laps",
+                "Rec Swim"
+              ]
+            },
+            {
+              "weekDays": [
+                "Sun"
+              ],
+              "startTime": "11:00am",
+              "endTime": "7:00pm",
+              "types": [
+                "Laps",
+                "Rec Swim"
               ]
             }
           ]
