@@ -83,17 +83,22 @@ rootStaticFiles.forEach(file => {
 // Handle service-worker.js specially to update the cache version
 const serviceWorkerPath = 'service-worker.js';
 if (fs.existsSync(serviceWorkerPath)) {
-  const buildDate = new Date().toISOString().split('T')[0].replace(/-/g, '');
+  const now = new Date();
+  const buildDate = now.toISOString().split('T')[0].replace(/-/g, '');
+  const unixEpoch = Math.floor(now.getTime() / 1000);
+  const epochSuffix = unixEpoch.toString().slice(-6); // Last 6 digits of Unix epoch
+  const cacheVersion = `${buildDate}-${epochSuffix}`;
+  
   let swContent = fs.readFileSync(serviceWorkerPath, 'utf8');
   
-  // Replace the cache version with the current date
+  // Replace the cache version with the date and epoch suffix
   swContent = swContent.replace(
     /const CACHE_VERSION = .*?;/,
-    `const CACHE_VERSION = '${buildDate}';`
+    `const CACHE_VERSION = '${cacheVersion}';`
   );
   
   fs.writeFileSync(path.join(outDir, serviceWorkerPath), swContent);
-  console.log(`Updated and copied service-worker.js with cache version: ${buildDate}`);
+  console.log(`Updated and copied service-worker.js with cache version: ${cacheVersion}`);
 } else {
   console.warn(`Service worker file not found: ${serviceWorkerPath}`);
 }
