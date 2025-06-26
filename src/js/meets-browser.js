@@ -51,8 +51,8 @@ function renderMeets(meets) {
   // Sort meets by date
   const sortedMeets = [...meets].sort((a, b) => {
     // Assume meet.date is a string in a format that can be converted to Date
-    const dateA = a.date ? new Date(a.date) : new Date(0);
-    const dateB = b.date ? new Date(b.date) : new Date(0);
+    const dateA = a.date ? new Date(a.date + 'T12:00:00') : new Date(0);
+    const dateB = b.date ? new Date(b.date + 'T12:00:00') : new Date(0);
     return dateA - dateB;
   });
 
@@ -61,7 +61,7 @@ function renderMeets(meets) {
   sortedMeets.forEach(meet => {
     if (!meet.date) return;
     
-    const meetDate = new Date(meet.date);
+    const meetDate = new Date(meet.date + 'T12:00:00');
     const dateKey = meetDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
     
     if (!meetsByDate[dateKey]) {

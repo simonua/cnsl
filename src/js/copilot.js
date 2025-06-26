@@ -830,7 +830,7 @@ function handleTeamMeetQuery(query, teams) {
       
       return `
         <div class="meet-item">
-          <div class="meet-date">${new Date(meet.date).toLocaleDateString()}</div>
+          <div class="meet-date">${new Date(meet.date + 'T12:00:00').toLocaleDateString()}</div>
           <div class="meet-details">
             <strong>${meet.name}</strong><br>
             vs ${opponent} ${isHome ? '(Home)' : '(Away)'}<br>
