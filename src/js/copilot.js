@@ -328,40 +328,66 @@ function handleSearch() {
  * @returns {string} HTML content to display as a response
  */
 function processQuery(query) {
+  console.log('🔍 SEARCH DECISION TREE START');
+  console.log('📝 Original Query:', `"${query}"`);
+  
+  // Parse and normalize the query
+  const normalizedQuery = query.toLowerCase().trim();
+  console.log('🔧 Normalized Query:', `"${normalizedQuery}"`);
+  
+  // Extract date/time context from query
+  const dateTimeContext = extractDateTimeContext(normalizedQuery);
+  console.log('📅 Date/Time Context:', dateTimeContext);
+  
   // DECISION TREE: Primary query categorization
   // ========================================
+  console.log('🌳 DECISION TREE: Starting primary categorization...');
   
   // BRANCH 1: Team-related queries (practice, meets, coach info)
   // Keywords: team names, "practice", "meet", "coach", location questions with team context
-  if (isTeamQuery(query)) {
-    return handleTeamQuery(query);
+  if (isTeamQuery(normalizedQuery)) {
+    console.log('✅ BRANCH 1: Team-related query detected');
+    console.log('🏊‍♀️ Routing to handleTeamQuery()');
+    return handleTeamQuery(normalizedQuery, dateTimeContext);
   }
   
   // BRANCH 2: Pool feature and status queries
   // Keywords: feature names, "open now", "available", pool characteristics
-  if (isPoolFeatureQuery(query)) {
-    return handlePoolFeatureQuery(query);
+  if (isPoolFeatureQuery(normalizedQuery)) {
+    console.log('✅ BRANCH 2: Pool feature/status query detected');
+    console.log('🎯 Routing to handlePoolFeatureQuery()');
+    return handlePoolFeatureQuery(normalizedQuery, dateTimeContext);
   }
   
   // BRANCH 3: Pool location and basic info queries
   // Keywords: "pool", "where", "location", "address", specific pool names
-  if (isPoolLocationQuery(query)) {
-    return handlePoolLocationQuery(query);
+  if (isPoolLocationQuery(normalizedQuery)) {
+    console.log('✅ BRANCH 3: Pool location query detected');
+    console.log('📍 Routing to handlePoolLocationQuery()');
+    return handlePoolLocationQuery(normalizedQuery, dateTimeContext);
   }
   
   // BRANCH 4: Meet schedule queries
   // Keywords: "meet", "event", "competition", "schedule", team names with meet context
-  if (isMeetQuery(query)) {
-    return handleMeetQuery(query);
+  if (isMeetQuery(normalizedQuery)) {
+    console.log('✅ BRANCH 4: Meet schedule query detected');
+    console.log('📅 Routing to handleMeetQuery()');
+    return handleMeetQuery(normalizedQuery, dateTimeContext);
   }
   
   // BRANCH 5: Pool hours and availability queries
   // Keywords: "hour", "open", "close", "time", "when does", "available"
-  if (isHoursQuery(query)) {
-    return handleHoursQuery(query);
+  if (isHoursQuery(normalizedQuery)) {
+    console.log('✅ BRANCH 5: Pool hours query detected');
+    console.log('🕒 Routing to handleHoursQuery()');
+    return handleHoursQuery(normalizedQuery, dateTimeContext);
   }
   
   // Default response with helpful suggestions
+  console.log('❌ NO MATCH: Query did not match any decision tree branches');
+  console.log('🤷‍♂️ Returning default response with suggestions');
+  console.log('🔍 SEARCH DECISION TREE END\n');
+  
   return `
     <div class="copilot-response error">
       <h3>🤔 I'm not sure about that</h3>
@@ -391,9 +417,10 @@ function processQuery(query) {
  * Handles queries related to teams, practice schedules, and coaching
  * Enhanced to support location queries like "Where is Marlins practice tonight?"
  * @param {string} query - The user's search query
+ * @param {Object} dateTimeContext - The parsed date/time context
  * @returns {string} HTML content to display as a response
  */
-function handleTeamQuery(query) {
+function handleTeamQuery(query, dateTimeContext = {}) {
   if (!teamData || !teamData.length) {
     return `
       <div class="copilot-response error">
@@ -424,6 +451,43 @@ function handleTeamQuery(query) {
   
   // BRANCH 3: General team information
   return handleGeneralTeamQuery(query, matchingTeams);
+}
+
+/**
+ * Extracts teams that match keywords found in the query
+ * @param {string} query - The user's search query
+ * @returns {Array} Array of matching team objects
+ */
+function extractTeamsFromQuery(query) {
+  console.log('🔍 Extracting teams from query:', `"${query}"`);
+
+  if (!teamData) {
+    return [];
+  }
+  
+  const queryLower = query.toLowerCase();
+  const matchingTeams = [];
+  
+  for (const team of teamData) {
+    console.log('🔎 Checking team:', team.name);
+    // Check if any team keywords are found in the query
+    if (team.keywords && team.keywords.some(keyword => 
+      queryLower.includes(keyword.toLowerCase())
+    )) {
+      matchingTeams.push(team);
+    }
+    // Also check the team name directly
+    else if (team.name && queryLower.includes(team.name.toLowerCase())) {
+      matchingTeams.push(team);
+    }
+  }
+
+  if (matchingTeams.length === 0) {
+    console.log('❌ No matching teams found for query:', `"${query}"`); 
+  } else {
+    console.log('✅ Matching teams found:', matchingTeams.map(t => t.name).join(', '));
+  }
+  return matchingTeams;
 }
 
 /**
@@ -479,7 +543,7 @@ function handlePracticeQuery(query, teams) {
         <h3>${team.name}</h3>
         <div class="team-details">
           ${practiceDetails || '<p>Detailed practice schedule not available.</p>'}
-          ${team.practice?.url ? `<div class="detail-item"><a href="${team.practice.url}" target="_blank" class="button">View Full Practice Schedule</a></div>` : ''}
+          ${team.practice?.url ? `<div class="detail-item"><a href="${team.practice.url}" target="_blank">View Full Practice Schedule</a></div>` : ''}
         </div>
       </div>
     `;
@@ -504,19 +568,30 @@ function handlePracticeQuery(query, teams) {
  * @returns {Object|null} - Current practice info or null
  */
 function getCurrentPracticeInfo(practices, date) {
-  const currentDate = date.toISOString().split('T')[0];
+  if (!practices || !Array.isArray(practices)) return null;
   
   return practices.find(practice => {
     if (!practice.period) return false;
     
-    // Extract dates from period string (e.g., "May 27 - May 30")
-    const dates = practice.period.match(/(\w+ \d+)/g);
-    if (!dates || dates.length < 2) return false;
-    
-    const startDate = new Date(`${dates[0]}, ${date.getFullYear()}`);
-    const endDate = new Date(`${dates[1]}, ${date.getFullYear()}`);
-    
-    return date >= startDate && date <= endDate;
+    try {
+      // Extract dates from period string (e.g., "May 27 - May 30")
+      const dates = practice.period.match(/(\w+ \d+)/g);
+      if (!dates || dates.length < 2) return false;
+      
+      const currentYear = date.getFullYear();
+      const startDate = new Date(`${dates[0]}, ${currentYear}`);
+      const endDate = new Date(`${dates[1]}, ${currentYear}`);
+      
+      // Handle year boundary (if end date is in next year)
+      if (endDate < startDate) {
+        endDate.setFullYear(currentYear + 1);
+      }
+      
+      return date >= startDate && date <= endDate;
+    } catch (error) {
+      console.warn('Error parsing practice period:', practice.period, error);
+      return false;
+    }
   });
 }
 
@@ -532,10 +607,13 @@ function formatPracticeInfo(practice, isTonight, isLocation, todayDay) {
   let html = '';
   
   if (practice.location) {
+    const mapQuery = encodeURIComponent(practice.address || practice.location);
+    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
+    
     html += `
       <div class="detail-item">
-        <strong>📍 Location:</strong> ${practice.location}
-        ${practice.address ? `<br><span class="address-text">${practice.address}</span>` : ''}
+        <strong>📍 Location:</strong> <a href="${mapsUrl}" target="_blank" rel="noopener">${practice.location}</a>
+        ${practice.address ? `<br><span class="address-text"><a href="${mapsUrl}" target="_blank" rel="noopener">${practice.address}</a></span>` : ''}
       </div>
     `;
   }
@@ -547,7 +625,7 @@ function formatPracticeInfo(practice, isTonight, isLocation, todayDay) {
         <div class="practice-schedule">
           ${practice.sessions.map(session => `
             <div class="session-item">
-              <span class="session-time">${session.time}</span> - 
+              <span class="session-time">${session.time}</span>
               <span class="session-group">${session.group}</span>
             </div>
           `).join('')}
@@ -569,39 +647,61 @@ function formatPracticeInfo(practice, isTonight, isLocation, todayDay) {
 
 /**
  * Formats regular practice information for display
- * @param {Array|Object} regularPractice - Regular practice schedule data
+ * @param {Object} regularPractice - Regular practice schedule data with morning/evening structure
  * @param {boolean} isLocation - Whether to focus on location information
  * @returns {string} - Formatted practice HTML
  */
 function formatRegularPracticeInfo(regularPractice, isLocation = false) {
   if (!regularPractice) return '';
   
-  // Handle array of practice periods
-  if (Array.isArray(regularPractice)) {
-    return regularPractice.map(practice => formatSinglePracticeInfo(practice, isLocation)).join('');
+  let html = '';
+  
+  // Handle morning practices
+  if (regularPractice.morning) {
+    html += formatSinglePracticeInfo(regularPractice.morning, isLocation, 'Mornings');
   }
   
-  // Handle single practice object
-  return formatSinglePracticeInfo(regularPractice, isLocation);
+  // Handle evening practices (array of day-specific practices)
+  if (regularPractice.evening && Array.isArray(regularPractice.evening)) {
+    regularPractice.evening.forEach(eveningPractice => {
+      const dayLabel = eveningPractice.day ? `${eveningPractice.day} Evening` : 'Evenings';
+      html += formatSinglePracticeInfo(eveningPractice, isLocation, dayLabel);
+    });
+  }
+  
+  // Add season information if available
+  if (regularPractice.season && !isLocation) {
+    html = `
+      <div class="detail-item">
+        <strong>📆 Season:</strong> ${regularPractice.season}
+      </div>
+    ` + html;
+  }
+  
+  return html;
 }
 
 /**
  * Formats a single practice period for display
  * @param {Object} practice - Single practice period object
  * @param {boolean} isLocation - Whether to focus on location information
+ * @param {string} label - Optional label for the practice session
  * @returns {string} - Formatted practice HTML
  */
-function formatSinglePracticeInfo(practice, isLocation = false) {
+function formatSinglePracticeInfo(practice, isLocation = false, label = '') {
   if (!practice) return '';
   
   let html = '';
   
   // Location information
   if (practice.location) {
+    const mapQuery = encodeURIComponent(practice.address || practice.location);
+    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
+    
     html += `
       <div class="detail-item">
-        <strong>📍 Location:</strong> ${practice.location}
-        ${practice.address ? `<br><span class="address-text">${practice.address}</span>` : ''}
+        <strong>📍 Location:</strong> <a href="${mapsUrl}" target="_blank" rel="noopener">${practice.location}</a>
+        ${practice.address ? `<br><span class="address-text"><a href="${mapsUrl}" target="_blank" rel="noopener">${practice.address}</a></span>` : ''}
       </div>
     `;
   }
@@ -616,6 +716,16 @@ function formatSinglePracticeInfo(practice, isLocation = false) {
     html += `
       <div class="detail-item">
         <strong>📅 Days:</strong> ${practice.days}
+      </div>
+    `;
+  }
+  
+  // Day-specific information (for evening practices)
+  // Only show if the day is not already in the label
+  if (practice.day && (!label || !label.toLowerCase().includes(practice.day.toLowerCase()))) {
+    html += `
+      <div class="detail-item">
+        <strong>📅 Day:</strong> ${practice.day}
       </div>
     `;
   }
@@ -651,6 +761,23 @@ function formatSinglePracticeInfo(practice, isLocation = false) {
     html += `
       <div class="detail-item">
         <strong>📆 Period:</strong> ${practice.period}
+      </div>
+    `;
+  }
+  
+  // If we have a label, wrap content in collapsible section
+  if (label && html) {
+    const sectionId = `practice-${label.toLowerCase().replace(/\s+/g, '-')}`;
+    return `
+      <div class="collapsible-section">
+        <button class="collapsible-header" onclick="toggleCollapsible('${sectionId}')" aria-expanded="true">
+          <span class="collapsible-title">🏊‍♀️ ${label}</span>
+        </button>
+        <div class="collapsible-content" id="${sectionId}">
+          <div style="padding-left: 20px;">
+            ${html}
+          </div>
+        </div>
       </div>
     `;
   }
@@ -808,9 +935,10 @@ function handleNoTeamFound(query) {
 /**
  * Handles queries related to pool locations and basic information
  * @param {string} query - The user's search query
+ * @param {Object} dateTimeContext - The parsed date/time context
  * @returns {string} HTML content to display as a response
  */
-function handlePoolLocationQuery(query) {
+function handlePoolLocationQuery(query, dateTimeContext = {}) {
   if (!poolData || !poolData.length) {
     return `
       <div class="copilot-response error">
@@ -921,9 +1049,10 @@ function handleNoPoolLocationFound(query) {
  * Handles queries related to pool features and current availability
  * Enhanced to filter by multiple features and current open status
  * @param {string} query - The user's search query
+ * @param {Object} dateTimeContext - The parsed date/time context
  * @returns {string} HTML content to display as a response
  */
-function handlePoolFeatureQuery(query) {
+function handlePoolFeatureQuery(query, dateTimeContext = {}) {
   if (!poolData || !poolData.length) {
     return `
       <div class="copilot-response error">
@@ -1177,9 +1306,10 @@ function handleNoPoolsFound(query, features, wantsOpenNow) {
 /**
  * Handles queries related to meets
  * @param {string} query - The user's search query
+ * @param {Object} dateTimeContext - The parsed date/time context
  * @returns {string} HTML content to display as a response
  */
-function handleMeetQuery(query) {
+function handleMeetQuery(query, dateTimeContext = {}) {
   if (!meetData || !meetData.length) {
     return `
       <div class="copilot-response info">
@@ -1238,9 +1368,10 @@ function handleMeetQuery(query) {
 /**
  * Handles queries related to pool opening hours
  * @param {string} query - The user's search query
+ * @param {Object} dateTimeContext - The parsed date/time context
  * @returns {string} HTML content to display as a response
  */
-function handleHoursQuery(query) {
+function handleHoursQuery(query, dateTimeContext = {}) {
   if (!poolData || !poolData.length) {
     return `
       <div class="copilot-response info">
@@ -1340,6 +1471,28 @@ function handleHoursQuery(query) {
   `;
 }
 
+/**
+ * Toggles the visibility of a collapsible content section
+ * @param {string} sectionId - The ID of the section to toggle
+ */
+function toggleCollapsible(sectionId) {
+  const content = document.getElementById(sectionId);
+  const header = content?.previousElementSibling;
+  
+  if (!content || !header) return;
+  
+  const isExpanded = header.getAttribute('aria-expanded') === 'true';
+  
+  // Toggle the content visibility
+  if (isExpanded) {
+    content.style.display = 'none';
+    header.setAttribute('aria-expanded', 'false');
+  } else {
+    content.style.display = 'block';
+    header.setAttribute('aria-expanded', 'true');
+  }
+}
+
 // ------------------------------
 //    QUERY DECISION TREE HELPERS
 // ------------------------------
@@ -1351,6 +1504,8 @@ function handleHoursQuery(query) {
  * @returns {boolean} - True if query is team-related
  */
 function isTeamQuery(query) {
+  console.log('🔍 Checking BRANCH 1: Team-related query...');
+  
   const teamKeywords = ['practice', 'coach', 'team', 'marlins', 'long reach', 'phelps luck', 'wilde lake', 
                        'owen brown', 'thunder hill', 'pointers run', 'clary', 'swansfield', 'hawthorn',
                        'dorsey search', 'huntington', 'kings contrivance', 'harper', 'pheasant ridge',
@@ -1359,9 +1514,25 @@ function isTeamQuery(query) {
   const practiceKeywords = ['practice', 'training', 'warm up', 'warmup'];
   const locationWithTeam = query.includes('where') && teamKeywords.some(team => query.includes(team));
   
-  return teamKeywords.some(keyword => query.includes(keyword)) || 
-         practiceKeywords.some(keyword => query.includes(keyword)) ||
-         locationWithTeam;
+  const foundTeamKeywords = teamKeywords.filter(keyword => query.includes(keyword));
+  const foundPracticeKeywords = practiceKeywords.filter(keyword => query.includes(keyword));
+  
+  const isTeamRelated = teamKeywords.some(keyword => query.includes(keyword)) || 
+                       practiceKeywords.some(keyword => query.includes(keyword)) ||
+                       locationWithTeam;
+  
+  if (foundTeamKeywords.length > 0) {
+    console.log('  ✅ Found team keywords:', foundTeamKeywords);
+  }
+  if (foundPracticeKeywords.length > 0) {
+    console.log('  ✅ Found practice keywords:', foundPracticeKeywords);
+  }
+  if (locationWithTeam) {
+    console.log('  ✅ Found location + team combination');
+  }
+  
+  console.log(`  📊 Team query result: ${isTeamRelated}`);
+  return isTeamRelated;
 }
 
 /**
@@ -1370,14 +1541,33 @@ function isTeamQuery(query) {
  * @returns {boolean} - True if query is about pool features/status
  */
 function isPoolFeatureQuery(query) {
+  console.log('🔍 Checking BRANCH 2: Pool feature/status query...');
+  
   const featureKeywords = ['slide', 'diving', 'lap', 'feature', 'hot tub', 'spa', 'wading', 'kiddie',
                           'wifi', 'lift', 'ada', 'accessible', 'volleyball', 'basketball', 'play'];
   const statusKeywords = ['open now', 'available now', 'currently open', 'right now'];
   const availabilityKeywords = ['which pools', 'what pools', 'pools that have', 'pools with'];
   
-  return featureKeywords.some(keyword => query.includes(keyword)) ||
-         statusKeywords.some(keyword => query.includes(keyword)) ||
-         availabilityKeywords.some(keyword => query.includes(keyword));
+  const foundFeatureKeywords = featureKeywords.filter(keyword => query.includes(keyword));
+  const foundStatusKeywords = statusKeywords.filter(keyword => query.includes(keyword));
+  const foundAvailabilityKeywords = availabilityKeywords.filter(keyword => query.includes(keyword));
+  
+  const isFeatureQuery = featureKeywords.some(keyword => query.includes(keyword)) ||
+                        statusKeywords.some(keyword => query.includes(keyword)) ||
+                        availabilityKeywords.some(keyword => query.includes(keyword));
+  
+  if (foundFeatureKeywords.length > 0) {
+    console.log('  ✅ Found feature keywords:', foundFeatureKeywords);
+  }
+  if (foundStatusKeywords.length > 0) {
+    console.log('  ✅ Found status keywords:', foundStatusKeywords);
+  }
+  if (foundAvailabilityKeywords.length > 0) {
+    console.log('  ✅ Found availability keywords:', foundAvailabilityKeywords);
+  }
+  
+  console.log(`  📊 Pool feature query result: ${isFeatureQuery}`);
+  return isFeatureQuery;
 }
 
 /**
@@ -1386,14 +1576,35 @@ function isPoolFeatureQuery(query) {
  * @returns {boolean} - True if query is about pool locations
  */
 function isPoolLocationQuery(query) {
+  console.log('🔍 Checking BRANCH 3: Pool location query...');
+  
   const locationKeywords = ['where', 'location', 'address', 'directions', 'how to get'];
   const poolKeywords = ['pool', 'swim', 'swimming'];
   const hasPoolName = poolData && poolData.some(pool => 
     pool.name && query.toLowerCase().includes(pool.name.toLowerCase())
   );
   
-  return (locationKeywords.some(keyword => query.includes(keyword)) && 
-          poolKeywords.some(keyword => query.includes(keyword))) || hasPoolName;
+  const foundLocationKeywords = locationKeywords.filter(keyword => query.includes(keyword));
+  const foundPoolKeywords = poolKeywords.filter(keyword => query.includes(keyword));
+  const matchedPoolNames = hasPoolName ? poolData.filter(pool => 
+    pool.name && query.toLowerCase().includes(pool.name.toLowerCase())
+  ).map(pool => pool.name) : [];
+  
+  const isLocationQuery = (locationKeywords.some(keyword => query.includes(keyword)) && 
+                          poolKeywords.some(keyword => query.includes(keyword))) || hasPoolName;
+  
+  if (foundLocationKeywords.length > 0) {
+    console.log('  ✅ Found location keywords:', foundLocationKeywords);
+  }
+  if (foundPoolKeywords.length > 0) {
+    console.log('  ✅ Found pool keywords:', foundPoolKeywords);
+  }
+  if (matchedPoolNames.length > 0) {
+    console.log('  ✅ Found pool names:', matchedPoolNames);
+  }
+  
+  console.log(`  📊 Pool location query result: ${isLocationQuery}`);
+  return isLocationQuery;
 }
 
 /**
@@ -1402,12 +1613,28 @@ function isPoolLocationQuery(query) {
  * @returns {boolean} - True if query is about meets
  */
 function isMeetQuery(query) {
+  console.log('  🏊 Checking if meet query for:', `"${query}"`);
+  
   const meetKeywords = ['meet', 'competition', 'event', 'dual meet', 'championship', 'finals'];
   const scheduleKeywords = ['schedule', 'when', 'next meet', 'upcoming'];
   
-  return meetKeywords.some(keyword => query.includes(keyword)) ||
-         (scheduleKeywords.some(keyword => query.includes(keyword)) && 
-          !query.includes('practice') && !query.includes('pool'));
+  const foundMeetKeywords = meetKeywords.filter(keyword => query.includes(keyword));
+  const foundScheduleKeywords = scheduleKeywords.filter(keyword => query.includes(keyword));
+  const hasPracticeExclusion = query.includes('practice');
+  const hasPoolExclusion = query.includes('pool');
+  
+  console.log('    🎯 Found meet keywords:', foundMeetKeywords);
+  console.log('    📅 Found schedule keywords:', foundScheduleKeywords);
+  console.log('    🚫 Has practice exclusion:', hasPracticeExclusion);
+  console.log('    🚫 Has pool exclusion:', hasPoolExclusion);
+  
+  const isMeetKeywordMatch = foundMeetKeywords.length > 0;
+  const isScheduleKeywordMatch = foundScheduleKeywords.length > 0 && !hasPracticeExclusion && !hasPoolExclusion;
+  const result = isMeetKeywordMatch || isScheduleKeywordMatch;
+  
+  console.log(`    ✅ Meet query result: ${result} (meet: ${isMeetKeywordMatch}, schedule: ${isScheduleKeywordMatch})`);
+  
+  return result;
 }
 
 /**
@@ -1416,64 +1643,160 @@ function isMeetQuery(query) {
  * @returns {boolean} - True if query is about hours
  */
 function isHoursQuery(query) {
+  console.log('  🕒 Checking if hours query for:', `"${query}"`);
+  
   const timeKeywords = ['hour', 'time', 'open', 'close', 'when does', 'what time', 'schedule'];
   const excludeKeywords = ['practice', 'meet', 'team']; // Don't match practice/meet schedules
   
-  return timeKeywords.some(keyword => query.includes(keyword)) &&
-         !excludeKeywords.some(keyword => query.includes(keyword));
-}
-
-/**
- * Extracts team identifiers from a query string
- * @param {string} query - The user's search query
- * @returns {Array} - Array of matching team objects
- */
-function extractTeamsFromQuery(query) {
-  if (!teamData || !Array.isArray(teamData)) return [];
+  const foundTimeKeywords = timeKeywords.filter(keyword => query.includes(keyword));
+  const foundExcludeKeywords = excludeKeywords.filter(keyword => query.includes(keyword));
   
-  return teamData.filter(team => {
-    // Check main team name
-    if (team.name && query.toLowerCase().includes(team.name.toLowerCase())) {
-      return true;
-    }
-    
-    // Check keywords array
-    if (team.keywords && Array.isArray(team.keywords)) {
-      return team.keywords.some(keyword => 
-        query.toLowerCase().includes(keyword.toLowerCase())
-      );
-    }
-    
-    return false;
-  });
+  console.log('    ⏰ Found time keywords:', foundTimeKeywords);
+  console.log('    🚫 Found exclude keywords:', foundExcludeKeywords);
+  
+  const hasTimeKeywords = foundTimeKeywords.length > 0;
+  const hasExcludeKeywords = foundExcludeKeywords.length > 0;
+  const result = hasTimeKeywords && !hasExcludeKeywords;
+  
+  console.log(`    ✅ Hours query result: ${result} (time: ${hasTimeKeywords}, excluded: ${hasExcludeKeywords})`);
+  
+  return result;
 }
 
 /**
- * Extracts pool features from a query string
- * @param {string} query - The user's search query
- * @returns {Array} - Array of feature strings to filter by
+ * Extracts and parses date/time context from natural language queries
+ * Handles relative dates like "tonight", "tomorrow", "this Tuesday", etc.
+ * @param {string} query - The normalized query string
+ * @returns {Object} - Date/time context object
  */
-function extractFeaturesFromQuery(query) {
-  const featureMap = {
-    'slide': ['slide', 'water slide'],
-    'diving': ['diving', 'dive', 'diving board'],
-    'lap': ['lap', 'laps', 'lap pool', 'lap swimming'],
-    'hot tub': ['hot tub', 'spa', 'jacuzzi'],
-    'wading': ['wading', 'kiddie', 'children', 'toddler'],
-    'wifi': ['wifi', 'wireless', 'internet'],
-    'lift': ['lift', 'accessibility', 'disabled'],
-    'ada': ['ada', 'accessible', 'wheelchair', 'disabled'],
-    'volleyball': ['volleyball', 'volley ball'],
-    'basketball': ['basketball', 'basket ball'],
-    'play': ['play features', 'playground', 'play area', 'water features']
+function extractDateTimeContext(query) {
+  const context = {
+    hasTimeReference: false,
+    targetDate: null,
+    timeOfDay: null,
+    dayOfWeek: null,
+    isToday: false,
+    isTomorrow: false,
+    isThisWeek: false,
+    relativeDay: null,
+    originalText: []
   };
   
-  const foundFeatures = [];
-  Object.entries(featureMap).forEach(([feature, keywords]) => {
-    if (keywords.some(keyword => query.toLowerCase().includes(keyword))) {
-      foundFeatures.push(feature);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  
+  // Time of day patterns
+  const timeOfDayPatterns = {
+    'tonight': { timeOfDay: 'evening', targetDate: today },
+    'this evening': { timeOfDay: 'evening', targetDate: today },
+    'this afternoon': { timeOfDay: 'afternoon', targetDate: today },
+    'this morning': { timeOfDay: 'morning', targetDate: today },
+    'right now': { timeOfDay: 'current', targetDate: today },
+    'currently': { timeOfDay: 'current', targetDate: today }
+  };
+  
+  // Day reference patterns
+  const dayPatterns = {
+    'today': { targetDate: today, isToday: true },
+    'tomorrow': { 
+      targetDate: new Date(today.getTime() + 24 * 60 * 60 * 1000), 
+      isTomorrow: true 
+    }
+  };
+  
+  // Day of week patterns
+  const dayOfWeekMap = {
+    'sunday': 0, 'monday': 1, 'tuesday': 2, 'wednesday': 3,
+    'thursday': 4, 'friday': 5, 'saturday': 6,
+    'sun': 0, 'mon': 1, 'tue': 2, 'wed': 3,
+    'thu': 4, 'fri': 5, 'sat': 6
+  };
+  
+  // Check for time of day references
+  Object.entries(timeOfDayPatterns).forEach(([pattern, data]) => {
+    if (query.includes(pattern)) {
+      context.hasTimeReference = true;
+      context.timeOfDay = data.timeOfDay;
+      context.targetDate = data.targetDate;
+      context.originalText.push(pattern);
+      
+      if (data.targetDate.getTime() === today.getTime()) {
+        context.isToday = true;
+      }
     }
   });
   
-  return foundFeatures;
+  // Check for day references
+  Object.entries(dayPatterns).forEach(([pattern, data]) => {
+    if (query.includes(pattern)) {
+      context.hasTimeReference = true;
+      context.targetDate = data.targetDate;
+      context.isToday = data.isToday || false;
+      context.isTomorrow = data.isTomorrow || false;
+      context.originalText.push(pattern);
+    }
+  });
+  
+  // Check for "this [day]" patterns
+  const thisPattern = /this\s+(sunday|monday|tuesday|wednesday|thursday|friday|saturday|sun|mon|tue|wed|thu|fri|sat)/i;
+  const thisMatch = query.match(thisPattern);
+  if (thisMatch) {
+    const dayName = thisMatch[1].toLowerCase();
+    const targetDayNumber = dayOfWeekMap[dayName];
+    
+    if (targetDayNumber !== undefined) {
+      const currentDayNumber = now.getDay();
+      let daysUntilTarget = targetDayNumber - currentDayNumber;
+      
+      // If the target day has passed this week, get next week's occurrence
+      if (daysUntilTarget < 0) {
+        daysUntilTarget += 7;
+      }
+      
+      const targetDate = new Date(today.getTime() + daysUntilTarget * 24 * 60 * 60 * 1000);
+      
+      context.hasTimeReference = true;
+      context.targetDate = targetDate;
+      context.dayOfWeek = dayName;
+      context.isThisWeek = daysUntilTarget <= 6;
+      context.relativeDay = `this ${dayName}`;
+      context.originalText.push(thisMatch[0]);
+      
+      if (daysUntilTarget === 0) {
+        context.isToday = true;
+      } else if (daysUntilTarget === 1) {
+        context.isTomorrow = true;
+      }
+    }
+  }
+  
+  // Check for standalone day names (assume this week)
+  Object.entries(dayOfWeekMap).forEach(([dayName, dayNumber]) => {
+    if (query.includes(dayName) && !context.hasTimeReference) {
+      const currentDayNumber = now.getDay();
+      let daysUntilTarget = dayNumber - currentDayNumber;
+      
+      // If the day has passed, assume next week
+      if (daysUntilTarget < 0) {
+        daysUntilTarget += 7;
+      }
+      
+      const targetDate = new Date(today.getTime() + daysUntilTarget * 24 * 60 * 60 * 1000);
+      
+      context.hasTimeReference = true;
+      context.targetDate = targetDate;
+      context.dayOfWeek = dayName;
+      context.isThisWeek = daysUntilTarget <= 6;
+      context.relativeDay = dayName;
+      context.originalText.push(dayName);
+      
+      if (daysUntilTarget === 0) {
+        context.isToday = true;
+      } else if (daysUntilTarget === 1) {
+        context.isTomorrow = true;
+      }
+    }
+  });
+  
+  return context;
 }
