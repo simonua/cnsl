@@ -108,7 +108,7 @@ function renderMeets(meets) {
     meetsByDate[dateKey].forEach(meet => {
       const location = meet.location || 'TBA';
       // Use standard meet time of 8:00-noon for regular meets
-      const time = meet.time || (meet.name ? 'TBA' : '8:00 AM - 12:00 PM');
+      const time = meet.time || ('8:00 AM - 12:00 PM');
       let meetContent = '';
       
       // Check if meet is today or upcoming
