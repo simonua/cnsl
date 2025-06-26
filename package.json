@@ -5,9 +5,9 @@
   "main": "service-worker.js",
   "scripts": {
     "build": "node posthtml.js",
-    "watch": "nodemon --watch src -e html,css,js --exec \"node posthtml.js\"",
+    "watch": "nodemon --watch src -e html,css,js --delay 500ms --exec \"node posthtml.js\"",
     "serve": "http-server ./out -p 9090 -c-1 -o",
-    "serve-live": "live-server ./out --port=9090 --open --no-css-inject",
+    "serve-live": "live-server ./out --port=9090 --open --no-css-inject --wait=500",
     "dev": "npm run build && npm run serve",
     "dev:watch": "concurrently \"npm run watch\" \"npm run serve-live\"",
     "start": "npm run dev:watch",
