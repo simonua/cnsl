@@ -74,8 +74,36 @@ function renderMeets(meets) {
   let html = '';
   
   Object.keys(meetsByDate).forEach(dateKey => {
-    html += `<h3 class="meet-date">${dateKey}</h3>`;
-    html += '<div class="meet-group">';
+    const meetDate = new Date(meetsByDate[dateKey][0].date);
+    const isUpcoming = meetDate >= today;
+    const isToday = meetDate.toDateString() === today.toDateString();
+    
+    // Determine status for the date group
+    let statusClass = 'upcoming';
+    let statusText = 'Upcoming';
+    
+    if (isToday) {
+      statusClass = 'today';
+      statusText = 'Today';
+    } else if (!isUpcoming) {
+      statusClass = 'past';
+      statusText = 'Past';
+    }
+    
+    // Get the meet name from the first meet on this date
+    const meetName = meetsByDate[dateKey][0].name || '';
+    
+    html += `
+      <div class="meet-date-card collapsed">
+        <div class="meet-date-header" onclick="toggleMeetDate(this)">
+          <div class="date-and-name">
+            <h3>${dateKey}</h3>
+            ${meetName ? `<span class="meet-name-header">${meetName}</span>` : ''}
+          </div>
+          <span class="meet-status-indicator ${statusClass}"></span>
+        </div>
+        <div class="meet-date-details">
+    `;
     
     meetsByDate[dateKey].forEach(meet => {
       const location = meet.location || 'TBA';
@@ -119,8 +147,8 @@ function renderMeets(meets) {
       }
       
       // Check if it's a special meet (has name property) or regular meet
-      if (meet.name) {
-        // Special meet format
+      if (meet.name && !meet.home_team && !meet.visiting_team) {
+        // Special meet format (only special meets without teams)
         meetClasses += " special-meet";
         meetContent = `
           <div class="${meetClasses}">
@@ -133,13 +161,13 @@ function renderMeets(meets) {
           </div>
         `;
       } else {
-        // Regular meet format
+        // Regular meet format (show teams)
         const homeTeam = meet.home_team || 'TBA';
         const visitingTeam = meet.visiting_team || 'TBA';
         
         meetContent = `
           <div class="${meetClasses}">
-            <div class="meet-teams">${homeTeam} vs. ${visitingTeam}</div>
+            <div class="meet-teams">${visitingTeam} vs. ${homeTeam}</div>
             <div class="meet-details">
               <span class="meet-location">${locationLink}</span>
               <span class="meet-time">${time}</span>
@@ -152,7 +180,10 @@ function renderMeets(meets) {
       html += meetContent;
     });
     
-    html += '</div>';
+    html += `
+        </div>
+      </div>
+    `;
   });
 
   // If no meets have valid dates
@@ -161,6 +192,15 @@ function renderMeets(meets) {
   }
 
   list.innerHTML = html;
+}
+
+/**
+ * Toggles the collapsed state of a meet date card
+ * @param {Element} headerElement - The clicked header element
+ */
+function toggleMeetDate(headerElement) {
+  const meetCard = headerElement.closest('.meet-date-card');
+  meetCard.classList.toggle('collapsed');
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -184,7 +224,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(([meetsJson, poolsJson]) => {
       console.log("Loaded meet and pool data");
       meetsData = meetsJson;
-      poolsData = poolsJson;
+      poolsData = poolsJson.pools || poolsJson; // Handle both new structure and backward compatibility
       
       // Combine regular meets and special meets
       const allMeets = [
