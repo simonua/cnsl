@@ -109,7 +109,7 @@
                 "endTime": {
                     "$ref": "#/definitions/TimeType"
                 },
-                "type": {
+                "types": {
                     "oneOf": [
                         {
                             "$ref": "#/definitions/ScheduleType"
@@ -149,17 +149,20 @@
         "FeatureType": {
             "type": "string",
             "enum": [
+                "ADA compliant",
                 "basketball",
+                "beach entry",
                 "dive",
+                "hot tub",
                 "lap",
+                "play features",
+                "pool lift",
                 "shade",
                 "slide",
                 "splash",
                 "volleyball",
                 "wading",
-                "wifi",
-                "hot tub",
-                "pool lift"
+                "wifi"
             ]
         },
         "WeekDayType": {
@@ -179,9 +182,13 @@
             "enum": [
                 "Aqua Fitness",
                 "Closed",
+                "Closed to Public",
+                "CNSL Practice Only",
                 "Laps",
+                "Lessons",
                 "Rec Swim",
-                "Swim Meet"
+                "Swim Meet",
+                "Wading Pool"
             ]
         },
         "TimeType": {

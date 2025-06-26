@@ -28,7 +28,7 @@
               ],
               "startTime": "12:00pm",
               "endTime": "7:00pm",
-              "type": [
+              "types": [
                 "Laps",
                 "Rec Swim"
               ]
@@ -48,7 +48,7 @@
               ],
               "startTime": "4:00pm",
               "endTime": "7:00pm",
-              "type": [
+              "types": [
                 "Laps",
                 "Rec Swim"
               ]
@@ -57,7 +57,7 @@
               "weekDays": [
                 "Tue"
               ],
-              "notes": "Closed to public"
+              "types": "Closed to Public"
             },
             {
               "weekDays": [
@@ -66,7 +66,7 @@
               ],
               "startTime": "12:00pm",
               "endTime": "7:00pm",
-              "type": [
+              "types": [
                 "Laps",
                 "Rec Swim"
               ]
@@ -85,7 +85,7 @@
               ],
               "startTime": "10:45am",
               "endTime": "12:00pm",
-              "type": [
+              "types": [
                 "Aqua Fitness"
               ]
             },
@@ -97,7 +97,7 @@
               ],
               "startTime": "12:00pm",
               "endTime": "5:45pm",
-              "type": [
+              "types": [
                 "Laps",
                 "Rec Swim"
               ]
@@ -110,7 +110,7 @@
               ],
               "startTime": "5:45pm",
               "endTime": "8:00pm",
-              "type": [
+              "types": [
                 "Laps"
               ]
             },
@@ -120,7 +120,7 @@
               ],
               "startTime": "10:45am",
               "endTime": "12:00pm",
-              "type": [
+              "types": [
                 "Aqua Fitness"
               ]
             },
@@ -130,10 +130,9 @@
               ],
               "startTime": "12:00pm",
               "endTime": "8:00pm",
-              "type": [
-                "Closed"
-              ],
-              "notes": "Closed to public"
+              "types": [
+                "Closed to Public"
+              ]
             }
           ]
         },
@@ -150,7 +149,7 @@
               ],
               "startTime": "12:00pm",
               "endTime": "4:30pm",
-              "type": [
+              "types": [
                 "Laps",
                 "Rec Swim"
               ]
@@ -164,7 +163,7 @@
               ],
               "startTime": "4:30pm",
               "endTime": "7:00pm",
-              "type": [
+              "types": [
                 "Laps"
               ]
             },
@@ -172,10 +171,9 @@
               "weekDays": [
                 "Tue"
               ],
-              "type": [
-                "Closed"
-              ],
-              "notes": "Closed to public"
+              "types": [
+                "Closed to Public"
+              ]
             },
             {
               "weekDays": [
@@ -184,7 +182,7 @@
               ],
               "startTime": "12:00pm",
               "endTime": "7:00pm",
-              "type": [
+              "types": [
                 "Laps",
                 "Rec Swim"
               ]
@@ -203,10 +201,9 @@
                 "Thu",
                 "Fri"
               ],
-              "type": [
-                "Closed"
-              ],
-              "notes": "Closed to public"
+              "types": [
+                "Closed to Public"
+              ]
             },
             {
               "weekDays": [
@@ -215,7 +212,7 @@
               ],
               "startTime": "12:00pm",
               "endTime": "6:00pm",
-              "type": [
+              "types": [
                 "Laps",
                 "Rec Swim"
               ]
@@ -232,7 +229,265 @@
               ],
               "startTime": "12:00pm",
               "endTime": "6:00pm",
-              "type": [
+              "types": [
+                "Laps",
+                "Rec Swim"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Kendall Ridge",
+      "address": "8245 Tamar Dr, Columbia, MD 21045",
+      "mapsQuery": "Kendall Ridge Pool Columbia MD",
+      "lat": 39.2035,
+      "lng": -76.8382,
+      "features": [
+        "ADA compliant",
+        "beach entry",
+        "hot tub",
+        "play features",
+        "pool lift",
+        "volleyball",
+        "wifi"
+      ],
+      "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Kendall_Ridge.pdf",
+      "schedules": [
+        {
+          "startDate": "2025-05-24",
+          "endDate": "2025-05-26",
+          "hours": [
+            {
+              "weekDays": [
+                "Sat",
+                "Sun",
+                "Mon"
+              ],
+              "startTime": "12:00pm",
+              "endTime": "7:00pm",
+              "types": [
+                "Laps",
+                "Rec Swim"
+              ]
+            }
+          ]
+        },
+        {
+          "startDate": "2025-05-27",
+          "endDate": "2025-06-18",
+          "hours": [
+            {
+              "weekDays": [
+                "Mon",
+                "Tue",
+                "Wed",
+                "Thu",
+                "Fri"
+              ],
+              "startTime": "4:00pm",
+              "endTime": "7:00pm",
+              "types": [
+                "Laps",
+                "Rec Swim"
+              ]
+            },
+            {
+              "weekDays": [
+                "Sat",
+                "Sun"
+              ],
+              "startTime": "12:00pm",
+              "endTime": "7:00pm",
+              "types": [
+                "Laps",
+                "Rec Swim"
+              ]
+            }
+          ]
+        },
+        {
+          "startDate": "2025-06-19",
+          "endDate": "2025-08-10",
+          "hours": [
+            {
+              "weekDays": [
+                "Mon",
+                "Tue",
+                "Wed",
+                "Thu",
+                "Fri"
+              ],
+              "startTime": "10:00am",
+              "endTime": "12:00pm",
+              "types": [
+                "Lessons",
+                "Wading Pool"
+              ]
+            },
+            {
+              "weekDays": [
+                "Mon",
+                "Wed",
+                "Thu",
+                "Fri"
+              ],
+              "startTime": "12:00pm",
+              "endTime": "8:00pm",
+              "types": [
+                "Laps",
+                "Rec Swim"
+              ]
+            },
+            {
+              "weekDays": [
+                "Tue",
+                "Wed",
+                "Thu",
+                "Fri"
+              ],
+              "startTime": "8:00am",
+              "endTime": "10:00am",
+              "types": [
+                "CNSL Practice Only"
+              ]
+            },
+            {
+              "weekDays": [
+                "Tue"
+              ],
+              "startTime": "12:00pm",
+              "endTime": "5:00pm",
+              "types": [
+                "Closed to Public"
+              ]
+            },
+            {
+              "weekDays": [
+                "Tue"
+              ],
+              "startTime": "5:00pm",
+              "endTime": "8:00pm",
+              "types": [
+                "CNSL Practice Only"
+              ]
+            },
+            {
+              "weekDays": [
+                "Sat"
+              ],
+              "startTime": "10:00am",
+              "endTime": "8:00pm",
+              "types": [
+                "Laps",
+                "Rec Swim"
+              ]
+            },
+            {
+              "weekDays": [
+                "Sat"
+              ],
+              "startTime": "11:00am",
+              "endTime": "7:00pm",
+              "types": [
+                "Laps",
+                "Rec Swim"
+              ]
+            }
+          ]
+        },
+        {
+          "startDate": "2025-08-11",
+          "endDate": "2025-08-24",
+          "hours": [
+            {
+              "weekDays": [
+                "Sun",
+                "Mon",
+                "Wed",
+                "Thu"
+              ],
+              "startTime": "12:00pm",
+              "endTime": "7:00pm",
+              "types": [
+                "Laps",
+                "Rec Swim"
+              ]
+            },
+            {
+              "weekDays": [
+                "Tue"
+              ],
+              "types": [
+                "Closed to Public"
+              ]
+            },
+            {
+              "weekDays": [
+                "Fri",
+                "Sat"
+              ],
+              "startTime": "12:00pm",
+              "endTime": "8:00pm",
+              "types": [
+                "Laps",
+                "Rec Swim"
+              ]
+            }
+          ]
+        },
+        {
+          "startDate": "2025-08-25",
+          "endDate": "2025-08-31",
+          "hours": [
+            {
+              "weekDays": [
+                "Mon",
+                "Tue",
+                "Wed",
+                "Thu"
+              ],
+              "types": [
+                "Closed to Public"
+              ]
+            },
+            {
+              "weekDays": [
+                "Fri"
+              ],
+              "startTime": "4:00pm",
+              "endTime": "7:00pm",
+              "types": [
+                "Laps",
+                "Rec Swim"
+              ]
+            },
+            {
+              "weekDays": [
+                "Sat",
+                "Sun"
+              ],
+              "startTime": "12:00pm",
+              "endTime": "7:00pm",
+              "types": [
+                "Laps",
+                "Rec Swim"
+              ]
+            }
+          ]
+        },
+        {
+          "startDate": "2025-09-01",
+          "endDate": "2025-09-01",
+          "hours": [
+            {
+              "weekDays": [
+                "Mon"
+              ],
+              "startTime": "12:00pm",
+              "endTime": "6:00pm",
+              "types": [
                 "Laps",
                 "Rec Swim"
               ]
