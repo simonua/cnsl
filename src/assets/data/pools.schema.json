@@ -180,6 +180,7 @@
         "ScheduleType": {
             "type": "string",
             "enum": [
+                "Adult Swim",
                 "Aqua Fitness",
                 "Closed",
                 "Closed to Public",
