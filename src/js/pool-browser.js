@@ -1,6 +1,229 @@
 let poolBrowserData = []; // Renamed to avoid conflict with copilot.js
 let userCoords = null;
 
+
+// ------------------------------
+//    UTILITY FUNCTIONS
+// ------------------------------
+
+/**
+ * Checks if a pool is currently open based on its schedule
+ * @param {Object} pool - Pool object with schedules property
+ * @returns {boolean} - True if the pool is currently open
+ */
+function isPoolOpen(pool) {
+  if (!pool.schedules || !Array.isArray(pool.schedules)) {
+    return false;
+  }
+
+  const now = new Date();
+  const currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
+  const currentDay = now.toLocaleDateString('en-US', { weekday: 'short' }); // Mon, Tue, etc.
+  const currentTime = now.getHours() * 60 + now.getMinutes(); // Minutes since midnight
+
+  // Find the current active schedule
+  const activeSchedule = pool.schedules.find(schedule => {
+    return currentDate >= schedule.startDate && currentDate <= schedule.endDate;
+  });
+
+  if (!activeSchedule || !activeSchedule.hours) {
+    return false;
+  }
+
+  // Find today's hours - there might be multiple time slots for the same day
+  const todayHours = activeSchedule.hours.filter(h => 
+    h.weekDays && h.weekDays.includes(currentDay)
+  );
+  if (!todayHours.length) {
+    return false;
+  }
+
+  // Check if current time falls within any of today's time slots
+  return todayHours.some(hour => {
+    const startMinutes = timeStringToMinutes(hour.startTime);
+    const endMinutes = timeStringToMinutes(hour.endTime);
+    return currentTime >= startMinutes && currentTime <= endMinutes;
+  });
+}
+
+/**
+ * Formats activity types for display
+ * @param {string|Array} types - Single type string or array of types
+ * @returns {string} - Formatted types string
+ */
+function formatActivityTypes(types) {
+  if (!types) return '';
+  if (typeof types === 'string') return types;
+  if (Array.isArray(types)) return types.join(', ');
+  return '';
+}
+
+/**
+ * Converts time string (e.g., "6:00AM", "10:30PM") to minutes since midnight
+ * @param {string} timeStr - Time string in format "H:MMAM/PM"
+ * @returns {number} - Minutes since midnight
+ */
+function timeStringToMinutes(timeStr) {
+  const match = timeStr.match(/(\d{1,2}):?(\d{0,2})(AM|PM)/i);
+  if (!match) return 0;
+
+  const hours = parseInt(match[1]);
+  const minutes = parseInt(match[2] || '0');
+  const period = match[3].toUpperCase();
+
+  let adjustedHours = hours;
+  if (period === 'PM' && hours !== 12) {
+    adjustedHours += 12;
+  } else if (period === 'AM' && hours === 12) {
+    adjustedHours = 0;
+  }
+
+  return adjustedHours * 60 + minutes;
+}
+
+/**
+ * Formats pool schedule for display
+ * @param {Object} pool - Pool object with schedules property
+ * @returns {string} - HTML string for displaying hours
+ */
+function formatPoolHours(pool) {
+  if (!pool.schedules || !Array.isArray(pool.schedules) || pool.schedules.length === 0) {
+    return '<div class="pool-hours"><strong>🕒 Hours:</strong> Not available</div>';
+  }
+
+  const now = new Date();
+  const currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
+  
+  // Find the current active schedule
+  const activeSchedule = pool.schedules.find(schedule => {
+    return currentDate >= schedule.startDate && currentDate <= schedule.endDate;
+  });
+
+  if (!activeSchedule || !activeSchedule.hours) {
+    return '<div class="pool-hours"><strong>🕒 Hours:</strong> No current schedule available</div>';
+  }
+
+  const isOpen = isPoolOpen(pool);
+  const statusIcon = isOpen ? '🟢' : '🔴';
+  const statusText = isOpen ? 'Open Now' : 'Closed';
+
+  // Format the period dates
+  const startDate = new Date(activeSchedule.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const endDate = new Date(activeSchedule.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const periodText = `Hours for ${startDate} - ${endDate}`;
+
+  // Group hours by day and time range with activity types
+  const dayGroups = {};
+  activeSchedule.hours.forEach(hour => {
+    if (hour.weekDays) {
+      hour.weekDays.forEach(day => {
+        if (!dayGroups[day]) {
+          dayGroups[day] = [];
+        }
+        dayGroups[day].push({
+          timeRange: hour.startTime && hour.endTime ? `${hour.startTime}-${hour.endTime}` : '',
+          types: formatActivityTypes(hour.types),
+          notes: hour.notes || ''
+        });
+      });
+    }
+  });
+
+  // Format hours display
+  let hoursDisplay = '';
+  const dayOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  
+  dayOrder.forEach(day => {
+    if (dayGroups[day]) {
+      const daySlots = dayGroups[day];
+      if (daySlots.length === 1) {
+        // Single time slot for the day
+        const slot = daySlots[0];
+        let typesText = slot.types ? ` ${slot.types}` : '';
+        
+        // Make "Closed to Public" bold
+        if (typesText.includes('Closed to Public')) {
+          typesText = typesText.replace('Closed to Public', '<span class="closed-to-public">Closed to Public</span>');
+        }
+        
+        const notesText = slot.notes ? ` - ${slot.notes}` : '';
+        const timeHtml = slot.timeRange ? formatTimeRangeSpans(slot.timeRange) : '';
+        hoursDisplay += `<div class="day-schedule"><strong>${day}:</strong> <span class="time-range-container">${timeHtml}</span>${typesText}${notesText}</div>`;
+      } else {
+        // Multiple time slots for the day
+        hoursDisplay += `<div class="day-schedule"><strong>${day}:</strong></div>`;
+        daySlots.forEach(slot => {
+          let typesText = slot.types ? ` ${slot.types}` : '';
+          
+          // Make "Closed to Public" bold
+          if (typesText.includes('Closed to Public')) {
+            typesText = typesText.replace('Closed to Public', '<span class="closed-to-public">Closed to Public</span>');
+          }
+          
+          const notesText = slot.notes ? ` - ${slot.notes}` : '';
+          const timeHtml = slot.timeRange ? formatTimeRangeSpans(slot.timeRange) : '';
+          hoursDisplay += `<div class="time-slot"><span class="time-range-container">${timeHtml}</span>${typesText}${notesText}</div>`;
+        });
+      }
+    }
+  });
+
+  return `
+    <div class="pool-hours">
+      <strong>🕒 Hours:</strong> <span class="open-status">${statusIcon} ${statusText}</span><br>
+      <div class="period-info">
+        ${periodText}
+      </div>
+      <div class="hours-details">
+        ${hoursDisplay}
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Groups consecutive days for cleaner display
+ * @param {Array} days - Array of day names
+ * @returns {Array} - Array of formatted day ranges
+ */
+function groupConsecutiveDays(days) {
+  const dayOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const sortedDays = days.sort((a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b));
+
+  const groups = [];
+  let currentGroup = [sortedDays[0]];
+
+  for (let i = 1; i < sortedDays.length; i++) {
+    const currentIndex = dayOrder.indexOf(sortedDays[i]);
+    const prevIndex = dayOrder.indexOf(sortedDays[i - 1]);
+
+    if (currentIndex === prevIndex + 1) {
+      currentGroup.push(sortedDays[i]);
+    } else {
+      groups.push(formatDayGroup(currentGroup));
+      currentGroup = [sortedDays[i]];
+    }
+  }
+  groups.push(formatDayGroup(currentGroup));
+
+  return groups;
+}
+
+/**
+ * Formats a group of consecutive days
+ * @param {Array} group - Array of consecutive day names
+ * @returns {string} - Formatted day range string
+ */
+function formatDayGroup(group) {
+  if (group.length === 1) {
+    return group[0].substring(0, 3); // Return abbreviated day name
+  } else if (group.length === 2) {
+    return `${group[0].substring(0, 3)}-${group[group.length - 1].substring(0, 3)}`;
+  } else {
+    return `${group[0].substring(0, 3)}-${group[group.length - 1].substring(0, 3)}`;
+  }
+}
+
 /**
  * Gets the user's current location if they grant permission
  * Gracefully handles cases where geolocation is denied or not available
@@ -155,42 +378,25 @@ function renderPools(pools) {
     if (Array.isArray(features) && features.length > 0) {
       featuresHtml = `
         <div class="pool-features">
-          <strong>🎯 Features:</strong> ${features.join(', ')}
+          <h4>Features</h4>
+          <ul class="features-list">
+            ${features.sort().map(feature => `<li>${feature}</li>`).join('')}
+          </ul>
         </div>
       `;
     }
 
     // Format opening hours for display
-    let hoursHtml = '';
-    if (pool.hours) {
-      const openStatusIcon = pool.openNow ? '🟢' : '🔴';
-      const openStatusText = pool.openNow ? 'Open Now' : 'Closed';
-      
-      hoursHtml = `
-        <div class="pool-hours">
-          <strong>🕒 Hours:</strong> <span class="open-status">${openStatusIcon} ${openStatusText}</span><br>
-          <div class="hours-details">
-            ${pool.hours.weekdays ? `Mon-Fri: ${pool.hours.weekdays}<br>` : ''}
-            ${pool.hours.weekends ? `Sat-Sun: ${pool.hours.weekends}` : ''}
-          </div>
-        </div>
-      `;
-    } else if (pool.openNow !== undefined) {
-      // Fallback for pools without detailed hours but with openNow status
-      const openStatusIcon = pool.openNow ? '🟢' : '🔴';
-      const openStatusText = pool.openNow ? 'Open Now' : 'Closed';
-      
-      hoursHtml = `
-        <div class="pool-hours">
-          <strong>🕒 Status:</strong> <span class="open-status">${openStatusIcon} ${openStatusText}</span>
-        </div>
-      `;
-    }
+    const hoursHtml = formatPoolHours(pool);
+    
+    // Get pool open status for indicator
+    const isOpen = isPoolOpen(pool);
+    const statusClass = isOpen ? 'open' : 'closed';
 
     return `
-      <div class="pool-card" data-pool-id="${poolId}">
-        <div class="pool-header">
-          <h3>${poolName}</h3>
+      <div class="pool-card collapsed" data-pool-id="${poolId}">
+        <div class="pool-header" onclick="togglePoolCard(this)">
+          <h3><span class="pool-status-indicator ${statusClass}"></span>${poolName}</h3>
           ${distanceHtml}
         </div>
         <div class="pool-details">
@@ -213,6 +419,32 @@ function renderPools(pools) {
   list.innerHTML = html;
 }
 
+/**
+ * Formats a time range into three separate spans for better alignment
+ * @param {string} timeRange - Time range in format "startTime-endTime"
+ * @returns {string} - HTML with three spans for start, dash, and end time
+ */
+function formatTimeRangeSpans(timeRange) {
+  if (!timeRange) return '';
+  
+  const parts = timeRange.split('-');
+  if (parts.length !== 2) return timeRange;
+  
+  const startTime = parts[0].trim();
+  const endTime = parts[1].trim();
+  
+  return `<span class="time-start">${startTime}</span><span class="time-dash">-</span><span class="time-end">${endTime}</span>`;
+}
+
+/**
+ * Toggles the collapsed state of a pool card
+ * @param {Element} headerElement - The clicked header element
+ */
+function togglePoolCard(headerElement) {
+  const poolCard = headerElement.closest('.pool-card');
+  poolCard.classList.toggle('collapsed');
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   // Check if we're on the pools page before fetching data
   if (!document.getElementById("poolList")) {
@@ -220,31 +452,35 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
   
-  fetch("assets/data/pools.json")
-    .then(res => {
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    })
-    .then(data => {
-      console.log("Loaded pool data:", data.length, "pools");
-      poolBrowserData = data;
-      
-      // Always render pools first with no location data
-      renderPools(data);
-      
-      // Then try to get location - if it works, pools will be re-rendered with distances
-      try {
-        getUserLocation();
-      } catch (locationError) {
-        console.log("Location access not available:", locationError);
-        // Continue without location data - pools are already rendered
-      }
-    })
-    .catch(error => {
-      console.error("Failed to load pool data:", error);
-      const list = document.getElementById("poolList");
-      if (list) {
-        list.innerHTML = "<p>⚠️ Pool data is currently unavailable. Please try again later.</p>";
-      }
-    });
+  // Load pool data asynchronously after the page has rendered
+  setTimeout(() => {
+    fetch("assets/data/pools.json")
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        const pools = data.pools || data; // Handle both new structure and backward compatibility
+        console.log("Loaded pool data:", pools.length, "pools");
+        poolBrowserData = pools;
+        
+        // Always render pools first with no location data
+        renderPools(pools);
+        
+        // Then try to get location - if it works, pools will be re-rendered with distances
+        try {
+          getUserLocation();
+        } catch (locationError) {
+          console.log("Location access not available:", locationError);
+          // Continue without location data - pools are already rendered
+        }
+      })
+      .catch(error => {
+        console.error("Failed to load pool data:", error);
+        const list = document.getElementById("poolList");
+        if (list) {
+          list.innerHTML = "<p>⚠️ Pool data is currently unavailable. Please try again later.</p>";
+        }
+      });
+  }, 0); // Load asynchronously after DOM is ready
 });

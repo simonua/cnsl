@@ -59,9 +59,10 @@ document.addEventListener("DOMContentLoaded", () => {
       return res.json();
     })
     .then(data => {
-      console.log("Loaded team data:", data.length, "teams");
-      teamsData = data;
-      renderTeams(data);
+      const teams = data.teams || data; // Handle both new structure and backward compatibility
+      console.log("Loaded team data:", teams.length, "teams");
+      teamsData = teams;
+      renderTeams(teams);
     })
     .catch(error => {
       console.error("Failed to load team data:", error);

@@ -18,7 +18,7 @@
   --header-height: 70px;
   --footer-height: 60px;
   --border-radius: 12px;
-  --transition: all 0.3s ease;
+  --transition: all 0.15s ease;
 }
 
 /* Reset and base styles */
@@ -41,7 +41,7 @@ html, body {
   background-color: var(--light-bg);
   display: flex;
   flex-direction: column;
-  padding-bottom: var(--footer-height);
+  padding-bottom: calc(var(--footer-height) + 1rem);
 }
 
 .page-wrap {
@@ -55,7 +55,7 @@ html, body {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 0.25rem;
 }
 
 /* Header - Sticky at top */
@@ -68,9 +68,10 @@ html, body {
   align-items: center;
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 1001;
   box-shadow: var(--shadow);
   min-height: var(--header-height);
+  width: 100%;
 }
 
 .header .logo {
@@ -205,6 +206,7 @@ main {
   flex: 1;
   padding: 1.5rem 0;
   margin-top: 1rem;
+  margin-bottom: 2rem;
 }
 
 /* Search Section */
@@ -368,12 +370,33 @@ nav a:focus {
 .quick-link-card:visited,
 .quick-link-card:hover,
 .quick-link-card:focus {
-  color: var(--text-dark);
+  color: var(--white);
   text-decoration: none;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  display: block;
+  text-align: center;
+  transition: var(--transition);
+  box-shadow: var(--shadow);
+  border: none;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quick-link-card:hover,
+.quick-link-card:focus {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+  background: linear-gradient(135deg, var(--primary-dark), #003d70);
 }
 
 .quick-link-card h3 {
-  color: var(--primary-color);
+  color: var(--white);
+  margin: 0;
+  font-size: 1rem;
 }
 
 /* Button links should maintain button styling */
@@ -446,7 +469,7 @@ nav a:focus {
 /* Response Cards */
 .copilot-response {
   border-radius: var(--border-radius);
-  padding: 1.5rem;
+  padding: 0.75rem;
   margin-top: 1.5rem;
   border-left: 4px solid;
   box-shadow: var(--shadow);
@@ -480,8 +503,9 @@ nav a:focus {
   background: var(--white);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
-  padding: 1.5rem;
-  margin-bottom: 1rem;
+  padding: 0.75rem;
+  padding-left:1rem;
+  margin-bottom: 0.75rem;
   box-shadow: var(--shadow);
   transition: var(--transition);
 }
@@ -500,7 +524,6 @@ nav a:focus {
 .pool-card h4,
 .meet-card h4 {
   color: var(--primary-color);
-  margin-bottom: 1rem;
   font-weight: 600;
 }
 
@@ -531,7 +554,6 @@ nav a:focus {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1rem;
   flex-wrap: wrap;
   gap: 0.5rem;
 }
@@ -552,6 +574,29 @@ nav a:focus {
   padding: 1rem;
   border-radius: var(--border-radius);
   margin: 1rem 0;
+}
+
+.pool-features h4 {
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.features-list li {
+  padding: 0.25rem 0;
+  border-bottom: 1px solid rgba(0, 120, 212, 0.1);
+  color: var(--text-dark);
+}
+
+.features-list li:last-child {
+  border-bottom: none;
 }
 
 .pool-actions {
@@ -617,7 +662,6 @@ nav a:focus {
 .team-list,
 .pool-list {
   background-color: var(--light-bg);
-  padding: 1rem;
   border-radius: var(--border-radius);
   margin-top: 1rem;
 }
@@ -632,16 +676,12 @@ nav a:focus {
 /* Enhanced Quick Link Cards */
 .quick-link-card .card-content {
   text-align: center;
+  width: 100%;
 }
 
 .quick-link-card .card-content h3 {
-  font-size: 1.25rem;
-  margin-bottom: 0.75rem;
-}
-
-.quick-link-card .card-content p {
-  font-size: 0.95rem;
-  line-height: 1.5;
+  font-size: 1rem;
+  margin: 0;
 }
 
 /* Enhanced Voice Button Feedback */
@@ -662,6 +702,29 @@ button[aria-label*="Voice"]:active {
   padding: 2rem;
   color: var(--text-muted);
   font-style: italic;
+}
+
+/* Quick Links Grid Layout */
+.quick-links-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+@media (max-width: 768px) {
+  .quick-links-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+}
+
+@media (min-width: 769px) {
+  .quick-links-grid {
+    grid-template-columns: repeat(4, 1fr);
+    max-width: 800px;
+    margin: 2rem auto;
+  }
 }
 
 /* Utility Classes */
@@ -702,12 +765,70 @@ button[aria-label*="Voice"]:active {
   margin-left: 0.5rem;
 }
 
+.pool-hours .period-info {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
 .pool-hours .hours-details {
   font-size: 0.9rem;
   color: var(--text-muted);
   margin-top: 0.5rem;
-  margin-left: 1.5rem;
   line-height: 1.4;
+}
+
+.day-schedule {
+  margin-top: 5px;
+  margin-bottom: 0.3rem;
+}
+
+.day-schedule strong {
+  display: inline-block;
+  min-width: 3rem;
+  font-weight: 600;
+}
+
+.time-slot {
+  margin-left: 1rem;
+  margin-bottom: 0.2rem;
+}
+
+.time-range {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.9rem;
+  background-color: rgba(0, 120, 212, 0.1);
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  display: inline-block;
+  min-width: 8rem;
+  text-align: center;
+}
+
+.time-range-container {
+  display: inline-flex;
+  align-items: center;
+  min-width: 8rem;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.9rem;
+  background-color: rgba(0, 120, 212, 0.1);
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+}
+
+.time-start,
+.time-end {
+  width: 60px;
+  text-align: right;  
+}
+
+.time-dash {
+  width: 0.8rem;
+  text-align: center;
+  margin: 0;
+  font-weight: bold;
 }
 
 /* Open/Closed Status Colors - Updated for better support */
@@ -727,6 +848,257 @@ button[aria-label*="Voice"]:active {
   color: var(--error-color);
 }
 
+/* Pool Collapsible Functionality */
+.pool-card {
+  position: relative;
+}
+
+.pool-header {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+.pool-status-indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+  vertical-align: text-top;
+  margin-top: 8px;
+}
+
+.pool-status-indicator.open {
+  background-color: var(--success-color);
+}
+
+.pool-status-indicator.closed {
+  background-color: var(--error-color);
+}
+
+.pool-details {
+  overflow: hidden;
+  transition: max-height 0.1s ease, opacity 0.1s ease;
+  max-height: 1000px;
+  opacity: 1;
+}
+
+.pool-card.collapsed .pool-details {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Footer Styles */
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--white);
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  height: var(--footer-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  z-index: 100;
+}
+
+.footer p {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.footer a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* Search section styling */
+.copilot-response ul {
+  margin-left: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.copilot-response ul li {
+  margin-bottom: 0.5rem;
+}
+
+/* Meet Date Cards - Collapsible */
+.meet-date-card {
+  background: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.meet-date-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.meet-date-header {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.date-and-name {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.meet-date-header h3 {
+  color: var(--primary-color);
+  margin: 0;
+  font-weight: 600;
+}
+
+.meet-name-header {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+  background-color: var(--light-bg);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--border-radius);
+}
+
+.meet-status-indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-left: 0.5rem;
+}
+
+.meet-status-indicator.upcoming {
+  background-color: var(--info-color);
+}
+
+.meet-status-indicator.today {
+  background-color: var(--success-color);
+}
+
+.meet-status-indicator.past {
+  background-color: var(--text-muted);
+}
+
+.meet-date-details {
+  overflow: hidden;
+  transition: max-height 0.1s ease, opacity 0.1s ease;
+  max-height: 1000px;
+  opacity: 1;
+  padding: 1rem;
+}
+
+.meet-date-card.collapsed .meet-date-details {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.meet-date-card.collapsed .meet-date-header {
+  border-bottom: none;
+}
+
+/* Individual Meet Items within Date Cards */
+.meet-item {
+  background-color: var(--light-bg);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  border-left: 3px solid var(--info-color);
+}
+
+.meet-item:last-child {
+  margin-bottom: 0;
+}
+
+.meet-item.meet-today {
+  border-left-color: var(--success-color);
+  background: linear-gradient(135deg, var(--white), #f8fff9);
+}
+
+.meet-item.meet-upcoming {
+  border-left-color: var(--info-color);
+  background: linear-gradient(135deg, var(--white), #f0faff);
+}
+
+.meet-item.meet-past {
+  border-left-color: var(--text-muted);
+  background: linear-gradient(135deg, var(--white), #f5f5f5);
+  opacity: 0.8;
+}
+
+.meet-item.special-meet {
+  border-left-color: var(--warning-color);
+  background: linear-gradient(135deg, var(--white), #fffef0);
+}
+
+.meet-name,
+.meet-teams {
+  font-weight: 600;
+  color: var(--primary-dark);
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.meet-details {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+
+.meet-location,
+.meet-time {
+  display: flex;
+  align-items: center;
+}
+
+.location-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.location-link:hover {
+  text-decoration: underline;
+  color: var(--primary-dark);
+}
+
+.today-tag {
+  background-color: var(--success-color);
+  color: var(--white);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: auto;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   :root {
@@ -735,7 +1107,7 @@ button[aria-label*="Voice"]:active {
   }
   
   .container {
-    padding: 0.75rem;
+    padding: 0.25rem;
   }
   
   .header h1 {
@@ -763,11 +1135,43 @@ button[aria-label*="Voice"]:active {
     width: 90%;
     max-width: 280px;
   }
+
+  .pool-card,
+  .team-card,
+  .meet-card {
+    padding: 0.5rem;
+    padding-left:1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Mobile-specific pool hours styling */
+  .pool-hours .period-info {
+    font-size: 0.8rem;
+  }
+  
+  .day-schedule strong {
+    min-width: 2.5rem;
+  }
+  
+  .time-range,
+  .time-range-container {
+    min-width: 7rem;
+    font-size: 0.85rem;
+  }
+  
+  .time-start,
+  .time-end {
+    width: 60px;
+  }
+  
+  .time-dash {
+    width: 0.6rem;
+  }
 }
 
 @media (min-width: 769px) {
   .container {
-    padding: 1.5rem;
+    padding: 1rem;
   }
   
   .copilot-search {
@@ -860,4 +1264,15 @@ select:focus {
   .distance-badge {
     border: 2px solid var(--white);
   }
+}
+
+/* Pool schedule styling for closed status */
+.day-schedule:has-text("Closed to Public"),
+.time-slot:has-text("Closed to Public") {
+  font-weight: normal;
+}
+
+.day-schedule .closed-to-public,
+.time-slot .closed-to-public {
+  font-weight: bold;
 }

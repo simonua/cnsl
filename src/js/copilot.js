@@ -2,6 +2,235 @@ let teamData = [];
 let poolData = [];
 let meetData = [];
 
+// ------------------------------
+//    SCHEDULE UTILITY FUNCTIONS
+// ------------------------------
+
+/**
+ * Formats activity types for display
+ * @param {string|Array} types - Single type string or array of types
+ * @returns {string} - Formatted types string
+ */
+function formatActivityTypes(types) {
+  if (!types) return '';
+  if (typeof types === 'string') return types;
+  if (Array.isArray(types)) return types.join(', ');
+  return '';
+}
+
+/**
+ * Checks if a pool is currently open based on its schedule
+ * @param {Object} pool - Pool object with schedules property
+ * @returns {boolean} - True if the pool is currently open
+ */
+function isPoolOpen(pool) {
+  if (!pool.schedules || !Array.isArray(pool.schedules)) {
+    return false;
+  }
+
+  const now = new Date();
+  const currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
+  const currentDay = now.toLocaleDateString('en-US', { weekday: 'short' }); // Mon, Tue, etc.
+  const currentTime = now.getHours() * 60 + now.getMinutes(); // Minutes since midnight
+
+  // Find the current active schedule
+  const activeSchedule = pool.schedules.find(schedule => {
+    return currentDate >= schedule.startDate && currentDate <= schedule.endDate;
+  });
+
+  if (!activeSchedule || !activeSchedule.hours) {
+    return false;
+  }
+
+  // Find today's hours - there might be multiple time slots for the same day
+  const todayHours = activeSchedule.hours.filter(h => 
+    h.weekDays && h.weekDays.includes(currentDay)
+  );
+  if (!todayHours.length) {
+    return false;
+  }
+
+  // Check if current time falls within any of today's time slots
+  return todayHours.some(hour => {
+    const startMinutes = timeStringToMinutes(hour.startTime);
+    const endMinutes = timeStringToMinutes(hour.endTime);
+    return currentTime >= startMinutes && currentTime <= endMinutes;
+  });
+}
+
+/**
+ * Converts time string (e.g., "6:00AM", "10:30PM") to minutes since midnight
+ * @param {string} timeStr - Time string in format "H:MMAM/PM"
+ * @returns {number} - Minutes since midnight
+ */
+function timeStringToMinutes(timeStr) {
+  const match = timeStr.match(/(\d{1,2}):?(\d{0,2})(AM|PM)/i);
+  if (!match) return 0;
+
+  const hours = parseInt(match[1]);
+  const minutes = parseInt(match[2] || '0');
+  const period = match[3].toUpperCase();
+
+  let adjustedHours = hours;
+  if (period === 'PM' && hours !== 12) {
+    adjustedHours += 12;
+  } else if (period === 'AM' && hours === 12) {
+    adjustedHours = 0;
+  }
+
+  return adjustedHours * 60 + minutes;
+}
+
+/**
+ * Formats pool schedule for display in copilot responses
+ * @param {Object} pool - Pool object with schedules property
+ * @returns {string} - HTML string for displaying hours
+ */
+function formatCopilotPoolHours(pool) {
+  if (!pool.schedules || !Array.isArray(pool.schedules) || pool.schedules.length === 0) {
+    return '<div><strong>🕒 Hours:</strong> Not available</div>';
+  }
+
+  const now = new Date();
+  const currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
+  
+  // Find the current active schedule
+  const activeSchedule = pool.schedules.find(schedule => {
+    return currentDate >= schedule.startDate && currentDate <= schedule.endDate;
+  });
+
+  if (!activeSchedule || !activeSchedule.hours) {
+    return '<div><strong>🕒 Hours:</strong> No current schedule available</div>';
+  }
+
+  const isOpen = isPoolOpen(pool);
+  const statusIcon = isOpen ? '🟢' : '🔴';
+  const statusText = isOpen ? 'Open Now' : 'Closed';
+
+  // Format the period dates
+  const startDate = new Date(activeSchedule.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const endDate = new Date(activeSchedule.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const periodText = `Hours for ${startDate} - ${endDate}`;
+
+  // Group hours by day and time range with activity types
+  const dayGroups = {};
+  activeSchedule.hours.forEach(hour => {
+    if (hour.weekDays) {
+      hour.weekDays.forEach(day => {
+        if (!dayGroups[day]) {
+          dayGroups[day] = [];
+        }
+        dayGroups[day].push({
+          timeRange: hour.startTime && hour.endTime ? `${hour.startTime}-${hour.endTime}` : '',
+          types: formatActivityTypes(hour.types),
+          notes: hour.notes || ''
+        });
+      });
+    }
+  });
+
+  // Format hours display
+  let hoursDisplay = '';
+  const dayOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  
+  dayOrder.forEach(day => {
+    if (dayGroups[day]) {
+      const daySlots = dayGroups[day];
+      if (daySlots.length === 1) {
+        // Single time slot for the day
+        const slot = daySlots[0];
+        const typesText = slot.types ? ` <em>(${slot.types})</em>` : '';
+        const notesText = slot.notes ? ` - ${slot.notes}` : '';
+        const timeHtml = slot.timeRange ? formatTimeRangeSpans(slot.timeRange) : '';
+        hoursDisplay += `<div style="margin-bottom: 0.3rem;"><strong>${day}:</strong> <span class="time-range-container">${timeHtml}</span>${typesText}${notesText}</div>`;
+      } else {
+        // Multiple time slots for the day
+        hoursDisplay += `<div style="margin-bottom: 0.3rem;"><strong>${day}:</strong></div>`;
+        daySlots.forEach(slot => {
+          const typesText = slot.types ? ` <em>(${slot.types})</em>` : '';
+          const notesText = slot.notes ? ` - ${slot.notes}` : '';
+          const timeHtml = slot.timeRange ? formatTimeRangeSpans(slot.timeRange) : '';
+          hoursDisplay += `<div style="margin-left: 1rem; margin-bottom: 0.2rem;"><span class="time-range-container">${timeHtml}</span>${typesText}${notesText}</div>`;
+        });
+      }
+    }
+  });
+
+  return `
+    <div>
+      <strong>🕒 Hours:</strong> <span style="color: ${isOpen ? 'var(--success-color)' : 'var(--error-color)'}; font-weight: 600;">${statusIcon} ${statusText}</span><br>
+      <div style="margin-top: 0.5rem; color: var(--text-muted); font-size: 0.85rem; font-style: italic;">
+        ${periodText}
+      </div>
+      <div style="margin-top: 0.5rem; color: var(--text-muted); font-size: 0.9rem;">
+        ${hoursDisplay}
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Groups consecutive days for cleaner display in copilot
+ * @param {Array} days - Array of day names
+ * @returns {Array} - Array of formatted day ranges
+ */
+function groupConsecutiveDaysForCopilot(days) {
+  const dayOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const sortedDays = days.sort((a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b));
+
+  const groups = [];
+  let currentGroup = [sortedDays[0]];
+
+  for (let i = 1; i < sortedDays.length; i++) {
+    const currentIndex = dayOrder.indexOf(sortedDays[i]);
+    const prevIndex = dayOrder.indexOf(sortedDays[i - 1]);
+
+    if (currentIndex === prevIndex + 1) {
+      currentGroup.push(sortedDays[i]);
+    } else {
+      groups.push(formatDayGroupForCopilot(currentGroup));
+      currentGroup = [sortedDays[i]];
+    }
+  }
+  groups.push(formatDayGroupForCopilot(currentGroup));
+
+  return groups;
+}
+
+/**
+ * Formats a group of consecutive days for copilot display
+ * @param {Array} group - Array of consecutive day names
+ * @returns {string} - Formatted day range string
+ */
+function formatDayGroupForCopilot(group) {
+  if (group.length === 1) {
+    return group[0].substring(0, 3); // Return abbreviated day name
+  } else {
+    return `${group[0].substring(0, 3)}-${group[group.length - 1].substring(0, 3)}`;
+  }
+}
+
+/**
+ * Formats a time range into three separate spans for better alignment
+ * @param {string} timeRange - Time range in format "startTime-endTime"
+ * @returns {string} - HTML with three spans for start, dash, and end time
+ */
+function formatTimeRangeSpans(timeRange) {
+  if (!timeRange) return '';
+  
+  const parts = timeRange.split('-');
+  if (parts.length !== 2) return timeRange;
+  
+  const startTime = parts[0].trim();
+  const endTime = parts[1].trim();
+  
+  return `<span class="time-start">${startTime}</span><span class="time-dash">-</span><span class="time-end">${endTime}</span>`;
+}
+
+// ------------------------------
+//    APPLICATION INITIALIZATION
+// ------------------------------
+
 document.addEventListener("DOMContentLoaded", () => {
   // Load team data
   fetch("assets/data/teams.json")
@@ -10,7 +239,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return res.json();
     })
     .then(data => {
-      teamData = data;
+      teamData = data.teams || data; // Handle both new structure and backward compatibility
     })
     .catch(error => {
       console.error("Failed to load team data:", error);
@@ -27,7 +256,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return res.json();
     })
     .then(data => {
-      poolData = data;
+      poolData = data.pools || data; // Handle both new structure and backward compatibility
     })
     .catch(error => {
       console.error("Failed to load pool data:", error);
@@ -288,31 +517,11 @@ function handlePoolQuery(query) {
     const fullAddress = [address, city, state, zip].filter(Boolean).join(', ');
     
     // Format opening hours
-    let hoursInfo = '';
-    if (pool.hours) {
-      const openStatusIcon = pool.openNow ? '🟢' : '🔴';
-      const openStatusText = pool.openNow ? 'Open Now' : 'Closed';
-      
-      hoursInfo = `
-        <div class="detail-item">
-          <strong>🕒 Hours:</strong> <span style="color: ${pool.openNow ? 'var(--success-color)' : 'var(--error-color)'}; font-weight: 600;">${openStatusIcon} ${openStatusText}</span><br>
-          <div style="margin-left: 1.5rem; color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem;">
-            ${pool.hours.weekdays ? `Mon-Fri: ${pool.hours.weekdays}<br>` : ''}
-            ${pool.hours.weekends ? `Sat-Sun: ${pool.hours.weekends}` : ''}
-          </div>
-        </div>
-      `;
-    } else if (pool.openNow !== undefined) {
-      // Fallback for pools without detailed hours but with openNow status
-      const openStatusIcon = pool.openNow ? '🟢' : '🔴';
-      const openStatusText = pool.openNow ? 'Open Now' : 'Closed';
-      
-      hoursInfo = `
-        <div class="detail-item">
-          <strong>🕒 Status:</strong> <span style="color: ${pool.openNow ? 'var(--success-color)' : 'var(--error-color)'}; font-weight: 600;">${openStatusIcon} ${openStatusText}</span>
-        </div>
-      `;
-    }
+    const hoursInfo = `
+      <div class="detail-item">
+        ${formatCopilotPoolHours(pool)}
+      </div>
+    `;
     
     return `
       <div class="pool-card">
@@ -385,30 +594,15 @@ function handleFeatureQuery(query) {
   const poolList = featurePools.map(pool => {
     const name = pool.name || 'Unknown Pool';
     const features = Array.isArray(pool.features) 
-      ? pool.features.join(', ') 
+      ? pool.features.sort().join(', ') 
       : pool.features || 'Features not listed';
     
     // Format opening hours for feature search
-    let hoursInfo = '';
-    if (pool.hours) {
-      const openStatusIcon = pool.openNow ? '🟢' : '🔴';
-      const openStatusText = pool.openNow ? 'Open Now' : 'Closed';
-      
-      hoursInfo = `
-        <div class="detail-item">
-          <strong>🕒 Status:</strong> <span style="color: ${pool.openNow ? 'var(--success-color)' : 'var(--error-color)'}; font-weight: 600;">${openStatusIcon} ${openStatusText}</span>
-        </div>
-      `;
-    } else if (pool.openNow !== undefined) {
-      const openStatusIcon = pool.openNow ? '🟢' : '🔴';
-      const openStatusText = pool.openNow ? 'Open Now' : 'Closed';
-      
-      hoursInfo = `
-        <div class="detail-item">
-          <strong>🕒 Status:</strong> <span style="color: ${pool.openNow ? 'var(--success-color)' : 'var(--error-color)'}; font-weight: 600;">${openStatusIcon} ${openStatusText}</span>
-        </div>
-      `;
-    }
+    const hoursInfo = `
+      <div class="detail-item">
+        ${formatCopilotPoolHours(pool)}
+      </div>
+    `;
     
     return `
       <div class="pool-card">
@@ -514,42 +708,12 @@ function handleHoursQuery(query) {
 
   if (specificPool) {
     // Show hours for specific pool
-    let hoursInfo = '';
-    if (specificPool.hours) {
-      const openStatusIcon = specificPool.openNow ? '🟢' : '🔴';
-      const openStatusText = specificPool.openNow ? 'Open Now' : 'Closed';
-      
-      hoursInfo = `
-        <div class="pool-card">
-          <h4>${specificPool.name}</h4>
-          <div class="detail-item">
-            <strong>🕒 Status:</strong> <span style="color: ${specificPool.openNow ? 'var(--success-color)' : 'var(--error-color)'}; font-weight: 600;">${openStatusIcon} ${openStatusText}</span>
-          </div>
-          <div class="detail-item">
-            <strong>📅 Hours:</strong><br>
-            <span style="margin-left: 1.5rem; color: var(--text-muted);">
-              Mon-Fri: ${specificPool.hours.weekdays}<br>
-              Sat-Sun: ${specificPool.hours.weekends}
-            </span>
-          </div>
-        </div>
-      `;
-    } else {
-      const openStatusIcon = specificPool.openNow ? '🟢' : '🔴';
-      const openStatusText = specificPool.openNow ? 'Open Now' : 'Closed';
-      
-      hoursInfo = `
-        <div class="pool-card">
-          <h4>${specificPool.name}</h4>
-          <div class="detail-item">
-            <strong>🕒 Status:</strong> <span style="color: ${specificPool.openNow ? 'var(--success-color)' : 'var(--error-color)'}; font-weight: 600;">${openStatusIcon} ${openStatusText}</span>
-          </div>
-          <div class="detail-item">
-            <em>Detailed hours not available. Please contact the pool directly for current hours.</em>
-          </div>
-        </div>
-      `;
-    }
+    const hoursInfo = `
+      <div class="pool-card">
+        <h4>${specificPool.name}</h4>
+        ${formatCopilotPoolHours(specificPool)}
+      </div>
+    `;
 
     return `
       <div class="copilot-response success">
@@ -560,8 +724,8 @@ function handleHoursQuery(query) {
   }
 
   // Show all open pools or pools with hours
-  const poolsWithHours = poolData.filter(pool => pool.hours);
-  const openPools = poolData.filter(pool => pool.openNow);
+  const poolsWithHours = poolData.filter(pool => pool.schedules && Array.isArray(pool.schedules) && pool.schedules.length > 0);
+  const openPools = poolData.filter(pool => isPoolOpen(pool));
 
   if (query.toLowerCase().includes("open") || query.toLowerCase().includes("now")) {
     // Show currently open pools
@@ -577,22 +741,11 @@ function handleHoursQuery(query) {
 
     const openPoolsList = openPools.map(pool => {
       const name = pool.name || 'Unknown Pool';
-      let hoursDisplay = '';
-      
-      if (pool.hours) {
-        hoursDisplay = `        <div class="detail-item">
-          <strong>📅 Hours:</strong> Mon-Fri: ${pool.hours.weekdays}, Sat-Sun: ${pool.hours.weekends}
-        </div>
-        `;
-      }
       
       return `
         <div class="pool-card">
           <h4>${name}</h4>
-          <div class="detail-item">
-            <strong>🕒 Status:</strong> <span style="color: var(--success-color); font-weight: 600;">🟢 Open Now</span>
-          </div>
-          ${hoursDisplay}
+          ${formatCopilotPoolHours(pool)}
         </div>
       `;
     }).join('');
@@ -618,18 +771,11 @@ function handleHoursQuery(query) {
 
   const hoursPoolsList = poolsWithHours.slice(0, 6).map(pool => {
     const name = pool.name || 'Unknown Pool';
-    const openStatusIcon = pool.openNow ? '🟢' : '🔴';
-    const openStatusText = pool.openNow ? 'Open Now' : 'Closed';
     
     return `
       <div class="pool-card">
         <h4>${name}</h4>
-        <div class="detail-item">
-          <strong>🕒 Status:</strong> <span style="color: ${pool.openNow ? 'var(--success-color)' : 'var(--error-color)'}; font-weight: 600;">${openStatusIcon} ${openStatusText}</span>
-        </div>
-        <div class="detail-item">
-          <strong>📅 Hours:</strong> Mon-Fri: ${pool.hours.weekdays}, Sat-Sun: ${pool.hours.weekends}
-        </div>
+        ${formatCopilotPoolHours(pool)}
       </div>
     `;
   }).join('');
