@@ -727,6 +727,198 @@ button[aria-label*="Voice"]:active {
   }
 }
 
+/* Enhanced Copilot Feature Styles */
+.highlighted-feature {
+  background: var(--highlight-bg, #fff3cd);
+  color: var(--highlight-text, #856404);
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.2rem;
+  font-weight: 600;
+}
+
+.feature-tag {
+  display: inline-block;
+  background: var(--tag-bg, #e9ecef);
+  color: var(--tag-text, #495057);
+  padding: 0.25rem 0.5rem;
+  margin: 0.1rem;
+  border-radius: 0.8rem;
+  font-size: 0.85rem;
+  border: 1px solid var(--border-color, #dee2e6);
+}
+
+.feature-tag:hover {
+  background: var(--primary-color);
+  color: white;
+  cursor: pointer;
+}
+
+.features-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin: 0.5rem 0;
+}
+
+.pool-status {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.feature-result .pool-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.feature-result .pool-header h4 {
+  margin: 0;
+  color: var(--text-color);
+}
+
+.open-pools-section, .closed-pools-section {
+  margin: 1rem 0;
+}
+
+.open-pools-section h4 {
+  color: var(--success-color);
+  margin-bottom: 0.5rem;
+}
+
+.closed-pools-section h4 {
+  color: var(--error-color);
+  margin-bottom: 0.5rem;
+}
+
+.suggestions-section {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: var(--card-bg, #f8f9fa);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color, #dee2e6);
+}
+
+.suggestion-list {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.suggestion-list li {
+  padding: 0.25rem 0;
+  margin: 0.25rem 0;
+  padding-left: 1rem;
+  position: relative;
+}
+
+.suggestion-list li:before {
+  content: "💡";
+  position: absolute;
+  left: 0;
+}
+
+.action-buttons {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.practice-schedule {
+  margin: 0.5rem 0;
+}
+
+.session-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--border-color, #eee);
+}
+
+.session-item:last-child {
+  border-bottom: none;
+}
+
+.session-time {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.session-group {
+  color: var(--text-muted);
+}
+
+.meet-item {
+  display: flex;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-color, #eee);
+}
+
+.meet-item:last-child {
+  border-bottom: none;
+}
+
+.meet-date {
+  font-weight: 600;
+  color: var(--primary-color);
+  min-width: 5rem;
+}
+
+.meet-details {
+  flex: 1;
+}
+
+.meet-location {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.address-text {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.pool-tag {
+  display: inline-block;
+  background: var(--primary-light, #e3f2fd);
+  color: var(--primary-color);
+  padding: 0.2rem 0.4rem;
+  margin: 0.1rem 0.2rem 0.1rem 0;
+  border-radius: 0.3rem;
+  font-size: 0.85rem;
+  border: 1px solid var(--primary-color);
+}
+
+/* Mobile optimizations for enhanced search */
+@media (max-width: 768px) {
+  .feature-result .pool-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+  
+  .features-grid {
+    justify-content: center;
+  }
+  
+  .meet-item {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .meet-date {
+    min-width: auto;
+  }
+  
+  .session-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.1rem;
+  }
+}
+
 /* Utility Classes */
 .text-center {
   text-align: center;

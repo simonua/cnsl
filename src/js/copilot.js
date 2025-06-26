@@ -323,33 +323,42 @@ function handleSearch() {
 
 /**
  * Processes a natural language query and returns relevant information
+ * Uses a decision tree approach to categorize and route queries appropriately
  * @param {string} query - The user's search query
  * @returns {string} HTML content to display as a response
  */
 function processQuery(query) {
-  // Check for team related queries
-  if (query.includes("team") || query.includes("practice") || query.includes("coach")) {
+  // DECISION TREE: Primary query categorization
+  // ========================================
+  
+  // BRANCH 1: Team-related queries (practice, meets, coach info)
+  // Keywords: team names, "practice", "meet", "coach", location questions with team context
+  if (isTeamQuery(query)) {
     return handleTeamQuery(query);
   }
   
-  // Check for pool related queries
-  if (query.includes("pool") || query.includes("swim") || query.includes("where") || query.includes("location") || query.includes("address")) {
-    return handlePoolQuery(query);
+  // BRANCH 2: Pool feature and status queries
+  // Keywords: feature names, "open now", "available", pool characteristics
+  if (isPoolFeatureQuery(query)) {
+    return handlePoolFeatureQuery(query);
   }
   
-  // Check for meet related queries
-  if (query.includes("meet") || query.includes("event") || query.includes("when") || query.includes("schedule") || query.includes("competition")) {
+  // BRANCH 3: Pool location and basic info queries
+  // Keywords: "pool", "where", "location", "address", specific pool names
+  if (isPoolLocationQuery(query)) {
+    return handlePoolLocationQuery(query);
+  }
+  
+  // BRANCH 4: Meet schedule queries
+  // Keywords: "meet", "event", "competition", "schedule", team names with meet context
+  if (isMeetQuery(query)) {
     return handleMeetQuery(query);
   }
   
-  // Check for hours/opening time related queries
-  if (query.includes("hour") || query.includes("open") || query.includes("close") || query.includes("time") || query.includes("when does")) {
+  // BRANCH 5: Pool hours and availability queries
+  // Keywords: "hour", "open", "close", "time", "when does", "available"
+  if (isHoursQuery(query)) {
     return handleHoursQuery(query);
-  }
-  
-  // Check for feature queries (slides, diving, etc.)
-  if (query.includes("slide") || query.includes("diving") || query.includes("lap") || query.includes("feature")) {
-    return handleFeatureQuery(query);
   }
   
   // Default response with helpful suggestions
@@ -379,7 +388,8 @@ function processQuery(query) {
 }
 
 /**
- * Handles queries related to teams
+ * Handles queries related to teams, practice schedules, and coaching
+ * Enhanced to support location queries like "Where is Marlins practice tonight?"
  * @param {string} query - The user's search query
  * @returns {string} HTML content to display as a response
  */
@@ -393,61 +403,367 @@ function handleTeamQuery(query) {
     `;
   }
   
-  // Look for team names in the query
-  const matchingTeams = teamData.filter(team => {
-    // Add safety checks before calling toLowerCase()
-    const name = team.name ? team.name.toLowerCase() : '';
-    const nickname = team.nickname ? team.nickname.toLowerCase() : '';
-    
-    return query.includes(name) || query.includes(nickname);
-  });
+  // DECISION SUB-TREE: Team query type classification
+  // ================================================
+  
+  const matchingTeams = extractTeamsFromQuery(query);
   
   if (matchingTeams.length === 0) {
-    // Safely map team nicknames with fallback for undefined values
-    const teamNames = teamData
-      .map(t => t.nickname || t.name || 'Unknown Team')
-      .filter(Boolean)
-      .slice(0, 8) // Limit for mobile display
-      .join(", ");
-      
+    return handleNoTeamFound(query);
+  }
+  
+  // BRANCH 1: Practice-related queries (schedule, location, times)
+  if (query.includes('practice') || query.includes('training') || query.includes('where')) {
+    return handlePracticeQuery(query, matchingTeams);
+  }
+  
+  // BRANCH 2: Meet-related queries for specific teams
+  if (query.includes('meet') || query.includes('competition')) {
+    return handleTeamMeetQuery(query, matchingTeams);
+  }
+  
+  // BRANCH 3: General team information
+  return handleGeneralTeamQuery(query, matchingTeams);
+}
+
+/**
+ * Handles practice-related queries for teams
+ * @param {string} query - The user's search query
+ * @param {Array} teams - Array of matching team objects
+ * @returns {string} HTML content for practice information
+ */
+function handlePracticeQuery(query, teams) {
+  const today = new Date();
+  const todayDay = today.toLocaleDateString('en-US', { weekday: 'long' });
+  const isTonight = query.includes('tonight') || query.includes('today');
+  const isLocation = query.includes('where') || query.includes('location');
+  
+  const practiceInfo = teams.map(team => {
+    if (!team.practice) {
+      return `
+        <div class="team-card">
+          <h3>${team.name}</h3>
+          <p>Practice information not available. Please check the team's website or contact coaches directly.</p>
+          ${team.url ? `<a href="${team.url}" target="_blank" class="button">Visit Team Website</a>` : ''}
+        </div>
+      `;
+    }
+    
+    let practiceDetails = '';
+    
+    // Check for current practice periods
+    if (team.practice.preseason) {
+      const currentPractice = getCurrentPracticeInfo(team.practice.preseason, today);
+      if (currentPractice) {
+        practiceDetails = formatPracticeInfo(currentPractice, isTonight, isLocation, todayDay);
+      }
+    }
+    
+    // If no current practice found, show general practice info
+    if (!practiceDetails && team.practice.regular) {
+      practiceDetails = formatRegularPracticeInfo(team.practice.regular, isLocation);
+    }
+    
+    // Fallback to practice pools if no detailed schedule
+    if (!practiceDetails && team.practicePools) {
+      practiceDetails = `
+        <div class="detail-item">
+          <strong>🏊‍♀️ Practice Locations:</strong><br>
+          ${team.practicePools.map(pool => `<span class="pool-tag">${pool}</span>`).join(' ')}
+        </div>
+      `;
+    }
+    
     return `
-      <div class="copilot-response warning">
-        <h3>🏊‍♀️ Team Not Found</h3>
-        <p>I couldn't find information about that team. Try asking about a specific team by name.</p>
-        <div class="team-list">
-          <h4>Available teams include:</h4>
-          <p>${teamNames}</p>
+      <div class="team-card">
+        <h3>${team.name}</h3>
+        <div class="team-details">
+          ${practiceDetails || '<p>Detailed practice schedule not available.</p>'}
+          ${team.practice?.url ? `<div class="detail-item"><a href="${team.practice.url}" target="_blank" class="button">View Full Practice Schedule</a></div>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  const title = isLocation ? '📍 Practice Locations' : 
+                isTonight ? '🏊‍♀️ Tonight\'s Practice' : 
+                '🏊‍♀️ Practice Information';
+  
+  return `
+    <div class="copilot-response success">
+      <h3>${title}</h3>
+      ${practiceInfo}
+    </div>
+  `;
+}
+
+/**
+ * Gets current practice information based on date ranges
+ * @param {Array} practices - Array of practice period objects
+ * @param {Date} date - Current date
+ * @returns {Object|null} - Current practice info or null
+ */
+function getCurrentPracticeInfo(practices, date) {
+  const currentDate = date.toISOString().split('T')[0];
+  
+  return practices.find(practice => {
+    if (!practice.period) return false;
+    
+    // Extract dates from period string (e.g., "May 27 - May 30")
+    const dates = practice.period.match(/(\w+ \d+)/g);
+    if (!dates || dates.length < 2) return false;
+    
+    const startDate = new Date(`${dates[0]}, ${date.getFullYear()}`);
+    const endDate = new Date(`${dates[1]}, ${date.getFullYear()}`);
+    
+    return date >= startDate && date <= endDate;
+  });
+}
+
+/**
+ * Formats practice information for display
+ * @param {Object} practice - Practice period object
+ * @param {boolean} isTonight - Whether query is about tonight
+ * @param {boolean} isLocation - Whether query is about location
+ * @param {string} todayDay - Current day name
+ * @returns {string} - Formatted practice HTML
+ */
+function formatPracticeInfo(practice, isTonight, isLocation, todayDay) {
+  let html = '';
+  
+  if (practice.location) {
+    html += `
+      <div class="detail-item">
+        <strong>📍 Location:</strong> ${practice.location}
+        ${practice.address ? `<br><span class="address-text">${practice.address}</span>` : ''}
+      </div>
+    `;
+  }
+  
+  if (!isLocation && practice.sessions) {
+    html += `
+      <div class="detail-item">
+        <strong>⏰ Schedule (${practice.period}):</strong><br>
+        <div class="practice-schedule">
+          ${practice.sessions.map(session => `
+            <div class="session-item">
+              <span class="session-time">${session.time}</span> - 
+              <span class="session-group">${session.group}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+    
+    if (practice.days) {
+      html += `
+        <div class="detail-item">
+          <strong>📅 Days:</strong> ${practice.days}
+        </div>
+      `;
+    }
+  }
+  
+  return html;
+}
+
+/**
+ * Formats regular practice information for display
+ * @param {Array|Object} regularPractice - Regular practice schedule data
+ * @param {boolean} isLocation - Whether to focus on location information
+ * @returns {string} - Formatted practice HTML
+ */
+function formatRegularPracticeInfo(regularPractice, isLocation = false) {
+  if (!regularPractice) return '';
+  
+  // Handle array of practice periods
+  if (Array.isArray(regularPractice)) {
+    return regularPractice.map(practice => formatSinglePracticeInfo(practice, isLocation)).join('');
+  }
+  
+  // Handle single practice object
+  return formatSinglePracticeInfo(regularPractice, isLocation);
+}
+
+/**
+ * Formats a single practice period for display
+ * @param {Object} practice - Single practice period object
+ * @param {boolean} isLocation - Whether to focus on location information
+ * @returns {string} - Formatted practice HTML
+ */
+function formatSinglePracticeInfo(practice, isLocation = false) {
+  if (!practice) return '';
+  
+  let html = '';
+  
+  // Location information
+  if (practice.location) {
+    html += `
+      <div class="detail-item">
+        <strong>📍 Location:</strong> ${practice.location}
+        ${practice.address ? `<br><span class="address-text">${practice.address}</span>` : ''}
+      </div>
+    `;
+  }
+  
+  // If only location requested, return early
+  if (isLocation) {
+    return html;
+  }
+  
+  // Schedule information
+  if (practice.days) {
+    html += `
+      <div class="detail-item">
+        <strong>📅 Days:</strong> ${practice.days}
+      </div>
+    `;
+  }
+  
+  if (practice.time || practice.times) {
+    const timeInfo = practice.time || (Array.isArray(practice.times) ? practice.times.join(', ') : practice.times);
+    html += `
+      <div class="detail-item">
+        <strong>⏰ Time:</strong> ${timeInfo}
+      </div>
+    `;
+  }
+  
+  // Sessions/groups if available
+  if (practice.sessions && Array.isArray(practice.sessions)) {
+    html += `
+      <div class="detail-item">
+        <strong>🏊‍♀️ Groups:</strong><br>
+        <div class="practice-schedule">
+          ${practice.sessions.map(session => `
+            <div class="session-item">
+              <span class="session-time">${session.time || ''}</span>
+              <span class="session-group">${session.group || session.name || ''}</span>
+            </div>
+          `).join('')}
         </div>
       </div>
     `;
   }
   
-  // Build response for matching teams
-  const teamInfo = matchingTeams.map(team => {
-    // Add safety checks for all team properties
-    const name = team.name || 'Unknown Team';
-    const nickname = team.nickname || '';
-    const homePool = team.homePool || 'TBA';
-    const practiceTimes = team.practiceTimes || 'TBA';
-    const coaches = Array.isArray(team.coaches) ? team.coaches.join(", ") : 'TBA';
+  // Period information
+  if (practice.period) {
+    html += `
+      <div class="detail-item">
+        <strong>📆 Period:</strong> ${practice.period}
+      </div>
+    `;
+  }
+  
+  return html;
+}
+
+/**
+ * Handles team meet queries
+ * @param {string} query - The user's search query
+ * @param {Array} teams - Array of matching team objects
+ * @returns {string} HTML content for team meet information
+ */
+function handleTeamMeetQuery(query, teams) {
+  if (!meetData || !meetData.regular_meets) {
+    return `
+      <div class="copilot-response info">
+        <h3>📅 Meet Information</h3>
+        <p>Meet schedules will be available closer to the season. Please check back later.</p>
+      </div>
+    `;
+  }
+  
+  const teamMeets = [];
+  teams.forEach(team => {
+    const teamName = team.name.replace(' Marlins', '').replace(' ', ''); // Handle team name variations
+    const meets = meetData.regular_meets.filter(meet => 
+      meet.visiting_team.includes(teamName) || meet.home_team.includes(teamName)
+    );
+    
+    if (meets.length > 0) {
+      teamMeets.push({ team, meets: meets.slice(0, 3) }); // Limit to next 3 meets
+    }
+  });
+  
+  if (teamMeets.length === 0) {
+    return `
+      <div class="copilot-response warning">
+        <h3>📅 No Upcoming Meets Found</h3>
+        <p>No upcoming meets found for the requested team(s). Check the full meet schedule for more information.</p>
+        <p><a href="meets.html" class="button">View Meet Schedule</a></p>
+      </div>
+    `;
+  }
+  
+  const meetInfo = teamMeets.map(({ team, meets }) => {
+    const meetList = meets.map(meet => {
+      const isHome = meet.home_team.includes(team.name.replace(' Marlins', ''));
+      const opponent = isHome ? meet.visiting_team : meet.home_team;
+      
+      return `
+        <div class="meet-item">
+          <div class="meet-date">${new Date(meet.date).toLocaleDateString()}</div>
+          <div class="meet-details">
+            <strong>${meet.name}</strong><br>
+            vs ${opponent} ${isHome ? '(Home)' : '(Away)'}<br>
+            <span class="meet-location">📍 ${meet.location}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
     
     return `
       <div class="team-card">
-        <h3>${name} ${nickname ? `(${nickname})` : ''}</h3>
-        <div class="team-details">
-          <div class="detail-item">
-            <strong>🏊‍♀️ Home Pool:</strong> ${homePool}
-          </div>
-          <div class="detail-item">
-            <strong>⏰ Practice Times:</strong> ${practiceTimes}
-          </div>
-          <div class="detail-item">
-            <strong>👨‍🏫 Coaches:</strong> ${coaches}
-          </div>
+        <h3>${team.name}</h3>
+        <div class="team-meets">
+          ${meetList}
         </div>
       </div>
     `;
-  }).join("");
+  }).join('');
+  
+  return `
+    <div class="copilot-response success">
+      <h3>📅 Upcoming Meets</h3>
+      ${meetInfo}
+      <p><a href="meets.html" class="button">View Full Meet Schedule</a></p>
+    </div>
+  `;
+}
+
+/**
+ * Handles general team information queries
+ * @param {string} query - The user's search query
+ * @param {Array} teams - Array of matching team objects
+ * @returns {string} HTML content for general team information
+ */
+function handleGeneralTeamQuery(query, teams) {
+  const teamInfo = teams.map(team => {
+    const name = team.name || 'Unknown Team';
+    const homePools = Array.isArray(team.homePools) ? team.homePools.join(', ') : 
+                     team.homePool || 'TBA';
+    const practicePools = Array.isArray(team.practicePools) ? team.practicePools.join(', ') : 'TBA';
+    
+    return `
+      <div class="team-card">
+        <h3>${name}</h3>
+        <div class="team-details">
+          <div class="detail-item">
+            <strong>� Home Pool(s):</strong> ${homePools}
+          </div>
+          <div class="detail-item">
+            <strong>🏊‍♀️ Practice Pool(s):</strong> ${practicePools}
+          </div>
+          ${team.url ? `
+            <div class="detail-item">
+              <a href="${team.url}" target="_blank" class="button">Visit Team Website</a>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
   
   return `
     <div class="copilot-response success">
@@ -458,11 +774,43 @@ function handleTeamQuery(query) {
 }
 
 /**
- * Handles queries related to pools
+ * Handles case when no team is found in query
+ * @param {string} query - The user's search query
+ * @returns {string} HTML content for no team found
+ */
+function handleNoTeamFound(query) {
+  const teamNames = teamData
+    .map(t => t.name || 'Unknown Team')
+    .filter(Boolean)
+    .slice(0, 8)
+    .join(', ');
+    
+  return `
+    <div class="copilot-response warning">
+      <h3>🏊‍♀️ Team Not Found</h3>
+      <p>I couldn't find information about that team. Try asking about a specific team by name.</p>
+      <div class="team-list">
+        <h4>Available teams include:</h4>
+        <p>${teamNames}</p>
+      </div>
+      <div class="suggestion-examples">
+        <h4>Try asking:</h4>
+        <ul>
+          <li>"When do the Marlins practice?"</li>
+          <li>"Where is Long Reach practice tonight?"</li>
+          <li>"What meets does Phelps Luck have coming up?"</li>
+        </ul>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Handles queries related to pool locations and basic information
  * @param {string} query - The user's search query
  * @returns {string} HTML content to display as a response
  */
-function handlePoolQuery(query) {
+function handlePoolLocationQuery(query) {
   if (!poolData || !poolData.length) {
     return `
       <div class="copilot-response error">
@@ -472,56 +820,34 @@ function handlePoolQuery(query) {
     `;
   }
   
-  // Look for pool names in the query
+  // Look for specific pool names in the query
   const matchingPools = poolData.filter(pool => {
-    // Add safety check before calling toLowerCase()
-    const name = pool.name ? pool.name.toLowerCase() : '';
-    
-    return query.includes(name);
+    if (!pool.name) return false;
+    return query.toLowerCase().includes(pool.name.toLowerCase());
   });
   
   if (matchingPools.length === 0) {
-    const poolNames = poolData
-      .map(p => p.name || 'Unknown Pool')
-      .filter(Boolean)
-      .slice(0, 6) // Limit for mobile display
-      .join(", ");
-      
-    return `
-      <div class="copilot-response warning">
-        <h3>🏊‍♀️ Pool Not Found</h3>
-        <p>I couldn't find information about that pool. Try asking about a specific pool by name.</p>
-        <div class="pool-list">
-          <h4>Available pools include:</h4>
-          <p>${poolNames}</p>
-        </div>
-        <p><a href="pools.html" class="button">Browse All Pools</a></p>
-      </div>
-    `;
+    return handleNoPoolLocationFound(query);
   }
   
   // Build response for matching pools
   const poolInfo = matchingPools.map(pool => {
-    // Add safety checks for all pool properties
     const name = pool.name || 'Unknown Pool';
     const address = pool.address || '';
-    const city = pool.city || '';
-    const state = pool.state || '';
-    const zip = pool.zip || '';
     
-    // Build location query string safely
-    const locationQuery = encodeURIComponent(
-      [address, city, state, zip].filter(Boolean).join(', ')
-    );
-    
-    const fullAddress = [address, city, state, zip].filter(Boolean).join(', ');
+    // Build location query for maps
+    const locationQuery = pool.mapsQuery || 
+                         encodeURIComponent(`${name} Pool ${address}`);
     
     // Format opening hours
-    const hoursInfo = `
+    const hoursInfo = formatCopilotPoolHours(pool);
+    
+    // Format features if available
+    const featuresInfo = pool.features && Array.isArray(pool.features) ? `
       <div class="detail-item">
-        ${formatCopilotPoolHours(pool)}
+        <strong>🎯 Features:</strong> ${pool.features.sort().join(', ')}
       </div>
-    `;
+    ` : '';
     
     return `
       <div class="pool-card">
@@ -529,19 +855,21 @@ function handlePoolQuery(query) {
         <div class="pool-details">
           <div class="detail-item">
             <strong>📍 Address:</strong><br>
-            <a href="maps:?q=${locationQuery}" 
+            <a href="https://www.google.com/maps/search/?api=1&query=${locationQuery}" 
                target="_blank" 
                rel="noopener" 
-               class="address-link"
-               style="color: var(--primary-color); text-decoration: none; margin-top: 0.25rem; display: inline-block;">
-              ${fullAddress || 'Address not available'}
+               class="address-link">
+              ${address || 'Address not available'}
             </a>
           </div>
-          ${hoursInfo}
+          <div class="detail-item">
+            ${hoursInfo}
+          </div>
+          ${featuresInfo}
         </div>
       </div>
     `;
-  }).join("");
+  }).join('');
   
   return `
     <div class="copilot-response success">
@@ -552,11 +880,50 @@ function handlePoolQuery(query) {
 }
 
 /**
- * Handles queries related to pool features
+ * Handles case when no specific pool location is found
+ * @param {string} query - The user's search query
+ * @returns {string} HTML content for no pool found
+ */
+function handleNoPoolLocationFound(query) {
+  const poolNames = poolData
+    .map(p => p.name || 'Unknown Pool')
+    .filter(Boolean)
+    .slice(0, 8)
+    .join(', ');
+    
+  return `
+    <div class="copilot-response warning">
+      <h3>🏊‍♀️ Pool Not Found</h3>
+      <p>I couldn't find a specific pool matching your query. Try asking about a pool by its exact name.</p>
+      
+      <div class="pool-list">
+        <h4>Available pools include:</h4>
+        <p>${poolNames}</p>
+      </div>
+      
+      <div class="suggestion-examples">
+        <h4>Try asking:</h4>
+        <ul>
+          <li>"Where is Bryant Woods pool?"</li>
+          <li>"What's the address of Kendall Ridge?"</li>
+          <li>"How do I get to Stevens Forest pool?"</li>
+        </ul>
+      </div>
+      
+      <div class="action-buttons">
+        <a href="pools.html" class="button">Browse All Pools</a>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Handles queries related to pool features and current availability
+ * Enhanced to filter by multiple features and current open status
  * @param {string} query - The user's search query
  * @returns {string} HTML content to display as a response
  */
-function handleFeatureQuery(query) {
+function handlePoolFeatureQuery(query) {
   if (!poolData || !poolData.length) {
     return `
       <div class="copilot-response error">
@@ -566,59 +933,243 @@ function handleFeatureQuery(query) {
     `;
   }
   
-  // Look for pools with specific features
-  const featurePools = poolData.filter(pool => {
-    if (!pool.features) return false;
-    
-    const features = Array.isArray(pool.features) 
-      ? pool.features.join(' ').toLowerCase() 
-      : pool.features.toLowerCase();
-    
-    if (query.includes("slide")) return features.includes("slide");
-    if (query.includes("diving")) return features.includes("diving");
-    if (query.includes("lap")) return features.includes("lap");
-    
-    return false;
-  });
+  // DECISION SUB-TREE: Feature query type classification
+  // ===================================================
   
-  if (featurePools.length === 0) {
-    return `
-      <div class="copilot-response warning">
-        <h3>🔍 No Matching Features Found</h3>
-        <p>I couldn't find pools with that specific feature. Try browsing all pools to see available features.</p>
-        <p><a href="pools.html" class="button">Browse All Pools</a></p>
+  const requestedFeatures = extractFeaturesFromQuery(query);
+  const wantsOpenNow = query.includes('open now') || query.includes('right now') || query.includes('currently open');
+  const wantsAvailable = query.includes('available') || query.includes('which pools') || query.includes('what pools');
+  
+  let filteredPools = poolData;
+  
+  // FILTER 1: By features if specified
+  if (requestedFeatures.length > 0) {
+    filteredPools = filteredPools.filter(pool => {
+      if (!pool.features || !Array.isArray(pool.features)) return false;
+      
+      // Check if pool has ALL requested features (AND logic)
+      return requestedFeatures.every(feature => 
+        pool.features.some(poolFeature => 
+          poolFeature.toLowerCase().includes(feature.toLowerCase()) ||
+          feature.toLowerCase().includes(poolFeature.toLowerCase())
+        )
+      );
+    });
+  }
+  
+  // FILTER 2: By current open status if specified
+  if (wantsOpenNow) {
+    filteredPools = filteredPools.filter(pool => isPoolOpen(pool));
+  }
+  
+  // Handle no results
+  if (filteredPools.length === 0) {
+    return handleNoPoolsFound(query, requestedFeatures, wantsOpenNow);
+  }
+  
+  // BRANCH 1: Current status focus
+  if (wantsOpenNow) {
+    return handleOpenPoolsQuery(query, filteredPools, requestedFeatures);
+  }
+  
+  // BRANCH 2: Feature-focused results
+  return handleFeaturePoolsQuery(query, filteredPools, requestedFeatures);
+}
+
+/**
+ * Handles displaying currently open pools with features
+ * @param {string} query - The user's search query
+ * @param {Array} pools - Filtered pool array
+ * @param {Array} features - Requested features
+ * @returns {string} HTML content for open pools
+ */
+function handleOpenPoolsQuery(query, pools, features) {
+  const openPools = pools.filter(pool => isPoolOpen(pool));
+  const closedPools = pools.filter(pool => !isPoolOpen(pool));
+  
+  let html = '';
+  
+  if (openPools.length > 0) {
+    const openPoolsList = openPools.map(pool => {
+      return formatPoolCard(pool, true, features);
+    }).join('');
+    
+    html += `
+      <div class="open-pools-section">
+        <h4>🟢 Currently Open${features.length > 0 ? ` with ${features.join(', ')}` : ''}</h4>
+        ${openPoolsList}
       </div>
     `;
   }
   
-  const poolList = featurePools.map(pool => {
-    const name = pool.name || 'Unknown Pool';
-    const features = Array.isArray(pool.features) 
-      ? pool.features.sort().join(', ') 
-      : pool.features || 'Features not listed';
+  if (closedPools.length > 0) {
+    const closedPoolsList = closedPools.map(pool => {
+      return formatPoolCard(pool, false, features);
+    }).join('');
     
-    // Format opening hours for feature search
-    const hoursInfo = `
-      <div class="detail-item">
-        ${formatCopilotPoolHours(pool)}
+    html += `
+      <div class="closed-pools-section">
+        <h4>🔴 Currently Closed${features.length > 0 ? ` but has ${features.join(', ')}` : ''}</h4>
+        ${closedPoolsList}
       </div>
     `;
-    
-    return `
-      <div class="pool-card">
-        <h4>${name}</h4>
-        <div class="detail-item">
-          <strong>🎯 Features:</strong> ${features}
-        </div>
-        ${hoursInfo}
+  }
+  
+  const title = openPools.length > 0 ? 
+    `🟢 ${openPools.length} Pool${openPools.length !== 1 ? 's' : ''} Currently Open` :
+    '🔴 No Pools Currently Open';
+  
+  return `
+    <div class="copilot-response ${openPools.length > 0 ? 'success' : 'warning'}">
+      <h3>${title}</h3>
+      ${html}
+      <div class="action-buttons">
+        <a href="pools.html" class="button">Browse All Pools</a>
       </div>
-    `;
-  }).join("");
+    </div>
+  `;
+}
+
+/**
+ * Handles displaying pools filtered by features
+ * @param {string} query - The user's search query
+ * @param {Array} pools - Filtered pool array
+ * @param {Array} features - Requested features
+ * @returns {string} HTML content for feature pools
+ */
+function handleFeaturePoolsQuery(query, pools, features) {
+  const poolsList = pools.map(pool => {
+    const isOpen = isPoolOpen(pool);
+    return formatPoolCard(pool, isOpen, features);
+  }).join('');
+  
+  const featureText = features.length > 0 ? ` with ${features.join(', ')}` : '';
+  const title = `🎯 ${pools.length} Pool${pools.length !== 1 ? 's' : ''} Found${featureText}`;
   
   return `
     <div class="copilot-response success">
-      <h3>🎯 Pools with Matching Features</h3>
-      ${poolList}
+      <h3>${title}</h3>
+      ${poolsList}
+      <div class="action-buttons">
+        <a href="pools.html" class="button">Browse All Pools</a>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Formats a pool card for feature query results
+ * @param {Object} pool - Pool object
+ * @param {boolean} isOpen - Whether pool is currently open
+ * @param {Array} highlightFeatures - Features to highlight
+ * @returns {string} HTML for pool card
+ */
+function formatPoolCard(pool, isOpen, highlightFeatures = []) {
+  const name = pool.name || 'Unknown Pool';
+  const features = Array.isArray(pool.features) ? pool.features : [];
+  const statusIcon = isOpen ? '🟢' : '🔴';
+  const statusText = isOpen ? 'Open Now' : 'Closed';
+  const statusColor = isOpen ? 'var(--success-color)' : 'var(--error-color)';
+  
+  // Highlight requested features
+  const formattedFeatures = features.map(feature => {
+    const isHighlighted = highlightFeatures.some(reqFeature => 
+      feature.toLowerCase().includes(reqFeature.toLowerCase()) ||
+      reqFeature.toLowerCase().includes(feature.toLowerCase())
+    );
+    
+    return isHighlighted ? 
+      `<span class="highlighted-feature">${feature}</span>` : 
+      feature;
+  }).join(', ');
+  
+  // Get address for location link
+  const locationQuery = pool.mapsQuery || encodeURIComponent(`${pool.name} Pool ${pool.address || ''}`);
+  
+  return `
+    <div class="pool-card feature-result">
+      <div class="pool-header">
+        <h4>${name}</h4>
+        <span class="pool-status" style="color: ${statusColor}; font-weight: 600;">
+          ${statusIcon} ${statusText}
+        </span>
+      </div>
+      <div class="pool-details">
+        <div class="detail-item">
+          <strong>🎯 Features:</strong> ${formattedFeatures || 'None listed'}
+        </div>
+        ${pool.address ? `
+          <div class="detail-item">
+            <strong>📍 Location:</strong><br>
+            <a href="https://www.google.com/maps/search/?api=1&query=${locationQuery}" 
+               target="_blank" 
+               class="address-link">
+              ${pool.address}
+            </a>
+          </div>
+        ` : ''}
+        ${isOpen ? `
+          <div class="detail-item">
+            ${formatCopilotPoolHours(pool)}
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Handles case when no pools match the feature criteria
+ * @param {string} query - The user's search query
+ * @param {Array} features - Requested features that weren't found
+ * @param {boolean} wantsOpenNow - Whether user wanted currently open pools
+ * @returns {string} HTML content for no pools found
+ */
+function handleNoPoolsFound(query, features, wantsOpenNow) {
+  let reasonText = '';
+  
+  if (features.length > 0 && wantsOpenNow) {
+    reasonText = `No pools are currently open with ${features.join(', ')}.`;
+  } else if (features.length > 0) {
+    reasonText = `No pools found with ${features.join(', ')}.`;
+  } else if (wantsOpenNow) {
+    reasonText = 'No pools are currently open.';
+  } else {
+    reasonText = 'No pools match your criteria.';
+  }
+  
+  // Get all available features for suggestions
+  const allFeatures = [...new Set(
+    poolData.flatMap(pool => pool.features || [])
+  )].sort();
+  
+  const featuresDisplay = allFeatures.slice(0, 12).map(feature => 
+    `<span class="feature-tag">${feature}</span>`
+  ).join(' ');
+  
+  return `
+    <div class="copilot-response warning">
+      <h3>🔍 No Matching Pools Found</h3>
+      <p>${reasonText}</p>
+      
+      <div class="suggestions-section">
+        <h4>Available Features:</h4>
+        <div class="features-grid">
+          ${featuresDisplay}
+        </div>
+        
+        <h4>Try asking:</h4>
+        <ul class="suggestion-list">
+          <li>"Which pools have slides?"</li>
+          <li>"What pools are open now?"</li>
+          <li>"Pools with lap swimming and hot tub"</li>
+          <li>"Which pools have diving boards?"</li>
+        </ul>
+      </div>
+      
+      <div class="action-buttons">
+        <a href="pools.html" class="button">Browse All Pools</a>
+      </div>
     </div>
   `;
 }
@@ -787,4 +1338,142 @@ function handleHoursQuery(query) {
       ${poolsWithHours.length > 6 ? '<p><a href="pools.html" class="button">View All Pools</a></p>' : ''}
     </div>
   `;
+}
+
+// ------------------------------
+//    QUERY DECISION TREE HELPERS
+// ------------------------------
+
+/**
+ * Determines if a query is team-related
+ * Looks for team names, practice keywords, and coaching inquiries
+ * @param {string} query - The user's search query
+ * @returns {boolean} - True if query is team-related
+ */
+function isTeamQuery(query) {
+  const teamKeywords = ['practice', 'coach', 'team', 'marlins', 'long reach', 'phelps luck', 'wilde lake', 
+                       'owen brown', 'thunder hill', 'pointers run', 'clary', 'swansfield', 'hawthorn',
+                       'dorsey search', 'huntington', 'kings contrivance', 'harper', 'pheasant ridge',
+                       'clemens crossing', 'oakland mills'];
+                       
+  const practiceKeywords = ['practice', 'training', 'warm up', 'warmup'];
+  const locationWithTeam = query.includes('where') && teamKeywords.some(team => query.includes(team));
+  
+  return teamKeywords.some(keyword => query.includes(keyword)) || 
+         practiceKeywords.some(keyword => query.includes(keyword)) ||
+         locationWithTeam;
+}
+
+/**
+ * Determines if a query is about pool features or current availability
+ * @param {string} query - The user's search query
+ * @returns {boolean} - True if query is about pool features/status
+ */
+function isPoolFeatureQuery(query) {
+  const featureKeywords = ['slide', 'diving', 'lap', 'feature', 'hot tub', 'spa', 'wading', 'kiddie',
+                          'wifi', 'lift', 'ada', 'accessible', 'volleyball', 'basketball', 'play'];
+  const statusKeywords = ['open now', 'available now', 'currently open', 'right now'];
+  const availabilityKeywords = ['which pools', 'what pools', 'pools that have', 'pools with'];
+  
+  return featureKeywords.some(keyword => query.includes(keyword)) ||
+         statusKeywords.some(keyword => query.includes(keyword)) ||
+         availabilityKeywords.some(keyword => query.includes(keyword));
+}
+
+/**
+ * Determines if a query is asking for pool location information
+ * @param {string} query - The user's search query
+ * @returns {boolean} - True if query is about pool locations
+ */
+function isPoolLocationQuery(query) {
+  const locationKeywords = ['where', 'location', 'address', 'directions', 'how to get'];
+  const poolKeywords = ['pool', 'swim', 'swimming'];
+  const hasPoolName = poolData && poolData.some(pool => 
+    pool.name && query.toLowerCase().includes(pool.name.toLowerCase())
+  );
+  
+  return (locationKeywords.some(keyword => query.includes(keyword)) && 
+          poolKeywords.some(keyword => query.includes(keyword))) || hasPoolName;
+}
+
+/**
+ * Determines if a query is about swim meets
+ * @param {string} query - The user's search query
+ * @returns {boolean} - True if query is about meets
+ */
+function isMeetQuery(query) {
+  const meetKeywords = ['meet', 'competition', 'event', 'dual meet', 'championship', 'finals'];
+  const scheduleKeywords = ['schedule', 'when', 'next meet', 'upcoming'];
+  
+  return meetKeywords.some(keyword => query.includes(keyword)) ||
+         (scheduleKeywords.some(keyword => query.includes(keyword)) && 
+          !query.includes('practice') && !query.includes('pool'));
+}
+
+/**
+ * Determines if a query is about pool hours
+ * @param {string} query - The user's search query
+ * @returns {boolean} - True if query is about hours
+ */
+function isHoursQuery(query) {
+  const timeKeywords = ['hour', 'time', 'open', 'close', 'when does', 'what time', 'schedule'];
+  const excludeKeywords = ['practice', 'meet', 'team']; // Don't match practice/meet schedules
+  
+  return timeKeywords.some(keyword => query.includes(keyword)) &&
+         !excludeKeywords.some(keyword => query.includes(keyword));
+}
+
+/**
+ * Extracts team identifiers from a query string
+ * @param {string} query - The user's search query
+ * @returns {Array} - Array of matching team objects
+ */
+function extractTeamsFromQuery(query) {
+  if (!teamData || !Array.isArray(teamData)) return [];
+  
+  return teamData.filter(team => {
+    // Check main team name
+    if (team.name && query.toLowerCase().includes(team.name.toLowerCase())) {
+      return true;
+    }
+    
+    // Check keywords array
+    if (team.keywords && Array.isArray(team.keywords)) {
+      return team.keywords.some(keyword => 
+        query.toLowerCase().includes(keyword.toLowerCase())
+      );
+    }
+    
+    return false;
+  });
+}
+
+/**
+ * Extracts pool features from a query string
+ * @param {string} query - The user's search query
+ * @returns {Array} - Array of feature strings to filter by
+ */
+function extractFeaturesFromQuery(query) {
+  const featureMap = {
+    'slide': ['slide', 'water slide'],
+    'diving': ['diving', 'dive', 'diving board'],
+    'lap': ['lap', 'laps', 'lap pool', 'lap swimming'],
+    'hot tub': ['hot tub', 'spa', 'jacuzzi'],
+    'wading': ['wading', 'kiddie', 'children', 'toddler'],
+    'wifi': ['wifi', 'wireless', 'internet'],
+    'lift': ['lift', 'accessibility', 'disabled'],
+    'ada': ['ada', 'accessible', 'wheelchair', 'disabled'],
+    'volleyball': ['volleyball', 'volley ball'],
+    'basketball': ['basketball', 'basket ball'],
+    'play': ['play features', 'playground', 'play area', 'water features']
+  };
+  
+  const foundFeatures = [];
+  Object.entries(featureMap).forEach(([feature, keywords]) => {
+    if (keywords.some(keyword => query.toLowerCase().includes(keyword))) {
+      foundFeatures.push(feature);
+    }
+  });
+  
+  return foundFeatures;
 }

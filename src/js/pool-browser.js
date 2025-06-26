@@ -402,7 +402,7 @@ function renderPools(pools) {
         <div class="pool-details">
           <div class="address-section">
             <strong>📍 Address:</strong><br>
-            <a href="maps:?q=${locationQuery}" 
+            <a href="https://www.google.com/maps/search/?api=1&query=${locationQuery}" 
                target="_blank" 
                rel="noopener" 
                class="address-link">
