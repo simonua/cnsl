@@ -1300,14 +1300,18 @@ button[aria-label*="Voice"]:active {
   background-color: var(--success-color);
 }
 
+.meet-status-indicator.tomorrow {
+  background-color: var(--warning-color);
+}
+
 .meet-status-indicator.past {
   background-color: var(--text-muted);
 }
 
 .meet-date-details {
   overflow: hidden;
-  transition: max-height 0.1s ease, opacity 0.1s ease;
-  max-height: 1000px;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  max-height: 2000px; /* Increased from 1000px to accommodate more meets */
   opacity: 1;
   padding: 1rem;
 }
@@ -1392,6 +1396,16 @@ button[aria-label*="Voice"]:active {
 
 .today-tag {
   background-color: var(--success-color);
+  color: var(--white);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.tomorrow-tag {
+  background-color: var(--warning-color);
   color: var(--white);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;

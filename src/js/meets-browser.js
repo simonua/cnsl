@@ -236,9 +236,19 @@ function renderMeets(meets) {
     return;
   }
 
-  // Get current date for highlighting upcoming meets
-  const currentDate = new Date();
-  const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+  // Get current date for highlighting upcoming meets (using Eastern Time)
+  const now = new Date();
+  // Get Eastern Time properly
+  const easternTimeString = now.toLocaleDateString("en-US", {timeZone: "America/New_York"});
+  const easternTimeDate = new Date(easternTimeString);
+  const today = new Date(easternTimeDate.getFullYear(), easternTimeDate.getMonth(), easternTimeDate.getDate());
+  
+  console.log('🗓️ Date debugging:', {
+    localTime: now.toLocaleString(),
+    easternTimeString,
+    easternTimeDate: easternTimeDate.toDateString(),
+    today: today.toDateString()
+  });
   
   // Sort meets by date
   const sortedMeets = [...meets].sort((a, b) => {
@@ -266,9 +276,19 @@ function renderMeets(meets) {
   let html = '';
   
   Object.keys(meetsByDate).forEach(dateKey => {
-    const meetDate = new Date(meetsByDate[dateKey][0].date);
+    const meetDate = new Date(meetsByDate[dateKey][0].date + 'T12:00:00');
     const isUpcoming = meetDate >= today;
     const isToday = meetDate.toDateString() === today.toDateString();
+    const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+    const isTomorrow = meetDate.toDateString() === tomorrow.toDateString();
+    
+    console.log('📅 Date comparison for', dateKey, {
+      meetDate: meetDate.toDateString(),
+      today: today.toDateString(),
+      tomorrow: tomorrow.toDateString(),
+      isToday,
+      isTomorrow
+    });
     
     // Determine status for the date group
     let statusClass = 'upcoming';
@@ -277,6 +297,9 @@ function renderMeets(meets) {
     if (isToday) {
       statusClass = 'today';
       statusText = 'Today';
+    } else if (isTomorrow) {
+      statusClass = 'tomorrow';
+      statusText = 'Tomorrow';
     } else if (!isUpcoming) {
       statusClass = 'past';
       statusText = 'Past';
@@ -303,10 +326,21 @@ function renderMeets(meets) {
       const time = meet.time || ('8:00 AM - 12:00 PM');
       let meetContent = '';
       
-      // Check if meet is today or upcoming
-      const meetDate = new Date(meet.date);
+      // Check if meet is today, tomorrow, or upcoming (using Eastern Time)
+      const meetDate = new Date(meet.date + 'T12:00:00');
       const isToday = meetDate.toDateString() === today.toDateString();
+      const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+      const isTomorrow = meetDate.toDateString() === tomorrow.toDateString();
       const isUpcoming = meetDate >= today;
+      
+      console.log('🎯 Individual meet check for', meet.date, {
+        meetDate: meetDate.toDateString(),
+        today: today.toDateString(),
+        tomorrow: tomorrow.toDateString(),
+        isToday,
+        isTomorrow,
+        isUpcoming
+      });
       
       // Add appropriate CSS classes based on date
       let meetClasses = "meet-item";
@@ -349,7 +383,7 @@ function renderMeets(meets) {
               <span class="meet-location">${locationLink}</span>
               <span class="meet-time">${time}</span>
             </div>
-            ${isToday ? '<span class="today-tag">TODAY</span>' : ''}
+            ${isToday ? '<span class="today-tag">TODAY</span>' : isTomorrow ? '<span class="tomorrow-tag">TOMORROW</span>' : ''}
           </div>
         `;
       } else {
@@ -364,7 +398,7 @@ function renderMeets(meets) {
               <span class="meet-location">${locationLink}</span>
               <span class="meet-time">${time}</span>
             </div>
-            ${isToday ? '<span class="today-tag">TODAY</span>' : ''}
+            ${isToday ? '<span class="today-tag">TODAY</span>' : isTomorrow ? '<span class="tomorrow-tag">TOMORROW</span>' : ''}
           </div>
         `;
       }
