@@ -30,6 +30,17 @@
 
   <include src="components/footer.html"></include>
 
+  <!-- Helper classes (load first - order matters for dependencies) -->
+  <script src="js/time-utils.js" defer></script>
+  <script src="js/pool-enums.js" defer></script>
+  <script src="js/pool-schedule.js" defer></script>
+  <script src="js/pool.js" defer></script>
+  <script src="js/pools-manager.js" defer></script>
+  <script src="js/teams-manager.js" defer></script>
+  <script src="js/meets-manager.js" defer></script>
+  <script src="js/data-manager.js" defer></script>
+  
+  <!-- Application scripts -->
   <script src="js/navigation.js" defer></script>
   <script src="js/speech.js" defer></script>
   <script src="js/pool-browser.js" defer></script>

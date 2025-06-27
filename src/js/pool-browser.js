@@ -7,19 +7,33 @@ let userCoords = null;
 // ------------------------------
 
 /**
- * Checks if a pool is currently open based on its schedule
- * @param {Object} pool - Pool object with schedules property
- * @returns {boolean} - True if the pool is currently open
+ * Gets current time in Eastern Time zone
+ * @returns {Date} - Current time in Eastern Time
  */
-function isPoolOpen(pool) {
+function getEasternTime() {
+  const now = new Date();
+  return new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+}
+
+/**
+ * Gets pool status with three-color system
+ * @param {Object} pool - Pool object with schedules property
+ * @returns {Object} - Status object with isOpen, status, color, and icon
+ */
+function getPoolStatus(pool) {
   if (!pool.schedules || !Array.isArray(pool.schedules)) {
-    return false;
+    return {
+      isOpen: false,
+      status: 'Closed',
+      color: 'red',
+      icon: '🔴'
+    };
   }
 
-  const now = new Date();
-  const currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
-  const currentDay = now.toLocaleDateString('en-US', { weekday: 'short' }); // Mon, Tue, etc.
-  const currentTime = now.getHours() * 60 + now.getMinutes(); // Minutes since midnight
+  const easternTime = getEasternTime();
+  const currentDate = easternTime.toISOString().split('T')[0]; // YYYY-MM-DD format
+  const currentDay = easternTime.toLocaleDateString('en-US', { weekday: 'short' }); // Mon, Tue, etc.
+  const currentTime = easternTime.getHours() * 60 + easternTime.getMinutes(); // Minutes since midnight
 
   // Find the current active schedule
   const activeSchedule = pool.schedules.find(schedule => {
@@ -27,23 +41,87 @@ function isPoolOpen(pool) {
   });
 
   if (!activeSchedule || !activeSchedule.hours) {
-    return false;
+    return {
+      isOpen: false,
+      status: 'Closed',
+      color: 'red',
+      icon: '🔴'
+    };
   }
 
   // Find today's hours - there might be multiple time slots for the same day
   const todayHours = activeSchedule.hours.filter(h => 
     h.weekDays && h.weekDays.includes(currentDay)
   );
+  
   if (!todayHours.length) {
-    return false;
+    return {
+      isOpen: false,
+      status: 'Closed',
+      color: 'red',
+      icon: '🔴'
+    };
   }
 
-  // Check if current time falls within any of today's time slots
-  return todayHours.some(hour => {
+  // Check current time against all time slots
+  for (const hour of todayHours) {
     const startMinutes = timeStringToMinutes(hour.startTime);
     const endMinutes = timeStringToMinutes(hour.endTime);
-    return currentTime >= startMinutes && currentTime <= endMinutes;
-  });
+    
+    if (currentTime >= startMinutes && currentTime < endMinutes) {
+      // Check activity types to determine access level
+      const activityTypes = formatActivityTypes(hour.types).toLowerCase();
+      
+      // Check for restricted access based on activity types
+      if (activityTypes.includes('closed to public')) {
+        return {
+          isOpen: false,
+          status: 'Closed to Public',
+          color: 'red',
+          icon: '�'
+        };
+      } else if (activityTypes.includes('cnsl practice only')) {
+        return {
+          isOpen: true,
+          status: 'CNSL Practice Only',
+          color: 'yellow',
+          icon: '🟡'
+        };
+      } else if (activityTypes.includes('swim meet')) {
+        return {
+          isOpen: true,
+          status: 'Swim Meet',
+          color: 'yellow',
+          icon: '🟡'
+        };
+      } else {
+        // Regular public access (Laps, Rec Swim, Aqua Fitness, etc.)
+        return {
+          isOpen: true,
+          status: 'Open Now',
+          color: 'green',
+          icon: '�'
+        };
+      }
+    }
+  }
+
+  return {
+    isOpen: false,
+    status: 'Closed',
+    color: 'red',
+    icon: '🔴'
+  };
+}
+
+/**
+ * Checks if a pool is currently open for public access based on its schedule
+ * @param {Object} pool - Pool object with schedules property
+ * @returns {boolean} - True if the pool is currently open to public
+ */
+function isPoolOpen(pool) {
+  const status = getPoolStatus(pool);
+  return status.isOpen && status.color === 'green';
 }
 
 /**
@@ -82,7 +160,7 @@ function timeStringToMinutes(timeStr) {
 }
 
 /**
- * Formats pool schedule for display
+ * Formats pool schedule for display with time slot highlighting
  * @param {Object} pool - Pool object with schedules property
  * @returns {string} - HTML string for displaying hours
  */
@@ -91,8 +169,10 @@ function formatPoolHours(pool) {
     return '<div class="pool-hours"><strong>🕒 Hours:</strong> Not available</div>';
   }
 
-  const now = new Date();
-  const currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
+  const easternTime = getEasternTime();
+  const currentDate = easternTime.toISOString().split('T')[0]; // YYYY-MM-DD format
+  const currentDay = easternTime.toLocaleDateString('en-US', { weekday: 'short' }); // Mon, Tue, etc.
+  const currentTime = easternTime.getHours() * 60 + easternTime.getMinutes(); // Minutes since midnight
   
   // Find the current active schedule
   const activeSchedule = pool.schedules.find(schedule => {
@@ -103,9 +183,9 @@ function formatPoolHours(pool) {
     return '<div class="pool-hours"><strong>🕒 Hours:</strong> No current schedule available</div>';
   }
 
-  const isOpen = isPoolOpen(pool);
-  const statusIcon = isOpen ? '🟢' : '🔴';
-  const statusText = isOpen ? 'Open Now' : 'Closed';
+  const poolStatus = getPoolStatus(pool);
+  const statusIcon = poolStatus.icon;
+  const statusText = poolStatus.status;
 
   // Format the period dates
   const startDate = new Date(activeSchedule.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -123,11 +203,46 @@ function formatPoolHours(pool) {
         dayGroups[day].push({
           timeRange: hour.startTime && hour.endTime ? `${hour.startTime}-${hour.endTime}` : '',
           types: formatActivityTypes(hour.types),
-          notes: hour.notes || ''
+          notes: hour.notes || '',
+          access: hour.access || 'Public',
+          startTime: hour.startTime,
+          endTime: hour.endTime
         });
       });
     }
   });
+
+  // Sort time slots within each day from earliest to latest
+  Object.keys(dayGroups).forEach(day => {
+    dayGroups[day].sort((a, b) => {
+      const aStart = timeStringToMinutes(a.startTime || '12:00AM');
+      const bStart = timeStringToMinutes(b.startTime || '12:00AM');
+      return aStart - bStart;
+    });
+  });
+
+  // Add debug info for current day and time
+  let debugInfo = `<div style="font-size: 0.8em; color: #666; margin-bottom: 0.5rem;">
+    Current: ${currentDay} at ${Math.floor(currentTime/60)}:${String(currentTime%60).padStart(2,'0')} (${currentTime} minutes)
+  </div>`;
+  
+  // Extra debug for Bryant Woods Sunday issue
+  if (pool.name === 'Bryant Woods' && dayGroups['Sun']) {
+    debugInfo += `<div style="font-size: 0.8em; color: #orange; margin-bottom: 0.5rem;">
+      🐛 Bryant Woods Sunday slots: ${dayGroups['Sun'].length}
+    </div>`;
+  }
+  
+  // Debug current day schedule
+  if (dayGroups[currentDay]) {
+    debugInfo += `<div style="font-size: 0.8em; color: #blue; margin-bottom: 0.5rem;">
+      📅 ${pool.name} has ${dayGroups[currentDay].length} slots for ${currentDay}
+    </div>`;
+  } else {
+    debugInfo += `<div style="font-size: 0.8em; color: #red; margin-bottom: 0.5rem;">
+      ❌ ${pool.name} has NO slots for ${currentDay}
+    </div>`;
+  }
 
   // Format hours display
   let hoursDisplay = '';
@@ -136,9 +251,14 @@ function formatPoolHours(pool) {
   dayOrder.forEach(day => {
     if (dayGroups[day]) {
       const daySlots = dayGroups[day];
-      if (daySlots.length === 1) {
-        // Single time slot for the day
-        const slot = daySlots[0];
+      
+      // Check if this is the current day and if pool is open now
+      const isCurrentDay = day === currentDay;
+      const dayStyle = isCurrentDay && poolStatus.isOpen ? ' style="font-weight: bold; color: var(--primary-color);"' : '';
+      
+      // Use consistent format for all days - always show day name then time slots below
+      hoursDisplay += `<div class="day-schedule"><strong${dayStyle}>${day}:</strong></div>`;
+      daySlots.forEach(slot => {
         let typesText = slot.types ? ` ${slot.types}` : '';
         
         // Make "Closed to Public" bold
@@ -147,39 +267,27 @@ function formatPoolHours(pool) {
         }
         
         const notesText = slot.notes ? ` - ${slot.notes}` : '';
-        const timeHtml = slot.timeRange ? formatTimeRangeSpans(slot.timeRange) : '';
-        hoursDisplay += `<div class="day-schedule"><strong>${day}:</strong> <span class="time-range-container">${timeHtml}</span>${typesText}${notesText}</div>`;
-      } else {
-        // Multiple time slots for the day
-        hoursDisplay += `<div class="day-schedule"><strong>${day}:</strong></div>`;
-        daySlots.forEach(slot => {
-          let typesText = slot.types ? ` ${slot.types}` : '';
-          
-          // Make "Closed to Public" bold
-          if (typesText.includes('Closed to Public')) {
-            typesText = typesText.replace('Closed to Public', '<span class="closed-to-public">Closed to Public</span>');
-          }
-          
-          const notesText = slot.notes ? ` - ${slot.notes}` : '';
-          const timeHtml = slot.timeRange ? formatTimeRangeSpans(slot.timeRange) : '';
-          hoursDisplay += `<div class="time-slot"><span class="time-range-container">${timeHtml}</span>${typesText}${notesText}</div>`;
-        });
-      }
+        const timeHtml = slot.timeRange ? formatTimeRangeSpans(slot.timeRange, isCurrentDay, currentTime, poolStatus) : '';
+        hoursDisplay += `<div class="time-slot"><span class="time-range-container">${timeHtml}</span>${typesText}${notesText}</div>`;
+      });
     }
   });
 
   return `
     <div class="pool-hours">
-      <strong>🕒 Hours:</strong> <span class="open-status">${statusIcon} ${statusText}</span><br>
+      <strong>🕒 Hours:</strong> <span class="open-status status-${poolStatus.color}">${statusIcon} ${statusText}</span><br>
       <div class="period-info">
         ${periodText}
       </div>
+      ${debugInfo}
       <div class="hours-details">
         ${hoursDisplay}
       </div>
     </div>
   `;
 }
+
+
 
 /**
  * Groups consecutive days for cleaner display
@@ -373,15 +481,16 @@ function renderPools(pools) {
 
     const fullAddress = [poolAddress, poolCity, poolState, poolZip].filter(Boolean).join(', ');
 
-    // Format features for display
+    // Format features for display as horizontal pills
     let featuresHtml = '';
     if (Array.isArray(features) && features.length > 0) {
+      const sortedFeatures = features.sort();
       featuresHtml = `
         <div class="pool-features">
           <h4>Features</h4>
-          <ul class="features-list">
-            ${features.sort().map(feature => `<li>${feature}</li>`).join('')}
-          </ul>
+          <div class="feature-pills">
+            ${sortedFeatures.map(feature => `<span class="feature-pill">${feature}</span>`).join('')}
+          </div>
         </div>
       `;
     }
@@ -389,9 +498,9 @@ function renderPools(pools) {
     // Format opening hours for display
     const hoursHtml = formatPoolHours(pool);
     
-    // Get pool open status for indicator
-    const isOpen = isPoolOpen(pool);
-    const statusClass = isOpen ? 'open' : 'closed';
+    // Get pool status for indicator
+    const poolStatus = getPoolStatus(pool);
+    const statusClass = poolStatus.color;
 
     return `
       <div class="pool-card collapsed" data-pool-id="${poolId}">
@@ -409,8 +518,8 @@ function renderPools(pools) {
               ${fullAddress || 'Address not available'}
             </a>
           </div>
-          ${featuresHtml}
           ${hoursHtml}
+          ${featuresHtml}
         </div>
       </div>
     `;
@@ -422,9 +531,12 @@ function renderPools(pools) {
 /**
  * Formats a time range into three separate spans for better alignment
  * @param {string} timeRange - Time range in format "startTime-endTime"
+ * @param {boolean} isCurrentDay - Whether this is the current day
+ * @param {number} currentTime - Current time in minutes since midnight
+ * @param {Object} poolStatus - Pool status object with color information
  * @returns {string} - HTML with three spans for start, dash, and end time
  */
-function formatTimeRangeSpans(timeRange) {
+function formatTimeRangeSpans(timeRange, isCurrentDay = false, currentTime = 0, poolStatus = null) {
   if (!timeRange) return '';
   
   const parts = timeRange.split('-');
@@ -433,7 +545,46 @@ function formatTimeRangeSpans(timeRange) {
   const startTime = parts[0].trim();
   const endTime = parts[1].trim();
   
-  return `<span class="time-start">${startTime}</span><span class="time-dash">-</span><span class="time-end">${endTime}</span>`;
+  // Check if current time falls within this slot (only for current day)
+  let highlightClass = '';
+  let inlineStyle = '';
+  if (isCurrentDay && poolStatus) {
+    const startMinutes = timeStringToMinutes(startTime);
+    const endMinutes = timeStringToMinutes(endTime);
+    
+    // Debug logging for time slot highlighting
+    console.log(`🐛 Time slot check: ${startTime}-${endTime}`, {
+      startMinutes,
+      endMinutes,
+      currentTime,
+      isInRange: currentTime >= startMinutes && currentTime < endMinutes,
+      poolStatusColor: poolStatus.color
+    });
+    
+    // Use < instead of <= to prevent overlapping highlights
+    if (currentTime >= startMinutes && currentTime < endMinutes) {
+      // For highlighting, always use green for active time slots during current time
+      // The poolStatus.color represents the actual access level for the current time
+      if (poolStatus.color === 'green') {
+        highlightClass = ' highlighted-time-slot-green';
+        inlineStyle = ' style="background-color: #28a745 !important; color: white !important; padding: 0.2rem 0.4rem !important; border-radius: 0.3rem !important; font-weight: bold !important;"';
+      } else if (poolStatus.color === 'yellow') {
+        highlightClass = ' highlighted-time-slot-yellow';
+        inlineStyle = ' style="background-color: #ffc107 !important; color: black !important; padding: 0.2rem 0.4rem !important; border-radius: 0.3rem !important; font-weight: bold !important;"';
+      } else {
+        highlightClass = ' highlighted-time-slot-red';
+        inlineStyle = ' style="background-color: #dc3545 !important; color: white !important; padding: 0.2rem 0.4rem !important; border-radius: 0.3rem !important; font-weight: bold !important;"';
+      }
+      
+      console.log(`🎯 MATCH FOUND! Current time slot: ${startTime}-${endTime}`);
+      console.log(`🎯 Pool status color: ${poolStatus.color}`);
+      console.log(`🎯 Applied highlight class: "${highlightClass.trim()}"`);
+      console.log(`🎯 Applied inline style: "${inlineStyle}"`);
+      console.log(`🎯 This time slot should be highlighted with ${poolStatus.color} background`);
+    }
+  }
+  
+  return `<span class="time-start${highlightClass}"${inlineStyle}>${startTime}</span><span class="time-dash${highlightClass}"${inlineStyle}>-</span><span class="time-end${highlightClass}"${inlineStyle}>${endTime}</span>`;
 }
 
 /**

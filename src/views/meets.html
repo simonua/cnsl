@@ -2,6 +2,24 @@
   <block name="content">
     <h1>Meet Schedule</h1>
     <div class="container">
+      <div class="search-section">
+        <label for="meetsSearchInput" class="visually-hidden">Search meets by location, team, or name</label>
+        <input 
+          type="search" 
+          id="meetsSearchInput" 
+          placeholder="Search meets by location, team, or name (e.g., 'Where is Bryant Woods?')" 
+          onkeydown="if(event.key === 'Enter') handleMeetsSearch()" 
+          oninput="if(!this.value.trim()) clearLocationSearch()"
+          class="full-width" 
+        />
+        <div class="search-buttons">
+          <button onclick="handleMeetsSearch()">Search</button>
+          <button onclick="clearLocationSearch()" class="btn-secondary">Clear</button>
+        </div>
+        <div class="search-examples">
+          <p><strong>Try searching:</strong> "Where is Kendall Ridge?" • "Bryant Woods location" • "Stevens Forest meets"</p>
+        </div>
+      </div>
       <div id="meetList" class="meet-list">
         <!-- Meets will be loaded dynamically via JavaScript -->
         <p class="loading">Loading meet schedule...</p>

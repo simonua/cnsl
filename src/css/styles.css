@@ -206,7 +206,7 @@ main {
   flex: 1;
   padding: 1.5rem 0;
   margin-top: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 60px !important;
 }
 
 /* Search Section */
@@ -583,20 +583,23 @@ nav a:focus {
   font-size: 1rem;
 }
 
-.features-list {
-  list-style: none;
-  padding: 0;
+.features-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   margin: 0;
 }
 
-.features-list li {
-  padding: 0.25rem 0;
-  border-bottom: 1px solid rgba(0, 120, 212, 0.1);
-  color: var(--text-dark);
-}
-
-.features-list li:last-child {
-  border-bottom: none;
+.feature-pill {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background-color: var(--primary-color);
+  color: var(--white);
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+  margin: 0.2rem 0.3rem 0.2rem 0;
 }
 
 .pool-actions {
@@ -652,6 +655,22 @@ nav a:focus {
   border-radius: var(--border-radius);
   margin-bottom: 0.75rem;
   border-left: 3px solid var(--info-color);
+  transition: var(--transition);
+}
+
+.schedule-item[onclick] {
+  cursor: pointer;
+}
+
+.schedule-item[onclick]:hover {
+  background-color: var(--white);
+  border-left-color: var(--primary-color);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+.schedule-item[onclick]:active {
+  transform: translateY(0);
 }
 
 .schedule-item p {
@@ -998,11 +1017,13 @@ button[aria-label*="Voice"]:active {
   display: inline-flex;
   align-items: center;
   min-width: 8rem;
+  max-width: 8rem; /* Prevent width changes when highlighted */
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.9rem;
   background-color: rgba(0, 120, 212, 0.1);
   padding: 0.1rem 0.3rem;
   border-radius: 4px;
+  margin-right: 0.75rem; /* Add spacing between time and description */
 }
 
 .time-start,
@@ -1056,12 +1077,102 @@ button[aria-label*="Voice"]:active {
   margin-top: 8px;
 }
 
+.pool-status-indicator.green {
+  background-color: var(--success-color);
+}
+
+.pool-status-indicator.yellow {
+  background-color: var(--warning-color);
+}
+
+.pool-status-indicator.red {
+  background-color: var(--error-color);
+}
+
+/* Legacy support */
 .pool-status-indicator.open {
   background-color: var(--success-color);
 }
 
+.pool-status-indicator.warning {
+  background-color: var(--warning-color);
+}
+
 .pool-status-indicator.closed {
   background-color: var(--error-color);
+}
+
+/* Status color classes for text elements */
+.status-green {
+  color: var(--success-color);
+}
+
+.status-yellow {
+  color: var(--warning-color);
+}
+
+.status-red {
+  color: var(--error-color);
+}
+
+/* Time slot highlighting */
+.highlighted-time-slot {
+  background-color: var(--primary-color);
+  color: var(--white);
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+/* Time slot highlighting based on pool status */
+.highlighted-time-slot-green,
+.time-start.highlighted-time-slot-green,
+.time-dash.highlighted-time-slot-green,
+.time-end.highlighted-time-slot-green {
+  background-color: var(--success-color) !important;
+  color: white !important;
+  padding: 0.2rem 0.4rem !important;
+  border-radius: 0.3rem !important;
+  font-weight: bold !important;
+}
+
+.highlighted-time-slot-yellow,
+.time-start.highlighted-time-slot-yellow,
+.time-dash.highlighted-time-slot-yellow,
+.time-end.highlighted-time-slot-yellow {
+  background-color: var(--warning-color) !important;
+  color: black !important;
+  padding: 0.2rem 0.4rem !important;
+  border-radius: 0.3rem !important;
+  font-weight: bold !important;
+}
+
+.highlighted-time-slot-red,
+.time-start.highlighted-time-slot-red,
+.time-dash.highlighted-time-slot-red,
+.time-end.highlighted-time-slot-red {
+  background-color: var(--error-color) !important;
+  color: white !important;
+  padding: 0.2rem 0.4rem !important;
+  border-radius: 0.3rem !important;
+  font-weight: bold !important;
+}
+
+/* Test highlighting classes - temporary */
+.test-highlight-green {
+  background-color: var(--success-color) !important;
+  color: white !important;
+  padding: 0.2rem 0.4rem !important;
+  border-radius: 0.3rem !important;
+  font-weight: bold !important;
+}
+
+.test-highlight-yellow {
+  background-color: var(--warning-color) !important;
+  color: black !important;
+  padding: 0.2rem 0.4rem !important;
+  border-radius: 0.3rem !important;
+  font-weight: bold !important;
 }
 
 .pool-details {
@@ -1150,8 +1261,9 @@ button[aria-label*="Voice"]:active {
 
 .date-and-name {
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
   flex: 1;
 }
 
@@ -1286,180 +1398,210 @@ button[aria-label*="Voice"]:active {
   margin-left: auto;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  :root {
-    --header-height: 60px;
-    --footer-height: 50px;
-  }
-  
-  .container {
-    padding: 0.25rem;
-  }
-  
-  .header h1 {
-    font-size: 1.1rem;
-  }
-  
-  .copilot-search h2 {
-    font-size: 1.3rem;
-  }
-  
-  button, .btn {
-    padding: 0.75rem 1.25rem;
-  }
-  
-  .pool-list, .team-list, .meet-list, .faq-list {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  
-  .filters {
-    grid-template-columns: 1fr;
-  }
-  
-  .nav-menu {
-    width: 90%;
-    max-width: 280px;
-  }
-
-  .pool-card,
-  .team-card,
-  .meet-card {
-    padding: 0.5rem;
-    padding-left:1rem;
-    margin-bottom: 0.5rem;
-  }
-
-  /* Mobile-specific pool hours styling */
-  .pool-hours .period-info {
-    font-size: 0.8rem;
-  }
-  
-  .day-schedule strong {
-    min-width: 2.5rem;
-  }
-  
-  .time-range,
-  .time-range-container {
-    min-width: 7rem;
-    font-size: 0.85rem;
-  }
-  
-  .time-start,
-  .time-end {
-    width: 60px;
-  }
-  
-  .time-dash {
-    width: 0.6rem;
-  }
-}
-
-@media (min-width: 769px) {
-  .container {
-    padding: 1rem;
-  }
-  
-  .copilot-search {
-    margin-bottom: 3rem;
-  }
-  
-  .pool-list, .team-list, .meet-list, .faq-list {
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  }
-  
-  .filters {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  }
-}
-
-@media (min-width: 1200px) {
-  .pool-list, .team-list, .meet-list, .faq-list {
-    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-  }
-}
-
-/* Enhanced Focus States for Accessibility */
-.button:focus,
-button:focus,
-.quick-link-card:focus {
-  outline: 3px solid var(--primary-light);
-  outline-offset: 2px;
-}
-
-input:focus,
-textarea:focus,
-select:focus {
-  outline: 3px solid var(--primary-light);
-  outline-offset: 2px;
-}
-
-/* Loading States */
-.loading {
-  opacity: 0.7;
-  pointer-events: none;
-}
-
-.loading::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 20px;
-  height: 20px;
-  margin: -10px 0 0 -10px;
-  border: 2px solid var(--primary-color);
-  border-top: 2px solid transparent;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Enhanced Error States */
-.error-state {
-  text-align: center;
-  padding: 2rem;
-  color: var(--text-muted);
-}
-
-.error-state h3 {
-  color: var(--error-color);
+/* Team Card Enhancements */
+.team-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 1rem;
 }
 
-/* Success States */
-.success-state {
-  text-align: center;
+.upcoming-practice {
+  background-color: var(--light-bg);
+  padding: 0.75rem;
+  border-radius: var(--border-radius);
+  margin-bottom: 1rem;
+  border-left: 3px solid var(--success-color);
+  font-size: 0.9rem;
+}
+
+.practice-schedule {
+  background-color: var(--light-bg);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  margin: 0.75rem 0;
+  border-left: 3px solid var(--info-color);
+}
+
+.practice-schedule h4 {
+  color: var(--primary-color);
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.season-info {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-bottom: 0.75rem;
+}
+
+.practice-period {
+  margin-bottom: 1rem;
+}
+
+.practice-period:last-child {
+  margin-bottom: 0;
+}
+
+.practice-period > strong {
+  display: block;
+  color: var(--primary-dark);
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.practice-details {
+  margin-left: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.practice-details > div {
+  margin-bottom: 0.25rem;
+}
+
+.sessions {
+  margin-top: 0.5rem;
+  background-color: rgba(0, 120, 212, 0.05);
+  border-radius: 6px;
+  padding: 0.5rem;
+}
+
+.pool-link,
+.location-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.pool-link:hover,
+.location-link:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+
+.team-actions {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Search functionality for meets page */
+.search-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--white);
+  border-radius: 15px;
+  box-shadow: var(--shadow);
+}
+
+.search-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  justify-content: flex-start;
+}
+
+.search-buttons button {
+  flex: 0 0 auto;
+  min-width: 100px;
+}
+
+.search-examples {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: var(--background-color);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.search-examples p {
+  margin: 0;
+}
+
+.search-examples strong {
+  color: var(--text-color);
+}
+
+.btn-secondary {
+  background: var(--border-color) !important;
+  color: var(--text-color) !important;
+}
+
+.btn-secondary:hover {
+  background: var(--text-muted) !important;
+  color: var(--white) !important;
+}
+
+/* Search results styling */
+.search-results-header {
+  background: var(--primary-color);
+  color: var(--white);
+  padding: 1rem 1.5rem;
+  border-radius: 15px 15px 0 0;
+  margin-bottom: 1rem;
+}
+
+.search-results-header h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--white);
+}
+
+.search-results-header p {
+  margin: 0 0 1rem 0;
+  opacity: 0.9;
+}
+
+.search-results-header .btn {
+  background: var(--white);
+  color: var(--primary-color);
+  border: none;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+.search-results-header .btn:hover {
+  background: var(--background-color);
+}
+
+.search-results {
+  background: var(--white);
   padding: 2rem;
-  color: var(--success-color);
+  border-radius: 15px;
+  box-shadow: var(--shadow);
+  text-align: center;
 }
 
-/* High Contrast Mode Support */
-@media (prefers-contrast: high) {
-  .team-card,
-  .pool-card,
-  .meet-card,
-  .copilot-response {
-    border-width: 2px;
-  }
-  
-  .distance-badge {
-    border: 2px solid var(--white);
-  }
+.search-results h3 {
+  color: var(--primary-color);
+  margin-bottom: 1rem;
 }
 
-/* Pool schedule styling for closed status */
-.day-schedule:has-text("Closed to Public"),
-.time-slot:has-text("Closed to Public") {
-  font-weight: normal;
+.search-suggestions {
+  background: var(--background-color);
+  padding: 1.5rem;
+  border-radius: 10px;
+  margin: 1.5rem 0;
+  text-align: left;
 }
 
-.day-schedule .closed-to-public,
-.time-slot .closed-to-public {
-  font-weight: bold;
+.search-suggestions h4 {
+  margin: 0 0 1rem 0;
+  color: var(--text-color);
+}
+
+.search-suggestions ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.search-suggestions li {
+  margin-bottom: 0.5rem;
+  color: var(--text-muted);
 }
