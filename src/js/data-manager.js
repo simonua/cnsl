@@ -144,6 +144,21 @@ class DataManager {
   }
 
   /**
+   * Property getters for direct access (used by search engine and copilot)
+   */
+  get pools() {
+    return this.poolsManager;
+  }
+
+  get teams() {
+    return this.teamsManager;
+  }
+
+  get meets() {
+    return this.meetsManager;
+  }
+
+  /**
    * Get a specific pool by name
    * @param {string} poolName - Pool name (can use PoolNames enum)
    * @returns {Pool|null} - Pool object or null

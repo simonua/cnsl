@@ -15,15 +15,32 @@ class MeetsManager {
   loadData(meetsData) {
     this.meets.clear();
     
+    let meetsList = [];
+    
+    // Handle both old format (meets) and new format (regular_meets + special_meets)
     if (meetsData && meetsData.meets) {
-      meetsData.meets.forEach(meetData => {
-        // Create unique key from date and pools
-        const meetKey = `${meetData.date}_${meetData.homePool}_${meetData.awayPool}`;
+      meetsList = meetsData.meets;
+    } else {
+      // Combine regular and special meets
+      if (meetsData && meetsData.regular_meets) {
+        meetsList = [...meetsData.regular_meets];
+      }
+      if (meetsData && meetsData.special_meets) {
+        meetsList = [...meetsList, ...meetsData.special_meets];
+      }
+    }
+    
+    if (meetsList.length > 0) {
+      meetsList.forEach((meetData, index) => {
+        // Create unique key from date, teams, and location
+        const meetKey = `${meetData.date}_${meetData.home_team || meetData.homeTeam || 'special'}_${meetData.visiting_team || meetData.awayTeam || 'meet'}_${index}`;
         this.meets.set(meetKey, meetData);
       });
       
       this.lastUpdated = meetsData.lastUpdated || new Date().toISOString();
       this.dataLoaded = true;
+      
+      console.log(`📅 MEETS: Loaded ${meetsList.length} meets (regular + special)`);
     }
   }
 
@@ -159,12 +176,16 @@ class MeetsManager {
     const term = searchTerm.toLowerCase();
     return this.getAllMeets().filter(meet => {
       return (
+        (meet.home_team && meet.home_team.toLowerCase().includes(term)) ||
+        (meet.visiting_team && meet.visiting_team.toLowerCase().includes(term)) ||
         (meet.homeTeam && meet.homeTeam.toLowerCase().includes(term)) ||
         (meet.awayTeam && meet.awayTeam.toLowerCase().includes(term)) ||
         (meet.homePool && meet.homePool.toLowerCase().includes(term)) ||
         (meet.awayPool && meet.awayPool.toLowerCase().includes(term)) ||
+        (meet.location && meet.location.toLowerCase().includes(term)) ||
         (meet.date && meet.date.includes(term)) ||
-        (meet.time && meet.time.toLowerCase().includes(term))
+        (meet.time && meet.time.toLowerCase().includes(term)) ||
+        (meet.name && meet.name.toLowerCase().includes(term))
       );
     });
   }

@@ -31,30 +31,167 @@ function findPoolByName(poolName) {
 }
 
 /**
- * Format practice schedule similar to pool schedules
+ * Get current practice schedule (similar to pool current schedule logic)
  * @param {Object} practice - Practice object from team data
- * @returns {string} - HTML string for practice schedule
+ * @returns {Object|null} - Current active practice schedule or null
  */
-function formatPracticeSchedule(practice) {
-  if (!practice) return '';
+function getCurrentPracticeSchedule(practice) {
+  if (!practice || !practice.regular) return null;
+  
+  // Check if we're currently in regular season
+  if (practice.regular.season) {
+    const now = new Date();
+    const [startDate, endDate] = practice.regular.season.split(' - ');
+    const seasonStart = new Date(startDate + ' 2025');
+    const seasonEnd = new Date(endDate + ' 2025');
+    
+    if (now >= seasonStart && now <= seasonEnd) {
+      return practice.regular;
+    }
+  }
+  
+  return null;
+}
+
+/**
+ * Get enhanced pool link using pools data manager
+ * @param {string} location - Pool location name
+ * @param {string} fallbackAddress - Fallback address if pool not found
+ * @returns {string} - HTML link to Google Maps with pool data
+ */
+function getEnhancedPoolLink(location, fallbackAddress) {
+  if (!location) return '';
+  
+  // Try to find pool data from pools manager
+  const poolData = findPoolByName(location);
+  
+  if (poolData && poolData.address) {
+    // Use pool data address for more accurate mapping
+    const query = encodeURIComponent(poolData.address);
+    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
+    return `<a href="${mapsUrl}" target="_blank" rel="noopener" class="location-link pool-link">${location}</a>`;
+  } else {
+    // Fallback to provided address or location name
+    const query = encodeURIComponent(fallbackAddress || location);
+    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
+    return `<a href="${mapsUrl}" target="_blank" rel="noopener" class="location-link">${location}</a>`;
+  }
+}
+
+/**
+ * Get next two upcoming practices
+ * @param {Object} practice - Practice object from team data
+ * @returns {Array} - Array of next two upcoming practices
+ */
+function getUpcomingPractices(practice, count = 2) {
+  if (!practice || !practice.regular) return [];
+  
+  const now = new Date();
+  const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+  const currentTime = now.getHours() * 60 + now.getMinutes();
+  const practices = [];
+  
+  // Check if we're still in season
+  if (practice.regular.season) {
+    const seasonEnd = new Date(practice.regular.season.split(' - ')[1] + ' 2025');
+    if (now > seasonEnd) return [];
+  }
+  
+  // Helper to add practice to results
+  const addPractice = (day, dayIndex, time, location, address, type) => {
+    if (practices.length < count) {
+      practices.push({
+        day,
+        dayIndex,
+        time,
+        location,
+        address,
+        type
+      });
+    }
+  };
+  
+  // Check upcoming practices for the next 7 days
+  for (let daysAhead = 0; daysAhead < 7 && practices.length < count; daysAhead++) {
+    const checkDate = new Date(now);
+    checkDate.setDate(checkDate.getDate() + daysAhead);
+    const checkDay = checkDate.getDay();
+    const isToday = daysAhead === 0;
+    
+    // Morning practices (Tuesday-Friday)
+    if (practice.regular.morning && [2, 3, 4, 5].includes(checkDay)) {
+      const hasPassedToday = isToday && currentTime >= 10 * 60; // 10 AM cutoff
+      if (!hasPassedToday) {
+        const sessions = practice.regular.morning.sessions;
+        const firstSession = sessions && sessions[0] ? sessions[0] : null;
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        
+        addPractice(
+          dayNames[checkDay],
+          checkDay,
+          firstSession ? firstSession.time : 'Morning',
+          practice.regular.morning.location,
+          practice.regular.morning.address,
+          'Morning Practice'
+        );
+      }
+    }
+    
+    // Evening practices
+    if (practice.regular.evening && Array.isArray(practice.regular.evening)) {
+      for (let evening of practice.regular.evening) {
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const eveningDayIndex = dayNames.indexOf(evening.day);
+        
+        if (eveningDayIndex === checkDay) {
+          const hasPassedToday = isToday && currentTime >= 20 * 60; // 8 PM cutoff
+          if (!hasPassedToday) {
+            const sessions = evening.sessions;
+            const firstSession = sessions && sessions[0] ? sessions[0] : null;
+            
+            addPractice(
+              evening.day,
+              eveningDayIndex,
+              firstSession ? firstSession.time : 'Evening',
+              evening.location,
+              evening.address,
+              'Evening Practice'
+            );
+          }
+        }
+      }
+    }
+  }
+  
+  return practices;
+}
+
+/**
+ * Format current practice schedule (simplified, no preseason)
+ * @param {Object} practice - Practice object from team data
+ * @returns {string} - HTML string for current practice schedule
+ */
+function formatCurrentPracticeSchedule(practice) {
+  const currentSchedule = getCurrentPracticeSchedule(practice);
+  if (!currentSchedule) return '';
   
   let html = '<div class="practice-schedule">';
-  html += '<h4>🏊‍♂️ Practice Schedule</h4>';
+  html += '<h4>🏊‍♂️ Current Practice Schedule</h4>';
   
-  // Add season info if available
-  if (practice.regular && practice.regular.season) {
-    html += `<div class="season-info"><strong>Season:</strong> ${practice.regular.season}</div>`;
+  // Add season info
+  if (currentSchedule.season) {
+    html += `<div class="season-info"><strong>Season:</strong> ${currentSchedule.season}</div>`;
   }
   
   // Morning practices
-  if (practice.regular && practice.regular.morning) {
-    const morning = practice.regular.morning;
+  if (currentSchedule.morning) {
+    const morning = currentSchedule.morning;
     html += '<div class="practice-period">';
     html += '<strong>Morning Practice:</strong>';
     html += `<div class="practice-details">`;
     html += `<div><strong>Days:</strong> ${morning.days}</div>`;
     if (morning.location) {
-      const poolLink = getPoolMapLink(morning.location, morning.address);
+      const poolLink = getEnhancedPoolLink(morning.location, morning.address);
       html += `<div><strong>Location:</strong> ${poolLink}</div>`;
     }
     if (morning.sessions && Array.isArray(morning.sessions)) {
@@ -71,13 +208,13 @@ function formatPracticeSchedule(practice) {
   }
   
   // Evening practices
-  if (practice.regular && practice.regular.evening && Array.isArray(practice.regular.evening)) {
-    practice.regular.evening.forEach(evening => {
+  if (currentSchedule.evening && Array.isArray(currentSchedule.evening)) {
+    currentSchedule.evening.forEach(evening => {
       html += '<div class="practice-period">';
       html += `<strong>${evening.day} Evening Practice:</strong>`;
       html += `<div class="practice-details">`;
       if (evening.location) {
-        const poolLink = getPoolMapLink(evening.location, evening.address);
+        const poolLink = getEnhancedPoolLink(evening.location, evening.address);
         html += `<div><strong>Location:</strong> ${poolLink}</div>`;
       }
       if (evening.sessions && Array.isArray(evening.sessions)) {
@@ -99,66 +236,13 @@ function formatPracticeSchedule(practice) {
 }
 
 /**
- * Get the next upcoming practice information
+ * Get the next upcoming practice information (simplified - now using getUpcomingPractices)
  * @param {Object} practice - Practice object from team data
  * @returns {Object|null} - Next practice info or null
  */
 function getNextPractice(practice) {
-  if (!practice || !practice.regular) return null;
-  
-  const now = new Date();
-  const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
-  const currentTime = now.getHours() * 60 + now.getMinutes();
-  
-  // Check if we're still in season
-  if (practice.regular.season) {
-    const seasonEnd = new Date(practice.regular.season.split(' - ')[1] + ' 2025');
-    if (now > seasonEnd) return null;
-  }
-  
-  // Check morning practices (Tuesday-Friday)
-  if (practice.regular.morning) {
-    const morningDays = [2, 3, 4, 5]; // Tuesday-Friday
-    for (let day of morningDays) {
-      if (day > currentDay || (day === currentDay && currentTime < 10 * 60)) {
-        // Found next morning practice
-        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        const sessions = practice.regular.morning.sessions;
-        const firstSession = sessions && sessions[0] ? sessions[0] : null;
-        
-        return {
-          day: dayNames[day],
-          time: firstSession ? firstSession.time : 'Morning',
-          location: practice.regular.morning.location,
-          address: practice.regular.morning.address,
-          type: 'Morning Practice'
-        };
-      }
-    }
-  }
-  
-  // Check evening practices
-  if (practice.regular.evening && Array.isArray(practice.regular.evening)) {
-    for (let evening of practice.regular.evening) {
-      const dayName = evening.day;
-      const dayIndex = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].indexOf(dayName);
-      
-      if (dayIndex > currentDay || (dayIndex === currentDay && currentTime < 20 * 60)) {
-        const sessions = evening.sessions;
-        const firstSession = sessions && sessions[0] ? sessions[0] : null;
-        
-        return {
-          day: dayName,
-          time: firstSession ? firstSession.time : 'Evening',
-          location: evening.location,
-          address: evening.address,
-          type: 'Evening Practice'
-        };
-      }
-    }
-  }
-  
-  return null;
+  const upcoming = getUpcomingPractices(practice, 1);
+  return upcoming.length > 0 ? upcoming[0] : null;
 }
 
 /**
@@ -203,20 +287,28 @@ function renderTeams(teams) {
     
     // Find pool data for the home pool using data manager
     const poolData = homePool ? findPoolByName(homePool) : null;
-    const poolAddress = poolData ? poolData.address : '';
     
-    // Get next practice info
-    const nextPractice = getNextPractice(team.practice);
+    // Get next two upcoming practices
+    const upcomingPractices = getUpcomingPractices(team.practice, 2);
     
-    // Format practice schedule
-    const practiceScheduleHtml = formatPracticeSchedule(team.practice);
+    // Format current practice schedule (no preseason)
+    const practiceScheduleHtml = formatCurrentPracticeSchedule(team.practice);
     
-    let upcomingPracticeHtml = '';
-    if (nextPractice) {
-      const practicePoolLink = getPoolMapLink(nextPractice.location, nextPractice.address);
-      upcomingPracticeHtml = `
-        <div class="upcoming-practice">
-          <strong>🏊‍♂️ Upcoming practice:</strong> ${nextPractice.type} on ${nextPractice.day} at ${practicePoolLink} at ${nextPractice.time}
+    // Create upcoming practices HTML for header area
+    let upcomingPracticesHtml = '';
+    if (upcomingPractices.length > 0) {
+      upcomingPracticesHtml = `
+        <div class="upcoming-practices">
+          <h4>📅 Next Practices</h4>
+          ${upcomingPractices.map(practice => {
+            const practicePoolLink = getEnhancedPoolLink(practice.location, practice.address);
+            return `
+              <div class="upcoming-practice-item">
+                <strong>${practice.type}:</strong> ${practice.day} at ${practice.time}
+                <br><span class="practice-location">📍 ${practicePoolLink}</span>
+              </div>
+            `;
+          }).join('')}
         </div>
       `;
     }
@@ -227,13 +319,13 @@ function renderTeams(teams) {
           <h3>${teamName}</h3>
         </div>
         
-        ${upcomingPracticeHtml}
+        ${upcomingPracticesHtml}
         
         <div class="team-details">
           ${homePool ? `
             <div class="detail-item">
               <strong>🏠 Home Pool:</strong> ${poolData ? 
-                `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(poolAddress)}" target="_blank" rel="noopener" class="pool-link">${homePool}</a>` : 
+                getEnhancedPoolLink(homePool, poolData.address) : 
                 homePool
               }
             </div>

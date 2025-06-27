@@ -115,6 +115,7 @@ html, body {
   z-index: 1010;
   transition: var(--transition);
   padding: 0;
+  border-radius: 0;
 }
 
 .hamburger:hover {
@@ -123,11 +124,13 @@ html, body {
 
 .hamburger span {
   width: 100%;
-  height: 2px;
+  height: 3px;
   background: var(--white);
   border-radius: 0;
   transition: var(--transition);
   display: block;
+  border: none;
+  outline: none;
 }
 
 .hamburger.active span:nth-child(1) {
@@ -1414,6 +1417,36 @@ button[aria-label*="Voice"]:active {
   font-size: 0.9rem;
 }
 
+.upcoming-practices {
+  background-color: var(--light-bg);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  margin-bottom: 1rem;
+  border-left: 3px solid var(--success-color);
+}
+
+.upcoming-practices h4 {
+  color: var(--success-color);
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.upcoming-practice-item {
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.upcoming-practice-item:last-child {
+  margin-bottom: 0;
+}
+
+.practice-location {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-left: 0.5rem;
+}
+
 .practice-schedule {
   background-color: var(--light-bg);
   padding: 1rem;
@@ -1488,6 +1521,16 @@ button[aria-label*="Voice"]:active {
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
+}
+
+.team-actions .btn {
+  color: var(--white) !important;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+}
+
+.team-actions .btn:hover {
+  color: var(--white) !important;
+  background: linear-gradient(135deg, var(--primary-dark), #003d70);
 }
 
 /* Search functionality for meets page */

@@ -1,6 +1,6 @@
 /**
  * CNSL Search Engine
- * Handles natural language query processing and search functionality for the Columbia North Swim League
+ * Handles natural language query processing and search functionality for the Columbia Neighborhood Swim League
  * 
  * @author Simon Kurtz
  * @version 2.0.0
@@ -324,7 +324,7 @@ class CNSLSearchEngine {
     return `
       <div class="copilot-response">
         <h3>🏊‍♀️ Pool Locations</h3>
-        <p>There are ${pools.length} pools in the Columbia North Swim League. Try asking about a specific pool by name, or ask "which pools are near me?"</p>
+        <p>There are ${pools.length} pools in Columbia. Try asking about a specific pool by name, or ask "which pools are near me?"</p>
       </div>
     `;
   }
