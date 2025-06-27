@@ -106,15 +106,15 @@ html, body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-width: 40px;
-  width: 40px;
-  height: 30px;
+  min-width: 24px;
+  width: 24px;
+  height: 18px;
   background: transparent;
   border: none;
   cursor: pointer;
   z-index: 1010;
   transition: var(--transition);
-  padding: 2px;
+  padding: 0;
 }
 
 .hamburger:hover {
@@ -123,15 +123,15 @@ html, body {
 
 .hamburger span {
   width: 100%;
-  height: 3px;
+  height: 2px;
   background: var(--white);
-  border-radius: 2px;
+  border-radius: 0;
   transition: var(--transition);
   display: block;
 }
 
 .hamburger.active span:nth-child(1) {
-  transform: translateY(10px) rotate(45deg);
+  transform: translateY(8px) rotate(45deg);
 }
 
 .hamburger.active span:nth-child(2) {
@@ -139,7 +139,7 @@ html, body {
 }
 
 .hamburger.active span:nth-child(3) {
-  transform: translateY(-10px) rotate(-45deg);
+  transform: translateY(-8px) rotate(-45deg);
 }
 
 /* Navigation Menu */
@@ -1176,17 +1176,16 @@ button[aria-label*="Voice"]:active {
 }
 
 .pool-details {
-  overflow: hidden;
-  transition: max-height 0.1s ease, opacity 0.1s ease;
-  max-height: 1000px;
+  overflow: visible;
+  transition: opacity 0.1s ease;
   opacity: 1;
 }
 
 .pool-card.collapsed .pool-details {
-  max-height: 0;
   opacity: 0;
   padding-top: 0;
   padding-bottom: 0;
+  display: none;
 }
 
 /* Footer Styles */

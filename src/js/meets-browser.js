@@ -1,5 +1,20 @@
-let meetsData = []; // Avoid global variable name conflicts
-let meetsBrowserPoolsData = []; // Store pool data for location mapping - renamed to avoid conflicts
+// Global data manager instance for meets browser
+let meetsBrowserDataManager = null;
+
+
+// ------------------------------
+//    INITIALIZATION
+// ------------------------------
+
+/**
+ * Initialize the meets browser with data manager
+ */
+async function initializeMeetsBrowser() {
+  if (!meetsBrowserDataManager) {
+    meetsBrowserDataManager = getDataManager();
+    await meetsBrowserDataManager.initialize();
+  }
+}
 
 
 // ------------------------------
@@ -12,6 +27,11 @@ let meetsBrowserPoolsData = []; // Store pool data for location mapping - rename
  * @returns {Array} Filtered array of meets based on location
  */
 function processLocationSearch(query) {
+  if (!meetsBrowserDataManager) {
+    console.warn('Data manager not initialized');
+    return [];
+  }
+
   const normalizedQuery = query.toLowerCase().trim();
   
   // Check if this is a location-based query
@@ -22,11 +42,9 @@ function processLocationSearch(query) {
   // Extract location keywords from the query
   const locationKeywords = extractLocationKeywords(normalizedQuery);
   
-  // Combine all meets for searching
-  const allMeets = [
-    ...(meetsData.regular_meets || []),
-    ...(meetsData.special_meets || [])
-  ];
+  // Get all meets from the data manager
+  const meetsManager = meetsBrowserDataManager.getMeets();
+  const allMeets = meetsManager.getAllMeets();
   
   // Filter meets based on location keywords
   return allMeets.filter(meet => {
@@ -70,10 +88,14 @@ function extractLocationKeywords(query) {
   // Split into individual words and filter out short words
   const words = cleanQuery.split(/\s+/).filter(word => word.length > 2);
   
-  // Also check for common pool name patterns
-  const poolNames = meetsBrowserPoolsData.map(pool => 
-    pool.name ? pool.name.toLowerCase().split(' ') : []
-  ).flat();
+  // Also check for common pool name patterns from data manager
+  let poolNames = [];
+  if (meetsBrowserDataManager) {
+    const poolsManager = meetsBrowserDataManager.getPools();
+    poolNames = poolsManager.getPoolNames().map(name => 
+      name.toLowerCase().split(' ')
+    ).flat();
+  }
   
   // Combine extracted words with known pool names
   return [...words, ...poolNames.filter(name => query.includes(name))];
@@ -126,10 +148,13 @@ function renderLocationSearchResults(filteredMeets, originalQuery) {
  * Clears location search and shows all meets
  */
 function clearLocationSearch() {
-  const allMeets = [
-    ...(meetsData.regular_meets || []),
-    ...(meetsData.special_meets || [])
-  ];
+  if (!meetsBrowserDataManager) {
+    console.warn('Data manager not initialized');
+    return;
+  }
+
+  const meetsManager = meetsBrowserDataManager.getMeets();
+  const allMeets = meetsManager.getAllMeets();
   renderMeets(allMeets);
 }
 
@@ -138,7 +163,7 @@ function clearLocationSearch() {
  */
 function handleMeetsSearch() {
   const searchInput = document.getElementById("meetsSearchInput");
-  if (!searchInput) return;
+  if (!searchInput || !meetsBrowserDataManager) return;
   
   const query = searchInput.value.trim();
   
@@ -152,23 +177,11 @@ function handleMeetsSearch() {
     const filteredMeets = processLocationSearch(query);
     renderLocationSearchResults(filteredMeets, query);
   } else {
-    // Handle other types of searches (team names, dates, etc.)
-    const allMeets = [
-      ...(meetsData.regular_meets || []),
-      ...(meetsData.special_meets || [])
-    ];
+    // Handle other types of searches (team names, dates, etc.) using data manager
+    const meetsManager = meetsBrowserDataManager.getMeets();
+    const searchResults = meetsManager.searchMeets(query);
     
-    const filteredMeets = allMeets.filter(meet => {
-      const searchTerm = query.toLowerCase();
-      return (
-        (meet.name && meet.name.toLowerCase().includes(searchTerm)) ||
-        (meet.location && meet.location.toLowerCase().includes(searchTerm)) ||
-        (meet.home_team && meet.home_team.toLowerCase().includes(searchTerm)) ||
-        (meet.visiting_team && meet.visiting_team.toLowerCase().includes(searchTerm))
-      );
-    });
-    
-    renderLocationSearchResults(filteredMeets, query);
+    renderLocationSearchResults(searchResults, query);
   }
 }
 
@@ -178,32 +191,35 @@ function handleMeetsSearch() {
 // ------------------------------
 
 /**
- * Finds a pool by name or partial name from the meetsBrowserPoolsData array
+ * Finds a pool by name or partial name from the data manager
  * @param {string} locationName - The name of the location to search for
  * @returns {Object|null} The pool object if found, null otherwise
  */
 function findPoolByLocation(locationName) {
-  if (!locationName || !meetsBrowserPoolsData || !meetsBrowserPoolsData.length) return null;
+  if (!locationName || !meetsBrowserDataManager) return null;
+  
+  const poolsManager = meetsBrowserDataManager.getPools();
+  const pools = poolsManager.getAllPools();
   
   // Try to find an exact pool name match
-  const exactMatch = meetsBrowserPoolsData.find(pool => 
-    pool.name && pool.name.toLowerCase() === locationName.toLowerCase()
+  const exactMatch = pools.find(pool => 
+    pool.getName().toLowerCase() === locationName.toLowerCase()
   );
-  if (exactMatch) return exactMatch;
+  if (exactMatch) return exactMatch.toJSON();
   
   // Try to find a pool where the name is included in the location string
-  const partialMatch = meetsBrowserPoolsData.find(pool => 
-    pool.name && locationName.toLowerCase().includes(pool.name.toLowerCase())
+  const partialMatch = pools.find(pool => 
+    locationName.toLowerCase().includes(pool.getName().toLowerCase())
   );
-  if (partialMatch) return partialMatch;
+  if (partialMatch) return partialMatch.toJSON();
 
   // Try with just the first part of location name (before "Pool" or "Common")
   const simplifiedName = locationName.split(" Pool")[0].split(" Common")[0];
-  const simplifiedMatch = meetsBrowserPoolsData.find(pool => 
-    pool.name && pool.name.toLowerCase().includes(simplifiedName.toLowerCase())
+  const simplifiedMatch = pools.find(pool => 
+    pool.getName().toLowerCase().includes(simplifiedName.toLowerCase())
   );
   
-  return simplifiedMatch || null;
+  return simplifiedMatch ? simplifiedMatch.toJSON() : null;
 }
 
 /**
@@ -379,45 +395,30 @@ function toggleMeetDate(headerElement) {
   meetCard.classList.toggle('collapsed');
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   // Check if we're on the meets page before fetching data
   if (!document.getElementById("meetList")) {
     console.log("Not on meets page, skipping meet data fetch");
     return;
   }
 
-  // Fetch both meets and pools data
-  Promise.all([
-    fetch("assets/data/meets.json").then(res => {
-      if (!res.ok) throw new Error(`HTTP ${res.status} for meets data`);
-      return res.json();
-    }),
-    fetch("assets/data/pools.json").then(res => {
-      if (!res.ok) throw new Error(`HTTP ${res.status} for pools data`);
-      return res.json();
-    })
-  ])
-    .then(([meetsJson, poolsJson]) => {
-      console.log("Loaded meet and pool data");
-      meetsData = meetsJson;
-      meetsBrowserPoolsData = poolsJson.pools || poolsJson; // Handle both new structure and backward compatibility
-      
-      // Combine regular meets and special meets
-      const allMeets = [
-        ...(meetsJson.regular_meets || []), 
-        ...(meetsJson.special_meets || [])
-      ];
-      
-      console.log(`Processing ${allMeets.length} meets (${meetsJson.regular_meets?.length || 0} regular, ${meetsJson.special_meets?.length || 0} special)`);
-      console.log(`Loaded ${meetsBrowserPoolsData.length} pools for location mapping`);
-      
-      renderMeets(allMeets);
-    })
-    .catch(error => {
-      console.error("Failed to load data:", error);
-      const list = document.getElementById("meetList");
-      if (list) {
-        list.innerHTML = "<p>⚠️ Meet data is currently unavailable. Please try again later.</p>";
-      }
-    });
+  try {
+    // Initialize the data manager with the new OOP system
+    await initializeMeetsBrowser();
+    
+    // Get meets from the data manager
+    const meetsManager = meetsBrowserDataManager.getMeets();
+    const allMeets = meetsManager.getAllMeets();
+    
+    console.log(`Processing ${allMeets.length} meets from DataManager`);
+    
+    renderMeets(allMeets);
+    
+  } catch (error) {
+    console.error("Failed to load data:", error);
+    const list = document.getElementById("meetList");
+    if (list) {
+      list.innerHTML = "<p>⚠️ Meet data is currently unavailable. Please try again later.</p>";
+    }
+  }
 });

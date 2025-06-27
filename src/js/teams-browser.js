@@ -1,33 +1,33 @@
-let teamsData = []; // Avoid global variable name conflicts
-let poolsData = []; // Store pools data for lookups
+// Global data manager instance for teams browser
+let teamsBrowserDataManager = null;
+
+
+// ------------------------------
+//    INITIALIZATION
+// ------------------------------
 
 /**
- * Load pools data for lookups
+ * Initialize the teams browser with data manager
  */
-async function loadPoolsData() {
-  try {
-    const response = await fetch("assets/data/pools.json");
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data = await response.json();
-    poolsData = data.pools || data;
-    console.log("Loaded pools data:", poolsData.length, "pools");
-  } catch (error) {
-    console.error("Failed to load pools data:", error);
-    poolsData = [];
+async function initializeTeamsBrowser() {
+  if (!teamsBrowserDataManager) {
+    teamsBrowserDataManager = getDataManager();
+    await teamsBrowserDataManager.initialize();
   }
 }
 
 /**
- * Find pool by name from pools data
+ * Find pool by name from data manager
  * @param {string} poolName - Name of the pool to find
  * @returns {Object|null} - Pool object or null if not found
  */
 function findPoolByName(poolName) {
-  if (!poolName || !Array.isArray(poolsData)) return null;
+  if (!poolName || !teamsBrowserDataManager) return null;
   
-  return poolsData.find(pool => 
-    pool.name && pool.name.toLowerCase() === poolName.toLowerCase()
-  ) || null;
+  const poolsManager = teamsBrowserDataManager.getPools();
+  const pool = poolsManager.getPool(poolName);
+  
+  return pool ? pool.toJSON() : null;
 }
 
 /**
@@ -189,7 +189,6 @@ function renderTeams(teams) {
 
   // Sort teams by name alphabetically
   const sortedTeams = [...teams].sort((a, b) => {
-    // Handle potential missing name properties
     const nameA = (a && a.name) ? a.name : '';
     const nameB = (b && b.name) ? b.name : '';
     return nameA.localeCompare(nameB);
@@ -197,13 +196,12 @@ function renderTeams(teams) {
 
   // Generate HTML for each team
   const html = sortedTeams.map(team => {
-    // Safety checks for all team properties
     const teamName = team.name || 'Unknown Team';
     const teamUrl = team.url || '#';
     const homePools = Array.isArray(team.homePools) ? team.homePools : [];
     const homePool = homePools[0] || '';
     
-    // Find pool data for the home pool
+    // Find pool data for the home pool using data manager
     const poolData = homePool ? findPoolByName(homePool) : null;
     const poolAddress = poolData ? poolData.address : '';
     
@@ -265,25 +263,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
   
-  // Load both pools and teams data
-  await loadPoolsData();
-  
-  fetch("assets/data/teams.json")
-    .then(res => {
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    })
-    .then(data => {
-      const teams = data.teams || data; // Handle both new structure and backward compatibility
-      console.log("Loaded team data:", teams.length, "teams");
-      teamsData = teams;
-      renderTeams(teams);
-    })
-    .catch(error => {
-      console.error("Failed to load team data:", error);
-      const list = document.getElementById("teamList");
-      if (list) {
-        list.innerHTML = "<p>⚠️ Team data is currently unavailable. Please try again later.</p>";
-      }
-    });
+  try {
+    // Initialize the data manager with the new OOP system
+    await initializeTeamsBrowser();
+    
+    // Get teams from the data manager
+    const teamsManager = teamsBrowserDataManager.getTeams();
+    const teams = teamsManager.getAllTeams();
+    
+    console.log("Loaded team data from DataManager:", teams.length, "teams");
+    
+    renderTeams(teams);
+    
+  } catch (error) {
+    console.error("Failed to load team data:", error);
+    const list = document.getElementById("teamList");
+    if (list) {
+      list.innerHTML = "<p>⚠️ Team data is currently unavailable. Please try again later.</p>";
+    }
+  }
 });

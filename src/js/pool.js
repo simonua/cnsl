@@ -11,10 +11,85 @@ class Pool {
     this.amenities = poolData.amenities || [];
     this.divingBoard = poolData.divingBoard || false;
     this.babyPool = poolData.babyPool || false;
-    this.schedule = new PoolSchedule(poolData.hours || {});
+    
+    // Handle both legacy and new data formats
+    if (poolData.schedules && Array.isArray(poolData.schedules)) {
+      // Legacy format - convert to new format
+      console.log('poolData.schedules', poolData.schedules);
+      this.schedule = new PoolSchedule(this._normalizeCurrentSchedule(poolData.schedules));
+      console.log('loaded schedule', this.schedule);
+      this.legacySchedules = poolData.schedules; // Keep for compatibility
+    } else {
+      // New format
+      this.schedule = new PoolSchedule(poolData.hours || {});
+      this.legacySchedules = null;
+    }
+    
     this.restrictions = poolData.restrictions || [];
     this.specialEvents = poolData.specialEvents || [];
     this.lastUpdated = poolData.lastUpdated || null;
+  }
+
+  /**
+   * Normalize current active schedule from date-based schedule data
+   * @private
+   * @param {Array} schedules - Array of schedule objects with date ranges
+   * @returns {Object} - Normalized schedule format for current date
+   */
+  _normalizeCurrentSchedule(schedules) {
+    // Find the current active schedule based on today's date
+    const easternTimeInfo = TimeUtils.getCurrentEasternTimeInfo();
+    const currentDate = easternTimeInfo.date;
+    
+    const activeSchedule = schedules.find(schedule => {
+      return currentDate >= schedule.startDate && currentDate <= schedule.endDate;
+    });
+    
+    if (!activeSchedule || !activeSchedule.hours) {
+      return {}; // No active schedule found for current date
+    }
+    
+    // Normalize to simple day-based format
+    const normalizedSchedule = {};
+    const dayMapping = {
+      'Mon': 'Monday',
+      'Tue': 'Tuesday', 
+      'Wed': 'Wednesday',
+      'Thu': 'Thursday',
+      'Fri': 'Friday',
+      'Sat': 'Saturday',
+      'Sun': 'Sunday'
+    };
+    
+    // Initialize all days as closed
+    Object.values(dayMapping).forEach(day => {
+      normalizedSchedule[day] = { closed: true };
+    });
+    
+    // Process hours and populate days from active schedule
+    activeSchedule.hours.forEach(hour => {
+      if (hour.weekDays && hour.startTime && hour.endTime) {
+        hour.weekDays.forEach(shortDay => {
+          const fullDay = dayMapping[shortDay];
+          if (fullDay) {
+            if (!normalizedSchedule[fullDay] || normalizedSchedule[fullDay].closed) {
+              normalizedSchedule[fullDay] = {
+                closed: false,
+                open: hour.startTime,
+                close: hour.endTime,
+                activities: hour.types || [],
+                notes: hour.notes || '',
+                access: hour.access || 'Public'
+              };
+            }
+            // If multiple time slots for same day, we'll use the first one for now
+            // More complex logic could merge them
+          }
+        });
+      }
+    });
+    
+    return normalizedSchedule;
   }
 
   /**
@@ -72,11 +147,67 @@ class Pool {
   }
 
   /**
-   * Get current pool status
+   * Get current pool status (enhanced for legacy format)
    * @returns {PoolStatus} - Current pool status
    */
   getCurrentStatus() {
+    if (this.legacySchedules) {
+      return this._getLegacyStatus();
+    }
     return this.schedule.getCurrentStatus();
+  }
+
+  /**
+   * Get status using legacy schedule format
+   * @private
+   * @returns {PoolStatus} - Pool status from legacy data
+   */
+  _getLegacyStatus() {
+    const easternTimeInfo = TimeUtils.getCurrentEasternTimeInfo();
+    const currentDate = easternTimeInfo.date;
+    const currentDay = easternTimeInfo.day.substring(0, 3); // Get short day name (Mon, Tue, etc.)
+    const currentTime = easternTimeInfo.minutes;
+
+    // Find the current active schedule
+    const activeSchedule = this.legacySchedules.find(schedule => {
+      return currentDate >= schedule.startDate && currentDate <= schedule.endDate;
+    });
+
+    if (!activeSchedule || !activeSchedule.hours) {
+      return PoolStatus.CLOSED;
+    }
+
+    // Find today's hours
+    const todayHours = activeSchedule.hours.filter(h => 
+      h.weekDays && h.weekDays.includes(currentDay)
+    );
+    
+    if (!todayHours.length) {
+      return PoolStatus.CLOSED;
+    }
+
+    // Check current time against all time slots
+    for (const hour of todayHours) {
+      const startMinutes = TimeUtils.timeStringToMinutes(hour.startTime);
+      const endMinutes = TimeUtils.timeStringToMinutes(hour.endTime);
+      
+      if (currentTime >= startMinutes && currentTime < endMinutes) {
+        // Check activity types to determine access level
+        const activityTypes = TimeUtils.formatActivityTypes(hour.types).toLowerCase();
+        
+        if (activityTypes.includes('closed to public')) {
+          return PoolStatus.CLOSED_TO_PUBLIC;
+        } else if (activityTypes.includes('cnsl practice only')) {
+          return PoolStatus.PRACTICE_ONLY;
+        } else if (activityTypes.includes('swim meet')) {
+          return PoolStatus.SWIM_MEET;
+        } else {
+          return PoolStatus.OPEN;
+        }
+      }
+    }
+
+    return PoolStatus.CLOSED;
   }
 
   /**
@@ -99,11 +230,68 @@ class Pool {
   }
 
   /**
-   * Get all week schedule with status
+   * Get all week schedule with status (enhanced for legacy format)
    * @returns {Array} - Array of day objects with status
    */
   getWeekSchedule() {
+    if (this.legacySchedules) {
+      return this._getLegacyWeekSchedule();
+    }
     return this.schedule.getAllDaysStatus();
+  }
+
+  /**
+   * Get week schedule from legacy format
+   * @private
+   * @returns {Array} - Array of day objects with time slots
+   */
+  _getLegacyWeekSchedule() {
+    const easternTimeInfo = TimeUtils.getCurrentEasternTimeInfo();
+    const currentDate = easternTimeInfo.date;
+    
+    // Find active schedule
+    const activeSchedule = this.legacySchedules.find(schedule => {
+      return currentDate >= schedule.startDate && currentDate <= schedule.endDate;
+    });
+    
+    const dayOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const fullDayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    
+    return dayOrder.map((shortDay, index) => {
+      const dayData = {
+        day: shortDay,
+        fullDay: fullDayNames[index],
+        timeSlots: [],
+        isOpen: false
+      };
+      
+      if (activeSchedule && activeSchedule.hours) {
+        // Find all hours for this day
+        const dayHours = activeSchedule.hours.filter(h => 
+          h.weekDays && h.weekDays.includes(shortDay)
+        );
+        
+        dayHours.forEach(hour => {
+          if (hour.startTime && hour.endTime) {
+            dayData.timeSlots.push({
+              startTime: hour.startTime,
+              endTime: hour.endTime,
+              activities: hour.types || [],
+              notes: hour.notes || '',
+              access: hour.access || 'Public'
+            });
+            dayData.isOpen = true;
+          }
+        });
+        
+        // Sort time slots by start time
+        dayData.timeSlots.sort((a, b) => {
+          return TimeUtils.timeStringToMinutes(a.startTime) - TimeUtils.timeStringToMinutes(b.startTime);
+        });
+      }
+      
+      return dayData;
+    });
   }
 
   /**

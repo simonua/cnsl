@@ -81,6 +81,20 @@ class PoolSchedule {
   }
 
   /**
+   * Check if pool is currently open
+   * @returns {boolean} - True if pool is open, false otherwise
+   */
+  isPoolOpen() {
+    // Get current time in Eastern timezone
+    const now = new Date();
+    const easternTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
+    const dayName = TimeUtils.getDayName(easternTime);
+    const status = this.getStatusAtTime(dayName, easternTime);
+    
+    return status.status === 'open';
+  }
+
+  /**
    * Get time slots for display with current time highlighting
    * @param {string} dayName - Day name
    * @returns {Array} - Array of time slot objects

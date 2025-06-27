@@ -31,6 +31,7 @@
   <include src="components/footer.html"></include>
 
   <!-- Helper classes (load first - order matters for dependencies) -->
+  <script src="js/file-helper.js" defer></script>
   <script src="js/time-utils.js" defer></script>
   <script src="js/pool-enums.js" defer></script>
   <script src="js/pool-schedule.js" defer></script>
@@ -46,12 +47,22 @@
   <script src="js/pool-browser.js" defer></script>
   <script src="js/teams-browser.js" defer></script>
   <script src="js/meets-browser.js" defer></script>
+  <script src="js/search-engine.js" defer></script>
   <script src="js/copilot.js" defer></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/service-worker.js');
     }
+    
+    // Log FileHelper environment info on load
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.FileHelper) {
+        window.FileHelper.logEnvironmentInfo();
+      } else {
+        console.error('❌ FileHelper not loaded or not available');
+      }
+    });
   </script>
   <block name="scripts"></block>
 </body>

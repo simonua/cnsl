@@ -19,6 +19,25 @@ class DataManager {
       return this.loadingPromise;
     }
 
+    // First validate data files are accessible
+    if (window.FileHelper) {
+      console.log('🔍 DataManager: Validating data files...');
+      const validation = await FileHelper.validateDataFiles();
+      
+      if (!validation.allValid) {
+        console.error('❌ DataManager: Data files validation failed:', validation);
+        
+        // Try one more time with a different path strategy
+        console.log('🔄 DataManager: Trying alternative path strategy...');
+        const poolsPath = validation.pools ? FileHelper.getPoolsDataPath() : 'assets/data/pools.json';
+        const teamsPath = validation.teams ? FileHelper.getTeamsDataPath() : 'assets/data/teams.json';
+        const meetsPath = validation.meets ? FileHelper.getMeetsDataPath() : 'assets/data/meets.json';
+        
+        this.loadingPromise = this._loadAllData(poolsPath, teamsPath, meetsPath);
+        return this.loadingPromise;
+      }
+    }
+
     this.loadingPromise = this._loadAllData();
     return this.loadingPromise;
   }
@@ -28,14 +47,44 @@ class DataManager {
    * @private
    * @returns {Promise} - Promise that resolves when all data is loaded
    */
-  async _loadAllData() {
+  async _loadAllData(customPoolsPath, customTeamsPath, customMeetsPath) {
     try {
-      const [poolsData, teamsData, meetsData] = await Promise.all([
-        this._loadJsonFile('assets/data/pools.json'),
-        this._loadJsonFile('assets/data/teams.json'),
-        this._loadJsonFile('assets/data/meets.json').catch(() => null) // Optional file
-      ]);
+      console.log('🔄 DataManager: Starting data file loading...');
+      
+      // Use FileHelper for correct path resolution, or use custom paths if provided
+      const poolsPath = customPoolsPath || FileHelper.getPoolsDataPath();
+      const teamsPath = customTeamsPath || FileHelper.getTeamsDataPath();
+      const meetsPath = customMeetsPath || FileHelper.getMeetsDataPath();
+      
+      console.log(`📁 Environment: ${FileHelper.getEnvironment()}`);
+      console.log(`📄 Loading from paths:`);
+      console.log(`   - Pools: ${poolsPath}`);
+      console.log(`   - Teams: ${teamsPath}`);
+      console.log(`   - Meets: ${meetsPath}`);
+      
+      // Try multiple path strategies if in development mode
+      let poolsData, teamsData, meetsData;
+      
+      try {
+        // First attempt with the provided/calculated paths
+        [poolsData, teamsData, meetsData] = await Promise.all([
+          this._loadJsonFile(poolsPath),
+          this._loadJsonFile(teamsPath),
+          this._loadJsonFile(meetsPath).catch(() => null) // Optional file
+        ]);
+      } catch (err) {
+        console.warn('⚠️ First attempt to load data failed, trying alternative paths...');
+        
+        // Second attempt with forced production-like paths
+        [poolsData, teamsData, meetsData] = await Promise.all([
+          this._loadJsonFile('assets/data/pools.json'),
+          this._loadJsonFile('assets/data/teams.json'),
+          this._loadJsonFile('assets/data/meets.json').catch(() => null) // Optional file
+        ]);
+      }
 
+      console.log('✅ DataManager: JSON files loaded, initializing managers...');
+      
       this.poolsManager.loadData(poolsData);
       this.teamsManager.loadData(teamsData);
       if (meetsData) {
@@ -43,10 +92,10 @@ class DataManager {
       }
 
       this.initialized = true;
-      console.log('DataManager: All data loaded successfully');
+      console.log('✅ DataManager: All data loaded successfully');
       
     } catch (error) {
-      console.error('DataManager: Error loading data:', error);
+      console.error('❌ DataManager: Error loading data:', error);
       throw error;
     }
   }
