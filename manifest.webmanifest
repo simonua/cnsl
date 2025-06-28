@@ -1,7 +1,7 @@
 {
-  "name": "Columbia Association Pool Copilot",
-  "short_name": "Pool Copilot",
-  "description": "Your AI assistant for Columbia Association Swimming League pools, teams, and meets",
+  "name": "Columbia Association Pool Assistant",
+  "short_name": "Pool Assistant",
+  "description": "Your assistant for Columbia Association swim league pools, teams, and meets",
   "icons": [
     {
       "src": "/assets/favicons/android-chrome-192x192.png",
