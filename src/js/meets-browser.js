@@ -251,7 +251,10 @@ async function renderMeets(meets) {
       // Check if this is a meet involving Long Reach Marlins that has occurred or is happening today
       const isLongReachMeet = (meet.visiting_team && meet.visiting_team.includes('Long Reach')) || 
                               (meet.home_team && meet.home_team.includes('Long Reach'));
-      const isTodayOrPast = meetDate <= today;
+      // Compare dates only, not times - meets on today's date should show results
+      const meetDateOnly = new Date(meetDate.getFullYear(), meetDate.getMonth(), meetDate.getDate());
+      const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const isTodayOrPast = meetDateOnly <= todayOnly;
       const showResultsLink = isLongReachMeet && isTodayOrPast;
       
       // Check if it's a special meet (has name property) or regular meet
@@ -463,7 +466,10 @@ async function renderMeets(meets) {
       // Check if this is a meet involving Long Reach Marlins that has occurred or is happening today
       const isLongReachMeet = (meet.visiting_team && meet.visiting_team.includes('Long Reach')) || 
                               (meet.home_team && meet.home_team.includes('Long Reach'));
-      const isTodayOrPast = meetDate <= today;
+      // Compare dates only, not times - meets on today's date should show results
+      const meetDateOnly = new Date(meetDate.getFullYear(), meetDate.getMonth(), meetDate.getDate());
+      const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const isTodayOrPast = meetDateOnly <= todayOnly;
       const showResultsLink = isLongReachMeet && isTodayOrPast;
       
       if (isSpecialMeet) {
