@@ -123,6 +123,12 @@ self.addEventListener("fetch", event => {
     return;
   }
 
+  // Only handle GET requests for caching
+  if (event.request.method !== 'GET') {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   // For production, use cache-first strategy with network fallback
   event.respondWith(
     caches.match(event.request)
