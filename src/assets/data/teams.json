@@ -4,141 +4,142 @@
     {
       "id": "lrm",
       "name": "Long Reach Marlins",
-    "keywords": [
-      "long reach",
-      "marlins"
-    ],
-    "url": "http://www.teamunify.com/reccnsllrm/",
-    "homePools": [
-      "Kendall Ridge"
-    ],
-    "practicePools": [
-      "Jeffers Hill",
-      "Kendall Ridge",
-      "Locust Park",
-      "Stevens Forest"
-    ],
-    "practice": {
-      "url": "https://www.gomotionapp.com/team/reccnsllrm/page/practice-schedule",
-      "preseason": [
-        {
-          "period": "May 27 - May 30",
-          "days": "Tuesday - Friday",
-          "location": "Locust Park Pool",
-          "address": "8995 Lambskin Ln, Columbia, MD 21045",
-          "sessions": [
-            {
-              "time": "5:00 - 5:30pm",
-              "group": "First Splash (new swimmers)"
-            },
-            {
-              "time": "5:30 - 6:00pm",
-              "group": "8 and under"
-            },
-            {
-              "time": "6:00 - 6:30pm",
-              "group": "9 - 12"
-            },
-            {
-              "time": "6:30 - 7:00pm",
-              "group": "13 and over"
-            }
-          ]
-        },
-        {
-          "period": "June 2 - June 6",
-          "days": "Monday - Friday",
-          "location": "Locust Park Pool",
-          "sessions": [
-            {
-              "time": "5:00 - 5:30pm",
-              "group": "Lap requirement training"
-            },
-            {
-              "time": "5:30 - 6:00pm",
-              "group": "8 and under"
-            },
-            {
-              "time": "6:00 - 6:30pm",
-              "group": "9 - 12"
-            },
-            {
-              "time": "6:30 - 7:00pm",
-              "group": "13 and over"
-            }
-          ]
-        }
+      "keywords": [
+        "long reach",
+        "marlins"
       ],
-      "regular": {
-        "season": "June 19 - July 24",
-        "morning": {
-          "days": "Tuesday - Friday",
-          "location": "Kendall Ridge Pool",
-          "address": "8245 Tamar Dr, Columbia, MD 21045",
-          "sessions": [
-            {
-              "time": "8:00 - 8:45am",
-              "group": "13 and over"
-            },
-            {
-              "time": "8:45 - 9:30am",
-              "group": "9 - 12"
-            },
-            {
-              "time": "9:30 - 10:00am",
-              "group": "8 and under"
-            }
-          ]
-        },
-        "evening": [
+      "url": "http://www.teamunify.com/reccnsllrm/",
+      "resultsUrl": "https://meetresults.longreachmarlins.org",
+      "homePools": [
+        "Kendall Ridge"
+      ],
+      "practicePools": [
+        "Jeffers Hill",
+        "Kendall Ridge",
+        "Locust Park",
+        "Stevens Forest"
+      ],
+      "practice": {
+        "url": "https://www.gomotionapp.com/team/reccnsllrm/page/practice-schedule",
+        "preseason": [
           {
-            "day": "Monday",
-            "location": "Stevens Forest Pool",
-            "address": "6061 Stevens Forest Rd, Columbia, MD 21045",
+            "period": "May 27 - May 30",
+            "days": "Tuesday - Friday",
+            "location": "Locust Park Pool",
+            "address": "8995 Lambskin Ln, Columbia, MD 21045",
             "sessions": [
               {
-                "time": "6:30 - 7:15pm",
-                "group": "10 and under"
+                "time": "5:00 - 5:30pm",
+                "group": "First Splash (new swimmers)"
               },
               {
-                "time": "7:15 - 8:00pm",
-                "group": "11 and over"
+                "time": "5:30 - 6:00pm",
+                "group": "8 and under"
+              },
+              {
+                "time": "6:00 - 6:30pm",
+                "group": "9 - 12"
+              },
+              {
+                "time": "6:30 - 7:00pm",
+                "group": "13 and over"
               }
             ]
           },
           {
-            "day": "Tuesday",
+            "period": "June 2 - June 6",
+            "days": "Monday - Friday",
+            "location": "Locust Park Pool",
+            "sessions": [
+              {
+                "time": "5:00 - 5:30pm",
+                "group": "Lap requirement training"
+              },
+              {
+                "time": "5:30 - 6:00pm",
+                "group": "8 and under"
+              },
+              {
+                "time": "6:00 - 6:30pm",
+                "group": "9 - 12"
+              },
+              {
+                "time": "6:30 - 7:00pm",
+                "group": "13 and over"
+              }
+            ]
+          }
+        ],
+        "regular": {
+          "season": "June 19 - July 24",
+          "morning": {
+            "days": "Tuesday - Friday",
             "location": "Kendall Ridge Pool",
             "address": "8245 Tamar Dr, Columbia, MD 21045",
             "sessions": [
               {
-                "time": "5:00 - 5:45pm",
-                "group": "10 and under"
+                "time": "8:00 - 8:45am",
+                "group": "13 and over"
               },
               {
-                "time": "5:45 - 6:30pm",
-                "group": "11 and over"
+                "time": "8:45 - 9:30am",
+                "group": "9 - 12"
+              },
+              {
+                "time": "9:30 - 10:00am",
+                "group": "8 and under"
               }
             ]
           },
-          {
-            "day": "Thursday",
-            "location": "Jeffers Hill Pool",
-            "address": "6031 Tamar Dr, Columbia, MD 21045",
-            "sessions": [
-              {
-                "time": "5:00 - 5:45pm",
-                "group": "10 and under"
-              },
-              {
-                "time": "5:45 - 6:30pm",
-                "group": "11 and over"
-              }
-            ]
-          }
-        ]
+          "evening": [
+            {
+              "day": "Monday",
+              "location": "Stevens Forest Pool",
+              "address": "6061 Stevens Forest Rd, Columbia, MD 21045",
+              "sessions": [
+                {
+                  "time": "6:30 - 7:15pm",
+                  "group": "10 and under"
+                },
+                {
+                  "time": "7:15 - 8:00pm",
+                  "group": "11 and over"
+                }
+              ]
+            },
+            {
+              "day": "Tuesday",
+              "location": "Kendall Ridge Pool",
+              "address": "8245 Tamar Dr, Columbia, MD 21045",
+              "sessions": [
+                {
+                  "time": "5:00 - 5:45pm",
+                  "group": "10 and under"
+                },
+                {
+                  "time": "5:45 - 6:30pm",
+                  "group": "11 and over"
+                }
+              ]
+            },
+            {
+              "day": "Thursday",
+              "location": "Jeffers Hill Pool",
+              "address": "6031 Tamar Dr, Columbia, MD 21045",
+              "sessions": [
+                {
+                  "time": "5:00 - 5:45pm",
+                  "group": "10 and under"
+                },
+                {
+                  "time": "5:45 - 6:30pm",
+                  "group": "11 and over"
+                }
+              ]
+            }
+          ]
+        }
       }
     }
-  }
   ]
 }

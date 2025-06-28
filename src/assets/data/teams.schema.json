@@ -39,6 +39,9 @@
         "url": {
           "$ref": "#/definitions/NonEmptyString"
         },
+        "resultsUrl": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
         "homePools": {
           "type": "array",
           "items": {
