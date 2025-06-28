@@ -9,6 +9,14 @@ const timestamp = () => new Date().toLocaleTimeString();
 
 console.log(`🔨 [${timestamp()}] Starting build process...`);
 
+// Helper function to delete directory recursively
+function deleteDir(dirPath) {
+  if (fs.existsSync(dirPath)) {
+    console.log(`🗑️ [${timestamp()}] Cleaning output directory: ${dirPath}`);
+    fs.rmSync(dirPath, { recursive: true, force: true });
+  }
+}
+
 // Helper function to read component file
 function readComponent(name) {
   const filePath = path.join('./src/views', name);
@@ -61,14 +69,14 @@ const includePlugin = (tree) => {
 const srcDir = './src/views';
 const outDir = './out';
 
-// Create output directory if it doesn't exist
-if (!fs.existsSync(outDir)) {
-  fs.mkdirSync(outDir, { recursive: true });
-}
+// Clean and create output directory
+deleteDir(outDir);
+console.log(`📁 [${timestamp()}] Creating output directory: ${outDir}`);
+fs.mkdirSync(outDir, { recursive: true });
 
 // Copy assets directory (excluding large file directories)
 console.log(`📁 [${timestamp()}] Copying assets directory...`);
-copyDir('./src/assets', path.join(outDir, 'assets'), ['data/2025', 'images/logos']);
+copyDir('./src/assets', path.join(outDir, 'assets'), ['data/2025', 'images/logos/originals']);
 
 // Copy CSS directory
 console.log(`🎨 [${timestamp()}] Copying CSS directory...`);

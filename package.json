@@ -4,8 +4,9 @@
   "description": "![GitHub Pages](https://img.shields.io/badge/hosted%20on-GitHub%20Pages-121013?logo=github&logoColor=white&style=flat-square)\r ![PWA Ready](https://img.shields.io/badge/PWA-ready-0abf53?logo=googlechrome&logoColor=white&style=flat-square)\r ![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)",
   "main": "service-worker.js",
   "scripts": {
-    "build": "node posthtml.js",
-    "watch": "nodemon --watch src -e html,css,js,json --delay 500ms --exec \"node posthtml.js\"",
+    "clean": "rimraf out",
+    "build": "npm run clean && node posthtml.js",
+    "watch": "nodemon --watch src -e html,css,js,json --delay 500ms --exec \"npm run clean && node posthtml.js\"",
     "serve": "http-server ./out -p 9090 -c-1 -o",
     "serve-live": "live-server ./out --port=9090 --open --no-css-inject --wait=500",
     "dev": "npm run build && npm run serve",
@@ -38,6 +39,7 @@
     "posthtml-expressions": "^1.11.4",
     "posthtml-extend": "^0.6.5",
     "posthtml-include": "^2.0.1",
-    "posthtml-modules": "^0.9.1"
+    "posthtml-modules": "^0.9.1",
+    "rimraf": "^6.0.1"
   }
 }
