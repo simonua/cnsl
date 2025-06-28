@@ -278,9 +278,9 @@ function renderPools(pools) {
     const features = pool.features || [];
     
     let distanceHtml = '';
-    // if (pool.distance !== undefined && !isNaN(pool.distance)) {
-    //   distanceHtml = `<span class="distance-badge">📍 ${pool.distance.toFixed(1)} mi</span>`;
-    // }
+    if (pool.distance !== undefined && !isNaN(pool.distance)) {
+      distanceHtml = `<span class="distance-badge">📍 ${pool.distance.toFixed(1)} mi</span>`;
+    }
 
     // Handle both location formats (new location object vs legacy flat properties)
     let streetAddress, cityStateZip, mapsUrl;
