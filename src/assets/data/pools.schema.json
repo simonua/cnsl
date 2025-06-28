@@ -25,20 +25,20 @@
         "Pool": {
             "type": "object",
             "properties": {
+                "id": {
+                    "$ref": "#/definitions/NonEmptyString"
+                },
                 "name": {
                     "$ref": "#/definitions/NonEmptyString"
                 },
+                "caUrl": {
+                    "$ref": "#/definitions/uri"
+                },
+                "location": {
+                    "$ref": "#/definitions/Location"
+                },
                 "address": {
                     "$ref": "#/definitions/NonEmptyString"
-                },
-                "mapsQuery": {
-                    "$ref": "#/definitions/NonEmptyString"
-                },
-                "lat": {
-                    "$ref": "#/definitions/Latitude"
-                },
-                "lng": {
-                    "$ref": "#/definitions/Longitude"
                 },
                 "features": {
                     "type": "array",
@@ -58,13 +58,17 @@
             },
             "required": [
                 "name",
-                "address",
-                "mapsQuery",
-                "lat",
-                "lng",
                 "features",
                 "scheduleUrl",
                 "schedules"
+            ],
+            "anyOf": [
+                {
+                    "required": ["location"]
+                },
+                {
+                    "required": ["address", "mapsQuery", "lat", "lng"]
+                }
             ],
             "additionalProperties": false
         },
@@ -135,6 +139,49 @@
         "NonEmptyString": {
             "type": "string",
             "minLength": 1
+        },
+        "Location": {
+            "type": "object",
+            "properties": {
+                "street": {
+                    "$ref": "#/definitions/NonEmptyString"
+                },
+                "city": {
+                    "$ref": "#/definitions/NonEmptyString"
+                },
+                "state": {
+                    "$ref": "#/definitions/NonEmptyString"
+                },
+                "zip": {
+                    "type": "string",
+                    "pattern": "^[0-9]{5}(-[0-9]{4})?$"
+                },
+                "lat": {
+                    "$ref": "#/definitions/Latitude"
+                },
+                "lng": {
+                    "$ref": "#/definitions/Longitude"
+                },
+                "mapsQuery": {
+                    "$ref": "#/definitions/NonEmptyString"
+                },
+                "googleMapsUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Direct Google Maps URL for the pool location. Format: https://www.google.com/maps/search/?api=1&query=ENCODED_ADDRESS"
+                }
+            },
+            "required": [
+                "street",
+                "city",
+                "state",
+                "zip",
+                "lat",
+                "lng",
+                "mapsQuery",
+                "googleMapsUrl"
+            ],
+            "additionalProperties": false
         },
         "Latitude": {
             "type": "number",

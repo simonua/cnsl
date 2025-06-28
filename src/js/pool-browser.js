@@ -86,11 +86,22 @@ function formatPoolHours(pool) {
   const easternTimeInfo = TimeUtils.getCurrentEasternTimeInfo();
   const poolStatus = poolObj.getCurrentStatus();
   const weekSchedule = poolObj.getWeekSchedule();
-
-  // Create debug info
-  let debugInfo = `<div style="font-size: 0.8em; color: #666; margin-bottom: 0.5rem;">
-    Current: ${easternTimeInfo.day} at ${Math.floor(easternTimeInfo.minutes/60)}:${String(easternTimeInfo.minutes%60).padStart(2,'0')} (${easternTimeInfo.minutes} minutes)
-  </div>`;
+  
+  // Get current schedule period for date range display
+  const schedulePeriod = poolObj.getCurrentSchedulePeriod();
+  let periodText = 'Current Schedule';
+  if (schedulePeriod) {
+    // Format dates for display
+    const startDate = new Date(schedulePeriod.startDate).toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric' 
+    });
+    const endDate = new Date(schedulePeriod.endDate).toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric' 
+    });
+    periodText = `Current Schedule (${startDate} - ${endDate})`;
+  }
 
   // Format hours display using new Pool class methods
   let hoursDisplay = '';
@@ -120,7 +131,7 @@ function formatPoolHours(pool) {
         const notesText = slot.notes ? ` - ${slot.notes}` : '';
         const timeRange = `${slot.startTime}-${slot.endTime}`;
         const timeHtml = formatTimeRangeSpans(timeRange, isCurrentDay, null, poolStatus);
-        hoursDisplay += `<div class="time-slot"><span class="time-range-container">${timeHtml}</span>${typesText}${notesText}</div>`;
+        hoursDisplay += `<div class="time-slot">${timeHtml}${typesText}${notesText}</div>`;
       });
     }
   });
@@ -129,9 +140,8 @@ function formatPoolHours(pool) {
     <div class="pool-hours">
       <strong>🕒 Hours:</strong> <span class="open-status status-${poolStatus.color || 'red'}">${poolStatus.icon} ${poolStatus.status}</span><br>
       <div class="period-info">
-        Current Schedule
+        ${periodText}
       </div>
-      ${debugInfo}
       <div class="hours-details">
         ${hoursDisplay}
       </div>
@@ -260,10 +270,6 @@ function renderPools(pools) {
   const html = sortedPools.map(pool => {
     const poolName = pool.name || 'Unknown Pool';
     const poolId = pool.id || '';
-    const poolAddress = pool.address || '';
-    const poolCity = pool.city || '';
-    const poolState = pool.state || '';
-    const poolZip = pool.zip || '';
     const features = pool.features || [];
     
     let distanceHtml = '';
@@ -271,10 +277,35 @@ function renderPools(pools) {
       distanceHtml = `<span class="distance-badge">📍 ${pool.distance.toFixed(1)} mi</span>`;
     }
 
-    const locationQuery = encodeURIComponent(
-      [poolAddress, poolCity, poolState, poolZip].filter(Boolean).join(', ')
-    );
-    const fullAddress = [poolAddress, poolCity, poolState, poolZip].filter(Boolean).join(', ');
+    // Handle both location formats (new location object vs legacy flat properties)
+    let streetAddress, cityStateZip, mapsUrl;
+    
+    if (pool.location) {
+      // New location format
+      streetAddress = pool.location.street || '';
+      const city = pool.location.city || '';
+      const state = pool.location.state || '';
+      const zip = pool.location.zip || '';
+      cityStateZip = (city + ', ' + state + ' ' + zip).trim();
+      mapsUrl = pool.location.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(pool.location.mapsQuery || '')}`;
+    } else {
+      // Legacy format - handle flat address property
+      const fullAddress = pool.address || '';
+      const addressParts = fullAddress.split(',').map(part => part.trim());
+      
+      if (addressParts.length >= 2) {
+        // Split address into street and city/state/zip
+        streetAddress = addressParts[0];
+        cityStateZip = addressParts.slice(1).join(', ');
+      } else {
+        // Fallback if address format is unexpected
+        streetAddress = fullAddress;
+        cityStateZip = '';
+      }
+      
+      const locationQuery = encodeURIComponent(pool.mapsQuery || fullAddress || '');
+      mapsUrl = `https://www.google.com/maps/search/?api=1&query=${locationQuery}`;
+    }
 
     // Format features for display as horizontal pills
     let featuresHtml = '';
@@ -306,11 +337,11 @@ function renderPools(pools) {
         <div class="pool-details">
           <div class="address-section">
             <strong>📍 Address:</strong><br>
-            <a href="https://www.google.com/maps/search/?api=1&query=${locationQuery}" 
+            <a href="${mapsUrl}" 
                target="_blank" 
                rel="noopener" 
                class="address-link">
-              ${fullAddress || 'Address not available'}
+              ${streetAddress ? `${streetAddress}${cityStateZip ? '<br>' : ''}` : ''}${cityStateZip || (streetAddress ? '' : 'Address not available')}
             </a>
           </div>
           ${hoursHtml}

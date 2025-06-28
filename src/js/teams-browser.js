@@ -65,17 +65,31 @@ function getEnhancedPoolLink(location, fallbackAddress) {
   // Try to find pool data from pools manager
   const poolData = findPoolByName(location);
   
-  if (poolData && poolData.address) {
-    // Use pool data address for more accurate mapping
-    const query = encodeURIComponent(poolData.address);
-    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
-    return `<a href="${mapsUrl}" target="_blank" rel="noopener" class="location-link pool-link">${location}</a>`;
-  } else {
-    // Fallback to provided address or location name
-    const query = encodeURIComponent(fallbackAddress || location);
-    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
-    return `<a href="${mapsUrl}" target="_blank" rel="noopener" class="location-link">${location}</a>`;
+  if (poolData) {
+    let mapsUrl;
+    
+    // Use googleMapsUrl if available in new location format
+    if (poolData.location && poolData.location.googleMapsUrl) {
+      mapsUrl = poolData.location.googleMapsUrl;
+    } else if (poolData.address) {
+      // Legacy format fallback
+      const query = encodeURIComponent(poolData.address);
+      mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
+    } else if (poolData.location && poolData.location.mapsQuery) {
+      // New format fallback
+      const query = encodeURIComponent(poolData.location.mapsQuery);
+      mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
+    }
+    
+    if (mapsUrl) {
+      return `<a href="${mapsUrl}" target="_blank" rel="noopener" class="location-link pool-link">${location}</a>`;
+    }
   }
+  
+  // Fallback to provided address or location name
+  const query = encodeURIComponent(fallbackAddress || location);
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
+  return `<a href="${mapsUrl}" target="_blank" rel="noopener" class="location-link">${location}</a>`;
 }
 
 /**
@@ -252,6 +266,13 @@ function getNextPractice(practice) {
  * @returns {string} - HTML link to Google Maps
  */
 function getPoolMapLink(location, address) {
+  // Try to use enhanced pool link first (which uses googleMapsUrl when available)
+  const enhancedLink = getEnhancedPoolLink(location, address);
+  if (enhancedLink) {
+    return enhancedLink;
+  }
+  
+  // Fallback to basic map link
   const query = encodeURIComponent(address || location);
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
   return `<a href="${mapsUrl}" target="_blank" rel="noopener" class="location-link">${location}</a>`;
@@ -321,11 +342,28 @@ function renderTeams(teams) {
         
         ${upcomingPracticesHtml}
         
+  // Get fallback address for legacy compatibility
+  let fallbackAddress = '';
+  if (poolData?.location) {
+    const parts = [];
+    if (poolData.location.street) parts.push(poolData.location.street);
+    if (poolData.location.city || poolData.location.state || poolData.location.zip) {
+      const city = poolData.location.city || '';
+      const state = poolData.location.state || '';
+      const zip = poolData.location.zip || '';
+      const cityStateZip = (city + ', ' + state + ' ' + zip).trim();
+      parts.push(cityStateZip);
+    }
+    fallbackAddress = parts.join(', ');
+  } else {
+    fallbackAddress = poolData?.address || '';
+  }
+
         <div class="team-details">
           ${homePool ? `
             <div class="detail-item">
               <strong>🏠 Home Pool:</strong> ${poolData ? 
-                getEnhancedPoolLink(homePool, poolData.address) : 
+                getEnhancedPoolLink(homePool, fallbackAddress) : 
                 homePool
               }
             </div>

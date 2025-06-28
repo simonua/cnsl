@@ -2,11 +2,19 @@
   "$schema": "pools.schema.json",
   "pools": [
     {
+      "id": "bwp",
       "name": "Bryant Woods",
-      "address": "10451 Green Mountain Cir, Columbia, MD 21044",
-      "mapsQuery": "Bryant Woods Pool Columbia MD",
-      "lat": 39.2151,
-      "lng": -76.8736,
+      "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/bryant-woods-pool-bw/",
+      "location": {
+        "street": "10451 Green Mountain Cir",
+        "city": "Columbia",
+        "state": "MD",
+        "zip": "21044",
+        "lat": 39.2151,
+        "lng": -76.8736,
+        "mapsQuery": "Bryant Woods Pool Columbia MD",
+        "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=10451+Green+Mountain+Cir%2C+Columbia%2C+MD+21044"
+      },
       "features": [
         "lap",
         "wading",
@@ -295,11 +303,19 @@
       ]
     },
     {
+      "id": "krp",
       "name": "Kendall Ridge",
-      "address": "8245 Tamar Dr, Columbia, MD 21045",
-      "mapsQuery": "Kendall Ridge Pool Columbia MD",
-      "lat": 39.2035,
-      "lng": -76.8382,
+      "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/kendall-ridge-kr-pool/",
+      "location": {
+        "street": "8245 Tamar Dr",
+        "city": "Columbia",
+        "state": "MD",
+        "zip": "21045",
+        "lat": 39.2035,
+        "lng": -76.8382,
+        "mapsQuery": "Kendall Ridge Pool Columbia MD",
+        "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=8245+Tamar+Dr%2C+Columbia%2C+MD+21045"
+      },
       "features": [
         "ADA compliant",
         "beach entry",

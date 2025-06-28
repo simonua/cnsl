@@ -4,7 +4,33 @@
 class Pool {
   constructor(poolData) {
     this.name = poolData.name || '';
-    this.address = poolData.address || '';
+    
+    // Handle both location formats (new location object vs legacy flat properties)
+    if (poolData.location) {
+      // New location format
+      this.location = poolData.location;
+      const addressParts = [];
+      if (poolData.location.street) addressParts.push(poolData.location.street);
+      if (poolData.location.city || poolData.location.state || poolData.location.zip) {
+        const city = poolData.location.city || '';
+        const state = poolData.location.state || '';
+        const zip = poolData.location.zip || '';
+        const cityStateZip = (city + ', ' + state + ' ' + zip).trim();
+        addressParts.push(cityStateZip);
+      }
+      this.address = addressParts.join(', ');
+      this.lat = poolData.location.lat;
+      this.lng = poolData.location.lng;
+      this.mapsQuery = poolData.location.mapsQuery;
+      this.googleMapsUrl = poolData.location.googleMapsUrl;
+    } else {
+      // Legacy format
+      this.address = poolData.address || '';
+      this.lat = poolData.lat;
+      this.lng = poolData.lng;
+      this.mapsQuery = poolData.mapsQuery;
+    }
+    
     this.phone = poolData.phone || '';
     this.website = poolData.website || '';
     this.features = poolData.features || [];
@@ -424,7 +450,7 @@ class Pool {
    * @returns {Object} - Pool data as plain object
    */
   toJSON() {
-    return {
+    const result = {
       name: this.name,
       address: this.address,
       phone: this.phone,
@@ -438,5 +464,45 @@ class Pool {
       specialEvents: this.specialEvents,
       lastUpdated: this.lastUpdated
     };
+    
+    // Include location properties for both formats
+    if (this.location) {
+      // New location format
+      result.location = this.location;
+    } else {
+      // Legacy format properties
+      if (this.lat !== undefined) result.lat = this.lat;
+      if (this.lng !== undefined) result.lng = this.lng;
+      if (this.mapsQuery) result.mapsQuery = this.mapsQuery;
+    }
+    
+    return result;
+  }
+
+  /**
+   * Get current active schedule period information
+   * @returns {Object|null} - Schedule period with startDate and endDate, or null if no active schedule
+   */
+  getCurrentSchedulePeriod() {
+    if (!this.legacySchedules || !Array.isArray(this.legacySchedules)) {
+      return null;
+    }
+    
+    const easternTimeInfo = TimeUtils.getCurrentEasternTimeInfo();
+    const currentDate = easternTimeInfo.date;
+    
+    const activeSchedule = this.legacySchedules.find(schedule => {
+      return currentDate >= schedule.startDate && currentDate <= schedule.endDate;
+    });
+    
+    if (activeSchedule) {
+      return {
+        startDate: activeSchedule.startDate,
+        endDate: activeSchedule.endDate,
+        name: activeSchedule.name || 'Current Schedule'
+      };
+    }
+    
+    return null;
   }
 }

@@ -27,6 +27,31 @@ class WeatherService {
     // ------------------------------
     
     /**
+     * Helper function to extract address for weather API from pool object
+     * @param {Object} pool - Pool object (either format)
+     * @returns {string} - Address string for weather API
+     */
+    static getPoolAddressForWeather(pool) {
+        if (pool.location) {
+            // New location format - use full address
+            const addressParts = [];
+            if (pool.location.street) addressParts.push(pool.location.street);
+            if (pool.location.city || pool.location.state || pool.location.zip) {
+                const city = pool.location.city || '';
+                const state = pool.location.state || '';
+                const zip = pool.location.zip || '';
+                const cityStateZip = (city + ', ' + state + ' ' + zip).trim();
+                addressParts.push(cityStateZip);
+            }
+            return addressParts.join(', ');
+        } else if (pool.address) {
+            // Legacy format
+            return pool.address;
+        }
+        return '';
+    }
+
+    /**
      * Extract zip code from address string
      * @param {string} address - Full address string
      * @returns {string|null} Zip code or null if not found
@@ -250,9 +275,11 @@ class WeatherService {
         for (const meet of upcomingMeets) {
             try {
                 const pool = poolsManager.getPool(meet.location);
-                if (pool && pool.address) {
+                const poolAddress = WeatherService.getPoolAddressForWeather(pool);
+                
+                if (pool && poolAddress) {
                     const meetDate = new Date(meet.date);
-                    const forecast = await WeatherService.getForecastForPool(pool.address, meetDate);
+                    const forecast = await WeatherService.getForecastForPool(poolAddress, meetDate);
                     
                     meetsWithWeather.push({
                         ...meet,
@@ -301,11 +328,12 @@ class WeatherService {
                         const practiceDate = new Date(Math.max(startDate.getTime(), now.getTime()));
                         
                         if (practiceDate <= sevenDaysFromNow) {
-                            const forecast = await WeatherService.getForecastForPool(pool.address, practiceDate);
+                            const poolAddress = WeatherService.getPoolAddressForWeather(pool);
+                            const forecast = await WeatherService.getForecastForPool(poolAddress, practiceDate);
                             
                             practicesWithWeather.push({
                                 poolName: pool.name,
-                                poolAddress: pool.address,
+                                poolAddress: poolAddress,
                                 schedule: schedule,
                                 practiceDate: practiceDate.toISOString().split('T')[0],
                                 weather: forecast

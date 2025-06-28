@@ -630,10 +630,30 @@ class CNSLSearchEngine {
   getSpecificPoolInfo(pool) {
     const status = getPoolStatus(pool);
     
+    // Handle both location formats for address display
+    let addressDisplay = 'Address not available';
+    
+    if (pool.location) {
+      // New location format
+      const addressParts = [];
+      if (pool.location.street) addressParts.push(pool.location.street);
+      if (pool.location.city || pool.location.state || pool.location.zip) {
+        const city = pool.location.city || '';
+        const state = pool.location.state || '';
+        const zip = pool.location.zip || '';
+        const cityStateZip = (city + ', ' + state + ' ' + zip).trim();
+        addressParts.push(cityStateZip);
+      }
+      addressDisplay = addressParts.join(', ');
+    } else if (pool.address) {
+      // Legacy format
+      addressDisplay = pool.address;
+    }
+    
     return `
       <div class="copilot-response">
         <h3>🏊‍♀️ ${pool.name}</h3>
-        <p><strong>Address:</strong> ${pool.address || 'Address not available'}</p>
+        <p><strong>Address:</strong> ${addressDisplay}</p>
         <p><strong>Status:</strong> <span style="color: ${status.color};">${status.message}</span></p>
         ${pool.features ? '<p><strong>Features:</strong> Available on pool details page</p>' : ''}
         <p><a href="pools.html" target="_blank">View full details</a></p>

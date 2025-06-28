@@ -226,7 +226,7 @@ function findPoolByLocation(locationName) {
  * Renders the list of meets in the #meetList element
  * @param {Array} meets - Array of meet objects
  */
-function renderMeets(meets) {
+async function renderMeets(meets) {
   const list = document.getElementById("meetList");
   if (!list) return;
   
@@ -234,6 +234,19 @@ function renderMeets(meets) {
   if (!Array.isArray(meets) || meets.length === 0) {
     list.innerHTML = "<p>No meet information available.</p>";
     return;
+  }
+
+  // Get weather forecasts for upcoming meets if data manager is available
+  let meetsWithWeather = meets;
+  if (meetsBrowserDataManager && typeof WeatherService !== 'undefined') {
+    try {
+      WeatherService.initialize();
+      const poolsManager = meetsBrowserDataManager.getPools();
+      meetsWithWeather = await WeatherService.getForecastsForUpcomingMeets(meets, poolsManager);
+    } catch (error) {
+      console.warn('Weather service unavailable:', error);
+      meetsWithWeather = meets;
+    }
   }
 
   // Get current date for highlighting upcoming meets (using Eastern Time)
@@ -251,7 +264,7 @@ function renderMeets(meets) {
   });
   
   // Sort meets by date
-  const sortedMeets = [...meets].sort((a, b) => {
+  const sortedMeets = [...meetsWithWeather].sort((a, b) => {
     // Assume meet.date is a string in a format that can be converted to Date
     const dateA = a.date ? new Date(a.date + 'T12:00:00') : new Date(0);
     const dateB = b.date ? new Date(b.date + 'T12:00:00') : new Date(0);
@@ -355,19 +368,40 @@ function renderMeets(meets) {
       // Find the corresponding pool for this meet location
       const poolMatch = findPoolByLocation(location);
       
+      // Generate weather information for upcoming meets
+      let weatherInfo = '';
+      if (meet.weather && isUpcoming) {
+        weatherInfo = generateWeatherDisplay(meet.weather);
+      }
+      
       // Generate location link for Google Maps
       let locationLink = '';
-      if (poolMatch && (poolMatch.address || (poolMatch.lat && poolMatch.lng))) {
-        // If we have a matching pool with address or coordinates
-        if (poolMatch.address) {
+      if (poolMatch) {
+        let mapsUrl;
+        
+        // Use googleMapsUrl if available in new location format
+        if (poolMatch.location && poolMatch.location.googleMapsUrl) {
+          mapsUrl = poolMatch.location.googleMapsUrl;
+        } else if (poolMatch.address) {
+          // Legacy format fallback
           const encodedAddress = encodeURIComponent(poolMatch.address);
-          locationLink = `<a href="https://www.google.com/maps/search/?api=1&query=${encodedAddress}" target="_blank" rel="noopener" class="location-link">${location}</a>`;
-        } else {
-          locationLink = `<a href="https://www.google.com/maps/search/?api=1&query=${poolMatch.lat},${poolMatch.lng}" target="_blank" rel="noopener" class="location-link">${location}</a>`;
+          mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+        } else if (poolMatch.location && poolMatch.location.mapsQuery) {
+          // New format fallback using mapsQuery
+          const encodedQuery = encodeURIComponent(poolMatch.location.mapsQuery);
+          mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+        } else if (poolMatch.lat && poolMatch.lng) {
+          // Coordinate fallback
+          mapsUrl = `https://www.google.com/maps/search/?api=1&query=${poolMatch.lat},${poolMatch.lng}`;
         }
-      } else {
+        
+        if (mapsUrl) {
+          locationLink = `<a href="${mapsUrl}" target="_blank" rel="noopener" class="location-link">${location}</a>`;
+        }
+      }
+      
+      if (!locationLink) {
         // If we don't have a matching pool, just use the location name
-        // Try to build a search query based on the location name
         const searchQuery = encodeURIComponent(`${location} Columbia MD`);
         locationLink = `<a href="https://www.google.com/maps/search/?api=1&query=${searchQuery}" target="_blank" rel="noopener" class="location-link">${location}</a>`;
       }
@@ -383,6 +417,7 @@ function renderMeets(meets) {
               <span class="meet-location">${locationLink}</span>
               <span class="meet-time">${time}</span>
             </div>
+            ${weatherInfo}
             ${isToday ? '<span class="today-tag">TODAY</span>' : isTomorrow ? '<span class="tomorrow-tag">TOMORROW</span>' : ''}
           </div>
         `;
@@ -398,6 +433,7 @@ function renderMeets(meets) {
               <span class="meet-location">${locationLink}</span>
               <span class="meet-time">${time}</span>
             </div>
+            ${weatherInfo}
             ${isToday ? '<span class="today-tag">TODAY</span>' : isTomorrow ? '<span class="tomorrow-tag">TOMORROW</span>' : ''}
           </div>
         `;
@@ -456,3 +492,66 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 });
+
+// ------------------------------
+//    WEATHER DISPLAY FUNCTIONS
+// ------------------------------
+
+/**
+ * Generate weather display HTML for a meet
+ * @param {Object} weather - Weather forecast object
+ * @returns {string} HTML string for weather display
+ */
+function generateWeatherDisplay(weather) {
+  if (!weather) return '';
+  
+  try {
+    const temp = weather.temperature ? `${weather.temperature}°${weather.temperatureUnit || 'F'}` : '';
+    const condition = weather.shortForecast || '';
+    const wind = weather.windSpeed || '';
+    
+    // Get weather icon or emoji based on conditions
+    const weatherIcon = getWeatherIcon(condition);
+    
+    return `
+      <div class="weather-info">
+        <span class="weather-icon">${weatherIcon}</span>
+        <span class="weather-temp">${temp}</span>
+        <span class="weather-condition">${condition}</span>
+        ${wind ? `<span class="weather-wind">${wind}</span>` : ''}
+      </div>
+    `;
+  } catch (error) {
+    console.warn('Error generating weather display:', error);
+    return '';
+  }
+}
+
+/**
+ * Get weather icon/emoji based on forecast conditions
+ * @param {string} condition - Weather condition description
+ * @returns {string} Weather icon or emoji
+ */
+function getWeatherIcon(condition) {
+  if (!condition) return '🌤️';
+  
+  const lowerCondition = condition.toLowerCase();
+  
+  if (lowerCondition.includes('sunny') || lowerCondition.includes('clear')) {
+    return '☀️';
+  } else if (lowerCondition.includes('partly cloudy') || lowerCondition.includes('partly sunny')) {
+    return '⛅';
+  } else if (lowerCondition.includes('cloudy') || lowerCondition.includes('overcast')) {
+    return '☁️';
+  } else if (lowerCondition.includes('rain') || lowerCondition.includes('showers')) {
+    return '🌧️';
+  } else if (lowerCondition.includes('thunderstorm') || lowerCondition.includes('storm')) {
+    return '⛈️';
+  } else if (lowerCondition.includes('snow')) {
+    return '❄️';
+  } else if (lowerCondition.includes('fog') || lowerCondition.includes('mist')) {
+    return '🌫️';
+  } else {
+    return '🌤️';
+  }
+}
