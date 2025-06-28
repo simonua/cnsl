@@ -8,16 +8,16 @@ class TimeUtils {
    */
   static getEasternTime() {
     const now = new Date();
-    console.log(`🌍 Browser local time: ${now.toLocaleString()}`);
+    //console.log(`🌍 Browser local time: ${now.toLocaleString()}`);
     
     // Convert to Eastern Time using proper timezone handling
     const easternTime = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
-    console.log(`🗽 Eastern time: ${easternTime.toLocaleString()}`);
+    //console.log(`🗽 Eastern time: ${easternTime.toLocaleString()}`);
     
     // Verify timezone conversion
     const easternTimeString = now.toLocaleString("en-US", {timeZone: "America/New_York"});
     const timezone = now.toLocaleDateString('en-US', { timeZoneName: 'short', timeZone: 'America/New_York' }).split(', ')[1] || 'ET';
-    console.log(`🕐 Eastern time string: ${easternTimeString} (${timezone})`);
+    //console.log(`🕐 Eastern time string: ${easternTimeString} (${timezone})`);
     
     return easternTime;
   }
