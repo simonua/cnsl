@@ -212,6 +212,15 @@ main {
   margin-bottom: 60px !important;
 }
 
+/* Page Headers */
+main h1 {
+  color: var(--text-muted);
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
 /* Search Section */
 .copilot-search {
   text-align: center;
@@ -307,6 +316,7 @@ button:hover, button:focus, .btn:hover, .btn:focus {
   transform: translateY(-3px);
   box-shadow: var(--shadow-hover);
   background: linear-gradient(135deg, var(--primary-dark), #003d70);
+  text-decoration: none;
 }
 
 button:active, .btn:active {
@@ -963,6 +973,35 @@ button[aria-label*="Voice"]:active {
   display: none;
 }
 
+/* Meet action styles */
+.meet-actions {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.results-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--primary-color, #1976d2);
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.results-link:hover {
+  background: var(--primary-dark, #1565c0);
+  transform: scale(1.1);
+  text-decoration: none;
+  color: white;
+}
+
 @media (max-width: 768px) {
   .weather-info {
     font-size: 0.8rem;
@@ -1460,6 +1499,18 @@ button[aria-label*="Voice"]:active {
   flex-wrap: wrap;
 }
 
+/* Indent meet information on desktop */
+@media (min-width: 769px) {
+  .meet-location-time {
+    margin-left: 2rem;
+    margin-top: 0.5rem;
+  }
+  
+  .meet-actions {
+    margin-left: 2rem;
+  }
+}
+
 .meet-location,
 .meet-time {
   display: flex;
@@ -1500,9 +1551,27 @@ button[aria-label*="Voice"]:active {
 /* Team Card Enhancements */
 .team-header {
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
+  gap: 1rem;
   margin-bottom: 1rem;
+}
+
+.team-header-content {
+  flex: 1;
+}
+
+.team-logo {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  position: relative;
+}
+
+.team-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: var(--border-radius);
 }
 
 .upcoming-practice {
@@ -1628,6 +1697,7 @@ button[aria-label*="Voice"]:active {
 .team-actions .btn:hover {
   color: var(--white) !important;
   background: linear-gradient(135deg, var(--primary-dark), #003d70);
+  text-decoration: none;
 }
 
 /* Search functionality for meets page */
@@ -1676,6 +1746,7 @@ button[aria-label*="Voice"]:active {
 .btn-secondary:hover {
   background: var(--text-muted) !important;
   color: var(--white) !important;
+  text-decoration: none;
 }
 
 /* Search results styling */
@@ -1707,6 +1778,7 @@ button[aria-label*="Voice"]:active {
 
 .search-results-header .btn:hover {
   background: var(--background-color);
+  text-decoration: none;
 }
 
 .search-results {
