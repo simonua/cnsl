@@ -340,6 +340,13 @@ function renderPools(pools) {
     const poolStatus = getPoolStatus(pool);
     const statusClass = poolStatus.color;
 
+    // Check if pool has schedules (same logic as TBD check)
+    const poolObj = poolBrowserDataManager.getPool(pool.name);
+    const hasSchedules = poolObj && poolObj.legacySchedules && poolObj.legacySchedules.length > 0;
+    
+    // Only show status indicator if pool has actual schedules
+    const statusIndicatorHtml = hasSchedules ? `<span class="pool-status-indicator ${statusClass}"></span>` : '';
+
     // Create CA Pool website link if caUrl is available
     let caLinkHtml = '';
     if (pool.caUrl) {
@@ -358,7 +365,7 @@ function renderPools(pools) {
     return `
       <div class="pool-card collapsed" data-pool-id="${poolId}">
         <div class="pool-header" onclick="togglePoolCard(this)">
-          <h3><span class="pool-status-indicator ${statusClass}"></span>${poolName}</h3>
+          <h3>${statusIndicatorHtml}${poolName}</h3>
           ${distanceHtml}
         </div>
         <div class="pool-details">

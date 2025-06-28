@@ -334,6 +334,23 @@ function renderTeams(teams) {
       `;
     }
     
+    // Get fallback address for legacy compatibility
+    let fallbackAddress = '';
+    if (poolData?.location) {
+      const parts = [];
+      if (poolData.location.street) parts.push(poolData.location.street);
+      if (poolData.location.city || poolData.location.state || poolData.location.zip) {
+        const city = poolData.location.city || '';
+        const state = poolData.location.state || '';
+        const zip = poolData.location.zip || '';
+        const cityStateZip = (city + ', ' + state + ' ' + zip).trim();
+        parts.push(cityStateZip);
+      }
+      fallbackAddress = parts.join(', ');
+    } else {
+      fallbackAddress = poolData?.address || '';
+    }
+    
     return `
       <div class="team-card">
         <div class="team-header">
@@ -342,23 +359,6 @@ function renderTeams(teams) {
         
         ${upcomingPracticesHtml}
         
-  // Get fallback address for legacy compatibility
-  let fallbackAddress = '';
-  if (poolData?.location) {
-    const parts = [];
-    if (poolData.location.street) parts.push(poolData.location.street);
-    if (poolData.location.city || poolData.location.state || poolData.location.zip) {
-      const city = poolData.location.city || '';
-      const state = poolData.location.state || '';
-      const zip = poolData.location.zip || '';
-      const cityStateZip = (city + ', ' + state + ' ' + zip).trim();
-      parts.push(cityStateZip);
-    }
-    fallbackAddress = parts.join(', ');
-  } else {
-    fallbackAddress = poolData?.address || '';
-  }
-
         <div class="team-details">
           ${homePool ? `
             <div class="detail-item">
