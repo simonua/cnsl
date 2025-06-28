@@ -248,6 +248,12 @@ async function renderMeets(meets) {
         locationLink = `<a href="https://www.google.com/maps/search/?api=1&query=${searchQuery}" target="_blank" rel="noopener" class="location-link">${location}</a>`;
       }
       
+      // Check if this is a meet involving Long Reach Marlins that has occurred or is happening today
+      const isLongReachMeet = (meet.visiting_team && meet.visiting_team.includes('Long Reach')) || 
+                              (meet.home_team && meet.home_team.includes('Long Reach'));
+      const isTodayOrPast = meetDate <= today;
+      const showResultsLink = isLongReachMeet && isTodayOrPast;
+      
       // Check if it's a special meet (has name property) or regular meet
       if (meet.name && !meet.home_team && !meet.visiting_team) {
         // Special meet format (only special meets without teams)
@@ -260,6 +266,7 @@ async function renderMeets(meets) {
               <span class="meet-time">${time}</span>
             </div>
             ${weatherInfo}
+            ${showResultsLink ? '<div class="meet-actions"><a href="https://meetresults.longreachmarlins.org" target="_blank" rel="noopener" class="results-link" title="View Meet Results">🏆</a></div>' : ''}
             ${isToday ? '<span class="today-tag">TODAY</span>' : isTomorrow ? '<span class="tomorrow-tag">TOMORROW</span>' : ''}
           </div>
         `;
@@ -276,6 +283,7 @@ async function renderMeets(meets) {
               <span class="meet-time">${time}</span>
             </div>
             ${weatherInfo}
+            ${showResultsLink ? '<div class="meet-actions"><a href="https://meetresults.longreachmarlins.org" target="_blank" rel="noopener" class="results-link" title="View Meet Results">🏆</a></div>' : ''}
             ${isToday ? '<span class="today-tag">TODAY</span>' : isTomorrow ? '<span class="tomorrow-tag">TOMORROW</span>' : ''}
           </div>
         `;
@@ -368,6 +376,17 @@ async function renderMeets(meets) {
   console.log('📅 Total meets to process:', sortedMeets.length);
   console.log('📅 Grouped meets by date:', Object.keys(meetsByDate));
 
+  // Find the next upcoming meet date to expand
+  let nextUpcomingDateKey = null;
+  const dateKeys = Object.keys(meetsByDate);
+  for (const dateKey of dateKeys) {
+    const meetDate = new Date(meetsByDate[dateKey][0].date + 'T12:00:00');
+    if (meetDate >= today) {
+      nextUpcomingDateKey = dateKey;
+      break;
+    }
+  }
+
   // Generate HTML for meets grouped by date
   let html = '';
   
@@ -377,6 +396,10 @@ async function renderMeets(meets) {
     const isToday = meetDate.toDateString() === today.toDateString();
     const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
     const isTomorrow = meetDate.toDateString() === tomorrow.toDateString();
+    
+    // Determine if this card should be expanded (only the next upcoming meet)
+    const shouldExpand = dateKey === nextUpcomingDateKey;
+    const collapsedClass = shouldExpand ? '' : 'collapsed';
     
     // Determine status for the date group
     let statusClass = 'upcoming';
@@ -397,7 +420,7 @@ async function renderMeets(meets) {
     const meetName = meetsByDate[dateKey][0].name || '';
 
     html += `
-      <div class="meet-date-card collapsed">
+      <div class="meet-date-card ${collapsedClass}">
         <div class="meet-date-header" onclick="toggleMeetDate(this)">
           <div class="date-and-name">
             <h3>${dateKey}</h3>
@@ -437,6 +460,12 @@ async function renderMeets(meets) {
       // Handle special meets (Time Trials, Championships) differently
       const isSpecialMeet = !meet.visiting_team && !meet.home_team && !meet.awayTeam && !meet.homeTeam;
       
+      // Check if this is a meet involving Long Reach Marlins that has occurred or is happening today
+      const isLongReachMeet = (meet.visiting_team && meet.visiting_team.includes('Long Reach')) || 
+                              (meet.home_team && meet.home_team.includes('Long Reach'));
+      const isTodayOrPast = meetDate <= today;
+      const showResultsLink = isLongReachMeet && isTodayOrPast;
+      
       if (isSpecialMeet) {
         meetContent = `
           <div class="meet-details special-meet">
@@ -449,6 +478,7 @@ async function renderMeets(meets) {
                 <span class="meet-time">${time}</span>
               </div>
               ${weatherInfo}
+              ${showResultsLink ? '<div class="meet-actions"><a href="https://meetresults.longreachmarlins.org" target="_blank" rel="noopener" class="results-link" title="View Meet Results">🏆</a></div>' : ''}
             </div>
           </div>
         `;
@@ -466,6 +496,7 @@ async function renderMeets(meets) {
                 <span class="meet-time">${time}</span>
               </div>
               ${weatherInfo}
+              ${showResultsLink ? '<div class="meet-actions"><a href="https://meetresults.longreachmarlins.org" target="_blank" rel="noopener" class="results-link" title="View Meet Results">🏆</a></div>' : ''}
             </div>
           </div>
         `;
