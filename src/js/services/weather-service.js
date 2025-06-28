@@ -8,10 +8,21 @@ class WeatherService {
     // ------------------------------
     
     static BASE_URL = 'https://api.weather.gov';
-    static DEFAULT_USER_AGENT = 'CNSL-Swimming-App/1.0 (simonkurtz@gmail.com)';
     static CACHE_EXPIRY_MINUTES = 30;
     static COLUMBIA_MD_LAT = 39.2014;
     static COLUMBIA_MD_LNG = -76.8610;
+    
+    // ------------------------------
+    //    VARIABLES
+    // ------------------------------
+    
+    static isInitialized = false;
+    static lastError = null;
+    
+    
+    // ------------------------------
+    //    PRIVATE METHODS
+    // ------------------------------
     
     
     // ------------------------------
@@ -70,21 +81,24 @@ class WeatherService {
      */
     static async _makeRequest(url) {
         try {
+            console.log('🌦️ Making request to:', url);
+            
             const response = await fetch(url, {
                 headers: {
-                    'User-Agent': WeatherService.DEFAULT_USER_AGENT,
                     'Accept': 'application/json'
                 }
             });
             
             if (!response.ok) {
-                console.warn(`Weather API request failed: ${response.status} ${response.statusText}`);
+                console.warn(`🌦️ Weather API request failed: ${response.status} ${response.statusText}`);
                 return null;
             }
             
-            return await response.json();
+            const data = await response.json();
+            console.log('🌦️ API response received successfully');
+            return data;
         } catch (error) {
-            console.warn('Weather API request error:', error.message);
+            console.warn('🌦️ Weather API request error:', error.message);
             WeatherService.lastError = error;
             return null;
         }
@@ -98,13 +112,39 @@ class WeatherService {
     static _getCoordinatesForZip(zipCode) {
         // Columbia, MD area zip codes with approximate coordinates
         const zipCoordinates = {
-            '21044': { lat: 39.2151, lng: -76.8736 }, // Bryant Woods area
-            '21045': { lat: 39.1851, lng: -76.8610 }, // Thunder Hill area
-            '21046': { lat: 39.2300, lng: -76.8800 }, // Clarksville area
-            '21043': { lat: 39.2300, lng: -76.8300 }, // Ellicott City area
+            '21044': { lat: 39.2151, lng: -76.8736 },
+            '21045': { lat: 39.1851, lng: -76.8610 },
+            '21046': { lat: 39.2300, lng: -76.8800 }
         };
         
         return zipCoordinates[zipCode] || { 
+            lat: WeatherService.COLUMBIA_MD_LAT, 
+            lng: WeatherService.COLUMBIA_MD_LNG 
+        };
+    }
+    
+    /**
+     * Get coordinates for a zip code (hard-coded for Columbia, MD area)
+     * @param {string} zipCode - 5-digit zip code
+     * @returns {Object|null} Coordinates object or null
+     */
+    static _getCoordinatesForZip(zipCode) {
+        // Columbia, MD area zip codes with precise coordinates
+        // Using centralized coordinates for each zip code to reduce API calls
+        const zipCoordinates = {
+            '21044': { lat: 39.2044301, lng: -76.885809 },   // Bryant Woods, Phelps Luck area
+            '21045': { lat: 39.2077365, lng: -76.8266841 },  // Kendall Ridge area  
+            '21046': { lat: 39.1730865, lng: -76.8397082 }   // General Columbia area
+        };
+        
+        const coords = zipCoordinates[zipCode];
+        if (coords) {
+            console.log(`🌦️ Using zip code ${zipCode} coordinates: ${coords.lat}, ${coords.lng}`);
+            return coords;
+        }
+        
+        console.warn(`🌦️ Unknown zip code: ${zipCode}, using default Columbia coordinates`);
+        return { 
             lat: WeatherService.COLUMBIA_MD_LAT, 
             lng: WeatherService.COLUMBIA_MD_LNG 
         };
@@ -176,7 +216,7 @@ class WeatherService {
         
         const zipCode = WeatherService._extractZipCode(poolAddress);
         if (!zipCode) {
-            console.warn('No zip code found in pool address:', poolAddress);
+            console.warn('🌦️ No zip code found in pool address:', poolAddress);
             return null;
         }
         
@@ -184,43 +224,99 @@ class WeatherService {
     }
     
     /**
-     * Get weather forecast for a zip code
+     * Get weather forecast for coordinates (backward compatibility)
+     * This method converts coordinates to zip code for efficiency
+     * @param {number} lat - Latitude
+     * @param {number} lng - Longitude
+     * @param {Date} targetDate - Date to get forecast for
+     * @returns {Promise<Object|null>} Weather forecast or null
+     */
+    static async getForecastForCoordinates(lat, lng, targetDate = new Date()) {
+        if (!lat || !lng) {
+            console.warn('🌦️ Invalid coordinates:', lat, lng);
+            return null;
+        }
+        
+        // Map coordinates to zip codes for efficiency
+        // Find the closest zip code match
+        let closestZip = '21044'; // Default
+        let minDistance = Infinity;
+        
+        const zipCoords = {
+            '21044': { lat: 39.2044301, lng: -76.885809 },
+            '21045': { lat: 39.2077365, lng: -76.8266841 },
+            '21046': { lat: 39.1730865, lng: -76.8397082 }
+        };
+        
+        for (const [zipCode, coords] of Object.entries(zipCoords)) {
+            const distance = Math.sqrt(
+                Math.pow(lat - coords.lat, 2) + Math.pow(lng - coords.lng, 2)
+            );
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestZip = zipCode;
+            }
+        }
+        
+        console.log(`🌦️ Converting coordinates ${lat}, ${lng} to zip code ${closestZip} for efficient caching`);
+        return await WeatherService.getForecastForZip(closestZip, targetDate);
+    }
+    
+    /**
+     * Get weather forecast for a zip code using optimized zip-based caching
      * @param {string} zipCode - 5-digit zip code
      * @param {Date} targetDate - Date to get forecast for
      * @returns {Promise<Object|null>} Weather forecast or null
      */
     static async getForecastForZip(zipCode, targetDate = new Date()) {
         if (!zipCode || zipCode.length !== 5) {
-            console.warn('Invalid zip code:', zipCode);
+            console.warn('🌦️ Invalid zip code:', zipCode);
             return null;
         }
         
+        // Use zip code and date for cache key (more efficient than lat/lng)
         const cacheKey = `weather_${zipCode}_${targetDate.toISOString().split('T')[0]}`;
         
         // Check cache first
         const cached = CacheService.get(cacheKey);
         if (cached) {
+            console.log(`🌦️ Using cached weather data for zip code ${zipCode}`);
             return cached;
         }
         
         try {
-            const coordinates = WeatherService._getCoordinatesForZip(zipCode);
-            const pointsUrl = `${WeatherService.BASE_URL}/points/${coordinates.lat},${coordinates.lng}`;
+            console.log(`🌦️ Getting weather for zip code: ${zipCode}`);
             
-            // Get grid information
-            const pointsData = await WeatherService._makeRequest(pointsUrl);
-            if (!pointsData || !pointsData.properties) {
+            // Get coordinates for this zip code
+            const coordinates = WeatherService._getCoordinatesForZip(zipCode);
+            if (!coordinates) {
+                console.warn(`🌦️ No coordinates available for zip code: ${zipCode}`);
                 return null;
             }
             
-            // Get forecast
+            // Step 1: Get grid information from coordinates
+            const pointsUrl = `${WeatherService.BASE_URL}/points/${coordinates.lat},${coordinates.lng}`;
+            const pointsData = await WeatherService._makeRequest(pointsUrl);
+            
+            if (!pointsData || !pointsData.properties) {
+                console.warn('🌦️ No grid data received from points API');
+                return null;
+            }
+            
+            console.log('🌦️ Grid data received, getting forecast...');
+            
+            // Step 2: Get forecast using the forecast URL from grid data
             const forecastUrl = pointsData.properties.forecast;
             const forecastData = await WeatherService._makeRequest(forecastUrl);
+            
             if (!forecastData || !forecastData.properties || !forecastData.properties.periods) {
+                console.warn('🌦️ No forecast data received');
                 return null;
             }
             
-            // Find forecast for target date
+            console.log('🌦️ Forecast data received, processing...');
+            
+            // Step 3: Find forecast for target date
             const forecast = WeatherService._findForecastForDate(
                 forecastData.properties.periods, 
                 targetDate
@@ -232,15 +328,17 @@ class WeatherService {
                 forecast.coordinates = coordinates;
                 forecast.generatedAt = new Date().toISOString();
                 
-                // Cache the result
+                // Cache the result using zip code key
                 CacheService.set(cacheKey, forecast, WeatherService.CACHE_EXPIRY_MINUTES);
                 
+                console.log(`🌦️ Weather forecast cached for zip code ${zipCode}:`, forecast.shortForecast, forecast.temperature + '°' + forecast.temperatureUnit);
                 return forecast;
             }
             
+            console.warn('🌦️ No forecast found for target date');
             return null;
         } catch (error) {
-            console.warn('Weather service error:', error);
+            console.warn('🌦️ Weather service error:', error);
             WeatherService.lastError = error;
             return null;
         }
@@ -264,28 +362,53 @@ class WeatherService {
         const upcomingMeets = meets.filter(meet => {
             try {
                 const meetDate = new Date(meet.date);
-                return meetDate >= now && meetDate <= sevenDaysFromNow;
+                const isUpcoming = meetDate >= now && meetDate <= sevenDaysFromNow;
+                if (isUpcoming) {
+                    console.log('🌦️ Found upcoming meet:', meet.name, 'on', meet.date, 'at', meet.location);
+                }
+                return isUpcoming;
             } catch (error) {
                 return false;
             }
         });
         
+        console.log('🌦️ Processing', upcomingMeets.length, 'upcoming meets for weather');
+        
         const meetsWithWeather = [];
         
         for (const meet of upcomingMeets) {
             try {
-                const pool = poolsManager.getPool(meet.location);
+                let pool = poolsManager.getPool(meet.location);
+                
+                // If exact match fails, try removing "Pool" suffix for fallback
+                if (!pool && meet.location.endsWith(' Pool')) {
+                    const poolNameWithoutSuffix = meet.location.replace(' Pool', '');
+                    console.log('🌦️ Trying fallback pool name:', poolNameWithoutSuffix);
+                    pool = poolsManager.getPool(poolNameWithoutSuffix);
+                }
+                
                 const poolAddress = WeatherService.getPoolAddressForWeather(pool);
                 
                 if (pool && poolAddress) {
+                    console.log('🌦️ Getting weather for', meet.location, 'at address:', poolAddress);
                     const meetDate = new Date(meet.date);
-                    const forecast = await WeatherService.getForecastForPool(poolAddress, meetDate);
+                    let forecast;
                     
+                    try {
+                        forecast = await WeatherService.getForecastForPool(poolAddress, meetDate);
+                        if (forecast) {
+                            console.log('🌦️ Weather retrieved:', forecast.shortForecast, forecast.temperature + '°' + forecast.temperatureUnit);
+                        }
+                    } catch (error) {
+                        console.warn('🌦️ Weather API failed:', error.message);
+                        forecast = null;
+                    }
                     meetsWithWeather.push({
                         ...meet,
                         weather: forecast
                     });
                 } else {
+                    console.log('🌦️ No pool found or address available for:', meet.location);
                     meetsWithWeather.push(meet);
                 }
             } catch (error) {
@@ -370,7 +493,9 @@ class WeatherService {
      */
     static async isServiceAvailable() {
         try {
-            const testUrl = `${WeatherService.BASE_URL}/points/${WeatherService.COLUMBIA_MD_LAT},${WeatherService.COLUMBIA_MD_LNG}`;
+            // Test with 21045 zip code coordinates
+            const coords = WeatherService._getCoordinatesForZip('21045');
+            const testUrl = `${WeatherService.BASE_URL}/points/${coords.lat},${coords.lng}`;
             const response = await WeatherService._makeRequest(testUrl);
             return response !== null;
         } catch (error) {

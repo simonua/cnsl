@@ -18,175 +18,6 @@ async function initializeMeetsBrowser() {
 
 
 // ------------------------------
-//    LOCATION SEARCH FUNCTIONS
-// ------------------------------
-
-/**
- * Processes location-based search queries for meets
- * @param {string} query - The user's search query
- * @returns {Array} Filtered array of meets based on location
- */
-function processLocationSearch(query) {
-  if (!meetsBrowserDataManager) {
-    console.warn('Data manager not initialized');
-    return [];
-  }
-
-  const normalizedQuery = query.toLowerCase().trim();
-  
-  // Check if this is a location-based query
-  if (!isLocationQuery(normalizedQuery)) {
-    return [];
-  }
-  
-  // Extract location keywords from the query
-  const locationKeywords = extractLocationKeywords(normalizedQuery);
-  
-  // Get all meets from the data manager
-  const meetsManager = meetsBrowserDataManager.getMeets();
-  const allMeets = meetsManager.getAllMeets();
-  
-  // Filter meets based on location keywords
-  return allMeets.filter(meet => {
-    if (!meet.location) return false;
-    
-    const meetLocation = meet.location.toLowerCase();
-    
-    // Check if any location keyword matches the meet location
-    return locationKeywords.some(keyword => 
-      meetLocation.includes(keyword) || 
-      keyword.includes(meetLocation.split(' ')[0]) // Match first word of location
-    );
-  });
-}
-
-/**
- * Checks if a query is location-based
- * @param {string} query - The normalized query
- * @returns {boolean} True if the query is asking about location
- */
-function isLocationQuery(query) {
-  const locationKeywords = [
-    'where', 'location', 'address', 'at', 'held at', 'taking place',
-    'pool', 'facility', 'venue', 'site'
-  ];
-  
-  return locationKeywords.some(keyword => query.includes(keyword));
-}
-
-/**
- * Extracts location keywords from a search query
- * @param {string} query - The normalized query
- * @returns {Array} Array of location keywords to search for
- */
-function extractLocationKeywords(query) {
-  // Remove common question words and focus on location terms
-  const cleanQuery = query
-    .replace(/\b(where|is|are|the|a|an|at|in|on|near|location|address|pool|facility|venue|site)\b/g, '')
-    .trim();
-  
-  // Split into individual words and filter out short words
-  const words = cleanQuery.split(/\s+/).filter(word => word.length > 2);
-  
-  // Also check for common pool name patterns from data manager
-  let poolNames = [];
-  if (meetsBrowserDataManager) {
-    const poolsManager = meetsBrowserDataManager.getPools();
-    poolNames = poolsManager.getPoolNames().map(name => 
-      name.toLowerCase().split(' ')
-    ).flat();
-  }
-  
-  // Combine extracted words with known pool names
-  return [...words, ...poolNames.filter(name => query.includes(name))];
-}
-
-/**
- * Renders location-based search results
- * @param {Array} filteredMeets - Array of meets matching location criteria
- * @param {string} originalQuery - The original search query
- */
-function renderLocationSearchResults(filteredMeets, originalQuery) {
-  const list = document.getElementById("meetList");
-  if (!list) return;
-  
-  if (filteredMeets.length === 0) {
-    list.innerHTML = `
-      <div class="search-results">
-        <h3>🔍 Location Search Results</h3>
-        <p>No meets found matching location: "<strong>${originalQuery}</strong>"</p>
-        <div class="search-suggestions">
-          <h4>Try searching for:</h4>
-          <ul>
-            <li>"Where are meets at Kendall Ridge?"</li>
-            <li>"Location of Bryant Woods meets"</li>
-            <li>"Stevens Forest pool meets"</li>
-          </ul>
-        </div>
-        <button onclick="clearLocationSearch()" class="btn">Show All Meets</button>
-      </div>
-    `;
-    return;
-  }
-  
-  // Use the existing renderMeets function but add search context
-  renderMeets(filteredMeets);
-  
-  // Add search results header
-  const searchHeader = `
-    <div class="search-results-header">
-      <h3>🔍 Location Search Results</h3>
-      <p>Found <strong>${filteredMeets.length}</strong> meet(s) matching: "<strong>${originalQuery}</strong>"</p>
-      <button onclick="clearLocationSearch()" class="btn">Show All Meets</button>
-    </div>
-  `;
-  
-  list.insertAdjacentHTML('afterbegin', searchHeader);
-}
-
-/**
- * Clears location search and shows all meets
- */
-function clearLocationSearch() {
-  if (!meetsBrowserDataManager) {
-    console.warn('Data manager not initialized');
-    return;
-  }
-
-  const meetsManager = meetsBrowserDataManager.getMeets();
-  const allMeets = meetsManager.getAllMeets();
-  renderMeets(allMeets);
-}
-
-/**
- * Handles search input for meets page
- */
-function handleMeetsSearch() {
-  const searchInput = document.getElementById("meetsSearchInput");
-  if (!searchInput || !meetsBrowserDataManager) return;
-  
-  const query = searchInput.value.trim();
-  
-  if (!query) {
-    clearLocationSearch();
-    return;
-  }
-  
-  // Check if it's a location query
-  if (isLocationQuery(query.toLowerCase())) {
-    const filteredMeets = processLocationSearch(query);
-    renderLocationSearchResults(filteredMeets, query);
-  } else {
-    // Handle other types of searches (team names, dates, etc.) using data manager
-    const meetsManager = meetsBrowserDataManager.getMeets();
-    const searchResults = meetsManager.searchMeets(query);
-    
-    renderLocationSearchResults(searchResults, query);
-  }
-}
-
-
-// ------------------------------
 //    EXISTING FUNCTIONS
 // ------------------------------
 
@@ -240,13 +71,18 @@ async function renderMeets(meets) {
   let meetsWithWeather = meets;
   if (meetsBrowserDataManager && typeof WeatherService !== 'undefined') {
     try {
+      console.log('🌦️ Weather service available, initializing...');
       WeatherService.initialize();
       const poolsManager = meetsBrowserDataManager.getPools();
+      console.log('🌦️ Getting weather forecasts for', meets.length, 'meets');
       meetsWithWeather = await WeatherService.getForecastsForUpcomingMeets(meets, poolsManager);
+      console.log('🌦️ Weather forecasts retrieved for', meetsWithWeather.filter(m => m.weather).length, 'meets');
     } catch (error) {
       console.warn('Weather service unavailable:', error);
       meetsWithWeather = meets;
     }
+  } else {
+    console.log('🌦️ Weather service not available or data manager not ready');
   }
 
   // Get current date for highlighting upcoming meets (using Eastern Time)

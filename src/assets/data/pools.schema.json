@@ -32,7 +32,7 @@
                     "$ref": "#/definitions/NonEmptyString"
                 },
                 "caUrl": {
-                    "$ref": "#/definitions/uri"
+                    "$ref": "#/definitions/NonEmptyString"
                 },
                 "location": {
                     "$ref": "#/definitions/Location"

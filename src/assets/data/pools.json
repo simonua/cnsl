@@ -303,6 +303,204 @@
       ]
     },
     {
+      "id": "cfp",
+      "name": "Clary's Forest",
+      "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/clarys-forest-cf-pool/",
+      "location": {
+        "street": "11615 Little Patuxent Pkwy",
+        "city": "Columbia",
+        "state": "MD",
+        "zip": "21044",
+        "lat": 39.1962,
+        "lng": -76.8661,
+        "mapsQuery": "Clary's Forest Pool Columbia MD",
+        "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=11615+Little+Patuxent+Pkwy%2C+Columbia%2C+MD+21044"
+      },
+      "features": [],
+      "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Clarys_Forest.pdf",
+      "schedules": []
+    },
+    {
+      "id": "ccp",
+      "name": "Clemens Crossing",
+      "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/clemens-crossing-cc-pool/",
+      "location": {
+        "street": "10110 Clemens Crossing Dr",
+        "city": "Columbia",
+        "state": "MD",
+        "zip": "21046",
+        "lat": 39.1730,
+        "lng": -76.8397,
+        "mapsQuery": "Clemens Crossing Pool Columbia MD",
+        "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=10110+Clemens+Crossing+Dr%2C+Columbia%2C+MD+21046"
+      },
+      "features": [],
+      "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Clemens_Crossing.pdf",
+      "schedules": []
+    },
+    {
+      "id": "dgp",
+      "name": "Dasher Green",
+      "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/dasher-green-dg-pool/",
+      "location": {
+        "street": "8450 Fremont St",
+        "city": "Columbia",
+        "state": "MD",
+        "zip": "21044",
+        "lat": 39.2044,
+        "lng": -76.8858,
+        "mapsQuery": "Dasher Green Pool Columbia MD",
+        "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=8450+Fremont+St%2C+Columbia%2C+MD+21044"
+      },
+      "features": [],
+      "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Dasher_Green.pdf",
+      "schedules": []
+    },
+    {
+      "id": "dcp",
+      "name": "Dickinson",
+      "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/dickinson-pool/",
+      "location": {
+        "street": "6525 Barley Ct",
+        "city": "Columbia",
+        "state": "MD",
+        "zip": "21045",
+        "lat": 39.2077,
+        "lng": -76.8267,
+        "mapsQuery": "Dickinson Pool Columbia MD",
+        "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=6525+Barley+Ct%2C+Columbia%2C+MD+21045"
+      },
+      "features": [],
+      "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Dickinson_Pool.pdf",
+      "schedules": []
+    },
+    {
+      "id": "dhp",
+      "name": "Dorsey Hall",
+      "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/dorsey-hall-dh-pool/",
+      "location": {
+        "street": "10515 Dorsey Ln",
+        "city": "Columbia",
+        "state": "MD",
+        "zip": "21044",
+        "lat": 39.1944,
+        "lng": -76.8719,
+        "mapsQuery": "Dorsey Hall Pool Columbia MD",
+        "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=10515+Dorsey+Ln%2C+Columbia%2C+MD+21044"
+      },
+      "features": [],
+      "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Dorsey_Hall.pdf",
+      "schedules": []
+    },
+    {
+      "id": "frp",
+      "name": "Faulkner Ridge",
+      "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/faulkner-ridge-fr-pool/",
+      "location": {
+        "street": "10320 Faulkner Ridge Cir",
+        "city": "Columbia",
+        "state": "MD",
+        "zip": "21044",
+        "lat": 39.1856,
+        "lng": -76.8775,
+        "mapsQuery": "Faulkner Ridge Pool Columbia MD",
+        "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=10320+Faulkner+Ridge+Cir%2C+Columbia%2C+MD+21044"
+      },
+      "features": [],
+      "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Faulkner_Ridge.pdf",
+      "schedules": []
+    },
+    {
+      "id": "hap",
+      "name": "Hawthorn",
+      "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/hawthorn-ha-pool/",
+      "location": {
+        "street": "8950 Walkers Choice Rd",
+        "city": "Columbia",
+        "state": "MD",
+        "zip": "21045",
+        "lat": 39.1775,
+        "lng": -76.8306,
+        "mapsQuery": "Hawthorn Pool Columbia MD",
+        "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=8950+Walkers+Choice+Rd%2C+Columbia%2C+MD+21045"
+      },
+      "features": [],
+      "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Hawthorn.pdf",
+      "schedules": []
+    },
+    {
+      "id": "hgp",
+      "name": "Hobbit's Glen",
+      "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/hobbits-glen-hg-pool/",
+      "location": {
+        "street": "8275 Cloudleap Ct",
+        "city": "Columbia",
+        "state": "MD",
+        "zip": "21045",
+        "lat": 39.1639,
+        "lng": -76.8136,
+        "mapsQuery": "Hobbit's Glen Pool Columbia MD",
+        "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=8275+Cloudleap+Ct%2C+Columbia%2C+MD+21045"
+      },
+      "features": [],
+      "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Hobbits_Glen.pdf",
+      "schedules": []
+    },
+    {
+      "id": "hwp",
+      "name": "Hopewell",
+      "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/hopewell-mini-waterpark-hw/",
+      "location": {
+        "street": "5832 Five Forks Dr",
+        "city": "Columbia",
+        "state": "MD",
+        "zip": "21045",
+        "lat": 39.1694,
+        "lng": -76.8472,
+        "mapsQuery": "Hopewell Mini WaterPark Columbia MD",
+        "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=5832+Five+Forks+Dr%2C+Columbia%2C+MD+21045"
+      },
+      "features": [],
+      "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Hopewell.pdf",
+      "schedules": []
+    },
+    {
+      "id": "hup",
+      "name": "Huntington",
+      "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/huntington-hu-pool/",
+      "location": {
+        "street": "8825 Hunting Ln",
+        "city": "Columbia",
+        "state": "MD",
+        "zip": "21045",
+        "lat": 39.1722,
+        "lng": -76.8194,
+        "mapsQuery": "Huntington Pool Columbia MD",
+        "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=8825+Hunting+Ln%2C+Columbia%2C+MD+21045"
+      },
+      "features": [],
+      "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Huntington.pdf",
+      "schedules": []
+    },
+    {
+      "id": "jhp",
+      "name": "Jeffers Hill",
+      "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/jeffers-hill-jh-pool/",
+      "location": {
+        "street": "8825 Centre Park Dr",
+        "city": "Columbia",
+        "state": "MD",
+        "zip": "21045",
+        "lat": 39.1833,
+        "lng": -76.8167,
+        "mapsQuery": "Jeffers Hill Pool Columbia MD",
+        "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=8825+Centre+Park+Dr%2C+Columbia%2C+MD+21045"
+      },
+      "features": [],
+      "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Jeffers_Hill.pdf",
+      "schedules": []
+    },
+    {
       "id": "krp",
       "name": "Kendall Ridge",
       "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/kendall-ridge-kr-pool/",
@@ -566,7 +764,187 @@
             }
           ]
         }
-      ]
+      ]    
+    },
+    {
+      "id": "lpp",
+      "name": "Locust Park",
+      "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/locust-park-lp-pool/",
+      "location": {
+        "street": "7925 Locust Park Dr",
+        "city": "Columbia",
+        "state": "MD",
+        "zip": "21045",
+        "lat": 39.1944,
+        "lng": -76.8264,
+        "mapsQuery": "Locust Park Pool Columbia MD",
+        "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=7925+Locust+Park+Dr%2C+Columbia%2C+MD+21045"
+      },
+      "features": [],
+      "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Locust_Park.pdf",
+      "schedules": []
+    },
+    {
+      "id": "lfp",
+      "name": "Longfellow",
+      "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/longfellow-lf-pool/",
+      "location": {
+        "street": "9090 Bryant Ave",
+        "city": "Columbia",
+        "state": "MD",
+        "zip": "21045",
+        "lat": 39.1889,
+        "lng": -76.8306,
+        "mapsQuery": "Longfellow Pool Columbia MD",
+        "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=9090+Bryant+Ave%2C+Columbia%2C+MD+21045"
+      },
+      "features": [],
+      "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Longfellow.pdf",
+      "schedules": []
+    },
+    {
+      "id": "mcp",
+      "name": "Macgill's Common",
+      "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/macgills-common-mc-pool/",
+      "location": {
+        "street": "8950 Macgill's Common",
+        "city": "Columbia",
+        "state": "MD",
+        "zip": "21045",
+        "lat": 39.1806,
+        "lng": -76.8111,
+        "mapsQuery": "Macgill's Common Pool Columbia MD",
+        "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=8950+Macgill's+Common%2C+Columbia%2C+MD+21045"
+      },
+      "features": [],
+      "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Macgills_Common.pdf",
+      "schedules": []
+    },
+    {
+      "id": "plp",
+      "name": "Phelps Luck",
+      "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/phelps-luck-pl-pool/",
+      "location": {
+        "street": "7125 Cradlerock Way",
+        "city": "Columbia",
+        "state": "MD",
+        "zip": "21045",
+        "lat": 39.1778,
+        "lng": -76.8417,
+        "mapsQuery": "Phelps Luck Pool Columbia MD",
+        "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=7125+Cradlerock+Way%2C+Columbia%2C+MD+21045"
+      },
+      "features": [],
+      "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Phelps_Luck.pdf",
+      "schedules": []
+    },
+    {
+      "id": "rhp",
+      "name": "River Hill",
+      "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/river-hill-rh-pool/",
+      "location": {
+        "street": "6270 Waterloo Rd",
+        "city": "Columbia",
+        "state": "MD",
+        "zip": "21045",
+        "lat": 39.1639,
+        "lng": -76.8750,
+        "mapsQuery": "River Hill Pool Columbia MD",
+        "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=6270+Waterloo+Rd%2C+Columbia%2C+MD+21045"
+      },
+      "features": [],
+      "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/River_Hill.pdf",
+      "schedules": []
+    },
+    {
+      "id": "rbp",
+      "name": "Running Brook",
+      "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/running-brook-rb-pool/",
+      "location": {
+        "street": "6355 Whispering Oak",
+        "city": "Columbia",
+        "state": "MD",
+        "zip": "21044",
+        "lat": 39.1806,
+        "lng": -76.8681,
+        "mapsQuery": "Running Brook Pool Columbia MD",
+        "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=6355+Whispering+Oak%2C+Columbia%2C+MD+21044"
+      },
+      "features": [],
+      "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Running_Brook.pdf",
+      "schedules": []
+    },
+    {
+      "id": "sfp",
+      "name": "Stevens Forest",
+      "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/stevens-forest-sf-pool/",
+      "location": {
+        "street": "5525 Stevens Forest Rd",
+        "city": "Columbia",
+        "state": "MD",
+        "zip": "21045",
+        "lat": 39.1861,
+        "lng": -76.8583,
+        "mapsQuery": "Stevens Forest Pool Columbia MD",
+        "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=5525+Stevens+Forest+Rd%2C+Columbia%2C+MD+21045"
+      },
+      "features": [],
+      "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Stevens_Forest.pdf",
+      "schedules": []
+    },
+    {
+      "id": "swp",
+      "name": "Swansfield",
+      "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/swansfield-mini-water-park-sw/",
+      "location": {
+        "street": "10439 White Granite Dr",
+        "city": "Columbia",
+        "state": "MD",
+        "zip": "21044",
+        "lat": 39.1722,
+        "lng": -76.8806,
+        "mapsQuery": "Swansfield Mini Water Park Columbia MD",
+        "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=10439+White+Granite+Dr%2C+Columbia%2C+MD+21044"
+      },
+      "features": [],
+      "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Swansfield.pdf",
+      "schedules": []
+    },
+    {
+      "id": "tsp",
+      "name": "Talbott Springs",
+      "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/talbott-springs-ts-pool/",
+      "location": {
+        "street": "8775 Cloudleap Ct",
+        "city": "Columbia",
+        "state": "MD",
+        "zip": "21045",
+        "lat": 39.1694,
+        "lng": -76.8111,
+        "mapsQuery": "Talbott Springs Pool Columbia MD",
+        "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=8775+Cloudleap+Ct%2C+Columbia%2C+MD+21045"
+      },
+      "features": [],
+      "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Talbott_Springs.pdf",
+      "schedules": []
+    },
+    {
+      "id": "thp",
+      "name": "Thunder Hill",
+      "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/thunder-hill-th-pool/",
+      "location": {
+        "street": "6045 Eggbornsville Rd",
+        "city": "Columbia",
+        "state": "MD",
+        "zip": "21045",
+        "lat": 39.1667,
+        "lng": -76.8472,
+        "mapsQuery": "Thunder Hill Pool Columbia MD",
+        "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=6045+Eggbornsville+Rd%2C+Columbia%2C+MD+21045"
+      },
+      "features": [],
+      "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Thunder_Hill.pdf",
+      "schedules": []
     }
   ]
 }

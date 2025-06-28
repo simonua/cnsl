@@ -637,6 +637,33 @@ nav a:focus {
   text-decoration: underline;
 }
 
+/* CA Pool Website Link Styling */
+.ca-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  display: inline-block;
+  margin-top: 0.25rem;
+  transition: var(--transition);
+  border-radius: 4px;
+  padding: 4px 8px;
+  border: 1px solid var(--primary-color);
+  background-color: rgba(0, 120, 212, 0.05);
+  font-weight: 500;
+}
+
+.ca-link:hover,
+.ca-link:focus {
+  color: var(--white);
+  background-color: var(--primary-color);
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 120, 212, 0.3);
+}
+
+.ca-website-section {
+  margin: 0.5rem 0 0.25rem 0;
+}
+
 /* Suggestions */
 .suggestion-grid {
   display: grid;
@@ -1166,6 +1193,12 @@ button[aria-label*="Voice"]:active {
 
 .status-red {
   color: var(--error-color);
+}
+
+.status-tbd {
+  color: var(--secondary-color);
+  font-style: italic;
+  font-weight: 500;
 }
 
 /* Time slot highlighting */

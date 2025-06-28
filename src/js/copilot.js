@@ -277,7 +277,7 @@ document.addEventListener("DOMContentLoaded", async () => {
  */
 async function initializeCopilot() {
   try {
-    console.log('🚀 COPILOT INITIALIZATION STARTING...');
+    console.log('🚀 INITIALIZATION STARTING...');
     console.log('================================');
     
     // Add FileHelper debugging
@@ -377,12 +377,12 @@ async function initializeCopilot() {
     }
     
     console.log('================================');
-    console.log('✅ COPILOT INITIALIZATION COMPLETE');
+    console.log('✅ INITIALIZATION COMPLETE');
     console.log('🎯 Ready to process user queries!');
     console.log('================================\n');
     
   } catch (error) {
-    console.error('❌ COPILOT INITIALIZATION FAILED:', error);
+    console.error('❌ INITIALIZATION FAILED:', error);
     console.error('💡 Check that all data files are present and properly formatted');
     showDataLoadError();
   }

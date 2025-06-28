@@ -83,6 +83,11 @@ function formatPoolHours(pool) {
     return '<div class="pool-hours"><strong>🕒 Hours:</strong> Pool not found</div>';
   }
 
+  // Check if pool has empty schedules (TBD pools)
+  if (!poolObj.legacySchedules || poolObj.legacySchedules.length === 0) {
+    return '<div class="pool-hours"><strong>🕒 Hours:</strong> <span class="status-tbd">TBD</span></div>';
+  }
+
   const easternTimeInfo = TimeUtils.getCurrentEasternTimeInfo();
   const poolStatus = poolObj.getCurrentStatus();
   const weekSchedule = poolObj.getWeekSchedule();
@@ -273,9 +278,9 @@ function renderPools(pools) {
     const features = pool.features || [];
     
     let distanceHtml = '';
-    if (pool.distance !== undefined && !isNaN(pool.distance)) {
-      distanceHtml = `<span class="distance-badge">📍 ${pool.distance.toFixed(1)} mi</span>`;
-    }
+    // if (pool.distance !== undefined && !isNaN(pool.distance)) {
+    //   distanceHtml = `<span class="distance-badge">📍 ${pool.distance.toFixed(1)} mi</span>`;
+    // }
 
     // Handle both location formats (new location object vs legacy flat properties)
     let streetAddress, cityStateZip, mapsUrl;
@@ -319,6 +324,13 @@ function renderPools(pools) {
           </div>
         </div>
       `;
+    } else {
+      featuresHtml = `
+        <div class="pool-features">
+          <h4>Features</h4>
+          <span class="status-tbd">TBD</span>
+        </div>
+      `;
     }
 
     // Format opening hours for display using new helper
@@ -327,6 +339,21 @@ function renderPools(pools) {
     // Get pool status for indicator using new helper
     const poolStatus = getPoolStatus(pool);
     const statusClass = poolStatus.color;
+
+    // Create CA Pool website link if caUrl is available
+    let caLinkHtml = '';
+    if (pool.caUrl) {
+      caLinkHtml = `
+        <div class="ca-website-section">
+          <a href="${pool.caUrl}" 
+             target="_blank" 
+             rel="noopener" 
+             class="ca-link">
+            Visit CA Pool Page
+          </a>
+        </div>
+      `;
+    }
 
     return `
       <div class="pool-card collapsed" data-pool-id="${poolId}">
@@ -344,6 +371,7 @@ function renderPools(pools) {
               ${streetAddress ? `${streetAddress}${cityStateZip ? '<br>' : ''}` : ''}${cityStateZip || (streetAddress ? '' : 'Address not available')}
             </a>
           </div>
+          ${caLinkHtml}
           ${hoursHtml}
           ${featuresHtml}
         </div>

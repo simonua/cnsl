@@ -3,7 +3,10 @@
  */
 class Pool {
   constructor(poolData) {
+    this.id = poolData.id || '';
     this.name = poolData.name || '';
+    this.caUrl = poolData.caUrl || '';
+    this.scheduleUrl = poolData.scheduleUrl || '';
     
     // Handle both location formats (new location object vs legacy flat properties)
     if (poolData.location) {
@@ -451,7 +454,10 @@ class Pool {
    */
   toJSON() {
     const result = {
+      id: this.id,
       name: this.name,
+      caUrl: this.caUrl,
+      scheduleUrl: this.scheduleUrl,
       address: this.address,
       phone: this.phone,
       website: this.website,
