@@ -279,6 +279,29 @@ function getPoolMapLink(location, address) {
 }
 
 /**
+ * Create team logo HTML with graceful fallback
+ * @param {string} teamId - Team ID for logo filename
+ * @param {string} teamName - Team name for alt text
+ * @returns {string} - HTML for team logo with fallback
+ */
+function createTeamLogo(teamId, teamName) {
+  if (!teamId) return '';
+  
+  const logoPath = `assets/images/logos/logo-${teamId}.png`;
+  
+  return `
+    <div class="team-logo">
+      <img 
+        src="${logoPath}" 
+        alt="${teamName} Logo" 
+        class="team-logo-img"
+        onerror="this.parentElement.style.display='none';"
+      />
+    </div>
+  `;
+}
+
+/**
  * Renders the list of teams in the #teamList element
  * @param {Array} teams - Array of team objects
  */
@@ -302,9 +325,13 @@ function renderTeams(teams) {
   // Generate HTML for each team
   const html = sortedTeams.map(team => {
     const teamName = team.name || 'Unknown Team';
+    const teamId = team.id || '';
     const teamUrl = team.url || '#';
     const homePools = Array.isArray(team.homePools) ? team.homePools : [];
     const homePool = homePools[0] || '';
+    
+    // Create team logo HTML
+    const logoHtml = createTeamLogo(teamId, teamName);
     
     // Find pool data for the home pool using data manager
     const poolData = homePool ? findPoolByName(homePool) : null;
@@ -354,7 +381,10 @@ function renderTeams(teams) {
     return `
       <div class="team-card">
         <div class="team-header">
-          <h3>${teamName}</h3>
+          ${logoHtml}
+          <div class="team-header-content">
+            <h3>${teamName}</h3>
+          </div>
         </div>
         
         ${upcomingPracticesHtml}
@@ -375,6 +405,10 @@ function renderTeams(teams) {
             <a href="${teamUrl}" target="_blank" rel="noopener" class="btn">🌐 Team Website</a>
             ${team.practice && team.practice.url ? 
               `<a href="${team.practice.url}" target="_blank" rel="noopener" class="btn">📅 Practice Schedule</a>` : 
+              ''
+            }
+            ${team.resultsUrl ? 
+              `<a href="${team.resultsUrl}" target="_blank" rel="noopener" class="btn">🏆 Swim Meet Results</a>` : 
               ''
             }
           </div>
