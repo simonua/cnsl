@@ -61,8 +61,14 @@ async function renderMeets(meets) {
   const list = document.getElementById("meetList");
   if (!list) return;
   
+  // Debug: Show what we received
+  console.log("renderMeets called with:", meets);
+  console.log("Array?", Array.isArray(meets));
+  console.log("Length:", meets?.length);
+  
   // Safety check - ensure meets is an array
   if (!Array.isArray(meets) || meets.length === 0) {
+    console.log("No meets to render, showing fallback");
     list.innerHTML = "<p>No meet information available.</p>";
     return;
   }
@@ -301,6 +307,196 @@ function toggleMeetDate(headerElement) {
   meetCard.classList.toggle('collapsed');
 }
 
+async function renderMeets(meets) {
+  const list = document.getElementById("meetList");
+  if (!list) return;
+  
+  // Safety check - ensure meets is an array
+  if (!Array.isArray(meets) || meets.length === 0) {
+    list.innerHTML = "<p>No meet information available.</p>";
+    return;
+  }
+
+  // Get weather forecasts for upcoming meets if data manager is available
+  let meetsWithWeather = meets;
+  if (typeof WeatherService !== 'undefined') {
+    try {
+      console.log('🌦️ Weather service available, initializing...');
+      WeatherService.initialize();
+      console.log('🌦️ Getting weather forecasts for', meets.length, 'meets');
+      // For now, skip weather integration to keep it simple
+      // meetsWithWeather = await WeatherService.getForecastsForUpcomingMeets(meets, poolsManager);
+    } catch (error) {
+      console.warn('Weather service unavailable:', error);
+      meetsWithWeather = meets;
+    }
+  }
+
+  // Get current date for highlighting upcoming meets (using Eastern Time)
+  const now = new Date();
+  const easternTimeString = now.toLocaleDateString("en-US", {timeZone: "America/New_York"});
+  const easternTimeDate = new Date(easternTimeString);
+  const today = new Date(easternTimeDate.getFullYear(), easternTimeDate.getMonth(), easternTimeDate.getDate());
+  
+  // Sort meets by date
+  const sortedMeets = [...meetsWithWeather].sort((a, b) => {
+    const dateA = a.date ? new Date(a.date + 'T12:00:00') : new Date(0);
+    const dateB = b.date ? new Date(b.date + 'T12:00:00') : new Date(0);
+    return dateA - dateB;
+  });
+
+  // Group meets by month/date
+  const meetsByDate = {};
+  sortedMeets.forEach(meet => {
+    if (!meet.date) return;
+    
+    const meetDate = new Date(meet.date + 'T12:00:00');
+    // Use full date format to avoid conflicts and better sorting
+    const dateKey = meetDate.toLocaleDateString('en-US', { 
+      weekday: 'long',
+      month: 'long', 
+      day: 'numeric',
+      year: 'numeric'
+    });
+    
+    if (!meetsByDate[dateKey]) {
+      meetsByDate[dateKey] = [];
+    }
+    meetsByDate[dateKey].push(meet);
+  });
+
+  console.log('📅 Total meets to process:', sortedMeets.length);
+  console.log('📅 Grouped meets by date:', Object.keys(meetsByDate));
+
+  // Generate HTML for meets grouped by date
+  let html = '';
+  
+  Object.keys(meetsByDate).forEach(dateKey => {
+    const meetDate = new Date(meetsByDate[dateKey][0].date + 'T12:00:00');
+    const isUpcoming = meetDate >= today;
+    const isToday = meetDate.toDateString() === today.toDateString();
+    const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+    const isTomorrow = meetDate.toDateString() === tomorrow.toDateString();
+    
+    // Determine status for the date group
+    let statusClass = 'upcoming';
+    let statusText = 'Upcoming';
+    
+    if (isToday) {
+      statusClass = 'today';
+      statusText = 'Today';
+    } else if (isTomorrow) {
+      statusClass = 'tomorrow';
+      statusText = 'Tomorrow';
+    } else if (!isUpcoming) {
+      statusClass = 'past';
+      statusText = 'Past';
+    }
+
+    // Get the meet name from the first meet on this date
+    const meetName = meetsByDate[dateKey][0].name || '';
+
+    html += `
+      <div class="meet-date-card collapsed">
+        <div class="meet-date-header" onclick="toggleMeetDate(this)">
+          <div class="date-and-name">
+            <h3>${dateKey}</h3>
+            ${meetName ? `<span class="meet-name-header">${meetName}</span>` : ''}
+          </div>
+          <div class="status-container">
+            ${isToday ? '<span class="status-text">TODAY</span>' : isTomorrow ? '<span class="status-text">TOMORROW</span>' : ''}
+            <span class="meet-status-indicator ${statusClass}"></span>
+          </div>
+        </div>
+        <div class="meet-date-details">
+    `;
+
+    meetsByDate[dateKey].forEach(meet => {
+      const location = meet.location || 'TBA';
+      const time = meet.time || ('8:00 AM - 12:00 PM');
+      let meetContent = '';
+      
+      // Check if meet is today, tomorrow, or upcoming (using Eastern Time)
+      const meetDate = new Date(meet.date + 'T12:00:00');
+      const isToday = meetDate.toDateString() === today.toDateString();
+      const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+      const isTomorrow = meetDate.toDateString() === tomorrow.toDateString();
+      const isUpcoming = meetDate >= today;
+
+      let weatherInfo = '';
+      if (meet.weather && meet.weather.forecast) {
+        const forecast = meet.weather.forecast;
+        weatherInfo = `
+          <div class="weather-info">
+            <span class="weather-temp">${forecast.temperature}°F</span>
+            <span class="weather-desc">${forecast.shortForecast}</span>
+          </div>
+        `;
+      }
+
+      // Handle special meets (Time Trials, Championships) differently
+      const isSpecialMeet = !meet.visiting_team && !meet.home_team && !meet.awayTeam && !meet.homeTeam;
+      
+      if (isSpecialMeet) {
+        meetContent = `
+          <div class="meet-details special-meet">
+            <div class="meet-info">
+              <div class="special-meet-title">
+                <strong>${meet.name || 'Special Meet'}</strong>
+              </div>
+              <div class="meet-location-time">
+                <span class="meet-location">${location}</span>
+                <span class="meet-time">${time}</span>
+              </div>
+              ${weatherInfo}
+            </div>
+          </div>
+        `;
+      } else {
+        meetContent = `
+          <div class="meet-details">
+            <div class="meet-info">
+              <div class="meet-teams">
+                <span class="visiting-team">${meet.visiting_team || meet.awayTeam || 'Visiting Team'}</span>
+                <span class="vs">vs</span>
+                <span class="home-team">${meet.home_team || meet.homeTeam || 'Home Team'}</span>
+              </div>
+              <div class="meet-location-time">
+                <span class="meet-location">${location}</span>
+                <span class="meet-time">${time}</span>
+              </div>
+              ${weatherInfo}
+            </div>
+          </div>
+        `;
+      }
+
+      html += meetContent;
+    });
+
+    html += `
+        </div>
+      </div>
+    `;
+  });
+
+  // If no meets have valid dates
+  if (html === '') {
+    html = "<p>No scheduled meets found.</p>";
+  }
+
+  list.innerHTML = html;
+}
+
+/**
+ * Toggles the collapsed state of a meet date card
+ * @param {Element} headerElement - The clicked header element
+ */
+function toggleMeetDate(headerElement) {
+  const meetCard = headerElement.closest('.meet-date-card');
+  meetCard.classList.toggle('collapsed');
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   // Check if we're on the meets page before fetching data
   if (!document.getElementById("meetList")) {
@@ -308,24 +504,31 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
+  const meetList = document.getElementById("meetList");
+  
   try {
-    // Initialize the data manager with the new OOP system
-    await initializeMeetsBrowser();
+    console.log("Loading meets data...");
     
-    // Get meets from the data manager
-    const meetsManager = meetsBrowserDataManager.getMeets();
-    const allMeets = meetsManager.getAllMeets();
+    // Load meets data directly - simple approach that works
+    const response = await fetch('assets/data/meets.json');
+    const data = await response.json();
     
-    console.log(`Processing ${allMeets.length} meets from DataManager`);
+    let allMeets = [];
+    if (data.regular_meets) {
+      allMeets = [...data.regular_meets];
+    }
+    if (data.special_meets) {
+      allMeets = [...allMeets, ...data.special_meets];
+    }
     
-    renderMeets(allMeets);
+    console.log(`Found ${allMeets.length} meets`);
+    
+    // Use the original sophisticated rendering
+    await renderMeets(allMeets);
     
   } catch (error) {
-    console.error("Failed to load data:", error);
-    const list = document.getElementById("meetList");
-    if (list) {
-      list.innerHTML = "<p>⚠️ Meet data is currently unavailable. Please try again later.</p>";
-    }
+    console.error("Error loading meets:", error);
+    meetList.innerHTML = "<p>⚠️ Meet data is currently unavailable. Please try again later.</p>";
   }
 });
 
