@@ -1,26 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CNSL Pool Assistant</title>
+
+  <!-- Google Tag Manager - should be placed as high as possible -->
+  <script>(function (w, d, s, l, i) {
+      w[l] = w[l] || []; w[l].push({
+        'gtm.start':
+          new Date().getTime(), event: 'gtm.js'
+      }); var f = d.getElementsByTagName(s)[0],
+        j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+          'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+    })(window, document, 'script', 'dataLayer', 'GTM-WZQ5925F');</script>
+  <!-- End Google Tag Manager -->
+
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="manifest" href="/manifest.webmanifest" />
-  
+
   <!-- Favicons and Touch Icons -->
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicons/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicons/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicons/favicon-16x16.png">
   <link rel="shortcut icon" href="/assets/favicons/favicon.ico">
-  
+
   <!-- Android and PWA Meta Tags -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="application-name" content="CA Pool Assistant">
-  
+
   <!-- Microsoft Tiles -->
   <meta name="msapplication-TileColor" content="#0078d4">
   <meta name="msapplication-config" content="/browserconfig.xml">
-  
+
   <!-- Theme and Status Bar -->
   <meta name="theme-color" content="#0078d4">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -28,10 +41,15 @@
   <meta name="apple-mobile-web-app-title" content="CA Pool Assistant">
   <block name="head"></block>
 </head>
+
 <body>
+  <!-- Google Tag Manager (noscript) - should be placed immediately after opening body -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WZQ5925F" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
   <div class="page-wrap">
     <include src="components/header.html"></include>
-    
+
     <include src="components/nav.html"></include>
 
     <div class="nav-overlay" id="navOverlay" onclick="closeMenu()"></div>
@@ -56,7 +74,7 @@
   <script src="js/teams-manager.js" defer></script>
   <script src="js/meets-manager.js" defer></script>
   <script src="js/services/data-manager.js" defer></script>
-  
+
   <!-- Application scripts -->
   <script src="js/navigation.js" defer></script>
   <script src="js/services/speech.js" defer></script>
@@ -70,10 +88,10 @@
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/service-worker.js');
     }
-    
+
     // PWA Installation Detection
     let deferredPrompt;
-    
+
     window.addEventListener('beforeinstallprompt', (e) => {
       console.log('💡 PWA: App can be installed');
       // Prevent the mini-infobar from appearing on mobile
@@ -81,17 +99,17 @@
       // Stash the event so it can be triggered later
       deferredPrompt = e;
     });
-    
+
     window.addEventListener('appinstalled', () => {
       console.log('✅ PWA: App was installed successfully');
       deferredPrompt = null;
     });
-    
+
     // Check if app is running in standalone mode (installed as PWA)
     if (window.matchMedia('(display-mode: standalone)').matches) {
       console.log('📱 PWA: Running in standalone mode');
     }
-    
+
     // Log FileHelper environment info on load
     document.addEventListener('DOMContentLoaded', () => {
       if (window.FileHelper) {
@@ -99,7 +117,7 @@
       } else {
         console.error('❌ FileHelper not loaded or not available');
       }
-      
+
       // Log manifest info for debugging
       if (navigator.userAgent.includes('Android')) {
         console.log('🤖 Android device detected');
@@ -115,4 +133,5 @@
   </script>
   <block name="scripts"></block>
 </body>
+
 </html>
