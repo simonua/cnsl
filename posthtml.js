@@ -15,8 +15,8 @@ function readComponent(name) {
   return fs.readFileSync(filePath, 'utf8');
 }
 
-// Helper function to copy directory recursively
-function copyDir(src, dest) {
+// Helper function to copy directory recursively with exclusions
+function copyDir(src, dest, excludePaths = [], basePath = src) {
   // Create destination directory if it doesn't exist
   if (!fs.existsSync(dest)) {
     fs.mkdirSync(dest, { recursive: true });
@@ -28,9 +28,18 @@ function copyDir(src, dest) {
   for (const entry of entries) {
     const srcPath = path.join(src, entry.name);
     const destPath = path.join(dest, entry.name);
+    
+    // Get relative path from the original base path for exclusion checking
+    const relativePath = path.relative(basePath, srcPath).replace(/\\/g, '/');
+
+    // Skip excluded paths
+    if (excludePaths.some(excludePath => relativePath === excludePath || relativePath.startsWith(excludePath + '/'))) {
+      console.log(`⏭️ [${timestamp()}] Skipping excluded path: ${relativePath}`);
+      continue;
+    }
 
     if (entry.isDirectory()) {
-      copyDir(srcPath, destPath);
+      copyDir(srcPath, destPath, excludePaths, basePath);
     } else {
       fs.copyFileSync(srcPath, destPath);
     }
@@ -57,9 +66,9 @@ if (!fs.existsSync(outDir)) {
   fs.mkdirSync(outDir, { recursive: true });
 }
 
-// Copy assets directory
+// Copy assets directory (excluding large file directories)
 console.log(`📁 [${timestamp()}] Copying assets directory...`);
-copyDir('./src/assets', path.join(outDir, 'assets'));
+copyDir('./src/assets', path.join(outDir, 'assets'), ['data/2025', 'images/logos']);
 
 // Copy CSS directory
 console.log(`🎨 [${timestamp()}] Copying CSS directory...`);
