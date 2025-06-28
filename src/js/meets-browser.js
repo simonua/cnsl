@@ -265,11 +265,15 @@ async function renderMeets(meets) {
           <div class="${meetClasses}">
             <div class="meet-name">${meet.name}</div>
             <div class="meet-details">
-              <span class="meet-location">${locationLink}</span>
-              <span class="meet-time">${time}</span>
+              <div class="meet-location-row">
+                <span class="meet-location">${locationLink}</span>
+                ${showResultsLink ? '<a href="https://meetresults.longreachmarlins.org" target="_blank" rel="noopener" class="results-link" title="View Meet Results">🏆</a>' : ''}
+              </div>
+              <div class="meet-time-row">
+                <span class="meet-time">${time}</span>
+              </div>
             </div>
             ${weatherInfo}
-            ${showResultsLink ? '<div class="meet-actions"><a href="https://meetresults.longreachmarlins.org" target="_blank" rel="noopener" class="results-link" title="View Meet Results">🏆</a></div>' : ''}
             ${isToday ? '<span class="today-tag">TODAY</span>' : isTomorrow ? '<span class="tomorrow-tag">TOMORROW</span>' : ''}
           </div>
         `;
@@ -282,11 +286,15 @@ async function renderMeets(meets) {
           <div class="${meetClasses}">
             <div class="meet-teams">${homeTeam} vs. ${visitingTeam}</div>
             <div class="meet-details">
-              <span class="meet-location">${locationLink}</span>
-              <span class="meet-time">${time}</span>
+              <div class="meet-location-row">
+                <span class="meet-location">${locationLink}</span>
+                ${showResultsLink ? '<a href="https://meetresults.longreachmarlins.org" target="_blank" rel="noopener" class="results-link" title="View Meet Results">🏆</a>' : ''}
+              </div>
+              <div class="meet-time-row">
+                <span class="meet-time">${time}</span>
+              </div>
             </div>
             ${weatherInfo}
-            ${showResultsLink ? '<div class="meet-actions"><a href="https://meetresults.longreachmarlins.org" target="_blank" rel="noopener" class="results-link" title="View Meet Results">🏆</a></div>' : ''}
             ${isToday ? '<span class="today-tag">TODAY</span>' : isTomorrow ? '<span class="tomorrow-tag">TOMORROW</span>' : ''}
           </div>
         `;
@@ -480,11 +488,15 @@ async function renderMeets(meets) {
                 <strong>${meet.name || 'Special Meet'}</strong>
               </div>
               <div class="meet-location-time">
-                <span class="meet-location">${location}</span>
-                <span class="meet-time">${time}</span>
+                <div class="meet-location-row">
+                  <span class="meet-location">${location}</span>
+                  ${showResultsLink ? '<a href="https://meetresults.longreachmarlins.org" target="_blank" rel="noopener" class="results-link" title="View Meet Results">🏆</a>' : ''}
+                </div>
+                <div class="meet-time-row">
+                  <span class="meet-time">${time}</span>
+                </div>
               </div>
               ${weatherInfo}
-              ${showResultsLink ? '<div class="meet-actions"><a href="https://meetresults.longreachmarlins.org" target="_blank" rel="noopener" class="results-link" title="View Meet Results">🏆</a></div>' : ''}
             </div>
           </div>
         `;
@@ -498,11 +510,15 @@ async function renderMeets(meets) {
                 <span class="home-team">${meet.home_team || meet.homeTeam || 'Home Team'}</span>
               </div>
               <div class="meet-location-time">
-                <span class="meet-location">${location}</span>
-                <span class="meet-time">${time}</span>
+                <div class="meet-location-row">
+                  <span class="meet-location">${location}</span>
+                  ${showResultsLink ? '<a href="https://meetresults.longreachmarlins.org" target="_blank" rel="noopener" class="results-link" title="View Meet Results">🏆</a>' : ''}
+                </div>
+                <div class="meet-time-row">
+                  <span class="meet-time">${time}</span>
+                </div>
               </div>
               ${weatherInfo}
-              ${showResultsLink ? '<div class="meet-actions"><a href="https://meetresults.longreachmarlins.org" target="_blank" rel="noopener" class="results-link" title="View Meet Results">🏆</a></div>' : ''}
             </div>
           </div>
         `;
