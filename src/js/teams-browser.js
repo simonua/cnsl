@@ -57,7 +57,7 @@ function getCurrentPracticeSchedule(practice) {
  * Get enhanced pool link using pools data manager
  * @param {string} location - Pool location name
  * @param {string} fallbackAddress - Fallback address if pool not found
- * @returns {string} - HTML link to Google Maps with pool data
+ * @returns {string} - HTML link to pools.html page with pool data
  */
 function getEnhancedPoolLink(location, fallbackAddress) {
   if (!location) return '';
@@ -65,31 +65,14 @@ function getEnhancedPoolLink(location, fallbackAddress) {
   // Try to find pool data from pools manager
   const poolData = findPoolByName(location);
   
-  if (poolData) {
-    let mapsUrl;
-    
-    // Use googleMapsUrl if available in new location format
-    if (poolData.location && poolData.location.googleMapsUrl) {
-      mapsUrl = poolData.location.googleMapsUrl;
-    } else if (poolData.address) {
-      // Legacy format fallback
-      const query = encodeURIComponent(poolData.address);
-      mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
-    } else if (poolData.location && poolData.location.mapsQuery) {
-      // New format fallback
-      const query = encodeURIComponent(poolData.location.mapsQuery);
-      mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
-    }
-    
-    if (mapsUrl) {
-      return `<a href="${mapsUrl}" target="_blank" rel="noopener" class="location-link pool-link">${location}</a>`;
-    }
+  if (poolData && poolData.id) {
+    // Create link to pools.html page with pool ID parameter
+    const poolUrl = `pools.html?pool=${encodeURIComponent(poolData.id)}`;
+    return `<a href="${poolUrl}" class="location-link pool-link">${location}</a>`;
   }
   
-  // Fallback to provided address or location name
-  const query = encodeURIComponent(fallbackAddress || location);
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
-  return `<a href="${mapsUrl}" target="_blank" rel="noopener" class="location-link">${location}</a>`;
+  // Fallback to pools.html page without specific pool parameter
+  return `<a href="pools.html" class="location-link">${location}</a>`;
 }
 
 /**
@@ -263,19 +246,17 @@ function getNextPractice(practice) {
  * Create a map link for a pool location
  * @param {string} location - Pool location name
  * @param {string} address - Pool address
- * @returns {string} - HTML link to Google Maps
+ * @returns {string} - HTML link to pools.html page
  */
 function getPoolMapLink(location, address) {
-  // Try to use enhanced pool link first (which uses googleMapsUrl when available)
+  // Try to use enhanced pool link first (which links to pools.html when available)
   const enhancedLink = getEnhancedPoolLink(location, address);
   if (enhancedLink) {
     return enhancedLink;
   }
   
-  // Fallback to basic map link
-  const query = encodeURIComponent(address || location);
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
-  return `<a href="${mapsUrl}" target="_blank" rel="noopener" class="location-link">${location}</a>`;
+  // Fallback to pools.html page
+  return `<a href="pools.html" class="location-link">${location}</a>`;
 }
 
 /**

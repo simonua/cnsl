@@ -1335,6 +1335,14 @@ button[aria-label*="Voice"]:active {
   display: none;
 }
 
+/* Highlighted pool card for URL parameter navigation */
+.pool-card.highlighted {
+  border: 2px solid var(--primary-color);
+  box-shadow: 0 0 15px rgba(0, 120, 212, 0.3);
+  transform: scale(1.02);
+  background-color: rgba(0, 120, 212, 0.05);
+}
+
 /* Footer Styles */
 .footer {
   position: fixed;

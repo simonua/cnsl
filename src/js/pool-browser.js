@@ -403,6 +403,40 @@ function formatTimeRangeSpans(timeRange, isCurrentDay = false, currentTime = nul
 }
 
 /**
+ * Handles URL parameters to show a specific pool
+ * If ?pool=poolId is in the URL, expands and highlights that pool
+ */
+function handlePoolUrlParameter() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const poolId = urlParams.get('pool');
+  
+  if (poolId) {
+    // Wait a moment for the DOM to be ready, then find and expand the pool
+    setTimeout(() => {
+      const poolCard = document.querySelector(`[data-pool-id="${poolId}"]`);
+      if (poolCard) {
+        // Expand the pool card
+        poolCard.classList.remove('collapsed');
+        
+        // Add a highlight class for visual emphasis
+        poolCard.classList.add('highlighted');
+        
+        // Scroll to the pool card
+        poolCard.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+        
+        // Remove highlight after a few seconds
+        setTimeout(() => {
+          poolCard.classList.remove('highlighted');
+        }, 3000);
+      }
+    }, 100);
+  }
+}
+
+/**
  * Toggles the collapsed state of a pool card
  * @param {Element} headerElement - The clicked header element
  */
@@ -433,6 +467,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     // Always render pools first with no location data
     renderPools(legacyPools);
+    
+    // Handle URL parameters to show specific pool
+    handlePoolUrlParameter();
     
     // Then try to get location - if it works, pools will be re-rendered with distances
     try {
