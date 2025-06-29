@@ -764,6 +764,197 @@
             }
           ]
         }
+      ],
+      "scheduleOverrides": [
+        {
+          "startDate": "2025-06-07",
+          "endDate": "2025-06-07",
+          "reason": "CNSL Swim Meet",
+          "hours": [
+            {
+              "weekDays": [
+                "Sat"
+              ],
+              "startTime": "7:00am",
+              "endTime": "12:00pm",
+              "types": [
+                "Swim Meet"
+              ]
+            }
+          ]
+        },
+        {
+          "startDate": "2025-06-14",
+          "endDate": "2025-06-14",
+          "reason": "CNSL Swim Meet",
+          "hours": [
+            {
+              "weekDays": [
+                "Sat"
+              ],
+              "startTime": "7:00am",
+              "endTime": "12:00pm",
+              "types": [
+                "Swim Meet"
+              ]
+            }
+          ]
+        },
+        {
+          "startDate": "2025-06-19",
+          "endDate": "2025-06-19",
+          "reason": "No Evening CNSL",
+          "hours": [
+            {
+              "weekDays": [
+                "Thu"
+              ],
+              "startTime": "12:00pm",
+              "endTime": "7:00pm",
+              "types": [
+                "Laps",
+                "Rec Swim"
+              ]
+            }
+          ]
+        },
+        {
+          "startDate": "2025-06-21",
+          "endDate": "2025-06-21",
+          "reason": "CNSL Swim Meet",
+          "hours": [
+            {
+              "weekDays": [
+                "Sat"
+              ],
+              "startTime": "7:00am",
+              "endTime": "12:00pm",
+              "types": [
+                "Swim Meet"
+              ]
+            },
+            {
+              "weekDays": [
+                "Sat"
+              ],
+              "startTime": "12:00pm",
+              "endTime": "8:00pm",
+              "types": [
+                "Laps",
+                "Rec Swim"
+              ]
+            }
+          ]
+        },
+        {
+          "startDate": "2025-06-28",
+          "endDate": "2025-06-28",
+          "reason": "CNSL Swim Meet",
+          "hours": [
+            {
+              "weekDays": [
+                "Sat"
+              ],
+              "startTime": "7:00am",
+              "endTime": "12:00pm",
+              "types": [
+                "Swim Meet"
+              ]
+            },
+            {
+              "weekDays": [
+                "Sat"
+              ],
+              "startTime": "12:00pm",
+              "endTime": "8:00pm",
+              "types": [
+                "Laps",
+                "Rec Swim"
+              ]
+            }
+          ]
+        },
+        {
+          "startDate": "2025-07-04",
+          "endDate": "2025-07-04",
+          "reason": "No Evening CNSL",
+          "hours": [
+            {
+              "weekDays": [
+                "Fri"
+              ],
+              "startTime": "12:00pm",
+              "endTime": "7:00pm",
+              "types": [
+                "Laps",
+                "Rec Swim"
+              ]
+            }
+          ]
+        },
+        {
+          "startDate": "2025-07-10",
+          "endDate": "2025-07-10",
+          "reason": "Long Reach Village Pool Party (must preregister)",
+          "hours": [
+            {
+              "weekDays": [
+                "Thu"
+              ],
+              "startTime": "6:00pm",
+              "endTime": "8:30pm",
+              "types": [
+                "Pool Party"
+              ]
+            }
+          ]
+        },
+        {
+          "startDate": "2025-07-12",
+          "endDate": "2025-07-12",
+          "reason": "CNSL Swim Meet",
+          "hours": [
+            {
+              "weekDays": [
+                "Sat"
+              ],
+              "startTime": "7:00am",
+              "endTime": "12:00pm",
+              "types": [
+                "Swim Meet"
+              ]
+            },
+            {
+              "weekDays": [
+                "Sat"
+              ],
+              "startTime": "12:00pm",
+              "endTime": "8:00pm",
+              "types": [
+                "Laps",
+                "Rec Swim"
+              ]
+            }
+          ]
+        },
+        {
+          "startDate": "2025-07-20",
+          "endDate": "2025-07-20",
+          "reason": "City-wide lifeguard training",
+          "hours": [
+            {
+              "weekDays": [
+                "Sun"
+              ],
+              "startTime": "11:00am",
+              "endTime": "6:00pm",
+              "types": [
+                "Laps",
+                "Rec Swim"
+              ]
+            }
+          ]
+        }
       ]    
     },
     {

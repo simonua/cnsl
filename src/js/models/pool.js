@@ -41,6 +41,9 @@ class Pool {
     this.divingBoard = poolData.divingBoard || false;
     this.babyPool = poolData.babyPool || false;
     
+    // Store schedule overrides
+    this.scheduleOverrides = poolData.scheduleOverrides || [];
+    
     // Handle both legacy and new data formats
     if (poolData.schedules && Array.isArray(poolData.schedules)) {
       // Legacy format - convert to new format
@@ -270,7 +273,7 @@ class Pool {
   }
 
   /**
-   * Get week schedule from legacy format
+   * Get week schedule from legacy format with schedule overrides applied
    * @private
    * @returns {Array} - Array of day objects with time slots
    */
@@ -291,11 +294,31 @@ class Pool {
         day: shortDay,
         fullDay: fullDayNames[index],
         timeSlots: [],
-        isOpen: false
+        isOpen: false,
+        hasOverrides: false,
+        overrideReason: null
       };
       
-      if (activeSchedule && activeSchedule.hours) {
-        // Find all hours for this day
+      // Get the date for this day of the current week
+      const today = new Date();
+      const currentDayIndex = today.getDay() === 0 ? 6 : today.getDay() - 1; // Convert Sunday=0 to index 6
+      const targetDayIndex = index;
+      const daysOffset = targetDayIndex - currentDayIndex;
+      const targetDate = new Date(today);
+      targetDate.setDate(today.getDate() + daysOffset);
+      const targetDateString = targetDate.toISOString().split('T')[0];
+      
+      // Check for schedule overrides for this specific date
+      const overrideForDate = this._getScheduleOverrideForDate(targetDateString, shortDay);
+      
+      if (overrideForDate) {
+        // Apply schedule override logic - merge with regular schedule
+        dayData.hasOverrides = true;
+        dayData.overrideReason = overrideForDate.reason;
+        dayData.timeSlots = this._mergeScheduleWithOverride(activeSchedule, shortDay, overrideForDate);
+        dayData.isOpen = dayData.timeSlots.length > 0;
+      } else if (activeSchedule && activeSchedule.hours) {
+        // Regular schedule - no overrides
         const dayHours = activeSchedule.hours.filter(h => 
           h.weekDays && h.weekDays.includes(shortDay)
         );
@@ -321,6 +344,211 @@ class Pool {
       
       return dayData;
     });
+  }
+
+  /**
+   * Get schedule override for a specific date and day
+   * @private
+   * @param {string} dateString - Date in YYYY-MM-DD format
+   * @param {string} shortDay - Day abbreviation (Mon, Tue, etc.)
+   * @returns {Object|null} - Override object or null if none found
+   */
+  _getScheduleOverrideForDate(dateString, shortDay) {
+    if (!this.scheduleOverrides || !Array.isArray(this.scheduleOverrides)) {
+      return null;
+    }
+    
+    return this.scheduleOverrides.find(override => {
+      // Check if the date falls within the override range
+      const isInDateRange = dateString >= override.startDate && dateString <= override.endDate;
+      
+      if (!isInDateRange) {
+        return false;
+      }
+      
+      // Check if any of the override hours apply to this day
+      return override.hours && override.hours.some(hour => 
+        hour.weekDays && hour.weekDays.includes(shortDay)
+      );
+    });
+  }
+
+  /**
+   * Merge regular schedule with override for a specific day
+   * @private
+   * @param {Object} activeSchedule - The active regular schedule
+   * @param {string} shortDay - Day abbreviation (Mon, Tue, etc.)
+   * @param {Object} override - The schedule override object
+   * @returns {Array} - Array of merged time slots
+   */
+  _mergeScheduleWithOverride(activeSchedule, shortDay, override) {
+    const mergedSlots = [];
+    
+    // Get regular schedule slots for this day
+    const regularSlots = [];
+    if (activeSchedule && activeSchedule.hours) {
+      const dayHours = activeSchedule.hours.filter(h => 
+        h.weekDays && h.weekDays.includes(shortDay)
+      );
+      
+      dayHours.forEach(hour => {
+        if (hour.startTime && hour.endTime) {
+          regularSlots.push({
+            startTime: hour.startTime,
+            endTime: hour.endTime,
+            activities: hour.types || [],
+            notes: hour.notes || '',
+            access: hour.access || 'Public',
+            isOverride: false
+          });
+        }
+      });
+    }
+    
+    // Get override slots for this day
+    const overrideSlots = [];
+    if (override.hours) {
+      const dayOverrides = override.hours.filter(h => 
+        h.weekDays && h.weekDays.includes(shortDay)
+      );
+      
+      dayOverrides.forEach(hour => {
+        if (hour.startTime && hour.endTime) {
+          overrideSlots.push({
+            startTime: hour.startTime,
+            endTime: hour.endTime,
+            activities: hour.types || [],
+            notes: hour.notes || override.reason,
+            access: hour.access || 'Public',
+            isOverride: true,
+            overrideReason: override.reason
+          });
+        }
+      });
+    }
+    
+    // Convert times to minutes for easier comparison
+    const convertSlot = (slot) => ({
+      ...slot,
+      startMinutes: TimeUtils.timeStringToMinutes(slot.startTime),
+      endMinutes: TimeUtils.timeStringToMinutes(slot.endTime)
+    });
+    
+    const regularSlotsWithMinutes = regularSlots.map(convertSlot);
+    const overrideSlotsWithMinutes = overrideSlots.map(convertSlot);
+    
+    // Create a timeline of all time periods
+    const timelineEvents = [];
+    
+    // Add regular slots
+    regularSlotsWithMinutes.forEach(slot => {
+      timelineEvents.push({ time: slot.startMinutes, type: 'start', slot, isOverride: false });
+      timelineEvents.push({ time: slot.endMinutes, type: 'end', slot, isOverride: false });
+    });
+    
+    // Add override slots
+    overrideSlotsWithMinutes.forEach(slot => {
+      timelineEvents.push({ time: slot.startMinutes, type: 'start', slot, isOverride: true });
+      timelineEvents.push({ time: slot.endMinutes, type: 'end', slot, isOverride: true });
+    });
+    
+    // Sort timeline events by time
+    timelineEvents.sort((a, b) => a.time - b.time);
+    
+    // Process timeline to create merged slots
+    let activeRegularSlots = [];
+    let activeOverrideSlots = [];
+    let lastTime = 0;
+    
+    for (let i = 0; i < timelineEvents.length; i++) {
+      const event = timelineEvents[i];
+      
+      // If we have active slots and time has progressed, create a merged slot
+      if (event.time > lastTime && (activeRegularSlots.length > 0 || activeOverrideSlots.length > 0)) {
+        const currentSlot = this._createMergedSlot(lastTime, event.time, activeRegularSlots, activeOverrideSlots);
+        if (currentSlot) {
+          mergedSlots.push(currentSlot);
+        }
+      }
+      
+      // Update active slots based on event
+      if (event.type === 'start') {
+        if (event.isOverride) {
+          activeOverrideSlots.push(event.slot);
+        } else {
+          activeRegularSlots.push(event.slot);
+        }
+      } else { // end
+        if (event.isOverride) {
+          activeOverrideSlots = activeOverrideSlots.filter(s => s !== event.slot);
+        } else {
+          activeRegularSlots = activeRegularSlots.filter(s => s !== event.slot);
+        }
+      }
+      
+      lastTime = event.time;
+    }
+    
+    return mergedSlots;
+  }
+
+  /**
+   * Create a merged slot from active regular and override slots
+   * @private
+   * @param {number} startMinutes - Start time in minutes
+   * @param {number} endMinutes - End time in minutes
+   * @param {Array} activeRegularSlots - Active regular schedule slots
+   * @param {Array} activeOverrideSlots - Active override slots
+   * @returns {Object|null} - Merged slot object or null
+   */
+  _createMergedSlot(startMinutes, endMinutes, activeRegularSlots, activeOverrideSlots) {
+    if (startMinutes >= endMinutes) {
+      return null;
+    }
+    
+    // Override takes precedence over regular schedule
+    if (activeOverrideSlots.length > 0) {
+      const overrideSlot = activeOverrideSlots[0]; // Use first override if multiple
+      
+      // Check if there's also a regular slot that matches this time period
+      // and determine if this is actually different from the regular schedule
+      let isActuallyOverridden = true;
+      
+      if (activeRegularSlots.length > 0) {
+        const regularSlot = activeRegularSlots[0];
+        
+        // Compare activities to see if they're the same
+        const activitiesMatch = JSON.stringify(overrideSlot.activities) === 
+                                JSON.stringify(regularSlot.activities);
+        
+        // Only consider as an override if activities are different
+        if (activitiesMatch) {
+          isActuallyOverridden = false;
+        }
+      }
+      
+      return {
+        startTime: TimeUtils.minutesToTimeString(startMinutes),
+        endTime: TimeUtils.minutesToTimeString(endMinutes),
+        activities: overrideSlot.activities,
+        notes: overrideSlot.notes,
+        access: overrideSlot.access,
+        isOverride: isActuallyOverridden,
+        overrideReason: isActuallyOverridden ? overrideSlot.overrideReason : null
+      };
+    } else if (activeRegularSlots.length > 0) {
+      const regularSlot = activeRegularSlots[0]; // Use first regular if multiple
+      return {
+        startTime: TimeUtils.minutesToTimeString(startMinutes),
+        endTime: TimeUtils.minutesToTimeString(endMinutes),
+        activities: regularSlot.activities,
+        notes: regularSlot.notes,
+        access: regularSlot.access,
+        isOverride: false
+      };
+    }
+    
+    return null;
   }
 
   /**
@@ -466,6 +694,7 @@ class Pool {
       divingBoard: this.divingBoard,
       babyPool: this.babyPool,
       hours: this.schedule.scheduleData,
+      scheduleOverrides: this.scheduleOverrides,
       restrictions: this.restrictions,
       specialEvents: this.specialEvents,
       lastUpdated: this.lastUpdated

@@ -123,7 +123,18 @@ function formatPoolHours(pool) {
       // Only style the day heading if it contains the current time slot
       const dayStyle = hasCurrentTimeSlot ? ' style="font-weight: bold; color: var(--primary-color);"' : '';
       
-      hoursDisplay += `<div class="day-schedule"><strong${dayStyle}>${day}:</strong></div>`;
+      // Add override indicator to day heading if there are overrides
+      let dayHeading = day;
+      if (daySchedule.hasOverrides) {
+        dayHeading += ' ⚠️';
+      }
+      
+      hoursDisplay += `<div class="day-schedule"><strong${dayStyle}>${dayHeading}:</strong></div>`;
+      
+      // Show override reason if there are overrides for this day
+      if (daySchedule.hasOverrides && daySchedule.overrideReason) {
+        hoursDisplay += `<div class="override-notice" style="margin-left: 1rem; margin-bottom: 0.2rem;">📋 Special Schedule: ${daySchedule.overrideReason}</div>`;
+      }
       
       daySchedule.timeSlots.forEach(slot => {
         let typesText = slot.activities ? ` ${TimeUtils.formatActivityTypes(slot.activities)}` : '';
@@ -133,10 +144,23 @@ function formatPoolHours(pool) {
           typesText = typesText.replace('Closed to Public', '<span class="closed-to-public">Closed to Public</span>');
         }
         
-        const notesText = slot.notes ? ` - ${slot.notes}` : '';
+        // Add override styling if this is an override slot, but don't add extra margin for alignment
+        let slotClass = 'time-slot';
+        let slotStyle = 'margin-left: 1rem; margin-bottom: 0.2rem;';
+        if (slot.isOverride) {
+          slotClass += ' override-slot';
+          // Override slots get the same indentation as regular slots for proper time alignment
+        }
+        
+        const notesText = slot.notes ? ` ${slot.notes}` : '';
         const timeRange = `${slot.startTime}-${slot.endTime}`;
         const timeHtml = formatTimeRangeSpans(timeRange, isCurrentDay, null, poolStatus);
-        hoursDisplay += `<div class="time-slot">${timeHtml}${typesText}${notesText}</div>`;
+        
+        if (slot.isOverride) {
+          hoursDisplay += `<div class="${slotClass}" style="${slotStyle}">${timeHtml}<b>${notesText}</b></div>`;
+        } else {
+          hoursDisplay += `<div class="${slotClass}" style="${slotStyle}">${timeHtml}${typesText}${notesText}</div>`;
+        }
       });
     }
   });

@@ -49,6 +49,35 @@ class TimeUtils {
   }
 
   /**
+   * Converts minutes since midnight to time string format (e.g., "6:00am", "10:30pm")
+   * @param {number} minutes - Minutes since midnight
+   * @returns {string} - Time string in format "H:MMam/pm"
+   */
+  static minutesToTimeString(minutes) {
+    if (minutes < 0 || minutes >= 1440) { // 1440 minutes in a day
+      return '12:00am'; // Default fallback
+    }
+    
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    
+    let displayHours = hours;
+    let period = 'am';
+    
+    if (hours === 0) {
+      displayHours = 12;
+    } else if (hours === 12) {
+      period = 'pm';
+    } else if (hours > 12) {
+      displayHours = hours - 12;
+      period = 'pm';
+    }
+    
+    const minutePart = mins === 0 ? '00' : mins.toString().padStart(2, '0');
+    return `${displayHours}:${minutePart}${period}`;
+  }
+
+  /**
    * Formats activity types for display
    * @param {string|Array} types - Single type string or array of types
    * @returns {string} - Formatted types string

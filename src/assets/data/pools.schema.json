@@ -52,6 +52,12 @@
                         "$ref": "#/definitions/Schedule"
                     }
                 },
+                "scheduleOverrides": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ScheduleOverride"
+                    }
+                },
                 "scheduleUrl": {
                     "$ref": "#/definitions/NonEmptyString"
                 }
@@ -94,6 +100,37 @@
                 "startDate",
                 "endDate",
                 "hours"
+            ],
+            "additionalProperties": false
+        },
+        "ScheduleOverride": {
+            "type": "object",
+            "properties": {
+                "startDate": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "endDate": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "hours": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Hours"
+                    }
+                },
+                "reason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Free form string describing the reason for the schedule override"
+                }
+            },
+            "required": [
+                "startDate",
+                "endDate",
+                "hours",
+                "reason"
             ],
             "additionalProperties": false
         },
@@ -234,6 +271,7 @@
                 "CNSL Practice Only",
                 "Laps",
                 "Lessons",
+                "Pool Party",
                 "Rec Swim",
                 "Swim Meet",
                 "Wading Pool"
