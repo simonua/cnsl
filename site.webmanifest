@@ -1,6 +1,6 @@
 {
-    "name": "CNSL Pool Assistant",
-    "short_name": "CNSL Pools",
+    "name": "CA Pool & CNSL Assistant",
+    "short_name": "CA Pools",
     "icons": [
         {
             "src": "assets/favicons/android-chrome-192x192.png",

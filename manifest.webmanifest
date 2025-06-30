@@ -1,7 +1,8 @@
 {
-  "name": "CA Pool Assistant",
+  "name": "CA Pool & CNSL Assistant",
   "short_name": "CA Pools",
-  "description": "Your assistant for Columbia Association swim league pools, teams, and meets",
+  "description": "Your comprehensive guide to Columbia Association Pools & Columbia Neighborhood Swim League (CNSL) pools, teams, meet schedules, and swim team information in Columbia, Maryland. Features 23 outdoor pools, team directories, and meet schedules for the 2025 season.",
+  "keywords": "CNSL, Columbia Neighborhood Swim League, Columbia Association, swim teams, pool directory, swim meets, Columbia Maryland, CA pools, outdoor pools, swim schedule",
   "icons": [
     {
       "src": "/assets/favicons/android-chrome-192x192.png",
