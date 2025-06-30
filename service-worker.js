@@ -5,7 +5,9 @@ const CACHE_NAME = `cnsl-static-${CACHE_VERSION}`;
 // Check if running in development mode (localhost or port 9090)
 const isDevelopment = self.location.hostname === 'localhost' || 
                       self.location.hostname === '127.0.0.1' ||
-                      self.location.port === '9090';
+                      self.location.port === '9090' ||
+                      self.location.href.includes('localhost') ||
+                      self.location.href.includes('127.0.0.1');
 
 // Resources to cache
 const STATIC_RESOURCES = [
@@ -111,10 +113,26 @@ self.addEventListener("activate", event => {
 });
 
 self.addEventListener("fetch", event => {
-  // Skip cache in development mode - always fetch fresh
-  if (isDevelopment) {
+  // Check if this request is to localhost/development
+  const requestUrl = new URL(event.request.url);
+  const isLocalRequest = requestUrl.hostname === 'localhost' || 
+                         requestUrl.hostname === '127.0.0.1' ||
+                         requestUrl.port === '9090' ||
+                         requestUrl.href.includes('localhost') ||
+                         requestUrl.href.includes('127.0.0.1');
+  
+  // Skip cache in development mode or for local requests - always fetch fresh
+  if (isDevelopment || isLocalRequest) {
     event.respondWith(
-      fetch(event.request)
+      fetch(event.request, {
+        cache: 'no-store', // Force no caching
+        headers: {
+          ...event.request.headers,
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      })
         .catch(error => {
           console.error('Development fetch failed:', error);
           return new Response('Development mode - fetch failed', { status: 500 });

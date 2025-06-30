@@ -431,6 +431,9 @@ function getUserLocation() {
         const pools = poolsManager.getAllPools();
         const legacyPools = pools.map(pool => pool.toJSON());
         renderPools(legacyPools);
+        
+        // Re-handle URL parameters after re-rendering to maintain pool expansion
+        setTimeout(() => handlePoolUrlParameter(), 50);
       }
     },
     // Error callback
@@ -693,8 +696,12 @@ function handlePoolUrlParameter() {
         setTimeout(() => {
           poolCard.classList.remove('highlighted');
         }, 3000);
+      } else {
+        // If pool card not found, try again after a short delay
+        // This handles cases where rendering is still in progress
+        setTimeout(() => handlePoolUrlParameter(), 100);
       }
-    }, 100);
+    }, 150); // Increased timeout for better reliability
   }
 }
 
@@ -825,8 +832,41 @@ function handlePoolNavigationClick(event) {
     if (poolNav) {
       const datePicker = poolNav.querySelector('.week-picker');
       if (datePicker) {
+        // Position the date picker at the calendar button location
+        const buttonRect = target.getBoundingClientRect();
+        const navRect = poolNav.getBoundingClientRect();
+        
+        // Calculate position relative to the navigation container
+        const relativeLeft = buttonRect.left - navRect.left;
+        const relativeTop = buttonRect.bottom - navRect.top + 5; // 5px below button
+        
+        // Style the date picker to be visible and positioned
+        datePicker.style.position = 'absolute';
+        datePicker.style.left = relativeLeft + 'px';
+        datePicker.style.top = relativeTop + 'px';
+        datePicker.style.opacity = '1';
+        datePicker.style.pointerEvents = 'auto';
+        datePicker.style.zIndex = '1000';
+        datePicker.style.width = 'auto';
+        datePicker.style.height = 'auto';
+        datePicker.style.padding = '0.4rem 0.8rem';
+        datePicker.style.border = '1px solid var(--border-color)';
+        datePicker.classList.add('active');
+        
+        // Trigger the date picker
         datePicker.click();
         datePicker.showPicker ? datePicker.showPicker() : datePicker.focus();
+        
+        // Hide the date picker after a short delay
+        setTimeout(() => {
+          datePicker.style.opacity = '0';
+          datePicker.style.pointerEvents = 'none';
+          datePicker.style.width = '1px';
+          datePicker.style.height = '1px';
+          datePicker.style.padding = '0';
+          datePicker.style.border = 'none';
+          datePicker.classList.remove('active');
+        }, 100);
       }
     }
   }

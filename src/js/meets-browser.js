@@ -11,8 +11,9 @@ let meetsBrowserDataManager = null;
  */
 async function initializeMeetsBrowser() {
   if (!meetsBrowserDataManager) {
-    meetsBrowserDataManager = getDataManager();
+    meetsBrowserDataManager = new DataManager();
     await meetsBrowserDataManager.initialize();
+    console.log('🔧 Meet browser data manager initialized');
   }
 }
 
@@ -29,296 +30,32 @@ async function renderMeets(meets) {
   const list = document.getElementById("meetList");
   if (!list) return;
   
-  // Debug: Show what we received
-  console.log("renderMeets called with:", meets);
-  console.log("Array?", Array.isArray(meets));
-  console.log("Length:", meets?.length);
-  
-  // Safety check - ensure meets is an array
-  if (!Array.isArray(meets) || meets.length === 0) {
-    console.log("No meets to render, showing fallback");
-    list.innerHTML = "<p>No meet information available.</p>";
-    return;
-  }
-
-  // Get weather forecasts for upcoming meets if data manager is available
-  let meetsWithWeather = meets;
-  if (meetsBrowserDataManager && typeof WeatherService !== 'undefined') {
-    try {
-      console.log('🌦️ Weather service available, initializing...');
-      WeatherService.initialize();
-      const poolsManager = meetsBrowserDataManager.getPools();
-      console.log('🌦️ Getting weather forecasts for', meets.length, 'meets');
-      meetsWithWeather = await WeatherService.getForecastsForUpcomingMeets(meets, poolsManager);
-      console.log('🌦️ Weather forecasts retrieved for', meetsWithWeather.filter(m => m.weather).length, 'meets');
-    } catch (error) {
-      console.warn('Weather service unavailable:', error);
-      meetsWithWeather = meets;
-    }
-  } else {
-    console.log('🌦️ Weather service not available or data manager not ready');
-  }
-
-  // Get current date for highlighting upcoming meets (using Eastern Time)
-  const now = new Date();
-  // Get Eastern Time properly
-  const easternTimeString = now.toLocaleDateString("en-US", {timeZone: "America/New_York"});
-  const easternTimeDate = new Date(easternTimeString);
-  const today = new Date(easternTimeDate.getFullYear(), easternTimeDate.getMonth(), easternTimeDate.getDate());
-  
-  console.log('🗓️ Date debugging:', {
-    localTime: now.toLocaleString(),
-    easternTimeString,
-    easternTimeDate: easternTimeDate.toDateString(),
-    today: today.toDateString()
-  });
-  
-  // Sort meets by date
-  const sortedMeets = [...meetsWithWeather].sort((a, b) => {
-    // Assume meet.date is a string in a format that can be converted to Date
-    const dateA = a.date ? new Date(a.date + 'T12:00:00') : new Date(0);
-    const dateB = b.date ? new Date(b.date + 'T12:00:00') : new Date(0);
-    return dateA - dateB;
-  });
-
-  // Group meets by month/date
-  const meetsByDate = {};
-  sortedMeets.forEach(meet => {
-    if (!meet.date) return;
-    
-    const meetDate = new Date(meet.date + 'T12:00:00');
-    const dateKey = meetDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
-    
-    if (!meetsByDate[dateKey]) {
-      meetsByDate[dateKey] = [];
-    }
-    meetsByDate[dateKey].push(meet);
-  });
-
-  // Generate HTML for meets grouped by date
-  let html = '';
-  
-  Object.keys(meetsByDate).forEach(dateKey => {
-    const meetDate = new Date(meetsByDate[dateKey][0].date + 'T12:00:00');
-    const isUpcoming = meetDate >= today;
-    const isToday = meetDate.toDateString() === today.toDateString();
-    const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
-    const isTomorrow = meetDate.toDateString() === tomorrow.toDateString();
-    
-    console.log('📅 Date comparison for', dateKey, {
-      meetDate: meetDate.toDateString(),
-      today: today.toDateString(),
-      tomorrow: tomorrow.toDateString(),
-      isToday,
-      isTomorrow
-    });
-    
-    // Determine status for the date group
-    let statusClass = 'upcoming';
-    let statusText = 'Upcoming';
-    
-    if (isToday) {
-      statusClass = 'today';
-      statusText = 'Today';
-    } else if (isTomorrow) {
-      statusClass = 'tomorrow';
-      statusText = 'Tomorrow';
-    } else if (!isUpcoming) {
-      statusClass = 'past';
-      statusText = 'Past';
-    }
-    
-    // Get the meet name from the first meet on this date
-    const meetName = meetsByDate[dateKey][0].name || '';
-    
-    html += `
-      <div class="meet-date-card collapsed">
-        <div class="meet-date-header" onclick="toggleMeetDate(this)">
-          <div class="date-and-name">
-            <h3>${dateKey}</h3>
-            ${meetName ? `<span class="meet-name-header">${meetName}</span>` : ''}
-          </div>
-          <span class="meet-status-indicator ${statusClass}"></span>
-        </div>
-        <div class="meet-date-details">
-    `;
-    
-    meetsByDate[dateKey].forEach(meet => {
-      const location = meet.location || 'TBA';
-      // Use standard meet time of 8:00-noon for regular meets
-      const time = meet.time || ('8:00 AM - 12:00 PM');
-      let meetContent = '';
-      
-      // Check if meet is today, tomorrow, or upcoming (using Eastern Time)
-      const meetDate = new Date(meet.date + 'T12:00:00');
-      const isToday = meetDate.toDateString() === today.toDateString();
-      const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
-      const isTomorrow = meetDate.toDateString() === tomorrow.toDateString();
-      const isUpcoming = meetDate >= today;
-      
-      console.log('🎯 Individual meet check for', meet.date, {
-        meetDate: meetDate.toDateString(),
-        today: today.toDateString(),
-        tomorrow: tomorrow.toDateString(),
-        isToday,
-        isTomorrow,
-        isUpcoming
-      });
-      
-      // Add appropriate CSS classes based on date
-      let meetClasses = "meet-item";
-      if (isToday) {
-        meetClasses += " meet-today";
-      } else if (isUpcoming) {
-        meetClasses += " meet-upcoming";
-      } else {
-        meetClasses += " meet-past";
-      }
-      
-      // Generate enhanced location link that links to pools.html page
-      const poolsPageLink = generateEnhancedPoolLink(location, meetsBrowserDataManager, {
-        preferPoolsPage: true,
-        showBothLinks: false
-      });
-      
-      // Also get maps link for the maps icon
-      const poolData = getPoolDataFromLocation(location, meetsBrowserDataManager);
-      let mapsIcon = '';
-      if (poolData && poolData.location && poolData.location.googleMapsUrl) {
-        mapsIcon = ` <a href="${poolData.location.googleMapsUrl}" target="_blank" rel="noopener" class="maps-icon" title="View on Google Maps">🗺️</a>`;
-      }
-      
-      const locationLink = poolsPageLink + mapsIcon;
-      
-      // Generate weather information for upcoming meets
-      let weatherInfo = '';
-      if (meet.weather && isUpcoming) {
-        weatherInfo = generateWeatherDisplay(meet.weather);
-      }
-      
-      // Check if this is a meet involving Long Reach Marlins that has occurred or is happening today
-      const isLongReachMeet = (meet.visiting_team && meet.visiting_team.includes('Long Reach')) || 
-                              (meet.home_team && meet.home_team.includes('Long Reach'));
-      // Compare dates only, not times - meets on today's date should show results
-      const meetDateOnly = new Date(meetDate.getFullYear(), meetDate.getMonth(), meetDate.getDate());
-      const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-      const isTodayOrPast = meetDateOnly <= todayOnly;
-      const showResultsLink = isLongReachMeet && isTodayOrPast;
-      
-      // Check if it's a special meet (has name property) or regular meet
-      if (meet.name && !meet.home_team && !meet.visiting_team) {
-        // Special meet format (only special meets without teams)
-        meetClasses += " special-meet";
-        meetContent = `
-          <div class="${meetClasses}">
-            <div class="meet-name">${meet.name}</div>
-            <div class="meet-details">
-              <div class="meet-location-row">
-                <span class="meet-location">${locationLink}</span>
-                ${showResultsLink ? '<a href="https://meetresults.longreachmarlins.org" target="_blank" rel="noopener" class="results-link" title="View Meet Results">🏆</a>' : ''}
-              </div>
-              <div class="meet-time-row">
-                <span class="meet-time">${time}</span>
-              </div>
-            </div>
-            ${weatherInfo}
-            ${isToday ? '<span class="today-tag">TODAY</span>' : isTomorrow ? '<span class="tomorrow-tag">TOMORROW</span>' : ''}
-          </div>
-        `;
-      } else {
-        // Regular meet format (show teams)
-        const homeTeam = meet.home_team || 'TBA';
-        const visitingTeam = meet.visiting_team || 'TBA';
-        
-        meetContent = `
-          <div class="${meetClasses}">
-            <div class="meet-teams">${homeTeam} vs. ${visitingTeam}</div>
-            <div class="meet-details">
-              <div class="meet-location-row">
-                <span class="meet-location">${locationLink}</span>
-                ${showResultsLink ? '<a href="https://meetresults.longreachmarlins.org" target="_blank" rel="noopener" class="results-link" title="View Meet Results">🏆</a>' : ''}
-              </div>
-              <div class="meet-time-row">
-                <span class="meet-time">${time}</span>
-              </div>
-            </div>
-            ${weatherInfo}
-            ${isToday ? '<span class="today-tag">TODAY</span>' : isTomorrow ? '<span class="tomorrow-tag">TOMORROW</span>' : ''}
-          </div>
-        `;
-      }
-      
-      html += meetContent;
-    });
-    
-    html += `
-        </div>
-      </div>
-    `;
-  });
-
-  // If no meets have valid dates
-  if (html === '') {
-    html = "<p>No scheduled meets found.</p>";
-  }
-
-  list.innerHTML = html;
-}
-
-/**
- * Toggles the collapsed state of a meet date card
- * @param {Element} headerElement - The clicked header element
- */
-function toggleMeetDate(headerElement) {
-  const meetCard = headerElement.closest('.meet-date-card');
-  meetCard.classList.toggle('collapsed');
-}
-
-async function renderMeets(meets) {
-  const list = document.getElementById("meetList");
-  if (!list) return;
-  
   // Safety check - ensure meets is an array
   if (!Array.isArray(meets) || meets.length === 0) {
     list.innerHTML = "<p>No meet information available.</p>";
     return;
   }
 
-  // Get weather forecasts for upcoming meets if data manager is available
-  let meetsWithWeather = meets;
-  if (typeof WeatherService !== 'undefined') {
-    try {
-      console.log('🌦️ Weather service available, initializing...');
-      WeatherService.initialize();
-      console.log('🌦️ Getting weather forecasts for', meets.length, 'meets');
-      // For now, skip weather integration to keep it simple
-      // meetsWithWeather = await WeatherService.getForecastsForUpcomingMeets(meets, poolsManager);
-    } catch (error) {
-      console.warn('Weather service unavailable:', error);
-      meetsWithWeather = meets;
-    }
-  }
+  // Initialize data manager for pool links
+  await initializeMeetsBrowser();
 
-  // Get current date for highlighting upcoming meets (using Eastern Time)
-  const now = new Date();
-  const easternTimeString = now.toLocaleDateString("en-US", {timeZone: "America/New_York"});
-  const easternTimeDate = new Date(easternTimeString);
-  const today = new Date(easternTimeDate.getFullYear(), easternTimeDate.getMonth(), easternTimeDate.getDate());
+  // Get current date for highlighting upcoming meets - simplified approach
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Normalize to start of day
   
   // Sort meets by date
-  const sortedMeets = [...meetsWithWeather].sort((a, b) => {
-    const dateA = a.date ? new Date(a.date + 'T12:00:00') : new Date(0);
-    const dateB = b.date ? new Date(b.date + 'T12:00:00') : new Date(0);
+  const sortedMeets = [...meets].sort((a, b) => {
+    const dateA = a.date ? new Date(a.date) : new Date(0);
+    const dateB = b.date ? new Date(b.date) : new Date(0);
     return dateA - dateB;
   });
 
-  // Group meets by month/date
+  // Group meets by date with full date format for better organization
   const meetsByDate = {};
   sortedMeets.forEach(meet => {
     if (!meet.date) return;
     
-    const meetDate = new Date(meet.date + 'T12:00:00');
-    // Use full date format to avoid conflicts and better sorting
+    const meetDate = new Date(meet.date);
     const dateKey = meetDate.toLocaleDateString('en-US', { 
       weekday: 'long',
       month: 'long', 
@@ -332,14 +69,11 @@ async function renderMeets(meets) {
     meetsByDate[dateKey].push(meet);
   });
 
-  console.log('📅 Total meets to process:', sortedMeets.length);
-  console.log('📅 Grouped meets by date:', Object.keys(meetsByDate));
-
   // Find the next upcoming meet date to expand
   let nextUpcomingDateKey = null;
   const dateKeys = Object.keys(meetsByDate);
   for (const dateKey of dateKeys) {
-    const meetDate = new Date(meetsByDate[dateKey][0].date + 'T12:00:00');
+    const meetDate = new Date(meetsByDate[dateKey][0].date);
     if (meetDate >= today) {
       nextUpcomingDateKey = dateKey;
       break;
@@ -350,7 +84,7 @@ async function renderMeets(meets) {
   let html = '';
   
   Object.keys(meetsByDate).forEach(dateKey => {
-    const meetDate = new Date(meetsByDate[dateKey][0].date + 'T12:00:00');
+    const meetDate = new Date(meetsByDate[dateKey][0].date);
     const isUpcoming = meetDate >= today;
     const isToday = meetDate.toDateString() === today.toDateString();
     const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
@@ -362,17 +96,13 @@ async function renderMeets(meets) {
     
     // Determine status for the date group
     let statusClass = 'upcoming';
-    let statusText = 'Upcoming';
     
     if (isToday) {
       statusClass = 'today';
-      statusText = 'Today';
     } else if (isTomorrow) {
       statusClass = 'tomorrow';
-      statusText = 'Tomorrow';
     } else if (!isUpcoming) {
       statusClass = 'past';
-      statusText = 'Past';
     }
 
     // Get the meet name from the first meet on this date
@@ -396,17 +126,32 @@ async function renderMeets(meets) {
     meetsByDate[dateKey].forEach(meet => {
       const location = meet.location || 'TBA';
       const time = meet.time || ('8:00 AM - 12:00 PM');
-      let meetContent = '';
       
-      // Check if meet is today, tomorrow, or upcoming (using Eastern Time)
-      const meetDate = new Date(meet.date + 'T12:00:00');
-      const isToday = meetDate.toDateString() === today.toDateString();
-      const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
-      const isTomorrow = meetDate.toDateString() === tomorrow.toDateString();
-      const isUpcoming = meetDate >= today;
-
+      // Generate enhanced location link that links to pools.html page
+      let locationLink = location;
+      if (meetsBrowserDataManager && typeof generateEnhancedPoolLink === 'function') {
+        try {
+          locationLink = generateEnhancedPoolLink(location, meetsBrowserDataManager, {
+            preferPoolsPage: true,
+            showBothLinks: false
+          });
+          
+          // Add maps link for the maps icon
+          if (typeof getPoolDataFromLocation === 'function') {
+            const poolData = getPoolDataFromLocation(location, meetsBrowserDataManager);
+            if (poolData && poolData.location && poolData.location.googleMapsUrl) {
+              locationLink += ` <a href="${poolData.location.googleMapsUrl}" target="_blank" rel="noopener" class="maps-icon" title="View on Google Maps">🗺️</a>`;
+            }
+          }
+        } catch (error) {
+          console.warn('Error generating pool link for', location, ':', error);
+          locationLink = location; // Fall back to plain text
+        }
+      }
+      
+      // Generate weather information for upcoming meets
       let weatherInfo = '';
-      if (meet.weather && meet.weather.forecast) {
+      if (meet.weather && meet.weather.forecast && isUpcoming) {
         const forecast = meet.weather.forecast;
         weatherInfo = `
           <div class="weather-info">
@@ -422,12 +167,12 @@ async function renderMeets(meets) {
       // Check if this is a meet involving Long Reach Marlins that has occurred or is happening today
       const isLongReachMeet = (meet.visiting_team && meet.visiting_team.includes('Long Reach')) || 
                               (meet.home_team && meet.home_team.includes('Long Reach'));
-      // Compare dates only, not times - meets on today's date should show results
       const meetDateOnly = new Date(meetDate.getFullYear(), meetDate.getMonth(), meetDate.getDate());
       const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
       const isTodayOrPast = meetDateOnly <= todayOnly;
       const showResultsLink = isLongReachMeet && isTodayOrPast;
       
+      let meetContent = '';
       if (isSpecialMeet) {
         meetContent = `
           <div class="meet-details special-meet">
@@ -437,7 +182,7 @@ async function renderMeets(meets) {
               </div>
               <div class="meet-location-time">
                 <div class="meet-location-row">
-                  <span class="meet-location">${location}</span>
+                  <span class="meet-location">${locationLink}</span>
                   ${showResultsLink ? '<a href="https://meetresults.longreachmarlins.org" target="_blank" rel="noopener" class="results-link" title="View Meet Results">🏆</a>' : ''}
                 </div>
                 <div class="meet-time-row">
@@ -459,7 +204,7 @@ async function renderMeets(meets) {
               </div>
               <div class="meet-location-time">
                 <div class="meet-location-row">
-                  <span class="meet-location">${location}</span>
+                  <span class="meet-location">${locationLink}</span>
                   ${showResultsLink ? '<a href="https://meetresults.longreachmarlins.org" target="_blank" rel="noopener" class="results-link" title="View Meet Results">🏆</a>' : ''}
                 </div>
                 <div class="meet-time-row">
@@ -508,10 +253,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   const meetList = document.getElementById("meetList");
   
   try {
-    console.log("Loading meets data...");
-    
     // Load meets data directly - simple approach that works
     const response = await fetch('assets/data/meets.json');
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
     const data = await response.json();
     
     let allMeets = [];
@@ -522,9 +269,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       allMeets = [...allMeets, ...data.special_meets];
     }
     
-    console.log(`Found ${allMeets.length} meets`);
-    
-    // Use the original sophisticated rendering
+    // Use the sophisticated rendering with pool links
     await renderMeets(allMeets);
     
   } catch (error) {

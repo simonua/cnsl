@@ -1136,6 +1136,7 @@ button[aria-label*="Voice"]:active {
   padding: 0.75rem;
   margin: 0.5rem 0 1rem 0;
   border: 1px solid var(--border-color);
+  position: relative; /* Add relative positioning for absolute child positioning */
 }
 
 .week-controls-row {
@@ -1151,6 +1152,7 @@ button[aria-label*="Voice"]:active {
   align-items: center;
   gap: 0.5rem;
   flex-shrink: 0;
+  position: relative; /* Add relative positioning for calendar picker */
 }
 
 .week-display {
@@ -1192,6 +1194,48 @@ button[aria-label*="Voice"]:active {
   display: none;
 }
 
+/* Position the hidden date picker near the calendar button */
+.week-picker {
+  padding: 0.4rem 0.8rem 0.4rem 2.2rem;
+  font-size: 0.9rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--white);
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: var(--transition);
+  min-width: 140px;
+  /* Position will be set dynamically by JavaScript */
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  /* Make it very small when hidden to avoid affecting layout */
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: none;
+  margin: 0;
+}
+
+/* When date picker is active/visible */
+.week-picker.active {
+  width: auto;
+  height: auto;
+  padding: 0.4rem 0.8rem 0.4rem 2.2rem;
+  border: 1px solid var(--border-color);
+  margin: 0;
+}
+
+.week-picker:hover,
+.week-picker:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.1);
+}
+
 /* Legacy date picker styles - keep for compatibility */
 .date-picker-container {
   display: flex;
@@ -1213,25 +1257,6 @@ button[aria-label*="Voice"]:active {
   z-index: 1;
   pointer-events: none;
   color: var(--text-dark);
-}
-
-.week-picker {
-  padding: 0.4rem 0.8rem 0.4rem 2.2rem;
-  font-size: 0.9rem;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  background: var(--white);
-  color: var(--text-dark);
-  cursor: pointer;
-  transition: var(--transition);
-  min-width: 140px;
-}
-
-.week-picker:hover,
-.week-picker:focus {
-  border-color: var(--primary-color);
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.1);
 }
 
 .nav-btn {
@@ -1287,6 +1312,16 @@ button[aria-label*="Voice"]:active {
   .calendar-btn {
     font-size: 1rem;
     padding: 0.35rem 0.5rem;
+  }
+  
+  /* Adjust date picker positioning for mobile */
+  .week-picker {
+    position: relative;
+    top: auto;
+    right: auto;
+    opacity: 1;
+    pointer-events: auto;
+    margin-top: 0.5rem;
   }
 }
 

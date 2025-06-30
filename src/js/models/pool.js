@@ -454,6 +454,9 @@ class Pool {
     const regularSlotsWithMinutes = regularSlots.map(convertSlot);
     const overrideSlotsWithMinutes = overrideSlots.map(convertSlot);
     
+    // Group override slots by activity type to consolidate consecutive same-activity overrides
+    const groupedOverrides = this._groupConsecutiveOverrideSlots(overrideSlotsWithMinutes);
+    
     // Create a timeline of all time periods
     const timelineEvents = [];
     
@@ -463,14 +466,20 @@ class Pool {
       timelineEvents.push({ time: slot.endMinutes, type: 'end', slot, isOverride: false });
     });
     
-    // Add override slots
-    overrideSlotsWithMinutes.forEach(slot => {
+    // Add grouped override slots
+    groupedOverrides.forEach(slot => {
       timelineEvents.push({ time: slot.startMinutes, type: 'start', slot, isOverride: true });
       timelineEvents.push({ time: slot.endMinutes, type: 'end', slot, isOverride: true });
     });
     
-    // Sort timeline events by time
-    timelineEvents.sort((a, b) => a.time - b.time);
+    // Sort timeline events by time, with start events before end events at the same time
+    timelineEvents.sort((a, b) => {
+      if (a.time !== b.time) return a.time - b.time;
+      // At same time: start events before end events
+      if (a.type !== b.type) return a.type === 'start' ? -1 : 1;
+      // At same time and type: overrides before regular
+      return a.isOverride === b.isOverride ? 0 : (a.isOverride ? -1 : 1);
+    });
     
     // Process timeline to create merged slots
     let activeRegularSlots = [];
@@ -510,6 +519,47 @@ class Pool {
   }
 
   /**
+   * Group consecutive override slots with the same activities into single slots
+   * @private
+   * @param {Array} overrideSlots - Array of override slots with minutes
+   * @returns {Array} - Array of grouped override slots
+   */
+  _groupConsecutiveOverrideSlots(overrideSlots) {
+    if (overrideSlots.length === 0) return [];
+    
+    // Sort by start time
+    const sortedSlots = [...overrideSlots].sort((a, b) => a.startMinutes - b.startMinutes);
+    const groupedSlots = [];
+    let currentGroup = { ...sortedSlots[0] };
+    
+    for (let i = 1; i < sortedSlots.length; i++) {
+      const slot = sortedSlots[i];
+      
+      // Check if this slot is consecutive and has the same activities as current group
+      const isConsecutive = currentGroup.endMinutes === slot.startMinutes;
+      const sameActivities = JSON.stringify(currentGroup.activities) === JSON.stringify(slot.activities);
+      const sameReason = currentGroup.overrideReason === slot.overrideReason;
+      
+      // For grouping purposes, only merge if consecutive AND same activities
+      // Different activities (even with same reason) should remain separate
+      if (isConsecutive && sameActivities && sameReason) {
+        // Extend the current group
+        currentGroup.endMinutes = slot.endMinutes;
+        currentGroup.endTime = slot.endTime;
+      } else {
+        // Start a new group
+        groupedSlots.push(currentGroup);
+        currentGroup = { ...slot };
+      }
+    }
+    
+    // Add the final group
+    groupedSlots.push(currentGroup);
+    
+    return groupedSlots;
+  }
+
+  /**
    * Create a merged slot from active regular and override slots
    * @private
    * @param {number} startMinutes - Start time in minutes
@@ -527,31 +577,46 @@ class Pool {
     if (activeOverrideSlots.length > 0) {
       const overrideSlot = activeOverrideSlots[0]; // Use first override if multiple
       
-      // Check if there's also a regular slot that matches this time period
-      // and determine if this is actually different from the regular schedule
-      let isActuallyOverridden = true;
+      // Determine if this is truly an override (different activities) or just schedule modification
+      let isActualOverride = true;
+      let shouldShowAsOverride = true;
       
       if (activeRegularSlots.length > 0) {
         const regularSlot = activeRegularSlots[0];
         
         // Compare activities to see if they're the same
-        const activitiesMatch = JSON.stringify(overrideSlot.activities) === 
-                                JSON.stringify(regularSlot.activities);
+        const activitiesMatch = this._activitiesMatch(overrideSlot.activities, regularSlot.activities);
         
-        // Only consider as an override if activities are different
         if (activitiesMatch) {
-          isActuallyOverridden = false;
+          // Same activities - this is likely a schedule modification (e.g., different hours)
+          // rather than a special event override
+          isActualOverride = false;
+          shouldShowAsOverride = false;
+        } else {
+          // Different activities - this is a true override (e.g., swim meet vs rec swim)
+          isActualOverride = true;
+          shouldShowAsOverride = true;
         }
+      } else {
+        // Override with no regular slot - check if activities suggest special event
+        const specialEventActivities = ['Swim Meet', 'Pool Party', 'Maintenance', 'Private Event', 'Competition'];
+        const hasSpecialActivity = overrideSlot.activities.some(activity => 
+          specialEventActivities.some(special => activity.includes(special))
+        );
+        
+        // Only mark as override if it's clearly a special event
+        isActualOverride = hasSpecialActivity;
+        shouldShowAsOverride = hasSpecialActivity;
       }
       
       return {
         startTime: TimeUtils.minutesToTimeString(startMinutes),
         endTime: TimeUtils.minutesToTimeString(endMinutes),
         activities: overrideSlot.activities,
-        notes: overrideSlot.notes,
+        notes: shouldShowAsOverride ? overrideSlot.notes : (overrideSlot.notes || ''),
         access: overrideSlot.access,
-        isOverride: isActuallyOverridden,
-        overrideReason: isActuallyOverridden ? overrideSlot.overrideReason : null
+        isOverride: shouldShowAsOverride,
+        overrideReason: shouldShowAsOverride ? overrideSlot.overrideReason : null
       };
     } else if (activeRegularSlots.length > 0) {
       const regularSlot = activeRegularSlots[0]; // Use first regular if multiple
@@ -566,6 +631,25 @@ class Pool {
     }
     
     return null;
+  }
+
+  /**
+   * Compare two activity arrays to see if they represent the same activities
+   * @private
+   * @param {Array} activities1 - First activity array
+   * @param {Array} activities2 - Second activity array
+   * @returns {boolean} - True if activities match
+   */
+  _activitiesMatch(activities1, activities2) {
+    if (!activities1 || !activities2) {
+      return false;
+    }
+    
+    // Sort and compare arrays
+    const sorted1 = [...activities1].sort();
+    const sorted2 = [...activities2].sort();
+    
+    return JSON.stringify(sorted1) === JSON.stringify(sorted2);
   }
 
   /**
