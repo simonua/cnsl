@@ -186,6 +186,12 @@ class Pool {
     if (this.legacySchedules) {
       return this._getLegacyStatus();
     }
+    
+    // Check if new format pool has no schedule data
+    if (!this.schedule || !this.schedule.hasScheduleData()) {
+      return PoolStatus.SCHEDULE_NOT_FOUND;
+    }
+    
     return this.schedule.getCurrentStatus();
   }
 
@@ -195,6 +201,11 @@ class Pool {
    * @returns {PoolStatus} - Pool status from legacy data
    */
   _getLegacyStatus() {
+    // Check if pool has no schedule data at all
+    if (!this.legacySchedules || !Array.isArray(this.legacySchedules) || this.legacySchedules.length === 0) {
+      return PoolStatus.SCHEDULE_NOT_FOUND;
+    }
+
     const easternTimeInfo = TimeUtils.getCurrentEasternTimeInfo();
     const currentDate = easternTimeInfo.date;
     const currentDay = easternTimeInfo.day.substring(0, 3); // Get short day name (Mon, Tue, etc.)
@@ -273,19 +284,24 @@ class Pool {
   }
 
   /**
-   * Get week schedule from legacy format with schedule overrides applied
-   * @private
+   * Get all week schedule with status for a specific week (enhanced for legacy format)
+   * @param {Date} weekStartDate - The Monday of the week to get the schedule for
    * @returns {Array} - Array of day objects with time slots
    */
-  _getLegacyWeekSchedule() {
-    const easternTimeInfo = TimeUtils.getCurrentEasternTimeInfo();
-    const currentDate = easternTimeInfo.date;
-    
-    // Find active schedule
-    const activeSchedule = this.legacySchedules.find(schedule => {
-      return currentDate >= schedule.startDate && currentDate <= schedule.endDate;
-    });
-    
+  getWeekScheduleForDate(weekStartDate) {
+    if (this.legacySchedules) {
+      return this._getLegacyWeekScheduleForDate(weekStartDate);
+    }
+    return this.schedule.getAllDaysStatus();
+  }
+
+  /**
+   * Get week schedule from legacy format for a specific week
+   * @private
+   * @param {Date} weekStartDate - The Monday of the week to get the schedule for
+   * @returns {Array} - Array of day objects with time slots
+   */
+  _getLegacyWeekScheduleForDate(weekStartDate) {
     const dayOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     const fullDayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     
@@ -299,14 +315,15 @@ class Pool {
         overrideReason: null
       };
       
-      // Get the date for this day of the current week
-      const today = new Date();
-      const currentDayIndex = today.getDay() === 0 ? 6 : today.getDay() - 1; // Convert Sunday=0 to index 6
-      const targetDayIndex = index;
-      const daysOffset = targetDayIndex - currentDayIndex;
-      const targetDate = new Date(today);
-      targetDate.setDate(today.getDate() + daysOffset);
+      // Calculate the specific date for this day of the week
+      const targetDate = new Date(weekStartDate);
+      targetDate.setDate(weekStartDate.getDate() + index);
       const targetDateString = targetDate.toISOString().split('T')[0];
+      
+      // Find active schedule for this specific date
+      const activeSchedule = this.legacySchedules.find(schedule => {
+        return targetDateString >= schedule.startDate && targetDateString <= schedule.endDate;
+      });
       
       // Check for schedule overrides for this specific date
       const overrideForDate = this._getScheduleOverrideForDate(targetDateString, shortDay);
@@ -739,5 +756,28 @@ class Pool {
     }
     
     return null;
+  }
+
+  /**
+   * Get the valid date range for this pool (first and last dates with schedules)
+   * @returns {Object|null} - Object with {startDate, endDate} or null if no schedules
+   */
+  getValidDateRange() {
+    if (!this.legacySchedules || !Array.isArray(this.legacySchedules) || this.legacySchedules.length === 0) {
+      return null;
+    }
+    
+    const allDates = this.legacySchedules.map(schedule => ({
+      start: new Date(schedule.startDate),
+      end: new Date(schedule.endDate)
+    }));
+    
+    const minDate = new Date(Math.min(...allDates.map(d => d.start.getTime())));
+    const maxDate = new Date(Math.max(...allDates.map(d => d.end.getTime())));
+    
+    return {
+      startDate: minDate,
+      endDate: maxDate
+    };
   }
 }

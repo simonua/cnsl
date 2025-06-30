@@ -17,17 +17,15 @@ async function initializeTeamsBrowser() {
 }
 
 /**
- * Find pool by name from data manager
+ * Find pool by name from data manager (using pool link helper)
  * @param {string} poolName - Name of the pool to find
  * @returns {Object|null} - Pool object or null if not found
  */
 function findPoolByName(poolName) {
   if (!poolName || !teamsBrowserDataManager) return null;
   
-  const poolsManager = teamsBrowserDataManager.getPools();
-  const pool = poolsManager.getPool(poolName);
-  
-  return pool ? pool.toJSON() : null;
+  // Use the pool link helper to get pool data
+  return getPoolDataFromLocation(poolName, teamsBrowserDataManager);
 }
 
 /**
@@ -54,25 +52,19 @@ function getCurrentPracticeSchedule(practice) {
 }
 
 /**
- * Get enhanced pool link using pools data manager
+ * Get enhanced pool link using new pool link helper
  * @param {string} location - Pool location name
- * @param {string} fallbackAddress - Fallback address if pool not found
+ * @param {string} fallbackAddress - Fallback address if pool not found (unused now)
  * @returns {string} - HTML link to pools.html page with pool data
  */
 function getEnhancedPoolLink(location, fallbackAddress) {
   if (!location) return '';
   
-  // Try to find pool data from pools manager
-  const poolData = findPoolByName(location);
-  
-  if (poolData && poolData.id) {
-    // Create link to pools.html page with pool ID parameter
-    const poolUrl = `pools.html?pool=${encodeURIComponent(poolData.id)}`;
-    return `<a href="${poolUrl}" class="location-link pool-link">${location}</a>`;
-  }
-  
-  // Fallback to pools.html page without specific pool parameter
-  return `<a href="pools.html" class="location-link">${location}</a>`;
+  // Use the new pool link helper
+  return generateEnhancedPoolLink(location, teamsBrowserDataManager, {
+    preferPoolsPage: true,
+    showBothLinks: false
+  });
 }
 
 /**

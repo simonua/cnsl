@@ -2,6 +2,66 @@
 let poolBrowserDataManager = null;
 let userCoords = null;
 
+// Pool-specific week states (poolId -> Date)
+const poolWeekStates = new Map();
+
+// ------------------------------
+//    UTILITY FUNCTIONS
+// ------------------------------
+
+/**
+ * Get the Monday of the week for a given date
+ * @param {Date} date - Any date in the week
+ * @returns {Date} - The Monday of that week
+ */
+function getMondayOfWeek(date) {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+  return new Date(d.setDate(diff));
+}
+
+/**
+ * Get or initialize the week start for a specific pool
+ * @param {string} poolId - Pool identifier
+ * @returns {Date} - Week start date for this pool
+ */
+function getPoolWeekStart(poolId) {
+  if (!poolWeekStates.has(poolId)) {
+    poolWeekStates.set(poolId, getMondayOfWeek(new Date()));
+  }
+  return poolWeekStates.get(poolId);
+}
+
+/**
+ * Set the week start for a specific pool
+ * @param {string} poolId - Pool identifier
+ * @param {Date} weekStart - New week start date
+ */
+function setPoolWeekStart(poolId, weekStart) {
+  poolWeekStates.set(poolId, weekStart);
+}
+
+/**
+ * Get tooltip text for pool status
+ * @param {string} color - Status color (green, red, yellow, gray)
+ * @returns {string} - Tooltip text
+ */
+function getStatusTooltip(color) {
+  switch (color) {
+    case 'green':
+      return 'Open for public use';
+    case 'red':
+      return 'Currently closed';
+    case 'yellow':
+      return 'Special schedule or restrictions';
+    case 'gray':
+      return 'Schedule not available';
+    default:
+      return 'Status unknown';
+  }
+}
+
 
 // ------------------------------
 //    INITIALIZATION
@@ -14,6 +74,56 @@ async function initializePoolBrowser() {
   if (!poolBrowserDataManager) {
     poolBrowserDataManager = getDataManager();
     await poolBrowserDataManager.initialize();
+  }
+}
+
+/**
+ * Load and display season information
+ */
+async function loadSeasonInfo() {
+  try {
+    const poolData = await FileHelper.loadJsonFile('assets/data/pools.json');
+    const seasonInfo = document.getElementById('seasonInfo');
+    
+    if (seasonInfo && poolData.seasonStartDate && poolData.seasonEndDate) {
+      const startDate = new Date(poolData.seasonStartDate);
+      const endDate = new Date(poolData.seasonEndDate);
+      
+      const startDateText = startDate.toLocaleDateString('en-US', { 
+        month: 'long', 
+        day: 'numeric' 
+      });
+      const endDateText = endDate.toLocaleDateString('en-US', { 
+        month: 'long', 
+        day: 'numeric' 
+      });
+      
+      // Add CA pool directory link if available
+      let caDirectoryLinkHtml = '';
+      if (poolData.caPoolDirectoryUrl) {
+        caDirectoryLinkHtml = `
+          <p class="ca-directory-link">
+            <a href="${poolData.caPoolDirectoryUrl}" target="_blank" rel="noopener" class="directory-link">
+              📍 View Interactive CA Pool Directory
+            </a>
+          </p>
+        `;
+      }
+      
+      seasonInfo.innerHTML = `
+        <p class="season-text">
+          CA Outdoor Pool season runs from ${startDateText} to ${endDateText} 
+          <span class="season-note">(Memorial Day weekend to Labor Day weekend)</span>
+        </p>
+        ${caDirectoryLinkHtml}
+      `;
+    }
+  } catch (error) {
+    console.error('Failed to load season information:', error);
+    const seasonInfo = document.getElementById('seasonInfo');
+    if (seasonInfo) {
+      seasonInfo.innerHTML = '<p class="season-text">Season information unavailable</p>';
+    }
   }
 }
 
@@ -69,9 +179,9 @@ function isPoolOpen(pool) {
 
 
 /**
- * Formats pool schedule for display with time slot highlighting
+ * Formats pool schedule for display with individual week navigation
  * @param {Object} pool - Pool data object (legacy format)
- * @returns {string} - HTML string for displaying hours
+ * @returns {string} - HTML string for displaying hours with navigation
  */
 function formatPoolHours(pool) {
   if (!poolBrowserDataManager) {
@@ -85,38 +195,82 @@ function formatPoolHours(pool) {
 
   // Check if pool has empty schedules (TBD pools)
   if (!poolObj.legacySchedules || poolObj.legacySchedules.length === 0) {
-    return '<div class="pool-hours"><strong>🕒 Hours:</strong> <span class="status-tbd">TBD</span></div>';
+    return `<div class="pool-hours">
+      <strong>🕒 Hours:</strong> 
+      <span class="status-gray status-tooltip">
+        Schedule TBD
+        <span class="tooltip-text">Schedule not available</span>
+      </span>
+    </div>`;
   }
 
+  const poolId = pool.id || pool.name;
+  const weekStart = getPoolWeekStart(poolId);
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekStart.getDate() + 6);
+  
   const easternTimeInfo = TimeUtils.getCurrentEasternTimeInfo();
   const poolStatus = poolObj.getCurrentStatus();
-  const weekSchedule = poolObj.getWeekSchedule();
   
-  // Get current schedule period for date range display
-  const schedulePeriod = poolObj.getCurrentSchedulePeriod();
-  let periodText = 'Current Schedule';
-  if (schedulePeriod) {
-    // Format dates for display
-    const startDate = new Date(schedulePeriod.startDate).toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric' 
-    });
-    const endDate = new Date(schedulePeriod.endDate).toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric' 
-    });
-    periodText = `Current Schedule (${startDate} - ${endDate})`;
-  }
+  // Get week schedule for the selected week
+  const weekSchedule = poolObj.getWeekScheduleForDate(weekStart);
+  
+  // Format the week display text
+  const weekStartText = weekStart.toLocaleDateString('en-US', { 
+    month: 'short', 
+    day: 'numeric' 
+  });
+  const weekEndText = weekEnd.toLocaleDateString('en-US', { 
+    month: 'short', 
+    day: 'numeric' 
+  });
+  
+  // Get pool's valid date range for navigation constraints
+  const dateRange = poolObj.getValidDateRange();
+  
+  // Build navigation controls
+  let navigationHtml = `
+    <div class="pool-week-navigation" data-pool-id="${poolId}">
+      <div class="week-controls-row">
+        <div class="week-display">
+          <span class="week-text">Week of ${weekStartText} - ${weekEndText}</span>
+        </div>
+        <div class="nav-buttons">
+          <button class="nav-btn calendar-btn" data-pool-id="${poolId}" ${!dateRange ? 'disabled' : ''}>
+            📅
+          </button>
+          <button class="nav-btn prev-week" ${!dateRange || weekStart <= dateRange.startDate ? 'disabled' : ''}>
+            ◀ Prev
+          </button>
+          <button class="nav-btn next-week" ${!dateRange || weekEnd >= dateRange.endDate ? 'disabled' : ''}>
+            Next ▶
+          </button>
+        </div>
+      </div>
+      <input type="date" class="week-picker hidden" 
+             value="${weekStart.toISOString().split('T')[0]}"
+             ${dateRange ? `min="${dateRange.startDate.toISOString().split('T')[0]}" max="${dateRange.endDate.toISOString().split('T')[0]}"` : ''}>
+    </div>`;
 
   // Format hours display using new Pool class methods
   let hoursDisplay = '';
   const dayOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   
-  dayOrder.forEach(day => {
+  dayOrder.forEach((day, index) => {
     const daySchedule = weekSchedule.find(d => d.day === day);
+    
+    // Calculate the specific date for this day
+    const dayDate = new Date(weekStart);
+    dayDate.setDate(weekStart.getDate() + index);
+    const monthDay = `${dayDate.getMonth() + 1}/${dayDate.getDate()}`;
+    
+    // Calculate if this is the current day for highlighting
+    const today = new Date();
+    const currentMondayStart = getMondayOfWeek(today);
+    const isCurrentWeek = weekStart.getTime() === currentMondayStart.getTime();
+    const isCurrentDay = isCurrentWeek && day === easternTimeInfo.day;
+    
     if (daySchedule && daySchedule.timeSlots && daySchedule.timeSlots.length > 0) {
-      const isCurrentDay = day === easternTimeInfo.day;
-      
       // Check if any slot in this day is the current timeslot
       const hasCurrentTimeSlot = isCurrentDay && TimeUtils.hasCurrentTimeSlot(daySchedule.timeSlots, poolStatus.isOpen);
       
@@ -124,7 +278,7 @@ function formatPoolHours(pool) {
       const dayStyle = hasCurrentTimeSlot ? ' style="font-weight: bold; color: var(--primary-color);"' : '';
       
       // Add override indicator to day heading if there are overrides
-      let dayHeading = day;
+      let dayHeading = `${day} (${monthDay})`;
       if (daySchedule.hasOverrides) {
         dayHeading += ' ⚠️';
       }
@@ -152,25 +306,30 @@ function formatPoolHours(pool) {
           // Override slots get the same indentation as regular slots for proper time alignment
         }
         
-        const notesText = slot.notes ? ` ${slot.notes}` : '';
+        const notesText = slot.notes ? ` - ${slot.notes}` : '';
         const timeRange = `${slot.startTime}-${slot.endTime}`;
         const timeHtml = formatTimeRangeSpans(timeRange, isCurrentDay, null, poolStatus);
-        
-        if (slot.isOverride) {
-          hoursDisplay += `<div class="${slotClass}" style="${slotStyle}">${timeHtml}<b>${notesText}</b></div>`;
-        } else {
-          hoursDisplay += `<div class="${slotClass}" style="${slotStyle}">${timeHtml}${typesText}${notesText}</div>`;
-        }
+        hoursDisplay += `<div class="${slotClass}" style="${slotStyle}">${timeHtml}${typesText}${notesText}</div>`;
       });
+    } else {
+      // Show "Closed" for days with no schedule
+      const dayDate = new Date(weekStart);
+      dayDate.setDate(weekStart.getDate() + index);
+      const monthDay = `${dayDate.getMonth() + 1}/${dayDate.getDate()}`;
+      
+      hoursDisplay += `<div class="day-schedule"><strong>${day} (${monthDay}):</strong></div>`;
+      hoursDisplay += `<div class="time-slot" style="margin-left: 1rem; margin-bottom: 0.2rem;"><span class="closed-day">Closed</span></div>`;
     }
   });
 
   return `
     <div class="pool-hours">
-      <strong>🕒 Hours:</strong> <span class="open-status status-${poolStatus.color || 'red'}">${poolStatus.icon} ${poolStatus.status}</span><br>
-      <div class="period-info">
-        ${periodText}
-      </div>
+      <strong>🕒 Hours:</strong> 
+      <span class="open-status status-${poolStatus.color || 'red'} status-tooltip">
+        ${poolStatus.icon} ${poolStatus.status}
+        <span class="tooltip-text">${getStatusTooltip(poolStatus.color || 'red')}</span>
+      </span><br>
+      ${navigationHtml}
       <div class="hours-details">
         ${hoursDisplay}
       </div>
@@ -368,8 +527,11 @@ function renderPools(pools) {
     const poolObj = poolBrowserDataManager.getPool(pool.name);
     const hasSchedules = poolObj && poolObj.legacySchedules && poolObj.legacySchedules.length > 0;
     
-    // Only show status indicator if pool has actual schedules
-    const statusIndicatorHtml = hasSchedules ? `<span class="pool-status-indicator ${statusClass}"></span>` : '';
+    // Show status indicator with tooltip for all pools
+    const tooltipText = getStatusTooltip(statusClass);
+    const statusIndicatorHtml = `<span class="pool-status-indicator ${statusClass} status-tooltip">
+      <span class="tooltip-text">${tooltipText}</span>
+    </span>`;
 
     // Create CA Pool website link if caUrl is available
     let caLinkHtml = '';
@@ -381,6 +543,19 @@ function renderPools(pools) {
              rel="noopener" 
              class="ca-link">
             Visit CA Pool Page
+          </a>
+        </div>
+      `;
+    }
+
+    // Create phone number section if phone is available
+    let phoneHtml = '';
+    if (pool.phone) {
+      phoneHtml = `
+        <div class="phone-section">
+          <strong>📞 Pool Desk:</strong>
+          <a href="tel:${pool.phone}" class="phone-link">
+            ${pool.phone}
           </a>
         </div>
       `;
@@ -402,6 +577,7 @@ function renderPools(pools) {
               ${streetAddress ? `${streetAddress}${cityStateZip ? '<br>' : ''}` : ''}${cityStateZip || (streetAddress ? '' : 'Address not available')}
             </a>
           </div>
+          ${phoneHtml}
           ${caLinkHtml}
           ${hoursHtml}
           ${featuresHtml}
@@ -469,6 +645,147 @@ function togglePoolCard(headerElement) {
   poolCard.classList.toggle('collapsed');
 }
 
+// ------------------------------
+//    WEEK NAVIGATION FUNCTIONS
+// ------------------------------
+
+// ------------------------------
+//    POOL-SPECIFIC NAVIGATION FUNCTIONS
+// ------------------------------
+
+/**
+ * Navigate a specific pool to the previous week
+ * @param {string} poolId - Pool identifier
+ */
+function navigatePoolToPreviousWeek(poolId) {
+  const currentWeek = getPoolWeekStart(poolId);
+  const newWeek = new Date(currentWeek);
+  newWeek.setDate(newWeek.getDate() - 7);
+  setPoolWeekStart(poolId, newWeek);
+  refreshPoolDisplay(poolId);
+}
+
+/**
+ * Navigate a specific pool to the next week
+ * @param {string} poolId - Pool identifier
+ */
+function navigatePoolToNextWeek(poolId) {
+  const currentWeek = getPoolWeekStart(poolId);
+  const newWeek = new Date(currentWeek);
+  newWeek.setDate(newWeek.getDate() + 7);
+  setPoolWeekStart(poolId, newWeek);
+  refreshPoolDisplay(poolId);
+}
+
+/**
+ * Navigate a specific pool to a selected week
+ * @param {string} poolId - Pool identifier
+ * @param {string} dateValue - Selected date value
+ */
+function navigatePoolToSelectedWeek(poolId, dateValue) {
+  if (!dateValue) return;
+  
+  const selectedDate = new Date(dateValue);
+  const weekStart = getMondayOfWeek(selectedDate);
+  setPoolWeekStart(poolId, weekStart);
+  refreshPoolDisplay(poolId);
+}
+
+/**
+ * Refresh the display for a specific pool
+ * @param {string} poolId - Pool identifier
+ */
+function refreshPoolDisplay(poolId) {
+  if (!poolBrowserDataManager) return;
+  
+  // Find the pool card and update just its hours section
+  const poolCard = document.querySelector(`[data-pool-id="${poolId}"]`);
+  if (!poolCard) return;
+  
+  const poolsManager = poolBrowserDataManager.getPools();
+  const allPools = poolsManager.getAllPools();
+  const pool = allPools.find(p => (p.id || p.name) === poolId);
+  
+  if (pool) {
+    const legacyPool = pool.toJSON();
+    
+    // Find the pool-hours container in the pool card
+    const poolCardContainer = poolCard.closest('.pool-card');
+    const hoursElement = poolCardContainer.querySelector('.pool-hours');
+    
+    if (hoursElement) {
+      // Generate the new hours content
+      const newHoursContent = formatPoolHours(legacyPool);
+      
+      // Replace the entire content of the pool-hours div
+      hoursElement.outerHTML = newHoursContent;
+      
+      // Re-setup event handlers for the new controls
+      setupPoolNavigationHandlers();
+    }
+  }
+}
+
+/**
+ * Setup event handlers for all pool navigation controls
+ */
+function setupPoolNavigationHandlers() {
+  // Remove existing handlers to prevent duplicates
+  document.removeEventListener('click', handlePoolNavigationClick);
+  document.removeEventListener('change', handlePoolDatePickerChange);
+  
+  // Add new handlers
+  document.addEventListener('click', handlePoolNavigationClick);
+  document.addEventListener('change', handlePoolDatePickerChange);
+}
+
+/**
+ * Handle clicks on pool navigation buttons
+ * @param {Event} event - Click event
+ */
+function handlePoolNavigationClick(event) {
+  const target = event.target;
+  
+  if (target.classList.contains('prev-week')) {
+    const poolNav = target.closest('.pool-week-navigation');
+    if (poolNav) {
+      const poolId = poolNav.dataset.poolId;
+      navigatePoolToPreviousWeek(poolId);
+    }
+  } else if (target.classList.contains('next-week')) {
+    const poolNav = target.closest('.pool-week-navigation');
+    if (poolNav) {
+      const poolId = poolNav.dataset.poolId;
+      navigatePoolToNextWeek(poolId);
+    }
+  } else if (target.classList.contains('calendar-btn')) {
+    const poolNav = target.closest('.pool-week-navigation');
+    if (poolNav) {
+      const datePicker = poolNav.querySelector('.week-picker');
+      if (datePicker) {
+        datePicker.click();
+        datePicker.showPicker ? datePicker.showPicker() : datePicker.focus();
+      }
+    }
+  }
+}
+
+/**
+ * Handle changes to pool date pickers
+ * @param {Event} event - Change event
+ */
+function handlePoolDatePickerChange(event) {
+  const target = event.target;
+  
+  if (target.classList.contains('week-picker')) {
+    const poolNav = target.closest('.pool-week-navigation');
+    if (poolNav) {
+      const poolId = poolNav.dataset.poolId;
+      navigatePoolToSelectedWeek(poolId, target.value);
+    }
+  }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   // Check if we're on the pools page before fetching data
   if (!document.getElementById("poolList")) {
@@ -477,6 +794,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
   
   try {
+    // Load season information first
+    await loadSeasonInfo();
+    
     // Initialize the data manager with the new OOP system
     await initializePoolBrowser();
     
@@ -491,6 +811,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     // Always render pools first with no location data
     renderPools(legacyPools);
+    
+    // Set up pool-specific navigation event handlers
+    setupPoolNavigationHandlers();
     
     // Handle URL parameters to show specific pool
     handlePoolUrlParameter();

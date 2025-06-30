@@ -203,13 +203,13 @@ class TimeUtils {
       const easternTimeInfo = this.getCurrentEasternTimeInfo();
       currentMinutes = easternTimeInfo.minutes;
     }
-    console.log('✨ formatTimeRangeWithHighlight - CALLED with:', { 
-      timeRange, 
-      isCurrentDay, 
-      currentMinutes, 
-      status: status ? { color: status.color, isOpen: status.isOpen } : null,
-      forceHighlight
-    });
+    // console.log('✨ formatTimeRangeWithHighlight - CALLED with:', { 
+    //   timeRange, 
+    //   isCurrentDay, 
+    //   currentMinutes, 
+    //   status: status ? { color: status.color, isOpen: status.isOpen } : null,
+    //   forceHighlight
+    // });
     
     if (!timeRange) return '';
     
@@ -232,15 +232,15 @@ class TimeUtils {
       const startMinutes = this.timeStringToMinutes(startTime);
       const endMinutes = this.timeStringToMinutes(endTime);
       
-      console.log(`🔹 Time slot check for ${timeRange}:`, {
-        startMinutes,
-        endMinutes,
-        currentMinutes,
-        forceHighlight,
-        isCurrentTimeSlot,
-        statusOpen: isPoolOpen,
-        statusColor: status.color || 'unknown'
-      });
+      // console.log(`🔹 Time slot check for ${timeRange}:`, {
+      //   startMinutes,
+      //   endMinutes,
+      //   currentMinutes,
+      //   forceHighlight,
+      //   isCurrentTimeSlot,
+      //   statusOpen: isPoolOpen,
+      //   statusColor: status.color || 'unknown'
+      // });
       
       // Apply highlighting if this is the current time slot
       if (isCurrentTimeSlot) {
@@ -263,7 +263,7 @@ class TimeUtils {
     }
     
     const result = `<span class="time-range-container${highlightClass}"${inlineStyle}><span class="time-start">${startTime}</span><span class="time-dash">-</span><span class="time-end">${endTime}</span></span>`;
-    console.log(`🔸 Returning formatted time: ${result.substring(0, 50)}...`);
+    //console.log(`🔸 Returning formatted time: ${result.substring(0, 50)}...`);
     return result;
   }
 }

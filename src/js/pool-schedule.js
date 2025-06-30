@@ -204,4 +204,14 @@ class PoolSchedule {
       timeSlots: this.getTimeSlots(dayName)
     }));
   }
+
+  /**
+   * Check if this schedule has any data
+   * @returns {boolean} - True if schedule has data, false otherwise
+   */
+  hasScheduleData() {
+    return this.scheduleData && 
+           Object.keys(this.scheduleData).length > 0 && 
+           Object.values(this.scheduleData).some(dayData => dayData && (dayData.open || dayData.timeSlots));
+  }
 }

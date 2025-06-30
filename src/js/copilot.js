@@ -253,7 +253,7 @@ function formatTimeRangeSpans(timeRange, isCurrentTime = false, statusColor = 'g
     isOpen: isCurrentTime // Only consider open if it's the current time slot
   };
   
-  console.log(`🔹 copilot.js - formatTimeRangeSpans: ${timeRange}, isCurrentTime=${isCurrentTime}, statusColor=${statusColor}`);
+  //console.log(`🔹 copilot.js - formatTimeRangeSpans: ${timeRange}, isCurrentTime=${isCurrentTime}, statusColor=${statusColor}`);
   
   // For copilot.js, we're already checking if a specific timeslot is current
   // Let TimeUtils calculate the current time automatically

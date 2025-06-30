@@ -90,4 +90,5 @@ class PoolStatus {
   static PRACTICE_ONLY = { isOpen: true, status: 'CNSL Practice Only', color: 'yellow', icon: '🟡' };
   static CLOSED_TO_PUBLIC = { isOpen: false, status: 'Closed to Public', color: 'red', icon: '🔴' };
   static SWIM_MEET = { isOpen: true, status: 'Swim Meet', color: 'yellow', icon: '🟡' };
+  static SCHEDULE_NOT_FOUND = { isOpen: false, status: 'Schedule TBD', color: 'gray', icon: '⚫' };
 }

@@ -18,40 +18,8 @@ async function initializeMeetsBrowser() {
 
 
 // ------------------------------
-//    EXISTING FUNCTIONS
+//    EXISTING FUNCTIONS (Updated to use pool link helper)
 // ------------------------------
-
-/**
- * Finds a pool by name or partial name from the data manager
- * @param {string} locationName - The name of the location to search for
- * @returns {Object|null} The pool object if found, null otherwise
- */
-function findPoolByLocation(locationName) {
-  if (!locationName || !meetsBrowserDataManager) return null;
-  
-  const poolsManager = meetsBrowserDataManager.getPools();
-  const pools = poolsManager.getAllPools();
-  
-  // Try to find an exact pool name match
-  const exactMatch = pools.find(pool => 
-    pool.getName().toLowerCase() === locationName.toLowerCase()
-  );
-  if (exactMatch) return exactMatch.toJSON();
-  
-  // Try to find a pool where the name is included in the location string
-  const partialMatch = pools.find(pool => 
-    locationName.toLowerCase().includes(pool.getName().toLowerCase())
-  );
-  if (partialMatch) return partialMatch.toJSON();
-
-  // Try with just the first part of location name (before "Pool" or "Common")
-  const simplifiedName = locationName.split(" Pool")[0].split(" Common")[0];
-  const simplifiedMatch = pools.find(pool => 
-    pool.getName().toLowerCase().includes(simplifiedName.toLowerCase())
-  );
-  
-  return simplifiedMatch ? simplifiedMatch.toJSON() : null;
-}
 
 /**
  * Renders the list of meets in the #meetList element
@@ -207,45 +175,25 @@ async function renderMeets(meets) {
         meetClasses += " meet-past";
       }
       
-      // Find the corresponding pool for this meet location
-      const poolMatch = findPoolByLocation(location);
+      // Generate enhanced location link that links to pools.html page
+      const poolsPageLink = generateEnhancedPoolLink(location, meetsBrowserDataManager, {
+        preferPoolsPage: true,
+        showBothLinks: false
+      });
+      
+      // Also get maps link for the maps icon
+      const poolData = getPoolDataFromLocation(location, meetsBrowserDataManager);
+      let mapsIcon = '';
+      if (poolData && poolData.location && poolData.location.googleMapsUrl) {
+        mapsIcon = ` <a href="${poolData.location.googleMapsUrl}" target="_blank" rel="noopener" class="maps-icon" title="View on Google Maps">🗺️</a>`;
+      }
+      
+      const locationLink = poolsPageLink + mapsIcon;
       
       // Generate weather information for upcoming meets
       let weatherInfo = '';
       if (meet.weather && isUpcoming) {
         weatherInfo = generateWeatherDisplay(meet.weather);
-      }
-      
-      // Generate location link for Google Maps
-      let locationLink = '';
-      if (poolMatch) {
-        let mapsUrl;
-        
-        // Use googleMapsUrl if available in new location format
-        if (poolMatch.location && poolMatch.location.googleMapsUrl) {
-          mapsUrl = poolMatch.location.googleMapsUrl;
-        } else if (poolMatch.address) {
-          // Legacy format fallback
-          const encodedAddress = encodeURIComponent(poolMatch.address);
-          mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
-        } else if (poolMatch.location && poolMatch.location.mapsQuery) {
-          // New format fallback using mapsQuery
-          const encodedQuery = encodeURIComponent(poolMatch.location.mapsQuery);
-          mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
-        } else if (poolMatch.lat && poolMatch.lng) {
-          // Coordinate fallback
-          mapsUrl = `https://www.google.com/maps/search/?api=1&query=${poolMatch.lat},${poolMatch.lng}`;
-        }
-        
-        if (mapsUrl) {
-          locationLink = `<a href="${mapsUrl}" target="_blank" rel="noopener" class="location-link">${location}</a>`;
-        }
-      }
-      
-      if (!locationLink) {
-        // If we don't have a matching pool, just use the location name
-        const searchQuery = encodeURIComponent(`${location} Columbia MD`);
-        locationLink = `<a href="https://www.google.com/maps/search/?api=1&query=${searchQuery}" target="_blank" rel="noopener" class="location-link">${location}</a>`;
       }
       
       // Check if this is a meet involving Long Reach Marlins that has occurred or is happening today
