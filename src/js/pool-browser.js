@@ -368,10 +368,15 @@ function formatPoolHours(pool) {
           // Override slots get the same indentation as regular slots for proper time alignment
         }
         
-        const notesText = slot.notes ? ` - ${slot.notes}` : '';
+        const notesText = slot.notes ? ` ${slot.notes}` : '';
         const timeRange = `${slot.startTime}-${slot.endTime}`;
         const timeHtml = formatTimeRangeSpans(timeRange, isCurrentDay, null, poolStatus);
-        hoursDisplay += `<div class="${slotClass}" style="${slotStyle}">${timeHtml}${typesText}${notesText}</div>`;
+
+        if (slot.isOverride) {
+          hoursDisplay += `<div class="${slotClass}" style="${slotStyle}">${timeHtml}<b>${notesText}</b></div>`;
+        } else {
+          hoursDisplay += `<div class="${slotClass}" style="${slotStyle}">${timeHtml}${typesText}${notesText}</div>`;
+        }
       });
     } else {
       // Show "Closed" for days with no schedule
