@@ -1011,11 +1011,10 @@
               "weekDays": [
                 "Sun"
               ],
-              "startTime": "11:00am",
-              "endTime": "6:00pm",
+              "startTime": "6:00pm",
+              "endTime": "10:00pm",
               "types": [
-                "Laps",
-                "Rec Swim"
+                "Closed to Public"
               ]
             }
           ]
