@@ -18,6 +18,7 @@
         "mapsQuery": "Bryant Woods Pool Columbia MD",
         "googleMapsUrl": "https://maps.app.goo.gl/JVc94GRVWrKKmKgW7"
       },
+      "phone": "410-730-5326",
       "features": [
         "lap",
         "wading",
@@ -319,6 +320,7 @@
         "mapsQuery": "Clary's Forest Pool Columbia MD",
         "googleMapsUrl": "https://maps.app.goo.gl/USbbviedhzT6mXAc7"
       },
+      "phone": "410-964-0805",
       "features": [],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Clarys_Forest.pdf",
       "schedules": []
@@ -337,6 +339,7 @@
         "mapsQuery": "Clemens Crossing Pool Columbia MD",
         "googleMapsUrl": "https://maps.app.goo.gl/nDhXsSz8vgU3NLWh6"
       },
+      "phone": "410-997-4214",      
       "features": [],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Clemens_Crossing.pdf",
       "schedules": []
@@ -355,6 +358,7 @@
         "mapsQuery": "Dasher Green Pool Columbia MD",
         "googleMapsUrl": "https://maps.app.goo.gl/ccMhQkE8MaApGSTP6"
       },
+      "phone": "410-715-3194",
       "features": [],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Dasher_Green.pdf",
       "schedules": []
@@ -373,6 +377,7 @@
         "mapsQuery": "Dickinson Pool Columbia MD",
         "googleMapsUrl": "https://maps.app.goo.gl/G4ChZdAMEPsCsg9G9"
       },
+      "phone": "410-381-3080",
       "features": [],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Dickinson_Pool.pdf",
       "schedules": []
@@ -391,6 +396,7 @@
         "mapsQuery": "Dorsey Hall Pool Columbia MD",
         "googleMapsUrl": "https://maps.app.goo.gl/d8a4CdahR1YtAUxL8"
       },
+      "phone": "410-461-1481",
       "features": [],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Dorsey_Hall.pdf",
       "schedules": []
@@ -409,6 +415,7 @@
         "mapsQuery": "Faulkner Ridge Pool Columbia MD",
         "googleMapsUrl": "https://maps.app.goo.gl/CZjfGdxz5LL4Ehk49"
       },
+      "phone": "410-730-5292",
       "features": [],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Faulkner_Ridge.pdf",
       "schedules": []
@@ -427,6 +434,7 @@
         "mapsQuery": "Hawthorn Pool Columbia MD",
         "googleMapsUrl": "https://maps.app.goo.gl/2QVrxxmmGQVnDRKS8"
       },
+      "phone": "410-730-0943",
       "features": [],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Hawthorn.pdf",
       "schedules": []
@@ -445,6 +453,7 @@
         "mapsQuery": "Hobbit's Glen Pool Columbia MD",
         "googleMapsUrl": "https://maps.app.goo.gl/VQgb4qbeZs4aeB9r9"
       },
+      "phone": "410-730-6770",
       "features": [],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Hobbits_Glen.pdf",
       "schedules": []
@@ -463,6 +472,7 @@
         "mapsQuery": "Hopewell Mini WaterPark Columbia MD",
         "googleMapsUrl": "https://maps.app.goo.gl/bLiRAA7xdfhMbJnX9"
       },
+      "phone": "410-381-1460",
       "features": [],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Hopewell.pdf",
       "schedules": []
@@ -481,6 +491,7 @@
         "mapsQuery": "Huntington Pool Columbia MD",
         "googleMapsUrl": "https://maps.app.goo.gl/ynLi2WRYwM7BmUKYA"
       },
+      "phone": "301-490-3310",
       "features": [],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Huntington.pdf",
       "schedules": []
@@ -499,6 +510,7 @@
         "mapsQuery": "Jeffers Hill Pool Columbia MD",
         "googleMapsUrl": "https://maps.app.goo.gl/tTho6AftfVxAPzEH8"
       },
+      "phone": "410-730-1220",
       "features": [],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Jeffers_Hill.pdf",
       "schedules": []
@@ -517,6 +529,7 @@
         "mapsQuery": "Kendall Ridge Pool Columbia MD",
         "googleMapsUrl": "https://maps.app.goo.gl/814De8NJV9LSAVbp6"
       },
+      "phone": "410-715-3074",
       "features": [
         "ADA compliant",
         "beach entry",
@@ -582,7 +595,7 @@
         },
         {
           "startDate": "2025-06-19",
-          "endDate": "2025-08-10",
+          "endDate": "2025-07-26",
           "hours": [
             {
               "weekDays": [
@@ -651,6 +664,54 @@
                 "Sat"
               ],
               "startTime": "10:00am",
+              "endTime": "8:00pm",
+              "types": [
+                "Laps",
+                "Rec Swim"
+              ]
+            },
+            {
+              "weekDays": [
+                "Sun"
+              ],
+              "startTime": "11:00am",
+              "endTime": "7:00pm",
+              "types": [
+                "Laps",
+                "Rec Swim"
+              ]
+            }
+          ]
+        },
+        {
+          "startDate": "2025-07-27",
+          "endDate": "2025-08-10",
+          "hours": [
+            {
+              "weekDays": [
+                "Mon",
+                "Tue",
+                "Wed",
+                "Thu",
+                "Fri"
+              ],
+              "startTime": "10:00am",
+              "endTime": "12:00pm",
+              "types": [
+                "Lessons",
+                "Wading Pool"
+              ]
+            },
+            {
+              "weekDays": [
+                "Mon",
+                "Tue",
+                "Wed",
+                "Thu",
+                "Fri",
+                "Sat"
+              ],
+              "startTime": "12:00pm",
               "endTime": "8:00pm",
               "types": [
                 "Laps",
@@ -974,6 +1035,7 @@
         "mapsQuery": "Locust Park Pool Columbia MD",
         "googleMapsUrl": "https://maps.app.goo.gl/cr5nz16axo9QMNM57"
       },
+      "phone": "410-730-5621",
       "features": [],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Locust_Park.pdf",
       "schedules": []
@@ -992,6 +1054,7 @@
         "mapsQuery": "Longfellow Pool Columbia MD",
         "googleMapsUrl": "https://maps.app.goo.gl/sXwyg4Dsvjba2ukU6"
       },
+      "phone": "410-730-4978",
       "features": [],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Longfellow.pdf",
       "schedules": []
@@ -1010,6 +1073,7 @@
         "mapsQuery": "MacGill's Common Pool Columbia MD",
         "googleMapsUrl": "https://maps.app.goo.gl/NRXjnEGVoyBmzmXP7"
       },
+      "phone": "410-730-5995",
       "features": [],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Macgills_Common.pdf",
       "schedules": []
@@ -1028,6 +1092,7 @@
         "mapsQuery": "Phelps Luck Pool Columbia MD",
         "googleMapsUrl": "https://maps.app.goo.gl/rjeXTRjCS1miCPy79"
       },
+      "phone": "410-730-5765",
       "features": [],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Phelps_Luck.pdf",
       "schedules": []
@@ -1046,6 +1111,7 @@
         "mapsQuery": "River Hill Pool Columbia MD",
         "googleMapsUrl": "https://maps.app.goo.gl/BiEz14tBdHNcGiUz5"
       },
+      "phone": "410-531-0191",
       "features": [],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/River_Hill.pdf",
       "schedules": []
@@ -1064,6 +1130,7 @@
         "mapsQuery": "Running Brook Pool Columbia MD",
         "googleMapsUrl": "https://maps.app.goo.gl/C4hLgLBoCyTiqN178"
       },
+      "phone": "410-730-5293",
       "features": [],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Running_Brook.pdf",
       "schedules": []
@@ -1082,6 +1149,7 @@
         "mapsQuery": "Stevens Forest Pool Columbia MD",
         "googleMapsUrl": "https://maps.app.goo.gl/sz76wNDeNmt9Er87A"
       },
+      "phone": "410-730-5452",
       "features": [],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Stevens_Forest.pdf",
       "schedules": []
@@ -1100,6 +1168,7 @@
         "mapsQuery": "Swansfield Mini Water Park Columbia MD",
         "googleMapsUrl": "https://maps.app.goo.gl/X24sByCcNba2KppMA"
       },
+      "phone": "410-730-3180",
       "features": [],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Swansfield.pdf",
       "schedules": []
@@ -1118,6 +1187,7 @@
         "mapsQuery": "Talbott Springs Pool Columbia MD",
         "googleMapsUrl": "https://maps.app.goo.gl/ThxBCzAsArVLqf8UA"
       },
+      "phone": "410-730-5421",
       "features": [],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Talbott_Springs.pdf",
       "schedules": []
@@ -1136,6 +1206,7 @@
         "mapsQuery": "Thunder Hill Pool Columbia MD",
         "googleMapsUrl": "https://maps.app.goo.gl/4V7Q9XNr6R7ejB1B9"
       },
+      "phone": "410-730-5563",
       "features": [],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Thunder_Hill.pdf",
       "schedules": []
