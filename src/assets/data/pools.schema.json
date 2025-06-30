@@ -24,6 +24,11 @@
             "format": "uri",
             "description": "URL to the Columbia Association online pool directory"
         },
+        "caPoolGuideUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to the Columbia Association pool season guide"
+        },
         "pools": {
             "type": "array",
             "items": {

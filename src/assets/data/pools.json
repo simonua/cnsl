@@ -3,6 +3,7 @@
   "seasonStartDate": "2025-05-24",
   "seasonEndDate": "2025-09-01",
   "caPoolDirectoryUrl": "https://experience.arcgis.com/experience/ac58c73ab9bd4640a880c8ddf46bf198",
+  "caPoolGuideUrl": "https://columbiaassociation.org/swim/your-guide-to-cas-2025-pool-season/",
   "pools": [
     {
       "id": "bwp",

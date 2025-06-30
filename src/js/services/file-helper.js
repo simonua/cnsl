@@ -245,6 +245,41 @@ class FileHelper {
   }
 
   // ------------------------------
+  //    FILE LOADING METHODS
+  // ------------------------------
+
+  /**
+   * Load a JSON file with proper path resolution
+   * @param {string} filePath - Path to the JSON file (will be resolved based on environment)
+   * @returns {Promise<Object>} Promise that resolves with JSON data
+   */
+  static async loadJsonFile(filePath) {
+    try {
+      // If the path starts with 'assets/', resolve it properly for the current environment
+      let resolvedPath = filePath;
+      if (filePath.startsWith('assets/data/')) {
+        const filename = filePath.replace('assets/data/', '');
+        resolvedPath = this.getDataFilePath(filename);
+      } else if (filePath.startsWith('assets/')) {
+        // Handle other asset paths
+        if (this.isDevelopmentMode()) {
+          resolvedPath = 'src/' + filePath;
+        }
+        // In production mode, keep the path as-is
+      }
+
+      const response = await fetch(resolvedPath);
+      if (!response.ok) {
+        throw new Error(`Failed to load ${resolvedPath}: ${response.status} ${response.statusText}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error(`FileHelper.loadJsonFile: Error loading ${filePath}:`, error);
+      throw error;
+    }
+  }
+
+  // ------------------------------
   //    UTILITY METHODS
   // ------------------------------
 

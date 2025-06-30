@@ -82,12 +82,44 @@ async function initializePoolBrowser() {
  */
 async function loadSeasonInfo() {
   try {
-    const poolData = await FileHelper.loadJsonFile('assets/data/pools.json');
+    console.log('🔄 Loading season information...');
+    
+    // Add visible debug output to the page
     const seasonInfo = document.getElementById('seasonInfo');
+    if (seasonInfo) {
+      seasonInfo.innerHTML = '<p class="season-text">DEBUG: Starting to load season info...</p>';
+    }
+    
+    // Ensure FileHelper is available
+    if (typeof FileHelper === 'undefined') {
+      console.warn('⚠️ FileHelper not yet available, waiting...');
+      if (seasonInfo) {
+        seasonInfo.innerHTML = '<p class="season-text">DEBUG: FileHelper not available, waiting...</p>';
+      }
+      await new Promise(resolve => setTimeout(resolve, 100));
+      if (typeof FileHelper === 'undefined') {
+        if (seasonInfo) {
+          seasonInfo.innerHTML = '<p class="season-text">ERROR: FileHelper is not available</p>';
+        }
+        throw new Error('FileHelper is not available');
+      }
+    }
+    
+    // Load the pools.json file directly to get season information
+    const poolsFilePath = FileHelper.getPoolsDataPath();
+    console.log('📂 Pools file path:', poolsFilePath);
+    
+    const poolData = await FileHelper.loadJsonFile(poolsFilePath);
+    console.log('📊 Pools data loaded:', poolData);
+    
+    console.log('🎯 Season info element:', seasonInfo);
     
     if (seasonInfo && poolData.seasonStartDate && poolData.seasonEndDate) {
-      const startDate = new Date(poolData.seasonStartDate);
-      const endDate = new Date(poolData.seasonEndDate);
+      console.log('✅ Season dates found:', poolData.seasonStartDate, poolData.seasonEndDate);
+      
+      // Parse dates and handle timezone offset to ensure correct display
+      const startDate = new Date(poolData.seasonStartDate + 'T12:00:00');
+      const endDate = new Date(poolData.seasonEndDate + 'T12:00:00');
       
       const startDateText = startDate.toLocaleDateString('en-US', { 
         month: 'long', 
@@ -102,21 +134,51 @@ async function loadSeasonInfo() {
       let caDirectoryLinkHtml = '';
       if (poolData.caPoolDirectoryUrl) {
         caDirectoryLinkHtml = `
-          <p class="ca-directory-link">
             <a href="${poolData.caPoolDirectoryUrl}" target="_blank" rel="noopener" class="directory-link">
-              📍 View Interactive CA Pool Directory
+              📍 Interactive CA Pool Directory
             </a>
+        `;
+      }
+      
+      // Add CA pool guide link if available
+      let caPoolGuideLinkHtml = '';
+      if (poolData.caPoolGuideUrl) {
+        caPoolGuideLinkHtml = `
+            <a href="${poolData.caPoolGuideUrl}" target="_blank" rel="noopener" class="directory-link">
+              📖 Your Guide to CA's 2025 Pool Season
+            </a>
+        `;
+      }
+      
+      // Combine links horizontally if both exist
+      let linksHtml = '';
+      if (caDirectoryLinkHtml && caPoolGuideLinkHtml) {
+        linksHtml = `
+          <p class="ca-links">
+            ${caPoolGuideLinkHtml} ${caDirectoryLinkHtml}
           </p>
         `;
+      } else if (caDirectoryLinkHtml) {
+        linksHtml = `<p class="ca-directory-link">${caDirectoryLinkHtml}</p>`;
+      } else if (caPoolGuideLinkHtml) {
+        linksHtml = `<p class="ca-guide-link">${caPoolGuideLinkHtml}</p>`;
       }
       
       seasonInfo.innerHTML = `
         <p class="season-text">
-          CA Outdoor Pool season runs from ${startDateText} to ${endDateText} 
+          The CA Outdoor Pool season runs from ${startDateText} to ${endDateText}<br/> 
           <span class="season-note">(Memorial Day weekend to Labor Day weekend)</span>
         </p>
-        ${caDirectoryLinkHtml}
+        ${linksHtml}
       `;
+      
+      console.log('✅ Season information updated successfully');
+    } else {
+      console.log('⚠️ Season info element or season dates not found:', {
+        seasonInfo: !!seasonInfo,
+        seasonStartDate: poolData.seasonStartDate,
+        seasonEndDate: poolData.seasonEndDate
+      });
     }
   } catch (error) {
     console.error('Failed to load season information:', error);

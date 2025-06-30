@@ -1986,6 +1986,9 @@ button[aria-label*="Voice"]:active {
   color: var(--text-muted);
   font-style: italic;
   margin-bottom: 0.75rem;
+
+  a {font-style: normal;}
+  .ca-links {margin-top: 10px;}
 }
 
 .practice-period {
