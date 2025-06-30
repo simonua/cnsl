@@ -505,9 +505,9 @@ async function renderMeets(meets) {
           <div class="meet-details">
             <div class="meet-info">
               <div class="meet-teams">
-                <span class="visiting-team">${meet.visiting_team || meet.awayTeam || 'Visiting Team'}</span>
-                <span class="vs">vs</span>
                 <span class="home-team">${meet.home_team || meet.homeTeam || 'Home Team'}</span>
+                <span class="vs">vs.</span>
+                <span class="visiting-team">${meet.visiting_team || meet.awayTeam || 'Visiting Team'}</span>
               </div>
               <div class="meet-location-time">
                 <div class="meet-location-row">
