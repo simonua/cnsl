@@ -1,5 +1,8 @@
 {
   "$schema": "pools.schema.json",
+  "seasonStartDate": "2025-05-24",
+  "seasonEndDate": "2025-09-01",
+  "caPoolDirectoryUrl": "https://experience.arcgis.com/experience/ac58c73ab9bd4640a880c8ddf46bf198",
   "pools": [
     {
       "id": "bwp",

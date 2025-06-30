@@ -9,6 +9,21 @@
             "type": "string",
             "description": "JSON Schema reference"
         },
+        "seasonStartDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Start date of the outdoor pool season"
+        },
+        "seasonEndDate": {
+            "type": "string",
+            "format": "date", 
+            "description": "End date of the outdoor pool season"
+        },
+        "caPoolDirectoryUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to the Columbia Association online pool directory"
+        },
         "pools": {
             "type": "array",
             "items": {
@@ -18,6 +33,8 @@
         }
     },
     "required": [
+        "seasonStartDate",
+        "seasonEndDate",
         "pools"
     ],
     "additionalProperties": false,
