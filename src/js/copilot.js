@@ -378,7 +378,6 @@ async function initializeCopilot() {
     
     console.log('================================');
     console.log('✅ INITIALIZATION COMPLETE');
-    console.log('🎯 Ready to process user queries!');
     console.log('================================\n');
     
   } catch (error) {
