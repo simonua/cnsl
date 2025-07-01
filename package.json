@@ -6,7 +6,9 @@
   "scripts": {
     "clean": "rimraf out",
     "build": "npm run clean && node posthtml.js",
-    "watch": "nodemon --watch src/views --watch src/css --watch src/js --watch src/assets/data/*.json -e html,css,js,json --delay 750ms --exec \"node posthtml.js\"",
+    "watch": "nodemon",
+    "watch:poll": "nodemon --polling-interval 3000 --watch src/views --watch src/css --watch src/js --watch src/assets/data/*.json -e html,css,js,json --delay 1000ms --exec \"node posthtml.js\"",
+    "watch:manual": "nodemon --on-change-only --watch src/views --watch src/css --watch src/js --watch src/assets/data/*.json -e html,css,js,json --delay 500ms --exec \"node posthtml.js\"",
     "serve": "http-server ./out -p 9090 -c-1 -o",
     "serve-only": "http-server ./out -p 9090 -c-1",
     "serve-live": "live-server ./out --port=9090 --open --no-css-inject --wait=500",

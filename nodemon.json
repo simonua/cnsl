@@ -1,0 +1,34 @@
+{
+  "watch": [
+    "src/views",
+    "src/css", 
+    "src/js",
+    "src/assets/data/*.json"
+  ],
+  "ext": "html,css,js,json",
+  "ignore": [
+    "src/assets/data/2025/**",
+    "src/assets/images/**",
+    "out/**",
+    "tmp/**",
+    "node_modules/**"
+  ],
+  "delay": "750ms",
+  "polling": true,
+  "pollingInterval": 2000,
+  "verbose": false,
+  "colours": true,
+  "legacyWatch": false,
+  "runOnChangeOnly": false,
+  "nodeArgs": [],
+  "exec": "node posthtml.js",
+  "events": {
+    "start": "echo 'Starting build process...'",
+    "restart": "echo 'Files changed, rebuilding...'",
+    "crash": "echo 'Build process crashed!'",
+    "exit": "echo 'Build process exited.'"
+  },
+  "env": {
+    "NODE_ENV": "development"
+  }
+}
