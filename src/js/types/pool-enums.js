@@ -20,7 +20,7 @@ class PoolNames {
   static JEFFERS_HILL = 'Jeffers Hill';
   static LOCUST_PARK = 'Locust Park';
   static LONGFELLOW = 'Longfellow';
-  static MACGILLS_COMMON = 'Macgills Common';
+  static MACGILLS_COMMON = 'Macgill\'s Common';
   static PHELPS_LUCK = 'Phelps Luck';
   static RIVER_HILL = 'River Hill';
   static RUNNING_BROOK = 'Running Brook';

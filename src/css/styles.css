@@ -624,7 +624,7 @@ nav a:focus {
 
 .detail-item {
   padding: 0.75rem 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 0px solid #f0f0f0;
 }
 
 .detail-item:last-child {
@@ -1804,6 +1804,14 @@ button[aria-label*="Voice"]:active {
   background-color: rgba(0, 120, 212, 0.05);
 }
 
+/* Highlighted team card for URL parameter navigation */
+.team-card.highlighted {
+  border: 2px solid var(--primary-color);
+  box-shadow: 0 0 15px rgba(0, 120, 212, 0.3);
+  transform: scale(1.02);
+  background-color: rgba(0, 120, 212, 0.05);
+}
+
 /* Footer Styles */
 .footer {
   position: fixed;
@@ -2042,13 +2050,14 @@ button[aria-label*="Voice"]:active {
 /* Team Card Enhancements */
 .team-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 1rem;
   margin-bottom: 1rem;
 }
 
 .team-header-content {
   flex: 1;
+  margin-left: 0.5rem;
 }
 
 .team-logo {
@@ -2177,7 +2186,7 @@ button[aria-label*="Voice"]:active {
 .team-actions {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid var(--border-color);
+  border-top: 0px solid var(--border-color);
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
@@ -2192,6 +2201,24 @@ button[aria-label*="Voice"]:active {
   color: var(--white) !important;
   background: linear-gradient(135deg, var(--primary-dark), #003d70);
   text-decoration: none;
+}
+
+/* Team Card Collapsible Functionality */
+.team-card {
+  position: relative;
+}
+
+.team-header {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+.team-card.collapsed .team-details {
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  display: none;
 }
 
 /* Search functionality for meets page */
@@ -2402,5 +2429,104 @@ button[aria-label*="Voice"]:active {
     font-size: 0.8rem;
     display: block;
     margin-top: 0.25rem;
+  }
+}
+
+/* ------------------------------
+ *    CNSL LINK SECTION
+ * ------------------------------ */
+
+.cnsl-link-section {
+  margin-bottom: 2rem;
+}
+
+.cnsl-link-card {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: var(--white);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.cnsl-link-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.cnsl-link-card h3 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.cnsl-link-card p {
+  margin: 0 0 1rem 0;
+  opacity: 0.95;
+  line-height: 1.5;
+}
+
+.cnsl-link-btn {
+  display: inline-block;
+  background: var(--white);
+  color: var(--primary-color);
+  text-decoration: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: var(--transition);
+  border: 2px solid transparent;
+}
+
+.cnsl-link-btn:hover {
+  background: transparent;
+  color: var(--white);
+  border-color: var(--white);
+  transform: translateY(-1px);
+}
+
+/* CNSL Link Mobile Responsive */
+@media (max-width: 768px) {
+  .cnsl-link-card {
+    padding: 1.25rem;
+  }
+  
+  .cnsl-link-card h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .cnsl-link-card p {
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .cnsl-link-btn {
+    padding: 0.6rem 1.25rem;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .cnsl-link-section {
+    margin-bottom: 1.5rem;
+  }
+  
+  .cnsl-link-card {
+    padding: 1rem;
+  }
+  
+  .cnsl-link-card h3 {
+    font-size: 1.1rem;
+  }
+  
+  .cnsl-link-card p {
+    font-size: 0.9rem;
+  }
+  
+  .cnsl-link-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
   }
 }

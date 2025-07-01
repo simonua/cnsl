@@ -260,7 +260,7 @@ function getPoolMapLink(location, address) {
 function createTeamLogo(teamId, teamName) {
   if (!teamId) return '';
   
-  const logoPath = `assets/images/logos/logo-${teamId}.png`;
+  const logoPath = `assets/images/logos/${teamId}.png`;
   
   return `
     <div class="team-logo">
@@ -272,6 +272,15 @@ function createTeamLogo(teamId, teamName) {
       />
     </div>
   `;
+}
+
+/**
+ * Toggles the collapsed state of a team card
+ * @param {Element} headerElement - The clicked header element
+ */
+function toggleTeamCard(headerElement) {
+  const teamCard = headerElement.closest('.team-card');
+  teamCard.classList.toggle('collapsed');
 }
 
 /**
@@ -352,17 +361,17 @@ function renderTeams(teams) {
     }
     
     return `
-      <div class="team-card">
-        <div class="team-header">
+      <div class="team-card collapsed" data-team-id="${teamId}">
+        <div class="team-header" onclick="toggleTeamCard(this)">
           ${logoHtml}
           <div class="team-header-content">
             <h3>${teamName}</h3>
           </div>
         </div>
         
-        ${upcomingPracticesHtml}
-        
         <div class="team-details">
+          ${upcomingPracticesHtml}
+          
           ${homePool ? `
             <div class="detail-item">
               <strong>🏠 Home Pool:</strong> ${poolData ? 
@@ -393,6 +402,70 @@ function renderTeams(teams) {
   list.innerHTML = html;
 }
 
+/**
+ * Handle team URL parameter for direct linking to specific teams
+ * URL format: teams.html?team=teamId
+ */
+function handleTeamUrlParameter() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const teamId = urlParams.get('team');
+  
+  if (teamId) {
+    // Wait a moment for the DOM to be ready, then find and expand the team
+    setTimeout(() => {
+      const teamCard = document.querySelector(`[data-team-id="${teamId}"]`);
+      if (teamCard) {
+        // Expand the team card
+        teamCard.classList.remove('collapsed');
+        
+        // Add a highlight class for visual emphasis
+        teamCard.classList.add('highlighted');
+        
+        // Scroll to the team card
+        teamCard.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+        
+        // Remove highlight after a few seconds
+        setTimeout(() => {
+          teamCard.classList.remove('highlighted');
+        }, 3000);
+      } else {
+        // If team card not found, try again after a short delay
+        // This handles cases where rendering is still in progress
+        setTimeout(() => handleTeamUrlParameter(), 100);
+      }
+    }, 150); // Increased timeout for better reliability
+  }
+}
+
+/**
+ * Generate a link to a specific team using URL parameters
+ * @param {string} teamId - Team ID to link to
+ * @param {string} teamName - Team name for display text
+ * @param {Object} options - Link options
+ * @returns {string} - HTML link to teams page with team parameter
+ */
+function generateTeamLink(teamId, teamName, options = {}) {
+  const {
+    className = 'team-link',
+    target = '_self',
+    title = `View ${teamName} details`
+  } = options;
+  
+  if (!teamId || !teamName) {
+    return teamName || 'Unknown Team';
+  }
+  
+  return `<a href="teams.html?team=${encodeURIComponent(teamId)}" 
+             class="${className}" 
+             target="${target}" 
+             title="${title}">
+             ${teamName}
+           </a>`;
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   // Check if we're on the teams page before fetching data
   if (!document.getElementById("teamList")) {
@@ -411,6 +484,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log("Loaded team data from DataManager:", teams.length, "teams");
     
     renderTeams(teams);
+    
+    // Handle team URL parameter for direct linking
+    handleTeamUrlParameter();
     
   } catch (error) {
     console.error("Failed to load team data:", error);

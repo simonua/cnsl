@@ -2,10 +2,133 @@
   "$schema": "teams.schema.json",
   "teams": [
     {
+      "id": "cfhss",
+      "name": "CHS Swim Sundevils",
+      "keywords": [
+        "chs",
+        "hawthorn",
+        "swansfield",
+        "sundevils"
+      ],
+      "url": "http://www.teamunify.com/reccnslcfhss/",
+      "homePools": [
+        "Swansfield"
+      ],
+      "practicePools": [
+        "Swansfield",
+        "Hawthorn",
+        "Clary's Forest"
+      ]
+    },
+    {
+      "id": "ccc",
+      "name": "Clemens Crossing Cyclones",
+      "keywords": [
+        "clemens crossing cyclones",
+        "clemens crossing",
+        "clemens",
+        "crossing",
+        "cyclones"
+      ],
+      "url": "http://www.teamunify.com/reccnslccc/",
+      "homePools": [
+        "Clemens Crossing"
+      ],
+      "practicePools": [
+        "Clemens Crossing",
+        "Clary's Forest Pool",
+        "Hawthorn Pool"
+      ]
+    },
+    {
+      "id": "dsd",
+      "name": "Dorsey Search Dolphins",
+      "keywords": [
+        "dorsey search dolphins",
+        "dorsey search",
+        "dorsey",
+        "search",
+        "dolphins"
+      ],
+      "url": "http://www.teamunify.com/reccnsldsd/",
+      "homePools": [
+        "Dorsey Hall"
+      ],
+      "practicePools": [
+        "Dorsey Hall",
+        "Phelps Luck",
+        "Running Brook",
+        "Thunder Hill"
+      ]
+    },
+    {
+      "id": "hcc",
+      "name": "Harper's Choice Challenge",
+      "keywords": [
+        "harper's choice challenge",
+        "harpers choice challenge",
+        "harper's choice",
+        "harpers choice",
+        "harper's",
+        "harpers",
+        "choice",
+        "challenge"
+      ],
+      "url": "http://www.teamunify.com/reccnslhcc/",
+      "homePools": [
+        "Swansfield"
+      ],
+      "practicePools": [
+        "Swansfield",
+        "Longfellow",
+        "Faulkner Ridge"
+      ]
+    },
+    {
+      "id": "hd",
+      "name": "Huntington Dolphins",
+      "keywords": [
+        "huntington dolphins",
+        "huntington",
+        "dolphins"
+      ],
+      "url": "http://www.teamunify.com/reccnslhd/",
+      "homePools": [
+        "Huntington"
+      ],
+      "practicePools": [
+        "Huntington"
+      ]
+    },
+    {
+      "id": "kcw",
+      "name": "Kings Contrivance (KC) Waves",
+      "keywords": [
+        "kings contrivance waves",
+        "kc",
+        "kings contrivance",
+        "kings",
+        "contrivance",
+        "waves"
+      ],
+      "url": "http://www.teamunify.com/reccnslkcw/",
+      "homePools": [
+        "MacGill's Common"
+      ],
+      "practicePools": [
+        "MacGill's Common",
+        "Huntington",
+        "Dickinson"
+      ]
+    },
+    {
       "id": "lrm",
       "name": "Long Reach Marlins",
       "keywords": [
+        "long reach marlins",
         "long reach",
+        "long",
+        "reach",
         "marlins"
       ],
       "url": "http://www.teamunify.com/reccnsllrm/",
@@ -14,8 +137,8 @@
         "Kendall Ridge"
       ],
       "practicePools": [
-        "Jeffers Hill",
         "Kendall Ridge",
+        "Jeffers Hill",
         "Locust Park",
         "Stevens Forest"
       ],
@@ -140,6 +263,168 @@
           ]
         }
       }
+    },
+    {
+      "id": "omts",
+      "name": "Oakland Mills Tigersharks",
+      "keywords": [
+        "oakland mills tigersharks",
+        "oakland mills",
+        "oakland",
+        "mills",
+        "tigersharks"
+      ],
+      "url": "http://www.teamunify.com/reccnslomts/",
+      "homePools": [
+        "Stevens Forest"
+      ],
+      "practicePools": [
+        "Stevens Forest",
+        "Dasher Green",
+        "Talbott Springs"
+      ]
+    },
+    {
+      "id": "obb",
+      "name": "Owen Brown Barracudas",
+      "keywords": [
+        "owen brown barracudas",
+        "owen brown",
+        "owen",
+        "brown",
+        "barracudas"
+      ],
+      "url": "http://www.teamunify.com/reccnslobb/",
+      "homePools": [
+        "Dasher Green"
+      ],
+      "practicePools": [
+        "Dasher Green",
+        "Hopewell",
+        "Talbott Springs"
+      ]
+    },
+    {
+      "id": "prr",
+      "name": "Pheasant Ridge Rapids",
+      "keywords": [
+        "phelps ridge rapids",
+        "pheasant ridge",
+        "pheasant",
+        "ridge",
+        "rapids"
+      ],
+      "url": "http://www.teamunify.com/reccnslprr/",
+      "homePools": [
+        "River Hill"
+      ],
+      "practicePools": [
+        "River Hill",
+        "MacGill's Common",
+        "Hobbit's Glen",
+        "Running Brook"
+      ]
+    },
+    {
+      "id": "pls",
+      "name": "Phelps Luck Snappers",
+      "keywords": [
+        "phelps luck snappers",
+        "phelps luck",
+        "phelps",
+        "luck",
+        "snappers"
+      ],
+      "url": "http://www.teamunify.com/reccnslpls/",
+      "homePools": [
+        "Phelps Luck"
+      ],
+      "practicePools": [
+        "Phelps Luck",
+        "Kendall Ridge",
+        "Locust Park"
+      ]
+    },
+    {
+      "id": "prp",
+      "name": "Pointers Run Piranhas",
+      "keywords": [
+        "pointers run piranhas",
+        "pointers run",
+        "pointers",
+        "run",
+        "piranhas"
+      ],
+      "url": "http://www.teamunify.com/reccnslprp/",
+      "homePools": [
+        "River Hill"
+      ],
+      "practicePools": [
+        "River Hill",
+        "Clemens Crossing",
+        "Hobbit's Glen",
+        "Longfellow"
+      ]
+    },
+    {
+      "id": "thl",
+      "name": "Thunder Hill Lightning",
+      "keywords": [
+        "thunder hill Lightning",
+        "thunder hill",
+        "thunder",
+        "hill",
+        "lightning"
+      ],
+      "url": "http://www.teamunify.com/reccnslthl/",
+      "homePools": [
+        "Thunder Hill"
+      ],
+      "practicePools": [
+        "Thunder Hill",
+        "Locust Park",
+        "Talbott Springs"
+      ]
+    },
+    {
+      "id": "prp",
+      "name": "Pointers Run Piranhas",
+      "keywords": [
+        "pointers run piranhas",
+        "pointers run",
+        "pointers",
+        "run",
+        "piranhas"
+      ],
+      "url": "http://www.teamunify.com/reccnslprp/",
+      "homePools": [
+        "River Hill"
+      ],
+      "practicePools": [
+        "River Hill",
+        "Clemens Crossing",
+        "Hobbit's Glen",
+        "Longfellow"
+      ]
+    },
+    {
+      "id": "wlw",
+      "name": "Wilde Lake Watercats",
+      "keywords": [
+        "wilde lake watercats",
+        "wilde lake",
+        "wilde",
+        "lake",
+        "watercats"
+      ],
+      "url": "http://www.teamunify.com/reccnslwlw/",
+      "homePools": [
+        "Faulkner Ridge"
+      ],
+      "practicePools": [
+        "Faulkner Ridge",
+        "Longfellow"
+      ]
     }
   ]
 }

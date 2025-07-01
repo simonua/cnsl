@@ -41,6 +41,8 @@ const POOL_LOCATION_TO_ID_MAP = {
   'Locust Park Pool': 'lpp',
   'Longfellow': 'lop',
   'Longfellow Pool': 'lop',
+  'Macgill\'s Common': 'mcp',
+  'Macgill\'s Common': 'mcp',
   'Macgills Common': 'mcp',
   'Macgills Common Pool': 'mcp',
   'Phelps Luck': 'plp',

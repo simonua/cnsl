@@ -60,7 +60,7 @@
           "$ref": "#/definitions/DetailedPractice"
         }
       },
-      "required": ["id", "name", "keywords", "url", "homePools", "practicePools", "practice"],
+      "required": ["id", "name", "keywords", "url", "homePools", "practicePools"],
       "additionalProperties": false
     },
     "DetailedPractice": {
