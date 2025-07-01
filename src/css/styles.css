@@ -1274,6 +1274,7 @@ button[aria-label*="Voice"]:active {
   align-items: center;
   justify-content: center;
   gap: 0.25rem;
+  height: 30px;
 }
 
 .nav-btn:hover:not(:disabled),
@@ -1510,6 +1511,31 @@ button[aria-label*="Voice"]:active {
   display: inline-block;
   min-width: 3rem;
   font-weight: 600;
+}
+
+/* Current day highlighting */
+.day-schedule.current-day strong {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: var(--white);
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0, 120, 212, 0.3);
+  transform: scale(1.02);
+  position: relative;
+}
+
+.day-schedule.current-day strong::before {
+  content: "📅 ";
+  margin-right: 0.25rem;
+}
+
+.day-schedule.current-day {
+  background: rgba(0, 120, 212, 0.05);
+  padding: 0.5rem;
+  border-radius: 8px;
+  border-left: 4px solid var(--primary-color);
+  margin: 0.75rem 0;
 }
 
 .time-slot {
