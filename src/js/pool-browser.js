@@ -22,6 +22,28 @@ function getMondayOfWeek(date) {
 }
 
 /**
+ * Check if today's date is within the season date range
+ * @param {Object} dateRange - Object with startDate and endDate properties
+ * @returns {boolean} - True if today is within the season, false otherwise
+ */
+function isTodayInSeason(dateRange) {
+  if (!dateRange || !dateRange.startDate || !dateRange.endDate) {
+    return false;
+  }
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Reset time to start of day for comparison
+  
+  const startDate = new Date(dateRange.startDate);
+  startDate.setHours(0, 0, 0, 0);
+  
+  const endDate = new Date(dateRange.endDate);
+  endDate.setHours(23, 59, 59, 999); // Set to end of day
+  
+  return today >= startDate && today <= endDate;
+}
+
+/**
  * Get or initialize the week start for a specific pool
  * @param {string} poolId - Pool identifier
  * @returns {Date} - Week start date for this pool
@@ -301,6 +323,9 @@ function formatPoolHours(pool) {
           <button class="nav-btn calendar-btn" data-pool-id="${poolId}" ${!dateRange ? 'disabled' : ''}>
             📅
           </button>
+          <button class="nav-btn today-btn" data-pool-id="${poolId}" ${!dateRange || !isTodayInSeason(dateRange) ? 'disabled' : ''}>
+            Today
+          </button>
           <button class="nav-btn prev-week" ${!dateRange || weekStart <= dateRange.startDate ? 'disabled' : ''}>
             ◀ Prev
           </button>
@@ -330,25 +355,34 @@ function formatPoolHours(pool) {
     const today = new Date();
     const currentMondayStart = getMondayOfWeek(today);
     const isCurrentWeek = weekStart.getTime() === currentMondayStart.getTime();
-    const isCurrentDay = isCurrentWeek && day === easternTimeInfo.day;
+    
+    // Calculate current day index (0=Monday, 1=Tuesday, etc.)
+    const todayDayIndex = (today.getDay() + 6) % 7; // Convert Sunday=0 to Monday=0 format
+    const isCurrentDay = isCurrentWeek && index === todayDayIndex;
+    
     
     if (daySchedule && daySchedule.timeSlots && daySchedule.timeSlots.length > 0) {
       // Check if any slot in this day is the current timeslot
       const hasCurrentTimeSlot = isCurrentDay && TimeUtils.hasCurrentTimeSlot(daySchedule.timeSlots, poolStatus.isOpen);
       
-      // Only style the day heading if it contains the current time slot
-      const dayStyle = hasCurrentTimeSlot ? ' style="font-weight: bold; color: var(--primary-color);"' : '';
+      // Style the day heading if it's the current day (regardless of time slot)
+      const dayStyle = isCurrentDay ? ' style="font-weight: bold; color: var(--primary-color);"' : '';
       
       // Add override indicator to day heading if there are overrides
       let dayHeading = `${day} (${monthDay})`;
       if (daySchedule.hasOverrides) {
         dayHeading += ' ⚠️';
+        console.log(`🚨 Special event found for ${day} (${monthDay}):`, {
+          hasOverrides: daySchedule.hasOverrides,
+          overrideReason: daySchedule.overrideReason,
+          timeSlots: daySchedule.timeSlots
+        });
       }
       
       hoursDisplay += `<div class="day-schedule"><strong${dayStyle}>${dayHeading}:</strong></div>`;
       
       // Show override reason if there are overrides for this day
-      if (daySchedule.hasOverrides && daySchedule.overrideReason) {
+      if (daySchedule.hasOverrides === true && daySchedule.overrideReason && daySchedule.overrideReason.trim().length > 0) {
         hoursDisplay += `<div class="override-notice" style="margin-left: 1rem; margin-bottom: 0.2rem;">📋 Special Schedule: ${daySchedule.overrideReason}</div>`;
       }
       
@@ -384,7 +418,10 @@ function formatPoolHours(pool) {
       dayDate.setDate(weekStart.getDate() + index);
       const monthDay = `${dayDate.getMonth() + 1}/${dayDate.getDate()}`;
       
-      hoursDisplay += `<div class="day-schedule"><strong>${day} (${monthDay}):</strong></div>`;
+      // Style the day heading if it's the current day
+      const dayStyle = isCurrentDay ? ' style="font-weight: bold; color: var(--primary-color);"' : '';
+      
+      hoursDisplay += `<div class="day-schedule"><strong${dayStyle}>${day} (${monthDay}):</strong></div>`;
       hoursDisplay += `<div class="time-slot" style="margin-left: 1rem; margin-bottom: 0.2rem;"><span class="closed-day">Closed</span></div>`;
     }
   });
@@ -766,6 +803,17 @@ function navigatePoolToSelectedWeek(poolId, dateValue) {
 }
 
 /**
+ * Navigate a specific pool to today's week
+ * @param {string} poolId - Pool identifier
+ */
+function navigatePoolToToday(poolId) {
+  const today = new Date();
+  const weekStart = getMondayOfWeek(today);
+  setPoolWeekStart(poolId, weekStart);
+  refreshPoolDisplay(poolId);
+}
+
+/**
  * Refresh the display for a specific pool
  * @param {string} poolId - Pool identifier
  */
@@ -831,6 +879,12 @@ function handlePoolNavigationClick(event) {
     if (poolNav) {
       const poolId = poolNav.dataset.poolId;
       navigatePoolToNextWeek(poolId);
+    }
+  } else if (target.classList.contains('today-btn')) {
+    const poolNav = target.closest('.pool-week-navigation');
+    if (poolNav) {
+      const poolId = poolNav.dataset.poolId;
+      navigatePoolToToday(poolId);
     }
   } else if (target.classList.contains('calendar-btn')) {
     const poolNav = target.closest('.pool-week-navigation');

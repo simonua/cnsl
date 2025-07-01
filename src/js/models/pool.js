@@ -334,29 +334,31 @@ class Pool {
         dayData.overrideReason = overrideForDate.reason;
         dayData.timeSlots = this._mergeScheduleWithOverride(activeSchedule, shortDay, overrideForDate);
         dayData.isOpen = dayData.timeSlots.length > 0;
-      } else if (activeSchedule && activeSchedule.hours) {
-        // Regular schedule - no overrides
-        const dayHours = activeSchedule.hours.filter(h => 
-          h.weekDays && h.weekDays.includes(shortDay)
-        );
-        
-        dayHours.forEach(hour => {
-          if (hour.startTime && hour.endTime) {
-            dayData.timeSlots.push({
-              startTime: hour.startTime,
-              endTime: hour.endTime,
-              activities: hour.types || [],
-              notes: hour.notes || '',
-              access: hour.access || 'Public'
-            });
-            dayData.isOpen = true;
-          }
-        });
-        
-        // Sort time slots by start time
-        dayData.timeSlots.sort((a, b) => {
-          return TimeUtils.timeStringToMinutes(a.startTime) - TimeUtils.timeStringToMinutes(b.startTime);
-        });
+      } else {
+        if (activeSchedule && activeSchedule.hours) {
+          // Regular schedule - no overrides
+          const dayHours = activeSchedule.hours.filter(h => 
+            h.weekDays && h.weekDays.includes(shortDay)
+          );
+          
+          dayHours.forEach(hour => {
+            if (hour.startTime && hour.endTime) {
+              dayData.timeSlots.push({
+                startTime: hour.startTime,
+                endTime: hour.endTime,
+                activities: hour.types || [],
+                notes: hour.notes || '',
+                access: hour.access || 'Public'
+              });
+              dayData.isOpen = true;
+            }
+          });
+          
+          // Sort time slots by start time
+          dayData.timeSlots.sort((a, b) => {
+            return TimeUtils.timeStringToMinutes(a.startTime) - TimeUtils.timeStringToMinutes(b.startTime);
+          });
+        }
       }
       
       return dayData;
