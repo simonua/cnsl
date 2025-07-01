@@ -78,14 +78,19 @@
   <include src="components/footer.html"></include>
 
   <!-- Helper classes (load first - order matters for dependencies) -->
+  <!-- Critical dependencies must load synchronously to ensure availability -->
+  <script src="js/services/time-utils.js"></script>
+  <script src="js/types/pool-enums.js"></script>
+  <script src="js/pool-schedule.js"></script>
+  
+  <!-- Other services can load deferred -->
   <script src="js/config/weather-config.js" defer></script>
   <script src="js/services/file-helper.js" defer></script>
-  <script src="js/services/time-utils.js" defer></script>
   <script src="js/services/cache-service.js" defer></script>
   <script src="js/services/weather-service.js" defer></script>
   <script src="js/services/pool-link-helper.js" defer></script>
-  <script src="js/types/pool-enums.js" defer></script>
-  <script src="js/pool-schedule.js" defer></script>
+  
+  <!-- Model classes depend on TimeUtils and PoolEnums -->
   <script src="js/models/pool.js" defer></script>
   <script src="js/pools-manager.js" defer></script>
   <script src="js/teams-manager.js" defer></script>
