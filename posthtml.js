@@ -78,6 +78,15 @@ fs.mkdirSync(outDir, { recursive: true });
 console.log(`📁 [${timestamp()}] Copying assets directory...`);
 copyDir('./src/assets', path.join(outDir, 'assets'), ['data/2025', 'images/logos/originals']);
 
+// Verify swim meet resources were copied
+const swimMeetResourcesPath = path.join(outDir, 'assets', 'swim-meet-resources');
+if (fs.existsSync(swimMeetResourcesPath)) {
+  const files = fs.readdirSync(swimMeetResourcesPath);
+  console.log(`📋 [${timestamp()}] Copied ${files.length} swim meet resource files`);
+} else {
+  console.warn(`⚠️ [${timestamp()}] Swim meet resources directory not found`);
+}
+
 // Copy CSS directory
 console.log(`🎨 [${timestamp()}] Copying CSS directory...`);
 copyDir('./src/css', path.join(outDir, 'css'));

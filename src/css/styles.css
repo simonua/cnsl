@@ -2556,3 +2556,171 @@ button[aria-label*="Voice"]:active {
     font-size: 0.9rem;
   }
 }
+
+/* Swim Meet Resources Styles */
+.intro-section {
+  background: var(--light-bg);
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  margin-bottom: 2rem;
+  border-left: 4px solid var(--primary-color);
+}
+
+.intro-section p {
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+
+.intro-section p:last-child {
+  margin-bottom: 0;
+}
+
+.resources-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.resource-card {
+  background: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+
+.resource-card:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+.resource-card h3 {
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.resource-card p {
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+  flex: 1;
+}
+
+.resource-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: auto;
+}
+
+.btn-primary, .btn-secondary {
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: var(--transition);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: var(--white);
+}
+
+.btn-primary:visited {
+  background: var(--primary-color);
+  color: var(--white);
+}
+
+.btn-primary:hover,
+.btn-primary:visited:hover {
+  background: var(--primary-dark);
+  color: var(--white);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 120, 212, 0.3);
+}
+
+.btn-secondary {
+  background: var(--white);
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+
+.btn-secondary:visited {
+  background: var(--white);
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+
+.btn-secondary:hover,
+.btn-secondary:visited:hover {
+  background: var(--primary-color);
+  color: var(--white);
+  transform: translateY(-1px);
+}
+
+.success-story {
+  background: linear-gradient(135deg, rgba(40, 167, 69, 0.05), rgba(40, 167, 69, 0.02));
+  border: 1px solid rgba(40, 167, 69, 0.2);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  margin-top: 2rem;
+}
+
+.success-story h3 {
+  color: var(--success-color);
+  margin-bottom: 1rem;
+}
+
+.success-story ul {
+  margin-left: 1.5rem;
+  margin-bottom: 0;
+}
+
+.success-story li {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+.success-story li:last-child {
+  margin-bottom: 0;
+}
+
+.success-story strong {
+  color: var(--success-color);
+}
+
+/* Mobile responsiveness for swim meet resources */
+@media (max-width: 768px) {
+  .resources-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .resource-actions {
+    flex-direction: column;
+  }
+  
+  .btn-primary, .btn-secondary {
+    justify-content: center;
+    text-align: center;
+  }
+  
+  .intro-section {
+    padding: 1rem;
+  }
+  
+  .success-story {
+    padding: 1rem;
+  }
+}
