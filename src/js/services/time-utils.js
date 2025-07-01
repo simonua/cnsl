@@ -153,10 +153,13 @@ class TimeUtils {
    * @param {string} startTime - Start time in format "H:MMAM/PM" (e.g., "9:00AM")
    * @param {string} endTime - End time in format "H:MMAM/PM" (e.g., "5:00PM")
    * @param {number} currentMinutes - Current time in minutes since midnight (defaults to now)
-   * @param {boolean} isPoolOpen - Whether the pool is currently open
-   * @returns {boolean} - True if the current time falls within the time slot and the pool is open
+   * @param {boolean} isCurrentDay - Whether this is the current day
+   * @returns {boolean} - True if the current time falls within the time slot and it's the current day
    */
-  static isCurrentTimeSlot(startTime, endTime, currentMinutes = null, isPoolOpen = true) {
+  static isCurrentTimeSlot(startTime, endTime, currentMinutes = null, isCurrentDay = false) {
+    // Only highlight if it's the current day
+    if (!isCurrentDay) return false;
+    
     // Convert time strings to minutes
     const startMinutes = this.timeStringToMinutes(startTime);
     const endMinutes = this.timeStringToMinutes(endTime);
@@ -167,24 +170,30 @@ class TimeUtils {
       currentMinutes = easternTimeInfo.minutes;
     }
     
-    // Check if current time falls within the time slot AND the pool is open
-    return currentMinutes >= startMinutes && currentMinutes < endMinutes && isPoolOpen;
+    // Check if current time falls within the time slot
+    const result = currentMinutes >= startMinutes && currentMinutes < endMinutes;
+    
+    if (result) {
+      console.log(`🎯 TIME SLOT MATCH! ${startTime}-${endTime} contains ${currentMinutes} minutes`);
+    }
+    
+    return result;
   }
 
   /**
    * Checks if any time slot in an array contains the current time
    * @param {Array} timeSlots - Array of time slot objects with startTime and endTime
-   * @param {boolean} isPoolOpen - Whether the pool is currently open
-   * @returns {boolean} - True if current time falls within any slot and pool is open
+   * @param {boolean} isCurrentDay - Whether this is the current day
+   * @returns {boolean} - True if current time falls within any slot and it's the current day
    */
-  static hasCurrentTimeSlot(timeSlots, isPoolOpen = true) {
+  static hasCurrentTimeSlot(timeSlots, isCurrentDay = false) {
     if (!timeSlots || !Array.isArray(timeSlots)) return false;
     
     const easternTimeInfo = this.getCurrentEasternTimeInfo();
     const currentMinutes = easternTimeInfo.minutes;
     
     return timeSlots.some(slot => {
-      return this.isCurrentTimeSlot(slot.startTime, slot.endTime, currentMinutes, isPoolOpen);
+      return this.isCurrentTimeSlot(slot.startTime, slot.endTime, currentMinutes, isCurrentDay);
     });
   }
   
@@ -223,22 +232,22 @@ class TimeUtils {
     let highlightClass = '';
     let inlineStyle = '';
     
-    if (isCurrentDay && status) {
-      // Always determine if this is actually the current time slot
-      const isPoolOpen = status.isOpen || false;
-      const isCurrentTimeSlot = this.isCurrentTimeSlot(startTime, endTime, currentMinutes, isPoolOpen);
-      
-      // Convert these for logging only
-      const startMinutes = this.timeStringToMinutes(startTime);
-      const endMinutes = this.timeStringToMinutes(endTime);
-      
-      // console.log(`🔹 Time slot check for ${timeRange}:`, {
-      //   startMinutes,
-      //   endMinutes,
-      //   currentMinutes,
-      //   forceHighlight,
-      //   isCurrentTimeSlot,
-      //   statusOpen: isPoolOpen,
+    // Determine if this should be highlighted
+    let shouldHighlight = false;
+    
+    if (forceHighlight) {
+      // If forceHighlight is true, we've already determined this slot should be highlighted
+      shouldHighlight = true;
+      console.log(`🚀 Force highlighting enabled for ${timeRange}`);
+    } else if (isCurrentDay) {
+      // Check if this is actually the current time slot
+      shouldHighlight = this.isCurrentTimeSlot(startTime, endTime, currentMinutes, isCurrentDay);
+    }
+    
+    // Convert these for logging only
+    const startMinutes = this.timeStringToMinutes(startTime);
+    const endMinutes = this.timeStringToMinutes(endTime);
+    
       //   statusColor: status.color || 'unknown'
       // });
       
@@ -250,20 +259,37 @@ class TimeUtils {
           inlineStyle = ' style="background-color: #28a745 !important; color: white !important; padding: 0.2rem 0.4rem !important; border-radius: 0.3rem !important; font-weight: bold !important;"';
         } else if (status.color === 'yellow') {
           highlightClass = ' highlighted-time-slot-yellow';
-          inlineStyle = ' style="background-color: #ffc107 !important; color: black !important; padding: 0.2rem 0.4rem !important; border-radius: 0.3rem !important; font-weight: bold !important;"';
-        } else {
-          highlightClass = ' highlighted-time-slot-red';
-          inlineStyle = ' style="background-color: #dc3545 !important; color: white !important; padding: 0.2rem 0.4rem !important; border-radius: 0.3rem !important; font-weight: bold !important;"';
-        }
-        
+    
+    // Apply highlighting if this should be highlighted and we have status info
+    if (shouldHighlight && status) {
+      // Highlight based on pool status color
+      if (status.color === 'green') {
+        // Pool is fully open
+        highlightClass = ' highlighted-time-slot-green';
+        inlineStyle = ' style="background-color: #28a745 !important; color: white !important; padding: 0.2rem 0.4rem !important; border-radius: 0.3rem !important; font-weight: bold !important;"';
+      } else if (status.color === 'yellow') {
+        // Pool has restricted access (practice only, swim meet, etc.)
+        highlightClass = ' highlighted-time-slot-yellow';
+        inlineStyle = ' style="background-color: #ffc107 !important; color: black !important; padding: 0.2rem 0.4rem !important; border-radius: 0.3rem !important; font-weight: bold !important;"';
+      } else if (status.color === 'red') {
+        // Pool is closed to public or fully closed - light red highlighting
+        highlightClass = ' highlighted-time-slot-red';
+        inlineStyle = ' style="background-color: #ffcccb !important; color: #d32f2f !important; padding: 0.2rem 0.4rem !important; border-radius: 0.3rem !important; font-weight: bold !important;"';
+      }
+      
+      if (highlightClass) {
         console.log(`🎯 MATCH FOUND! Highlighting time slot: ${startTime}-${endTime}`);
         console.log(`🎯 Status color: ${status.color || 'unknown'}`);
         console.log(`🎯 Applied highlight class: "${highlightClass.trim()}"`);
+      } else {
+        console.log(`🚫 Current time slot but unknown status color: ${status.color || 'unknown'}`);
       }
+    } else if (shouldHighlight && !status) {
+      console.log(`🚫 Should highlight ${timeRange} but no status provided`);
     }
     
     const result = `<span class="time-range-container${highlightClass}"${inlineStyle}><span class="time-start">${startTime}</span><span class="time-dash">-</span><span class="time-end">${endTime}</span></span>`;
-    //console.log(`🔸 Returning formatted time: ${result.substring(0, 50)}...`);
+    console.log(`🔸 Returning formatted time for ${timeRange}: ${result.substring(0, 100)}...`);
     return result;
   }
 }

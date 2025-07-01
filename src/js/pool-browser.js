@@ -354,7 +354,11 @@ function formatPoolHours(pool) {
     // Calculate if this is the current day for highlighting
     const today = new Date();
     const currentMondayStart = getMondayOfWeek(today);
-    const isCurrentWeek = weekStart.getTime() === currentMondayStart.getTime();
+    
+    // Compare just the date parts, not the full timestamp (which includes time)
+    const weekStartDateOnly = new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate());
+    const currentMondayDateOnly = new Date(currentMondayStart.getFullYear(), currentMondayStart.getMonth(), currentMondayStart.getDate());
+    const isCurrentWeek = weekStartDateOnly.getTime() === currentMondayDateOnly.getTime();
     
     // Calculate current day index (0=Monday, 1=Tuesday, etc.)
     const todayDayIndex = (today.getDay() + 6) % 7; // Convert Sunday=0 to Monday=0 format
@@ -363,7 +367,7 @@ function formatPoolHours(pool) {
     
     if (daySchedule && daySchedule.timeSlots && daySchedule.timeSlots.length > 0) {
       // Check if any slot in this day is the current timeslot
-      const hasCurrentTimeSlot = isCurrentDay && TimeUtils.hasCurrentTimeSlot(daySchedule.timeSlots, poolStatus.isOpen);
+      const hasCurrentTimeSlot = TimeUtils.hasCurrentTimeSlot(daySchedule.timeSlots, isCurrentDay);
       
       // Style the day heading if it's the current day (regardless of time slot)
       const dayStyle = isCurrentDay ? ' style="font-weight: bold; color: var(--primary-color);"' : '';
@@ -404,7 +408,7 @@ function formatPoolHours(pool) {
         
         const notesText = slot.notes ? ` ${slot.notes}` : '';
         const timeRange = `${slot.startTime}-${slot.endTime}`;
-        const timeHtml = formatTimeRangeSpans(timeRange, isCurrentDay, null, poolStatus);
+        const timeHtml = TimeUtils.formatTimeRangeWithHighlight(timeRange, isCurrentDay, null, poolStatus);
 
         if (slot.isOverride) {
           hoursDisplay += `<div class="${slotClass}" style="${slotStyle}">${timeHtml}<b>${notesText}</b></div>`;
@@ -694,19 +698,6 @@ function renderPools(pools) {
   }).join('');
 
   list.innerHTML = html;
-}
-
-/**
- * Formats a time range into three separate spans for better alignment
- * @param {string} timeRange - Time range in format "startTime-endTime"
- * @param {boolean} isCurrentDay - Whether this is the current day
- * @param {number|null} currentTime - Current time in minutes since midnight (null = auto-calculate)
- * @param {Object} poolStatus - Pool status object with color information
- * @returns {string} - HTML with three spans for start, dash, and end time
- */
-function formatTimeRangeSpans(timeRange, isCurrentDay = false, currentTime = null, poolStatus = null) {
-  // Use the shared utility function from TimeUtils
-  return TimeUtils.formatTimeRangeWithHighlight(timeRange, isCurrentDay, currentTime, poolStatus);
 }
 
 /**

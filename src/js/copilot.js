@@ -148,10 +148,9 @@ function formatCopilotPoolHours(pool) {
         // Check for accurate slot highlighting - only highlight if we're currently in this exact time slot
         const isCurrentTimeSlot = isCurrentDay && 
           easternTimeInfo.minutes >= slot.startMinutes && 
-          easternTimeInfo.minutes < slot.endMinutes &&
-          isCurrentlyOpen;
+          easternTimeInfo.minutes < slot.endMinutes;
         
-        const timeHtml = slot.timeRange ? formatTimeRangeSpans(slot.timeRange, isCurrentTimeSlot, poolStatus.color) : '';
+        const timeHtml = slot.timeRange ? TimeUtils.formatTimeRangeWithHighlight(slot.timeRange, true, null, poolStatus, isCurrentTimeSlot) : '';
         
         hoursDisplay += `<div style="margin-bottom: 0.3rem; ${dayStyle}"><strong>${day}:</strong> ${timeHtml}${typesText}${notesText}</div>`;
       } else {
@@ -166,10 +165,9 @@ function formatCopilotPoolHours(pool) {
           // Check for accurate slot highlighting - only highlight if we're currently in this exact time slot
           const isCurrentTimeSlot = isCurrentDay && 
             easternTimeInfo.minutes >= slot.startMinutes && 
-            easternTimeInfo.minutes < slot.endMinutes &&
-            isCurrentlyOpen;
+            easternTimeInfo.minutes < slot.endMinutes;
           
-          const timeHtml = slot.timeRange ? formatTimeRangeSpans(slot.timeRange, isCurrentTimeSlot, poolStatus.color) : '';
+          const timeHtml = slot.timeRange ? TimeUtils.formatTimeRangeWithHighlight(slot.timeRange, true, null, poolStatus, isCurrentTimeSlot) : '';
           
           hoursDisplay += `<div style="margin-left: 1rem; margin-bottom: 0.2rem;">${timeHtml}${typesText}${notesText}</div>`;
         });
@@ -229,35 +227,6 @@ function formatDayGroupForCopilot(group) {
   } else {
     return `${group[0].substring(0, 3)}-${group[group.length - 1].substring(0, 3)}`;
   }
-}
-
-/**
- * Formats a time range with accurate highlighting
- * @param {string} timeRange - Time range in format "startTime-endTime"
- * @param {boolean} isCurrentTime - Whether this time range applies to the current time
- * @param {string} statusColor - Status color for highlighting: 'green', 'yellow', 'orange', or 'red'
- * @returns {string} - HTML with proper highlighting for current time slot
- */
-function formatTimeRangeSpans(timeRange, isCurrentTime = false, statusColor = 'green') {
-  if (!timeRange) return '';
-  
-  const parts = timeRange.split('-');
-  if (parts.length !== 2) return timeRange;
-  
-  const startTime = parts[0].trim();
-  const endTime = parts[1].trim();
-  
-  // Create a mock status object for the shared utility function
-  const status = { 
-    color: statusColor || 'green',
-    isOpen: isCurrentTime // Only consider open if it's the current time slot
-  };
-  
-  //console.log(`🔹 copilot.js - formatTimeRangeSpans: ${timeRange}, isCurrentTime=${isCurrentTime}, statusColor=${statusColor}`);
-  
-  // For copilot.js, we're already checking if a specific timeslot is current
-  // Let TimeUtils calculate the current time automatically
-  return TimeUtils.formatTimeRangeWithHighlight(timeRange, true, null, status, isCurrentTime);
 }
 
 // ------------------------------
