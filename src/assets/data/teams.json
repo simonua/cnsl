@@ -195,25 +195,27 @@
         ],
         "regular": {
           "season": "June 19 - July 24",
-          "morning": {
-            "days": "Tuesday - Friday",
-            "location": "Kendall Ridge Pool",
-            "address": "8245 Tamar Dr, Columbia, MD 21045",
-            "sessions": [
-              {
-                "time": "8:00 - 8:45am",
-                "group": "13 and over"
-              },
-              {
-                "time": "8:45 - 9:30am",
-                "group": "9 - 12"
-              },
-              {
-                "time": "9:30 - 10:00am",
-                "group": "8 and under"
-              }
-            ]
-          },
+          "morning": [
+            {
+              "days": "Tuesday - Friday",
+              "location": "Kendall Ridge Pool",
+              "address": "8245 Tamar Dr, Columbia, MD 21045",
+              "sessions": [
+                {
+                  "time": "8:00 - 8:45am",
+                  "group": "13 and over"
+                },
+                {
+                  "time": "8:45 - 9:30am",
+                  "group": "9 - 12"
+                },
+                {
+                  "time": "9:30 - 10:00am",
+                  "group": "8 and under"
+                }
+              ]
+            }
+          ],
           "evening": [
             {
               "day": "Monday",
@@ -374,25 +376,27 @@
         ],
         "regular": {
           "season": "June 19 - July 24",
-          "morning": {
-            "days": "Tuesday - Friday",
-            "location": "Phelps Luck Pool",
-            "address": "5355 Phelps Luck Dr, Columbia, MD 21045",
-            "sessions": [
-              {
-                "time": "8:00 - 8:30am",
-                "group": "8 and under"
-              },
-              {
-                "time": "8:30 - 9:15am",
-                "group": "9 - 12"
-              },
-              {
-                "time": "9:15 - 10:00am",
-                "group": "13 and over"
-              }
-            ]
-          },
+          "morning": [
+            {
+              "days": "Tuesday - Friday",
+              "location": "Phelps Luck Pool",
+              "address": "5355 Phelps Luck Dr, Columbia, MD 21045",
+              "sessions": [
+                {
+                  "time": "8:00 - 8:30am",
+                  "group": "8 and under"
+                },
+                {
+                  "time": "8:30 - 9:15am",
+                  "group": "9 - 12"
+                },
+                {
+                  "time": "9:15 - 10:00am",
+                  "group": "13 and over"
+                }
+              ]
+            }
+          ],
           "evening": [
             {
               "day": "Tuesday",
@@ -474,7 +478,186 @@
         "Clemens Crossing",
         "Hobbit's Glen",
         "Longfellow"
-      ]
+      ],
+      "practice": {
+        "url": "https://www.gomotionapp.com/team/reccnslpls/page/practices",
+        "preseason": [
+          {
+            "period": "May 27 - June 18",
+            "days": "Monday & Wednesday",
+            "location": "River Hill Pool",
+            "address": "6330 Trotter Rd, Clarksville, MD 21029",
+            "sessions": [
+              {
+                "time": "5:00 - 5:30pm",
+                "group": "New Swimmers"
+              },
+              {
+                "time": "5:30 - 6:00pm",
+                "group": "8 and under"
+              },
+              {
+                "time": "6:00 - 6:30pm",
+                "group": "9 - 10"
+              },
+              {
+                "time": "6:30 - 7:00pm",
+                "group": "11 and over"
+              }
+            ]
+          },
+          {
+            "period": "May 27 - June 18",
+            "days": "Tuesday & Thursday",
+            "location": "Hobbit's Glen Pool",
+            "address": "11130 Willow Bottom Dr, Columbia, MD 21044",
+            "sessions": [
+              {
+                "time": "5:00 - 5:30pm",
+                "group": "New Swimmers"
+              },
+              {
+                "time": "5:30 - 6:00pm",
+                "group": "8 and under"
+              },
+              {
+                "time": "6:00 - 6:30pm",
+                "group": "9 - 10"
+              },
+              {
+                "time": "6:30 - 7:00pm",
+                "group": "11 and over"
+              }
+            ]
+          },
+          {
+            "period": "May 27 - June 18",
+            "days": "Friday",
+            "location": "Hobbit's Glen Pool",
+            "address": "11130 Willow Bottom Dr, Columbia, MD 21044",
+            "sessions": [
+              {
+                "time": "4:00 - 4:30pm",
+                "group": "11 and over"
+              },
+              {
+                "time": "4:30 - 5:00pm",
+                "group": "9 - 10"
+              },
+              {
+                "time": "5:00 - 5:30pm",
+                "group": "New Swimmers"
+              },
+              {
+                "time": "5:30 - 6:00pm",
+                "group": "8 and under"
+              }
+            ]
+          }
+        ],
+        "regular": {
+          "season": "June 19 - July 24",
+          "morning": [
+            {
+              "days": "Tuesday & Thursday",
+              "location": "River Hill Pool",
+              "address": "6330 Trotter Rd, Clarksville, MD 21029",
+              "sessions": [
+                {
+                  "time": "10:00 - 10:40am",
+                  "group": "8 and under"
+                },
+                {
+                  "time": "10:40 - 11:20am",
+                  "group": "9 - 10"
+                },
+                {
+                  "time": "11:20 - 12:00pm",
+                  "group": "11 and over"
+                }
+              ]
+            },
+            {
+              "days": "Wednesday & Friday",
+              "location": "River Hill Pool",
+              "address": "6330 Trotter Rd, Clarksville, MD 21029",
+              "sessions": [
+                {
+                  "time": "8:00 - 8:40am",
+                  "group": "8 and under"
+                },
+                {
+                  "time": "8:40 - 9:20am",
+                  "group": "9 - 10"
+                },
+                {
+                  "time": "9:20 - 10:00am",
+                  "group": "11 and over"
+                }
+              ]
+            }
+          ],
+          "evening": [
+            {
+              "day": "Monday",
+              "location": "Longfellow Pool",
+              "address": "5257 Eliots Oak Rd, Columbia, MD 21044",
+              "sessions": [
+                {
+                  "time": "4:00 - 4:30pm",
+                  "group": "8 and under"
+                },
+                {
+                  "time": "4:30 - 5:00pm",
+                  "group": "9 - 10"
+                },
+                {
+                  "time": "5:00 - 5:30pm",
+                  "group": "11 and over"
+                }
+              ]
+            },
+            {
+              "day": "Tuesday",
+              "location": "Clemens Crossing Pool",
+              "address": "6400 Martin Road, Columbia, MD 21044",
+              "sessions": [
+                {
+                  "time": "6:30 - 7:00pm",
+                  "group": "8 and under"
+                },
+                {
+                  "time": "7:00 - 7:30pm",
+                  "group": "9 - 10"
+                },
+                {
+                  "time": "7:30 - 8:00pm",
+                  "group": "11 and over"
+                }
+              ]
+            },
+            {
+              "day": "Wednesday",
+              "location": "Hobbit's Glen Pool",
+              "address": "11130 Willow Bottom Dr, Columbia, MD 21044",
+              "sessions": [
+                {
+                  "time": "5:00 - 5:30pm",
+                  "group": "8 and under"
+                },
+                {
+                  "time": "5:30 - 6:00pm",
+                  "group": "9 - 10"
+                },
+                {
+                  "time": "6:00 - 6:30pm",
+                  "group": "11 and over"
+                }
+              ]
+            }
+          ]
+        }
+      }
     },
     {
       "id": "thl",
@@ -494,27 +677,6 @@
         "Thunder Hill",
         "Locust Park",
         "Talbott Springs"
-      ]
-    },
-    {
-      "id": "prp",
-      "name": "Pointers Run Piranhas",
-      "keywords": [
-        "pointers run piranhas",
-        "pointers run",
-        "pointers",
-        "run",
-        "piranhas"
-      ],
-      "url": "http://www.teamunify.com/reccnslprp/",
-      "homePools": [
-        "River Hill"
-      ],
-      "practicePools": [
-        "River Hill",
-        "Clemens Crossing",
-        "Hobbit's Glen",
-        "Longfellow"
       ]
     },
     {

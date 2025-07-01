@@ -108,21 +108,25 @@ function getUpcomingPractices(practice, count = 2) {
     const isToday = daysAhead === 0;
     
     // Morning practices (Tuesday-Friday)
-    if (practice.regular.morning && [2, 3, 4, 5].includes(checkDay)) {
-      const hasPassedToday = isToday && currentTime >= 10 * 60; // 10 AM cutoff
-      if (!hasPassedToday) {
-        const sessions = practice.regular.morning.sessions;
-        const firstSession = sessions && sessions[0] ? sessions[0] : null;
-        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        
-        addPractice(
-          dayNames[checkDay],
-          checkDay,
-          firstSession ? firstSession.time : 'Morning',
-          practice.regular.morning.location,
-          practice.regular.morning.address,
-          'Morning Practice'
-        );
+    if (practice.regular.morning && Array.isArray(practice.regular.morning)) {
+      for (let morning of practice.regular.morning) {
+        if ([2, 3, 4, 5].includes(checkDay)) {
+          const hasPassedToday = isToday && currentTime >= 10 * 60; // 10 AM cutoff
+          if (!hasPassedToday) {
+            const sessions = morning.sessions;
+            const firstSession = sessions && sessions[0] ? sessions[0] : null;
+            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            
+            addPractice(
+              dayNames[checkDay],
+              checkDay,
+              firstSession ? firstSession.time : 'Morning',
+              morning.location,
+              morning.address,
+              'Morning Practice'
+            );
+          }
+        }
       }
     }
     
@@ -173,27 +177,28 @@ function formatCurrentPracticeSchedule(practice) {
   }
   
   // Morning practices
-  if (currentSchedule.morning) {
-    const morning = currentSchedule.morning;
-    html += '<div class="practice-period">';
-    html += '<strong>Morning Practice:</strong>';
-    html += `<div class="practice-details">`;
-    html += `<div><strong>Days:</strong> ${morning.days}</div>`;
-    if (morning.location) {
-      const poolLink = getEnhancedPoolLink(morning.location, morning.address);
-      html += `<div><strong>Location:</strong> ${poolLink}</div>`;
-    }
-    if (morning.sessions && Array.isArray(morning.sessions)) {
-      html += '<div class="sessions">';
-      morning.sessions.forEach(session => {
-        html += `<div class="session-item">`;
-        html += `<span class="session-time">${session.time}</span>`;
-        html += `<span class="session-group">${session.group}</span>`;
-        html += `</div>`;
-      });
-      html += '</div>';
-    }
-    html += '</div></div>';
+  if (currentSchedule.morning && Array.isArray(currentSchedule.morning)) {
+    currentSchedule.morning.forEach(morning => {
+      html += '<div class="practice-period">';
+      html += '<strong>Morning Practice:</strong>';
+      html += `<div class="practice-details">`;
+      html += `<div><strong>Days:</strong> ${morning.days}</div>`;
+      if (morning.location) {
+        const poolLink = getEnhancedPoolLink(morning.location, morning.address);
+        html += `<div><strong>Location:</strong> ${poolLink}</div>`;
+      }
+      if (morning.sessions && Array.isArray(morning.sessions)) {
+        html += '<div class="sessions">';
+        morning.sessions.forEach(session => {
+          html += `<div class="session-item">`;
+          html += `<span class="session-time">${session.time}</span>`;
+          html += `<span class="session-group">${session.group}</span>`;
+          html += `</div>`;
+        });
+        html += '</div>';
+      }
+      html += '</div></div>';
+    });
   }
   
   // Evening practices

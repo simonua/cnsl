@@ -121,7 +121,11 @@
           "$ref": "#/definitions/NonEmptyString"
         },
         "morning": {
-          "$ref": "#/definitions/MorningPractice"
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MorningPractice"
+          },
+          "minItems": 1
         },
         "evening": {
           "type": "array",
