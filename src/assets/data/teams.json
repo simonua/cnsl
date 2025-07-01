@@ -343,7 +343,117 @@
         "Phelps Luck",
         "Kendall Ridge",
         "Locust Park"
-      ]
+      ],
+      "practice": {
+        "url": "https://www.gomotionapp.com/team/reccnslpls/page/practices",
+        "preseason": [
+          {
+            "period": "May 27 - June 18",
+            "days": "Monday - Friday",
+            "location": "Phelps Luck Pool",
+            "address": "5355 Phelps Luck Dr, Columbia, MD 21045",
+            "sessions": [
+              {
+                "time": "5:00 - 5:30pm",
+                "group": "New Swimmers"
+              },
+              {
+                "time": "5:30 - 6:00pm",
+                "group": "8 and under"
+              },
+              {
+                "time": "6:00 - 6:30pm",
+                "group": "9 - 12"
+              },
+              {
+                "time": "6:30 - 7:00pm",
+                "group": "13 and over"
+              }
+            ]
+          }
+        ],
+        "regular": {
+          "season": "June 19 - July 24",
+          "morning": {
+            "days": "Tuesday - Friday",
+            "location": "Phelps Luck Pool",
+            "address": "5355 Phelps Luck Dr, Columbia, MD 21045",
+            "sessions": [
+              {
+                "time": "8:00 - 8:30am",
+                "group": "8 and under"
+              },
+              {
+                "time": "8:30 - 9:15am",
+                "group": "9 - 12"
+              },
+              {
+                "time": "9:15 - 10:00am",
+                "group": "13 and over"
+              }
+            ]
+          },
+          "evening": [
+            {
+              "day": "Tuesday",
+              "location": "Kendall Ridge Pool",
+              "address": "8245 Tamar Dr, Columbia, MD 21045",
+              "sessions": [
+                {
+                  "time": "6:30 - 7:00pm",
+                  "group": "8 and under"
+                },
+                {
+                  "time": "6:30 - 7:15pm",
+                  "group": "9 - 10"
+                },
+                {
+                  "time": "7:15 - 8:00pm",
+                  "group": "11 and over"
+                }
+              ]
+            },
+            {
+              "day": "Wednesday",
+              "location": "Phelps Luck Pool",
+              "address": "5355 Phelps Luck Dr, Columbia, MD 21045",
+              "sessions": [
+                {
+                  "time": "6:30 - 7:00pm",
+                  "group": "8 and under"
+                },
+                {
+                  "time": "6:30 - 7:15pm",
+                  "group": "9 - 10"
+                },
+                {
+                  "time": "7:15 - 8:00pm",
+                  "group": "11 and over"
+                }
+              ]
+            },
+            {
+              "day": "Thursday",
+              "location": "Locust Park Pool",
+              "address": "8995 Lambskin Ln, Columbia, MD 21045",
+              "sessions": [
+                {
+                  "time": "5:00 - 5:30pm",
+                  "group": "8 and under"
+                },
+                {
+                  "time": "5:00 - 5:45pm",
+                  "group": "9 - 10"
+                },
+                {
+                  "time": "5:45 - 6:30pm",
+                  "group": "11 and over"
+                }
+              ]
+            }
+          ]
+        }
+      }
     },
     {
       "id": "prp",
