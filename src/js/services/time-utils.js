@@ -9,16 +9,16 @@ class TimeUtils {
   static getEasternTime() {
     const now = new Date();
     //console.log(`🌍 Browser local time: ${now.toLocaleString()}`);
-    
+
     // Convert to Eastern Time using proper timezone handling
-    const easternTime = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+    const easternTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
     //console.log(`🗽 Eastern time: ${easternTime.toLocaleString()}`);
-    
+
     // Verify timezone conversion
-    const easternTimeString = now.toLocaleString("en-US", {timeZone: "America/New_York"});
+    const easternTimeString = now.toLocaleString("en-US", { timeZone: "America/New_York" });
     const timezone = now.toLocaleDateString('en-US', { timeZoneName: 'short', timeZone: 'America/New_York' }).split(', ')[1] || 'ET';
     //console.log(`🕐 Eastern time string: ${easternTimeString} (${timezone})`);
-    
+
     return easternTime;
   }
 
@@ -57,13 +57,13 @@ class TimeUtils {
     if (minutes < 0 || minutes >= 1440) { // 1440 minutes in a day
       return '12:00am'; // Default fallback
     }
-    
+
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
-    
+
     let displayHours = hours;
     let period = 'am';
-    
+
     if (hours === 0) {
       displayHours = 12;
     } else if (hours === 12) {
@@ -72,7 +72,7 @@ class TimeUtils {
       displayHours = hours - 12;
       period = 'pm';
     }
-    
+
     const minutePart = mins === 0 ? '00' : mins.toString().padStart(2, '0');
     return `${displayHours}:${minutePart}${period}`;
   }
@@ -147,7 +147,7 @@ class TimeUtils {
   static parseTimeString(timeString) {
     return Math.floor(this.timeStringToMinutes(timeString) / 60);
   }
-  
+
   /**
    * Checks whether the current time falls within the given time slot
    * @param {string} startTime - Start time in format "H:MMAM/PM" (e.g., "9:00AM")
@@ -159,24 +159,24 @@ class TimeUtils {
   static isCurrentTimeSlot(startTime, endTime, currentMinutes = null, isCurrentDay = false) {
     // Only highlight if it's the current day
     if (!isCurrentDay) return false;
-    
+
     // Convert time strings to minutes
     const startMinutes = this.timeStringToMinutes(startTime);
     const endMinutes = this.timeStringToMinutes(endTime);
-    
+
     // If currentMinutes is not provided, get current time
     if (currentMinutes === null) {
       const easternTimeInfo = this.getCurrentEasternTimeInfo();
       currentMinutes = easternTimeInfo.minutes;
     }
-    
+
     // Check if current time falls within the time slot
     const result = currentMinutes >= startMinutes && currentMinutes < endMinutes;
-    
+
     if (result) {
       console.log(`🎯 TIME SLOT MATCH! ${startTime}-${endTime} contains ${currentMinutes} minutes`);
     }
-    
+
     return result;
   }
 
@@ -188,15 +188,15 @@ class TimeUtils {
    */
   static hasCurrentTimeSlot(timeSlots, isCurrentDay = false) {
     if (!timeSlots || !Array.isArray(timeSlots)) return false;
-    
+
     const easternTimeInfo = this.getCurrentEasternTimeInfo();
     const currentMinutes = easternTimeInfo.minutes;
-    
+
     return timeSlots.some(slot => {
       return this.isCurrentTimeSlot(slot.startTime, slot.endTime, currentMinutes, isCurrentDay);
     });
   }
-  
+
   /**
    * Formats a time range with highlighting for the current timeslot
    * @param {string} timeRange - Time range in format "startTime-endTime"
@@ -212,29 +212,22 @@ class TimeUtils {
       const easternTimeInfo = this.getCurrentEasternTimeInfo();
       currentMinutes = easternTimeInfo.minutes;
     }
-    // console.log('✨ formatTimeRangeWithHighlight - CALLED with:', { 
-    //   timeRange, 
-    //   isCurrentDay, 
-    //   currentMinutes, 
-    //   status: status ? { color: status.color, isOpen: status.isOpen } : null,
-    //   forceHighlight
-    // });
-    
+
     if (!timeRange) return '';
-    
+
     const parts = timeRange.split('-');
     if (parts.length !== 2) return timeRange;
-    
+
     const startTime = parts[0].trim();
     const endTime = parts[1].trim();
-    
+
     // Check if current time falls within this slot (only for current day)
     let highlightClass = '';
     let inlineStyle = '';
-    
+
     // Determine if this should be highlighted
     let shouldHighlight = false;
-    
+
     if (forceHighlight) {
       // If forceHighlight is true, we've already determined this slot should be highlighted
       shouldHighlight = true;
@@ -243,23 +236,7 @@ class TimeUtils {
       // Check if this is actually the current time slot
       shouldHighlight = this.isCurrentTimeSlot(startTime, endTime, currentMinutes, isCurrentDay);
     }
-    
-    // Convert these for logging only
-    const startMinutes = this.timeStringToMinutes(startTime);
-    const endMinutes = this.timeStringToMinutes(endTime);
-    
-      //   statusColor: status.color || 'unknown'
-      // });
-      
-      // Apply highlighting if this is the current time slot
-      if (isCurrentTimeSlot) {
-        // For highlighting, use color based on status
-        if (status.color === 'green') {
-          highlightClass = ' highlighted-time-slot-green';
-          inlineStyle = ' style="background-color: #28a745 !important; color: white !important; padding: 0.2rem 0.4rem !important; border-radius: 0.3rem !important; font-weight: bold !important;"';
-        } else if (status.color === 'yellow') {
-          highlightClass = ' highlighted-time-slot-yellow';
-    
+
     // Apply highlighting if this should be highlighted and we have status info
     if (shouldHighlight && status) {
       // Highlight based on pool status color
@@ -289,7 +266,6 @@ class TimeUtils {
     }
     
     const result = `<span class="time-range-container${highlightClass}"${inlineStyle}><span class="time-start">${startTime}</span><span class="time-dash">-</span><span class="time-end">${endTime}</span></span>`;
-    console.log(`🔸 Returning formatted time for ${timeRange}: ${result.substring(0, 100)}...`);
     return result;
   }
 }
