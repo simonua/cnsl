@@ -1,5 +1,5 @@
-// Cache version - updated with each build
-const CACHE_VERSION = new Date().toISOString().split('T')[0].replace(/-/g, '');
+// Cache version - updated with each build  
+const CACHE_VERSION = new Date().toISOString().replace(/[-:]/g, '').split('.')[0]; // Include timestamp for immediate updates
 const CACHE_NAME = `cnsl-static-${CACHE_VERSION}`;
 
 // Check if running in development mode (localhost or port 9090)
@@ -167,7 +167,42 @@ self.addEventListener("fetch", event => {
     return;
   }
 
-  // For production, use cache-first strategy with network fallback
+  // Check if this is a data file (JSON) - use network-first for data files for faster updates
+  const isDataFile = event.request.url.includes('/assets/data/') && event.request.url.endsWith('.json');
+  
+  if (isDataFile) {
+    // Network-first strategy for JSON data files
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          if (response && response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(event.request, responseClone);
+            });
+          }
+          return response;
+        })
+        .catch(error => {
+          // Network failed, try cache
+          return caches.match(event.request)
+            .then(cachedResponse => {
+              if (cachedResponse) {
+                console.log('Network failed for data file, serving from cache:', event.request.url);
+                return cachedResponse;
+              }
+              console.error('Both network and cache failed for data file:', error);
+              return new Response('Data unavailable', { 
+                status: 408,
+                statusText: 'Network error'
+              });
+            });
+        })
+    );
+    return;
+  }
+
+  // For production, use cache-first strategy with network fallback for other resources
   event.respondWith(
     caches.match(event.request)
       .then(response => {
