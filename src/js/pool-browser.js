@@ -145,7 +145,7 @@ async function loadSeasonInfo() {
       if (poolData.caPoolGuideUrl) {
         caPoolGuideLinkHtml = `
             <a href="${poolData.caPoolGuideUrl}" target="_blank" rel="noopener" class="directory-link">
-              📖 Your Guide to CA's 2025 Pool Season
+              📖 CA's 2025 Pool Season
             </a>
         `;
       }
@@ -166,7 +166,7 @@ async function loadSeasonInfo() {
       
       seasonInfo.innerHTML = `
         <p class="season-text">
-          The CA Outdoor Pool season runs from ${startDateText} to ${endDateText}<br/> 
+          The CA Outdoor Pool season runs from <b>${startDateText}</b> to <b>${endDateText}</b><br/> 
           <span class="season-note">(Memorial Day weekend to Labor Day weekend)</span>
         </p>
         ${linksHtml}
