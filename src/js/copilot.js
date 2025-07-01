@@ -4,6 +4,20 @@ let copilotDataManager = null;
 // Search engine instance
 let searchEngine = null;
 
+
+// ------------------------------
+//    SAFE REFERENCE HELPERS
+// ------------------------------
+
+/**
+ * Safely get TimeUtils reference
+ * @returns {object|null} TimeUtils class or null if not available
+ */
+function _getTimeUtils() {
+  return (typeof window !== 'undefined' && window.TimeUtils) ? window.TimeUtils : null;
+}
+
+
 // ------------------------------
 //    MODERN DATA ACCESS HELPERS
 // ------------------------------
@@ -78,7 +92,10 @@ function formatCopilotPoolHours(pool) {
   }
 
   // Get current Eastern time info (user's timezone considered but defaulted to Eastern)
-  const easternTimeInfo = TimeUtils.getCurrentEasternTimeInfo();
+  const timeUtils = _getTimeUtils();
+  if (!timeUtils) return '<div><strong>🕒 Hours:</strong> Time utilities not available</div>';
+  
+  const easternTimeInfo = timeUtils.getCurrentEasternTimeInfo();
   const currentDate = easternTimeInfo.date;
   
   // Find the current active schedule
@@ -111,10 +128,10 @@ function formatCopilotPoolHours(pool) {
         }
         dayGroups[day].push({
           timeRange: hour.startTime && hour.endTime ? `${hour.startTime}-${hour.endTime}` : '',
-          types: TimeUtils.formatActivityTypes(hour.types),
+          types: timeUtils.formatActivityTypes(hour.types),
           notes: hour.notes || '',
-          startMinutes: hour.startTime ? TimeUtils.timeStringToMinutes(hour.startTime) : 0,
-          endMinutes: hour.endTime ? TimeUtils.timeStringToMinutes(hour.endTime) : 0
+          startMinutes: hour.startTime ? timeUtils.timeStringToMinutes(hour.startTime) : 0,
+          endMinutes: hour.endTime ? timeUtils.timeStringToMinutes(hour.endTime) : 0
         });
       });
     }
@@ -150,7 +167,7 @@ function formatCopilotPoolHours(pool) {
           easternTimeInfo.minutes >= slot.startMinutes && 
           easternTimeInfo.minutes < slot.endMinutes;
         
-        const timeHtml = slot.timeRange ? TimeUtils.formatTimeRangeWithHighlight(slot.timeRange, true, null, poolStatus, isCurrentTimeSlot) : '';
+        const timeHtml = slot.timeRange ? timeUtils.formatTimeRangeWithHighlight(slot.timeRange, true, null, poolStatus, isCurrentTimeSlot) : '';
         
         hoursDisplay += `<div style="margin-bottom: 0.3rem; ${dayStyle}"><strong>${day}:</strong> ${timeHtml}${typesText}${notesText}</div>`;
       } else {
@@ -167,7 +184,7 @@ function formatCopilotPoolHours(pool) {
             easternTimeInfo.minutes >= slot.startMinutes && 
             easternTimeInfo.minutes < slot.endMinutes;
           
-          const timeHtml = slot.timeRange ? TimeUtils.formatTimeRangeWithHighlight(slot.timeRange, true, null, poolStatus, isCurrentTimeSlot) : '';
+          const timeHtml = slot.timeRange ? timeUtils.formatTimeRangeWithHighlight(slot.timeRange, true, null, poolStatus, isCurrentTimeSlot) : '';
           
           hoursDisplay += `<div style="margin-left: 1rem; margin-bottom: 0.2rem;">${timeHtml}${typesText}${notesText}</div>`;
         });
@@ -497,9 +514,10 @@ function demonstrateObjectOrientedFeatures() {
   }
   
   // Demo 3: Time utilities
-  if (typeof TimeUtils !== 'undefined') {
+  const timeUtils = _getTimeUtils();
+  if (timeUtils) {
     console.log('\n⏰ 3. Time Utilities:');
-    const easternTimeInfo = TimeUtils.getCurrentEasternTimeInfo();
+    const easternTimeInfo = timeUtils.getCurrentEasternTimeInfo();
     console.log(`Eastern Time Info:`, easternTimeInfo);
   }
   

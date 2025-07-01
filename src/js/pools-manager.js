@@ -1,7 +1,10 @@
 /**
  * Manages all pools with search, filtering, and utility methods
  */
-class PoolsManager {
+
+// Prevent multiple declarations
+if (!window.PoolsManager) {
+  class PoolsManager {
   constructor() {
     this.pools = new Map();
     this.lastUpdated = null;
@@ -285,4 +288,9 @@ class PoolsManager {
     this.lastUpdated = new Date().toISOString();
     return Promise.resolve();
   }
+}
+
+// Make sure it's available globally
+window.PoolsManager = PoolsManager;
+
 }

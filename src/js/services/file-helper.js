@@ -10,7 +10,9 @@
 //    FILE HELPER CLASS
 // ------------------------------
 
-class FileHelper {
+// Prevent multiple declarations
+if (!window.FileHelper) {
+  class FileHelper {
   
   // ------------------------------
   //    ENVIRONMENT DETECTION
@@ -392,4 +394,9 @@ if (typeof window !== 'undefined') {
 // Export for module systems
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = FileHelper;
+}
+
+// Make sure it's available globally
+window.FileHelper = FileHelper;
+
 }

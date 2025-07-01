@@ -2,6 +2,9 @@
  * Pool Link Helper - Utilities for linking to pools from various pages
  */
 
+// Prevent multiple declarations
+if (!window.getPoolIdFromLocation) {
+
 // ------------------------------
 //    POOL MAPPING AND LINKING UTILITIES
 // ------------------------------
@@ -205,4 +208,13 @@ function generateEnhancedPoolLink(locationName, dataManager, options = {}) {
     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${searchQuery}`;
     return `<a href="${mapsUrl}" target="_blank" rel="noopener" class="location-link">${locationName}</a>`;
   }
+}
+
+// Make functions available globally
+window.getPoolIdFromLocation = getPoolIdFromLocation;
+window.getPoolDataFromLocation = getPoolDataFromLocation;
+window.generatePoolsPageLink = generatePoolsPageLink;
+window.generateGoogleMapsLink = generateGoogleMapsLink;
+window.generateEnhancedPoolLink = generateEnhancedPoolLink;
+
 }

@@ -1,7 +1,10 @@
 /**
  * Meets management and scheduling operations
  */
-class MeetsManager {
+
+// Prevent multiple declarations
+if (!window.MeetsManager) {
+  class MeetsManager {
   constructor() {
     this.meets = new Map();
     this.lastUpdated = null;
@@ -144,7 +147,12 @@ class MeetsManager {
    * @returns {Array} - Array of today's meets
    */
   getTodaysMeets() {
-    const today = TimeUtils.formatDate(new Date());
+    const TimeUtilsRef = this._getTimeUtils();
+    if (!TimeUtilsRef) {
+      return [];
+    }
+    
+    const today = TimeUtilsRef.formatDate(new Date());
     return this.getMeetsByDate(today);
   }
 
@@ -340,9 +348,14 @@ class MeetsManager {
    * @returns {Array} - Array of meet summaries
    */
   getMeetsSummary() {
+    const TimeUtilsRef = this._getTimeUtils();
+    if (!TimeUtilsRef) {
+      return [];
+    }
+    
     return this.getAllMeets().map(meet => ({
       date: meet.date,
-      formattedDate: TimeUtils.formatDateForDisplay(new Date(meet.date)),
+      formattedDate: TimeUtilsRef.formatDateForDisplay(new Date(meet.date)),
       time: meet.time || 'TBD',
       homeTeam: meet.homeTeam || 'TBD',
       awayTeam: meet.awayTeam || 'TBD',
@@ -350,7 +363,28 @@ class MeetsManager {
       awayPool: meet.awayPool || 'TBD',
       isUpcoming: new Date(meet.date) >= new Date(),
       isPast: new Date(meet.date) < new Date(),
-      isToday: meet.date === TimeUtils.formatDate(new Date())
+      isToday: meet.date === TimeUtilsRef.formatDate(new Date())
     }));
   }
+
+  /**
+   * Get TimeUtils reference safely
+   * @private
+   * @returns {Object|null} - TimeUtils object or null if not available
+   */
+  _getTimeUtils() {
+    if (typeof window !== 'undefined' && window.TimeUtils) {
+      return window.TimeUtils;
+    }
+    if (typeof TimeUtils !== 'undefined') {
+      return TimeUtils;
+    }
+    console.error('TimeUtils is not available in MeetsManager');
+    return null;
+  }
+}
+
+// Make sure it's available globally
+window.MeetsManager = MeetsManager;
+
 }

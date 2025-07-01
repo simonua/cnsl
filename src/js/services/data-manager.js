@@ -1,7 +1,10 @@
 /**
  * Coordinates all data managers and provides unified access to CNSL data
  */
-class DataManager {
+
+// Prevent multiple declarations
+if (!window.DataManager) {
+  class DataManager {
   constructor() {
     this.poolsManager = new PoolsManager();
     this.teamsManager = new TeamsManager();
@@ -256,7 +259,12 @@ class DataManager {
     const pool = this.poolsManager.getPool(poolName);
     if (!pool) return null;
 
-    const dayName = TimeUtils.getDayName(new Date(date));
+    const TimeUtilsRef = this._getTimeUtils();
+    if (!TimeUtilsRef) {
+      return null;
+    }
+
+    const dayName = TimeUtilsRef.getDayName(new Date(date));
     const schedule = pool.getTimeSlots(dayName);
     const meets = this.meetsManager.getPoolConflicts(poolName, date);
 
@@ -366,6 +374,22 @@ class DataManager {
       meets: this.meetsManager.isDataLoaded()
     };
   }
+
+  /**
+   * Get TimeUtils reference safely
+   * @private
+   * @returns {Object|null} - TimeUtils object or null if not available
+   */
+  _getTimeUtils() {
+    if (typeof window !== 'undefined' && window.TimeUtils) {
+      return window.TimeUtils;
+    }
+    if (typeof TimeUtils !== 'undefined') {
+      return TimeUtils;
+    }
+    console.error('TimeUtils is not available in DataManager');
+    return null;
+  }
 }
 
 // Create global instance for backward compatibility
@@ -390,4 +414,9 @@ function getDataManager() {
 async function initializeDataManager() {
   const manager = getDataManager();
   return manager.initialize();
+}
+
+// Make sure it's available globally
+window.DataManager = DataManager;
+
 }

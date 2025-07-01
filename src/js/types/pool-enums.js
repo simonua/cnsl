@@ -1,7 +1,10 @@
 /**
  * Pool enumeration and constants
  */
-class PoolNames {
+
+// Prevent multiple declarations
+if (!window.PoolNames) {
+  class PoolNames {
   // Current pools (expandable to 23+ as data becomes available)
   static BRYANT_WOODS = 'Bryant Woods';
   static KENDALL_RIDGE = 'Kendall Ridge';
@@ -91,4 +94,17 @@ class PoolStatus {
   static CLOSED_TO_PUBLIC = { isOpen: false, status: 'Closed to Public', color: 'red', icon: '🔴' };
   static SWIM_MEET = { isOpen: true, status: 'Swim Meet', color: 'yellow', icon: '🟡' };
   static SCHEDULE_NOT_FOUND = { isOpen: false, status: 'Schedule TBD', color: 'gray', icon: '⚫' };
+}
+
+// Node.js compatibility
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = PoolNames;
+}
+
+// Add to global window if available (browser compatibility)
+if (typeof window !== 'undefined') {
+    window.PoolNames = PoolNames;
+    window.PoolStatus = PoolStatus;
+}
+
 }

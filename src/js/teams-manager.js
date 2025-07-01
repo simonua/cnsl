@@ -1,7 +1,10 @@
 /**
  * Teams management and operations
  */
-class TeamsManager {
+
+// Prevent multiple declarations
+if (!window.TeamsManager) {
+  class TeamsManager {
   constructor() {
     this.teams = new Map();
     this.lastUpdated = null;
@@ -275,4 +278,9 @@ class TeamsManager {
       }
     }));
   }
+}
+
+// Make sure it's available globally
+window.TeamsManager = TeamsManager;
+
 }

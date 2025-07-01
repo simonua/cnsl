@@ -6,8 +6,23 @@ let userCoords = null;
 const poolWeekStates = new Map();
 
 // ------------------------------
+//    SAFE REFERENCE HELPERS
+// ------------------------------
+
+/**
+ * Safely get TimeUtils reference
+ * @returns {object|null} TimeUtils class or null if not available
+ */
+function _getTimeUtils() {
+  return (typeof window !== 'undefined' && window.TimeUtils) ? window.TimeUtils : null;
+}
+
+// ------------------------------
 //    UTILITY FUNCTIONS
 // ------------------------------
+
+// Prevent multiple declarations
+if (!window.getMondayOfWeek) {
 
 /**
  * Get the Monday of the week for a given date
@@ -293,7 +308,12 @@ function formatPoolHours(pool) {
   const weekEnd = new Date(weekStart);
   weekEnd.setDate(weekStart.getDate() + 6);
   
-  const easternTimeInfo = TimeUtils.getCurrentEasternTimeInfo();
+  const timeUtils = _getTimeUtils();
+  if (!timeUtils) {
+    return '<div class="pool-week-display">Time utilities not available</div>';
+  }
+  
+  const easternTimeInfo = timeUtils.getCurrentEasternTimeInfo();
   const poolStatus = poolObj.getCurrentStatus();
   
   // Get week schedule for the selected week
@@ -367,7 +387,7 @@ function formatPoolHours(pool) {
     
     if (daySchedule && daySchedule.timeSlots && daySchedule.timeSlots.length > 0) {
       // Check if any slot in this day is the current timeslot
-      const hasCurrentTimeSlot = TimeUtils.hasCurrentTimeSlot(daySchedule.timeSlots, isCurrentDay);
+      const hasCurrentTimeSlot = timeUtils.hasCurrentTimeSlot(daySchedule.timeSlots, isCurrentDay);
       
       // Style the day heading if it's the current day (regardless of time slot)
       const dayStyle = isCurrentDay ? ' style="font-weight: bold; color: var(--primary-color);"' : '';
@@ -391,7 +411,7 @@ function formatPoolHours(pool) {
       }
       
       daySchedule.timeSlots.forEach(slot => {
-        let typesText = slot.activities ? ` ${TimeUtils.formatActivityTypes(slot.activities)}` : '';
+        let typesText = slot.activities ? ` ${timeUtils.formatActivityTypes(slot.activities)}` : '';
         
         // Make "Closed to Public" bold
         if (typesText.includes('Closed to Public')) {
@@ -408,7 +428,7 @@ function formatPoolHours(pool) {
         
         const notesText = slot.notes ? ` ${slot.notes}` : '';
         const timeRange = `${slot.startTime}-${slot.endTime}`;
-        const timeHtml = TimeUtils.formatTimeRangeWithHighlight(timeRange, isCurrentDay, null, poolStatus);
+        const timeHtml = timeUtils.formatTimeRangeWithHighlight(timeRange, isCurrentDay, null, poolStatus);
 
         if (slot.isOverride) {
           hoursDisplay += `<div class="${slotClass}" style="${slotStyle}">${timeHtml}<b>${notesText}</b></div>`;
@@ -986,3 +1006,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 });
+
+// Make functions available globally
+window.getMondayOfWeek = getMondayOfWeek;
+window.isTodayInSeason = isTodayInSeason;
+window.getPoolWeekStart = getPoolWeekStart;
+window.setPoolWeekStart = setPoolWeekStart;
+window.getStatusTooltip = getStatusTooltip;
+window.initializePoolBrowser = initializePoolBrowser;
+window.loadSeasonInfo = loadSeasonInfo;
+
+}

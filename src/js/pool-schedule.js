@@ -1,9 +1,28 @@
 /**
  * Pool schedule management and time slot logic
  */
-class PoolSchedule {
+
+// Prevent multiple declarations
+if (!window.PoolSchedule) {
+  class PoolSchedule {
   constructor(scheduleData) {
     this.scheduleData = scheduleData || {};
+  }
+
+  /**
+   * Get PoolStatus reference safely
+   * @private
+   * @returns {Object|null} - PoolStatus object or null if not available
+   */
+  _getPoolStatus() {
+    if (typeof window !== 'undefined' && window.PoolStatus) {
+      return window.PoolStatus;
+    }
+    if (typeof PoolStatus !== 'undefined') {
+      return PoolStatus;
+    }
+    console.error('PoolStatus is not available');
+    return null;
   }
 
   /**
@@ -31,7 +50,12 @@ class PoolSchedule {
     const { open, close } = dayHours;
     if (!open || !close) return 'Hours unavailable';
 
-    return `${TimeUtils.formatTime(open)} - ${TimeUtils.formatTime(close)}`;
+    const TimeUtilsRef = this._getTimeUtils();
+    if (!TimeUtilsRef) {
+      return 'Error loading times';
+    }
+
+    return `${TimeUtilsRef.formatTime(open)} - ${TimeUtilsRef.formatTime(close)}`;
   }
 
   /**
@@ -41,33 +65,43 @@ class PoolSchedule {
    * @returns {PoolStatus} - Pool status object
    */
   getStatusAtTime(dayName, time = new Date()) {
+    const PoolStatusRef = this._getPoolStatus();
+    if (!PoolStatusRef) {
+      return { isOpen: false, status: 'Error', color: 'gray', icon: '⚫' };
+    }
+    
     const dayHours = this.getDayHours(dayName);
     if (!dayHours) {
-      return PoolStatus.CLOSED;
+      return PoolStatusRef.CLOSED;
     }
 
     if (dayHours.closed) {
-      return PoolStatus.CLOSED;
+      return PoolStatusRef.CLOSED;
     }
 
     const { open, close } = dayHours;
     if (!open || !close) {
-      return PoolStatus.CLOSED;
+      return PoolStatusRef.CLOSED;
     }
 
-    const currentTime = TimeUtils.formatTimeForComparison(time);
-    const openTime = TimeUtils.parseTimeString(open);
-    const closeTime = TimeUtils.parseTimeString(close);
+    const TimeUtilsRef = this._getTimeUtils();
+    if (!TimeUtilsRef) {
+      return PoolStatusRef.CLOSED;
+    }
+
+    const currentTime = TimeUtilsRef.formatTimeForComparison(time);
+    const openTime = TimeUtilsRef.parseTimeString(open);
+    const closeTime = TimeUtilsRef.parseTimeString(close);
 
     if (currentTime >= openTime && currentTime <= closeTime) {
       // Check for restrictions during this time
       if (dayHours.restrictions) {
         return this._getRestrictionStatus(dayHours.restrictions, time);
       }
-      return PoolStatus.OPEN;
+      return PoolStatusRef.OPEN;
     }
 
-    return PoolStatus.CLOSED;
+    return PoolStatusRef.CLOSED;
   }
 
   /**
@@ -75,8 +109,13 @@ class PoolSchedule {
    * @returns {PoolStatus} - Current pool status
    */
   getCurrentStatus() {
+    const TimeUtilsRef = this._getTimeUtils();
+    if (!TimeUtilsRef) {
+      return { isOpen: false, status: 'Error', color: 'gray', icon: '⚫' };
+    }
+    
     const now = new Date();
-    const dayName = TimeUtils.getDayName(now);
+    const dayName = TimeUtilsRef.getDayName(now);
     return this.getStatusAtTime(dayName, now);
   }
 
@@ -85,10 +124,15 @@ class PoolSchedule {
    * @returns {boolean} - True if pool is open, false otherwise
    */
   isPoolOpen() {
+    const TimeUtilsRef = this._getTimeUtils();
+    if (!TimeUtilsRef) {
+      return false;
+    }
+    
     // Get current time in Eastern timezone
     const now = new Date();
     const easternTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
-    const dayName = TimeUtils.getDayName(easternTime);
+    const dayName = TimeUtilsRef.getDayName(easternTime);
     const status = this.getStatusAtTime(dayName, easternTime);
     
     return status.status === 'open';
@@ -100,29 +144,35 @@ class PoolSchedule {
    * @returns {Array} - Array of time slot objects
    */
   getTimeSlots(dayName) {
+    const TimeUtilsRef = this._getTimeUtils();
+    if (!TimeUtilsRef) {
+      return [];
+    }
+    
     const dayHours = this.getDayHours(dayName);
     if (!dayHours || dayHours.closed) {
       return [];
     }
 
     const now = new Date();
-    const currentDayName = TimeUtils.getDayName(now);
+    const currentDayName = TimeUtilsRef.getDayName(now);
     const isToday = dayName === currentDayName;
 
     const slots = [];
     const { open, close } = dayHours;
 
     if (open && close) {
-      const openTime = TimeUtils.parseTimeString(open);
-      const closeTime = TimeUtils.parseTimeString(close);
+      const openTime = TimeUtilsRef.parseTimeString(open);
+      const closeTime = TimeUtilsRef.parseTimeString(close);
       
       // Generate hourly slots between open and close
       for (let hour = openTime; hour < closeTime; hour++) {
         const startTime = `${hour}:00`;
         const endTime = `${hour + 1}:00`;
         
+        const PoolStatusRef = this._getPoolStatus();
         let isCurrentSlot = false;
-        let status = PoolStatus.OPEN;
+        let status = PoolStatusRef ? PoolStatusRef.OPEN : { isOpen: true, status: 'Open', color: 'green', icon: '🟢' };
 
         if (isToday) {
           const currentHour = now.getHours();
@@ -139,7 +189,7 @@ class PoolSchedule {
           isCurrentSlot,
           status: status.status,
           color: status.color,
-          timeRange: `${TimeUtils.formatTime(startTime)} - ${TimeUtils.formatTime(endTime)}`
+          timeRange: `${TimeUtilsRef.formatTime(startTime)} - ${TimeUtilsRef.formatTime(endTime)}`
         });
       }
     }
@@ -155,22 +205,27 @@ class PoolSchedule {
    * @returns {PoolStatus} - Appropriate status based on restrictions
    */
   _getRestrictionStatus(restrictions, time) {
+    const PoolStatusRef = this._getPoolStatus();
+    if (!PoolStatusRef) {
+      return { isOpen: false, status: 'Error', color: 'gray', icon: '⚫' };
+    }
+    
     // Check if current time falls within any restriction period
     for (const restriction of restrictions) {
       if (this._isTimeInRestriction(restriction, time)) {
         switch (restriction.type) {
           case 'practice':
-            return PoolStatus.PRACTICE_ONLY;
+            return PoolStatusRef.PRACTICE_ONLY;
           case 'meet':
-            return PoolStatus.SWIM_MEET;
+            return PoolStatusRef.SWIM_MEET;
           case 'closed':
-            return PoolStatus.CLOSED_TO_PUBLIC;
+            return PoolStatusRef.CLOSED_TO_PUBLIC;
           default:
-            return PoolStatus.RESTRICTED;
+            return PoolStatusRef.RESTRICTED;
         }
       }
     }
-    return PoolStatus.OPEN;
+    return PoolStatusRef.OPEN;
   }
 
   /**
@@ -183,9 +238,14 @@ class PoolSchedule {
   _isTimeInRestriction(restriction, time) {
     if (!restriction.start || !restriction.end) return false;
 
-    const currentTime = TimeUtils.formatTimeForComparison(time);
-    const restrictionStart = TimeUtils.parseTimeString(restriction.start);
-    const restrictionEnd = TimeUtils.parseTimeString(restriction.end);
+    const TimeUtilsRef = this._getTimeUtils();
+    if (!TimeUtilsRef) {
+      return false;
+    }
+
+    const currentTime = TimeUtilsRef.formatTimeForComparison(time);
+    const restrictionStart = TimeUtilsRef.parseTimeString(restriction.start);
+    const restrictionEnd = TimeUtilsRef.parseTimeString(restriction.end);
 
     return currentTime >= restrictionStart && currentTime <= restrictionEnd;
   }
@@ -214,4 +274,9 @@ class PoolSchedule {
            Object.keys(this.scheduleData).length > 0 && 
            Object.values(this.scheduleData).some(dayData => dayData && (dayData.open || dayData.timeSlots));
   }
+}
+
+// Make sure it's available globally
+window.PoolSchedule = PoolSchedule;
+
 }

@@ -10,7 +10,9 @@
 //    SEARCH ENGINE CLASS
 // ------------------------------
 
-class CNSLSearchEngine {
+// Prevent multiple declarations
+if (!window.CNSLSearchEngine) {
+  class CNSLSearchEngine {
   constructor(dataManager) {
     this.dataManager = dataManager;
   }
@@ -809,4 +811,9 @@ class CNSLSearchEngine {
 // Export the search engine class for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = CNSLSearchEngine;
+}
+
+// Make sure it's available globally
+window.CNSLSearchEngine = CNSLSearchEngine;
+
 }

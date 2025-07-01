@@ -17,23 +17,20 @@
     <script src="js/services/time-utils.js"></script>
     <script src="js/types/pool-enums.js"></script>
     <script src="js/pool-schedule.js"></script>
+    <script src="js/services/pool-link-helper.js"></script>
+    <script src="js/models/pool.js"></script>
+    <script src="js/pools-manager.js"></script>
+    <script src="js/teams-manager.js"></script>
+    <script src="js/meets-manager.js"></script>
+    <script src="js/services/data-manager.js"></script>
     
     <!-- Other services can load deferred -->
     <script src="js/config/weather-config.js" defer></script>
     <script src="js/services/file-helper.js" defer></script>
     <script src="js/services/cache-service.js" defer></script>
     <script src="js/services/weather-service.js" defer></script>
-    <script src="js/services/pool-link-helper.js" defer></script>
-    
-    <!-- Model classes depend on TimeUtils and PoolEnums -->
-    <script src="js/models/pool.js" defer></script>
-    <script src="js/pools-manager.js" defer></script>
-    <script src="js/teams-manager.js" defer></script>
-    <script src="js/meets-manager.js" defer></script>
-    <script src="js/services/data-manager.js" defer></script>
 
     <!-- Application scripts -->
-    <script src="js/navigation.js" defer></script>
     <script src="js/services/speech.js" defer></script>
     <script src="js/pool-browser.js" defer></script>
     <script src="js/teams-browser.js" defer></script>
@@ -170,17 +167,5 @@
         }
       });
     </script>
-
-    <!-- Load Dependencies in Order -->
-    <script src="js/services/time-utils.js"></script>
-    <script src="js/services/pool-link-helper.js"></script>
-    <script src="js/types/pool-enums.js"></script>
-    <script src="js/models/pool.js"></script>
-    <script src="js/services/data-manager.js"></script>
-    <script src="js/services/file-helper.js"></script>
-    <script src="js/pools-manager.js"></script>
-    <script src="js/pool-browser.js" defer></script>
-    <script src="js/navigation.js" defer></script>
-    <script src="js/services/search-engine.js" defer></script>
   </block>
 </extends>

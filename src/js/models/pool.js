@@ -1,7 +1,10 @@
 /**
  * Individual pool class with contextual methods
  */
-class Pool {
+
+// Prevent multiple declarations
+if (!window.Pool) {
+  class Pool {
   constructor(poolData) {
     this.id = poolData.id || '';
     this.name = poolData.name || '';
@@ -63,14 +66,53 @@ class Pool {
   }
 
   /**
+   * Get TimeUtils reference safely
+   * @private
+   * @returns {Object|null} - TimeUtils object or null if not available
+   */
+  _getTimeUtils() {
+    if (typeof window !== 'undefined' && window.TimeUtils) {
+      return window.TimeUtils;
+    }
+    if (typeof TimeUtils !== 'undefined') {
+      return TimeUtils;
+    }
+    console.error('TimeUtils is not available');
+    return null;
+  }
+
+  /**
+   * Get PoolStatus reference safely
+   * @private
+   * @returns {Object|null} - PoolStatus object or null if not available
+   */
+  _getPoolStatus() {
+    if (typeof window !== 'undefined' && window.PoolStatus) {
+      return window.PoolStatus;
+    }
+    if (typeof PoolStatus !== 'undefined') {
+      return PoolStatus;
+    }
+    console.error('PoolStatus is not available');
+    return null;
+  }
+
+  /**
    * Normalize current active schedule from date-based schedule data
    * @private
    * @param {Array} schedules - Array of schedule objects with date ranges
    * @returns {Object} - Normalized schedule format for current date
    */
   _normalizeCurrentSchedule(schedules) {
+    // Ensure TimeUtils is available
+    const TimeUtilsRef = this._getTimeUtils();
+    if (!TimeUtilsRef) {
+      console.error('TimeUtils is not available in Pool._normalizeCurrentSchedule');
+      return {}; // Return empty schedule as fallback
+    }
+    
     // Find the current active schedule based on today's date
-    const easternTimeInfo = TimeUtils.getCurrentEasternTimeInfo();
+    const easternTimeInfo = TimeUtilsRef.getCurrentEasternTimeInfo();
     const currentDate = easternTimeInfo.date;
     
     const activeSchedule = schedules.find(schedule => {
@@ -183,13 +225,18 @@ class Pool {
    * @returns {PoolStatus} - Current pool status
    */
   getCurrentStatus() {
+    const PoolStatusRef = this._getPoolStatus();
+    if (!PoolStatusRef) {
+      return { isOpen: false, status: 'Error', color: 'gray', icon: '⚫' };
+    }
+    
     if (this.legacySchedules) {
       return this._getLegacyStatus();
     }
     
     // Check if new format pool has no schedule data
     if (!this.schedule || !this.schedule.hasScheduleData()) {
-      return PoolStatus.SCHEDULE_NOT_FOUND;
+      return PoolStatusRef.SCHEDULE_NOT_FOUND;
     }
     
     return this.schedule.getCurrentStatus();
@@ -201,12 +248,22 @@ class Pool {
    * @returns {PoolStatus} - Pool status from legacy data
    */
   _getLegacyStatus() {
+    const PoolStatusRef = this._getPoolStatus();
+    if (!PoolStatusRef) {
+      return { isOpen: false, status: 'Error', color: 'gray', icon: '⚫' };
+    }
+    
     // Check if pool has no schedule data at all
     if (!this.legacySchedules || !Array.isArray(this.legacySchedules) || this.legacySchedules.length === 0) {
-      return PoolStatus.SCHEDULE_NOT_FOUND;
+      return PoolStatusRef.SCHEDULE_NOT_FOUND;
     }
 
-    const easternTimeInfo = TimeUtils.getCurrentEasternTimeInfo();
+    const TimeUtilsRef = this._getTimeUtils();
+    if (!TimeUtilsRef) {
+      return PoolStatusRef.SCHEDULE_NOT_FOUND;
+    }
+
+    const easternTimeInfo = TimeUtilsRef.getCurrentEasternTimeInfo();
     const currentDate = easternTimeInfo.date;
     const currentDay = easternTimeInfo.day.substring(0, 3); // Get short day name (Mon, Tue, etc.)
     const currentTime = easternTimeInfo.minutes;
@@ -217,7 +274,7 @@ class Pool {
     });
 
     if (!activeSchedule || !activeSchedule.hours) {
-      return PoolStatus.CLOSED;
+      return PoolStatusRef.CLOSED;
     }
 
     // Find today's hours
@@ -226,31 +283,31 @@ class Pool {
     );
     
     if (!todayHours.length) {
-      return PoolStatus.CLOSED;
+      return PoolStatusRef.CLOSED;
     }
 
     // Check current time against all time slots
     for (const hour of todayHours) {
-      const startMinutes = TimeUtils.timeStringToMinutes(hour.startTime);
-      const endMinutes = TimeUtils.timeStringToMinutes(hour.endTime);
+      const startMinutes = TimeUtilsRef.timeStringToMinutes(hour.startTime);
+      const endMinutes = TimeUtilsRef.timeStringToMinutes(hour.endTime);
       
       if (currentTime >= startMinutes && currentTime < endMinutes) {
         // Check activity types to determine access level
-        const activityTypes = TimeUtils.formatActivityTypes(hour.types).toLowerCase();
+        const activityTypes = TimeUtilsRef.formatActivityTypes(hour.types).toLowerCase();
         
         if (activityTypes.includes('closed to public')) {
-          return PoolStatus.CLOSED_TO_PUBLIC;
+          return PoolStatusRef.CLOSED_TO_PUBLIC;
         } else if (activityTypes.includes('cnsl practice only')) {
-          return PoolStatus.PRACTICE_ONLY;
+          return PoolStatusRef.PRACTICE_ONLY;
         } else if (activityTypes.includes('swim meet')) {
-          return PoolStatus.SWIM_MEET;
+          return PoolStatusRef.SWIM_MEET;
         } else {
-          return PoolStatus.OPEN;
+          return PoolStatusRef.OPEN;
         }
       }
     }
 
-    return PoolStatus.CLOSED;
+    return PoolStatusRef.CLOSED;
   }
 
   /**
@@ -356,7 +413,9 @@ class Pool {
           
           // Sort time slots by start time
           dayData.timeSlots.sort((a, b) => {
-            return TimeUtils.timeStringToMinutes(a.startTime) - TimeUtils.timeStringToMinutes(b.startTime);
+            const TimeUtilsRef = this._getTimeUtils();
+            if (!TimeUtilsRef) return 0;
+            return TimeUtilsRef.timeStringToMinutes(a.startTime) - TimeUtilsRef.timeStringToMinutes(b.startTime);
           });
         }
       }
@@ -457,11 +516,15 @@ class Pool {
     }
     
     // Convert times to minutes for easier comparison
-    const convertSlot = (slot) => ({
-      ...slot,
-      startMinutes: TimeUtils.timeStringToMinutes(slot.startTime),
-      endMinutes: TimeUtils.timeStringToMinutes(slot.endTime)
-    });
+    const convertSlot = (slot) => {
+      const TimeUtilsRef = this._getTimeUtils();
+      if (!TimeUtilsRef) return { ...slot, startMinutes: 0, endMinutes: 0 };
+      return {
+        ...slot,
+        startMinutes: TimeUtilsRef.timeStringToMinutes(slot.startTime),
+        endMinutes: TimeUtilsRef.timeStringToMinutes(slot.endTime)
+      };
+    };
     
     const regularSlotsWithMinutes = regularSlots.map(convertSlot);
     const overrideSlotsWithMinutes = overrideSlots.map(convertSlot);
@@ -490,20 +553,26 @@ class Pool {
             
             // Add part before override (if any)
             if (remaining.startMinutes < override.startMinutes) {
-              newRemainingSlots.push({
-                ...remaining,
-                endMinutes: override.startMinutes,
-                endTime: TimeUtils.minutesToTimeString(override.startMinutes)
-              });
+              const TimeUtilsRef = this._getTimeUtils();
+              if (TimeUtilsRef) {
+                newRemainingSlots.push({
+                  ...remaining,
+                  endMinutes: override.startMinutes,
+                  endTime: TimeUtilsRef.minutesToTimeString(override.startMinutes)
+                });
+              }
             }
             
             // Add part after override (if any)
             if (remaining.endMinutes > override.endMinutes) {
-              newRemainingSlots.push({
-                ...remaining,
-                startMinutes: override.endMinutes,
-                startTime: TimeUtils.minutesToTimeString(override.endMinutes)
-              });
+              const TimeUtilsRef = this._getTimeUtils();
+              if (TimeUtilsRef) {
+                newRemainingSlots.push({
+                  ...remaining,
+                  startMinutes: override.endMinutes,
+                  startTime: TimeUtilsRef.minutesToTimeString(override.endMinutes)
+                });
+              }
             }
           } else {
             // No overlap - keep the regular slot
@@ -636,9 +705,22 @@ class Pool {
         shouldShowAsOverride = hasSpecialReason || hasSpecialActivity;
       }
       
+      const TimeUtilsRef = this._getTimeUtils();
+      if (!TimeUtilsRef) {
+        return {
+          startTime: 'Error',
+          endTime: 'Error', 
+          activities: overrideSlot.activities,
+          notes: shouldShowAsOverride ? overrideSlot.notes : (overrideSlot.notes || ''),
+          access: overrideSlot.access,
+          isOverride: shouldShowAsOverride,
+          overrideReason: shouldShowAsOverride ? overrideSlot.overrideReason : null
+        };
+      }
+      
       return {
-        startTime: TimeUtils.minutesToTimeString(startMinutes),
-        endTime: TimeUtils.minutesToTimeString(endMinutes),
+        startTime: TimeUtilsRef.minutesToTimeString(startMinutes),
+        endTime: TimeUtilsRef.minutesToTimeString(endMinutes),
         activities: overrideSlot.activities,
         notes: shouldShowAsOverride ? overrideSlot.notes : (overrideSlot.notes || ''),
         access: overrideSlot.access,
@@ -646,10 +728,22 @@ class Pool {
         overrideReason: shouldShowAsOverride ? overrideSlot.overrideReason : null
       };
     } else if (activeRegularSlots.length > 0) {
+      const TimeUtilsRef = this._getTimeUtils();
+      if (!TimeUtilsRef) {
+        return {
+          startTime: 'Error',
+          endTime: 'Error',
+          activities: [],
+          notes: '',
+          access: 'Unknown',
+          isOverride: false
+        };
+      }
+      
       const regularSlot = activeRegularSlots[0]; // Use first regular if multiple
       return {
-        startTime: TimeUtils.minutesToTimeString(startMinutes),
-        endTime: TimeUtils.minutesToTimeString(endMinutes),
+        startTime: TimeUtilsRef.minutesToTimeString(startMinutes),
+        endTime: TimeUtilsRef.minutesToTimeString(endMinutes),
         activities: regularSlot.activities,
         notes: regularSlot.notes,
         access: regularSlot.access,
@@ -711,8 +805,13 @@ class Pool {
    * @returns {Array} - Array of current restrictions
    */
   getCurrentRestrictions() {
+    const TimeUtilsRef = this._getTimeUtils();
+    if (!TimeUtilsRef) {
+      return [];
+    }
+    
     const now = new Date();
-    const dayName = TimeUtils.getDayName(now);
+    const dayName = TimeUtilsRef.getDayName(now);
     const dayHours = this.schedule.getDayHours(dayName);
     
     if (!dayHours || !dayHours.restrictions) {
@@ -729,7 +828,12 @@ class Pool {
    * @returns {Array} - Array of today's special events
    */
   getTodaysEvents() {
-    const today = TimeUtils.formatDate(new Date());
+    const TimeUtilsRef = this._getTimeUtils();
+    if (!TimeUtilsRef) {
+      return [];
+    }
+    
+    const today = TimeUtilsRef.formatDate(new Date());
     return this.specialEvents.filter(event => event.date === today);
   }
 
@@ -752,6 +856,7 @@ class Pool {
    * @returns {Object} - Pool summary object
    */
   getSummary() {
+    const TimeUtilsRef = this._getTimeUtils();
     const status = this.getCurrentStatus();
     const todaysEvents = this.getTodaysEvents();
     
@@ -760,7 +865,7 @@ class Pool {
       status: status.status,
       isOpen: status.isOpen,
       statusIcon: status.icon,
-      todaysHours: this.getHoursForDay(TimeUtils.getDayName(new Date())),
+      todaysHours: this.getHoursForDay(TimeUtilsRef ? TimeUtilsRef.getDayName(new Date()) : 'Unknown'),
       hasEvents: todaysEvents.length > 0,
       eventCount: todaysEvents.length,
       features: this.features.length,
@@ -860,7 +965,12 @@ class Pool {
       return null;
     }
     
-    const easternTimeInfo = TimeUtils.getCurrentEasternTimeInfo();
+    const TimeUtilsRef = this._getTimeUtils();
+    if (!TimeUtilsRef) {
+      return null;
+    }
+    
+    const easternTimeInfo = TimeUtilsRef.getCurrentEasternTimeInfo();
     const currentDate = easternTimeInfo.date;
     
     const activeSchedule = this.legacySchedules.find(schedule => {
@@ -900,4 +1010,9 @@ class Pool {
       endDate: maxDate
     };
   }
+}
+
+// Make sure it's available globally
+window.Pool = Pool;
+
 }
