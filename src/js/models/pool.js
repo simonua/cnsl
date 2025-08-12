@@ -288,6 +288,14 @@ if (!window.Pool) {
 
     // Check current time against all time slots
     for (const hour of todayHours) {
+      // Skip time slots with invalid or missing start/end times
+      if (!hour.startTime || !hour.endTime || 
+          typeof hour.startTime !== 'string' || 
+          typeof hour.endTime !== 'string') {
+        console.warn(`[Pool] Skipping invalid time slot for ${this.name}:`, hour);
+        continue;
+      }
+      
       const startMinutes = TimeUtilsRef.timeStringToMinutes(hour.startTime);
       const endMinutes = TimeUtilsRef.timeStringToMinutes(hour.endTime);
       
@@ -415,6 +423,14 @@ if (!window.Pool) {
           dayData.timeSlots.sort((a, b) => {
             const TimeUtilsRef = this._getTimeUtils();
             if (!TimeUtilsRef) return 0;
+            
+            // Skip invalid time slots in sorting
+            if (!a.startTime || !b.startTime || 
+                typeof a.startTime !== 'string' || 
+                typeof b.startTime !== 'string') {
+              return 0;
+            }
+            
             return TimeUtilsRef.timeStringToMinutes(a.startTime) - TimeUtilsRef.timeStringToMinutes(b.startTime);
           });
         }
@@ -519,6 +535,15 @@ if (!window.Pool) {
     const convertSlot = (slot) => {
       const TimeUtilsRef = this._getTimeUtils();
       if (!TimeUtilsRef) return { ...slot, startMinutes: 0, endMinutes: 0 };
+      
+      // Skip slots with invalid time strings
+      if (!slot.startTime || !slot.endTime || 
+          typeof slot.startTime !== 'string' || 
+          typeof slot.endTime !== 'string') {
+        console.warn(`[Pool] Skipping slot with invalid times for ${this.name}:`, slot);
+        return { ...slot, startMinutes: 0, endMinutes: 0 };
+      }
+      
       return {
         ...slot,
         startMinutes: TimeUtilsRef.timeStringToMinutes(slot.startTime),

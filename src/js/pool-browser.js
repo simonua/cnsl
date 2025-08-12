@@ -314,10 +314,29 @@ function formatPoolHours(pool) {
   }
   
   const easternTimeInfo = timeUtils.getCurrentEasternTimeInfo();
-  const poolStatus = poolObj.getCurrentStatus();
   
-  // Get week schedule for the selected week
-  const weekSchedule = poolObj.getWeekScheduleForDate(weekStart);
+  // Get pool status with error handling
+  let poolStatus;
+  try {
+    poolStatus = poolObj.getCurrentStatus();
+  } catch (error) {
+    console.error(`[Pool Browser] Error getting status for pool ${poolObj.name}:`, error);
+    poolStatus = {
+      isOpen: false,
+      status: 'Error',
+      color: 'gray',
+      icon: '⚫'
+    };
+  }
+  
+  // Get week schedule for the selected week with error handling
+  let weekSchedule;
+  try {
+    weekSchedule = poolObj.getWeekScheduleForDate(weekStart);
+  } catch (error) {
+    console.error(`[Pool Browser] Error getting week schedule for pool ${poolObj.name}:`, error);
+    weekSchedule = [];
+  }
   
   // Format the week display text
   const weekStartText = weekStart.toLocaleDateString('en-US', { 
