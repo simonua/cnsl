@@ -3,7 +3,14 @@
  */
 
 // Prevent multiple declarations
-if (!window.Pool) {
+if (typeof window === 'undefined' || !window.Pool) {
+
+// Node.js: load dependencies
+if (typeof window === 'undefined') {
+  if (typeof PoolSchedule === 'undefined') { var PoolSchedule = require('../pool-schedule.js'); } // eslint-disable-line no-var
+  if (typeof TimeUtils === 'undefined') { var TimeUtils = require('../services/time-utils.js'); } // eslint-disable-line no-var
+}
+
   class Pool {
   constructor(poolData) {
     this.id = poolData.id || '';
@@ -690,8 +697,7 @@ if (!window.Pool) {
       const overrideSlot = activeOverrideSlots[0]; // Use first override if multiple
       
       // Determine if this is truly a special event override
-      let isActualOverride = true;
-      let shouldShowAsOverride = true;
+      let shouldShowAsOverride;
       
       // Check if this is a special event based on reason and activities
       const specialEventReasons = ['Swim Meet', 'Pool Party', 'Maintenance', 'Private Event', 'Competition'];
@@ -712,21 +718,17 @@ if (!window.Pool) {
         
         if (activitiesMatch && !hasSpecialReason && !hasSpecialActivity) {
           // Same activities and no special event indicators - this is likely a schedule modification
-          isActualOverride = false;
           shouldShowAsOverride = false;
         } else if (hasSpecialReason || hasSpecialActivity) {
           // Has special event indicators - this is a true override
-          isActualOverride = true;
           shouldShowAsOverride = true;
         } else {
           // Different activities but no clear special event - could be either
           // Default to showing as override to be safe
-          isActualOverride = true;
           shouldShowAsOverride = true;
         }
       } else {
         // Override with no regular slot - only mark as override if it's clearly a special event
-        isActualOverride = hasSpecialReason || hasSpecialActivity;
         shouldShowAsOverride = hasSpecialReason || hasSpecialActivity;
       }
       
@@ -1037,7 +1039,14 @@ if (!window.Pool) {
   }
 }
 
+// Export for Node.js compatibility
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = Pool;
+}
+
 // Make sure it's available globally
-window.Pool = Pool;
+if (typeof window !== 'undefined') {
+  window.Pool = Pool;
+}
 
 }

@@ -3,7 +3,7 @@
  */
 
 // Prevent multiple declarations
-if (!window.PoolSchedule) {
+if (typeof window === 'undefined' || !window.PoolSchedule) {
   class PoolSchedule {
   constructor(scheduleData) {
     this.scheduleData = scheduleData || {};
@@ -276,7 +276,14 @@ if (!window.PoolSchedule) {
   }
 }
 
+// Export for Node.js compatibility
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = PoolSchedule;
+}
+
 // Make sure it's available globally
-window.PoolSchedule = PoolSchedule;
+if (typeof window !== 'undefined') {
+  window.PoolSchedule = PoolSchedule;
+}
 
 }

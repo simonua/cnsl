@@ -3,7 +3,7 @@
  */
 
 // Prevent multiple declarations
-if (!window.getPoolIdFromLocation) {
+if (typeof window === 'undefined' || !window.getPoolIdFromLocation) {
 
 // ------------------------------
 //    POOL MAPPING AND LINKING UTILITIES
@@ -45,7 +45,7 @@ const POOL_LOCATION_TO_ID_MAP = {
   'Longfellow': 'lop',
   'Longfellow Pool': 'lop',
   'Macgill\'s Common': 'mcp',
-  'Macgill\'s Common': 'mcp',
+  'Macgill\'s Common Pool': 'mcp',
   'Macgills Common': 'mcp',
   'Macgills Common Pool': 'mcp',
   'Phelps Luck': 'plp',
@@ -210,11 +210,25 @@ function generateEnhancedPoolLink(locationName, dataManager, options = {}) {
   }
 }
 
+// Export for Node.js compatibility
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    POOL_LOCATION_TO_ID_MAP,
+    getPoolIdFromLocation,
+    getPoolDataFromLocation,
+    generatePoolsPageLink,
+    generateGoogleMapsLink,
+    generateEnhancedPoolLink
+  };
+}
+
 // Make functions available globally
-window.getPoolIdFromLocation = getPoolIdFromLocation;
-window.getPoolDataFromLocation = getPoolDataFromLocation;
-window.generatePoolsPageLink = generatePoolsPageLink;
-window.generateGoogleMapsLink = generateGoogleMapsLink;
-window.generateEnhancedPoolLink = generateEnhancedPoolLink;
+if (typeof window !== 'undefined') {
+  window.getPoolIdFromLocation = getPoolIdFromLocation;
+  window.getPoolDataFromLocation = getPoolDataFromLocation;
+  window.generatePoolsPageLink = generatePoolsPageLink;
+  window.generateGoogleMapsLink = generateGoogleMapsLink;
+  window.generateEnhancedPoolLink = generateEnhancedPoolLink;
+}
 
 }

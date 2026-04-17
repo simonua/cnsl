@@ -270,6 +270,7 @@ function getPoolStatus(pool) {
  * @param {Object} pool - Pool data object
  * @returns {boolean} - True if pool is open
  */
+// eslint-disable-next-line no-unused-vars
 function isPoolOpen(pool) {
   const status = getPoolStatus(pool);
   return status.isOpen && status.color === 'green';
@@ -313,7 +314,7 @@ function formatPoolHours(pool) {
     return '<div class="pool-week-display">Time utilities not available</div>';
   }
   
-  const easternTimeInfo = timeUtils.getCurrentEasternTimeInfo();
+  const easternTimeInfo = timeUtils.getCurrentEasternTimeInfo(); // eslint-disable-line no-unused-vars
   
   // Get pool status with error handling
   let poolStatus;
@@ -352,7 +353,7 @@ function formatPoolHours(pool) {
   const dateRange = poolObj.getValidDateRange();
   
   // Build navigation controls
-  let navigationHtml = `
+  const navigationHtml = `
     <div class="pool-week-navigation" data-pool-id="${poolId}">
       <div class="week-controls-row">
         <div class="week-display">
@@ -406,7 +407,8 @@ function formatPoolHours(pool) {
     
     if (daySchedule && daySchedule.timeSlots && daySchedule.timeSlots.length > 0) {
       // Check if any slot in this day is the current timeslot
-      const hasCurrentTimeSlot = timeUtils.hasCurrentTimeSlot(daySchedule.timeSlots, isCurrentDay);
+      // hasCurrentTimeSlot kept for potential future highlight logic
+      timeUtils.hasCurrentTimeSlot(daySchedule.timeSlots, isCurrentDay);
       
       // Style the day heading if it's the current day (regardless of time slot)
       const dayStyle = isCurrentDay ? ' style="font-weight: bold; color: var(--primary-color);"' : '';
@@ -439,7 +441,7 @@ function formatPoolHours(pool) {
         
         // Add override styling if this is an override slot, but don't add extra margin for alignment
         let slotClass = 'time-slot';
-        let slotStyle = 'margin-left: 1rem; margin-bottom: 0.2rem;';
+        const slotStyle = 'margin-left: 1rem; margin-bottom: 0.2rem;';
         if (slot.isOverride) {
           slotClass += ' override-slot';
           // Override slots get the same indentation as regular slots for proper time alignment
@@ -646,7 +648,7 @@ function renderPools(pools) {
     }
 
     // Format features for display as horizontal pills
-    let featuresHtml = '';
+    let featuresHtml;
     if (Array.isArray(features) && features.length > 0) {
       const sortedFeatures = features.sort();
       featuresHtml = `
@@ -672,10 +674,6 @@ function renderPools(pools) {
     // Get pool status for indicator using new helper
     const poolStatus = getPoolStatus(pool);
     const statusClass = poolStatus.color;
-
-    // Check if pool has schedules (same logic as TBD check)
-    const poolObj = poolBrowserDataManager.getPool(pool.name);
-    const hasSchedules = poolObj && poolObj.legacySchedules && poolObj.legacySchedules.length > 0;
     
     // Show status indicator with tooltip for all pools
     const tooltipText = getStatusTooltip(statusClass);
@@ -781,6 +779,7 @@ function handlePoolUrlParameter() {
  * Toggles the collapsed state of a pool card
  * @param {Element} headerElement - The clicked header element
  */
+// eslint-disable-next-line no-unused-vars
 function togglePoolCard(headerElement) {
   const poolCard = headerElement.closest('.pool-card');
   poolCard.classList.toggle('collapsed');

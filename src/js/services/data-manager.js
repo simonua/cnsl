@@ -3,7 +3,7 @@
  */
 
 // Prevent multiple declarations
-if (!window.DataManager) {
+if (typeof window === 'undefined' || !window.DataManager) {
   class DataManager {
   constructor() {
     this.poolsManager = new PoolsManager();
@@ -75,7 +75,7 @@ if (!window.DataManager) {
           this._loadJsonFile(teamsPath),
           this._loadJsonFile(meetsPath).catch(() => null) // Optional file
         ]);
-      } catch (err) {
+      } catch (_err) {
         console.warn('⚠️ First attempt to load data failed, trying alternative paths...');
         
         // Second attempt with forced production-like paths
@@ -416,7 +416,14 @@ async function initializeDataManager() {
   return manager.initialize();
 }
 
+// Export for Node.js compatibility
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { DataManager, getDataManager, initializeDataManager };
+}
+
 // Make sure it's available globally
-window.DataManager = DataManager;
+if (typeof window !== 'undefined') {
+  window.DataManager = DataManager;
+}
 
 }

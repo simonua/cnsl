@@ -172,7 +172,7 @@ async function renderMeets(meets) {
       const isTodayOrPast = meetDateOnly <= todayOnly;
       const showResultsLink = isLongReachMeet && isTodayOrPast;
       
-      let meetContent = '';
+      let meetContent;
       if (isSpecialMeet) {
         meetContent = `
           <div class="meet-details special-meet">
@@ -238,6 +238,7 @@ async function renderMeets(meets) {
  * Toggles the collapsed state of a meet date card
  * @param {Element} headerElement - The clicked header element
  */
+// eslint-disable-next-line no-unused-vars
 function toggleMeetDate(headerElement) {
   const meetCard = headerElement.closest('.meet-date-card');
   meetCard.classList.toggle('collapsed');
@@ -287,6 +288,7 @@ document.addEventListener("DOMContentLoaded", async () => {
  * @param {Object} weather - Weather forecast object
  * @returns {string} HTML string for weather display
  */
+// eslint-disable-next-line no-unused-vars
 function generateWeatherDisplay(weather) {
   if (!weather) return '';
   

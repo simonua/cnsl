@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const posthtml = require('posthtml');
-const include = require('posthtml-include')({ root: './src/views' });
+require('posthtml-include')({ root: './src/views' });
 const extend = require('posthtml-extend')({ root: './src/views/layouts' });
 
 // Add timestamp for build logging

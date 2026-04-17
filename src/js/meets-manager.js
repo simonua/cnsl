@@ -3,7 +3,7 @@
  */
 
 // Prevent multiple declarations
-if (!window.MeetsManager) {
+if (typeof window === 'undefined' || !window.MeetsManager) {
   class MeetsManager {
   constructor() {
     this.meets = new Map();
@@ -384,7 +384,14 @@ if (!window.MeetsManager) {
   }
 }
 
+// Export for Node.js compatibility
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = MeetsManager;
+}
+
 // Make sure it's available globally
-window.MeetsManager = MeetsManager;
+if (typeof window !== 'undefined') {
+  window.MeetsManager = MeetsManager;
+}
 
 }

@@ -11,7 +11,7 @@
 // ------------------------------
 
 // Prevent multiple declarations
-if (!window.FileHelper) {
+if (typeof window === 'undefined' || !window.FileHelper) {
   class FileHelper {
   
   // ------------------------------
@@ -380,23 +380,15 @@ if (!window.FileHelper) {
       environment: this.getEnvironment()
     };
   }
-}
+  }
 
-// ------------------------------
-//    GLOBAL AVAILABILITY
-// ------------------------------
+  // Make FileHelper available globally
+  if (typeof window !== 'undefined') {
+    window.FileHelper = FileHelper;
+  }
 
-// Make FileHelper available globally
-if (typeof window !== 'undefined') {
-  window.FileHelper = FileHelper;
-}
-
-// Export for module systems
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = FileHelper;
-}
-
-// Make sure it's available globally
-window.FileHelper = FileHelper;
-
+  // Export for Node.js compatibility
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = FileHelper;
+  }
 }

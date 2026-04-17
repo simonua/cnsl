@@ -3,7 +3,15 @@
  */
 
 // Prevent multiple declarations
-if (!window.PoolsManager) {
+if (typeof window === 'undefined' || !window.PoolsManager) {
+
+// Node.js: load dependencies
+if (typeof window === 'undefined') {
+   
+  if (typeof Pool === 'undefined') { var Pool = require('./models/pool.js'); } // eslint-disable-line no-var
+   
+}
+
   class PoolsManager {
   constructor() {
     this.pools = new Map();
@@ -165,7 +173,7 @@ if (!window.PoolsManager) {
    * @param {Object} userLocation - User's lat/lng coordinates
    * @returns {Array} - Array of pools sorted by distance
    */
-  getPoolsByDistance(userLocation) {
+  getPoolsByDistance(_userLocation) {
     // Placeholder implementation - would need actual coordinates for pools
     // For now, return pools in alphabetical order
     return this.getAllPools().sort((a, b) => a.getName().localeCompare(b.getName()));
@@ -290,7 +298,14 @@ if (!window.PoolsManager) {
   }
 }
 
+// Export for Node.js compatibility
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = PoolsManager;
+}
+
 // Make sure it's available globally
-window.PoolsManager = PoolsManager;
+if (typeof window !== 'undefined') {
+  window.PoolsManager = PoolsManager;
+}
 
 }

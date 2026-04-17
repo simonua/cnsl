@@ -11,7 +11,7 @@
 // ------------------------------
 
 // Prevent multiple declarations
-if (!window.CNSLSearchEngine) {
+if (typeof window === 'undefined' || !window.CNSLSearchEngine) {
   class CNSLSearchEngine {
   constructor(dataManager) {
     this.dataManager = dataManager;
@@ -232,7 +232,7 @@ if (!window.CNSLSearchEngine) {
    * @param {Object} dateTimeContext - The parsed date/time context
    * @returns {string} HTML content to display as a response
    */
-  handleTeamQuery(query, dateTimeContext = {}) {
+  handleTeamQuery(query, _dateTimeContext = {}) {
     if (!this.dataManager || !this.dataManager.teams || !this.dataManager.teams.isDataLoaded()) {
       return `
         <div class="copilot-response error">
@@ -271,7 +271,7 @@ if (!window.CNSLSearchEngine) {
    * @param {Object} dateTimeContext - The parsed date/time context
    * @returns {string} HTML content to display as a response
    */
-  handlePoolFeatureQuery(query, dateTimeContext = {}) {
+  handlePoolFeatureQuery(query, _dateTimeContext = {}) {
     if (!this.dataManager || !this.dataManager.pools || !this.dataManager.pools.isDataLoaded()) {
       return `
         <div class="copilot-response error">
@@ -301,7 +301,7 @@ if (!window.CNSLSearchEngine) {
    * @param {Object} dateTimeContext - The parsed date/time context
    * @returns {string} HTML content to display as a response
    */
-  handlePoolLocationQuery(query, dateTimeContext = {}) {
+  handlePoolLocationQuery(query, _dateTimeContext = {}) {
     if (!this.dataManager || !this.dataManager.pools || !this.dataManager.pools.isDataLoaded()) {
       return `
         <div class="copilot-response error">
@@ -337,7 +337,7 @@ if (!window.CNSLSearchEngine) {
    * @param {Object} dateTimeContext - The parsed date/time context
    * @returns {string} HTML content to display as a response
    */
-  handleHoursQuery(query, dateTimeContext = {}) {
+  handleHoursQuery(query, _dateTimeContext = {}) {
     if (!this.dataManager || !this.dataManager.pools || !this.dataManager.pools.isDataLoaded()) {
       return `
         <div class="copilot-response error">
@@ -367,7 +367,7 @@ if (!window.CNSLSearchEngine) {
    * @param {Object} dateTimeContext - The parsed date/time context
    * @returns {string} HTML content to display as a response
    */
-  handleMeetQuery(query, dateTimeContext = {}) {
+  handleMeetQuery(query, _dateTimeContext = {}) {
     if (!this.dataManager || !this.dataManager.meets || !this.dataManager.meets.isDataLoaded()) {
       return `
         <div class="copilot-response">
@@ -758,7 +758,7 @@ if (!window.CNSLSearchEngine) {
    * @param {string} query - The user's search query
    * @returns {string} HTML formatted response
    */
-  handleNoTeamFound(query) {
+  handleNoTeamFound(_query) {
     return `
       <div class="copilot-response">
         <h3>🤔 Team Not Found</h3>
@@ -808,12 +808,14 @@ if (!window.CNSLSearchEngine) {
 }
 
 
-// Export the search engine class for use in other modules
+// Export for Node.js compatibility
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = CNSLSearchEngine;
 }
 
 // Make sure it's available globally
-window.CNSLSearchEngine = CNSLSearchEngine;
+if (typeof window !== 'undefined') {
+  window.CNSLSearchEngine = CNSLSearchEngine;
+}
 
 }

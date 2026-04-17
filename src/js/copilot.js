@@ -38,6 +38,7 @@ function getPoolInfo(poolName) {
  * Get all pools using the modern object-oriented approach
  * @returns {Array} - Array of Pool objects
  */
+// eslint-disable-next-line no-unused-vars
 function getAllPoolsInfo() {
   if (copilotDataManager && copilotDataManager.isInitialized()) {
     return copilotDataManager.getPools().getAllPools();
@@ -50,6 +51,7 @@ function getAllPoolsInfo() {
  * @param {string} poolName - Pool name
  * @returns {Array} - Array of pool features
  */
+// eslint-disable-next-line no-unused-vars
 function getPoolFeatures(poolName) {
   const pool = getPoolInfo(poolName);
   return pool ? pool.getFeatures() : [];
@@ -60,6 +62,7 @@ function getPoolFeatures(poolName) {
  * @param {string} poolName - Pool name
  * @returns {Object|null} - Pool status object
  */
+// eslint-disable-next-line no-unused-vars
 function getPoolCurrentStatus(poolName) {
   const pool = getPoolInfo(poolName);
   return pool ? pool.getCurrentStatus() : null;
@@ -69,6 +72,7 @@ function getPoolCurrentStatus(poolName) {
  * Get all available pool names
  * @returns {Array} - All available pool names
  */
+// eslint-disable-next-line no-unused-vars
 function getAllPoolNames() {
   if (typeof PoolNames !== 'undefined') {
     return PoolNames.getAllPoolNames();
@@ -86,6 +90,7 @@ function getAllPoolNames() {
  * @param {Object} pool - Pool object with schedules property
  * @returns {string} - HTML string for displaying hours
  */
+// eslint-disable-next-line no-unused-vars
 function formatCopilotPoolHours(pool) {
   if (!pool.schedules || !Array.isArray(pool.schedules) || pool.schedules.length === 0) {
     return '<div><strong>🕒 Hours:</strong> Not available</div>';
@@ -210,6 +215,7 @@ function formatCopilotPoolHours(pool) {
  * @param {Array} days - Array of day names
  * @returns {Array} - Array of formatted day ranges
  */
+// eslint-disable-next-line no-unused-vars
 function groupConsecutiveDaysForCopilot(days) {
   const dayOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   const sortedDays = days.sort((a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b));
@@ -455,7 +461,7 @@ function searchSample(sampleQuery) {
  * @param {string} query - The user's search query
  * @returns {string} HTML content to display as a response
  */
-function legacyProcessQuery(query) {
+function legacyProcessQuery(_query) {
   return `
     <div class="copilot-response error">
       <h3>⚠️ Search Unavailable</h3>
@@ -469,6 +475,7 @@ function legacyProcessQuery(query) {
  * @param {string} searchTerm - Search term
  * @returns {Array} - Array of search results
  */
+// eslint-disable-next-line no-unused-vars
 function searchPoolsInfo(searchTerm) {
   if (copilotDataManager && copilotDataManager.pools && copilotDataManager.pools.isDataLoaded()) {
     return copilotDataManager.pools.searchPools(searchTerm);

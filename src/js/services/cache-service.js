@@ -1,6 +1,7 @@
 /**
  * Cache service for managing localStorage with expiration
  */
+if (typeof window === 'undefined' || !window.CacheService) {
 class CacheService {
     
     // ------------------------------
@@ -118,7 +119,7 @@ class CacheService {
                     if (now > cacheItem.expiry) {
                         expiredCount++;
                     }
-                } catch (e) {
+                } catch (_e) {
                     expiredCount++;
                 }
             });
@@ -155,7 +156,7 @@ class CacheService {
                     if (now > cacheItem.expiry) {
                         localStorage.removeItem(key);
                     }
-                } catch (e) {
+                } catch (_e) {
                     localStorage.removeItem(key);
                 }
             });
@@ -163,4 +164,16 @@ class CacheService {
             console.warn('Cache: Failed to cleanup', error);
         }
     }
+}
+
+// Export for Node.js compatibility
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = CacheService;
+}
+
+// Make sure it's available globally
+if (typeof window !== 'undefined') {
+  window.CacheService = CacheService;
+}
+
 }

@@ -57,7 +57,7 @@ function getCurrentPracticeSchedule(practice) {
  * @param {string} fallbackAddress - Fallback address if pool not found (unused now)
  * @returns {string} - HTML link to pools.html page with pool data
  */
-function getEnhancedPoolLink(location, fallbackAddress) {
+function getEnhancedPoolLink(location, _fallbackAddress) {
   if (!location) return '';
   
   // Use the new pool link helper
@@ -76,7 +76,6 @@ function getUpcomingPractices(practice, count = 2) {
   if (!practice || !practice.regular) return [];
   
   const now = new Date();
-  const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
   const currentTime = now.getHours() * 60 + now.getMinutes();
   const practices = [];
   
@@ -109,7 +108,7 @@ function getUpcomingPractices(practice, count = 2) {
     
     // Morning practices (Tuesday-Friday)
     if (practice.regular.morning && Array.isArray(practice.regular.morning)) {
-      for (let morning of practice.regular.morning) {
+      for (const morning of practice.regular.morning) {
         if ([2, 3, 4, 5].includes(checkDay)) {
           const hasPassedToday = isToday && currentTime >= 10 * 60; // 10 AM cutoff
           if (!hasPassedToday) {
@@ -132,7 +131,7 @@ function getUpcomingPractices(practice, count = 2) {
     
     // Evening practices
     if (practice.regular.evening && Array.isArray(practice.regular.evening)) {
-      for (let evening of practice.regular.evening) {
+      for (const evening of practice.regular.evening) {
         const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         const eveningDayIndex = dayNames.indexOf(evening.day);
         
@@ -234,6 +233,7 @@ function formatCurrentPracticeSchedule(practice) {
  * @param {Object} practice - Practice object from team data
  * @returns {Object|null} - Next practice info or null
  */
+// eslint-disable-next-line no-unused-vars
 function getNextPractice(practice) {
   const upcoming = getUpcomingPractices(practice, 1);
   return upcoming.length > 0 ? upcoming[0] : null;
@@ -245,6 +245,7 @@ function getNextPractice(practice) {
  * @param {string} address - Pool address
  * @returns {string} - HTML link to pools.html page
  */
+// eslint-disable-next-line no-unused-vars
 function getPoolMapLink(location, address) {
   // Try to use enhanced pool link first (which links to pools.html when available)
   const enhancedLink = getEnhancedPoolLink(location, address);
@@ -283,6 +284,7 @@ function createTeamLogo(teamId, teamName) {
  * Toggles the collapsed state of a team card
  * @param {Element} headerElement - The clicked header element
  */
+// eslint-disable-next-line no-unused-vars
 function toggleTeamCard(headerElement) {
   const teamCard = headerElement.closest('.team-card');
   teamCard.classList.toggle('collapsed');
@@ -349,7 +351,7 @@ function renderTeams(teams) {
     }
     
     // Get fallback address for legacy compatibility
-    let fallbackAddress = '';
+    let fallbackAddress;
     if (poolData?.location) {
       const parts = [];
       if (poolData.location.street) parts.push(poolData.location.street);
@@ -452,6 +454,7 @@ function handleTeamUrlParameter() {
  * @param {Object} options - Link options
  * @returns {string} - HTML link to teams page with team parameter
  */
+// eslint-disable-next-line no-unused-vars
 function generateTeamLink(teamId, teamName, options = {}) {
   const {
     className = 'team-link',

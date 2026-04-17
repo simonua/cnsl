@@ -5,18 +5,20 @@
   "main": "service-worker.js",
   "scripts": {
     "clean": "rimraf out",
-    "build": "npm run clean && node posthtml.js",
+    "build": "pnpm run clean && node posthtml.js",
     "watch": "nodemon",
     "watch:poll": "nodemon --polling-interval 3000 --watch src/views --watch src/css --watch src/js --watch src/assets/data/*.json -e html,css,js,json --delay 1000ms --exec \"node posthtml.js\"",
     "watch:manual": "nodemon --on-change-only --watch src/views --watch src/css --watch src/js --watch src/assets/data/*.json -e html,css,js,json --delay 500ms --exec \"node posthtml.js\"",
     "serve": "http-server ./out -p 9090 -c-1 -o",
     "serve-only": "http-server ./out -p 9090 -c-1",
     "serve-live": "live-server ./out --port=9090 --open --no-css-inject --wait=500",
-    "dev": "npm run build && npm run serve",
-    "dev:watch": "concurrently \"npm run watch\" \"npm run serve-live\"",
-    "start": "npm run clean && npm run dev:watch",
-    "start:simple": "npm run dev",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "pnpm run build && pnpm run serve",
+    "dev:watch": "concurrently \"pnpm run watch\" \"pnpm run serve-live\"",
+    "start": "pnpm run clean && pnpm run dev:watch",
+    "start:simple": "pnpm run dev",
+    "test": "node --test tests/services/*.test.js tests/models/*.test.js tests/managers/*.test.js tests/types/*.test.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "repository": {
     "type": "git",
@@ -31,7 +33,10 @@
   },
   "homepage": "https://github.com/simonua/cnsl#readme",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "concurrently": "^9.2.0",
+    "eslint": "^10.2.0",
+    "globals": "^17.5.0",
     "http-server": "^14.1.1",
     "jstransformer-markdown-it": "^3.0.0",
     "jstransformer-yaml": "^0.0.0",

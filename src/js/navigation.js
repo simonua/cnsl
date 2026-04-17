@@ -5,6 +5,7 @@
 /**
  * Closes the mobile navigation menu
  */
+// eslint-disable-next-line no-unused-vars
 function closeMenu() {
   const nav = document.querySelector('nav');
   const hamburger = document.querySelector('.hamburger');
@@ -20,6 +21,7 @@ function closeMenu() {
 /**
  * Toggles the mobile navigation menu visibility
  */
+// eslint-disable-next-line no-unused-vars
 function toggleMenu() {
   const nav = document.querySelector('nav');
   if (nav) {

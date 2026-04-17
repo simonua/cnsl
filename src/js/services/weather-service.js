@@ -1,6 +1,7 @@
 /**
  * Weather service for retrieving forecasts using the National Weather Service API
  */
+// eslint-disable-next-line no-unused-vars
 class WeatherService {
     
     // ------------------------------
@@ -11,19 +12,6 @@ class WeatherService {
     static CACHE_EXPIRY_MINUTES = 30;
     static COLUMBIA_MD_LAT = 39.2014;
     static COLUMBIA_MD_LNG = -76.8610;
-    
-    // ------------------------------
-    //    VARIABLES
-    // ------------------------------
-    
-    static isInitialized = false;
-    static lastError = null;
-    
-    
-    // ------------------------------
-    //    PRIVATE METHODS
-    // ------------------------------
-    
     
     // ------------------------------
     //    VARIABLES
@@ -102,25 +90,6 @@ class WeatherService {
             WeatherService.lastError = error;
             return null;
         }
-    }
-    
-    /**
-     * Get coordinates for a zip code (simplified lookup)
-     * @param {string} zipCode - 5-digit zip code
-     * @returns {Object|null} Coordinates object or null
-     */
-    static _getCoordinatesForZip(zipCode) {
-        // Columbia, MD area zip codes with approximate coordinates
-        const zipCoordinates = {
-            '21044': { lat: 39.2151, lng: -76.8736 },
-            '21045': { lat: 39.1851, lng: -76.8610 },
-            '21046': { lat: 39.2300, lng: -76.8800 }
-        };
-        
-        return zipCoordinates[zipCode] || { 
-            lat: WeatherService.COLUMBIA_MD_LAT, 
-            lng: WeatherService.COLUMBIA_MD_LNG 
-        };
     }
     
     /**
@@ -367,7 +336,7 @@ class WeatherService {
                     console.log('🌦️ Found upcoming meet:', meet.name, 'on', meet.date, 'at', meet.location);
                 }
                 return isUpcoming;
-            } catch (error) {
+            } catch (_error) {
                 return false;
             }
         });
@@ -411,8 +380,8 @@ class WeatherService {
                     console.log('🌦️ No pool found or address available for:', meet.location);
                     meetsWithWeather.push(meet);
                 }
-            } catch (error) {
-                console.warn('Error getting weather for meet:', meet, error);
+            } catch (_error) {
+                console.warn('Error getting weather for meet:', meet, _error);
                 meetsWithWeather.push(meet);
             }
         }
@@ -498,7 +467,7 @@ class WeatherService {
             const testUrl = `${WeatherService.BASE_URL}/points/${coords.lat},${coords.lng}`;
             const response = await WeatherService._makeRequest(testUrl);
             return response !== null;
-        } catch (error) {
+        } catch (_error) {
             return false;
         }
     }

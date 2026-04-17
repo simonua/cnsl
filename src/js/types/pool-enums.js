@@ -3,7 +3,7 @@
  */
 
 // Prevent multiple declarations
-if (!window.PoolNames) {
+if (typeof window === 'undefined' || !window.PoolNames) {
   class PoolNames {
   // Current pools (expandable to 23+ as data becomes available)
   static BRYANT_WOODS = 'Bryant Woods';
@@ -96,9 +96,9 @@ class PoolStatus {
   static SCHEDULE_NOT_FOUND = { isOpen: false, status: 'Schedule TBD', color: 'gray', icon: '⚫' };
 }
 
-// Node.js compatibility
+// Export for Node.js compatibility
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = PoolNames;
+    module.exports = { PoolNames, PoolStatus };
 }
 
 // Add to global window if available (browser compatibility)

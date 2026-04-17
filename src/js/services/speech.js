@@ -1,4 +1,5 @@
 // js/speech.js
+// eslint-disable-next-line no-unused-vars
 function speak(text) {
   const utter = new SpeechSynthesisUtterance();
   utter.text = text.replace(/<\/?[^>]+(>|$)/g, " ");
@@ -12,6 +13,7 @@ function speak(text) {
  * Starts voice input for the copilot search
  * Uses the Web Speech API to recognize speech and fill the search box
  */
+// eslint-disable-next-line no-unused-vars
 function startCopilotVoice() {
   // Check browser support for SpeechRecognition
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;

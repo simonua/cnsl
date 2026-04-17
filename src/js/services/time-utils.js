@@ -4,7 +4,7 @@
  */
 
 // Prevent multiple declarations
-if (!window.TimeUtils) {
+if (typeof window === 'undefined' || !window.TimeUtils) {
   class TimeUtils {
   // ------------------------------
   //    CONSTANTS
@@ -34,7 +34,6 @@ if (!window.TimeUtils) {
    * @param {Object} data - Additional data to log
    */
   static _log(message, level = 'info', data = null) {
-    const timestamp = new Date().toISOString();
     const prefix = level === 'error' ? '❌' : level === 'warn' ? '⚠️' : '🕐';
     
     if (data) {
@@ -128,7 +127,6 @@ if (!window.TimeUtils) {
   static _getEasternOffsetMs(date) {
     // Eastern Time is UTC-5 (EST) or UTC-4 (EDT)
     // DST typically starts second Sunday in March, ends first Sunday in November
-    const year = date.getFullYear();
     const month = date.getMonth();
     const day = date.getDate();
 
@@ -192,7 +190,7 @@ if (!window.TimeUtils) {
         const easternTime = new Date(now.getTime() + offset);
         
         if (isNaN(easternTime.getTime())) {
-          throw new Error('Manual timezone conversion also failed');
+          throw new Error('Manual timezone conversion also failed', { cause: intlError });
         }
         
         this._log('Using fallback timezone conversion method', 'warn');
@@ -888,7 +886,7 @@ if (!window.TimeUtils) {
       const timeInfo = this.getCurrentEasternTimeInfo();
       results.tests.push({
         name: 'getCurrentEasternTimeInfo',
-        success: timeInfo && typeof timeInfo === 'object' && timeInfo.hasOwnProperty('isValid'),
+        success: timeInfo && typeof timeInfo === 'object' && Object.prototype.hasOwnProperty.call(timeInfo, 'isValid'),
         result: timeInfo
       });
 
@@ -904,10 +902,12 @@ if (!window.TimeUtils) {
 }
 
 // Register the class globally
-window.TimeUtils = TimeUtils;
+if (typeof window !== 'undefined') {
+  window.TimeUtils = TimeUtils;
 }
 
 // Export for Node.js compatibility
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = window.TimeUtils;
+  module.exports = TimeUtils;
+}
 }

@@ -3,7 +3,7 @@
  */
 
 // Prevent multiple declarations
-if (!window.TeamsManager) {
+if (typeof window === 'undefined' || !window.TeamsManager) {
   class TeamsManager {
   constructor() {
     this.teams = new Map();
@@ -280,7 +280,14 @@ if (!window.TeamsManager) {
   }
 }
 
+// Export for Node.js compatibility
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = TeamsManager;
+}
+
 // Make sure it's available globally
-window.TeamsManager = TeamsManager;
+if (typeof window !== 'undefined') {
+  window.TeamsManager = TeamsManager;
+}
 
 }
