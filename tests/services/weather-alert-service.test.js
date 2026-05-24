@@ -144,6 +144,17 @@ describe('WeatherAlertService', () => {
       assert.equal(requestCount, 4);
     });
 
+    it('should expose the expiry for a still-valid cached status', () => {
+      const storage = createLocalStorageMock();
+      const status = WeatherAlertService.withUpdatedAt({ isInclement: true, message: 'Storm warning.' }, now);
+      WeatherAlertService.cacheStatus(storage, status, 10, now);
+
+      const cached = WeatherAlertService.readCachedStatusEntry(storage, 10, new Date(now.getTime() + 60 * 1000));
+
+      assert.deepEqual(cached.status, status);
+      assert.equal(cached.expiresAt, now.getTime() + 10 * 60 * 1000);
+    });
+
     it('should avoid requesting weather before the one-hour pre-opening period', async () => {
       let requestCount = 0;
       const status = await WeatherAlertService.getCurrentStatus({

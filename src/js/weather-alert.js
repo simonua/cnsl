@@ -3,6 +3,7 @@
 
   let scheduledRefresh = null;
   let poolDataPromise = null;
+  const DISCLOSURE_STORAGE_KEY = 'cnsl_weather_alert_expanded';
 
   function getWeatherRefreshMinutes() {
     return typeof PreferencesService === 'undefined'
@@ -15,7 +16,24 @@
     if (banner) banner.hidden = true;
   }
 
-  function setWeatherAlertExpanded(isExpanded) {
+  function readSavedExpandedState() {
+    try {
+      const savedState = window.sessionStorage.getItem(DISCLOSURE_STORAGE_KEY);
+      return savedState === null ? true : savedState === 'true';
+    } catch (_error) {
+      return true;
+    }
+  }
+
+  function saveExpandedState(isExpanded) {
+    try {
+      window.sessionStorage.setItem(DISCLOSURE_STORAGE_KEY, String(isExpanded));
+    } catch (_error) {
+      return;
+    }
+  }
+
+  function setWeatherAlertExpanded(isExpanded, shouldSave = false) {
     const banner = document.getElementById('weatherAlert');
     const toggle = document.getElementById('weatherAlertToggle');
     if (!banner || !toggle) return;
@@ -25,13 +43,14 @@
     toggle.setAttribute('aria-expanded', String(isExpanded));
     toggle.setAttribute('aria-label', actionLabel);
     toggle.title = actionLabel;
+    if (shouldSave) saveExpandedState(isExpanded);
   }
 
   function toggleWeatherAlert() {
     const toggle = document.getElementById('weatherAlertToggle');
     if (!toggle) return;
 
-    setWeatherAlertExpanded(toggle.getAttribute('aria-expanded') !== 'true');
+    setWeatherAlertExpanded(toggle.getAttribute('aria-expanded') !== 'true', true);
   }
 
   function scheduleRefresh(delayMilliseconds) {
@@ -79,6 +98,7 @@
       timeZone: WeatherAlertService.EASTERN_TIMEZONE,
       timeZoneName: 'short'
     }).format(updatedAt);
+    setWeatherAlertExpanded(readSavedExpandedState());
     banner.hidden = false;
   }
 
@@ -89,6 +109,13 @@
     const refreshMinutes = getWeatherRefreshMinutes();
     if (refreshMinutes === 0) {
       hideWeatherAlert();
+      return;
+    }
+
+    const cached = WeatherAlertService.readCachedStatusEntry(WeatherAlertService.getSessionStorage(), refreshMinutes);
+    if (cached) {
+      renderWeatherAlert(cached.status);
+      scheduleRefresh(Math.max(0, cached.expiresAt - Date.now()));
       return;
     }
 

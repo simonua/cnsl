@@ -231,10 +231,15 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
     }
 
     static readCachedStatus(storage, refreshMinutes, now = new Date()) {
+      const cached = WeatherAlertService.readCachedStatusEntry(storage, refreshMinutes, now);
+      return cached ? cached.status : null;
+    }
+
+    static readCachedStatusEntry(storage, refreshMinutes, now = new Date()) {
       if (!storage) return null;
       try {
         const cached = JSON.parse(storage.getItem(WeatherAlertService.CACHE_KEY));
-        return cached && cached.refreshMinutes === refreshMinutes && cached.expiresAt > now.getTime() ? cached.status : null;
+        return cached && cached.refreshMinutes === refreshMinutes && cached.expiresAt > now.getTime() ? cached : null;
       } catch (_error) {
         return null;
       }

@@ -258,6 +258,7 @@ test('mobile weather safety alert centers its content and collapses with a stabl
 
   const alert = page.locator('#weatherAlert');
   const toggle = page.getByRole('button', { name: 'Collapse weather safety alert' });
+  const action = page.getByRole('link', { name: 'View live CA pool status' });
   const icon = page.locator('.weather-alert__toggle-icon');
   await expect(alert).toBeVisible();
   await expect(page.locator('.weather-alert__copy')).toHaveCSS('text-align', 'center');
@@ -265,7 +266,10 @@ test('mobile weather safety alert centers its content and collapses with a stabl
   const actionBackground = await page.locator('.weather-alert__link').evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).backgroundColor);
   expect(titleBackground).toBe(actionBackground);
   await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  await expect(action).toBeVisible();
   const expandedToggleSize = await toggle.boundingBox();
+  const expandedActionBox = await action.boundingBox();
+  const expandedAlertBackground = await alert.evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).backgroundColor);
   await expect(icon).toHaveCSS('transform', 'none');
   await expect(icon).toHaveCSS('transition-duration', '0s');
 
@@ -274,17 +278,37 @@ test('mobile weather safety alert centers its content and collapses with a stabl
   await expect(page.locator('#weatherAlertDetails')).toBeHidden();
   const expandToggle = page.getByRole('button', { name: 'Expand weather safety alert' });
   await expect(expandToggle).toHaveAttribute('aria-expanded', 'false');
-  await expect(page.locator('.weather-alert__collapsed-label')).toBeVisible();
+  await expect(action).toBeVisible();
   await expect(icon).toHaveCSS('transform', 'matrix(-1, 0, 0, -1, 0, 0)');
   const collapsedToggleSize = await expandToggle.boundingBox();
+  const collapsedActionBox = await action.boundingBox();
+  const collapsedAlertBackground = await alert.evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).backgroundColor);
   expect(collapsedToggleSize.width).toBe(expandedToggleSize.width);
   expect(collapsedToggleSize.height).toBe(expandedToggleSize.height);
   expect(collapsedToggleSize.x).toBe(expandedToggleSize.x);
   expect(collapsedToggleSize.y).toBe(expandedToggleSize.y);
+  expect(collapsedActionBox.x).toBe(expandedActionBox.x);
+  expect(collapsedActionBox.y).toBe(expandedActionBox.y);
+  expect(collapsedAlertBackground).toBe(expandedAlertBackground);
+  await expect.poll(() => page.evaluate(() => sessionStorage.getItem('cnsl_weather_alert_expanded'))).toBe('false');
 
+  const navigationRequests = [];
+  page.on('request', request => navigationRequests.push(request.url()));
+  await page.goto('/about.html');
+  const restoredToggle = page.getByRole('button', { name: 'Expand weather safety alert' });
+  await expect(restoredToggle).toBeVisible();
+  await expect(page.getByRole('link', { name: 'View live CA pool status' })).toBeVisible();
+  const bannerWasVisibleAtFirstPaint = await page.locator('#weatherAlert').evaluate(banner => new Promise(resolve => {
+    banner.ownerDocument.defaultView.requestAnimationFrame(() => resolve(!banner.hidden));
+  }));
+  expect(bannerWasVisibleAtFirstPaint).toBe(true);
+  expect(navigationRequests.filter(url => url.includes('/assets/data/2026/pools/pools.json') || url.startsWith('https://api.weather.gov/'))).toEqual([]);
+
+  await restoredToggle.focus();
   await page.keyboard.press('Enter');
   await expect(page.locator('#weatherAlertDetails')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Collapse weather safety alert' })).toBeFocused();
+  await expect.poll(() => page.evaluate(() => sessionStorage.getItem('cnsl_weather_alert_expanded'))).toBe('true');
 });
 
 test('turning weather safety alerts off hides an active banner immediately', async ({ page }) => {
@@ -295,4 +319,7 @@ test('turning weather safety alerts off hides an active banner immediately', asy
   await page.getByLabel('Off').check();
   await expect(page.locator('#weatherAlert')).toBeHidden();
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).weatherRefreshMinutes)).toBe(0);
+
+  await page.goto('/index.html');
+  await expect(page.locator('#weatherAlert')).toBeHidden();
 });
