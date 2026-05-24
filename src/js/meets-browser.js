@@ -44,7 +44,7 @@ async function renderMeets(meets) {
   const formatTeamLabel = (label, className) => {
     const displayLabel = label || (className === 'home-team' ? 'Home Team' : 'Visiting Team');
     const isFavorite = PreferencesService.teamMatchesLabel(favoriteTeam, displayLabel);
-    return `<span class="${className}${isFavorite ? ' favorite-team' : ''}">${displayLabel}${isFavorite ? ' <span class="favorite-badge">Favorite team</span>' : ''}</span>`;
+    return `<span class="${className}${isFavorite ? ' favorite-team' : ''}">${displayLabel}</span>`;
   };
 
   // Get current date for highlighting upcoming meets - simplified approach
