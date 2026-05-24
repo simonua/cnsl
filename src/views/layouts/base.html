@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; connect-src 'self' https://api.weather.gov https://www.google-analytics.com https://*.google-analytics.com; frame-src 'none'; img-src 'self' data: https://www.google-analytics.com https://*.google-analytics.com; manifest-src 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; worker-src 'self';" />
   <block name="metadata">
     <title>Columbia, MD Outdoor Pools &amp; CNSL Schedules | CA Pool Assistant</title>
     <meta name="description" content="Find Columbia Association outdoor pools, CNSL swim teams, and meet schedules for summer swimming in Columbia, Maryland." />
@@ -28,23 +29,9 @@
     }
   </script>
 
-  <!-- Google Tag Manager - should be placed as high as possible -->
-  <script>
-    if (window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
-      (function (w, d, s, l, i) {
-        w[l] = w[l] || []; w[l].push({
-          'gtm.start':
-            new Date().getTime(), event: 'gtm.js'
-        }); var f = d.getElementsByTagName(s)[0],
-          j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
-            'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
-      })(window, document, 'script', 'dataLayer', 'GTM-WZQ5925F');
-    }
-  </script>
-  <!-- End Google Tag Manager -->
-
   <script src="js/services/preferences-service.js"></script>
   <script src="js/preferences-theme.js"></script>
+  <script src="js/analytics.js"></script>
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="manifest" href="manifest.webmanifest" />
 
@@ -73,17 +60,12 @@
 
 <body>
   <a class="skip-link" href="#mainContent">Skip to main content</a>
-  <!-- Google Tag Manager (noscript) - should be placed immediately after opening body -->
-  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WZQ5925F" height="0" width="0"
-      style="display:none;visibility:hidden"></iframe></noscript>
-  <!-- End Google Tag Manager (noscript) -->
-
   <div class="page-wrap">
     <include src="components/header.html"></include>
 
     <include src="components/nav.html"></include>
 
-    <div class="nav-overlay" id="navOverlay" onclick="closeMenu(true)" aria-hidden="true"></div>
+    <div class="nav-overlay" id="navOverlay" aria-hidden="true"></div>
 
     <main class="container" id="mainContent" tabindex="-1">
       <block name="content"></block>

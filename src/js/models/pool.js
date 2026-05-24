@@ -57,9 +57,7 @@ if (typeof window === 'undefined') {
     // Handle both legacy and new data formats
     if (poolData.schedules && Array.isArray(poolData.schedules)) {
       // Legacy format - convert to new format
-      //console.log('poolData.schedules', poolData.schedules);
       this.schedule = new PoolSchedule(this._normalizeCurrentSchedule(poolData.schedules));
-      //console.log('loaded schedule', this.schedule);
       this.legacySchedules = poolData.schedules; // Keep for compatibility
     } else {
       // New format

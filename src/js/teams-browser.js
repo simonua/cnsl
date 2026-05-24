@@ -288,7 +288,6 @@ function createTeamLogo(teamId) {
         src="${logoPath}" 
         alt="" 
         class="team-logo-img"
-        onerror="this.parentElement.style.display='none';"
       />
     </div>
   `;
@@ -375,7 +374,6 @@ function formatTeamStaff(staff) {
  * Toggles the collapsed state of a team card
  * @param {Element} toggleButton - The disclosure button
  */
-// eslint-disable-next-line no-unused-vars
 function toggleTeamCard(toggleButton) {
   const teamCard = toggleButton.closest('.team-card');
   const details = teamCard.querySelector('.team-details');
@@ -475,7 +473,7 @@ function renderTeams(teams) {
         <div class="team-header">
           ${logoHtml}
           <div class="team-header-content">
-            <h2><button type="button" class="team-header__toggle" onclick="toggleTeamCard(this)" aria-expanded="${String(isFavorite)}" aria-controls="${detailsId}">${safeTeamName}${isFavorite ? ' <span class="favorite-badge">Favorite team</span>' : ''}</button></h2>
+            <h2><button type="button" class="team-header__toggle" aria-expanded="${String(isFavorite)}" aria-controls="${detailsId}">${safeTeamName}${isFavorite ? ' <span class="favorite-badge">Favorite team</span>' : ''}</button></h2>
           </div>
         </div>
         
@@ -512,6 +510,11 @@ function renderTeams(teams) {
   }).join('');
 
     list.innerHTML = html;
+    list.querySelectorAll('.team-logo-img').forEach(image => {
+      image.addEventListener('error', () => {
+        image.parentElement.hidden = true;
+      });
+    });
 }
 
 /**
@@ -594,9 +597,14 @@ function generateTeamLink(teamId, teamName, options = {}) {
 document.addEventListener("DOMContentLoaded", async () => {
   // Check if we're on the teams page before fetching data
   if (!document.getElementById("teamList")) {
-    console.log("Not on teams page, skipping team data fetch");
     return;
   }
+
+  const teamList = document.getElementById("teamList");
+  teamList.addEventListener('click', event => {
+    const toggleButton = event.target.closest('.team-header__toggle');
+    if (toggleButton) toggleTeamCard(toggleButton);
+  });
   
   try {
     // Initialize the data manager with the new OOP system
@@ -605,8 +613,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Get teams from the data manager
     const teamsManager = teamsBrowserDataManager.getTeams();
     const teams = teamsManager.getAllTeams();
-    
-    console.log("Loaded team data from DataManager:", teams.length, "teams");
     
     renderTeams(teams);
     setTeamListStatus(`Team directory loaded. ${teams.length} teams available.`, false);

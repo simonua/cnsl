@@ -76,6 +76,32 @@ test('pool feature filters expose their state and resulting count', async ({ pag
   await expect(page.locator('#poolFeatureFilterCount')).toHaveText('1 selected');
 });
 
+test('directory disclosures work without rendered inline event handlers', async ({ page }) => {
+  await page.goto('/pools.html');
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  const poolToggle = page.locator('.pool-header__toggle').first();
+  await expect(poolToggle).toHaveAttribute('aria-expanded', 'false');
+  await poolToggle.click();
+  await expect(poolToggle).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.locator('#poolList [onclick], #poolList [onerror]')).toHaveCount(0);
+
+  await page.goto('/teams.html');
+  await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
+  const teamToggle = page.locator('.team-header__toggle').first();
+  await expect(teamToggle).toHaveAttribute('aria-expanded', 'false');
+  await teamToggle.click();
+  await expect(teamToggle).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.locator('#teamList [onclick], #teamList [onerror]')).toHaveCount(0);
+
+  await page.goto('/meets.html');
+  await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
+  const meetToggle = page.locator('.meet-date-header__toggle').first();
+  const initiallyExpanded = await meetToggle.getAttribute('aria-expanded');
+  await meetToggle.click();
+  await expect(meetToggle).toHaveAttribute('aria-expanded', String(initiallyExpanded !== 'true'));
+  await expect(page.locator('#meetList [onclick], #meetList [onerror]')).toHaveCount(0);
+});
+
 test('pool directory encodes text and rejects unsafe published destinations', async ({ page }) => {
   await page.route('**/assets/data/2026/pools/pools.json*', async route => {
     const response = await route.fetch();
@@ -101,6 +127,9 @@ test('settings persist choices locally and announce clearing saved settings', as
   await page.getByLabel('Dark').check();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).theme)).toBe('dark');
+  await expect(page.getByLabel('Share anonymous page usage through Google Analytics')).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => Object.hasOwn(JSON.parse(localStorage.getItem('cnsl_preferences')), 'analyticsEnabled'))).toBe(false);
+  await expect(page.locator('#cnslAnalyticsScript')).toHaveCount(0);
 
   await page.getByRole('button', { name: 'Clear saved settings' }).click();
   await expect(page.locator('#settingsStatus')).toHaveText('Saved settings removed from this device.');

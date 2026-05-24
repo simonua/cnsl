@@ -6,6 +6,8 @@ The CNSL voice assistant should answer a deliberately small set of useful pool, 
 
 The experience should work from typed questions first and allow speech as an input and output mode when the user's browser and privacy choices permit it.
 
+This is a future design scope, not a currently delivered feature. Earlier unpublished search and speech prototypes were removed from the shipped source tree so a future implementation begins from these reviewed requirements and receives full accessibility and privacy testing.
+
 ## Product Principles
 
 - Answer deterministically from the active season data and device-local preferences.
@@ -19,9 +21,9 @@ The experience should work from typed questions first and allow speech as an inp
 
 | Area | Available today | Implication for renewed voice work |
 | --- | --- | --- |
-| Speech helper | [`speech.js`](../src/js/services/speech.js) contains Web Speech recognition and browser speech synthesis helpers. | Recognition can populate a query and TTS can speak text, but neither is currently a finished accessible conversation experience. |
-| Search UI | [`search.html`](../src/views/components/search.html) renders a visible live response region; its microphone button is commented out. | Screen output is already the baseline; voice needs intentional reintroduction. |
-| Search routing | [`search-engine.js`](../src/js/services/search-engine.js) routes basic pool, feature, team, meet, and hour wording. | Relative dates, favorites, proximity, compound filters, and concise spoken answers need dedicated logic. |
+| Speech helper | No shipped speech-recognition helper. | Introduce recognition only after its accessibility and privacy behavior is deliberately verified. |
+| Search UI | No shipped question-and-answer control. | A future screen-first response region must be implemented as a supported public workflow. |
+| Search routing | No shipped natural-language routing engine. | A future deterministic resolver must be based on the supported intent and data rules below. |
 | Preferences | [`preferences-service.js`](../src/js/services/preferences-service.js) stores `favoriteTeamId` and `favoritePoolName` in browser storage. | `my team` and `my pool` can resolve locally when the user has made a selection. |
 | Pools | The active pool schema includes coordinates, published schedules and overrides, and amenity strings such as `slide`, `beach entry`, `pool lift`, and `wading`. | Pool status, location, nearby ranking, and amenity questions are supportable from local data. |
 | Teams | The active team schema includes team aliases, practice pools, and optional detailed practice schedules. | Practice answers can target a named team or the saved favorite when schedule details are present. |

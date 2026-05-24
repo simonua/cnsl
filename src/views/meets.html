@@ -45,7 +45,6 @@
   
   <block name="scripts">
     <!-- Critical dependencies must load synchronously to ensure availability -->
-    <script src="js/config/app-config.js"></script>
     <script src="js/services/time-utils.js"></script>
     <script src="js/types/pool-enums.js"></script>
     <script src="js/pool-schedule.js"></script>
@@ -59,7 +58,6 @@
     
     <!-- Other services can load deferred -->
     <script src="js/services/file-helper.js" defer></script>
-    <script src="js/services/cache-service.js" defer></script>
 
     <!-- Application scripts -->
     <script src="js/meets-browser.js" defer></script>

@@ -24,7 +24,8 @@ describe('PreferencesService', () => {
         favoritePoolName: ' Kendall Ridge ',
         poolScheduleLayout: 'calendar',
         poolFeatureFilters: [' slide ', 'Beach Entry', 'slide'],
-        locationAwarenessEnabled: true
+        locationAwarenessEnabled: true,
+        analyticsEnabled: true
       }, storage);
 
       assert.deepEqual(saved, {

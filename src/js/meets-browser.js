@@ -129,7 +129,7 @@ async function renderMeets(meets) {
 
     html += `
       <div class="meet-date-card ${collapsedClass}">
-        <div class="meet-date-header" onclick="toggleMeetDate(this)">
+        <div class="meet-date-header">
           <div class="date-and-name">
             <h2><button type="button" class="meet-date-header__toggle" aria-expanded="${String(shouldExpand)}" aria-controls="${detailsId}">${safeDateKey}</button></h2>
             ${meetName ? `<span class="meet-name-header">${meetName}</span>` : ''}
@@ -253,7 +253,6 @@ async function renderMeets(meets) {
  * Toggles the collapsed state of a meet date card
  * @param {Element} header - The selected meet date header
  */
-// eslint-disable-next-line no-unused-vars
 function toggleMeetDate(header) {
   const meetCard = header.closest('.meet-date-card');
   const toggleButton = header.querySelector('.meet-date-header__toggle');
@@ -267,11 +266,14 @@ function toggleMeetDate(header) {
 document.addEventListener("DOMContentLoaded", async () => {
   // Check if we're on the meets page before fetching data
   if (!document.getElementById("meetList")) {
-    console.log("Not on meets page, skipping meet data fetch");
     return;
   }
 
   const meetList = document.getElementById("meetList");
+  meetList.addEventListener('click', event => {
+    const toggleButton = event.target.closest('.meet-date-header__toggle');
+    if (toggleButton) toggleMeetDate(toggleButton.closest('.meet-date-header'));
+  });
   
   try {
     await initializeMeetsBrowser();

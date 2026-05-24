@@ -55,13 +55,16 @@ pnpm test
 pnpm run validate:data
 pnpm run build
 pnpm run verify:pwa
+pnpm run verify:performance
 
 # First browser-test setup on a workstation
 pnpm exec playwright install chromium
 pnpm run test:browser
 ```
 
-Browser verification runs keyboard workflow checks and automated WCAG A/AA inspection against the built artifact in Chromium.
+Browser verification runs keyboard workflow checks and automated WCAG A/AA inspection against the built artifact in Chromium. Use the [Release Verification Checklist](docs/release-checklist.md) for the secure-origin installed-PWA and manual assistive-technology checks that cannot be established by the local suite alone.
+
+Design and maintenance decisions are recorded in [Runtime And Stylesheet Ownership](docs/runtime-architecture.md) and [Security And Privacy Decision](docs/security-privacy.md).
 
 ### GitHub Actions Workflow
 
@@ -74,9 +77,10 @@ This project uses GitHub Actions to automatically build and deploy the website t
 5. Validates active annual data against its schemas and retained-source inventory
 6. Builds the project using PostHTML
 7. Verifies the generated PWA cache, offline, and publication metadata contract
-8. Runs browser keyboard-workflow and automated accessibility checks
-9. Uploads the built files as an artifact
-10. Deploys the artifact to GitHub Pages
+8. Verifies generated asset and page-script performance budgets
+9. Runs browser keyboard-workflow and automated accessibility checks
+10. Uploads the built files as an artifact
+11. Deploys the artifact to GitHub Pages
 
 The workflow configuration is located in `.github/workflows/build-deploy.yml`.
 
@@ -92,6 +96,7 @@ A second workflow, `.github/workflows/season-data-monitor.yml`, checks official 
 - FAQs and league documents from official CNSL sources
 - Installable Progressive Web App (PWA) with offline application-shell and seasonal directory caching
 - Keyboard-friendly navigation, status announcements, and reduced-motion support
+- Anonymized aggregate usage analytics on the deployed site, without tracking individual visitors
 - Hosted via GitHub Pages with custom domain and HTTPS
 
 ---

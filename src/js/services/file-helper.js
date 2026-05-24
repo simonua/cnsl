@@ -310,40 +310,6 @@ if (typeof window === 'undefined' || !window.FileHelper) {
   // ------------------------------
 
   /**
-   * Logs the current environment and key paths for debugging
-   */
-  static logEnvironmentInfo() {
-    console.log('🔧 FILE HELPER ENVIRONMENT INFO');
-    console.log('================================');
-    console.log(`Environment: ${this.getEnvironment()}`);
-    console.log(`Data Base Path: ${this.getDataBasePath()}`);
-    console.log(`Assets Base Path: ${this.getAssetsBasePath()}`);
-    console.log(`JS Base Path: ${this.getJsBasePath()}`);
-    console.log(`CSS Base Path: ${this.getCssBasePath()}`);
-    console.log('Key Data Files:');
-    console.log(`  - Pools: ${this.getPoolsDataPath()}`);
-    console.log(`  - Teams: ${this.getTeamsDataPath()}`);
-    console.log(`  - Meets: ${this.getMeetsDataPath()}`);
-    
-    // Debug environment detection factors
-    const hostname = window.location.hostname;
-    const pathname = window.location.pathname;
-    const hasOutPath = pathname.includes('/out/');
-    const hasBaseWithOut = document.querySelector('base[href*="/out/"]') !== null;
-    const scriptTagsFromSrc = document.querySelectorAll('script[src*="src/js/"]').length;
-    const linkTagsFromSrc = document.querySelectorAll('link[href*="src/css/"]').length;
-    
-    console.log('Environment Detection Factors:');
-    console.log(`  - Hostname: ${hostname}`);
-    console.log(`  - Pathname: ${pathname}`);
-    console.log(`  - Has /out/ in path: ${hasOutPath}`);
-    console.log(`  - Has base[href] with /out/: ${hasBaseWithOut}`);
-    console.log(`  - Script tags from src/: ${scriptTagsFromSrc}`);
-    console.log(`  - Link tags from src/: ${linkTagsFromSrc}`);
-    console.log('================================\n');
-  }
-
-  /**
    * Gets all key file paths for the application
    * @returns {Object} Object containing all important file paths
    */
@@ -370,40 +336,6 @@ if (typeof window === 'undefined' || !window.FileHelper) {
     };
   }
 
-  /**
-   * Tests if a file path is accessible
-   * @param {string} filePath - The file path to test
-   * @returns {Promise<boolean>} True if the file is accessible
-   */
-  static async testFilePath(filePath) {
-    try {
-      const response = await fetch(filePath, { method: 'HEAD' });
-      return response.ok;
-    } catch (error) {
-      console.warn(`FileHelper: Cannot access ${filePath}:`, error);
-      return false;
-    }
-  }
-
-  /**
-   * Validates that all critical data files are accessible
-   * @returns {Promise<Object>} Object with validation results
-   */
-  static async validateDataFiles() {
-    const results = {
-      pools: await this.testFilePath(this.getPoolsDataPath()),
-      teams: await this.testFilePath(this.getTeamsDataPath()),
-      meets: await this.testFilePath(this.getMeetsDataPath())
-    };
-
-    const allValid = Object.values(results).every(Boolean);
-    
-    return {
-      ...results,
-      allValid,
-      environment: this.getEnvironment()
-    };
-  }
   }
 
   // Make FileHelper available globally

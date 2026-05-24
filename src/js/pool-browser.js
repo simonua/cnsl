@@ -393,7 +393,6 @@ function getUserLocation() {
 
   // Check if geolocation is supported
   if (!navigator.geolocation) {
-    console.log("Geolocation is not supported by this browser");
     return; // Exit function early, no location will be used
   }
   
@@ -424,22 +423,7 @@ function getUserLocation() {
       }
     },
     // Error callback
-    error => {
-      // Handle different error types
-      switch(error.code) {
-        case error.PERMISSION_DENIED:
-          console.log("User denied geolocation permission");
-          break;
-        case error.POSITION_UNAVAILABLE:
-          console.log("Location information unavailable");
-          break;
-        case error.TIMEOUT:
-          console.log("Location request timed out");
-          break;
-        default:
-          console.log("Unknown geolocation error:", error);
-          break;
-      }
+    () => {
       // Continue without location data - pools are already rendered without distances
     },
     options
@@ -770,7 +754,7 @@ function renderPools(pools) {
     return `
       <div class="pool-card ${isFavorite ? 'favorite-card' : 'collapsed'}" data-pool-id="${safePoolId}">
         <div class="pool-header">
-          <h2><button type="button" class="pool-header__toggle" onclick="togglePoolCard(this)" aria-expanded="${String(isFavorite)}" aria-controls="${detailsId}">${statusIndicatorHtml}${safePoolName}${isFavorite ? ' <span class="favorite-badge">Favorite pool</span>' : ''}</button></h2>
+          <h2><button type="button" class="pool-header__toggle" aria-expanded="${String(isFavorite)}" aria-controls="${detailsId}">${statusIndicatorHtml}${safePoolName}${isFavorite ? ' <span class="favorite-badge">Favorite pool</span>' : ''}</button></h2>
           ${distanceHtml}
         </div>
         <div class="pool-details" id="${detailsId}"${isFavorite ? '' : ' hidden'}>
@@ -844,7 +828,6 @@ function handlePoolUrlParameter() {
  * Toggles the collapsed state of a pool card
  * @param {Element} toggleButton - The disclosure button
  */
-// eslint-disable-next-line no-unused-vars
 function togglePoolCard(toggleButton) {
   const poolCard = toggleButton.closest('.pool-card');
   const details = poolCard.querySelector('.pool-details');
@@ -968,6 +951,11 @@ function setupPoolNavigationHandlers() {
  */
 function handlePoolNavigationClick(event) {
   const target = event.target;
+  const disclosureButton = target.closest('.pool-header__toggle');
+  if (disclosureButton) {
+    togglePoolCard(disclosureButton);
+    return;
+  }
   
   if (target.classList.contains('prev-week')) {
     const poolNav = target.closest('.pool-week-navigation');
@@ -1050,7 +1038,6 @@ function handlePoolDatePickerChange(event) {
 document.addEventListener("DOMContentLoaded", async () => {
   // Check if we're on the pools page before fetching data
   if (!document.getElementById("poolList")) {
-    console.log("Not on pools page, skipping pool data fetch");
     return;
   }
   
@@ -1063,8 +1050,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Get pools from the data manager
     const poolsManager = poolBrowserDataManager.getPools();
     const pools = poolsManager.getAllPools();
-    
-    console.log("Loaded pool data from DataManager:", pools.length, "pools");
     
     // Convert Pool objects to legacy format for backward compatibility
     const legacyPools = pools.map(pool => pool.toJSON());
@@ -1084,8 +1069,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // The preference guard prevents a browser location prompt unless it is enabled in Settings.
     try {
       getUserLocation();
-    } catch (locationError) {
-      console.log("Location access not available:", locationError);
+    } catch (_locationError) {
       // Continue without location data - pools are already rendered
     }
     

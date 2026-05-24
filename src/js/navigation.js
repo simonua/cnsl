@@ -40,7 +40,6 @@ function closeMenu(restoreFocus = false) {
 /**
  * Toggles the mobile navigation menu visibility
  */
-// eslint-disable-next-line no-unused-vars
 function toggleMenu() {
   const nav = document.getElementById('navMenu');
   const hamburger = document.querySelector('.hamburger');
@@ -114,12 +113,16 @@ function handleStickyFooter() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  const hamburger = document.querySelector('.hamburger');
+  const overlay = document.getElementById('navOverlay');
+  if (hamburger) hamburger.addEventListener('click', toggleMenu);
+  if (overlay) overlay.addEventListener('click', () => closeMenu(true));
+
   // Close menu when clicking outside of it
   document.addEventListener('click', (event) => {
     const nav = document.getElementById('navMenu');
-    const hamburger = document.querySelector('.hamburger');
     
-    if (nav && nav.classList.contains('active')) {
+    if (nav && hamburger && nav.classList.contains('active')) {
       if (!nav.contains(event.target) && !hamburger.contains(event.target)) {
         closeMenu(true);
       }

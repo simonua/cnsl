@@ -34,17 +34,9 @@ if (typeof window === 'undefined' || !window.DataManager) {
    */
   async _loadAllData() {
     try {
-      console.log('🔄 DataManager: Starting data file loading...');
-      
       const poolsPath = FileHelper.getPoolsDataPath();
       const teamsPath = FileHelper.getTeamsDataPath();
       const meetsPath = FileHelper.getMeetsDataPath();
-      
-      console.log(`📁 Environment: ${FileHelper.getEnvironment()}`);
-      console.log(`📄 Loading from paths:`);
-      console.log(`   - Pools: ${poolsPath}`);
-      console.log(`   - Teams: ${teamsPath}`);
-      console.log(`   - Meets: ${meetsPath}`);
       
       const [poolsData, teamsData, meetsData] = await Promise.all([
         this._loadJsonFile(poolsPath),
@@ -52,8 +44,6 @@ if (typeof window === 'undefined' || !window.DataManager) {
         this._loadJsonFile(meetsPath)
       ]);
 
-      console.log('✅ DataManager: JSON files loaded, initializing managers...');
-      
       this.poolsManager.loadData(poolsData);
       this.teamsManager.loadData(teamsData);
       this.seasonInfo = {
@@ -65,10 +55,8 @@ if (typeof window === 'undefined' || !window.DataManager) {
       this.meetsManager.loadData(meetsData);
 
       this.initialized = true;
-      console.log('✅ DataManager: All data loaded successfully');
-      
     } catch (error) {
-      console.error('❌ DataManager: Error loading data:', error);
+      console.error('DataManager: Error loading data:', error);
       throw error;
     }
   }

@@ -42,8 +42,6 @@ if (typeof window === 'undefined' || !window.MeetsManager) {
       
       this.lastUpdated = meetsData.lastUpdated || new Date().toISOString();
       this.dataLoaded = true;
-      
-      console.log(`📅 MEETS: Loaded ${meetsList.length} meets (regular + special)`);
     }
   }
 

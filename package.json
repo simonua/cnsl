@@ -20,6 +20,7 @@
     "test:browser": "playwright test",
     "validate:data": "node scripts/validate-season-data.js",
     "verify:pwa": "node scripts/verify-pwa-build.js",
+    "verify:performance": "node scripts/verify-performance-budget.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },

@@ -3,7 +3,7 @@
  */
 
 /**
- * Create a minimal localStorage mock for testing CacheService
+ * Create a minimal localStorage mock for browser-storage services
  */
 function createLocalStorageMock() {
   const store = {};

@@ -64,7 +64,13 @@ Object.entries(canonicalPages).forEach(([page, canonical]) => {
   const canonicalLinks = html.match(/<link rel="canonical" href="[^"]+">/g) || [];
   assert.deepEqual(canonicalLinks, [`<link rel="canonical" href="${canonical}">`], `${page} must publish its one canonical URL.`);
   assert.equal((html.match(/<title>/g) || []).length, 1, `${page} must publish one title.`);
+  assert.match(html, /http-equiv="Content-Security-Policy"/, `${page} must publish the shared browser security policy.`);
+  assert.match(html, /js\/analytics\.js\?v=/, `${page} must load deployed-site analytics handling.`);
+  assert.doesNotMatch(html, /analytics-consent\.js|onclick=/, `${page} must not publish the obsolete consent loader or inline click handlers.`);
 });
+
+const settingsHtml = fs.readFileSync(path.join(outDir, 'settings.html'), 'utf8');
+assert.doesNotMatch(settingsHtml, /name="analyticsEnabled"/, 'Settings must not expose a removed analytics-consent choice.');
 
 const offlineHtml = fs.readFileSync(path.join(outDir, 'offline.html'), 'utf8');
 assert.match(offlineHtml, /<meta name="robots" content="noindex">/, 'Offline fallback must not be indexed.');
