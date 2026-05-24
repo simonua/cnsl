@@ -737,10 +737,7 @@ function renderPools(pools) {
     `;
   }).join('');
 
-  const favoriteSummary = favoritePool
-    ? `<p class="favorite-summary"><strong>Favorite pool:</strong> ${favoritePool.name} is shown first.</p>`
-    : '';
-  list.innerHTML = favoriteSummary + html;
+  list.innerHTML = html;
 }
 
 /**

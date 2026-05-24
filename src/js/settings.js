@@ -43,7 +43,7 @@
         favoritePoolName: favoritePool.disabled ? existing.favoritePoolName : favoritePool.value
       });
       window.applyPreferenceTheme(saved);
-      status.textContent = 'Settings saved on this device only.';
+      status.textContent = '';
     });
 
     try {
