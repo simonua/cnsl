@@ -1,7 +1,7 @@
 (function initializeAnalytics() {
   'use strict';
 
-  const tagManagerId = 'GTM-WZQ5925F';
+  const measurementId = 'G-ZMBPYQKLQP';
 
   function isLocalDevelopment() {
     return window.location.hostname === 'localhost'
@@ -12,11 +12,15 @@
   if (isLocalDevelopment() || document.getElementById('cnslAnalyticsScript')) return;
 
   window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push({ 'gtm.start': Date.now(), event: 'gtm.js' });
+  window.gtag = window.gtag || function gtag() {
+    window.dataLayer.push(arguments);
+  };
+  window.gtag('js', new Date());
+  window.gtag('config', measurementId);
 
   const script = document.createElement('script');
   script.id = 'cnslAnalyticsScript';
   script.async = true;
-  script.src = `https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(tagManagerId)}`;
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(measurementId)}`;
   document.head.appendChild(script);
 }());
