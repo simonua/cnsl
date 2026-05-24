@@ -117,15 +117,50 @@ test('malformed published pool responses are announced as unavailable', async ({
   await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 });
 
-test('season summary and CA season action appear on the home page', async ({ page }) => {
+test('season summary and sharing actions appear only on the home page', async ({ page }) => {
+  await page.addInitScript(() => {
+    globalThis.recordedAnalyticsEvents = [];
+    globalThis.gtag = (...eventArguments) => globalThis.recordedAnalyticsEvents.push(eventArguments);
+  });
   await page.goto('/');
 
-  await expect(page.locator('.season-text')).toHaveText('The 2026 season runs from May 23 to September 7');
+  await expect(page.locator('.season-text')).toHaveText('The 2026 season runs from May 23 to September 7.');
   await expect(page.getByRole('link', { name: "CA's 2026 Pool Season" })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Text' })).toHaveAttribute('href', 'sms:?&body=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org');
+  await expect(page.getByRole('link', { name: 'Email' })).toHaveAttribute('href', 'mailto:?subject=Columbia%20Pools%20and%20CNSL%20Schedules&body=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org');
+  await expect(page.getByRole('link', { name: 'Facebook (opens in new tab)' })).toHaveAttribute('href', 'https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fpools.longreachmarlins.org');
+  await page.getByRole('link', { name: 'Meets' }).focus();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('link', { name: 'Text' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('link', { name: 'Email' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('link', { name: 'Facebook (opens in new tab)' })).toBeFocused();
+
+  for (const method of ['text', 'email', 'facebook']) {
+    await page.locator(`[data-analytics-share-method="${method}"] .share-site__icon`).evaluate(icon => {
+      icon.parentElement.addEventListener('click', event => event.preventDefault(), { once: true });
+      icon.dispatchEvent(new globalThis.MouseEvent('click', { bubbles: true, cancelable: true }));
+    });
+  }
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
+    ['event', 'share', { method: 'text', content_type: 'website', item_id: 'home_page' }],
+    ['event', 'share', { method: 'email', content_type: 'website', item_id: 'home_page' }],
+    ['event', 'share', { method: 'facebook', content_type: 'website', item_id: 'home_page' }]
+  ]);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const compactLinkLayout = await page.locator('.quick-link-card').evaluateAll(cards => cards.map(card => {
+    const bounds = card.getBoundingClientRect();
+    return { top: bounds.top, right: bounds.right, height: bounds.height };
+  }));
+  expect(new Set(compactLinkLayout.map(card => card.top)).size).toBe(1);
+  expect(compactLinkLayout.every(card => card.right <= 390 && card.height >= 44 && card.height < 80)).toBe(true);
 
   await page.goto('/pools.html');
   await expect(page.locator('.season-text')).toHaveCount(0);
   await expect(page.getByRole('link', { name: "CA's 2026 Pool Season" })).toHaveCount(0);
+  await expect(page.locator('.share-site')).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'Interactive CA Pool Directory' })).toBeVisible();
   await expect.poll(() => page.locator('#poolList, #seasonInfo').evaluateAll(elements => elements.map(element => element.id))).toEqual(['poolList', 'seasonInfo']);
 });
