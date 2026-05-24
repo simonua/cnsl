@@ -22,6 +22,8 @@
     if (selectedTheme) selectedTheme.checked = true;
     const selectedScheduleLayout = form.querySelector(`input[name="poolScheduleLayout"][value="${preferences.poolScheduleLayout}"]`);
     if (selectedScheduleLayout) selectedScheduleLayout.checked = true;
+    const selectedWeatherRefresh = form.querySelector(`input[name="weatherRefreshMinutes"][value="${preferences.weatherRefreshMinutes}"]`);
+    if (selectedWeatherRefresh) selectedWeatherRefresh.checked = true;
     form.elements.favoriteTeam.value = preferences.favoriteTeamId;
     form.elements.favoritePool.value = preferences.favoritePoolName;
     form.elements.locationAwarenessEnabled.checked = preferences.locationAwarenessEnabled;
@@ -40,6 +42,7 @@
     form.addEventListener('change', () => {
       const theme = form.querySelector('input[name="theme"]:checked');
       const poolScheduleLayout = form.querySelector('input[name="poolScheduleLayout"]:checked');
+      const weatherRefreshMinutes = form.querySelector('input[name="weatherRefreshMinutes"]:checked');
       const existing = PreferencesService.get();
       const saved = PreferencesService.save({
         theme: theme ? theme.value : 'system',
@@ -47,15 +50,17 @@
         favoritePoolName: favoritePool.disabled ? existing.favoritePoolName : favoritePool.value,
         poolScheduleLayout: poolScheduleLayout ? poolScheduleLayout.value : 'list',
         poolFeatureFilters: existing.poolFeatureFilters,
-        locationAwarenessEnabled: form.elements.locationAwarenessEnabled.checked
+        locationAwarenessEnabled: form.elements.locationAwarenessEnabled.checked,
+        weatherRefreshMinutes: weatherRefreshMinutes ? Number(weatherRefreshMinutes.value) : existing.weatherRefreshMinutes
       });
       window.applyPreferenceTheme(saved);
+      window.dispatchEvent(new CustomEvent('cnsl:preferences-changed'));
       status.textContent = '';
     });
 
     try {
       const dataManager = getDataManager();
-      await dataManager.initialize();
+      await dataManager.initialize(['pools', 'teams']);
       const teams = dataManager.getTeams().getAllTeams().sort((first, second) => first.name.localeCompare(second.name));
       const pools = dataManager.getPools().getAllPools().sort((first, second) => first.getName().localeCompare(second.getName()));
 
@@ -72,6 +77,7 @@
       const cleared = PreferencesService.get();
       applyFormValues(form, cleared);
       window.applyPreferenceTheme(cleared);
+      window.dispatchEvent(new CustomEvent('cnsl:preferences-changed'));
       status.textContent = 'Saved settings removed from this device.';
     });
   });

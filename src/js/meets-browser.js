@@ -13,7 +13,7 @@ const MeetsBrowserSafety = HtmlSafety;
 async function initializeMeetsBrowser() {
   if (!meetsBrowserDataManager) {
     meetsBrowserDataManager = getDataManager();
-    await meetsBrowserDataManager.initialize();
+    await meetsBrowserDataManager.initialize(['pools', 'teams', 'meets']);
   }
 }
 

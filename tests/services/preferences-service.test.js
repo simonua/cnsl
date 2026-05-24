@@ -12,7 +12,8 @@ describe('PreferencesService', () => {
         favoritePoolName: '',
         poolScheduleLayout: 'list',
         poolFeatureFilters: [],
-        locationAwarenessEnabled: false
+        locationAwarenessEnabled: false,
+        weatherRefreshMinutes: 5
       });
     });
 
@@ -25,12 +26,13 @@ describe('PreferencesService', () => {
         poolScheduleLayout: 'calendar',
         poolFeatureFilters: [' slide ', 'Beach Entry', 'slide'],
         locationAwarenessEnabled: true,
+        weatherRefreshMinutes: 10,
         analyticsEnabled: true
       }, storage);
 
       assert.deepEqual(saved, {
         theme: 'dark', favoriteTeamId: 'lrm', favoritePoolName: 'Kendall Ridge', poolScheduleLayout: 'calendar',
-        poolFeatureFilters: ['beach entry', 'slide'], locationAwarenessEnabled: true
+        poolFeatureFilters: ['beach entry', 'slide'], locationAwarenessEnabled: true, weatherRefreshMinutes: 10
       });
       assert.deepEqual(PreferencesService.get(storage), saved);
       assert.ok(storage.getItem(PreferencesService.STORAGE_KEY));
@@ -43,8 +45,14 @@ describe('PreferencesService', () => {
       assert.deepEqual(PreferencesService.get(storage), PreferencesService.DEFAULT_PREFERENCES);
       assert.deepEqual(PreferencesService.normalize({ theme: 'unsupported', favoriteTeamId: 10 }), {
         theme: 'system', favoriteTeamId: '', favoritePoolName: '', poolScheduleLayout: 'list', poolFeatureFilters: [],
-        locationAwarenessEnabled: false
+        locationAwarenessEnabled: false, weatherRefreshMinutes: 5
       });
+    });
+
+    it('accepts only supported weather refresh intervals', () => {
+      assert.equal(PreferencesService.normalize({ weatherRefreshMinutes: 0 }).weatherRefreshMinutes, 0);
+      assert.equal(PreferencesService.normalize({ weatherRefreshMinutes: '10' }).weatherRefreshMinutes, 10);
+      assert.equal(PreferencesService.normalize({ weatherRefreshMinutes: 15 }).weatherRefreshMinutes, 5);
     });
 
     it('clears saved values from the device', () => {

@@ -59,10 +59,15 @@ pnpm run verify:performance
 
 # First browser-test setup on a workstation
 pnpm exec playwright install chromium
+
+# Focused browser feedback while changing visitor-facing behavior
+pnpm run test:browser:smoke
+
+# Complete browser gate before release
 pnpm run test:browser
 ```
 
-Browser verification runs keyboard workflow checks and automated WCAG A/AA inspection against the built artifact in Chromium. Use the [Release Verification Checklist](docs/release-checklist.md) for the secure-origin installed-PWA and manual assistive-technology checks that cannot be established by the local suite alone.
+Browser verification runs keyboard workflow checks and automated WCAG A/AA inspection against the built artifact in Chromium. The smoke command is intended for quick local iteration; the complete browser gate remains required before release. Use the [Release Verification Checklist](docs/release-checklist.md) for the secure-origin installed-PWA and manual assistive-technology checks that cannot be established by the local suite alone.
 
 Design and maintenance decisions are recorded in [Runtime And Stylesheet Ownership](docs/runtime-architecture.md) and [Security And Privacy Decision](docs/security-privacy.md).
 

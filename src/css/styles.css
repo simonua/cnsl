@@ -24,6 +24,12 @@
   --favorite-bg: #fff3cd;
   --favorite-text: #664d03;
   --favorite-badge-text: #392b00;
+  --weather-alert-bg: #e8f3fa;
+  --weather-alert-border: #2c7da8;
+  --weather-alert-title: #004578;
+  --weather-alert-action: #005ea8;
+  --weather-alert-action-hover: #004578;
+  --weather-alert-action-text: #ffffff;
   --header-height: 70px;
   --footer-height: 60px;
   --footer-bottom-clearance: max(0.5rem, env(safe-area-inset-bottom, 0rem));
@@ -56,6 +62,12 @@
   --favorite-bg: #3a321c;
   --favorite-text: #f7dc86;
   --favorite-badge-text: #392b00;
+  --weather-alert-bg: #162d3d;
+  --weather-alert-border: #58b0ee;
+  --weather-alert-title: #a9d9f7;
+  --weather-alert-action: #58b0ee;
+  --weather-alert-action-hover: #86caf5;
+  --weather-alert-action-text: #101820;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -84,6 +96,12 @@
     --favorite-bg: #3a321c;
     --favorite-text: #f7dc86;
     --favorite-badge-text: #392b00;
+    --weather-alert-bg: #162d3d;
+    --weather-alert-border: #58b0ee;
+    --weather-alert-title: #a9d9f7;
+    --weather-alert-action: #58b0ee;
+    --weather-alert-action-hover: #86caf5;
+    --weather-alert-action-text: #101820;
   }
 }
 
@@ -185,9 +203,9 @@ html, body {
 }
 
 .weather-alert {
-  background-color: var(--warning-color);
-  border-bottom: 3px solid var(--error-color);
-  color: var(--favorite-badge-text);
+  background-color: var(--weather-alert-bg);
+  border-bottom: 2px solid var(--weather-alert-border);
+  color: var(--text-dark);
   width: 100%;
 }
 
@@ -199,27 +217,37 @@ html, body {
   align-items: center;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem 1rem;
-  justify-content: center;
+  gap: 0.75rem 1rem;
+  justify-content: space-between;
   margin: 0 auto;
   max-width: 1200px;
   padding: 0.65rem 1rem;
 }
 
+.weather-alert__copy {
+  flex: 1 1 20rem;
+}
+
 .weather-alert__title {
+  color: var(--weather-alert-title);
   font-size: 1rem;
   font-weight: 700;
 }
 
 .weather-alert__message {
-  flex: 1 1 20rem;
   font-size: 0.95rem;
 }
 
+.weather-alert__updated {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-top: 0.15rem;
+}
+
 .weather-alert__link {
-  background-color: var(--error-color);
+  background-color: var(--weather-alert-action);
   border-radius: 4px;
-  color: var(--white);
+  color: var(--weather-alert-action-text);
   display: inline-flex;
   font-size: 0.9rem;
   font-weight: 600;
@@ -230,7 +258,7 @@ html, body {
 
 .weather-alert__link:hover,
 .weather-alert__link:focus-visible {
-  background-color: var(--primary-dark);
+  background-color: var(--weather-alert-action-hover);
 }
 
 /* Navigation Toggle Button */
@@ -251,7 +279,7 @@ html, body {
   position: relative;
 }
 
-.hamburger:hover {
+.hamburger:hover:not(.active) {
   opacity: 0.8;
   background: rgba(255, 255, 255, 0.1);
 }
@@ -272,25 +300,12 @@ html, body {
   outline: none;
 }
 
-.hamburger.active span:nth-child(1) {
-  transform: translateY(6px) rotate(45deg);
-}
-
-.hamburger.active span:nth-child(2) {
-  opacity: 0;
-}
-
-.hamburger.active span:nth-child(3) {
-  transform: translateY(-6px) rotate(-45deg);
-}
-
 /* Navigation Menu */
 .nav-menu {
   position: fixed;
   top: 0;
   right: -100%;
-  width: 72%;
-  max-width: 280px;
+  width: min(58vw, 14rem);
   height: 100vh;
   background: linear-gradient(180deg, var(--primary-color), var(--primary-dark));
   padding-top: var(--header-height);
@@ -968,8 +983,9 @@ nav a:focus {
 }
 
 .distance-badge {
-  background-color: var(--primary-color);
-  color: var(--white);
+  background-color: transparent;
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
   flex: 0 0 auto;
   padding: 0.25rem 0.75rem;
   border-radius: var(--border-radius);
@@ -979,6 +995,33 @@ nav a:focus {
 }
 
 /* Pool Features */
+.pool-sort {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-bottom: 0.75rem;
+}
+
+.pool-sort[hidden] {
+  display: none;
+}
+
+.pool-sort__label {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.pool-sort__select {
+  background: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  color: var(--text-dark);
+  font: inherit;
+  padding: 0.4rem 0.65rem;
+}
+
 .pool-features {
   background-color: var(--light-bg);
   padding: 1rem;
@@ -1159,21 +1202,6 @@ button.pool-filter__clear:focus-visible {
 @media (min-width: 48rem) {
   .pool-filter__options {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 64rem) {
-  .pool-filter__options {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .pool-filter__group:nth-child(2),
-  .pool-filter__group:nth-child(4) {
-    grid-column: span 2;
-  }
-
-  .pool-filter__group:nth-child(5) {
-    grid-column: 1 / -1;
   }
 }
 

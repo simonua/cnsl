@@ -2,6 +2,7 @@
 let poolBrowserDataManager = null;
 let userCoords = null;
 let poolBrowserPools = [];
+let poolSortOrder = 'name';
 const PoolBrowserSafety = HtmlSafety;
 
 // Pool-specific week states (poolId -> Date)
@@ -112,7 +113,7 @@ function getStatusTooltip(color) {
 async function initializePoolBrowser() {
   if (!poolBrowserDataManager) {
     poolBrowserDataManager = getDataManager();
-    await poolBrowserDataManager.initialize();
+    await poolBrowserDataManager.initialize(['pools']);
   }
 }
 
@@ -413,6 +414,7 @@ function getUserLocation() {
       };
       // Re-render pools with distance if we're on the pools page
       if (document.getElementById("poolList") && poolBrowserDataManager) {
+        setupPoolSortControl();
         const poolsManager = poolBrowserDataManager.getPools();
         const pools = poolsManager.getAllPools();
         const legacyPools = pools.map(pool => pool.toJSON());
@@ -564,6 +566,30 @@ function clearPoolFeatureFilters() {
 }
 
 /**
+ * Display sorting options once location-based distances are available.
+ */
+function setupPoolSortControl() {
+  const controls = document.getElementById('poolSortControls');
+  const select = document.getElementById('poolSortOrder');
+  if (!controls || !select) return;
+
+  controls.hidden = !userCoords;
+  select.value = poolSortOrder;
+  select.onchange = handlePoolSortChange;
+}
+
+/**
+ * Reorder visible pools using the visitor's selected ordering.
+ * @param {Event} event - Sort select change event
+ */
+function handlePoolSortChange(event) {
+  poolSortOrder = event.target.value === 'distance' && userCoords ? 'distance' : 'name';
+  renderPools(poolBrowserPools);
+  const description = poolSortOrder === 'distance' ? 'nearest distance' : 'default order';
+  setPoolListStatus(`Pool directory sorted by ${description}.`, false);
+}
+
+/**
  * Update the active filter result count and clear action.
  * @param {number} matchingCount - Filtered pool count
  * @param {number} totalCount - Total pool count
@@ -617,26 +643,26 @@ function renderPools(pools) {
     `;
     return;
   }
-  const comparePools = (a, b) => {
-    const nameA = (a && a.name) ? a.name : '';
-    const nameB = (b && b.name) ? b.name : '';
-    return nameA.localeCompare(nameB);
+  const comparePools = (firstPool, secondPool) => {
+    const firstName = (firstPool && firstPool.name) ? firstPool.name : '';
+    const secondName = (secondPool && secondPool.name) ? secondPool.name : '';
+    return firstName.localeCompare(secondName);
   };
-  const sortedPools = PreferencesService.sortWithFavorite(filteredPools, favoritePoolName, pool => pool.name || '', comparePools);
-
-  // If we have user location, calculate distances
-  if (userCoords) {
-    sortedPools.forEach(pool => {
-      try {
-        if (pool && ((pool.location && pool.location.lat && pool.location.lng) || (pool.lat && pool.lng))) {
-          const poolCoords = pool.location ? pool.location : { lat: pool.lat, lng: pool.lng };
-          pool.distance = calculateDistance(userCoords, poolCoords);
-        }
-      } catch (err) {
-        console.error("Error calculating distance for pool:", err);
-      }
-    });
-  }
+  const displayPools = filteredPools.map(pool => {
+    if (!userCoords || !pool) return pool;
+    const location = pool.location || pool;
+    const latitude = Number(location.lat);
+    const longitude = Number(location.lng);
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return pool;
+    return { ...pool, distance: calculateDistance(userCoords, { lat: latitude, lng: longitude }) };
+  });
+  const sortedPools = poolSortOrder === 'distance' && userCoords
+    ? [...displayPools].sort((firstPool, secondPool) => {
+      const firstDistance = Number.isFinite(firstPool.distance) ? firstPool.distance : Number.POSITIVE_INFINITY;
+      const secondDistance = Number.isFinite(secondPool.distance) ? secondPool.distance : Number.POSITIVE_INFINITY;
+      return firstDistance - secondDistance || comparePools(firstPool, secondPool);
+    })
+    : PreferencesService.sortWithFavorite(displayPools, favoritePoolName, pool => pool.name || '', comparePools);
 
   // Generate HTML for each pool with mobile-optimized cards
   const html = sortedPools.map(pool => {

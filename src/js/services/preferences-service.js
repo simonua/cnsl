@@ -9,6 +9,8 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
 
     static POOL_SCHEDULE_LAYOUTS = ['list', 'calendar'];
 
+    static WEATHER_REFRESH_MINUTES = Object.freeze([0, 5, 10]);
+
     static POOL_FEATURE_GROUPS = Object.freeze([
       Object.freeze({
         label: 'Accessibility & inclusion',
@@ -38,7 +40,8 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
       favoritePoolName: '',
       poolScheduleLayout: 'list',
       poolFeatureFilters: Object.freeze([]),
-      locationAwarenessEnabled: false
+      locationAwarenessEnabled: false,
+      weatherRefreshMinutes: 5
     });
 
     /**
@@ -106,7 +109,12 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
       const poolFeatureFilters = PreferencesService.normalizeFeatureFilters(preferences.poolFeatureFilters);
       const locationAwarenessEnabled = preferences.locationAwarenessEnabled === true;
 
-      return { theme, favoriteTeamId, favoritePoolName, poolScheduleLayout, poolFeatureFilters, locationAwarenessEnabled };
+      const requestedWeatherRefreshMinutes = Number(preferences.weatherRefreshMinutes);
+      const weatherRefreshMinutes = PreferencesService.WEATHER_REFRESH_MINUTES.includes(requestedWeatherRefreshMinutes)
+        ? requestedWeatherRefreshMinutes
+        : PreferencesService.DEFAULT_PREFERENCES.weatherRefreshMinutes;
+
+      return { theme, favoriteTeamId, favoritePoolName, poolScheduleLayout, poolFeatureFilters, locationAwarenessEnabled, weatherRefreshMinutes };
     }
 
     /**

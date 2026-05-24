@@ -6,7 +6,7 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
     static BASE_URL = 'https://api.weather.gov';
     static COLUMBIA_MD_POINT = '39.2014,-76.8610';
     static CACHE_KEY = 'cnsl_weather_alert_status';
-    static CACHE_EXPIRY_MINUTES = 5;
+    static DEFAULT_REFRESH_MINUTES = 5;
     static FORECAST_WINDOW_HOURS = 24;
     static POOL_OPENING_LEAD_MINUTES = 60;
     static EASTERN_TIMEZONE = 'America/New_York';
@@ -74,6 +74,11 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
         ? options.storage
         : WeatherAlertService.getSessionStorage();
       const now = options.now || new Date();
+      const refreshMinutes = WeatherAlertService.normalizeRefreshMinutes(options.refreshMinutes);
+      if (refreshMinutes === 0) {
+        return { isInclement: false, reason: 'updates-disabled' };
+      }
+
       const poolData = options.poolData || (options.poolDataUrl
         ? await WeatherAlertService.fetchJson(options.poolDataUrl, fetchImplementation)
         : null);
@@ -81,7 +86,7 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
         return { isInclement: false, reason: 'outside-pool-operating-window' };
       }
 
-      const cachedStatus = WeatherAlertService.readCachedStatus(storage);
+      const cachedStatus = WeatherAlertService.readCachedStatus(storage, refreshMinutes, now);
       if (cachedStatus) return cachedStatus;
 
       const alertUrl = `${WeatherAlertService.BASE_URL}/alerts/active?point=${WeatherAlertService.COLUMBIA_MD_POINT}`;
@@ -92,8 +97,9 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
       ]);
       const activeAlertStatus = WeatherAlertService.evaluateStatus(alertData && alertData.features, [], now);
       if (activeAlertStatus.isInclement) {
-        WeatherAlertService.cacheStatus(storage, activeAlertStatus);
-        return activeAlertStatus;
+        const currentStatus = WeatherAlertService.withUpdatedAt(activeAlertStatus, now);
+        WeatherAlertService.cacheStatus(storage, currentStatus, refreshMinutes, now);
+        return currentStatus;
       }
 
       const forecastUrl = pointData && pointData.properties ? pointData.properties.forecast : null;
@@ -101,9 +107,18 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
         ? await WeatherAlertService.fetchJson(forecastUrl, fetchImplementation)
         : null;
       const forecastPeriods = forecastData && forecastData.properties ? forecastData.properties.periods : [];
-      const status = WeatherAlertService.evaluateStatus([], forecastPeriods, now);
-      WeatherAlertService.cacheStatus(storage, status);
+      const status = WeatherAlertService.withUpdatedAt(WeatherAlertService.evaluateStatus([], forecastPeriods, now), now);
+      WeatherAlertService.cacheStatus(storage, status, refreshMinutes, now);
       return status;
+    }
+
+    static normalizeRefreshMinutes(value) {
+      const refreshMinutes = Number(value);
+      return [0, 5, 10].includes(refreshMinutes) ? refreshMinutes : WeatherAlertService.DEFAULT_REFRESH_MINUTES;
+    }
+
+    static withUpdatedAt(status, now) {
+      return { ...status, updatedAt: now.toISOString() };
     }
 
     /**
@@ -215,21 +230,22 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
       }
     }
 
-    static readCachedStatus(storage) {
+    static readCachedStatus(storage, refreshMinutes, now = new Date()) {
       if (!storage) return null;
       try {
         const cached = JSON.parse(storage.getItem(WeatherAlertService.CACHE_KEY));
-        return cached && cached.expiresAt > Date.now() ? cached.status : null;
+        return cached && cached.refreshMinutes === refreshMinutes && cached.expiresAt > now.getTime() ? cached.status : null;
       } catch (_error) {
         return null;
       }
     }
 
-    static cacheStatus(storage, status) {
+    static cacheStatus(storage, status, refreshMinutes, now = new Date()) {
       if (!storage) return;
       try {
         storage.setItem(WeatherAlertService.CACHE_KEY, JSON.stringify({
-          expiresAt: Date.now() + WeatherAlertService.CACHE_EXPIRY_MINUTES * 60 * 1000,
+          expiresAt: now.getTime() + refreshMinutes * 60 * 1000,
+          refreshMinutes,
           status
         }));
       } catch (_error) {

@@ -3,11 +3,11 @@ const { defineConfig, devices } = require('@playwright/test');
 module.exports = defineConfig({
   testDir: './tests/browser',
   outputDir: './test-results/browser',
-  fullyParallel: false,
+  fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['github'], ['list']] : 'list',
-  workers: 1,
+  workers: process.env.CI ? 2 : 4,
   timeout: 45000,
   expect: {
     timeout: 10000

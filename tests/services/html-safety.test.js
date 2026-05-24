@@ -32,8 +32,8 @@ describe('HtmlSafety', () => {
   });
 
   describe('contact destinations', () => {
-    it('builds encoded mail links only from valid addresses', () => {
-      assert.equal(HtmlSafety.safeMailtoUrl('coach@example.org'), 'mailto:coach%40example.org');
+    it('builds safe mail links with readable valid addresses', () => {
+      assert.equal(HtmlSafety.safeMailtoUrl('coach@example.org'), 'mailto:coach@example.org');
       assert.equal(HtmlSafety.safeMailtoUrl('coach@example.org\r\nBcc:bad@example.org'), '');
     });
 

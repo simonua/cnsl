@@ -18,6 +18,7 @@
     "start:simple": "pnpm run dev",
     "test": "node --test tests/services/*.test.js tests/models/*.test.js tests/managers/*.test.js tests/types/*.test.js",
     "test:browser": "playwright test",
+    "test:browser:smoke": "playwright test --grep \"pools has no WCAG A or AA automated violations|visible weather safety alert has no WCAG A or AA automated violations|navigation contains keyboard focus|pool feature filters expose|location distances use|settings persist choices|turning weather safety alerts off\"",
     "validate:data": "node scripts/validate-season-data.js",
     "verify:pwa": "node scripts/verify-pwa-build.js",
     "verify:performance": "node scripts/verify-performance-budget.js",

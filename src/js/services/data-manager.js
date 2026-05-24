@@ -4,61 +4,113 @@
 
 // Prevent multiple declarations
 if (typeof window === 'undefined' || !window.DataManager) {
+  const DATA_DOMAINS = Object.freeze(['pools', 'teams', 'meets']);
+
   class DataManager {
   constructor() {
-    this.poolsManager = new PoolsManager();
-    this.teamsManager = new TeamsManager();
-    this.meetsManager = new MeetsManager();
+    this.poolsManager = null;
+    this.teamsManager = null;
+    this.meetsManager = null;
     this.initialized = false;
-    this.loadingPromise = null;
+    this.loadingPromises = new Map();
+    this.loadedDomains = new Set();
     this.seasonInfo = null;
   }
 
   /**
-   * Initialize data manager by loading all data files
+   * Initialize only the annual data required by a page or feature.
+   * @param {Array<string>} requiredDomains - Annual data domains needed by the caller
    * @returns {Promise} - Promise that resolves when all data is loaded
    */
-  async initialize() {
-    if (this.loadingPromise) {
-      return this.loadingPromise;
+  async initialize(requiredDomains = DATA_DOMAINS) {
+    const domains = [...new Set(requiredDomains)];
+    const unknownDomain = domains.find(domain => !DATA_DOMAINS.includes(domain));
+    if (unknownDomain) {
+      throw new Error(`Unknown annual data domain: ${unknownDomain}`);
     }
 
-    this.loadingPromise = this._loadAllData();
-    return this.loadingPromise;
+    await Promise.all(domains.map(domain => this._loadDomain(domain)));
+    this.initialized = DATA_DOMAINS.every(domain => this.loadedDomains.has(domain));
   }
 
   /**
-   * Load all data files
+   * Load one annual data domain and share its pending request between consumers.
    * @private
+   * @param {string} domain - Annual data domain to load
    * @returns {Promise} - Promise that resolves when all data is loaded
    */
-  async _loadAllData() {
-    try {
-      const poolsPath = FileHelper.getPoolsDataPath();
-      const teamsPath = FileHelper.getTeamsDataPath();
-      const meetsPath = FileHelper.getMeetsDataPath();
-      
-      const [poolsData, teamsData, meetsData] = await Promise.all([
-        this._loadJsonFile(poolsPath),
-        this._loadJsonFile(teamsPath),
-        this._loadJsonFile(meetsPath)
-      ]);
+  async _loadDomain(domain) {
+    if (this.loadedDomains.has(domain)) return;
+    if (this.loadingPromises.has(domain)) return this.loadingPromises.get(domain);
 
-      this.poolsManager.loadData(poolsData);
-      this.teamsManager.loadData(teamsData);
+    const loadingPromise = this._fetchDomain(domain)
+      .then(data => {
+        this._validateDomainData(domain, data);
+        this._getManager(domain).loadData(data);
+        this.loadedDomains.add(domain);
+        if (domain !== 'pools') return;
+        const poolsData = data;
       this.seasonInfo = {
         seasonStartDate: poolsData.seasonStartDate,
         seasonEndDate: poolsData.seasonEndDate,
         caPoolDirectoryUrl: poolsData.caPoolDirectoryUrl,
         caPoolGuideUrl: poolsData.caPoolGuideUrl
       };
-      this.meetsManager.loadData(meetsData);
+      })
+      .finally(() => this.loadingPromises.delete(domain));
 
-      this.initialized = true;
-    } catch (error) {
-      console.error('DataManager: Error loading data:', error);
-      throw error;
+    this.loadingPromises.set(domain, loadingPromise);
+    return loadingPromise;
+  }
+
+  /**
+   * Fetch the configured document for a domain.
+   * @private
+   * @param {string} domain - Annual data domain to fetch
+   * @returns {Promise<Object>} - Raw data object
+   */
+  _fetchDomain(domain) {
+    const pathGetters = {
+      pools: () => FileHelper.getPoolsDataPath(),
+      teams: () => FileHelper.getTeamsDataPath(),
+      meets: () => FileHelper.getMeetsDataPath()
+    };
+    return this._loadJsonFile(pathGetters[domain]());
+  }
+
+  /**
+   * Reject structurally unusable published data before a page reports success.
+   * @private
+   * @param {string} domain - Annual data domain being validated
+   * @param {Object} data - Parsed annual data document
+   */
+  _validateDomainData(domain, data) {
+    const hasArray = (key) => data && Array.isArray(data[key]);
+    const isUsable = domain === 'meets'
+      ? hasArray('meets') || (hasArray('regular_meets') && hasArray('special_meets'))
+      : hasArray(domain);
+    if (!isUsable) {
+      throw new Error(`Invalid ${domain} annual data response.`);
     }
+  }
+
+  /**
+   * Get or create the manager for a loaded data domain.
+   * @private
+   * @param {string} domain - Data domain manager to retrieve
+   * @returns {Object} - Domain manager instance
+   */
+  _getManager(domain) {
+    if (domain === 'pools') {
+      if (!this.poolsManager) this.poolsManager = new PoolsManager();
+      return this.poolsManager;
+    }
+    if (domain === 'teams') {
+      if (!this.teamsManager) this.teamsManager = new TeamsManager();
+      return this.teamsManager;
+    }
+    if (!this.meetsManager) this.meetsManager = new MeetsManager();
+    return this.meetsManager;
   }
 
   /**
@@ -85,7 +137,7 @@ if (typeof window === 'undefined' || !window.DataManager) {
    * @returns {PoolsManager} - Pools manager instance
    */
   getPools() {
-    return this.poolsManager;
+    return this._getManager('pools');
   }
 
   /**
@@ -93,7 +145,7 @@ if (typeof window === 'undefined' || !window.DataManager) {
    * @returns {TeamsManager} - Teams manager instance
    */
   getTeams() {
-    return this.teamsManager;
+    return this._getManager('teams');
   }
 
   /**
@@ -101,7 +153,7 @@ if (typeof window === 'undefined' || !window.DataManager) {
    * @returns {MeetsManager} - Meets manager instance
    */
   getMeets() {
-    return this.meetsManager;
+    return this._getManager('meets');
   }
 
   /**
@@ -116,15 +168,15 @@ if (typeof window === 'undefined' || !window.DataManager) {
    * Property getters for direct access (used by search engine and copilot)
    */
   get pools() {
-    return this.poolsManager;
+    return this.getPools();
   }
 
   get teams() {
-    return this.teamsManager;
+    return this.getTeams();
   }
 
   get meets() {
-    return this.meetsManager;
+    return this.getMeets();
   }
 
   /**
@@ -133,7 +185,7 @@ if (typeof window === 'undefined' || !window.DataManager) {
    * @returns {Pool|null} - Pool object or null
    */
   getPool(poolName) {
-    return this.poolsManager.getPool(poolName);
+    return this.getPools().getPool(poolName);
   }
 
   /**
@@ -142,7 +194,7 @@ if (typeof window === 'undefined' || !window.DataManager) {
    * @returns {Object|null} - Team object or null
    */
   getTeam(teamName) {
-    return this.teamsManager.getTeam(teamName);
+    return this.getTeams().getTeam(teamName);
   }
 
   /**
@@ -291,24 +343,25 @@ if (typeof window === 'undefined' || !window.DataManager) {
    * Check if all data is loaded
    * @returns {boolean} - True if all managers have data loaded
    */
-  isInitialized() {
-    return this.initialized;
+  isInitialized(requiredDomains = DATA_DOMAINS) {
+    return requiredDomains.every(domain => this.loadedDomains.has(domain));
   }
 
   /**
    * Refresh all data
    * @returns {Promise} - Promise that resolves when data is refreshed
    */
-  async refresh() {
+  async refresh(requiredDomains = [...this.loadedDomains]) {
+    const domains = requiredDomains.length > 0 ? requiredDomains : DATA_DOMAINS;
     this.initialized = false;
-    this.loadingPromise = null;
-    this.seasonInfo = null;
-    
-    this.poolsManager.clearData();
-    this.teamsManager.clearData();
-    this.meetsManager.clearData();
-    
-    return this.initialize();
+    domains.forEach(domain => {
+      this.loadedDomains.delete(domain);
+      const manager = this[`${domain}Manager`];
+      if (manager) manager.clearData();
+    });
+    if (domains.includes('pools')) this.seasonInfo = null;
+
+    return this.initialize(domains);
   }
 
   /**
@@ -336,9 +389,9 @@ if (typeof window === 'undefined' || !window.DataManager) {
   getLoadingStatus() {
     return {
       initialized: this.initialized,
-      pools: this.poolsManager.isDataLoaded(),
-      teams: this.teamsManager.isDataLoaded(),
-      meets: this.meetsManager.isDataLoaded()
+      pools: Boolean(this.poolsManager && this.poolsManager.isDataLoaded()),
+      teams: Boolean(this.teamsManager && this.teamsManager.isDataLoaded()),
+      meets: Boolean(this.meetsManager && this.meetsManager.isDataLoaded())
     };
   }
 
@@ -378,9 +431,9 @@ function getDataManager() {
  * Initialize the global DataManager (for backward compatibility)
  * @returns {Promise} - Promise that resolves when data is loaded
  */
-async function initializeDataManager() {
+async function initializeDataManager(requiredDomains) {
   const manager = getDataManager();
-  return manager.initialize();
+  return manager.initialize(requiredDomains);
 }
 
 // Export for Node.js compatibility

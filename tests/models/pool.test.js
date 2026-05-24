@@ -50,6 +50,13 @@ describe('Pool', () => {
       assert.equal(json.id, 'bwp');
       assert.equal(json.name, 'Bryant Woods');
     });
+
+    it('retains published schedule periods needed by weather operating windows', () => {
+      const schedules = [{ startDate: '2026-05-23', endDate: '2026-09-07', hours: [] }];
+      const pool = new Pool(createSamplePoolData({ schedules }));
+
+      assert.deepEqual(pool.toJSON().schedules, schedules);
+    });
   });
 
   describe('getSummary', () => {

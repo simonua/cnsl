@@ -1,5 +1,6 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
+const { createLocalStorageMock } = require('../helpers/test-helpers.js');
 const WeatherAlertService = require('../../src/js/services/weather-alert-service.js');
 
 const now = new Date('2026-05-24T12:00:00-04:00');
@@ -101,7 +102,46 @@ describe('WeatherAlertService', () => {
 
       assert.equal(status.isInclement, true);
       assert.equal(status.source, 'forecast');
+      assert.equal(status.updatedAt, now.toISOString());
       assert.equal(urls.length, 3);
+    });
+
+    it('should skip weather requests when updates are turned off', async () => {
+      let requestCount = 0;
+      const status = await WeatherAlertService.getCurrentStatus({
+        fetchImplementation: async () => {
+          requestCount += 1;
+          return { ok: true, json: async () => ({}) };
+        },
+        now,
+        poolData,
+        refreshMinutes: 0,
+        storage: null
+      });
+
+      assert.deepEqual(status, { isInclement: false, reason: 'updates-disabled' });
+      assert.equal(requestCount, 0);
+    });
+
+    it('should retain cached update timestamps only for the configured interval', async () => {
+      const storage = createLocalStorageMock();
+      let requestCount = 0;
+      const fetchImplementation = async url => {
+        requestCount += 1;
+        if (url.includes('/alerts/active')) {
+          return { ok: true, json: async () => ({ features: [{ properties: { event: 'Severe Thunderstorm Warning' } }] }) };
+        }
+        return { ok: true, json: async () => ({ properties: {} }) };
+      };
+
+      const firstStatus = await WeatherAlertService.getCurrentStatus({ fetchImplementation, now, poolData, refreshMinutes: 10, storage });
+      const cachedStatus = await WeatherAlertService.getCurrentStatus({ fetchImplementation, now: new Date(now.getTime() + 60 * 1000), poolData, refreshMinutes: 10, storage });
+      const differentIntervalStatus = await WeatherAlertService.getCurrentStatus({ fetchImplementation, now: new Date(now.getTime() + 2 * 60 * 1000), poolData, refreshMinutes: 5, storage });
+
+      assert.equal(firstStatus.updatedAt, now.toISOString());
+      assert.equal(cachedStatus.updatedAt, firstStatus.updatedAt);
+      assert.notEqual(differentIntervalStatus.updatedAt, firstStatus.updatedAt);
+      assert.equal(requestCount, 4);
     });
 
     it('should avoid requesting weather before the one-hour pre-opening period', async () => {

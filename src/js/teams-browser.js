@@ -13,7 +13,7 @@ const TeamsBrowserSafety = HtmlSafety;
 async function initializeTeamsBrowser() {
   if (!teamsBrowserDataManager) {
     teamsBrowserDataManager = getDataManager();
-    await teamsBrowserDataManager.initialize();
+    await teamsBrowserDataManager.initialize(['pools', 'teams']);
   }
 }
 

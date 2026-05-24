@@ -15,6 +15,33 @@ async function prepareStableWeatherResponses(page) {
   });
 }
 
+async function prepareVisibleWeatherAlert(page) {
+  await page.unroute('https://api.weather.gov/**');
+  await page.route('https://api.weather.gov/**', route => route.fulfill({
+    json: { features: [{ properties: { event: 'Severe Thunderstorm Warning' } }] }
+  }));
+  await page.route('**/assets/data/2026/pools/pools.json*', async route => {
+    const response = await route.fetch();
+    const data = await response.json();
+    data.pools[0].schedules = [{
+      startDate: '2026-01-01',
+      endDate: '2026-12-31',
+      hours: [{
+        weekDays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+        types: ['Rec Swim'],
+        startTime: '12:00am',
+        endTime: '11:59pm'
+      }]
+    }];
+    await route.fulfill({ response, json: data });
+  });
+}
+
+const publishedPagePaths = [
+  '/index.html', '/pools.html', '/teams.html', '/meets.html', '/settings.html',
+  '/swim-meet-resources.html', '/whats-new.html', '/about.html', '/faq.html', '/offline.html'
+];
+
 test.beforeEach(async ({ page }) => {
   await prepareStableWeatherResponses(page);
 });
@@ -55,8 +82,34 @@ for (const scenario of [
   });
 }
 
+for (const scenario of [
+  { path: '/pools.html', status: '#poolListStatus', readyText: /Pool directory loaded\./, domains: ['pools'] },
+  { path: '/teams.html', status: '#teamListStatus', readyText: /Team directory loaded\./, domains: ['pools', 'teams'] },
+  { path: '/meets.html', status: '#meetListStatus', readyText: /Meet schedule loaded\./, domains: ['meets', 'pools', 'teams'] }
+]) {
+  test(`${scenario.path} requests only the annual data required for its workflow`, async ({ page }) => {
+    const requestedDomains = [];
+    page.on('request', request => {
+      const match = request.url().match(/\/assets\/data\/2026\/(pools|teams|meets)\/\1\.json/);
+      if (match) requestedDomains.push(match[1]);
+    });
+
+    await page.goto(scenario.path);
+    await expect(page.locator(scenario.status)).toHaveText(scenario.readyText);
+    expect(requestedDomains.sort()).toEqual(scenario.domains);
+  });
+}
+
 test('pool load failures are announced and do not leave the directory busy', async ({ page }) => {
   await page.route('**/assets/data/2026/pools/pools.json*', route => route.fulfill({ status: 503, body: '{}' }));
+  await page.goto('/pools.html');
+
+  await expect(page.locator('#poolListStatus')).toHaveText('Pool information is currently unavailable. Please try again later.');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
+});
+
+test('malformed published pool responses are announced as unavailable', async ({ page }) => {
+  await page.route('**/assets/data/2026/pools/pools.json*', route => route.fulfill({ json: {} }));
   await page.goto('/pools.html');
 
   await expect(page.locator('#poolListStatus')).toHaveText('Pool information is currently unavailable. Please try again later.');
@@ -74,6 +127,30 @@ test('pool feature filters expose their state and resulting count', async ({ pag
 
   await expect(page.locator('#poolFilterSummary')).toHaveText(/Showing \d+ of 23 pools/);
   await expect(page.locator('#poolFeatureFilterCount')).toHaveText('1 selected');
+});
+
+test('location distances use outlined pills and can sort nearest pools first', async ({ page }) => {
+  await page.context().grantPermissions(['geolocation']);
+  await page.context().setGeolocation({ latitude: 39.2105, longitude: -76.8721 });
+  await page.addInitScript(() => {
+    localStorage.setItem('cnsl_preferences', JSON.stringify({ locationAwarenessEnabled: true }));
+  });
+  await page.goto('/pools.html');
+
+  const sortControl = page.locator('#poolSortControls');
+  const firstDistance = page.locator('.distance-badge').first();
+  await expect(sortControl).toBeVisible();
+  await expect(firstDistance).toBeVisible();
+  const distanceStyle = await firstDistance.evaluate(element => {
+    const styles = globalThis.getComputedStyle(element);
+    return { backgroundColor: styles.backgroundColor, borderStyle: styles.borderStyle };
+  });
+  expect(distanceStyle).toEqual({ backgroundColor: 'rgba(0, 0, 0, 0)', borderStyle: 'solid' });
+
+  await page.selectOption('#poolSortOrder', 'distance');
+  await expect(page.locator('#poolListStatus')).toHaveText('Pool directory sorted by nearest distance.');
+  const distances = await page.locator('.distance-badge').evaluateAll(badges => badges.map(badge => Number.parseFloat(badge.textContent.match(/[0-9.]+/)[0])));
+  expect(distances).toEqual([...distances].sort((first, second) => first - second));
 });
 
 test('directory disclosures work without rendered inline event handlers', async ({ page }) => {
@@ -125,12 +202,36 @@ test('settings persist choices locally and announce clearing saved settings', as
   await expect(page.locator('#favoritePool')).toBeEnabled();
 
   await page.getByLabel('Dark').check();
+  await page.getByLabel('10 min').check();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).theme)).toBe('dark');
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).weatherRefreshMinutes)).toBe(10);
   await expect(page.getByLabel('Share anonymous page usage through Google Analytics')).toHaveCount(0);
   await expect.poll(() => page.evaluate(() => Object.hasOwn(JSON.parse(localStorage.getItem('cnsl_preferences')), 'analyticsEnabled'))).toBe(false);
   await expect(page.locator('#cnslAnalyticsScript')).toHaveCount(0);
 
   await page.getByRole('button', { name: 'Clear saved settings' }).click();
   await expect(page.locator('#settingsStatus')).toHaveText('Saved settings removed from this device.');
+});
+
+test('visible weather safety alerts render with update times on every page', async ({ page }) => {
+  await prepareVisibleWeatherAlert(page);
+
+  for (const path of publishedPagePaths) {
+    await page.goto(path);
+    await expect(page.locator('#weatherAlert')).toBeVisible();
+    await expect(page.locator('#weatherAlertMessage')).toContainText('Severe Thunderstorm Warning');
+    await expect(page.locator('#weatherAlertUpdated')).not.toHaveText('');
+    await expect(page.locator('#weatherAlertUpdated')).toHaveAttribute('datetime', /2026-/);
+  }
+});
+
+test('turning weather safety alerts off hides an active banner immediately', async ({ page }) => {
+  await prepareVisibleWeatherAlert(page);
+  await page.goto('/settings.html');
+  await expect(page.locator('#weatherAlert')).toBeVisible();
+
+  await page.getByLabel('Off').check();
+  await expect(page.locator('#weatherAlert')).toBeHidden();
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).weatherRefreshMinutes)).toBe(0);
 });

@@ -35,6 +35,16 @@
           <p class="settings-hint" id="locationAwarenessHint">Off by default. When enabled, the Pools page asks your browser for location access. Your current location is not saved by this site.</p>
         </fieldset>
 
+        <fieldset class="settings-group">
+          <legend>Weather safety alerts</legend>
+          <div class="settings-segmented" role="radiogroup" aria-label="Weather update frequency">
+            <label><input type="radio" name="weatherRefreshMinutes" value="0"> Off</label>
+            <label><input type="radio" name="weatherRefreshMinutes" value="5"> 5 min</label>
+            <label><input type="radio" name="weatherRefreshMinutes" value="10"> 10 min</label>
+          </div>
+          <p class="settings-hint">Weather is checked only from one hour before the first scheduled pool activity until pools close. Visible alerts show when they were last updated.</p>
+        </fieldset>
+
         <div class="settings-group">
           <label class="settings-label" for="favoritePool">Favorite pool</label>
           <select class="settings-select" id="favoritePool" name="favoritePool" disabled>
@@ -68,7 +78,6 @@
     <script src="js/models/pool.js"></script>
     <script src="js/pools-manager.js"></script>
     <script src="js/teams-manager.js"></script>
-    <script src="js/meets-manager.js"></script>
     <script src="js/services/data-manager.js"></script>
     <script src="js/services/file-helper.js" defer></script>
     <script src="js/settings.js" defer></script>

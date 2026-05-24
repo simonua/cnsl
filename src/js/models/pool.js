@@ -966,6 +966,10 @@ if (typeof window === 'undefined') {
       specialEvents: this.specialEvents,
       lastUpdated: this.lastUpdated
     };
+
+    if (this.legacySchedules) {
+      result.schedules = this.legacySchedules;
+    }
     
     // Include location properties for both formats
     if (this.location) {
