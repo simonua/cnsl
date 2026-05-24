@@ -1,0 +1,11 @@
+version: 2
+updates:
+  # Actions are pinned to SHAs with release comments so updates stay immutable.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns:
+          - "*"
