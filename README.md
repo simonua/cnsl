@@ -1,9 +1,8 @@
+# Columbia Association Pool Assistant
+
 ![GitHub Pages](https://img.shields.io/badge/hosted%20on-GitHub%20Pages-121013?logo=github&logoColor=white&style=flat-square)
 ![PWA Ready](https://img.shields.io/badge/PWA-ready-0abf53?logo=googlechrome&logoColor=white&style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)
-
-
-# Columbia Association Pool Assistant
 
 A lightweight, mobile-first web app that helps Columbia Neighborhood Swim League (CNSL) swimmers, families, and fans quickly find information about pool openings, team practices, meets, and league policies. Includes natural language search and voice input for on-the-go access.
 
@@ -15,7 +14,7 @@ A lightweight, mobile-first web app that helps Columbia Neighborhood Swim League
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 ```
 
 ### Building HTML
@@ -24,21 +23,27 @@ This project uses PostHTML for component-based HTML development. The source file
 
 ```bash
 # Build HTML files once
-npm run build
+pnpm run build
 
 # Build and watch for changes
-npm run watch
+pnpm start
 ```
 
 ### Project Structure
 
 - `src/views/*.html` - Source HTML files with PostHTML syntax
-- `src/views/layouts/*.html` - Layout templates 
+- `src/views/layouts/*.html` - Layout templates
 - `src/views/components/*.html` - Reusable components
 - `src/css/` - Stylesheets
 - `src/js/` - JavaScript files
 - `src/assets/` - Images, data files, and other static assets
 - `/out/` - Build output directory (generated files for deployment)
+
+### Annual Season Data
+
+Pools, meets, and teams are stored beneath annual domain folders in `src/assets/data/<YEAR>/<domain>/`. The active published season is selected by `YEAR` in `src/js/config/app-config.js`.
+
+See [Annual Season Assets](docs/annual-season-assets.md) for the exact PDF, JSON, and schema layout and the checklist for preparing a new season such as 2027.
 
 ### GitHub Actions Workflow
 

@@ -3,7 +3,7 @@
     "src/views",
     "src/css", 
     "src/js",
-    "src/assets/data/*.json"
+    "src/assets/data/2026"
   ],
   "ext": "html,css,js,json",
   "ignore": [

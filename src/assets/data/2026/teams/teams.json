@@ -1,0 +1,118 @@
+{
+  "$schema": "teams.schema.json",
+  "teams": [
+    {
+      "id": "cfhss",
+      "name": "CHS Swim Sundevils",
+      "keywords": ["chs", "clary's forest", "hawthorn", "swansfield", "sundevils"],
+      "url": "https://www.gomotionapp.com/team/reccnslcfhss/page/home",
+      "homePools": ["Swansfield"],
+      "practicePools": ["Clary's Forest", "Hawthorn", "Swansfield"]
+    },
+    {
+      "id": "ccc",
+      "name": "Clemens Crossing Cyclones",
+      "keywords": ["clemens crossing cyclones", "clemens crossing", "cyclones"],
+      "url": "https://www.gomotionapp.com/team/reccnslccc/page/home",
+      "homePools": ["Clemens Crossing"],
+      "practicePools": ["Clemens Crossing", "Clary's Forest", "Hawthorn"]
+    },
+    {
+      "id": "dsd",
+      "name": "Dorsey Search Dolphins",
+      "keywords": ["dorsey search dolphins", "dorsey's search dolphins", "dorsey search", "dolphins"],
+      "url": "https://www.gomotionapp.com/team/reccnsldsd/page/home",
+      "homePools": ["Dorsey Hall"],
+      "practicePools": ["Dorsey Hall", "Phelps Luck", "Running Brook", "Thunder Hill"]
+    },
+    {
+      "id": "hcc",
+      "name": "Harper's Choice Challenge",
+      "keywords": ["harper's choice challenge", "harpers choice challenge", "harper's choice", "challenge"],
+      "url": "https://www.gomotionapp.com/team/reccnslhcc/page/home",
+      "homePools": ["Longfellow"],
+      "practicePools": ["Longfellow", "Faulkner Ridge", "Swansfield"]
+    },
+    {
+      "id": "hd",
+      "name": "Huntington Dolphins",
+      "keywords": ["huntington dolphins", "huntington", "dolphins"],
+      "url": "https://www.gomotionapp.com/team/reccnslhd/page/home",
+      "homePools": ["Huntington"],
+      "practicePools": ["Huntington", "Hopewell", "Dickinson"]
+    },
+    {
+      "id": "kcw",
+      "name": "Kings Contrivance (KC) Waves",
+      "keywords": ["kings contrivance waves", "kc", "kings contrivance", "waves"],
+      "url": "https://www.gomotionapp.com/team/reccnslkcw/page/home",
+      "homePools": ["Huntington", "MacGill's Common"],
+      "practicePools": ["MacGill's Common", "Huntington", "Dickinson"]
+    },
+    {
+      "id": "lrm",
+      "name": "Long Reach Marlins",
+      "keywords": ["long reach marlins", "long reach", "marlins"],
+      "url": "https://www.gomotionapp.com/team/reccnsllrm/page/home",
+      "resultsUrl": "https://meetresults.longreachmarlins.org",
+      "homePools": ["Kendall Ridge"],
+      "practicePools": ["Kendall Ridge", "Jeffers Hill", "Locust Park", "Stevens Forest"]
+    },
+    {
+      "id": "omts",
+      "name": "Oakland Mills Tigersharks",
+      "keywords": ["oakland mills tigersharks", "oakland mills", "tigersharks"],
+      "url": "https://www.gomotionapp.com/team/reccnslomts/page/home",
+      "homePools": ["Stevens Forest"],
+      "practicePools": ["Stevens Forest", "Dasher Green", "Talbott Springs"]
+    },
+    {
+      "id": "obb",
+      "name": "Owen Brown Barracudas",
+      "keywords": ["owen brown barracudas", "owen brown", "barracudas"],
+      "url": "https://www.gomotionapp.com/team/reccnslobb/page/home",
+      "homePools": ["Dasher Green"],
+      "practicePools": ["Dasher Green", "Hopewell", "Talbott Springs"]
+    },
+    {
+      "id": "prr",
+      "name": "Pheasant Ridge Rapids",
+      "keywords": ["pheasant ridge rapids", "pheasant ridge", "rapids"],
+      "url": "https://www.gomotionapp.com/team/reccnslprr/page/home",
+      "homePools": ["River Hill"],
+      "practicePools": ["River Hill", "MacGill's Common", "Hobbit's Glen", "Running Brook"]
+    },
+    {
+      "id": "pls",
+      "name": "Phelps Luck Snappers",
+      "keywords": ["phelps luck snappers", "phelps luck", "snappers"],
+      "url": "https://www.gomotionapp.com/team/reccnslpls/page/home",
+      "homePools": ["Phelps Luck"],
+      "practicePools": ["Phelps Luck", "Kendall Ridge", "Locust Park"]
+    },
+    {
+      "id": "prp",
+      "name": "Pointers Run Piranhas",
+      "keywords": ["pointers run piranhas", "pointers run", "piranhas"],
+      "url": "https://www.gomotionapp.com/team/reccnslprp/page/home",
+      "homePools": ["River Hill"],
+      "practicePools": ["River Hill", "Clemens Crossing", "Hobbit's Glen", "Longfellow"]
+    },
+    {
+      "id": "thl",
+      "name": "Thunder Hill Lightning",
+      "keywords": ["thunder hill lightning", "thunder hill", "lightning"],
+      "url": "https://www.gomotionapp.com/team/reccnslthl/page/home",
+      "homePools": ["Thunder Hill"],
+      "practicePools": ["Thunder Hill", "Locust Park", "Talbott Springs"]
+    },
+    {
+      "id": "wlw",
+      "name": "Wilde Lake Watercats",
+      "keywords": ["wilde lake watercats", "wilde lake", "watercats"],
+      "url": "https://www.gomotionapp.com/team/reccnslwlw/page/home",
+      "homePools": ["Faulkner Ridge"],
+      "practicePools": ["Faulkner Ridge", "Longfellow"]
+    }
+  ]
+}

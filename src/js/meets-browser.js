@@ -255,7 +255,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   
   try {
     // Load meets data directly - simple approach that works
-    const response = await fetch('assets/data/meets.json');
+    const response = await fetch(FileHelper.getMeetsDataPath());
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }

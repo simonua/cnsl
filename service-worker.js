@@ -1,3 +1,5 @@
+importScripts('/js/config/app-config.js');
+
 // Cache version - updated with each build  
 const CACHE_VERSION = new Date().toISOString().replace(/[-:]/g, '').split('.')[0]; // Include timestamp for immediate updates
 const CACHE_NAME = `cnsl-static-${CACHE_VERSION}`;
@@ -32,6 +34,7 @@ const STATIC_RESOURCES = [
   "/js/meets-manager.js",
   "/js/pool-schedule.js",
   "/js/models/pool.js",
+  "/js/config/app-config.js",
   "/js/config/weather-config.js",
   "/js/types/pool-enums.js",
   "/js/services/data-manager.js",
@@ -42,12 +45,8 @@ const STATIC_RESOURCES = [
   "/js/services/search-engine.js",
   "/js/services/speech.js",
   "/js/services/pool-link-helper.js",
-  "/assets/data/teams.json",
-  "/assets/data/pools.json",
-  "/assets/data/meets.json",
-  "/assets/data/teams.schema.json",
-  "/assets/data/pools.schema.json",
-  "/assets/data/meets.schema.json",
+  `/assets/data/${YEAR}/pools/pools.json`,
+  `/assets/data/${YEAR}/pools/pools.schema.json`,
   "/assets/images/cnsl-logo.jpg",
   "/assets/images/cnsl-logo-230x230.jpg",
   "/assets/images/logos/lrm.png",

@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log("🔄 SIMPLE TEST: Loading meets data...");
     
     // Load meets data directly
-    const response = await fetch('assets/data/meets.json');
+    const response = await fetch(FileHelper.getMeetsDataPath());
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }

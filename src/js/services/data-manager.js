@@ -30,11 +30,11 @@ if (typeof window === 'undefined' || !window.DataManager) {
       if (!validation.allValid) {
         console.error('❌ DataManager: Data files validation failed:', validation);
         
-        // Try one more time with a different path strategy
-        console.log('🔄 DataManager: Trying alternative path strategy...');
-        const poolsPath = validation.pools ? FileHelper.getPoolsDataPath() : 'assets/data/pools.json';
-        const teamsPath = validation.teams ? FileHelper.getTeamsDataPath() : 'assets/data/teams.json';
-        const meetsPath = validation.meets ? FileHelper.getMeetsDataPath() : 'assets/data/meets.json';
+        // A GET can still succeed if HEAD validation is unsupported by the host.
+        console.log('🔄 DataManager: Trying configured seasonal paths...');
+        const poolsPath = FileHelper.getPoolsDataPath();
+        const teamsPath = FileHelper.getTeamsDataPath();
+        const meetsPath = FileHelper.getMeetsDataPath();
         
         this.loadingPromise = this._loadAllData(poolsPath, teamsPath, meetsPath);
         return this.loadingPromise;
@@ -78,11 +78,11 @@ if (typeof window === 'undefined' || !window.DataManager) {
       } catch (_err) {
         console.warn('⚠️ First attempt to load data failed, trying alternative paths...');
         
-        // Second attempt with forced production-like paths
+        // Second attempt with the active season paths
         [poolsData, teamsData, meetsData] = await Promise.all([
-          this._loadJsonFile('assets/data/pools.json'),
-          this._loadJsonFile('assets/data/teams.json'),
-          this._loadJsonFile('assets/data/meets.json').catch(() => null) // Optional file
+          this._loadJsonFile(FileHelper.getPoolsDataPath()),
+          this._loadJsonFile(FileHelper.getTeamsDataPath()),
+          this._loadJsonFile(FileHelper.getMeetsDataPath()).catch(() => null) // Optional file
         ]);
       }
 

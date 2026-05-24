@@ -10,6 +10,10 @@
 //    FILE HELPER CLASS
 // ------------------------------
 
+if (typeof module !== 'undefined' && module.exports && typeof globalThis.YEAR === 'undefined') {
+  require('../config/app-config.js');
+}
+
 // Prevent multiple declarations
 if (typeof window === 'undefined' || !window.FileHelper) {
   class FileHelper {
@@ -88,11 +92,32 @@ if (typeof window === 'undefined' || !window.FileHelper) {
   }
 
   /**
+   * Gets the active season year used for published seasonal data.
+   * @returns {number} Active season year
+   */
+  static getSeasonYear() {
+    if (typeof globalThis.YEAR !== 'number') {
+      throw new Error('Application YEAR configuration is not loaded.');
+    }
+
+    return globalThis.YEAR;
+  }
+
+  /**
+   * Gets the correct base path for seasonal domain data.
+   * @param {string} domain - Seasonal data domain (e.g., 'pools')
+   * @returns {string} Base path for the domain data
+   */
+  static getSeasonDataBasePath(domain) {
+    return this.getDataBasePath() + `${this.getSeasonYear()}/${domain}/`;
+  }
+
+  /**
    * Gets the correct path for pools.json
    * @returns {string} Full path to pools.json
    */
   static getPoolsDataPath() {
-    return this.getDataBasePath() + 'pools.json';
+    return this.getSeasonDataBasePath('pools') + 'pools.json';
   }
 
   /**
@@ -100,7 +125,7 @@ if (typeof window === 'undefined' || !window.FileHelper) {
    * @returns {string} Full path to teams.json
    */
   static getTeamsDataPath() {
-    return this.getDataBasePath() + 'teams.json';
+    return this.getSeasonDataBasePath('teams') + 'teams.json';
   }
 
   /**
@@ -108,7 +133,7 @@ if (typeof window === 'undefined' || !window.FileHelper) {
    * @returns {string} Full path to meets.json
    */
   static getMeetsDataPath() {
-    return this.getDataBasePath() + 'meets.json';
+    return this.getSeasonDataBasePath('meets') + 'meets.json';
   }
 
   /**
@@ -233,8 +258,7 @@ if (typeof window === 'undefined' || !window.FileHelper) {
    * @returns {string} Base path for pool schedule PDFs
    */
   static getPoolSchedulesBasePath() {
-    const year = new Date().getFullYear();
-    return this.getDataBasePath() + `${year}/pool-schedules/`;
+    return this.getSeasonDataBasePath('pools') + 'pool-schedules/';
   }
 
   /**

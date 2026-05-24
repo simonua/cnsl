@@ -1,0 +1,321 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/pools.schema.json",
+    "title": "Pool Data Schema",
+    "description": "Schema for pool data containing schedules, features, and location information",
+    "type": "object",
+    "properties": {
+        "$schema": {
+            "type": "string",
+            "description": "JSON Schema reference"
+        },
+        "seasonStartDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Start date of the outdoor pool season"
+        },
+        "seasonEndDate": {
+            "type": "string",
+            "format": "date", 
+            "description": "End date of the outdoor pool season"
+        },
+        "caPoolDirectoryUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to the Columbia Association online pool directory"
+        },
+        "caPoolGuideUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to the Columbia Association pool season guide"
+        },
+        "pools": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/Pool"
+            },
+            "minItems": 1
+        }
+    },
+    "required": [
+        "seasonStartDate",
+        "seasonEndDate",
+        "pools"
+    ],
+    "additionalProperties": false,
+    "definitions": {
+        "Pool": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "$ref": "#/definitions/NonEmptyString"
+                },
+                "name": {
+                    "$ref": "#/definitions/NonEmptyString"
+                },
+                "caUrl": {
+                    "$ref": "#/definitions/NonEmptyString"
+                },
+                "location": {
+                    "$ref": "#/definitions/Location"
+                },
+                "address": {
+                    "$ref": "#/definitions/NonEmptyString"
+                },
+                "features": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FeatureType"
+                    }
+                },
+                "schedules": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Schedule"
+                    }
+                },
+                "scheduleOverrides": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ScheduleOverride"
+                    }
+                },
+                "scheduleUrl": {
+                    "$ref": "#/definitions/NonEmptyString"
+                },
+                "phone": {
+                    "type": "string",
+                    "pattern": "^[0-9]{3}-[0-9]{3}-[0-9]{4}$",
+                    "description": "Pool desk phone number in format XXX-XXX-XXXX"
+                }
+            },
+            "required": [
+                "name",
+                "features",
+                "scheduleUrl",
+                "schedules"
+            ],
+            "anyOf": [
+                {
+                    "required": ["location"]
+                },
+                {
+                    "required": ["address", "mapsQuery", "lat", "lng"]
+                }
+            ],
+            "additionalProperties": false
+        },
+        "Schedule": {
+            "type": "object",
+            "properties": {
+                "startDate": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "endDate": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "hours": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Hours"
+                    }
+                }
+            },
+            "required": [
+                "startDate",
+                "endDate",
+                "hours"
+            ],
+            "additionalProperties": false
+        },
+        "ScheduleOverride": {
+            "type": "object",
+            "properties": {
+                "startDate": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "endDate": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "hours": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Hours"
+                    }
+                },
+                "reason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Free form string describing the reason for the schedule override"
+                }
+            },
+            "required": [
+                "startDate",
+                "endDate",
+                "hours",
+                "reason"
+            ],
+            "additionalProperties": false
+        },
+        "Hours": {
+            "type": "object",
+            "properties": {
+                "weekDays": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/WeekDayType"
+                    },
+                    "minItems": 1
+                },
+                "startTime": {
+                    "$ref": "#/definitions/TimeType"
+                },
+                "endTime": {
+                    "$ref": "#/definitions/TimeType"
+                },
+                "types": {
+                    "oneOf": [
+                        {
+                            "$ref": "#/definitions/ScheduleType"
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/ScheduleType"
+                            },
+                            "minItems": 1
+                        }
+                    ]
+                },
+                "notes": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "weekDays"
+            ],
+            "additionalProperties": false
+        },
+        "NonEmptyString": {
+            "type": "string",
+            "minLength": 1
+        },
+        "Location": {
+            "type": "object",
+            "properties": {
+                "street": {
+                    "$ref": "#/definitions/NonEmptyString"
+                },
+                "city": {
+                    "$ref": "#/definitions/NonEmptyString"
+                },
+                "state": {
+                    "$ref": "#/definitions/NonEmptyString"
+                },
+                "zip": {
+                    "type": "string",
+                    "pattern": "^[0-9]{5}(-[0-9]{4})?$"
+                },
+                "lat": {
+                    "$ref": "#/definitions/Latitude"
+                },
+                "lng": {
+                    "$ref": "#/definitions/Longitude"
+                },
+                "mapsQuery": {
+                    "$ref": "#/definitions/NonEmptyString"
+                },
+                "googleMapsUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Direct Google Maps URL for the pool location. Format: https://www.google.com/maps/search/?api=1&query=ENCODED_ADDRESS"
+                }
+            },
+            "required": [
+                "street",
+                "city",
+                "state",
+                "zip",
+                "lat",
+                "lng",
+                "mapsQuery",
+                "googleMapsUrl"
+            ],
+            "additionalProperties": false
+        },
+        "Latitude": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90
+        },
+        "Longitude": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180
+        },
+        "FeatureType": {
+            "type": "string",
+            "enum": [
+                "ADA compliant",
+                "basketball",
+                "beach entry",
+                "dive",
+                "hot tub",
+                "lap",
+                "play features",
+                "pool lift",
+                "shade",
+                "slide",
+                "splash",
+                "volleyball",
+                "wading",
+                "wifi"
+            ]
+        },
+        "WeekDayType": {
+            "type": "string",
+            "enum": [
+                "Mon",
+                "Tue",
+                "Wed",
+                "Thu",
+                "Fri",
+                "Sat",
+                "Sun"
+            ]
+        },
+        "ScheduleType": {
+            "type": "string",
+            "enum": [
+                "Adult Laps Only",
+                "Adult Swim",
+                "Aqua Fitness",
+                "Clippers Practice Only",
+                "Closed",
+                "Closed to Public",
+                "Combo Fitness",
+                "CNSL Practice Only",
+                "Laps",
+                "Lessons",
+                "Masters Swim",
+                "Pool Party",
+                "Rec Swim",
+                "Senior Swim",
+                "Special Event",
+                "Swim Meet",
+                "Ultimate Rec Swim",
+                "Wibit",
+                "Wading Pool",
+                "Yoga"
+            ]
+        },
+        "TimeType": {
+            "type": "string",
+            "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9](AM|PM|am|pm)$"
+        }
+    }
+}

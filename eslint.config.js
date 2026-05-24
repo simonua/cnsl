@@ -36,6 +36,7 @@ module.exports = [
         getPoolStatus: 'readonly',
         isPoolOpen: 'readonly',
         handleSearch: 'readonly',
+        YEAR: 'readonly',
       },
     },
     rules: {
@@ -73,6 +74,7 @@ module.exports = [
       sourceType: 'script',
       globals: {
         ...globals.serviceworker,
+        YEAR: 'readonly',
       },
     },
     rules: {

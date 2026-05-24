@@ -1,0 +1,58 @@
+const { afterEach, beforeEach, describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+const { YEAR } = require('../../src/js/config/app-config.js');
+const FileHelper = require('../../src/js/services/file-helper.js');
+
+describe('FileHelper', () => {
+  beforeEach(() => {
+    global.window = {
+      location: {
+        hostname: 'cnsl.example.test',
+        pathname: '/pools.html'
+      }
+    };
+    global.document = {
+      querySelector: () => null,
+      querySelectorAll: () => []
+    };
+  });
+
+  afterEach(() => {
+    delete global.window;
+    delete global.document;
+  });
+
+  describe('active season configuration', () => {
+    it('exposes the immutable 2026 YEAR constant globally', () => {
+      const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'YEAR');
+
+      assert.equal(YEAR, 2026);
+      assert.equal(globalThis.YEAR, YEAR);
+      assert.equal(descriptor.writable, false);
+      assert.equal(FileHelper.getSeasonYear(), YEAR);
+    });
+  });
+
+  describe('seasonal data paths', () => {
+    it('should return year and domain scoped JSON paths in production', () => {
+      assert.equal(FileHelper.getPoolsDataPath(), 'assets/data/2026/pools/pools.json');
+      assert.equal(FileHelper.getTeamsDataPath(), 'assets/data/2026/teams/teams.json');
+      assert.equal(FileHelper.getMeetsDataPath(), 'assets/data/2026/meets/meets.json');
+    });
+
+    it('should return a year and domain scoped pool schedules path in production', () => {
+      assert.equal(FileHelper.getPoolSchedulesBasePath(), 'assets/data/2026/pools/pool-schedules/');
+      assert.equal(
+        FileHelper.getPoolSchedulePath('Bryant_Woods.pdf'),
+        'assets/data/2026/pools/pool-schedules/Bryant_Woods.pdf'
+      );
+    });
+
+    it('should retain year and domain segments in direct source development mode', () => {
+      global.document.querySelectorAll = selector => selector.includes('script[src*="src/js/"]') ? [{}] : [];
+
+      assert.equal(FileHelper.getPoolsDataPath(), 'src/assets/data/2026/pools/pools.json');
+      assert.equal(FileHelper.getPoolSchedulesBasePath(), 'src/assets/data/2026/pools/pool-schedules/');
+    });
+  });
+});
