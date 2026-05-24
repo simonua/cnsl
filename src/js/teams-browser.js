@@ -302,20 +302,35 @@ function formatTeamStaff(staff) {
   const contacts = Array.isArray(staff.contacts) ? [...staff.contacts].sort((first, second) => (
     first.label.localeCompare(second.label, undefined, { sensitivity: 'base' })
   )) : [];
-  const formatEmail = email => email ? `<a class="team-staff__email" href="mailto:${email}">${email}</a>` : '';
-  const formatMembers = (members, emptyMessage) => {
-    if (members.length === 0) return `<p class="team-staff__empty">${emptyMessage}</p>`;
+  const mailIcon = '<svg class="team-staff__mail-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a2 2 0 0 1-2.06 0L2 7"></path></svg>';
+  const getAudienceContacts = audience => contacts.filter(contact => contact.audience === audience);
+  const formatEmail = (email, label) => email ? `<a class="team-staff__email" href="mailto:${email}" aria-label="${label}" title="${label}">${mailIcon}</a>` : '';
+  const formatMemberEmails = (member, audience) => {
+    const emailLinks = [];
+    const usedEmails = new Set();
+    const addEmailLink = (email, label) => {
+      if (!email || usedEmails.has(email.toLowerCase())) return;
+
+      usedEmails.add(email.toLowerCase());
+      emailLinks.push(formatEmail(email, label));
+    };
+
+    addEmailLink(member.email, `Email ${member.name}`);
+    getAudienceContacts(audience).forEach(contact => {
+      addEmailLink(contact.email, `Email ${member.name} via ${contact.label}`);
+    });
+
+    return emailLinks.length > 0 ? `<span class="team-staff__email-links">${emailLinks.join('')}</span>` : '';
+  };
+  const formatAudienceEmails = audience => {
+    const emailLinks = getAudienceContacts(audience).map(contact => formatEmail(contact.email, `Email ${contact.label}`)).join('');
+    return emailLinks ? `<span class="team-staff__email-links team-staff__email-links--fallback">${emailLinks}</span>` : '';
+  };
+  const formatMembers = (members, audience, emptyMessage) => {
+    if (members.length === 0) return `<p class="team-staff__empty">${emptyMessage}${formatAudienceEmails(audience)}</p>`;
 
     return `<ul class="team-staff__list">${members.map(member => `
-      <li><span class="team-staff__name">${member.name}</span><span class="team-staff__role">${member.role}</span>${formatEmail(member.email)}</li>
-    `).join('')}</ul>`;
-  };
-  const formatContacts = audience => {
-    const matchingContacts = contacts.filter(contact => contact.audience === audience);
-    if (matchingContacts.length === 0) return '';
-
-    return `<ul class="team-staff__contacts">${matchingContacts.map(contact => `
-      <li><a class="team-staff__email" href="mailto:${contact.email}" aria-label="${contact.label}: ${contact.email}">${contact.email}</a></li>
+      <li><span class="team-staff__identity"><span class="team-staff__name">${member.name}</span>${formatMemberEmails(member, audience)}</span><span class="team-staff__role">${member.role}</span></li>
     `).join('')}</ul>`;
   };
 
@@ -324,12 +339,10 @@ function formatTeamStaff(staff) {
       <h4>Coaches &amp; Managers</h4>
       <div class="team-staff__columns">
         <div>
-          ${formatMembers(coaches, 'No current coach names publicly listed.')}
-          ${formatContacts('coaches')}
+          ${formatMembers(coaches, 'coaches', 'No current coach names publicly listed.')}
         </div>
         <div>
-          ${formatMembers(managers, 'No team manager names publicly listed.')}
-          ${formatContacts('managers')}
+          ${formatMembers(managers, 'managers', 'No team manager names publicly listed.')}
         </div>
       </div>
       ${staff.note ? `<p class="team-staff__note">${staff.note}</p>` : ''}
@@ -369,7 +382,6 @@ function renderTeams(teams) {
     return nameA.localeCompare(nameB);
   };
   const sortedTeams = PreferencesService.sortWithFavorite(teams, favoriteTeamId, team => team.id || '', compareTeams);
-  const favoriteTeam = PreferencesService.findFavoriteTeam(sortedTeams, favoriteTeamId);
 
   // Generate HTML for each team
   const html = sortedTeams.map(team => {
@@ -470,10 +482,7 @@ function renderTeams(teams) {
     `;
   }).join('');
 
-  const favoriteSummary = favoriteTeam
-    ? `<p class="favorite-summary"><strong>Favorite team:</strong> ${favoriteTeam.name} is shown first.</p>`
-    : '';
-  list.innerHTML = favoriteSummary + html;
+    list.innerHTML = html;
 }
 
 /**
