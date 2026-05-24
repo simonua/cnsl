@@ -34,20 +34,20 @@
   "homepage": "https://github.com/simonua/cnsl#readme",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "concurrently": "^9.2.0",
-    "eslint": "^10.2.0",
-    "globals": "^17.5.0",
+    "concurrently": "^9.2.1",
+    "eslint": "^10.4.0",
+    "globals": "^17.6.0",
     "http-server": "^14.1.1",
     "jstransformer-markdown-it": "^3.0.0",
     "jstransformer-yaml": "^0.0.0",
     "live-server": "^1.2.2",
-    "nodemon": "^3.1.10",
-    "posthtml": "^0.16.6",
+    "nodemon": "^3.1.14",
+    "posthtml": "^0.16.7",
     "posthtml-cli": "^0.10.0",
     "posthtml-expressions": "^1.11.4",
     "posthtml-extend": "^0.6.5",
     "posthtml-include": "^2.0.1",
     "posthtml-modules": "^0.9.1",
-    "rimraf": "^6.0.1"
+    "rimraf": "^6.1.3"
   }
 }
