@@ -329,7 +329,7 @@ function formatTeamStaff(staff) {
     if (members.length === 0) return `<p class="team-staff__empty">${emptyMessage}${formatAudienceEmails(audience)}</p>`;
 
     return `<ul class="team-staff__list">${members.map(member => `
-      <li><span class="team-staff__identity"><span class="team-staff__name">${member.name}</span>${formatMemberEmails(member, audience)}</span><span class="team-staff__role">${member.role}</span></li>
+      <li><span class="team-staff__name">${member.name}</span><span class="team-staff__details"><span class="team-staff__separator" aria-hidden="true">-</span><span class="team-staff__role">${member.role}</span>${formatMemberEmails(member, audience)}</span></li>
     `).join('')}</ul>`;
   };
 
