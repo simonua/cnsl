@@ -1,17 +1,23 @@
 /* Mobile-first CSS Variables */
 :root {
-  --primary-color: #0078d4;
-  --primary-dark: #005a9e;
+  --primary-color: #005ea8;
+  --primary-dark: #004578;
+  --primary-text-color: #004578;
   --primary-light: #40e0d0;
   --secondary-color: #6c757d;
   --success-color: #28a745;
   --warning-color: #ffc107;
   --error-color: #dc3545;
   --info-color: #17a2b8;
+  --success-text-color: #146c43;
+  --warning-text-color: #664d03;
+  --error-text-color: #b02a37;
+  --info-text-color: #0b6673;
   --light-bg: #f8f9fa;
   --white: #ffffff;
   --text-dark: #212529;
-  --text-muted: #6c757d;
+  --text-muted: #545d64;
+  --text-light: #545d64;
   --border-color: #dee2e6;
   --shadow: 0 2px 10px rgba(0,0,0,0.1);
   --shadow-hover: 0 4px 20px rgba(0,0,0,0.15);
@@ -28,15 +34,21 @@
   color-scheme: dark;
   --primary-color: #58b0ee;
   --primary-dark: #176cae;
+  --primary-text-color: #58b0ee;
   --primary-light: #52d5ca;
   --success-color: #4ac46b;
   --warning-color: #f1c64b;
   --error-color: #f06a78;
   --info-color: #48c5d5;
+  --success-text-color: #4ac46b;
+  --warning-text-color: #f1c64b;
+  --error-text-color: #f06a78;
+  --info-text-color: #48c5d5;
   --light-bg: #101820;
   --white: #1b2731;
   --text-dark: #f1f5f8;
   --text-muted: #b5c3cf;
+  --text-light: #b5c3cf;
   --border-color: #3b4a56;
   --shadow: 0 2px 10px rgba(0,0,0,0.35);
   --shadow-hover: 0 4px 20px rgba(0,0,0,0.5);
@@ -50,15 +62,21 @@
     color-scheme: dark;
     --primary-color: #58b0ee;
     --primary-dark: #176cae;
+    --primary-text-color: #58b0ee;
     --primary-light: #52d5ca;
     --success-color: #4ac46b;
     --warning-color: #f1c64b;
     --error-color: #f06a78;
     --info-color: #48c5d5;
+    --success-text-color: #4ac46b;
+    --warning-text-color: #f1c64b;
+    --error-text-color: #f06a78;
+    --info-text-color: #48c5d5;
     --light-bg: #101820;
     --white: #1b2731;
     --text-dark: #f1f5f8;
     --text-muted: #b5c3cf;
+    --text-light: #b5c3cf;
     --border-color: #3b4a56;
     --shadow: 0 2px 10px rgba(0,0,0,0.35);
     --shadow-hover: 0 4px 20px rgba(0,0,0,0.5);
@@ -134,7 +152,7 @@ html, body {
   transform: scale(1.05);
 }
 
-.header h1 {
+.header .site-title {
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0;
@@ -222,6 +240,11 @@ html, body {
   background: rgba(255, 255, 255, 0.1);
 }
 
+.hamburger:focus-visible {
+  outline: 3px solid var(--white);
+  outline-offset: 2px;
+}
+
 .hamburger span {
   width: 100%;
   height: 3px;
@@ -259,10 +282,14 @@ html, body {
   z-index: 999;
   box-shadow: -4px 0 20px rgba(0,0,0,0.3);
   backdrop-filter: blur(10px);
+  pointer-events: none;
+  visibility: hidden;
 }
 
 .nav-menu.active {
   right: 0;
+  pointer-events: auto;
+  visibility: visible;
 }
 
 .nav-menu a {
@@ -539,7 +566,8 @@ button[aria-label*="voice"]:hover, button[aria-label*="Speak"]:hover {
 /* ===== Consistent Link Colors ===== */
 a {
   color: var(--primary-color);
-  text-decoration: none;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
 }
 
 a:visited {
@@ -554,6 +582,14 @@ a:focus {
 
 a:active {
   color: var(--primary-color);
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--primary-color);
+  outline-offset: 2px;
 }
 
 /* Override for specific components that should maintain their styling */
@@ -600,8 +636,9 @@ nav a:focus {
   background: linear-gradient(135deg, var(--primary-dark), #003d70);
 }
 
-.quick-link-card h3 {
+.quick-link-card .quick-link-title {
   color: var(--white);
+  display: block;
   margin: 0;
   font-size: 1rem;
 }
@@ -724,9 +761,9 @@ nav a:focus {
   box-shadow: var(--shadow-hover);
 }
 
-.team-card h3,
-.pool-card h3,
-.meet-card h3,
+.team-card h2,
+.pool-card h2,
+.meet-card h2,
 .team-card h4,
 .pool-card h4,
 .meet-card h4 {
@@ -791,6 +828,50 @@ nav a:focus {
   gap: 0.5rem;
 }
 
+.pool-header h2,
+.team-header h2,
+.meet-date-header h2 {
+  font-size: inherit;
+  margin: 0;
+}
+
+.pool-header__toggle,
+.team-header__toggle,
+.meet-date-header__toggle {
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  box-shadow: none;
+  color: var(--primary-color);
+  display: inline-flex;
+  font-size: 1.17rem;
+  font-weight: 600;
+  gap: 0.25rem;
+  justify-content: flex-start;
+  min-width: 0;
+  overflow: visible;
+  padding: 0.15rem;
+  text-align: left;
+}
+
+.pool-header__toggle::before,
+.team-header__toggle::before,
+.meet-date-header__toggle::before {
+  display: none;
+}
+
+.pool-header__toggle:hover,
+.pool-header__toggle:focus,
+.team-header__toggle:hover,
+.team-header__toggle:focus,
+.meet-date-header__toggle:hover,
+.meet-date-header__toggle:focus {
+  background: transparent;
+  box-shadow: none;
+  color: var(--primary-dark);
+  transform: none;
+}
+
 .distance-badge {
   background-color: var(--primary-color);
   color: var(--white);
@@ -809,7 +890,7 @@ nav a:focus {
   margin: 1rem 0;
 }
 
-.pool-features h4 {
+.pool-features h3 {
   color: var(--primary-color);
   margin-bottom: 0.5rem;
   font-weight: 600;
@@ -989,7 +1070,7 @@ nav a:focus {
   text-align: center;
 }
 
-.pool-filter__empty h3 {
+.pool-filter__empty h2 {
   color: var(--text-dark);
   font-size: 1.05rem;
   margin: 0 0 0.35rem;
@@ -1160,8 +1241,8 @@ nav a:focus {
   margin-top: 1rem;
 }
 
-.team-list h4,
-.pool-list h4 {
+.team-list h3,
+.pool-list h3 {
   margin-bottom: 0.75rem;
   color: var(--primary-color);
   font-weight: 600;
@@ -1273,12 +1354,12 @@ button[aria-label*="Voice"]:active {
 }
 
 .open-pools-section h4 {
-  color: var(--success-color);
+  color: var(--success-text-color);
   margin-bottom: 0.5rem;
 }
 
 .closed-pools-section h4 {
-  color: var(--error-color);
+  color: var(--error-text-color);
   margin-bottom: 0.5rem;
 }
 
@@ -1536,7 +1617,8 @@ button[aria-label*="Voice"]:active {
 .week-picker:hover,
 .week-picker:focus {
   border-color: var(--primary-color);
-  outline: none;
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
   box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.1);
 }
 
@@ -2033,12 +2115,12 @@ button[aria-label*="Voice"]:active {
 
 .pool-hours:has-text("🟢") .open-status,
 .pool-hours:contains("Open Now") .open-status {
-  color: var(--success-color);
+  color: var(--success-text-color);
 }
 
 .pool-hours:has-text("🔴") .open-status,
 .pool-hours:contains("Closed") .open-status {
-  color: var(--error-color);
+  color: var(--error-text-color);
 }
 
 /* Pool Collapsible Functionality */
@@ -2046,7 +2128,7 @@ button[aria-label*="Voice"]:active {
   position: relative;
 }
 
-.pool-header {
+.pool-header__toggle {
   cursor: pointer;
   user-select: none;
   position: relative;
@@ -2093,15 +2175,15 @@ button[aria-label*="Voice"]:active {
 
 /* Status color classes for text elements */
 .status-green {
-  color: var(--success-color);
+  color: var(--success-text-color);
 }
 
 .status-yellow {
-  color: var(--warning-color);
+  color: var(--warning-text-color);
 }
 
 .status-red {
-  color: var(--error-color);
+  color: var(--error-text-color);
 }
 
 .status-gray {
@@ -2309,7 +2391,8 @@ button[aria-label*="Voice"]:active {
 
 .footer a {
   color: var(--primary-color);
-  text-decoration: none;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
 }
 
 .footer a:hover {
@@ -2342,7 +2425,6 @@ button[aria-label*="Voice"]:active {
 }
 
 .meet-date-header {
-  cursor: pointer;
   user-select: none;
   position: relative;
   padding: 1rem;
@@ -2360,7 +2442,7 @@ button[aria-label*="Voice"]:active {
   flex: 1;
 }
 
-.meet-date-header h3 {
+.meet-date-header h2 {
   color: var(--primary-color);
   margin: 0;
   font-weight: 600;
@@ -2455,7 +2537,7 @@ button[aria-label*="Voice"]:active {
 .meet-name,
 .meet-teams {
   font-weight: 600;
-  color: var(--primary-dark);
+  color: var(--primary-text-color);
   margin-bottom: 0.5rem;
   font-size: 1.1rem;
 }
@@ -2561,8 +2643,8 @@ button[aria-label*="Voice"]:active {
   border-left: 3px solid var(--success-color);
 }
 
-.upcoming-practices h4 {
-  color: var(--success-color);
+.upcoming-practices h3 {
+  color: var(--success-text-color);
   margin-bottom: 0.75rem;
   font-weight: 600;
   font-size: 1rem;
@@ -2591,7 +2673,7 @@ button[aria-label*="Voice"]:active {
   border-left: 3px solid var(--info-color);
 }
 
-.practice-schedule h4 {
+.practice-schedule h3 {
   color: var(--primary-color);
   margin-bottom: 0.75rem;
   font-weight: 600;
@@ -2603,7 +2685,7 @@ button[aria-label*="Voice"]:active {
   border-top: 1px solid var(--border-color);
 }
 
-.team-staff h4 {
+.team-staff h3 {
   margin-bottom: 0.75rem;
   font-size: 1rem;
 }
@@ -2780,7 +2862,7 @@ button[aria-label*="Voice"]:active {
   position: relative;
 }
 
-.team-header {
+.team-header__toggle {
   cursor: pointer;
   user-select: none;
   position: relative;
@@ -2924,7 +3006,7 @@ button[aria-label*="Voice"]:active {
 }
 
 .maps-link {
-  color: var(--info-color);
+  color: var(--info-text-color);
 }
 
 .maps-link:hover {
@@ -3027,7 +3109,7 @@ button[aria-label*="Voice"]:active {
   box-shadow: var(--shadow-hover);
 }
 
-.cnsl-link-card h3 {
+.cnsl-link-card h2 {
   margin: 0 0 0.75rem 0;
   font-size: 1.4rem;
   font-weight: 600;
@@ -3064,7 +3146,7 @@ button[aria-label*="Voice"]:active {
     padding: 1.25rem;
   }
   
-  .cnsl-link-card h3 {
+  .cnsl-link-card h2 {
     font-size: 1.2rem;
     margin-bottom: 0.5rem;
   }
@@ -3089,7 +3171,7 @@ button[aria-label*="Voice"]:active {
     padding: 1rem;
   }
   
-  .cnsl-link-card h3 {
+  .cnsl-link-card h2 {
     font-size: 1.1rem;
   }
   
@@ -3144,7 +3226,7 @@ button[aria-label*="Voice"]:active {
   transform: translateY(-2px);
 }
 
-.resource-card h3 {
+.resource-card h2 {
   color: var(--primary-color);
   margin-bottom: 1rem;
   font-size: 1.2rem;
@@ -3223,8 +3305,8 @@ button[aria-label*="Voice"]:active {
   margin-top: 2rem;
 }
 
-.success-story h3 {
-  color: var(--success-color);
+.success-story h2 {
+  color: var(--success-text-color);
   margin-bottom: 1rem;
 }
 
@@ -3243,7 +3325,7 @@ button[aria-label*="Voice"]:active {
 }
 
 .success-story strong {
-  color: var(--success-color);
+  color: var(--success-text-color);
 }
 
 /* Mobile responsiveness for swim meet resources */

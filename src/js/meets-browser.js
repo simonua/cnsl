@@ -91,7 +91,7 @@ async function renderMeets(meets) {
   // Generate HTML for meets grouped by date
   let html = '';
   
-  Object.keys(meetsByDate).forEach(dateKey => {
+  Object.keys(meetsByDate).forEach((dateKey, dateIndex) => {
     const meetDate = TimeUtils.parseDateOnly(meetsByDate[dateKey][0].date);
     const isUpcoming = meetDate >= today;
     const isToday = meetDate.toDateString() === today.toDateString();
@@ -101,6 +101,7 @@ async function renderMeets(meets) {
     // Determine if this card should be expanded (only the next upcoming meet)
     const shouldExpand = dateKey === nextUpcomingDateKey;
     const collapsedClass = shouldExpand ? '' : 'collapsed';
+    const detailsId = `meet-details-${dateIndex}`;
     
     // Determine status for the date group
     let statusClass = 'upcoming';
@@ -118,17 +119,18 @@ async function renderMeets(meets) {
 
     html += `
       <div class="meet-date-card ${collapsedClass}">
-        <div class="meet-date-header" onclick="toggleMeetDate(this)">
+        <div class="meet-date-header">
           <div class="date-and-name">
-            <h3>${dateKey}</h3>
+            <h2><button type="button" class="meet-date-header__toggle" onclick="toggleMeetDate(this)" aria-expanded="${String(shouldExpand)}" aria-controls="${detailsId}">${dateKey}</button></h2>
             ${meetName ? `<span class="meet-name-header">${meetName}</span>` : ''}
           </div>
           <div class="status-container">
             ${isToday ? '<span class="status-text">TODAY</span>' : isTomorrow ? '<span class="status-text">TOMORROW</span>' : ''}
-            <span class="meet-status-indicator ${statusClass}"></span>
+            <span class="visually-hidden">${isToday ? 'Meet is today' : isTomorrow ? 'Meet is tomorrow' : isUpcoming ? 'Upcoming meet' : 'Past meet'}</span>
+            <span class="meet-status-indicator ${statusClass}" aria-hidden="true"></span>
           </div>
         </div>
-        <div class="meet-date-details">
+        <div class="meet-date-details" id="${detailsId}"${shouldExpand ? '' : ' hidden'}>
     `;
 
     meetsByDate[dateKey].forEach(meet => {
@@ -148,7 +150,7 @@ async function renderMeets(meets) {
           if (typeof getPoolDataFromLocation === 'function') {
             const poolData = getPoolDataFromLocation(location, meetsBrowserDataManager);
             if (poolData && poolData.location && poolData.location.googleMapsUrl) {
-              locationLink += ` <a href="${poolData.location.googleMapsUrl}" target="_blank" rel="noopener" class="maps-icon" title="View on Google Maps">🗺️</a>`;
+              locationLink += ` <a href="${poolData.location.googleMapsUrl}" target="_blank" rel="noopener" class="maps-icon" aria-label="View ${location} on Google Maps">🗺️</a>`;
             }
           }
         } catch (error) {
@@ -236,12 +238,16 @@ async function renderMeets(meets) {
 
 /**
  * Toggles the collapsed state of a meet date card
- * @param {Element} headerElement - The clicked header element
+ * @param {Element} toggleButton - The disclosure button
  */
 // eslint-disable-next-line no-unused-vars
-function toggleMeetDate(headerElement) {
-  const meetCard = headerElement.closest('.meet-date-card');
-  meetCard.classList.toggle('collapsed');
+function toggleMeetDate(toggleButton) {
+  const meetCard = toggleButton.closest('.meet-date-card');
+  const details = meetCard.querySelector('.meet-date-details');
+  const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
+  meetCard.classList.toggle('collapsed', isExpanded);
+  toggleButton.setAttribute('aria-expanded', String(!isExpanded));
+  if (details) details.hidden = isExpanded;
 }
 
 document.addEventListener("DOMContentLoaded", async () => {

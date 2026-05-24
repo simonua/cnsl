@@ -168,7 +168,7 @@ function formatCurrentPracticeSchedule(practice) {
   if (!currentSchedule) return '';
   
   let html = '<div class="practice-schedule">';
-  html += '<h4>🏊‍♂️ Current Practice Schedule</h4>';
+  html += '<h3>🏊‍♂️ Current Practice Schedule</h3>';
   
   // Add season info
   if (currentSchedule.season) {
@@ -260,10 +260,9 @@ function getPoolMapLink(location, address) {
 /**
  * Create team logo HTML with graceful fallback
  * @param {string} teamId - Team ID for logo filename
- * @param {string} teamName - Team name for alt text
  * @returns {string} - HTML for team logo with fallback
  */
-function createTeamLogo(teamId, teamName) {
+function createTeamLogo(teamId) {
   if (!teamId) return '';
   
   const logoPath = `assets/images/logos/${teamId}.png`;
@@ -272,7 +271,7 @@ function createTeamLogo(teamId, teamName) {
     <div class="team-logo">
       <img 
         src="${logoPath}" 
-        alt="${teamName} Logo" 
+        alt="" 
         class="team-logo-img"
         onerror="this.parentElement.style.display='none';"
       />
@@ -336,7 +335,7 @@ function formatTeamStaff(staff) {
 
   return `
     <section class="team-staff" aria-label="Publicly listed team staff">
-      <h4>Coaches &amp; Managers</h4>
+      <h3>Coaches &amp; Managers</h3>
       <div class="team-staff__columns">
         <div>
           ${formatMembers(coaches, 'coaches', 'No current coach names publicly listed.')}
@@ -353,12 +352,16 @@ function formatTeamStaff(staff) {
 
 /**
  * Toggles the collapsed state of a team card
- * @param {Element} headerElement - The clicked header element
+ * @param {Element} toggleButton - The disclosure button
  */
 // eslint-disable-next-line no-unused-vars
-function toggleTeamCard(headerElement) {
-  const teamCard = headerElement.closest('.team-card');
-  teamCard.classList.toggle('collapsed');
+function toggleTeamCard(toggleButton) {
+  const teamCard = toggleButton.closest('.team-card');
+  const details = teamCard.querySelector('.team-details');
+  const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
+  teamCard.classList.toggle('collapsed', isExpanded);
+  toggleButton.setAttribute('aria-expanded', String(!isExpanded));
+  if (details) details.hidden = isExpanded;
 }
 
 /**
@@ -387,13 +390,14 @@ function renderTeams(teams) {
   const html = sortedTeams.map(team => {
     const teamName = team.name || 'Unknown Team';
     const teamId = team.id || '';
+    const detailsId = `team-details-${String(teamId || teamName).replace(/[^a-zA-Z0-9_-]/g, '-')}`;
     const teamUrl = team.url || '#';
     const isFavorite = teamId === favoriteTeamId;
     const homePools = Array.isArray(team.homePools) ? team.homePools : [];
     const homePool = homePools[0] || '';
     
     // Create team logo HTML
-    const logoHtml = createTeamLogo(teamId, teamName);
+    const logoHtml = createTeamLogo(teamId);
     
     // Find pool data for the home pool using data manager
     const poolData = homePool ? findPoolByName(homePool) : null;
@@ -410,7 +414,7 @@ function renderTeams(teams) {
     if (upcomingPractices.length > 0) {
       upcomingPracticesHtml = `
         <div class="upcoming-practices">
-          <h4>📅 Next Practices</h4>
+          <h3>📅 Next Practices</h3>
           ${upcomingPractices.map(practice => {
             const practicePoolLink = getEnhancedPoolLink(practice.location, practice.address);
             return `
@@ -443,14 +447,14 @@ function renderTeams(teams) {
     
     return `
       <div class="team-card ${isFavorite ? 'favorite-card' : 'collapsed'}" data-team-id="${teamId}">
-        <div class="team-header" onclick="toggleTeamCard(this)">
+        <div class="team-header">
           ${logoHtml}
           <div class="team-header-content">
-            <h3>${teamName}${isFavorite ? ' <span class="favorite-badge">Favorite team</span>' : ''}</h3>
+            <h2><button type="button" class="team-header__toggle" onclick="toggleTeamCard(this)" aria-expanded="${String(isFavorite)}" aria-controls="${detailsId}">${teamName}${isFavorite ? ' <span class="favorite-badge">Favorite team</span>' : ''}</button></h2>
           </div>
         </div>
         
-        <div class="team-details">
+        <div class="team-details" id="${detailsId}"${isFavorite ? '' : ' hidden'}>
           ${upcomingPracticesHtml}
           
           ${homePool ? `
@@ -470,6 +474,10 @@ function renderTeams(teams) {
             <a href="${teamUrl}" target="_blank" rel="noopener" class="btn">🌐 Team Website</a>
             ${team.practice && team.practice.url ? 
               `<a href="${team.practice.url}" target="_blank" rel="noopener" class="btn">📅 Practice Schedule</a>` : 
+              ''
+            }
+            ${team.resultsUrl ? 
+              `<a href="${team.resultsUrl}" target="_blank" rel="noopener" class="btn">🏆 Swim Meet Results</a>` : 
               ''
             }
           </div>
@@ -496,6 +504,10 @@ function handleTeamUrlParameter() {
       if (teamCard) {
         // Expand the team card
         teamCard.classList.remove('collapsed');
+        const toggleButton = teamCard.querySelector('.team-header__toggle');
+        const details = teamCard.querySelector('.team-details');
+        if (toggleButton) toggleButton.setAttribute('aria-expanded', 'true');
+        if (details) details.hidden = false;
         
         // Add a highlight class for visual emphasis
         teamCard.classList.add('highlighted');

@@ -28,6 +28,18 @@ CNSL (Columbia Neighborhood Swim League) is a PWA for pool directories, team sch
 - **Use jQuery selectors** over vanilla DOM APIs in JavaScript.
 - **No minified libraries** — use full versions for now.
 - **Document meaningful features in What's New.** Any meaningful feature addition must include a corresponding update to `src/views/whats-new.html` in the same change.
+- **Accessibility is required.** All new or modified user-facing experiences must meet WCAG 2.0 Level AA at minimum across the affected page or workflow. Do not complete a site change with known accessibility regressions.
+
+## Accessibility Requirements
+
+For changes to views, styles, client-side interactions, content, or media:
+
+- Use semantic HTML, logical heading and landmark structure, meaningful link and button text, form labels and instructions, and appropriate alternative text or text alternatives for non-text content.
+- Ensure all functionality is operable with a keyboard, has a logical focus order, provides clearly visible focus indication, and does not trap focus unless an accessible modal interaction requires containment and an escape path.
+- Preserve sufficient color contrast, do not rely on color or sensory characteristics alone to convey meaning, and avoid content that flashes in ways that may trigger seizures.
+- Give controls accessible names, expose state and validation feedback programmatically, and announce important dynamically updated content when needed; prefer native semantics before adding ARIA.
+- Provide accessible equivalents for media and time-based content when introduced, including captions or transcripts where applicable.
+- Before completing an affected site change, verify the changed workflow with keyboard-only navigation and an appropriate automated accessibility check or browser accessibility inspection; disclose any remaining limitation rather than asserting conformance without verification.
 
 ## Code Organization
 

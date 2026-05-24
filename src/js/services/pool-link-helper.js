@@ -192,7 +192,7 @@ function generateEnhancedPoolLink(locationName, dataManager, options = {}) {
     const mapsLink = generateGoogleMapsLink(poolData, locationName);
     
     if (showBothLinks) {
-      return `${poolsLink} <span class="link-separator">|</span> <a href="${poolData.location?.googleMapsUrl || '#'}" target="_blank" rel="noopener" class="maps-icon" title="View on Google Maps">🗺️</a>`;
+      return `${poolsLink} <span class="link-separator">|</span> <a href="${poolData.location?.googleMapsUrl || '#'}" target="_blank" rel="noopener" class="maps-icon" aria-label="View ${locationName} on Google Maps">🗺️</a>`;
     } else if (preferPoolsPage) {
       return poolsLink;
     } else {

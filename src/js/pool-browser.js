@@ -306,6 +306,9 @@ function formatPoolHours(pool) {
   }
 
   const poolId = pool.id || pool.name;
+  const controlId = String(poolId).replace(/[^a-zA-Z0-9_-]/g, '-');
+  const weekPickerId = `week-picker-${controlId}`;
+  const poolName = pool.name || 'this pool';
   const weekStart = getPoolWeekStart(poolId);
   const weekEnd = new Date(weekStart);
   weekEnd.setDate(weekStart.getDate() + 6);
@@ -361,7 +364,7 @@ function formatPoolHours(pool) {
           <span class="week-text">Week of ${weekStartText} - ${weekEndText}</span>
         </div>
         <div class="nav-buttons">
-          <button class="nav-btn calendar-btn" data-pool-id="${poolId}" ${!dateRange ? 'disabled' : ''}>
+          <button class="nav-btn calendar-btn" data-pool-id="${poolId}" aria-label="Choose a week for ${poolName}" aria-controls="${weekPickerId}" aria-expanded="false" ${!dateRange ? 'disabled' : ''}>
             📅
           </button>
           <button class="nav-btn today-btn" data-pool-id="${poolId}" ${!dateRange || !isTodayInSeason(dateRange) ? 'disabled' : ''}>
@@ -375,7 +378,7 @@ function formatPoolHours(pool) {
           </button>
         </div>
       </div>
-      <input type="date" class="week-picker hidden" 
+      <input type="date" class="week-picker" id="${weekPickerId}" aria-label="Week to display for ${poolName}" hidden
              value="${weekStart.toISOString().split('T')[0]}"
              ${dateRange ? `min="${dateRange.startDate.toISOString().split('T')[0]}" max="${dateRange.endDate.toISOString().split('T')[0]}"` : ''}>
     </div>`;
@@ -612,7 +615,7 @@ function renderPools(pools) {
   if (!Array.isArray(pools) || pools.length === 0) {
     list.innerHTML = `
       <div class="pool-card error">
-        <h3>⚠️ No pools available</h3>
+        <h2>⚠️ No pools available</h2>
         <p>Pool information is currently unavailable. Please try again later.</p>
       </div>
     `;
@@ -626,7 +629,7 @@ function renderPools(pools) {
   if (filteredPools.length === 0) {
     list.innerHTML = `
       <div class="pool-filter__empty" role="status">
-        <h3>No matching pools</h3>
+        <h2>No matching pools</h2>
         <p>Try removing a selected feature.</p>
       </div>
     `;
@@ -657,6 +660,7 @@ function renderPools(pools) {
   const html = sortedPools.map(pool => {
     const poolName = pool.name || 'Unknown Pool';
     const poolId = pool.id || '';
+    const detailsId = `pool-details-${String(poolId || poolName).replace(/[^a-zA-Z0-9_-]/g, '-')}`;
     const features = pool.features || [];
     const isFavorite = poolName === favoritePoolName;
     
@@ -701,7 +705,7 @@ function renderPools(pools) {
       const sortedFeatures = [...features].sort();
       featuresHtml = `
         <div class="pool-features">
-          <h4>Features</h4>
+          <h3>Features</h3>
           <div class="feature-pills">
             ${sortedFeatures.map(feature => `<span class="feature-pill">${feature}</span>`).join('')}
           </div>
@@ -710,7 +714,7 @@ function renderPools(pools) {
     } else {
       featuresHtml = `
         <div class="pool-features">
-          <h4>Features</h4>
+          <h3>Features</h3>
           <span class="status-tbd">TBD</span>
         </div>
       `;
@@ -725,9 +729,9 @@ function renderPools(pools) {
     
     // Show status indicator with tooltip for all pools
     const tooltipText = getStatusTooltip(statusClass);
-    const statusIndicatorHtml = `<span class="pool-status-indicator ${statusClass} status-tooltip">
+    const statusIndicatorHtml = `<span class="pool-status-indicator ${statusClass} status-tooltip" aria-hidden="true">
       <span class="tooltip-text">${tooltipText}</span>
-    </span>`;
+    </span><span class="visually-hidden">${tooltipText}: </span>`;
 
     // Create CA Pool website link if caUrl is available
     let caLinkHtml = '';
@@ -759,11 +763,11 @@ function renderPools(pools) {
 
     return `
       <div class="pool-card ${isFavorite ? 'favorite-card' : 'collapsed'}" data-pool-id="${poolId}">
-        <div class="pool-header" onclick="togglePoolCard(this)">
-          <h3>${statusIndicatorHtml}${poolName}${isFavorite ? ' <span class="favorite-badge">Favorite pool</span>' : ''}</h3>
+        <div class="pool-header">
+          <h2><button type="button" class="pool-header__toggle" onclick="togglePoolCard(this)" aria-expanded="${String(isFavorite)}" aria-controls="${detailsId}">${statusIndicatorHtml}${poolName}${isFavorite ? ' <span class="favorite-badge">Favorite pool</span>' : ''}</button></h2>
           ${distanceHtml}
         </div>
-        <div class="pool-details">
+        <div class="pool-details" id="${detailsId}"${isFavorite ? '' : ' hidden'}>
           <div class="address-section">
             <strong>📍 Address:</strong><br>
             <a href="${mapsUrl}" 
@@ -800,6 +804,10 @@ function handlePoolUrlParameter() {
       if (poolCard) {
         // Expand the pool card
         poolCard.classList.remove('collapsed');
+        const toggleButton = poolCard.querySelector('.pool-header__toggle');
+        const details = poolCard.querySelector('.pool-details');
+        if (toggleButton) toggleButton.setAttribute('aria-expanded', 'true');
+        if (details) details.hidden = false;
         
         // Add a highlight class for visual emphasis
         poolCard.classList.add('highlighted');
@@ -825,12 +833,16 @@ function handlePoolUrlParameter() {
 
 /**
  * Toggles the collapsed state of a pool card
- * @param {Element} headerElement - The clicked header element
+ * @param {Element} toggleButton - The disclosure button
  */
 // eslint-disable-next-line no-unused-vars
-function togglePoolCard(headerElement) {
-  const poolCard = headerElement.closest('.pool-card');
-  poolCard.classList.toggle('collapsed');
+function togglePoolCard(toggleButton) {
+  const poolCard = toggleButton.closest('.pool-card');
+  const details = poolCard.querySelector('.pool-details');
+  const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
+  poolCard.classList.toggle('collapsed', isExpanded);
+  toggleButton.setAttribute('aria-expanded', String(!isExpanded));
+  if (details) details.hidden = isExpanded;
 }
 
 // ------------------------------
@@ -976,6 +988,9 @@ function handlePoolNavigationClick(event) {
         const relativeLeft = buttonRect.left - navRect.left;
         const relativeTop = buttonRect.bottom - navRect.top + 5; // 5px below button
         
+        datePicker.hidden = false;
+        target.setAttribute('aria-expanded', 'true');
+
         // Style the date picker to be visible and positioned
         datePicker.style.position = 'absolute';
         datePicker.style.left = relativeLeft + 'px';
@@ -993,16 +1008,6 @@ function handlePoolNavigationClick(event) {
         datePicker.click();
         datePicker.showPicker ? datePicker.showPicker() : datePicker.focus();
         
-        // Hide the date picker after a short delay
-        setTimeout(() => {
-          datePicker.style.opacity = '0';
-          datePicker.style.pointerEvents = 'none';
-          datePicker.style.width = '1px';
-          datePicker.style.height = '1px';
-          datePicker.style.padding = '0';
-          datePicker.style.border = 'none';
-          datePicker.classList.remove('active');
-        }, 100);
       }
     }
   }
@@ -1020,6 +1025,12 @@ function handlePoolDatePickerChange(event) {
     if (poolNav) {
       const poolId = poolNav.dataset.poolId;
       navigatePoolToSelectedWeek(poolId, target.value);
+      target.hidden = true;
+      const button = poolNav.querySelector('.calendar-btn');
+      if (button) {
+        button.setAttribute('aria-expanded', 'false');
+        button.focus();
+      }
     }
   }
 }
