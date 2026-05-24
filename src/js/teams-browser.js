@@ -281,6 +281,45 @@ function createTeamLogo(teamId, teamName) {
 }
 
 /**
+ * Format publicly published team staff for display.
+ * @param {Object} staff - Staff data from the team source record
+ * @returns {string} - HTML for coaches and team managers
+ */
+function formatTeamStaff(staff) {
+  if (!staff) return '';
+
+  const coaches = Array.isArray(staff.coaches) ? staff.coaches : [];
+  const managers = Array.isArray(staff.managers) ? staff.managers : [];
+  const formatMembers = (members, emptyMessage) => {
+    if (members.length === 0) {
+      return `<p class="team-staff__empty">${emptyMessage}</p>`;
+    }
+
+    return `<ul class="team-staff__list">${members.map(member => `
+      <li><span class="team-staff__name">${member.name}</span><span class="team-staff__role">${member.role}</span></li>
+    `).join('')}</ul>`;
+  };
+
+  return `
+    <section class="team-staff" aria-label="Publicly listed team staff">
+      <h4>Coaches &amp; Managers</h4>
+      <div class="team-staff__columns">
+        <div>
+          <h5>Coaches</h5>
+          ${formatMembers(coaches, 'No current coach names publicly listed.')}
+        </div>
+        <div>
+          <h5>Team Managers</h5>
+          ${formatMembers(managers, 'No team manager names publicly listed.')}
+        </div>
+      </div>
+      ${staff.note ? `<p class="team-staff__note">${staff.note}</p>` : ''}
+      <a class="team-staff__source" href="${staff.sourceUrl}" target="_blank" rel="noopener">View public staff source</a>
+    </section>
+  `;
+}
+
+/**
  * Toggles the collapsed state of a team card
  * @param {Element} headerElement - The clicked header element
  */
@@ -330,6 +369,8 @@ function renderTeams(teams) {
     
     // Format current practice schedule (no preseason)
     const practiceScheduleHtml = formatCurrentPracticeSchedule(team.practice);
+
+    const staffHtml = formatTeamStaff(team.staff);
     
     // Create upcoming practices HTML for header area
     let upcomingPracticesHtml = '';
@@ -387,6 +428,8 @@ function renderTeams(teams) {
               }
             </div>
           ` : ''}
+
+          ${staffHtml}
           
           ${practiceScheduleHtml}
           

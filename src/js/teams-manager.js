@@ -73,8 +73,12 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
 
     const term = searchTerm.toLowerCase();
     return this.getAllTeams().filter(team => {
+      const pools = [...(team.homePools || []), ...(team.practicePools || [])];
+      const staff = [...this.getTeamCoaches(team), ...this.getTeamManagers(team)];
       return (
         team.name.toLowerCase().includes(term) ||
+        pools.some(pool => pool.toLowerCase().includes(term)) ||
+        staff.some(member => member.name.toLowerCase().includes(term)) ||
         (team.poolName && team.poolName.toLowerCase().includes(term)) ||
         (team.coach && team.coach.toLowerCase().includes(term)) ||
         (team.division && team.division.toLowerCase().includes(term))
@@ -88,7 +92,11 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
    * @returns {Array} - Array of teams associated with pool
    */
   getTeamsByPool(poolName) {
-    return this.getAllTeams().filter(team => team.poolName === poolName);
+    return this.getAllTeams().filter(team => (
+      (team.homePools && team.homePools.includes(poolName)) ||
+      (team.practicePools && team.practicePools.includes(poolName)) ||
+      team.poolName === poolName
+    ));
   }
 
   /**
@@ -106,9 +114,29 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
    * @returns {Array} - Array of teams coached by specified coach
    */
   getTeamsByCoach(coachName) {
-    return this.getAllTeams().filter(team => 
-      team.coach && team.coach.toLowerCase().includes(coachName.toLowerCase())
-    );
+    const term = coachName.toLowerCase();
+    return this.getAllTeams().filter(team => (
+      this.getTeamCoaches(team).some(coach => coach.name.toLowerCase().includes(term)) ||
+      (team.coach && team.coach.toLowerCase().includes(term))
+    ));
+  }
+
+  /**
+   * Get publicly published coaches for a team.
+   * @param {Object} team - Team object
+   * @returns {Array} - Published coach records
+   */
+  getTeamCoaches(team) {
+    return team.staff && Array.isArray(team.staff.coaches) ? team.staff.coaches : [];
+  }
+
+  /**
+   * Get publicly published managers for a team.
+   * @param {Object} team - Team object
+   * @returns {Array} - Published manager records
+   */
+  getTeamManagers(team) {
+    return team.staff && Array.isArray(team.staff.managers) ? team.staff.managers : [];
   }
 
   /**
@@ -132,11 +160,24 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
   getAllCoaches() {
     const coaches = new Set();
     this.getAllTeams().forEach(team => {
+      this.getTeamCoaches(team).forEach(coach => coaches.add(coach.name));
       if (team.coach) {
         coaches.add(team.coach);
       }
     });
     return Array.from(coaches).sort();
+  }
+
+  /**
+   * Get all publicly published managers.
+   * @returns {Array} - Array of unique manager names
+   */
+  getAllManagers() {
+    const managers = new Set();
+    this.getAllTeams().forEach(team => {
+      this.getTeamManagers(team).forEach(manager => managers.add(manager.name));
+    });
+    return Array.from(managers).sort();
   }
 
   /**
@@ -147,12 +188,14 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
     const allTeams = this.getAllTeams();
     const divisions = this.getAllDivisions();
     const coaches = this.getAllCoaches();
+    const managers = this.getAllManagers();
     
     // Pool distribution
     const poolDistribution = {};
     allTeams.forEach(team => {
-      if (team.poolName) {
-        poolDistribution[team.poolName] = (poolDistribution[team.poolName] || 0) + 1;
+      const poolName = (team.homePools && team.homePools[0]) || team.poolName;
+      if (poolName) {
+        poolDistribution[poolName] = (poolDistribution[poolName] || 0) + 1;
       }
     });
 
@@ -168,6 +211,7 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
       totalTeams: allTeams.length,
       totalDivisions: divisions.length,
       totalCoaches: coaches.length,
+      totalManagers: managers.length,
       poolDistribution,
       divisionDistribution,
       lastUpdated: this.lastUpdated
@@ -205,10 +249,12 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
 
     return {
       teamName: team.name,
-      coach: team.coach || 'Not specified',
+      coaches: this.getTeamCoaches(team),
+      managers: this.getTeamManagers(team),
+      coach: (this.getTeamCoaches(team)[0] && this.getTeamCoaches(team)[0].name) || team.coach || 'Not specified',
       email: team.email || 'Not available',
       phone: team.phone || 'Not available',
-      poolName: team.poolName || 'Not specified'
+      poolName: (team.homePools && team.homePools[0]) || team.poolName || 'Not specified'
     };
   }
 
@@ -267,9 +313,11 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
   getTeamsSummary() {
     return this.getAllTeams().map(team => ({
       name: team.name,
-      poolName: team.poolName || 'Not specified',
+      poolName: (team.homePools && team.homePools[0]) || team.poolName || 'Not specified',
       division: team.division || 'Not specified',
-      coach: team.coach || 'Not specified',
+      coaches: this.getTeamCoaches(team),
+      managers: this.getTeamManagers(team),
+      coach: (this.getTeamCoaches(team)[0] && this.getTeamCoaches(team)[0].name) || team.coach || 'Not specified',
       memberCount: team.roster ? team.roster.length : 0,
       hasSchedule: !!(team.schedule && team.schedule.length > 0),
       contact: {

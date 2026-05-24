@@ -44,10 +44,11 @@ Do not assume an empty or PDF-only annual directory is application-ready. A view
 - Do not revise archived years during a new-season rollout unless a correction is explicitly requested.
 - Store downloaded official documents in that season's domain subfolder before transcribing JSON, so the source used for each record remains auditable.
 - For `pools[].features`, use each pool's official Columbia Association pool-location page as the facility source. Review both its narrative description and Amenities list, retain its URL in `caUrl`, normalize terms into clear feature labels, and record the verification date in the annual README.
+- For `teams[].staff`, begin at each public team `url` and follow its public coaches/managers or equivalent staff page. Retain that page URL and verification date in the team record, transcribe only displayed coach and team-manager names/roles, and use a note for missing, partial, or older public listings rather than inferring names or carrying people forward.
 - When CA publishes a useful facility amenity that is not represented by `FeatureType`, extend the annual pool schema deliberately rather than discarding the information.
 - Create one `src/assets/data/<YEAR>/README.md` source manifest that records publication URLs, local PDF paths, data readiness, and any source content intentionally not represented by the existing JSON schema.
 - Keep one matching schema beside each JSON data file and validate the JSON against it.
-- Declare each schema's top-level `"version"` metadata value as `"V1"` for its first annual definition; carry the value forward unchanged when its validation contract is identical, and advance it only when that schema changes.
+- Declare each schema's top-level `"version"` metadata value as `"V1"` for its first annual definition; carry the value forward unchanged when its validation contract is identical, excluding annotations, and advance it only when that contract changes.
 
 ## Starting A New Season
 
@@ -59,10 +60,11 @@ For a new season such as `2027`:
 4. Create or copy each domain schema into the new year directory, retaining its top-level `"version"` when the validation contract is unchanged and incrementing it only after adjusting enumerations, required fields, or another validation rule for supported new material.
 5. Transcribe data into `<domain>/<domain>.json`; do not copy schedule contents forward without checking the current year's source documents. Stable identifiers and destination URL patterns may be retained when still valid, while dates, matchups, team pool assignments, and schedule content must come from current sources.
 6. For pools, re-check every official `caUrl` page before carrying feature values into the new season. Transcribe the published description and Amenities information into `features`, update `FeatureType` for newly published amenity categories, and state the verification date and normalization choices in the annual README.
-7. Update `YEAR` in `src/js/config/app-config.js` only after every domain required by the published app has an active-year JSON file or the unavailable feature has been intentionally disabled.
-8. Check runtime and offline paths through `FileHelper`, `DataManager`, and `service-worker.js`; these should normally require no path edits when only `YEAR` changes.
-9. Update the annual README with official download links, stored-file inventory, feature verification date, transcription scope, and any data intentionally left in the source PDF because the application schema does not expose it.
-10. Update this document's coverage table so incomplete annual data is visible to maintainers.
+7. For teams, visit every public team site and its linked coaches/managers or staff page. Add `staff.sourceUrl` and `staff.verifiedOn`, list only publicly displayed coaches and team managers with displayed roles, and preserve missing, partial, or out-of-season listings as explicit notes with empty or accurately labeled arrays.
+8. Update `YEAR` in `src/js/config/app-config.js` only after every domain required by the published app has an active-year JSON file or the unavailable feature has been intentionally disabled.
+9. Check runtime and offline paths through `FileHelper`, `DataManager`, and `service-worker.js`; these should normally require no path edits when only `YEAR` changes.
+10. Update the annual README with official download links, stored-file inventory, pool-feature and team-staff verification dates, transcription scope, and any data intentionally left out because it is not publicly listed or the schema does not expose it.
+11. Update this document's coverage table so incomplete annual data is visible to maintainers.
 
 ## Validation Checklist
 
@@ -71,6 +73,7 @@ Before publishing a new active year:
 - Confirm all expected official PDFs exist in their annual/domain document folders.
 - Confirm the annual `README.md` lists each official download and whether a local copy was stored and transcribed.
 - Confirm the annual `README.md` records when official pool-location pages were checked for `features`, and that each pool has a reviewed feature array.
+- Confirm the annual `README.md` records when public team staff pages were checked, and that each team record contains the reviewed source URL, verification date, and an honest note for incomplete listings.
 - Confirm each published JSON file has a sibling `.schema.json` file.
 - Validate data against its schema, including ISO `YYYY-MM-DD` date formats.
 - Run `pnpm test` to validate seasonal path expectations and application logic.

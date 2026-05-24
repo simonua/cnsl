@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft-07/schema#",
   "$id": "https://example.com/teams.schema.json",
-  "version": "V1",
+  "version": "V2",
   "title": "Team Data Schema",
   "description": "Schema for team data containing practice schedules and team information",
   "type": "object",
@@ -57,11 +57,56 @@
           },
           "minItems": 1
         },
+        "staff": {
+          "$ref": "#/definitions/TeamStaff"
+        },
         "practice": {
           "$ref": "#/definitions/DetailedPractice"
         }
       },
-      "required": ["id", "name", "keywords", "url", "homePools", "practicePools"],
+      "required": ["id", "name", "keywords", "url", "homePools", "practicePools", "staff"],
+      "additionalProperties": false
+    },
+    "TeamStaff": {
+      "type": "object",
+      "properties": {
+        "sourceUrl": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "verifiedOn": {
+          "type": "string",
+          "format": "date"
+        },
+        "coaches": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/StaffMember"
+          }
+        },
+        "managers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/StaffMember"
+          }
+        },
+        "note": {
+          "$ref": "#/definitions/NonEmptyString"
+        }
+      },
+      "required": ["sourceUrl", "verifiedOn", "coaches", "managers"],
+      "additionalProperties": false
+    },
+    "StaffMember": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "role": {
+          "$ref": "#/definitions/NonEmptyString"
+        }
+      },
+      "required": ["name", "role"],
       "additionalProperties": false
     },
     "DetailedPractice": {

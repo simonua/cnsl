@@ -20,12 +20,13 @@ description: "Use when working with JSON data files, schemas, or data loading. C
 - JSON and schema files live together as `<domain>/<domain>.json` and `<domain>/<domain>.schema.json`.
 - Official PDF subfolders are domain-specific: `pools/pool-schedules/`, `meets/meet-schedules/`, and `teams/team-schedules/` when source PDFs exist. Retain league-wide practice schedules and team-assignment PDFs under `teams/team-schedules/` when published.
 - Pool facility `features` come from the official Columbia Association page stored in each pool's `caUrl`. For every season rollover, review each page's description and Amenities list, normalize useful terms into feature labels, and record the verification date in the annual README instead of copying the prior year's array without review.
+- Team `staff` comes only from each team's publicly accessible site. Follow the active `url` to its coaches/managers page, record that page in `staff.sourceUrl`, record the review date in `staff.verifiedOn`, and transcribe displayed coach and team-manager names with their displayed roles. Do not infer surnames or titles from email addresses, do not treat directors as managers unless the page uses that title, and retain empty arrays plus a short `note` when names are missing, first-name-only, or visibly from an older season.
 - Use the `cnsl-season-rollover` skill when creating, auditing, or activating annual data.
 
 ## Schema Conventions
 
 - Every data file has a corresponding `.schema.json` using JSON Schema draft-07.
-- Every schema declares a top-level `"version"` metadata annotation. Begin a domain at `"V1"`, retain that version in later seasons while its validation contract is unchanged, and increment it only when the schema differs from the preceding version.
+- Every schema declares a top-level `"version"` metadata annotation. Begin a domain at `"V1"`, retain that version in later seasons while its validation contract (excluding annotations) is unchanged, and increment it only when that contract differs from the preceding version.
 - Schemas enforce required fields, value types, and enums.
 - If CA publishes a user-relevant pool amenity that the `FeatureType` enum does not cover, add an intentional normalized enum value and transcribe it rather than omitting source information.
 - Date format: `YYYY-MM-DD` (ISO 8601).

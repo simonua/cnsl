@@ -7,7 +7,22 @@
       "keywords": ["chs", "clary's forest", "hawthorn", "swansfield", "sundevils"],
       "url": "https://www.gomotionapp.com/team/reccnslcfhss/page/home",
       "homePools": ["Swansfield"],
-      "practicePools": ["Clary's Forest", "Hawthorn", "Swansfield"]
+      "practicePools": ["Clary's Forest", "Hawthorn", "Swansfield"],
+      "staff": {
+        "sourceUrl": "https://www.gomotionapp.com/team/reccnslcfhss/page/system/coaches",
+        "verifiedOn": "2026-05-24",
+        "coaches": [
+          { "name": "Coach Kat", "role": "Head Coach" },
+          { "name": "Coach Connor", "role": "Assistant Coach" },
+          { "name": "Coach Mich", "role": "Assistant Coach" },
+          { "name": "Coach Jack", "role": "Assistant Coach" }
+        ],
+        "managers": [
+          { "name": "David Saunier", "role": "Team Manager" },
+          { "name": "Kristin Burns", "role": "Team Manager" }
+        ],
+        "note": "Coach names are listed as displayed on the team site."
+      }
     },
     {
       "id": "ccc",
@@ -15,7 +30,19 @@
       "keywords": ["clemens crossing cyclones", "clemens crossing", "cyclones"],
       "url": "https://www.gomotionapp.com/team/reccnslccc/page/home",
       "homePools": ["Clemens Crossing"],
-      "practicePools": ["Clemens Crossing", "Clary's Forest", "Hawthorn"]
+      "practicePools": ["Clemens Crossing", "Clary's Forest", "Hawthorn"],
+      "staff": {
+        "sourceUrl": "https://www.gomotionapp.com/team/reccnslccc/page/system/coaches",
+        "verifiedOn": "2026-05-24",
+        "coaches": [
+          { "name": "Nick Barnes", "role": "Head Coach" },
+          { "name": "Sofia Hufft", "role": "Assistant Coach" },
+          { "name": "Sofia Luo", "role": "Assistant Coach" },
+          { "name": "Yaakov Englander", "role": "Assistant Coach" }
+        ],
+        "managers": [],
+        "note": "The public page provides a team-manager email address but does not list manager names."
+      }
     },
     {
       "id": "dsd",
@@ -23,7 +50,16 @@
       "keywords": ["dorsey search dolphins", "dorsey's search dolphins", "dorsey search", "dolphins"],
       "url": "https://www.gomotionapp.com/team/reccnsldsd/page/home",
       "homePools": ["Dorsey Hall"],
-      "practicePools": ["Dorsey Hall", "Phelps Luck", "Running Brook", "Thunder Hill"]
+      "practicePools": ["Dorsey Hall", "Phelps Luck", "Running Brook", "Thunder Hill"],
+      "staff": {
+        "sourceUrl": "https://www.gomotionapp.com/team/reccnsldsd/page/system/coaches",
+        "verifiedOn": "2026-05-24",
+        "coaches": [
+          { "name": "Nicholas Shidle", "role": "2024 Coach" }
+        ],
+        "managers": [],
+        "note": "The public staff page has not published a current-season coach or manager roster."
+      }
     },
     {
       "id": "hcc",
@@ -31,7 +67,21 @@
       "keywords": ["harper's choice challenge", "harpers choice challenge", "harper's choice", "challenge"],
       "url": "https://www.gomotionapp.com/team/reccnslhcc/page/home",
       "homePools": ["Longfellow"],
-      "practicePools": ["Longfellow", "Faulkner Ridge", "Swansfield"]
+      "practicePools": ["Longfellow", "Faulkner Ridge", "Swansfield"],
+      "staff": {
+        "sourceUrl": "https://www.gomotionapp.com/team/reccnslhcc/page/system/coaches",
+        "verifiedOn": "2026-05-24",
+        "coaches": [
+          { "name": "Samantha Wu", "role": "Head Coach" },
+          { "name": "Will Stuck", "role": "Assistant Coach" },
+          { "name": "Sammy Yoo", "role": "Assistant Coach" },
+          { "name": "Chris Moore", "role": "Assistant Coach" }
+        ],
+        "managers": [
+          { "name": "Angie Netro", "role": "Manager" },
+          { "name": "Eileen Brewer", "role": "Manager" }
+        ]
+      }
     },
     {
       "id": "hd",
@@ -39,7 +89,17 @@
       "keywords": ["huntington dolphins", "huntington", "dolphins"],
       "url": "https://www.gomotionapp.com/team/reccnslhd/page/home",
       "homePools": ["Huntington"],
-      "practicePools": ["Huntington", "Hopewell", "Dickinson"]
+      "practicePools": ["Huntington", "Hopewell", "Dickinson"],
+      "staff": {
+        "sourceUrl": "https://www.gomotionapp.com/team/reccnslhd/page/system/coaches",
+        "verifiedOn": "2026-05-24",
+        "coaches": [
+          { "name": "Brianna Dunn", "role": "Head Coach" },
+          { "name": "Sophia Gonzalez", "role": "Assistant Coach" }
+        ],
+        "managers": [],
+        "note": "No team manager names are published on the public staff page."
+      }
     },
     {
       "id": "kcw",
@@ -47,7 +107,19 @@
       "keywords": ["kings contrivance waves", "kc", "kings contrivance", "waves"],
       "url": "https://www.gomotionapp.com/team/reccnslkcw/page/home",
       "homePools": ["Huntington", "MacGill's Common"],
-      "practicePools": ["MacGill's Common", "Huntington", "Dickinson"]
+      "practicePools": ["MacGill's Common", "Huntington", "Dickinson"],
+      "staff": {
+        "sourceUrl": "https://www.gomotionapp.com/team/reccnslkcw/page/about/meet-the-people",
+        "verifiedOn": "2026-05-24",
+        "coaches": [
+          { "name": "Coach Susanna", "role": "Coach" },
+          { "name": "Coach Thomas", "role": "Coach" },
+          { "name": "Coach Nathan", "role": "Coach" },
+          { "name": "Coach Julia", "role": "Coach" }
+        ],
+        "managers": [],
+        "note": "Coach names are listed as displayed on the team site; no manager names are published there."
+      }
     },
     {
       "id": "lrm",
@@ -56,7 +128,22 @@
       "url": "https://www.gomotionapp.com/team/reccnsllrm/page/home",
       "resultsUrl": "https://meetresults.longreachmarlins.org",
       "homePools": ["Kendall Ridge"],
-      "practicePools": ["Kendall Ridge", "Jeffers Hill", "Locust Park", "Stevens Forest"]
+      "practicePools": ["Kendall Ridge", "Jeffers Hill", "Locust Park", "Stevens Forest"],
+      "staff": {
+        "sourceUrl": "https://www.gomotionapp.com/team/reccnsllrm/page/system/coaches",
+        "verifiedOn": "2026-05-24",
+        "coaches": [
+          { "name": "Taylor Harriman", "role": "Head Coach" },
+          { "name": "Ryan LeVesque", "role": "Assistant Coach" },
+          { "name": "Mihir Malvankar", "role": "Assistant Coach" },
+          { "name": "Evan Alliger", "role": "Assistant Coach" }
+        ],
+        "managers": [
+          { "name": "Carolyn Cosentino", "role": "Co-Manager" },
+          { "name": "Rachel Schaaf", "role": "Co-Manager" },
+          { "name": "Melissa Nauman", "role": "Co-Manager" }
+        ]
+      }
     },
     {
       "id": "omts",
@@ -64,7 +151,24 @@
       "keywords": ["oakland mills tigersharks", "oakland mills", "tigersharks"],
       "url": "https://www.gomotionapp.com/team/reccnslomts/page/home",
       "homePools": ["Stevens Forest"],
-      "practicePools": ["Stevens Forest", "Dasher Green", "Talbott Springs"]
+      "practicePools": ["Stevens Forest", "Dasher Green", "Talbott Springs"],
+      "staff": {
+        "sourceUrl": "https://www.gomotionapp.com/team/reccnslomts/page/system/coaches",
+        "verifiedOn": "2026-05-24",
+        "coaches": [
+          { "name": "Hannah Tanner", "role": "Head Coach" },
+          { "name": "Michele Threefoot", "role": "Assistant Coach" },
+          { "name": "Perrin Nelson", "role": "Assistant Coach" },
+          { "name": "Kellan Otten", "role": "Assistant Coach" }
+        ],
+        "managers": [
+          { "name": "Casey", "role": "Team Manager" },
+          { "name": "Jenny", "role": "Team Manager" },
+          { "name": "Tricia", "role": "Team Manager" },
+          { "name": "Ami", "role": "Team Manager" }
+        ],
+        "note": "Manager names are listed by first name only on the public team page."
+      }
     },
     {
       "id": "obb",
@@ -72,7 +176,20 @@
       "keywords": ["owen brown barracudas", "owen brown", "barracudas"],
       "url": "https://www.gomotionapp.com/team/reccnslobb/page/home",
       "homePools": ["Dasher Green"],
-      "practicePools": ["Dasher Green", "Hopewell", "Talbott Springs"]
+      "practicePools": ["Dasher Green", "Hopewell", "Talbott Springs"],
+      "staff": {
+        "sourceUrl": "https://www.gomotionapp.com/team/reccnslobb/page/system/coaches",
+        "verifiedOn": "2026-05-24",
+        "coaches": [
+          { "name": "Ryan Megdiche", "role": "Head Coach" },
+          { "name": "Lexi Sloan", "role": "Assistant Coach" }
+        ],
+        "managers": [
+          { "name": "Jean-Marie Baldi", "role": "Team Manager" },
+          { "name": "Katy Do", "role": "Team Manager" },
+          { "name": "Elizabeth Heerdt", "role": "Team Manager" }
+        ]
+      }
     },
     {
       "id": "prr",
@@ -80,7 +197,22 @@
       "keywords": ["pheasant ridge rapids", "pheasant ridge", "rapids"],
       "url": "https://www.gomotionapp.com/team/reccnslprr/page/home",
       "homePools": ["River Hill"],
-      "practicePools": ["River Hill", "MacGill's Common", "Hobbit's Glen", "Running Brook"]
+      "practicePools": ["River Hill", "MacGill's Common", "Hobbit's Glen", "Running Brook"],
+      "staff": {
+        "sourceUrl": "https://www.gomotionapp.com/team/reccnslprr/page/system/coaches",
+        "verifiedOn": "2026-05-24",
+        "coaches": [
+          { "name": "Reid Thomas", "role": "Head Coach" },
+          { "name": "Tim Wang", "role": "Assistant Coach" },
+          { "name": "Lily Zhang", "role": "Assistant Coach" },
+          { "name": "Weiming Li", "role": "Assistant Coach" }
+        ],
+        "managers": [
+          { "name": "Amy Chung", "role": "Team Manager" },
+          { "name": "Bridget Celedon", "role": "Team Manager" },
+          { "name": "Jane Mutembo", "role": "Team Manager" }
+        ]
+      }
     },
     {
       "id": "pls",
@@ -88,7 +220,18 @@
       "keywords": ["phelps luck snappers", "phelps luck", "snappers"],
       "url": "https://www.gomotionapp.com/team/reccnslpls/page/home",
       "homePools": ["Phelps Luck"],
-      "practicePools": ["Phelps Luck", "Kendall Ridge", "Locust Park"]
+      "practicePools": ["Phelps Luck", "Kendall Ridge", "Locust Park"],
+      "staff": {
+        "sourceUrl": "https://www.gomotionapp.com/team/reccnslpls/page/system/coaches",
+        "verifiedOn": "2026-05-24",
+        "coaches": [
+          { "name": "Marisa Otero", "role": "PL Snappers Head Coach" }
+        ],
+        "managers": [
+          { "name": "Christine Happel", "role": "PL Snappers Manager" },
+          { "name": "Sara Bricker", "role": "PL Snappers Manager" }
+        ]
+      }
     },
     {
       "id": "prp",
@@ -96,7 +239,22 @@
       "keywords": ["pointers run piranhas", "pointers run", "piranhas"],
       "url": "https://www.gomotionapp.com/team/reccnslprp/page/home",
       "homePools": ["River Hill"],
-      "practicePools": ["River Hill", "Clemens Crossing", "Hobbit's Glen", "Longfellow"]
+      "practicePools": ["River Hill", "Clemens Crossing", "Hobbit's Glen", "Longfellow"],
+      "staff": {
+        "sourceUrl": "https://www.gomotionapp.com/team/reccnslprp/page/system/coaches",
+        "verifiedOn": "2026-05-24",
+        "coaches": [
+          { "name": "Claire Pecora", "role": "Head Coach" },
+          { "name": "Ryan Rhee", "role": "Assistant Coach" },
+          { "name": "Haruki Ohtani", "role": "Assistant Coach" },
+          { "name": "Izzy Baek", "role": "Assistant Coach" }
+        ],
+        "managers": [
+          { "name": "Ryan Casavant", "role": "Manager" },
+          { "name": "Faith Keller", "role": "Manager" },
+          { "name": "Ryann Morrow", "role": "Manager" }
+        ]
+      }
     },
     {
       "id": "thl",
@@ -104,7 +262,22 @@
       "keywords": ["thunder hill lightning", "thunder hill", "lightning"],
       "url": "https://www.gomotionapp.com/team/reccnslthl/page/home",
       "homePools": ["Thunder Hill"],
-      "practicePools": ["Thunder Hill", "Locust Park", "Talbott Springs"]
+      "practicePools": ["Thunder Hill", "Locust Park", "Talbott Springs"],
+      "staff": {
+        "sourceUrl": "https://www.gomotionapp.com/team/reccnslthl/page/system/coaches",
+        "verifiedOn": "2026-05-24",
+        "coaches": [
+          { "name": "Nick Scheid", "role": "Head Coach" },
+          { "name": "Roman Kowalczyk", "role": "Assistant Coach" },
+          { "name": "John Bialeski", "role": "Assistant Coach" },
+          { "name": "Rosie Norton", "role": "Assistant Coach" }
+        ],
+        "managers": [
+          { "name": "Laura Schappelle", "role": "Team Manager" },
+          { "name": "Erica Shaw", "role": "Team Manager" },
+          { "name": "Jen Munro", "role": "Team Manager" }
+        ]
+      }
     },
     {
       "id": "wlw",
@@ -112,7 +285,14 @@
       "keywords": ["wilde lake watercats", "wilde lake", "watercats"],
       "url": "https://www.gomotionapp.com/team/reccnslwlw/page/home",
       "homePools": ["Faulkner Ridge"],
-      "practicePools": ["Faulkner Ridge", "Longfellow"]
+      "practicePools": ["Faulkner Ridge", "Longfellow"],
+      "staff": {
+        "sourceUrl": "https://www.gomotionapp.com/team/reccnslwlw/page/system/coaches",
+        "verifiedOn": "2026-05-24",
+        "coaches": [],
+        "managers": [],
+        "note": "The public staff page lists board members, but does not publish coaches or people titled team manager."
+      }
     }
   ]
 }

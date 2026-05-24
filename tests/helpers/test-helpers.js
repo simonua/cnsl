@@ -56,18 +56,28 @@ function createSampleTeamsData() {
   return {
     teams: [
       {
+        id: 'bwb',
         name: 'Bryant Woods Barracudas',
-        poolName: 'Bryant Woods',
-        division: 'Division 1',
-        coach: 'Jane Smith',
-        email: 'coach@bwp.org',
-        phone: '410-555-0001'
+        homePools: ['Bryant Woods'],
+        practicePools: ['Bryant Woods', 'Running Brook'],
+        staff: {
+          sourceUrl: 'https://example.com/bwb/staff',
+          verifiedOn: '2026-05-24',
+          coaches: [{ name: 'Jane Smith', role: 'Head Coach' }],
+          managers: [{ name: 'Alex Rivera', role: 'Team Manager' }]
+        }
       },
       {
+        id: 'krk',
         name: 'Kendall Ridge Krakens',
-        poolName: 'Kendall Ridge',
-        division: 'Division 2',
-        coach: 'John Doe'
+        homePools: ['Kendall Ridge'],
+        practicePools: ['Kendall Ridge'],
+        staff: {
+          sourceUrl: 'https://example.com/krk/staff',
+          verifiedOn: '2026-05-24',
+          coaches: [{ name: 'John Doe', role: 'Head Coach' }],
+          managers: []
+        }
       }
     ]
   };

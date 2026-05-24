@@ -2,6 +2,7 @@ const { describe, it, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
 const { createSampleTeamsData } = require('../helpers/test-helpers.js');
 const TeamsManager = require('../../src/js/teams-manager.js');
+const activeTeamsData = require('../../src/assets/data/2026/teams/teams.json');
 
 describe('TeamsManager', () => {
   let manager;
@@ -63,6 +64,18 @@ describe('TeamsManager', () => {
       const results = manager.searchTeams('zzz_nonexistent');
       assert.equal(results.length, 0);
     });
+
+    it('finds teams by publicly listed staff name', () => {
+      manager.loadData(createSampleTeamsData());
+      const results = manager.searchTeams('Rivera');
+      assert.deepEqual(results.map(team => team.name), ['Bryant Woods Barracudas']);
+    });
+
+    it('finds teams by practice pool', () => {
+      manager.loadData(createSampleTeamsData());
+      const results = manager.searchTeams('Running Brook');
+      assert.deepEqual(results.map(team => team.name), ['Bryant Woods Barracudas']);
+    });
   });
 
   describe('getTeamsByPool', () => {
@@ -70,7 +83,34 @@ describe('TeamsManager', () => {
       manager.loadData(createSampleTeamsData());
       const teams = manager.getTeamsByPool('Bryant Woods');
       assert.ok(teams.length > 0);
-      assert.equal(teams[0].poolName, 'Bryant Woods');
+      assert.equal(teams[0].homePools[0], 'Bryant Woods');
+    });
+  });
+
+  describe('public staff', () => {
+    it('finds teams by structured coach record', () => {
+      manager.loadData(createSampleTeamsData());
+      const teams = manager.getTeamsByCoach('Jane');
+      assert.deepEqual(teams.map(team => team.name), ['Bryant Woods Barracudas']);
+    });
+
+    it('returns unique published coach and manager names', () => {
+      manager.loadData(createSampleTeamsData());
+      assert.deepEqual(manager.getAllCoaches(), ['Jane Smith', 'John Doe']);
+      assert.deepEqual(manager.getAllManagers(), ['Alex Rivera']);
+    });
+
+    it('keeps a public source and verification date for every active team', () => {
+      manager.loadData(activeTeamsData);
+      const teams = manager.getAllTeams();
+
+      assert.equal(teams.length, 14);
+      teams.forEach(team => {
+        assert.match(team.staff.sourceUrl, /^https:\/\//);
+        assert.match(team.staff.verifiedOn, /^\d{4}-\d{2}-\d{2}$/);
+        assert.ok(Array.isArray(team.staff.coaches));
+        assert.ok(Array.isArray(team.staff.managers));
+      });
     });
   });
 
@@ -80,6 +120,21 @@ describe('TeamsManager', () => {
       const stats = manager.getStatistics();
       assert.equal(typeof stats, 'object');
       assert.equal(stats.totalTeams, 2);
+      assert.equal(stats.totalCoaches, 2);
+      assert.equal(stats.totalManagers, 1);
+      assert.equal(stats.poolDistribution['Bryant Woods'], 1);
+    });
+  });
+
+  describe('getTeamContact', () => {
+    it('returns structured staff and the primary home pool', () => {
+      manager.loadData(createSampleTeamsData());
+      const contact = manager.getTeamContact('Bryant Woods Barracudas');
+
+      assert.equal(contact.poolName, 'Bryant Woods');
+      assert.equal(contact.coach, 'Jane Smith');
+      assert.deepEqual(contact.coaches, [{ name: 'Jane Smith', role: 'Head Coach' }]);
+      assert.deepEqual(contact.managers, [{ name: 'Alex Rivera', role: 'Team Manager' }]);
     });
   });
 
@@ -91,6 +146,8 @@ describe('TeamsManager', () => {
       assert.ok('name' in summaries[0]);
       assert.ok('poolName' in summaries[0]);
       assert.ok('division' in summaries[0]);
+      assert.equal(summaries[0].coach, 'Jane Smith');
+      assert.deepEqual(summaries[0].managers, [{ name: 'Alex Rivera', role: 'Team Manager' }]);
     });
   });
 
