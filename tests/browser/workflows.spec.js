@@ -179,6 +179,31 @@ test('directory disclosures work without rendered inline event handlers', async 
   await expect(page.locator('#meetList [onclick], #meetList [onerror]')).toHaveCount(0);
 });
 
+for (const scenario of [
+  { path: '/pools.html', status: '#poolListStatus', surface: '.pool-card.collapsed', toggle: '.pool-header__toggle' },
+  { path: '/teams.html', status: '#teamListStatus', surface: '.team-card.collapsed', toggle: '.team-header__toggle' },
+  { path: '/meets.html', status: '#meetListStatus', surface: '.meet-date-card.collapsed', toggle: '.meet-date-header__toggle' }
+]) {
+  test(`${scenario.path} directory tiles point, stay still, and expand from their surface`, async ({ page }) => {
+    await page.goto(scenario.path);
+    await expect(page.locator(scenario.status)).toContainText('loaded.');
+
+    const surface = page.locator(scenario.surface).first();
+    const toggle = surface.locator(scenario.toggle);
+    await expect(surface).toBeVisible();
+    const detailsId = await toggle.getAttribute('aria-controls');
+    const stableToggle = page.locator(`${scenario.toggle}[aria-controls="${detailsId}"]`);
+    expect(await surface.evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).cursor)).toBe('pointer');
+
+    await surface.hover();
+    expect(await surface.evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).transform)).toBe('none');
+
+    await expect(stableToggle).toHaveAttribute('aria-expanded', 'false');
+    await surface.click({ position: { x: 2, y: 2 } });
+    await expect(stableToggle).toHaveAttribute('aria-expanded', 'true');
+  });
+}
+
 test('pool directory encodes text and rejects unsafe published destinations', async ({ page }) => {
   await page.route('**/assets/data/2026/pools/pools.json*', async route => {
     const response = await route.fetch();
@@ -224,6 +249,28 @@ test('visible weather safety alerts render with update times on every page', asy
     await expect(page.locator('#weatherAlertUpdated')).not.toHaveText('');
     await expect(page.locator('#weatherAlertUpdated')).toHaveAttribute('datetime', /2026-/);
   }
+});
+
+test('mobile weather safety alert centers its content and collapses to a warning control', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await prepareVisibleWeatherAlert(page);
+  await page.goto('/index.html');
+
+  const alert = page.locator('#weatherAlert');
+  const toggle = page.getByRole('button', { name: 'Collapse weather safety alert' });
+  await expect(alert).toBeVisible();
+  await expect(page.locator('.weather-alert__copy')).toHaveCSS('text-align', 'center');
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+
+  await toggle.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#weatherAlertDetails')).toBeHidden();
+  await expect(page.getByRole('button', { name: 'Expand weather safety alert' })).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.locator('.weather-alert__warning-icon')).toBeVisible();
+
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#weatherAlertDetails')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Collapse weather safety alert' })).toBeFocused();
 });
 
 test('turning weather safety alerts off hides an active banner immediately', async ({ page }) => {

@@ -982,6 +982,13 @@ function handlePoolNavigationClick(event) {
     togglePoolCard(disclosureButton);
     return;
   }
+
+  const cardSurface = target.closest('.pool-card.collapsed, .pool-header');
+  if (cardSurface) {
+    const cardToggle = cardSurface.closest('.pool-card').querySelector('.pool-header__toggle');
+    if (cardToggle) togglePoolCard(cardToggle);
+    return;
+  }
   
   if (target.classList.contains('prev-week')) {
     const poolNav = target.closest('.pool-week-navigation');

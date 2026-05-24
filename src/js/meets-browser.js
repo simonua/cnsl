@@ -271,8 +271,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const meetList = document.getElementById("meetList");
   meetList.addEventListener('click', event => {
-    const toggleButton = event.target.closest('.meet-date-header__toggle');
-    if (toggleButton) toggleMeetDate(toggleButton.closest('.meet-date-header'));
+    const cardSurface = event.target.closest('.meet-date-card.collapsed, .meet-date-header');
+    if (!cardSurface) return;
+    const header = cardSurface.closest('.meet-date-card').querySelector('.meet-date-header');
+    toggleMeetDate(header);
   });
   
   try {

@@ -27,9 +27,9 @@
   --weather-alert-bg: #e8f3fa;
   --weather-alert-border: #2c7da8;
   --weather-alert-title: #004578;
-  --weather-alert-action: #005ea8;
-  --weather-alert-action-hover: #004578;
-  --weather-alert-action-text: #ffffff;
+  --weather-alert-action: #f0c34e;
+  --weather-alert-action-hover: #e3b43c;
+  --weather-alert-action-text: #392b00;
   --header-height: 70px;
   --footer-height: 60px;
   --footer-bottom-clearance: max(0.5rem, env(safe-area-inset-bottom, 0rem));
@@ -65,9 +65,9 @@
   --weather-alert-bg: #162d3d;
   --weather-alert-border: #58b0ee;
   --weather-alert-title: #a9d9f7;
-  --weather-alert-action: #58b0ee;
-  --weather-alert-action-hover: #86caf5;
-  --weather-alert-action-text: #101820;
+  --weather-alert-action: #f1c64b;
+  --weather-alert-action-hover: #ffd76b;
+  --weather-alert-action-text: #392b00;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -99,9 +99,9 @@
     --weather-alert-bg: #162d3d;
     --weather-alert-border: #58b0ee;
     --weather-alert-title: #a9d9f7;
-    --weather-alert-action: #58b0ee;
-    --weather-alert-action-hover: #86caf5;
-    --weather-alert-action-text: #101820;
+    --weather-alert-action: #f1c64b;
+    --weather-alert-action-hover: #ffd76b;
+    --weather-alert-action-text: #392b00;
   }
 }
 
@@ -216,12 +216,19 @@ html, body {
 .weather-alert__inner {
   align-items: center;
   display: flex;
-  flex-wrap: wrap;
   gap: 0.75rem 1rem;
   justify-content: space-between;
   margin: 0 auto;
   max-width: 1200px;
   padding: 0.65rem 1rem;
+}
+
+.weather-alert__details {
+  align-items: center;
+  display: flex;
+  flex: 1 1 auto;
+  gap: 0.75rem 1rem;
+  justify-content: space-between;
 }
 
 .weather-alert__copy {
@@ -244,7 +251,8 @@ html, body {
   margin-top: 0.15rem;
 }
 
-.weather-alert__link {
+.weather-alert .weather-alert__link,
+.weather-alert .weather-alert__link:visited {
   background-color: var(--weather-alert-action);
   border-radius: 4px;
   color: var(--weather-alert-action-text);
@@ -256,9 +264,79 @@ html, body {
   white-space: nowrap;
 }
 
-.weather-alert__link:hover,
-.weather-alert__link:focus-visible {
+.weather-alert .weather-alert__link:hover,
+.weather-alert .weather-alert__link:focus,
+.weather-alert .weather-alert__link:focus-visible,
+.weather-alert .weather-alert__link:active {
   background-color: var(--weather-alert-action-hover);
+  color: var(--weather-alert-action-text);
+  text-decoration: none;
+}
+
+.weather-alert__toggle {
+  align-items: center;
+  background-color: transparent;
+  border: 1px solid var(--weather-alert-border);
+  border-radius: 4px;
+  color: var(--weather-alert-title);
+  cursor: pointer;
+  display: inline-flex;
+  flex: 0 0 44px;
+  font-size: 1.35rem;
+  font-weight: 700;
+  height: 44px;
+  justify-content: center;
+  min-width: 44px;
+  transition: var(--transition);
+}
+
+.weather-alert__toggle:hover,
+.weather-alert__toggle:focus {
+  background-color: var(--weather-alert-action);
+  color: var(--weather-alert-action-text);
+}
+
+.weather-alert__warning-icon {
+  display: none;
+}
+
+.weather-alert--collapsed .weather-alert__details,
+.weather-alert--collapsed .weather-alert__collapse-icon {
+  display: none;
+}
+
+.weather-alert--collapsed .weather-alert__inner {
+  justify-content: center;
+  padding: 0.35rem 1rem;
+}
+
+.weather-alert--collapsed .weather-alert__toggle {
+  background-color: var(--weather-alert-action);
+  border-color: var(--weather-alert-action);
+  color: var(--weather-alert-action-text);
+}
+
+.weather-alert--collapsed .weather-alert__toggle:hover,
+.weather-alert--collapsed .weather-alert__toggle:focus {
+  background-color: var(--weather-alert-action-hover);
+  border-color: var(--weather-alert-action-hover);
+}
+
+.weather-alert--collapsed .weather-alert__warning-icon {
+  display: inline;
+}
+
+@media (max-width: 48rem) {
+  .weather-alert__inner,
+  .weather-alert__details {
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .weather-alert__copy {
+    flex: 0 1 auto;
+    text-align: center;
+  }
 }
 
 /* Navigation Toggle Button */
@@ -714,6 +792,7 @@ nav a:focus {
   transition: var(--transition);
   box-shadow: var(--shadow);
   border: none;
+  cursor: pointer;
   min-height: 80px;
   display: flex;
   align-items: center;
@@ -722,8 +801,6 @@ nav a:focus {
 
 .quick-link-card:hover,
 .quick-link-card:focus {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-hover);
   background: linear-gradient(135deg, var(--primary-dark), #003d70);
 }
 
@@ -765,11 +842,6 @@ nav a:focus {
   box-shadow: var(--shadow);
   border-left: 4px solid transparent;
   transition: var(--transition);
-}
-
-.copilot-response:hover, .status-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-hover);
 }
 
 .copilot-response h3, .status-card h3 {
@@ -845,10 +917,13 @@ nav a:focus {
   transition: var(--transition);
 }
 
-.team-card:hover,
-.meet-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-hover);
+.team-card.collapsed,
+.pool-card.collapsed,
+.meet-date-card.collapsed,
+.team-header,
+.pool-header,
+.meet-date-header {
+  cursor: pointer;
 }
 
 .team-card h2,
@@ -1408,12 +1483,6 @@ button.pool-filter__clear:focus-visible {
 .schedule-item[onclick]:hover {
   background-color: var(--white);
   border-left-color: var(--primary-color);
-  box-shadow: var(--shadow-hover);
-  transform: translateY(-2px);
-}
-
-.schedule-item[onclick]:active {
-  transform: translateY(0);
 }
 
 .schedule-item p {
@@ -1953,11 +2022,6 @@ button[aria-label*="Voice"]:active {
   margin-bottom: 1.5rem;
   box-shadow: var(--shadow);
   transition: var(--transition);
-}
-
-.faq-item:hover {
-  box-shadow: var(--shadow-hover);
-  transform: translateY(-2px);
 }
 
 .faq-item:last-child {
@@ -2609,8 +2673,7 @@ button[aria-label*="Voice"]:active {
   .nav-menu a:focus,
   .nav-menu a.active,
   .pool-card.highlighted,
-  .team-card.highlighted,
-  .meet-date-card:hover {
+  .team-card.highlighted {
     transform: none;
   }
 }
@@ -2633,11 +2696,6 @@ button[aria-label*="Voice"]:active {
   margin-bottom: 1rem;
   box-shadow: var(--shadow);
   transition: var(--transition);
-}
-
-.meet-date-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-hover);
 }
 
 .meet-date-header {
@@ -3325,11 +3383,6 @@ button[aria-label*="Voice"]:active {
   transition: var(--transition);
 }
 
-.cnsl-link-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-hover);
-}
-
 .cnsl-link-card h2 {
   margin: 0 0 0.75rem 0;
   font-size: 1.4rem;
@@ -3440,11 +3493,6 @@ button[aria-label*="Voice"]:active {
   transition: var(--transition);
   display: flex;
   flex-direction: column;
-}
-
-.resource-card:hover {
-  box-shadow: var(--shadow-hover);
-  transform: translateY(-2px);
 }
 
 .resource-card h2 {

@@ -603,7 +603,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   const teamList = document.getElementById("teamList");
   teamList.addEventListener('click', event => {
     const toggleButton = event.target.closest('.team-header__toggle');
-    if (toggleButton) toggleTeamCard(toggleButton);
+    if (toggleButton) {
+      toggleTeamCard(toggleButton);
+      return;
+    }
+
+    const cardSurface = event.target.closest('.team-card.collapsed, .team-header');
+    if (!cardSurface) return;
+    const cardToggle = cardSurface.closest('.team-card').querySelector('.team-header__toggle');
+    if (cardToggle) toggleTeamCard(cardToggle);
   });
   
   try {

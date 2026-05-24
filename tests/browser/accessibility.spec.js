@@ -128,5 +128,18 @@ for (const theme of ['light', 'dark']) {
     }));
 
     expect(violations).toEqual([]);
+
+    await page.getByRole('button', { name: 'Collapse weather safety alert' }).click();
+    await expect(page.getByRole('button', { name: 'Expand weather safety alert' })).toBeVisible();
+    const collapsedResults = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .analyze();
+    const collapsedViolations = collapsedResults.violations.map(violation => ({
+      id: violation.id,
+      impact: violation.impact,
+      targets: violation.nodes.map(node => node.target)
+    }));
+
+    expect(collapsedViolations).toEqual([]);
   });
 }

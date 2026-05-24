@@ -15,6 +15,25 @@
     if (banner) banner.hidden = true;
   }
 
+  function setWeatherAlertExpanded(isExpanded) {
+    const banner = document.getElementById('weatherAlert');
+    const toggle = document.getElementById('weatherAlertToggle');
+    if (!banner || !toggle) return;
+
+    const actionLabel = `${isExpanded ? 'Collapse' : 'Expand'} weather safety alert`;
+    banner.classList.toggle('weather-alert--collapsed', !isExpanded);
+    toggle.setAttribute('aria-expanded', String(isExpanded));
+    toggle.setAttribute('aria-label', actionLabel);
+    toggle.title = actionLabel;
+  }
+
+  function toggleWeatherAlert() {
+    const toggle = document.getElementById('weatherAlertToggle');
+    if (!toggle) return;
+
+    setWeatherAlertExpanded(toggle.getAttribute('aria-expanded') !== 'true');
+  }
+
   function scheduleRefresh(delayMilliseconds) {
     window.clearTimeout(scheduledRefresh);
     scheduledRefresh = window.setTimeout(refreshWeatherAlert, delayMilliseconds);
@@ -92,6 +111,9 @@
   }
 
   function startWeatherAlertUpdates() {
+    const toggle = document.getElementById('weatherAlertToggle');
+    if (toggle) toggle.addEventListener('click', toggleWeatherAlert);
+
     refreshWeatherAlert();
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) refreshWeatherAlert();
