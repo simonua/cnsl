@@ -540,17 +540,12 @@ function setupPoolFeatureFilters(pools) {
       input.value = feature;
       input.checked = selectedFeatures.includes(feature);
 
-      const mark = document.createElement('span');
-      mark.setAttribute('aria-hidden', 'true');
-      mark.className = 'pool-filter__mark';
-      mark.textContent = '\u2713';
-
       const labelText = document.createElement('span');
       labelText.className = 'pool-filter__label';
       labelText.textContent = formatPoolFeatureLabel(feature);
 
       const chip = document.createElement('span');
-      chip.append(mark, labelText);
+      chip.append(labelText);
 
       const label = document.createElement('label');
       label.className = 'pool-filter__option';

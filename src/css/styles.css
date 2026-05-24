@@ -1057,12 +1057,27 @@ button.pool-filter__clear:focus-visible {
 .pool-filter__group-options {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
 @media (min-width: 48rem) {
   .pool-filter__options {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 64rem) {
+  .pool-filter__options {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .pool-filter__group:nth-child(2),
+  .pool-filter__group:nth-child(4) {
+    grid-column: span 2;
+  }
+
+  .pool-filter__group:nth-child(5) {
+    grid-column: 1 / -1;
   }
 }
 
@@ -1083,15 +1098,8 @@ button.pool-filter__clear:focus-visible {
   color: var(--text-dark);
   display: block;
   font-size: 0.9rem;
-  padding: 0.35rem 0.7rem;
+  padding: 0.25rem 0.55rem;
   transition: var(--transition);
-}
-
-.pool-filter__mark {
-  display: inline;
-  font-weight: 700;
-  margin-right: 0.35rem;
-  visibility: hidden;
 }
 
 .pool-filter__label {
@@ -1101,11 +1109,8 @@ button.pool-filter__clear:focus-visible {
 .pool-filter__option input:checked + span {
   background-color: var(--primary-color);
   border-color: var(--primary-color);
+  box-shadow: inset 0 0 0 1px var(--primary-dark);
   color: var(--white);
-}
-
-.pool-filter__option input:checked + span .pool-filter__mark {
-  visibility: visible;
 }
 
 .pool-filter__option input:focus-visible + span {
