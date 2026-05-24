@@ -116,45 +116,26 @@ async function initializePoolBrowser() {
 }
 
 /**
+ * Update assistive loading feedback for the pool directory.
+ * @param {string} message - Status message to announce
+ * @param {boolean} isBusy - Whether the directory is loading
+ */
+function setPoolListStatus(message, isBusy) {
+  const list = document.getElementById('poolList');
+  const status = document.getElementById('poolListStatus');
+  if (list) list.setAttribute('aria-busy', String(isBusy));
+  if (status) status.textContent = message;
+}
+
+/**
  * Load and display season information
  */
-async function loadSeasonInfo() {
-  try {
-    console.log('🔄 Loading season information...');
-    
-    // Add visible debug output to the page
-    const seasonInfo = document.getElementById('seasonInfo');
-    if (seasonInfo) {
-      seasonInfo.innerHTML = '<p class="season-text">DEBUG: Starting to load season info...</p>';
-    }
-    
-    // Ensure FileHelper is available
-    if (typeof FileHelper === 'undefined') {
-      console.warn('⚠️ FileHelper not yet available, waiting...');
-      if (seasonInfo) {
-        seasonInfo.innerHTML = '<p class="season-text">DEBUG: FileHelper not available, waiting...</p>';
-      }
-      await new Promise(resolve => setTimeout(resolve, 100));
-      if (typeof FileHelper === 'undefined') {
-        if (seasonInfo) {
-          seasonInfo.innerHTML = '<p class="season-text">ERROR: FileHelper is not available</p>';
-        }
-        throw new Error('FileHelper is not available');
-      }
-    }
-    
-    // Load the pools.json file directly to get season information
-    const poolsFilePath = FileHelper.getPoolsDataPath();
-    console.log('📂 Pools file path:', poolsFilePath);
-    
-    const poolData = await FileHelper.loadJsonFile(poolsFilePath);
-    console.log('📊 Pools data loaded:', poolData);
-    
-    console.log('🎯 Season info element:', seasonInfo);
-    
-    if (seasonInfo && poolData.seasonStartDate && poolData.seasonEndDate) {
-      console.log('✅ Season dates found:', poolData.seasonStartDate, poolData.seasonEndDate);
-      
+function loadSeasonInfo() {
+  const seasonInfo = document.getElementById('seasonInfo');
+  const poolData = poolBrowserDataManager ? poolBrowserDataManager.getSeasonInfo() : null;
+  if (!seasonInfo) return;
+
+  if (poolData && poolData.seasonStartDate && poolData.seasonEndDate) {
       // Parse dates and handle timezone offset to ensure correct display
       const startDate = new Date(poolData.seasonStartDate + 'T12:00:00');
       const endDate = new Date(poolData.seasonEndDate + 'T12:00:00');
@@ -209,21 +190,8 @@ async function loadSeasonInfo() {
         </p>
         ${linksHtml}
       `;
-      
-      console.log('✅ Season information updated successfully');
-    } else {
-      console.log('⚠️ Season info element or season dates not found:', {
-        seasonInfo: !!seasonInfo,
-        seasonStartDate: poolData.seasonStartDate,
-        seasonEndDate: poolData.seasonEndDate
-      });
-    }
-  } catch (error) {
-    console.error('Failed to load season information:', error);
-    const seasonInfo = document.getElementById('seasonInfo');
-    if (seasonInfo) {
-      seasonInfo.innerHTML = '<p class="season-text">Season information unavailable</p>';
-    }
+  } else {
+    seasonInfo.innerHTML = '<p class="season-text">Season information unavailable</p>';
   }
 }
 
@@ -836,7 +804,7 @@ function handlePoolUrlParameter() {
         
         // Scroll to the pool card
         poolCard.scrollIntoView({ 
-          behavior: 'smooth', 
+          behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
           block: 'center' 
         });
         
@@ -1065,11 +1033,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
   
   try {
-    // Load season information first
-    await loadSeasonInfo();
-    
     // Initialize the data manager with the new OOP system
     await initializePoolBrowser();
+
+    loadSeasonInfo();
     
     // Get pools from the data manager
     const poolsManager = poolBrowserDataManager.getPools();
@@ -1084,6 +1051,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     // Always render pools first with no location data
     renderPools(legacyPools);
+    setPoolListStatus(`Pool directory loaded. ${legacyPools.length} pools available.`, false);
     
     // Set up pool-specific navigation event handlers
     setupPoolNavigationHandlers();
@@ -1105,6 +1073,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (list) {
       list.innerHTML = "<p>⚠️ Pool data is currently unavailable. Please try again later.</p>";
     }
+    setPoolListStatus('Pool information is currently unavailable. Please try again later.', false);
   }
 });
 

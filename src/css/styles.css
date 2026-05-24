@@ -117,6 +117,21 @@ html, body {
   flex-direction: column;
 }
 
+.skip-link {
+  background-color: var(--white);
+  color: var(--primary-color);
+  font-weight: 600;
+  left: 1rem;
+  padding: 0.5rem 0.75rem;
+  position: fixed;
+  top: -4rem;
+  z-index: 1100;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
 /* Container */
 .container {
   width: 100%;
@@ -2542,7 +2557,33 @@ button[aria-label*="Voice"]:active {
 
 .footer a {
   color: var(--primary-color);
-  text-decoration: none;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  .header .logo:hover,
+  .nav-menu a:hover,
+  .nav-menu a:focus,
+  .nav-menu a.active,
+  .pool-card.highlighted,
+  .team-card.highlighted,
+  .meet-date-card:hover {
+    transform: none;
+  }
 }
 
 /* Search section styling */

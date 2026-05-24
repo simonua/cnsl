@@ -158,10 +158,9 @@ const files = fs.readdirSync(srcDir)
   .filter(file => file.endsWith('.html'));
 
 // Process each file
-let processedCount = 0;
 const totalFiles = files.length;
 
-files.forEach(file => {
+const pageBuilds = files.map(file => {
   const srcPath = path.join(srcDir, file);
   const outPath = path.join(outDir, file);
   
@@ -175,15 +174,18 @@ files.forEach(file => {
     .process(html)
     .then(result => {
       fs.writeFileSync(outPath, result.html);
-      processedCount++;
       console.log(`📄 [${timestamp()}] Generated ${outPath}`);
-      
-      // Log completion when all files are processed
-      if (processedCount === totalFiles) {
-        console.log(`✅ [${timestamp()}] Build completed! Processed ${totalFiles} HTML files.`);
-      }
     })
     .catch(error => {
       console.error(`❌ [${timestamp()}] Error processing ${file}:`, error);
+      throw error;
     });
 });
+
+Promise.all(pageBuilds)
+  .then(() => {
+    console.log(`✅ [${timestamp()}] Build completed! Processed ${totalFiles} HTML files.`);
+  })
+  .catch(() => {
+    process.exitCode = 1;
+  });

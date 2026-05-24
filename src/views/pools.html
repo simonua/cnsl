@@ -24,7 +24,8 @@
             </fieldset>
         </div>
       </section>
-      <div id="poolList" class="pool-list">
+      <p class="visually-hidden" id="poolListStatus" role="status" aria-live="polite">Loading pool information.</p>
+      <div id="poolList" class="pool-list" aria-busy="true">
         <!-- Pools will be loaded dynamically via JavaScript -->
         <p class="loading">Loading pool information...</p>
       </div>
@@ -49,15 +50,8 @@
     <script src="js/config/weather-config.js" defer></script>
     <script src="js/services/file-helper.js" defer></script>
     <script src="js/services/cache-service.js" defer></script>
-    <script src="js/services/weather-service.js" defer></script>
-
     <!-- Application scripts -->
-    <script src="js/services/speech.js" defer></script>
     <script src="js/pool-browser.js" defer></script>
-    <script src="js/teams-browser.js" defer></script>
-    <script src="js/meets-browser.js" defer></script>
-    <script src="js/services/search-engine.js" defer></script>
-    <script src="js/copilot.js" defer></script>
 
     <script>
       // PWA Installation Detection

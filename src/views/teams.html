@@ -11,7 +11,8 @@
           </a>
         </div>
       </div>
-      <div id="teamList" class="team-list">
+      <p class="visually-hidden" id="teamListStatus" role="status" aria-live="polite">Loading team information.</p>
+      <div id="teamList" class="team-list" aria-busy="true">
         <!-- Teams will be loaded dynamically via JavaScript -->
         <p class="loading">Loading team information...</p>
       </div>

@@ -4,11 +4,16 @@
 
 /**
  * Closes the mobile navigation menu
+ * @param {boolean} restoreFocus - Whether focus should return to the menu button
  */
-function closeMenu() {
+function closeMenu(restoreFocus = false) {
   const nav = document.getElementById('navMenu');
   const hamburger = document.querySelector('.hamburger');
   const overlay = document.getElementById('navOverlay');
+  const main = document.getElementById('mainContent');
+  const footer = document.querySelector('.footer');
+  const skipLink = document.querySelector('.skip-link');
+  const homeLink = document.querySelector('.header a');
   
   if (nav) {
     nav.classList.remove('active');
@@ -17,9 +22,17 @@ function closeMenu() {
       overlay.classList.remove('active');
     }
     if (hamburger) {
+      hamburger.classList.remove('active');
       hamburger.setAttribute('aria-expanded', 'false');
       hamburger.setAttribute('aria-label', 'Open navigation menu');
+      if (restoreFocus) {
+        hamburger.focus();
+      }
     }
+    if (main) main.inert = false;
+    if (footer) footer.inert = false;
+    if (skipLink) skipLink.inert = false;
+    if (homeLink) homeLink.inert = false;
   }
 }
 
@@ -29,21 +42,53 @@ function closeMenu() {
 // eslint-disable-next-line no-unused-vars
 function toggleMenu() {
   const nav = document.getElementById('navMenu');
+  const hamburger = document.querySelector('.hamburger');
   const overlay = document.getElementById('navOverlay');
-  if (nav) {
-    nav.classList.toggle('active');
-    
-    // Update aria-expanded attribute for accessibility
-    const hamburger = document.querySelector('.hamburger');
-    if (hamburger) {
-      const isExpanded = nav.classList.contains('active');
-      hamburger.setAttribute('aria-expanded', String(isExpanded));
-      hamburger.setAttribute('aria-label', isExpanded ? 'Close navigation menu' : 'Open navigation menu');
-      nav.setAttribute('aria-hidden', String(!isExpanded));
-      if (overlay) {
-        overlay.classList.toggle('active', isExpanded);
-      }
-    }
+  const main = document.getElementById('mainContent');
+  const footer = document.querySelector('.footer');
+  const skipLink = document.querySelector('.skip-link');
+  const homeLink = document.querySelector('.header a');
+  if (!nav || !hamburger) return;
+
+  if (nav.classList.contains('active')) {
+    closeMenu(true);
+    return;
+  }
+
+  nav.classList.add('active');
+  nav.setAttribute('aria-hidden', 'false');
+  hamburger.classList.add('active');
+  hamburger.setAttribute('aria-expanded', 'true');
+  hamburger.setAttribute('aria-label', 'Close navigation menu');
+  if (overlay) overlay.classList.add('active');
+  if (main) main.inert = true;
+  if (footer) footer.inert = true;
+  if (skipLink) skipLink.inert = true;
+  if (homeLink) homeLink.inert = true;
+  hamburger.focus();
+}
+
+/**
+ * Keep keyboard focus on menu controls while the overlay navigation is active.
+ * @param {KeyboardEvent} event - Keyboard event to handle
+ */
+function containMenuFocus(event) {
+  const nav = document.getElementById('navMenu');
+  const hamburger = document.querySelector('.hamburger');
+  if (event.key !== 'Tab' || !nav || !hamburger || !nav.classList.contains('active')) return;
+
+  const focusableElements = [hamburger, ...nav.querySelectorAll('a[href]')];
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+  if (!focusableElements.includes(document.activeElement)) {
+    event.preventDefault();
+    (event.shiftKey ? lastElement : nav.querySelector('a[href]')).focus();
+  } else if (event.shiftKey && document.activeElement === firstElement) {
+    event.preventDefault();
+    lastElement.focus();
+  } else if (!event.shiftKey && document.activeElement === lastElement) {
+    event.preventDefault();
+    firstElement.focus();
   }
 }
 
@@ -74,18 +119,17 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (nav && nav.classList.contains('active')) {
       if (!nav.contains(event.target) && !hamburger.contains(event.target)) {
-        closeMenu();
+        closeMenu(true);
       }
     }
   });
 
   document.addEventListener('keydown', (event) => {
-    const hamburger = document.querySelector('.hamburger');
     const nav = document.getElementById('navMenu');
     if (event.key === 'Escape' && nav && nav.classList.contains('active')) {
-      closeMenu();
-      if (hamburger) hamburger.focus();
+      closeMenu(true);
     }
+    containMenuFocus(event);
   });
   
   // Initialize sticky footer

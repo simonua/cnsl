@@ -11,10 +11,21 @@ let meetsBrowserDataManager = null;
  */
 async function initializeMeetsBrowser() {
   if (!meetsBrowserDataManager) {
-    meetsBrowserDataManager = new DataManager();
+    meetsBrowserDataManager = getDataManager();
     await meetsBrowserDataManager.initialize();
-    console.log('🔧 Meet browser data manager initialized');
   }
+}
+
+/**
+ * Update assistive loading feedback for the meet schedule.
+ * @param {string} message - Status message to announce
+ * @param {boolean} isBusy - Whether the schedule is loading
+ */
+function setMeetListStatus(message, isBusy) {
+  const list = document.getElementById('meetList');
+  const status = document.getElementById('meetListStatus');
+  if (list) list.setAttribute('aria-busy', String(isBusy));
+  if (status) status.textContent = message;
 }
 
 
@@ -35,9 +46,6 @@ async function renderMeets(meets) {
     list.innerHTML = "<p>No meet information available.</p>";
     return;
   }
-
-  // Initialize data manager for pool links
-  await initializeMeetsBrowser();
 
   const favoriteTeamId = PreferencesService.get().favoriteTeamId;
   const favoriteTeam = PreferencesService.findFavoriteTeam(meetsBrowserDataManager.getTeams().getAllTeams(), favoriteTeamId);
@@ -261,28 +269,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   const meetList = document.getElementById("meetList");
   
   try {
-    // Load meets data directly - simple approach that works
-    const response = await fetch(FileHelper.getMeetsDataPath());
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
+    await initializeMeetsBrowser();
+    const allMeets = meetsBrowserDataManager.getMeets().getAllMeets();
     
-    const data = await response.json();
-    
-    let allMeets = [];
-    if (data.regular_meets) {
-      allMeets = [...data.regular_meets];
-    }
-    if (data.special_meets) {
-      allMeets = [...allMeets, ...data.special_meets];
-    }
-    
-    // Use the sophisticated rendering with pool links
     await renderMeets(allMeets);
+    setMeetListStatus(`Meet schedule loaded. ${allMeets.length} meets available.`, false);
     
   } catch (error) {
     console.error("Error loading meets:", error);
     meetList.innerHTML = "<p>⚠️ Meet data is currently unavailable. Please try again later.</p>";
+    setMeetListStatus('Meet schedule is currently unavailable. Please try again later.', false);
   }
 });
 

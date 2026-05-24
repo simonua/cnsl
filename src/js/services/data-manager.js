@@ -11,6 +11,7 @@ if (typeof window === 'undefined' || !window.DataManager) {
     this.meetsManager = new MeetsManager();
     this.initialized = false;
     this.loadingPromise = null;
+    this.seasonInfo = null;
   }
 
   /**
@@ -22,25 +23,6 @@ if (typeof window === 'undefined' || !window.DataManager) {
       return this.loadingPromise;
     }
 
-    // First validate data files are accessible
-    if (window.FileHelper) {
-      console.log('🔍 DataManager: Validating data files...');
-      const validation = await FileHelper.validateDataFiles();
-      
-      if (!validation.allValid) {
-        console.error('❌ DataManager: Data files validation failed:', validation);
-        
-        // A GET can still succeed if HEAD validation is unsupported by the host.
-        console.log('🔄 DataManager: Trying configured seasonal paths...');
-        const poolsPath = FileHelper.getPoolsDataPath();
-        const teamsPath = FileHelper.getTeamsDataPath();
-        const meetsPath = FileHelper.getMeetsDataPath();
-        
-        this.loadingPromise = this._loadAllData(poolsPath, teamsPath, meetsPath);
-        return this.loadingPromise;
-      }
-    }
-
     this.loadingPromise = this._loadAllData();
     return this.loadingPromise;
   }
@@ -50,14 +32,13 @@ if (typeof window === 'undefined' || !window.DataManager) {
    * @private
    * @returns {Promise} - Promise that resolves when all data is loaded
    */
-  async _loadAllData(customPoolsPath, customTeamsPath, customMeetsPath) {
+  async _loadAllData() {
     try {
       console.log('🔄 DataManager: Starting data file loading...');
       
-      // Use FileHelper for correct path resolution, or use custom paths if provided
-      const poolsPath = customPoolsPath || FileHelper.getPoolsDataPath();
-      const teamsPath = customTeamsPath || FileHelper.getTeamsDataPath();
-      const meetsPath = customMeetsPath || FileHelper.getMeetsDataPath();
+      const poolsPath = FileHelper.getPoolsDataPath();
+      const teamsPath = FileHelper.getTeamsDataPath();
+      const meetsPath = FileHelper.getMeetsDataPath();
       
       console.log(`📁 Environment: ${FileHelper.getEnvironment()}`);
       console.log(`📄 Loading from paths:`);
@@ -65,34 +46,23 @@ if (typeof window === 'undefined' || !window.DataManager) {
       console.log(`   - Teams: ${teamsPath}`);
       console.log(`   - Meets: ${meetsPath}`);
       
-      // Try multiple path strategies if in development mode
-      let poolsData, teamsData, meetsData;
-      
-      try {
-        // First attempt with the provided/calculated paths
-        [poolsData, teamsData, meetsData] = await Promise.all([
-          this._loadJsonFile(poolsPath),
-          this._loadJsonFile(teamsPath),
-          this._loadJsonFile(meetsPath).catch(() => null) // Optional file
-        ]);
-      } catch (_err) {
-        console.warn('⚠️ First attempt to load data failed, trying alternative paths...');
-        
-        // Second attempt with the active season paths
-        [poolsData, teamsData, meetsData] = await Promise.all([
-          this._loadJsonFile(FileHelper.getPoolsDataPath()),
-          this._loadJsonFile(FileHelper.getTeamsDataPath()),
-          this._loadJsonFile(FileHelper.getMeetsDataPath()).catch(() => null) // Optional file
-        ]);
-      }
+      const [poolsData, teamsData, meetsData] = await Promise.all([
+        this._loadJsonFile(poolsPath),
+        this._loadJsonFile(teamsPath),
+        this._loadJsonFile(meetsPath)
+      ]);
 
       console.log('✅ DataManager: JSON files loaded, initializing managers...');
       
       this.poolsManager.loadData(poolsData);
       this.teamsManager.loadData(teamsData);
-      if (meetsData) {
-        this.meetsManager.loadData(meetsData);
-      }
+      this.seasonInfo = {
+        seasonStartDate: poolsData.seasonStartDate,
+        seasonEndDate: poolsData.seasonEndDate,
+        caPoolDirectoryUrl: poolsData.caPoolDirectoryUrl,
+        caPoolGuideUrl: poolsData.caPoolGuideUrl
+      };
+      this.meetsManager.loadData(meetsData);
 
       this.initialized = true;
       console.log('✅ DataManager: All data loaded successfully');
@@ -144,6 +114,14 @@ if (typeof window === 'undefined' || !window.DataManager) {
    */
   getMeets() {
     return this.meetsManager;
+  }
+
+  /**
+   * Get active pool season metadata already loaded with the directory data.
+   * @returns {Object|null} - Public season summary metadata or null until loaded
+   */
+  getSeasonInfo() {
+    return this.seasonInfo ? { ...this.seasonInfo } : null;
   }
 
   /**
@@ -336,6 +314,7 @@ if (typeof window === 'undefined' || !window.DataManager) {
   async refresh() {
     this.initialized = false;
     this.loadingPromise = null;
+    this.seasonInfo = null;
     
     this.poolsManager.clearData();
     this.teamsManager.clearData();

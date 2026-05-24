@@ -64,6 +64,7 @@
 </head>
 
 <body>
+  <a class="skip-link" href="#mainContent">Skip to main content</a>
   <!-- Google Tag Manager (noscript) - should be placed immediately after opening body -->
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WZQ5925F" height="0" width="0"
       style="display:none;visibility:hidden"></iframe></noscript>
@@ -74,9 +75,9 @@
 
     <include src="components/nav.html"></include>
 
-    <div class="nav-overlay" id="navOverlay" onclick="closeMenu()" aria-hidden="true"></div>
+    <div class="nav-overlay" id="navOverlay" onclick="closeMenu(true)" aria-hidden="true"></div>
 
-    <main class="container" role="main">
+    <main class="container" id="mainContent" tabindex="-1">
       <block name="content"></block>
     </main>
   </div>

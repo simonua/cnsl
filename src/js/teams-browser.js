@@ -17,6 +17,18 @@ async function initializeTeamsBrowser() {
 }
 
 /**
+ * Update assistive loading feedback for the team directory.
+ * @param {string} message - Status message to announce
+ * @param {boolean} isBusy - Whether the directory is loading
+ */
+function setTeamListStatus(message, isBusy) {
+  const list = document.getElementById('teamList');
+  const status = document.getElementById('teamListStatus');
+  if (list) list.setAttribute('aria-busy', String(isBusy));
+  if (status) status.textContent = message;
+}
+
+/**
  * Find pool by name from data manager (using pool link helper)
  * @param {string} poolName - Name of the pool to find
  * @returns {Object|null} - Pool object or null if not found
@@ -514,7 +526,7 @@ function handleTeamUrlParameter() {
         
         // Scroll to the team card
         teamCard.scrollIntoView({ 
-          behavior: 'smooth', 
+          behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
           block: 'center' 
         });
         
@@ -576,6 +588,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log("Loaded team data from DataManager:", teams.length, "teams");
     
     renderTeams(teams);
+    setTeamListStatus(`Team directory loaded. ${teams.length} teams available.`, false);
     
     // Handle team URL parameter for direct linking
     handleTeamUrlParameter();
@@ -586,5 +599,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (list) {
       list.innerHTML = "<p>⚠️ Team data is currently unavailable. Please try again later.</p>";
     }
+    setTeamListStatus('Team information is currently unavailable. Please try again later.', false);
   }
 });
