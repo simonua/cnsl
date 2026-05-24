@@ -63,11 +63,14 @@ pnpm exec playwright install chromium
 # Focused browser feedback while changing visitor-facing behavior
 pnpm run test:browser:smoke
 
+# One-page Axe feedback when iterating on a specific affected surface
+pnpm exec playwright test tests/browser/accessibility.spec.js --grep "light theme accessibility.*pools has no WCAG A or AA automated violations"
+
 # Complete browser gate before release
 pnpm run test:browser
 ```
 
-Browser verification runs keyboard workflow checks and automated WCAG A/AA inspection against the built artifact in Chromium. The smoke command is intended for quick local iteration; the complete browser gate remains required before release. Use the [Release Verification Checklist](docs/release-checklist.md) for the secure-origin installed-PWA and manual assistive-technology checks that cannot be established by the local suite alone.
+Browser verification runs keyboard workflow checks and automated WCAG A/AA inspection against the built artifact in Chromium. The smoke command keeps local feedback short by running focused interactions and one representative Axe scan. When a change affects another page or visual state, select its matching accessibility scenario with Playwright `--grep`; the complete browser gate remains required before release and runs in CI before deployment. Use the [Release Verification Checklist](docs/release-checklist.md) for the secure-origin installed-PWA and manual assistive-technology checks that cannot be established by the local suite alone.
 
 Design and maintenance decisions are recorded in [Runtime And Stylesheet Ownership](docs/runtime-architecture.md) and [Security And Privacy Decision](docs/security-privacy.md).
 
