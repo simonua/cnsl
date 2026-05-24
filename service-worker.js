@@ -1,7 +1,7 @@
-importScripts('/js/config/app-config.js');
+// Cache version - replaced with the build identifier in generated output.
+const CACHE_VERSION = 'development';
+importScripts(`/js/config/app-config.js?v=${CACHE_VERSION}`);
 
-// Cache version - updated with each build  
-const CACHE_VERSION = new Date().toISOString().replace(/[-:]/g, '').split('.')[0]; // Include timestamp for immediate updates
 const CACHE_NAME = `cnsl-static-${CACHE_VERSION}`;
 
 // Check if running in development mode (localhost or port 9090)
@@ -20,11 +20,14 @@ const STATIC_RESOURCES = [
   "/meets.html",
   "/swim-meet-resources.html",
   "/faq.html",
+  "/settings.html",
   "/css/styles.css",
   "/js/copilot.js",
   "/js/navigation.js",
-  "/js/cache-service.js",
-  "/js/weather-service.js",
+  "/js/pwa.js",
+  "/js/install-app.js",
+  "/js/preferences-theme.js",
+  "/js/settings.js",
   "/js/pool-browser.js",
   "/js/teams-browser.js",
   "/js/meets-browser.js",
@@ -41,6 +44,7 @@ const STATIC_RESOURCES = [
   "/js/services/file-helper.js",
   "/js/services/time-utils.js",
   "/js/services/cache-service.js",
+  "/js/services/preferences-service.js",
   "/js/services/weather-service.js",
   "/js/services/search-engine.js",
   "/js/services/speech.js",
@@ -73,7 +77,13 @@ const STATIC_RESOURCES = [
   "/assets/favicons/favicon-16x16.png",
   "/assets/favicons/favicon.ico",
   "/manifest.webmanifest"
-];
+].map(resource => `${resource}${resource.includes('?') ? '&' : '?'}v=${CACHE_VERSION}`);
+
+function createVersionedRequest(request) {
+  const url = new URL(request.url);
+  url.searchParams.set('v', CACHE_VERSION);
+  return new Request(url.toString(), request);
+}
 
 self.addEventListener("install", event => {
   console.log(`Service Worker installing - Cache Version: ${CACHE_VERSION}`);
@@ -98,6 +108,7 @@ self.addEventListener("install", event => {
       })
       .catch(error => {
         console.error('Cache creation failed:', error);
+        throw error;
       })
   );
 });
@@ -171,24 +182,26 @@ self.addEventListener("fetch", event => {
   }
 
   // Check if this is a data file (JSON) - use network-first for data files for faster updates
-  const isDataFile = event.request.url.includes('/assets/data/') && event.request.url.endsWith('.json');
+  const isDataFile = requestUrl.pathname.includes('/assets/data/') && requestUrl.pathname.endsWith('.json');
   
   if (isDataFile) {
+    const cacheRequest = createVersionedRequest(event.request);
+
     // Network-first strategy for JSON data files
     event.respondWith(
-      fetch(event.request)
+      fetch(event.request, { cache: 'no-cache' })
         .then(response => {
           if (response && response.status === 200) {
             const responseClone = response.clone();
             caches.open(CACHE_NAME).then(cache => {
-              cache.put(event.request, responseClone);
+              cache.put(cacheRequest, responseClone);
             });
           }
           return response;
         })
         .catch(error => {
           // Network failed, try cache
-          return caches.match(event.request)
+          return caches.open(CACHE_NAME).then(cache => cache.match(cacheRequest))
             .then(cachedResponse => {
               if (cachedResponse) {
                 console.log('Network failed for data file, serving from cache:', event.request.url);
@@ -205,25 +218,11 @@ self.addEventListener("fetch", event => {
     return;
   }
 
-  // For production, use cache-first strategy with network fallback for other resources
+  // Versioned static resources stay cache-first until a new worker installs a new cache.
   event.respondWith(
-    caches.match(event.request)
+    caches.open(CACHE_NAME).then(cache => cache.match(event.request, { ignoreSearch: true }))
       .then(response => {
         if (response) {
-          // Found in cache, but also check for updates in background
-          fetch(event.request)
-            .then(fetchResponse => {
-              if (fetchResponse && fetchResponse.status === 200) {
-                const responseClone = fetchResponse.clone();
-                caches.open(CACHE_NAME).then(cache => {
-                  cache.put(event.request, responseClone);
-                });
-              }
-            })
-            .catch(() => {
-              // Network failed, but we have cache - that's fine
-            });
-          
           return response;
         }
         

@@ -715,7 +715,7 @@ function renderPools(pools) {
     return `
       <div class="pool-card ${isFavorite ? 'favorite-card' : 'collapsed'}" data-pool-id="${poolId}">
         <div class="pool-header" onclick="togglePoolCard(this)">
-          <h3>${statusIndicatorHtml}${poolName}${isFavorite ? '<span class="favorite-badge">Favorite pool</span>' : ''}</h3>
+          <h3>${statusIndicatorHtml}${poolName}${isFavorite ? ' <span class="favorite-badge">Favorite pool</span>' : ''}</h3>
           ${distanceHtml}
         </div>
         <div class="pool-details">

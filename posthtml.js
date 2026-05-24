@@ -7,6 +7,15 @@ const extend = require('posthtml-extend')({ root: './src/views/layouts' });
 // Add timestamp for build logging
 const timestamp = () => new Date().toLocaleTimeString();
 
+function createCacheVersion() {
+  const now = new Date();
+  const buildDate = now.toISOString().split('T')[0].replace(/-/g, '');
+  const epochSuffix = Math.floor(now.getTime() / 1000).toString().slice(-6);
+  return `${buildDate}-${epochSuffix}`;
+}
+
+const cacheVersion = createCacheVersion();
+
 console.log(`🔨 [${timestamp()}] Starting build process...`);
 
 // Helper function to delete directory recursively
@@ -66,6 +75,26 @@ const includePlugin = (tree) => {
   return tree;
 };
 
+function versionStaticAssetUrl(url) {
+  if (typeof url !== 'string') return url;
+
+  const match = url.match(/^(\/?(?:(?:css|js|assets)\/[^?#]+|(?:manifest|site)\.webmanifest|browserconfig\.xml))(?:\?[^#]*)?(#.*)?$/);
+  if (!match) return url;
+
+  return `${match[1]}?v=${cacheVersion}${match[2] || ''}`;
+}
+
+const versionStaticAssetsPlugin = (tree) => {
+  tree.walk(node => {
+    if (node.attrs) {
+      if (node.attrs.src) node.attrs.src = versionStaticAssetUrl(node.attrs.src);
+      if (node.attrs.href) node.attrs.href = versionStaticAssetUrl(node.attrs.href);
+    }
+    return node;
+  });
+  return tree;
+};
+
 const srcDir = './src/views';
 const outDir = './out';
 
@@ -109,12 +138,6 @@ rootStaticFiles.forEach(file => {
 // Handle service-worker.js specially to update the cache version
 const serviceWorkerPath = 'service-worker.js';
 if (fs.existsSync(serviceWorkerPath)) {
-  const now = new Date();
-  const buildDate = now.toISOString().split('T')[0].replace(/-/g, '');
-  const unixEpoch = Math.floor(now.getTime() / 1000);
-  const epochSuffix = unixEpoch.toString().slice(-6); // Last 6 digits of Unix epoch
-  const cacheVersion = `${buildDate}-${epochSuffix}`;
-  
   let swContent = fs.readFileSync(serviceWorkerPath, 'utf8');
   
   // Replace the cache version with the date and epoch suffix
@@ -146,6 +169,7 @@ files.forEach(file => {
   posthtml()
     .use(extend)
     .use(includePlugin)
+    .use(versionStaticAssetsPlugin)
     .process(html)
     .then(result => {
       fs.writeFileSync(outPath, result.html);

@@ -434,7 +434,7 @@ function renderTeams(teams) {
         <div class="team-header" onclick="toggleTeamCard(this)">
           ${logoHtml}
           <div class="team-header-content">
-            <h3>${teamName}${isFavorite ? '<span class="favorite-badge">Favorite team</span>' : ''}</h3>
+            <h3>${teamName}${isFavorite ? ' <span class="favorite-badge">Favorite team</span>' : ''}</h3>
           </div>
         </div>
         
