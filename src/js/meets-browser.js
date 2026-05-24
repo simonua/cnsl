@@ -173,14 +173,6 @@ async function renderMeets(meets) {
       const isSpecialMeet = !meet.visiting_team && !meet.home_team && !meet.awayTeam && !meet.homeTeam;
       const isFavoriteMeet = PreferencesService.meetIncludesFavoriteTeam(meet, favoriteTeam);
       
-      // Check if this is a meet involving Long Reach Marlins that has occurred or is happening today
-      const isLongReachMeet = (meet.visiting_team && meet.visiting_team.includes('Long Reach')) || 
-                              (meet.home_team && meet.home_team.includes('Long Reach'));
-      const meetDateOnly = new Date(meetDate.getFullYear(), meetDate.getMonth(), meetDate.getDate());
-      const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-      const isTodayOrPast = meetDateOnly <= todayOnly;
-      const showResultsLink = isLongReachMeet && isTodayOrPast;
-      
       let meetContent;
       if (isSpecialMeet) {
         meetContent = `
@@ -192,7 +184,6 @@ async function renderMeets(meets) {
               <div class="meet-location-time">
                 <div class="meet-location-row">
                   <span class="meet-location">${locationLink}</span>
-                  ${showResultsLink ? '<a href="https://meetresults.longreachmarlins.org" target="_blank" rel="noopener" class="results-link" title="View Meet Results">🏆</a>' : ''}
                 </div>
                 <div class="meet-time-row">
                   <span class="meet-time">${time}</span>
@@ -215,7 +206,6 @@ async function renderMeets(meets) {
               <div class="meet-location-time">
                 <div class="meet-location-row">
                   <span class="meet-location">${locationLink}</span>
-                  ${showResultsLink ? '<a href="https://meetresults.longreachmarlins.org" target="_blank" rel="noopener" class="results-link" title="View Meet Results">🏆</a>' : ''}
                 </div>
                 <div class="meet-time-row">
                   <span class="meet-time">${time}</span>
