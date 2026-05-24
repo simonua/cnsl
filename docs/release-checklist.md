@@ -16,7 +16,7 @@ pnpm run verify:performance
 pnpm run test:browser
 ```
 
-Record the command results in the pull request or release record. `pnpm run verify:performance` verifies artifact budgets; browser tests cover keyboard flows, accessible states, and automated WCAG A/AA scans.
+Record the command results in the pull request or release record. `pnpm run verify:performance` verifies artifact budgets; the local browser command covers keyboard flows and accessible states. GitHub Actions runs `pnpm run test:browser:ci`, including automated WCAG A/AA scans, as a required pre-deployment gate. Use `pnpm run test:browser:accessibility` only when a CI accessibility result needs local reproduction.
 
 ## Secure-Origin PWA Review
 

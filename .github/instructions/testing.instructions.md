@@ -56,4 +56,4 @@ describe('MyClass', () => {
 - Use `describe` blocks to group by class/function, nested `describe` for methods.
 - Use descriptive `it` strings: "should return X when given Y".
 - No mocking frameworks — use simple stubs when needed.
-- Unit tests must run without a browser; browser specs require a prior `pnpm run build` and run through `pnpm run test:browser`.
+- Unit tests must run without a browser; browser specs require a prior `pnpm run build`. Use `pnpm run test:browser` for local workflows, `pnpm run test:browser:accessibility` for explicit local axe diagnosis, and `pnpm run test:browser:ci` for the GitHub Actions gate.

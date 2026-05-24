@@ -24,17 +24,8 @@
   </block>
   <block name="content">
     <h1>Outdoor Pool Directory</h1>
-    <div class="season-info" id="seasonInfo">
-      <p class="season-text">Loading season information...</p>
-    </div>
+    <div class="season-info" id="seasonInfo" hidden></div>
     <div class="container container--pools">
-      <section class="pool-sort" id="poolSortControls" aria-label="Pool sorting" hidden>
-        <label class="pool-sort__label" for="poolSortOrder">Sort pools by</label>
-        <select class="pool-sort__select" id="poolSortOrder" name="poolSortOrder">
-          <option value="name">Default order</option>
-          <option value="distance">Nearest distance</option>
-        </select>
-      </section>
       <section class="pool-filter" id="poolFeatureFilter" aria-label="Pool feature filters" hidden>
         <div class="pool-filter__header">
           <button type="button" class="pool-filter__toggle" id="togglePoolFeatureFilters" aria-expanded="false" aria-controls="poolFeatureFilterControls">
@@ -48,6 +39,13 @@
           </div>
         </div>
         <div class="pool-filter__controls" id="poolFeatureFilterControls" hidden>
+            <section class="pool-sort" id="poolSortControls" aria-label="Pool sorting" hidden>
+              <label class="pool-sort__label" for="poolSortOrder">Sort pools by</label>
+              <select class="pool-sort__select" id="poolSortOrder" name="poolSortOrder">
+                <option value="name">Default order</option>
+                <option value="distance">Nearest distance</option>
+              </select>
+            </section>
             <fieldset class="pool-filter__fieldset">
               <legend class="visually-hidden">Select features required at a pool</legend>
               <div class="pool-filter__options" id="poolFeatureFilterOptions"></div>

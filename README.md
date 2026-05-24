@@ -63,17 +63,20 @@ pnpm run verify:performance
 # First browser-test setup on a workstation
 pnpm exec playwright install chromium
 
-# Focused browser feedback while changing visitor-facing behavior
+# Focused local browser feedback while changing visitor-facing behavior
 pnpm run test:browser:smoke
 
-# One-page Axe feedback when iterating on a specific affected surface
-pnpm run test:browser tests/browser/accessibility.spec.js --grep "light theme accessibility.*pools has no WCAG A or AA automated violations"
-
-# Complete browser gate before release
+# Full local workflow checks, without the slower WCAG scan matrix
 pnpm run test:browser
+
+# Explicit local WCAG reproduction when diagnosing a CI failure
+pnpm run test:browser:accessibility --grep "light theme accessibility.*pools has no WCAG A or AA automated violations"
+
+# Complete browser gate run by GitHub Actions before deployment
+pnpm run test:browser:ci
 ```
 
-Browser verification runs keyboard workflow checks and automated WCAG A/AA inspection against the built artifact in Chromium. The smoke command keeps local feedback short by running focused interactions and one representative Axe scan. When a change affects another page or visual state, select its matching accessibility scenario with Playwright `--grep`; the complete browser gate remains required before release and runs in CI before deployment. Use the [Release Verification Checklist](docs/release-checklist.md) for the secure-origin installed-PWA and manual assistive-technology checks that cannot be established by the local suite alone.
+Browser verification runs against the built artifact in Chromium. Local browser commands cover keyboard and rendered workflow feedback without running the slow automated WCAG scan matrix. GitHub Actions runs `pnpm run test:browser:ci`, including the full automated WCAG A/AA inspection, before deployment; use `pnpm run test:browser:accessibility` locally only when reproducing a relevant failure. Use the [Release Verification Checklist](docs/release-checklist.md) for the secure-origin installed-PWA and manual assistive-technology checks that automated scans cannot establish.
 
 Design and maintenance decisions are recorded in [Runtime And Stylesheet Ownership](docs/runtime-architecture.md) and [Security And Privacy Decision](docs/security-privacy.md).
 

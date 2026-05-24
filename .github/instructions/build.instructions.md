@@ -16,8 +16,10 @@ description: "Use when working with the build pipeline, dev server, testing, lin
 | `pnpm start` | Clean, build, watch for changes, and serve with live reload (port 9090) |
 | `pnpm run build` | One-time clean build to `out/` |
 | `pnpm test` | Run all unit tests |
-| `pnpm run test:browser:smoke` | Run focused Playwright interactions and one representative Axe scan during UI iteration |
-| `pnpm run test:browser` | Run Playwright workflow and axe accessibility checks against a built `out/` artifact |
+| `pnpm run test:browser:smoke` | Run focused Playwright interactions during UI iteration |
+| `pnpm run test:browser` | Run local Playwright workflow checks against a built `out/` artifact |
+| `pnpm run test:browser:accessibility` | Explicitly reproduce Playwright axe accessibility checks locally when needed |
+| `pnpm run test:browser:ci` | Run workflow and automated WCAG A/AA checks in GitHub Actions |
 | `pnpm run lint` | Run ESLint on all JS files |
 | `pnpm run lint:fix` | Auto-fix lint issues |
 
@@ -48,8 +50,9 @@ Run `.\start.ps1` (Windows) or `./start.sh` (macOS/Linux) for an interactive men
 - Test files follow the pattern `tests/**/*.test.js`.
 - Services and models export via `module.exports` for Node.js test access.
 - Run `pnpm test` to execute all tests.
-- Run `pnpm run build && pnpm run test:browser:smoke` during visitor-facing iteration for focused interactions and one representative Axe scan. If the changed surface is not represented by that scan, run its matching accessibility scenario with Playwright `--grep`.
-- Run `pnpm run build && pnpm run test:browser` before releasing visitor-facing changes to validate the complete rendered keyboard workflow and automated WCAG A/AA gate.
+- Run `pnpm run build && pnpm run test:browser:smoke` during visitor-facing iteration for focused interactions.
+- Run `pnpm run build && pnpm run test:browser` locally before publishing visitor-facing changes to validate rendered keyboard workflows.
+- GitHub Actions runs `pnpm run test:browser:ci` before deployment to enforce the automated WCAG A/AA gate. Use `pnpm run test:browser:accessibility` locally only to diagnose or reproduce those failures.
 
 ## Linting
 

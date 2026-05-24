@@ -93,6 +93,7 @@ test('location-aware pool sorting has no WCAG A or AA automated violations', asy
     localStorage.setItem('cnsl_preferences', JSON.stringify({ theme: 'dark', locationAwarenessEnabled: true }));
   });
   await page.goto('/pools.html');
+  await page.locator('#togglePoolFeatureFilters').click();
   await expect(page.locator('#poolSortControls')).toBeVisible();
   await page.selectOption('#poolSortOrder', 'distance');
 

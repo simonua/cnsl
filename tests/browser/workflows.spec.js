@@ -106,6 +106,7 @@ test('pool load failures are announced and do not leave the directory busy', asy
 
   await expect(page.locator('#poolListStatus')).toHaveText('Pool information is currently unavailable. Please try again later.');
   await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
+  await expect(page.locator('#seasonInfo')).toBeHidden();
 });
 
 test('malformed published pool responses are announced as unavailable', async ({ page }) => {
@@ -114,6 +115,18 @@ test('malformed published pool responses are announced as unavailable', async ({
 
   await expect(page.locator('#poolListStatus')).toHaveText('Pool information is currently unavailable. Please try again later.');
   await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
+});
+
+test('season summary and CA season action appear on the home page', async ({ page }) => {
+  await page.goto('/');
+
+  await expect(page.locator('.season-text')).toHaveText('The 2026 season runs from May 23 to September 7');
+  await expect(page.getByRole('link', { name: "CA's 2026 Pool Season" })).toBeVisible();
+
+  await page.goto('/pools.html');
+  await expect(page.locator('.season-text')).toHaveCount(0);
+  await expect(page.getByRole('link', { name: "CA's 2026 Pool Season" })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Interactive CA Pool Directory' })).toBeVisible();
 });
 
 test('pool feature filters expose their state and resulting count', async ({ page }) => {
@@ -139,8 +152,11 @@ test('location distances use outlined pills and can sort nearest pools first', a
 
   const sortControl = page.locator('#poolSortControls');
   const firstDistance = page.locator('.distance-badge').first();
-  await expect(sortControl).toBeVisible();
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
   await expect(firstDistance).toBeVisible();
+  await page.locator('#togglePoolFeatureFilters').press('Enter');
+  await expect(page.locator('#togglePoolFeatureFilters')).toHaveAttribute('aria-expanded', 'true');
+  await expect(sortControl).toBeVisible();
   const distanceStyle = await firstDistance.evaluate(element => {
     const styles = globalThis.getComputedStyle(element);
     return { backgroundColor: styles.backgroundColor, borderStyle: styles.borderStyle };
@@ -177,6 +193,31 @@ test('directory disclosures work without rendered inline event handlers', async 
   await meetToggle.click();
   await expect(meetToggle).toHaveAttribute('aria-expanded', String(initiallyExpanded !== 'true'));
   await expect(page.locator('#meetList [onclick], #meetList [onerror]')).toHaveCount(0);
+});
+
+test('meet pool links reveal the destination below the mobile fixed header', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/meets.html');
+  await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
+
+  const poolLink = page.locator('.pool-link').last();
+  const targetPoolId = await poolLink.evaluate(link => new URL(link.href).searchParams.get('pool'));
+  await poolLink.evaluate(link => {
+    const card = link.closest('.meet-date-card');
+    const toggle = card.querySelector('.meet-date-header__toggle');
+    if (toggle.getAttribute('aria-expanded') !== 'true') toggle.click();
+  });
+  await expect(poolLink).toBeVisible();
+  await poolLink.click();
+
+  const targetCard = page.locator(`.pool-card[data-pool-id="${targetPoolId}"]`);
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await expect(targetCard.locator('.pool-header__toggle')).toHaveAttribute('aria-expanded', 'true');
+  await expect.poll(() => targetCard.evaluate(card => {
+    const headerBottom = card.ownerDocument.querySelector('.header').getBoundingClientRect().bottom;
+    const poolHeadingTop = card.querySelector('.pool-header').getBoundingClientRect().top;
+    return poolHeadingTop > headerBottom;
+  })).toBe(true);
 });
 
 test('favorite team matchups appear first on every meet day they compete', async ({ page }) => {
@@ -251,28 +292,73 @@ test('desktop expanded pool details group contact links and fit the weekly calen
   const favoriteCard = page.locator('.favorite-card');
   const calendar = favoriteCard.locator('.schedule-calendar');
   await expect(calendar).toBeVisible();
+  await expect(favoriteCard.locator('.address-section__phone')).not.toContainText('Pool Desk');
+  await expect(favoriteCard.locator('.phone-link')).toHaveAttribute('aria-label', /Call Bryant Woods pool desk at 410-730-5326/);
   const layout = await favoriteCard.evaluate(card => {
+    const contactBox = card.querySelector('.pool-contact').getBoundingClientRect();
     const addressSection = card.querySelector('.address-section');
     const addressBox = addressSection.getBoundingClientRect();
+    const addressDetailsBox = card.querySelector('.address-section__details').getBoundingClientRect();
+    const addressLinkBox = card.querySelector('.address-link').getBoundingClientRect();
     const phoneBox = card.querySelector('.address-section__phone').getBoundingClientRect();
     const caWebsiteBox = card.querySelector('.ca-website-section').getBoundingClientRect();
     const schedule = card.querySelector('.schedule-calendar');
+    const hours = card.querySelector('.pool-hours');
+    const features = card.querySelector('.pool-features');
     return {
       contactDisplay: card.ownerDocument.defaultView.getComputedStyle(card.querySelector('.pool-contact')).display,
       addressHasAccentBorder: card.ownerDocument.defaultView.getComputedStyle(addressSection).borderLeftWidth === '3px',
-      addressIsCompact: addressBox.width <= 304,
+      addressIsFullWidth: Math.abs(addressBox.width - contactBox.width) <= 1,
+      addressIsIndented: addressLinkBox.left > addressDetailsBox.left,
+      caWebsiteIsBesideAddress: caWebsiteBox.left >= addressDetailsBox.right && caWebsiteBox.top < addressDetailsBox.bottom,
+      phoneFollowsAddressClosely: phoneBox.top - addressLinkBox.bottom <= 12,
       phoneIsInsideAddress: phoneBox.top > addressBox.top && phoneBox.bottom <= addressBox.bottom,
-      caWebsiteIsInsideAddress: caWebsiteBox.top > phoneBox.bottom && caWebsiteBox.bottom <= addressBox.bottom,
-      calendarFits: schedule.scrollWidth <= schedule.clientWidth + 1
+      caWebsiteIsInsideAddress: caWebsiteBox.bottom <= addressBox.bottom,
+      calendarFits: schedule.scrollWidth <= schedule.clientWidth + 1,
+      featuresHasAccentBorder: card.ownerDocument.defaultView.getComputedStyle(features).borderLeftWidth === '3px',
+      featuresGap: Math.round(features.getBoundingClientRect().top - hours.getBoundingClientRect().bottom)
     };
   });
 
   expect(layout.contactDisplay).toBe('flex');
   expect(layout.addressHasAccentBorder).toBe(true);
-  expect(layout.addressIsCompact).toBe(true);
+  expect(layout.addressIsFullWidth).toBe(true);
+  expect(layout.addressIsIndented).toBe(true);
+  expect(layout.caWebsiteIsBesideAddress).toBe(true);
+  expect(layout.phoneFollowsAddressClosely).toBe(true);
   expect(layout.phoneIsInsideAddress).toBe(true);
   expect(layout.caWebsiteIsInsideAddress).toBe(true);
   expect(layout.calendarFits).toBe(true);
+  expect(layout.featuresHasAccentBorder).toBe(true);
+  expect(layout.featuresGap).toBeLessThanOrEqual(12);
+});
+
+test('mobile calendar schedules reveal today when a pool is expanded', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 900 });
+  await page.clock.setFixedTime(new Date('2026-05-24T12:00:00-04:00'));
+  await page.addInitScript(() => {
+    localStorage.setItem('cnsl_preferences', JSON.stringify({ poolScheduleLayout: 'calendar' }));
+  });
+  await page.goto('/pools.html');
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+
+  const firstPool = page.locator('.pool-card').first();
+  await firstPool.locator('.pool-header__toggle').click();
+  expect(await firstPool.locator('.address-section').evaluate(element => ({
+    fits: element.scrollWidth <= element.clientWidth + 1,
+    actionToRight: element.querySelector('.ca-website-section').getBoundingClientRect().left
+      >= element.querySelector('.address-section__details').getBoundingClientRect().right
+  }))).toEqual({ fits: true, actionToRight: true });
+  const calendar = firstPool.locator('.schedule-calendar');
+  await expect(calendar).toBeVisible();
+  await expect(calendar.locator('.schedule-calendar__day.is-today')).toBeVisible();
+  await expect.poll(() => calendar.evaluate(element => element.scrollLeft)).toBeGreaterThan(0);
+  expect(await calendar.evaluate(element => {
+    const today = element.querySelector('.schedule-calendar__day.is-today');
+    const calendarBounds = element.getBoundingClientRect();
+    const todayBounds = today.getBoundingClientRect();
+    return todayBounds.left < calendarBounds.right && todayBounds.right > calendarBounds.left;
+  })).toBe(true);
 });
 
 test('desktop site header remains visible while the pool directory scrolls', async ({ page }) => {
@@ -356,6 +442,9 @@ test('mobile weather safety alert keeps navigation visible and collapses with a 
   const expandedTitleBox = await page.locator('.weather-alert__title').boundingBox();
   const expandedToggleSize = await toggle.boundingBox();
   const expandedActionBox = await action.boundingBox();
+  expect(expandedToggleSize.width).toBe(expandedToggleSize.height);
+  expect(expandedToggleSize.height).toBe(expandedTitleBox.height);
+  expect(expandedToggleSize.height).toBe(expandedActionBox.height);
   expect(expandedTitleBox.x + expandedTitleBox.width).toBeLessThanOrEqual(expandedActionBox.x);
   const expandedAlertBackground = await alert.evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).backgroundColor);
   await expect(icon).toHaveCSS('transform', 'none');

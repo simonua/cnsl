@@ -130,72 +130,58 @@ function setPoolListStatus(message, isBusy) {
 }
 
 /**
- * Load and display season information
+ * Center today's column within visible weekly calendar schedules without moving the page.
+ * @param {Document|Element} root - Container to search for visible calendars
+ */
+function scrollCalendarsToToday(root = document) {
+  root.querySelectorAll('.schedule-calendar').forEach(calendar => {
+    const today = calendar.querySelector('.schedule-calendar__day.is-today');
+    if (!today || calendar.clientWidth === 0) return;
+
+    const calendarBounds = calendar.getBoundingClientRect();
+    const todayBounds = today.getBoundingClientRect();
+    const centeredLeft = calendar.scrollLeft + todayBounds.left - calendarBounds.left
+      - ((calendar.clientWidth - todayBounds.width) / 2);
+    const maximumLeft = calendar.scrollWidth - calendar.clientWidth;
+    const scrollLeft = Math.max(0, Math.min(maximumLeft, centeredLeft));
+    const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+    calendar.scrollTo({ left: scrollLeft, behavior });
+  });
+}
+
+/**
+ * Reveal a linked pool without placing its heading beneath the fixed site header.
+ * @param {Element} poolCard - Pool card selected from a cross-page link
+ */
+function scrollLinkedPoolIntoView(poolCard) {
+  const header = document.querySelector('.header');
+  const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
+  const scrollClearance = 12;
+  const top = Math.max(0, window.scrollY + poolCard.getBoundingClientRect().top - headerBottom - scrollClearance);
+  const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+  window.scrollTo({ top, behavior });
+}
+
+/**
+ * Load and display the official interactive CA pool directory action.
  */
 function loadSeasonInfo() {
   const seasonInfo = document.getElementById('seasonInfo');
   const poolData = poolBrowserDataManager ? poolBrowserDataManager.getSeasonInfo() : null;
   if (!seasonInfo) return;
 
-  if (poolData && poolData.seasonStartDate && poolData.seasonEndDate) {
-      // Parse dates and handle timezone offset to ensure correct display
-      const startDate = new Date(poolData.seasonStartDate + 'T12:00:00');
-      const endDate = new Date(poolData.seasonEndDate + 'T12:00:00');
-      
-      const startDateText = startDate.toLocaleDateString('en-US', { 
-        month: 'long', 
-        day: 'numeric' 
-      });
-      const endDateText = endDate.toLocaleDateString('en-US', { 
-        month: 'long', 
-        day: 'numeric' 
-      });
-      
-      // Add CA pool directory link if available
-      let caDirectoryLinkHtml = '';
-      const safeDirectoryUrl = PoolBrowserSafety.safeHttpUrl(poolData.caPoolDirectoryUrl);
-      if (safeDirectoryUrl) {
-        caDirectoryLinkHtml = `
-            <a href="${safeDirectoryUrl}" target="_blank" rel="noopener" class="directory-link">
-              📍 Interactive CA Pool Directory
-            </a>
-        `;
-      }
-      
-      // Add CA pool guide link if available
-      let caPoolGuideLinkHtml = '';
-      const safePoolGuideUrl = PoolBrowserSafety.safeHttpUrl(poolData.caPoolGuideUrl);
-      if (safePoolGuideUrl) {
-        caPoolGuideLinkHtml = `
-        <a href="${safePoolGuideUrl}" target="_blank" rel="noopener" class="directory-link">
-              📖 CA's ${YEAR} Pool Season
-            </a>
-        `;
-      }
-      
-      // Combine links horizontally if both exist
-      let linksHtml = '';
-      if (caDirectoryLinkHtml && caPoolGuideLinkHtml) {
-        linksHtml = `
-          <p class="ca-links">
-            ${caPoolGuideLinkHtml} ${caDirectoryLinkHtml}
-          </p>
-        `;
-      } else if (caDirectoryLinkHtml) {
-        linksHtml = `<p class="ca-directory-link">${caDirectoryLinkHtml}</p>`;
-      } else if (caPoolGuideLinkHtml) {
-        linksHtml = `<p class="ca-guide-link">${caPoolGuideLinkHtml}</p>`;
-      }
-      
-      seasonInfo.innerHTML = `
-        <p class="season-text">
-          The ${YEAR} CA Outdoor Pool season runs from <b>${startDateText}</b> to <b>${endDateText}</b><br/> 
-          <span class="season-note">(Memorial Day weekend to Labor Day weekend)</span>
-        </p>
-        ${linksHtml}
-      `;
+  const safeDirectoryUrl = poolData && PoolBrowserSafety.safeHttpUrl(poolData.caPoolDirectoryUrl);
+  if (safeDirectoryUrl) {
+    seasonInfo.hidden = false;
+    seasonInfo.innerHTML = `
+      <p class="ca-directory-link">
+        <a href="${safeDirectoryUrl}" target="_blank" rel="noopener" class="directory-link">
+          📍 Interactive CA Pool Directory
+        </a>
+      </p>
+    `;
   } else {
-    seasonInfo.innerHTML = '<p class="season-text">Season information unavailable</p>';
+    seasonInfo.hidden = true;
   }
 }
 
@@ -765,10 +751,8 @@ function renderPools(pools) {
     if (safePhoneUrl) {
       phoneHtml = `
         <div class="address-section__phone">
-          <strong>📞 Pool Desk:</strong>
-          <br>
-          <a href="${safePhoneUrl}" class="phone-link">
-            ${PoolBrowserSafety.escapeHtml(pool.phone)}
+          <a href="${safePhoneUrl}" class="phone-link" aria-label="Call ${safePoolName} pool desk at ${PoolBrowserSafety.escapeHtml(pool.phone)}">
+            <span aria-hidden="true">📞</span> ${PoolBrowserSafety.escapeHtml(pool.phone)}
           </a>
         </div>
       `;
@@ -787,14 +771,16 @@ function renderPools(pools) {
         <div class="pool-details" id="${detailsId}"${isFavorite ? '' : ' hidden'}>
           <div class="pool-contact">
             <div class="address-section">
-              <strong>📍 Address:</strong><br>
-              <a href="${safeMapsUrl}"
-                 target="_blank"
-                 rel="noopener"
-                 class="address-link">
-                ${safeStreetAddress ? `${safeStreetAddress}${safeCityStateZip ? '<br>' : ''}` : ''}${safeCityStateZip || (safeStreetAddress ? '' : 'Address not available')}
-              </a>
-              ${phoneHtml}
+              <div class="address-section__details">
+                <strong>📍 Address:</strong><br>
+                <a href="${safeMapsUrl}"
+                   target="_blank"
+                   rel="noopener"
+                   class="address-link">
+                  ${safeStreetAddress ? `${safeStreetAddress}${safeCityStateZip ? '<br>' : ''}` : ''}${safeCityStateZip || (safeStreetAddress ? '' : 'Address not available')}
+                </a>
+                ${phoneHtml}
+              </div>
               ${caLinkHtml}
             </div>
           </div>
@@ -806,6 +792,7 @@ function renderPools(pools) {
   }).join('');
 
   list.innerHTML = html;
+  scrollCalendarsToToday(list);
 }
 
 /**
@@ -829,16 +816,15 @@ function handlePoolUrlParameter() {
         const toggleButton = poolCard.querySelector('.pool-header__toggle');
         const details = poolCard.querySelector('.pool-details');
         if (toggleButton) toggleButton.setAttribute('aria-expanded', 'true');
-        if (details) details.hidden = false;
+        if (details) {
+          details.hidden = false;
+          scrollCalendarsToToday(details);
+        }
         
         // Add a highlight class for visual emphasis
         poolCard.classList.add('highlighted');
         
-        // Scroll to the pool card
-        poolCard.scrollIntoView({ 
-          behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
-          block: 'center' 
-        });
+        scrollLinkedPoolIntoView(poolCard);
         
         // Remove highlight after a few seconds
         setTimeout(() => {
@@ -863,7 +849,10 @@ function togglePoolCard(toggleButton) {
   const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
   poolCard.classList.toggle('collapsed', isExpanded);
   toggleButton.setAttribute('aria-expanded', String(!isExpanded));
-  if (details) details.hidden = isExpanded;
+  if (details) {
+    details.hidden = isExpanded;
+    if (!isExpanded) scrollCalendarsToToday(details);
+  }
 }
 
 // ------------------------------
@@ -957,6 +946,7 @@ function refreshPoolDisplay(poolId) {
       
       // Re-setup event handlers for the new controls
       setupPoolNavigationHandlers();
+      scrollCalendarsToToday(poolCard);
     }
   }
 }
