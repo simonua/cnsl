@@ -472,10 +472,6 @@ function renderTeams(teams) {
               `<a href="${team.practice.url}" target="_blank" rel="noopener" class="btn">📅 Practice Schedule</a>` : 
               ''
             }
-            ${team.resultsUrl ? 
-              `<a href="${team.resultsUrl}" target="_blank" rel="noopener" class="btn">🏆 Swim Meet Results</a>` : 
-              ''
-            }
           </div>
         </div>
       </div>
