@@ -2176,8 +2176,15 @@ button[aria-label*="Voice"]:active {
   padding: 0;
 }
 
-.team-staff__list li {
+.team-staff__list li,
+.team-staff__contacts li {
   margin-bottom: 0.5rem;
+}
+
+.team-staff__contacts {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
 }
 
 .team-staff__name,
@@ -2191,6 +2198,7 @@ button[aria-label*="Voice"]:active {
 }
 
 .team-staff__role,
+.team-staff__email,
 .team-staff__empty,
 .team-staff__note {
   color: var(--text-muted);
@@ -2199,6 +2207,11 @@ button[aria-label*="Voice"]:active {
 
 .team-staff__empty {
   margin: 0;
+}
+
+.team-staff__email {
+  display: block;
+  overflow-wrap: anywhere;
 }
 
 .team-staff__note {

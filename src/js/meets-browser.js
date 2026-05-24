@@ -39,6 +39,14 @@ async function renderMeets(meets) {
   // Initialize data manager for pool links
   await initializeMeetsBrowser();
 
+  const favoriteTeamId = PreferencesService.get().favoriteTeamId;
+  const favoriteTeam = PreferencesService.findFavoriteTeam(meetsBrowserDataManager.getTeams().getAllTeams(), favoriteTeamId);
+  const formatTeamLabel = (label, className) => {
+    const displayLabel = label || (className === 'home-team' ? 'Home Team' : 'Visiting Team');
+    const isFavorite = PreferencesService.teamMatchesLabel(favoriteTeam, displayLabel);
+    return `<span class="${className}${isFavorite ? ' favorite-team' : ''}">${displayLabel}${isFavorite ? '<span class="favorite-badge">Favorite team</span>' : ''}</span>`;
+  };
+
   // Get current date for highlighting upcoming meets - simplified approach
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Normalize to start of day
@@ -163,6 +171,7 @@ async function renderMeets(meets) {
 
       // Handle special meets (Time Trials, Championships) differently
       const isSpecialMeet = !meet.visiting_team && !meet.home_team && !meet.awayTeam && !meet.homeTeam;
+      const isFavoriteMeet = PreferencesService.meetIncludesFavoriteTeam(meet, favoriteTeam);
       
       // Check if this is a meet involving Long Reach Marlins that has occurred or is happening today
       const isLongReachMeet = (meet.visiting_team && meet.visiting_team.includes('Long Reach')) || 
@@ -195,12 +204,13 @@ async function renderMeets(meets) {
         `;
       } else {
         meetContent = `
-          <div class="meet-details">
+          <div class="meet-details${isFavoriteMeet ? ' favorite-meet' : ''}">
             <div class="meet-info">
+              ${isFavoriteMeet ? '<span class="favorite-meet__label">Favorite team meet</span>' : ''}
               <div class="meet-teams">
-                <span class="home-team">${meet.home_team || meet.homeTeam || 'Home Team'}</span>
+                ${formatTeamLabel(meet.home_team || meet.homeTeam, 'home-team')}
                 <span class="vs">vs.</span>
-                <span class="visiting-team">${meet.visiting_team || meet.awayTeam || 'Visiting Team'}</span>
+                ${formatTeamLabel(meet.visiting_team || meet.awayTeam, 'visiting-team')}
               </div>
               <div class="meet-location-time">
                 <div class="meet-location-row">

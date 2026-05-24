@@ -75,10 +75,12 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
     return this.getAllTeams().filter(team => {
       const pools = [...(team.homePools || []), ...(team.practicePools || [])];
       const staff = [...this.getTeamCoaches(team), ...this.getTeamManagers(team)];
+      const contacts = this.getTeamContacts(team);
       return (
         team.name.toLowerCase().includes(term) ||
         pools.some(pool => pool.toLowerCase().includes(term)) ||
-        staff.some(member => member.name.toLowerCase().includes(term)) ||
+        staff.some(member => member.name.toLowerCase().includes(term) || (member.email && member.email.toLowerCase().includes(term))) ||
+        contacts.some(contact => contact.email.toLowerCase().includes(term)) ||
         (team.poolName && team.poolName.toLowerCase().includes(term)) ||
         (team.coach && team.coach.toLowerCase().includes(term)) ||
         (team.division && team.division.toLowerCase().includes(term))
@@ -137,6 +139,15 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
    */
   getTeamManagers(team) {
     return team.staff && Array.isArray(team.staff.managers) ? team.staff.managers : [];
+  }
+
+  /**
+   * Get publicly published shared staff contacts for a team.
+   * @param {Object} team - Team object
+   * @returns {Array} - Published contact records
+   */
+  getTeamContacts(team) {
+    return team.staff && Array.isArray(team.staff.contacts) ? team.staff.contacts : [];
   }
 
   /**
@@ -246,13 +257,16 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
   getTeamContact(teamName) {
     const team = this.getTeam(teamName);
     if (!team) return null;
+    const staffWithEmail = [...this.getTeamCoaches(team), ...this.getTeamManagers(team)].find(member => member.email);
+    const sharedContact = this.getTeamContacts(team)[0];
 
     return {
       teamName: team.name,
       coaches: this.getTeamCoaches(team),
       managers: this.getTeamManagers(team),
+      contacts: this.getTeamContacts(team),
       coach: (this.getTeamCoaches(team)[0] && this.getTeamCoaches(team)[0].name) || team.coach || 'Not specified',
-      email: team.email || 'Not available',
+      email: (staffWithEmail && staffWithEmail.email) || (sharedContact && sharedContact.email) || team.email || 'Not available',
       phone: team.phone || 'Not available',
       poolName: (team.homePools && team.homePools[0]) || team.poolName || 'Not specified'
     };
@@ -317,11 +331,12 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
       division: team.division || 'Not specified',
       coaches: this.getTeamCoaches(team),
       managers: this.getTeamManagers(team),
+      contacts: this.getTeamContacts(team),
       coach: (this.getTeamCoaches(team)[0] && this.getTeamCoaches(team)[0].name) || team.coach || 'Not specified',
       memberCount: team.roster ? team.roster.length : 0,
       hasSchedule: !!(team.schedule && team.schedule.length > 0),
       contact: {
-        hasEmail: !!team.email,
+        hasEmail: !!team.email || [...this.getTeamCoaches(team), ...this.getTeamManagers(team)].some(member => !!member.email) || this.getTeamContacts(team).length > 0,
         hasPhone: !!team.phone
       }
     }));

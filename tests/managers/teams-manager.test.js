@@ -71,6 +71,12 @@ describe('TeamsManager', () => {
       assert.deepEqual(results.map(team => team.name), ['Bryant Woods Barracudas']);
     });
 
+    it('finds teams by publicly listed staff email', () => {
+      manager.loadData(createSampleTeamsData());
+      const results = manager.searchTeams('managers@example.com');
+      assert.deepEqual(results.map(team => team.name), ['Bryant Woods Barracudas']);
+    });
+
     it('finds teams by practice pool', () => {
       manager.loadData(createSampleTeamsData());
       const results = manager.searchTeams('Running Brook');
@@ -110,6 +116,7 @@ describe('TeamsManager', () => {
         assert.match(team.staff.verifiedOn, /^\d{4}-\d{2}-\d{2}$/);
         assert.ok(Array.isArray(team.staff.coaches));
         assert.ok(Array.isArray(team.staff.managers));
+        assert.ok(Array.isArray(team.staff.contacts));
       });
     });
   });
@@ -133,8 +140,10 @@ describe('TeamsManager', () => {
 
       assert.equal(contact.poolName, 'Bryant Woods');
       assert.equal(contact.coach, 'Jane Smith');
-      assert.deepEqual(contact.coaches, [{ name: 'Jane Smith', role: 'Head Coach' }]);
+      assert.equal(contact.email, 'jane@example.com');
+      assert.deepEqual(contact.coaches, [{ name: 'Jane Smith', role: 'Head Coach', email: 'jane@example.com' }]);
       assert.deepEqual(contact.managers, [{ name: 'Alex Rivera', role: 'Team Manager' }]);
+      assert.deepEqual(contact.contacts, [{ audience: 'managers', label: 'Team managers', email: 'managers@example.com' }]);
     });
   });
 
@@ -148,6 +157,7 @@ describe('TeamsManager', () => {
       assert.ok('division' in summaries[0]);
       assert.equal(summaries[0].coach, 'Jane Smith');
       assert.deepEqual(summaries[0].managers, [{ name: 'Alex Rivera', role: 'Team Manager' }]);
+      assert.deepEqual(summaries[0].contacts, [{ audience: 'managers', label: 'Team managers', email: 'managers@example.com' }]);
     });
   });
 

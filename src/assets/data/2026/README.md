@@ -8,7 +8,7 @@ The 2026 folder is the active season selected by the application. Pools, meets, 
 | --- | --- | --- | --- |
 | Pools | `pools/pools.json`, `pools/pools.schema.json`, and 23 PDFs in `pools/pool-schedules/` | Ready, including facility features | Columbia Association pool pages and directory URLs are recorded in `pools/pools.json` |
 | Meets | `meets/meets.json`, `meets/meets.schema.json`, and one PDF in `meets/meet-schedules/` | Ready | Official CNSL meet schedule downloaded and transcribed |
-| Teams | `teams/teams.json`, `teams/teams.schema.json`, and two PDFs in `teams/team-schedules/` | Ready, including public team staff listings | Official CNSL practice and team-assignment documents retained; supported team fields and publicly listed coaches/managers transcribed |
+| Teams | `teams/teams.json`, `teams/teams.schema.json`, and two PDFs in `teams/team-schedules/` | Ready | Official CNSL practice and team-assignment documents retained; supported team fields transcribed |
 
 ## Pools
 
@@ -37,8 +37,6 @@ The stored meet PDF is the authoritative source used to create `meets/meets.json
 
 The practice-schedule PDF supplies the current team pool associations recorded in `teams/teams.json`. The team-assignment PDF is retained as the official registration-assignment source; neighborhood and school assignment matrices are not represented in the existing 2025-modeled application schema.
 
-Public coaches and team-manager listings were checked on 2026-05-24 from each team's public site; each reviewed page is retained as `teams[].staff.sourceUrl`. The transcription records displayed roles and names only. Clemens Crossing and Huntington publish coach names without manager names, Kings Contrivance publishes coach first names only, Oakland Mills publishes manager first names only, Dorsey Search displays a coach identified as `2024 Coach` rather than a current roster, and Wilde Lake's page displays board members but no coaches or team managers.
-
 ## Publication Page
 
 The 2026 CNSL downloads above were verified from the official [CNSL home page](https://www.gomotionapp.com/team/reccnsl/page/home) on 2026-05-23.
@@ -47,5 +45,5 @@ The 2026 CNSL downloads above were verified from the official [CNSL home page](h
 
 - Missing pool facility features were completed from each official Columbia Association pool-location page on 2026-05-24, while existing CA-backed values were retained. The update combines the pages' facility descriptions and Amenities lists, normalizing terms to schema labels such as `lap`, `play features`, and `splash` while retaining specifically published amenities such as `heated`, `climbing wall`, and `sensory friendly`.
 - The meets file transcribes the five scheduled dual-meet dates and three special-meet entries from the official PDF.
-- The teams file preserves the stable team IDs and destination URL pattern from the archived model, updating current home and practice pool associations from official 2026 sources and adding publicly displayed staff records sourced from each team website.
+- The teams file preserves the stable team IDs and destination URL pattern from the archived model, updating current home and practice pool associations from official 2026 sources.
 - The central practice PDF supplies pool associations and team-wide practice windows, while directing families to each team for age-group times; the 2025-modeled JSON records the supported pool associations. Registration-assignment matrices remain in their official PDF because the application schema does not model them.

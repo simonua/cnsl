@@ -7,7 +7,17 @@
         Please verify schedule details with official CA and CNSL sources.
       </p>
     </div>
+    <section class="install-app" id="installApp" aria-label="Install app" hidden>
+      <button class="install-app__button" id="installAppButton" type="button">Install app</button>
+      <p class="install-app__instructions" id="iosInstallInstructions" tabindex="-1" hidden>
+        On iPhone or iPad, open this page in Safari if needed, tap Share, then tap Add to Home Screen.
+      </p>
+    </section>
     <!-- <include src="components/search.html"></include> -->
     <include src="components/quick-links.html"></include>
+  </block>
+
+  <block name="scripts">
+    <script src="js/install-app.js" defer></script>
   </block>
 </extends>

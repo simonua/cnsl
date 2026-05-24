@@ -12,14 +12,17 @@
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslcfhss/page/system/coaches",
         "verifiedOn": "2026-05-24",
         "coaches": [
-          { "name": "Coach Kat", "role": "Head Coach" },
-          { "name": "Coach Connor", "role": "Assistant Coach" },
-          { "name": "Coach Mich", "role": "Assistant Coach" },
-          { "name": "Coach Jack", "role": "Assistant Coach" }
+          { "name": "Coach Kat", "role": "Head Coach", "email": "katherine.barger@columbiaassociation.org" },
+          { "name": "Coach Connor", "role": "Assistant Coach", "email": "connor.hoy@columbiaassociation.org" },
+          { "name": "Coach Mich", "role": "Assistant Coach", "email": "michaela.stjohn@columbiaassociation.org" },
+          { "name": "Coach Jack", "role": "Assistant Coach", "email": "jack.pettiford@columbiaassociation.org" }
         ],
         "managers": [
           { "name": "David Saunier", "role": "Team Manager" },
           { "name": "Kristin Burns", "role": "Team Manager" }
+        ],
+        "contacts": [
+          { "audience": "managers", "label": "Team managers", "email": "chs.sundevils.managers@gmail.com" }
         ],
         "note": "Coach names are listed as displayed on the team site."
       }
@@ -35,12 +38,15 @@
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslccc/page/system/coaches",
         "verifiedOn": "2026-05-24",
         "coaches": [
-          { "name": "Nick Barnes", "role": "Head Coach" },
-          { "name": "Sofia Hufft", "role": "Assistant Coach" },
-          { "name": "Sofia Luo", "role": "Assistant Coach" },
-          { "name": "Yaakov Englander", "role": "Assistant Coach" }
+          { "name": "Nick Barnes", "role": "Head Coach", "email": "nicholas.barnes@columbiaassociation.org" },
+          { "name": "Sofia Hufft", "role": "Assistant Coach", "email": "sofia.hufft@columbiaassociation.org" },
+          { "name": "Sofia Luo", "role": "Assistant Coach", "email": "sofia.luo@columbiaassociation.org" },
+          { "name": "Yaakov Englander", "role": "Assistant Coach", "email": "yaakov.englander@columbiaassociation.org" }
         ],
         "managers": [],
+        "contacts": [
+          { "audience": "managers", "label": "Team managers", "email": "clemenscyclones@gmail.com" }
+        ],
         "note": "The public page provides a team-manager email address but does not list manager names."
       }
     },
@@ -55,9 +61,10 @@
         "sourceUrl": "https://www.gomotionapp.com/team/reccnsldsd/page/system/coaches",
         "verifiedOn": "2026-05-24",
         "coaches": [
-          { "name": "Nicholas Shidle", "role": "2024 Coach" }
+          { "name": "Nicholas Shidle", "role": "2024 Coach", "email": "shidlefamily@gmail.com" }
         ],
         "managers": [],
+        "contacts": [],
         "note": "The public staff page has not published a current-season coach or manager roster."
       }
     },
@@ -80,7 +87,8 @@
         "managers": [
           { "name": "Angie Netro", "role": "Manager" },
           { "name": "Eileen Brewer", "role": "Manager" }
-        ]
+        ],
+        "contacts": []
       }
     },
     {
@@ -98,6 +106,7 @@
           { "name": "Sophia Gonzalez", "role": "Assistant Coach" }
         ],
         "managers": [],
+        "contacts": [],
         "note": "No team manager names are published on the public staff page."
       }
     },
@@ -112,12 +121,13 @@
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslkcw/page/about/meet-the-people",
         "verifiedOn": "2026-05-24",
         "coaches": [
-          { "name": "Coach Susanna", "role": "Coach" },
-          { "name": "Coach Thomas", "role": "Coach" },
-          { "name": "Coach Nathan", "role": "Coach" },
-          { "name": "Coach Julia", "role": "Coach" }
+          { "name": "Coach Susanna", "role": "Coach", "email": "Susanna.Decker@columbiaassociation.org" },
+          { "name": "Coach Thomas", "role": "Coach", "email": "Thomas.Pecora@columbiaassociation.org" },
+          { "name": "Coach Nathan", "role": "Coach", "email": "Nathan.Hise@columbiaassociation.org" },
+          { "name": "Coach Julia", "role": "Coach", "email": "Julia.Abernethy@columbiaassociation.org" }
         ],
         "managers": [],
+        "contacts": [],
         "note": "Coach names are listed as displayed on the team site; no manager names are published there."
       }
     },
@@ -133,7 +143,7 @@
         "sourceUrl": "https://www.gomotionapp.com/team/reccnsllrm/page/system/coaches",
         "verifiedOn": "2026-05-24",
         "coaches": [
-          { "name": "Taylor Harriman", "role": "Head Coach" },
+          { "name": "Taylor Harriman", "role": "Head Coach", "email": "taylor.harriman@columbiaassociation.org" },
           { "name": "Ryan LeVesque", "role": "Assistant Coach" },
           { "name": "Mihir Malvankar", "role": "Assistant Coach" },
           { "name": "Evan Alliger", "role": "Assistant Coach" }
@@ -142,6 +152,9 @@
           { "name": "Carolyn Cosentino", "role": "Co-Manager" },
           { "name": "Rachel Schaaf", "role": "Co-Manager" },
           { "name": "Melissa Nauman", "role": "Co-Manager" }
+        ],
+        "contacts": [
+          { "audience": "managers", "label": "Team managers", "email": "cnsl.lrm.tm@gmail.com" }
         ]
       }
     },
@@ -167,6 +180,9 @@
           { "name": "Tricia", "role": "Team Manager" },
           { "name": "Ami", "role": "Team Manager" }
         ],
+        "contacts": [
+          { "audience": "managers", "label": "Team managers", "email": "omtsmanager@gmail.com" }
+        ],
         "note": "Manager names are listed by first name only on the public team page."
       }
     },
@@ -181,13 +197,17 @@
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslobb/page/system/coaches",
         "verifiedOn": "2026-05-24",
         "coaches": [
-          { "name": "Ryan Megdiche", "role": "Head Coach" },
-          { "name": "Lexi Sloan", "role": "Assistant Coach" }
+          { "name": "Ryan Megdiche", "role": "Head Coach", "email": "ryan.megdiche@columbiaassociation.org" },
+          { "name": "Lexi Sloan", "role": "Assistant Coach", "email": "alexandra.sloan@columbiaassociation.org" }
         ],
         "managers": [
-          { "name": "Jean-Marie Baldi", "role": "Team Manager" },
-          { "name": "Katy Do", "role": "Team Manager" },
-          { "name": "Elizabeth Heerdt", "role": "Team Manager" }
+          { "name": "Jean-Marie Baldi", "role": "Team Manager", "email": "jmbaldi@owenbrownbarracudas.com" },
+          { "name": "Katy Do", "role": "Team Manager", "email": "katy@owenbrownbarracudas.com" },
+          { "name": "Elizabeth Heerdt", "role": "Team Manager", "email": "ej@owenbrownbarracudas.com" }
+        ],
+        "contacts": [
+          { "audience": "coaches", "label": "All coaches", "email": "coaches@owenbrownbarracudas.com" },
+          { "audience": "managers", "label": "All managers", "email": "managers@owenbrownbarracudas.com" }
         ]
       }
     },
@@ -202,15 +222,18 @@
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslprr/page/system/coaches",
         "verifiedOn": "2026-05-24",
         "coaches": [
-          { "name": "Reid Thomas", "role": "Head Coach" },
-          { "name": "Tim Wang", "role": "Assistant Coach" },
-          { "name": "Lily Zhang", "role": "Assistant Coach" },
-          { "name": "Weiming Li", "role": "Assistant Coach" }
+          { "name": "Reid Thomas", "role": "Head Coach", "email": "reid.thomas@columbiaassociation.org" },
+          { "name": "Tim Wang", "role": "Assistant Coach", "email": "timothy.wang@columbiaassociation.org" },
+          { "name": "Lily Zhang", "role": "Assistant Coach", "email": "lily.zhang@columbiaassociation.org" },
+          { "name": "Weiming Li", "role": "Assistant Coach", "email": "weiming.li@columbiaassociation.org" }
         ],
         "managers": [
           { "name": "Amy Chung", "role": "Team Manager" },
           { "name": "Bridget Celedon", "role": "Team Manager" },
           { "name": "Jane Mutembo", "role": "Team Manager" }
+        ],
+        "contacts": [
+          { "audience": "managers", "label": "Team managers", "email": "gorapidsswim@gmail.com" }
         ]
       }
     },
@@ -225,12 +248,13 @@
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslpls/page/system/coaches",
         "verifiedOn": "2026-05-24",
         "coaches": [
-          { "name": "Marisa Otero", "role": "PL Snappers Head Coach" }
+          { "name": "Marisa Otero", "role": "PL Snappers Head Coach", "email": "Marisa.Otero@columbiaassociation.org" }
         ],
         "managers": [
-          { "name": "Christine Happel", "role": "PL Snappers Manager" },
-          { "name": "Sara Bricker", "role": "PL Snappers Manager" }
-        ]
+          { "name": "Christine Happel", "role": "PL Snappers Manager", "email": "happymarcin@yahoo.com" },
+          { "name": "Sara Bricker", "role": "PL Snappers Manager", "email": "saranelsonus@hotmail.com" }
+        ],
+        "contacts": []
       }
     },
     {
@@ -244,7 +268,7 @@
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslprp/page/system/coaches",
         "verifiedOn": "2026-05-24",
         "coaches": [
-          { "name": "Claire Pecora", "role": "Head Coach" },
+          { "name": "Claire Pecora", "role": "Head Coach", "email": "claire.pecora@columbiaassociation.org" },
           { "name": "Ryan Rhee", "role": "Assistant Coach" },
           { "name": "Haruki Ohtani", "role": "Assistant Coach" },
           { "name": "Izzy Baek", "role": "Assistant Coach" }
@@ -253,6 +277,9 @@
           { "name": "Ryan Casavant", "role": "Manager" },
           { "name": "Faith Keller", "role": "Manager" },
           { "name": "Ryann Morrow", "role": "Manager" }
+        ],
+        "contacts": [
+          { "audience": "managers", "label": "Managers", "email": "pointersrunpiranhas@gmail.com" }
         ]
       }
     },
@@ -267,16 +294,17 @@
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslthl/page/system/coaches",
         "verifiedOn": "2026-05-24",
         "coaches": [
-          { "name": "Nick Scheid", "role": "Head Coach" },
-          { "name": "Roman Kowalczyk", "role": "Assistant Coach" },
-          { "name": "John Bialeski", "role": "Assistant Coach" },
-          { "name": "Rosie Norton", "role": "Assistant Coach" }
+          { "name": "Nick Scheid", "role": "Head Coach", "email": "nicholas.scheid@columbiaassociation.org" },
+          { "name": "Roman Kowalczyk", "role": "Assistant Coach", "email": "roman.kowalczyk@columbiaassociation.org" },
+          { "name": "John Bialeski", "role": "Assistant Coach", "email": "john.bialeski@columbiaassociation.org" },
+          { "name": "Rosie Norton", "role": "Assistant Coach", "email": "rosalie.norton@columbiaassociation.org" }
         ],
         "managers": [
-          { "name": "Laura Schappelle", "role": "Team Manager" },
-          { "name": "Erica Shaw", "role": "Team Manager" },
-          { "name": "Jen Munro", "role": "Team Manager" }
-        ]
+          { "name": "Laura Schappelle", "role": "Team Manager", "email": "scottlc24@hotmail.com" },
+          { "name": "Erica Shaw", "role": "Team Manager", "email": "shaw.erica@gmail.com" },
+          { "name": "Jen Munro", "role": "Team Manager", "email": "jennabea22@gmail.com" }
+        ],
+        "contacts": []
       }
     },
     {
@@ -291,6 +319,7 @@
         "verifiedOn": "2026-05-24",
         "coaches": [],
         "managers": [],
+        "contacts": [],
         "note": "The public staff page lists board members, but does not publish coaches or people titled team manager."
       }
     }

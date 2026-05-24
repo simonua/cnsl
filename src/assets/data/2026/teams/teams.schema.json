@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft-07/schema#",
   "$id": "https://example.com/teams.schema.json",
-  "version": "V2",
+  "version": "V3",
   "title": "Team Data Schema",
   "description": "Schema for team data containing practice schedules and team information",
   "type": "object",
@@ -89,11 +89,17 @@
             "$ref": "#/definitions/StaffMember"
           }
         },
+        "contacts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/StaffContact"
+          }
+        },
         "note": {
           "$ref": "#/definitions/NonEmptyString"
         }
       },
-      "required": ["sourceUrl", "verifiedOn", "coaches", "managers"],
+      "required": ["sourceUrl", "verifiedOn", "coaches", "managers", "contacts"],
       "additionalProperties": false
     },
     "StaffMember": {
@@ -104,9 +110,29 @@
         },
         "role": {
           "$ref": "#/definitions/NonEmptyString"
+        },
+        "email": {
+          "$ref": "#/definitions/EmailAddress"
         }
       },
       "required": ["name", "role"],
+      "additionalProperties": false
+    },
+    "StaffContact": {
+      "type": "object",
+      "properties": {
+        "audience": {
+          "type": "string",
+          "enum": ["coaches", "managers"]
+        },
+        "label": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "email": {
+          "$ref": "#/definitions/EmailAddress"
+        }
+      },
+      "required": ["audience", "label", "email"],
       "additionalProperties": false
     },
     "DetailedPractice": {
@@ -262,6 +288,11 @@
     "NonEmptyString": {
       "type": "string",
       "minLength": 1
+    },
+    "EmailAddress": {
+      "type": "string",
+      "format": "email",
+      "minLength": 3
     }
   }
 }

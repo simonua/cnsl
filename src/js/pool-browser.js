@@ -585,12 +585,14 @@ function renderPools(pools) {
     return;
   }
 
-  // Sort pools by name alphabetically
-  const sortedPools = [...pools].sort((a, b) => {
+  const favoritePoolName = PreferencesService.get().favoritePoolName;
+  const comparePools = (a, b) => {
     const nameA = (a && a.name) ? a.name : '';
     const nameB = (b && b.name) ? b.name : '';
     return nameA.localeCompare(nameB);
-  });
+  };
+  const sortedPools = PreferencesService.sortWithFavorite(pools, favoritePoolName, pool => pool.name || '', comparePools);
+  const favoritePool = sortedPools.find(pool => pool.name === favoritePoolName);
 
   // If we have user location, calculate distances
   if (userCoords) {
@@ -611,6 +613,7 @@ function renderPools(pools) {
     const poolName = pool.name || 'Unknown Pool';
     const poolId = pool.id || '';
     const features = pool.features || [];
+    const isFavorite = poolName === favoritePoolName;
     
     let distanceHtml = '';
     if (pool.distance !== undefined && !isNaN(pool.distance)) {
@@ -710,9 +713,9 @@ function renderPools(pools) {
     }
 
     return `
-      <div class="pool-card collapsed" data-pool-id="${poolId}">
+      <div class="pool-card ${isFavorite ? 'favorite-card' : 'collapsed'}" data-pool-id="${poolId}">
         <div class="pool-header" onclick="togglePoolCard(this)">
-          <h3>${statusIndicatorHtml}${poolName}</h3>
+          <h3>${statusIndicatorHtml}${poolName}${isFavorite ? '<span class="favorite-badge">Favorite pool</span>' : ''}</h3>
           ${distanceHtml}
         </div>
         <div class="pool-details">
@@ -734,7 +737,10 @@ function renderPools(pools) {
     `;
   }).join('');
 
-  list.innerHTML = html;
+  const favoriteSummary = favoritePool
+    ? `<p class="favorite-summary"><strong>Favorite pool:</strong> ${favoritePool.name} is shown first.</p>`
+    : '';
+  list.innerHTML = favoriteSummary + html;
 }
 
 /**

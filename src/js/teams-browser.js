@@ -281,6 +281,64 @@ function createTeamLogo(teamId, teamName) {
 }
 
 /**
+ * Format publicly published team staff and contact addresses for display.
+ * @param {Object} staff - Staff data from the team source record
+ * @returns {string} - HTML for coaches and team managers
+ */
+function formatTeamStaff(staff) {
+  if (!staff) return '';
+
+  const compareByName = (first, second) => first.name.localeCompare(second.name, undefined, { sensitivity: 'base' });
+  const getCoachRank = member => {
+    const role = member.role.toLowerCase();
+    if (role.includes('head coach')) return 0;
+    if (role.includes('assistant coach')) return 1;
+    return 2;
+  };
+  const coaches = Array.isArray(staff.coaches) ? [...staff.coaches].sort((first, second) => (
+    getCoachRank(first) - getCoachRank(second) || compareByName(first, second)
+  )) : [];
+  const managers = Array.isArray(staff.managers) ? [...staff.managers].sort(compareByName) : [];
+  const contacts = Array.isArray(staff.contacts) ? [...staff.contacts].sort((first, second) => (
+    first.label.localeCompare(second.label, undefined, { sensitivity: 'base' })
+  )) : [];
+  const formatEmail = email => email ? `<a class="team-staff__email" href="mailto:${email}">${email}</a>` : '';
+  const formatMembers = (members, emptyMessage) => {
+    if (members.length === 0) return `<p class="team-staff__empty">${emptyMessage}</p>`;
+
+    return `<ul class="team-staff__list">${members.map(member => `
+      <li><span class="team-staff__name">${member.name}</span><span class="team-staff__role">${member.role}</span>${formatEmail(member.email)}</li>
+    `).join('')}</ul>`;
+  };
+  const formatContacts = audience => {
+    const matchingContacts = contacts.filter(contact => contact.audience === audience);
+    if (matchingContacts.length === 0) return '';
+
+    return `<ul class="team-staff__contacts">${matchingContacts.map(contact => `
+      <li><span class="team-staff__role">${contact.label}</span>${formatEmail(contact.email)}</li>
+    `).join('')}</ul>`;
+  };
+
+  return `
+    <section class="team-staff" aria-label="Publicly listed team staff">
+      <h4>Coaches &amp; Managers</h4>
+      <div class="team-staff__columns">
+        <div>
+          ${formatMembers(coaches, 'No current coach names publicly listed.')}
+          ${formatContacts('coaches')}
+        </div>
+        <div>
+          ${formatMembers(managers, 'No team manager names publicly listed.')}
+          ${formatContacts('managers')}
+        </div>
+      </div>
+      ${staff.note ? `<p class="team-staff__note">${staff.note}</p>` : ''}
+      <a class="team-staff__source" href="${staff.sourceUrl}" target="_blank" rel="noopener">View public staff source</a>
+    </section>
+  `;
+}
+
+/**
  * Toggles the collapsed state of a team card
  * @param {Element} headerElement - The clicked header element
  */
@@ -304,18 +362,21 @@ function renderTeams(teams) {
     return;
   }
 
-  // Sort teams by name alphabetically
-  const sortedTeams = [...teams].sort((a, b) => {
+  const favoriteTeamId = PreferencesService.get().favoriteTeamId;
+  const compareTeams = (a, b) => {
     const nameA = (a && a.name) ? a.name : '';
     const nameB = (b && b.name) ? b.name : '';
     return nameA.localeCompare(nameB);
-  });
+  };
+  const sortedTeams = PreferencesService.sortWithFavorite(teams, favoriteTeamId, team => team.id || '', compareTeams);
+  const favoriteTeam = PreferencesService.findFavoriteTeam(sortedTeams, favoriteTeamId);
 
   // Generate HTML for each team
   const html = sortedTeams.map(team => {
     const teamName = team.name || 'Unknown Team';
     const teamId = team.id || '';
     const teamUrl = team.url || '#';
+    const isFavorite = teamId === favoriteTeamId;
     const homePools = Array.isArray(team.homePools) ? team.homePools : [];
     const homePool = homePools[0] || '';
     
@@ -330,6 +391,7 @@ function renderTeams(teams) {
     
     // Format current practice schedule (no preseason)
     const practiceScheduleHtml = formatCurrentPracticeSchedule(team.practice);
+    const staffHtml = formatTeamStaff(team.staff);
     
     // Create upcoming practices HTML for header area
     let upcomingPracticesHtml = '';
@@ -368,11 +430,11 @@ function renderTeams(teams) {
     }
     
     return `
-      <div class="team-card collapsed" data-team-id="${teamId}">
+      <div class="team-card ${isFavorite ? 'favorite-card' : 'collapsed'}" data-team-id="${teamId}">
         <div class="team-header" onclick="toggleTeamCard(this)">
           ${logoHtml}
           <div class="team-header-content">
-            <h3>${teamName}</h3>
+            <h3>${teamName}${isFavorite ? '<span class="favorite-badge">Favorite team</span>' : ''}</h3>
           </div>
         </div>
         
@@ -387,6 +449,8 @@ function renderTeams(teams) {
               }
             </div>
           ` : ''}
+
+          ${staffHtml}
           
           ${practiceScheduleHtml}
           
@@ -406,7 +470,10 @@ function renderTeams(teams) {
     `;
   }).join('');
 
-  list.innerHTML = html;
+  const favoriteSummary = favoriteTeam
+    ? `<p class="favorite-summary"><strong>Favorite team:</strong> ${favoriteTeam.name} is shown first.</p>`
+    : '';
+  list.innerHTML = favoriteSummary + html;
 }
 
 /**

@@ -63,8 +63,9 @@ function createSampleTeamsData() {
         staff: {
           sourceUrl: 'https://example.com/bwb/staff',
           verifiedOn: '2026-05-24',
-          coaches: [{ name: 'Jane Smith', role: 'Head Coach' }],
-          managers: [{ name: 'Alex Rivera', role: 'Team Manager' }]
+          coaches: [{ name: 'Jane Smith', role: 'Head Coach', email: 'jane@example.com' }],
+          managers: [{ name: 'Alex Rivera', role: 'Team Manager' }],
+          contacts: [{ audience: 'managers', label: 'Team managers', email: 'managers@example.com' }]
         }
       },
       {
@@ -76,7 +77,8 @@ function createSampleTeamsData() {
           sourceUrl: 'https://example.com/krk/staff',
           verifiedOn: '2026-05-24',
           coaches: [{ name: 'John Doe', role: 'Head Coach' }],
-          managers: []
+          managers: [],
+          contacts: []
         }
       }
     ]
