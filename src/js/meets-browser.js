@@ -86,6 +86,10 @@ async function renderMeets(meets) {
     meetsByDate[dateKey].push(meet);
   });
 
+  Object.keys(meetsByDate).forEach(dateKey => {
+    meetsByDate[dateKey] = PreferencesService.sortMeetsWithFavorite(meetsByDate[dateKey], favoriteTeam);
+  });
+
   // Find the next upcoming meet date to expand
   let nextUpcomingDateKey = null;
   const dateKeys = Object.keys(meetsByDate);

@@ -179,6 +179,21 @@ test('directory disclosures work without rendered inline event handlers', async 
   await expect(page.locator('#meetList [onclick], #meetList [onerror]')).toHaveCount(0);
 });
 
+test('favorite team matchups appear first on every meet day they compete', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('cnsl_preferences', JSON.stringify({ favoriteTeamId: 'cfhss' }));
+  });
+  await page.goto('/meets.html');
+  await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
+
+  const favoriteDayPlacement = await page.locator('.meet-date-card').evaluateAll(cards => cards
+    .filter(card => card.querySelector('.favorite-meet'))
+    .map(card => card.querySelector('.meet-date-details > .meet-details').classList.contains('favorite-meet')));
+
+  expect(favoriteDayPlacement.length).toBeGreaterThan(1);
+  expect(favoriteDayPlacement.every(firstIsFavorite => firstIsFavorite)).toBe(true);
+});
+
 for (const scenario of [
   { path: '/pools.html', status: '#poolListStatus', surface: '.pool-card.collapsed', toggle: '.pool-header__toggle' },
   { path: '/teams.html', status: '#teamListStatus', surface: '.team-card.collapsed', toggle: '.team-header__toggle' },
@@ -222,7 +237,7 @@ test('pool directory encodes text and rejects unsafe published destinations', as
   await expect(page.locator('.phone-link').filter({ hasText: 'onclick=alert' })).toHaveCount(0);
 });
 
-test('desktop expanded pool details align contacts and fit the weekly calendar', async ({ page }) => {
+test('desktop expanded pool details group contact links and fit the weekly calendar', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.addInitScript(() => {
     localStorage.setItem('cnsl_preferences', JSON.stringify({
@@ -237,18 +252,26 @@ test('desktop expanded pool details align contacts and fit the weekly calendar',
   const calendar = favoriteCard.locator('.schedule-calendar');
   await expect(calendar).toBeVisible();
   const layout = await favoriteCard.evaluate(card => {
-    const addressBox = card.querySelector('.address-section').getBoundingClientRect();
-    const phoneBox = card.querySelector('.phone-section').getBoundingClientRect();
+    const addressSection = card.querySelector('.address-section');
+    const addressBox = addressSection.getBoundingClientRect();
+    const phoneBox = card.querySelector('.address-section__phone').getBoundingClientRect();
+    const caWebsiteBox = card.querySelector('.ca-website-section').getBoundingClientRect();
     const schedule = card.querySelector('.schedule-calendar');
     return {
       contactDisplay: card.ownerDocument.defaultView.getComputedStyle(card.querySelector('.pool-contact')).display,
-      addressLeftOfPhone: addressBox.right <= phoneBox.left,
+      addressHasAccentBorder: card.ownerDocument.defaultView.getComputedStyle(addressSection).borderLeftWidth === '3px',
+      addressIsCompact: addressBox.width <= 304,
+      phoneIsInsideAddress: phoneBox.top > addressBox.top && phoneBox.bottom <= addressBox.bottom,
+      caWebsiteIsInsideAddress: caWebsiteBox.top > phoneBox.bottom && caWebsiteBox.bottom <= addressBox.bottom,
       calendarFits: schedule.scrollWidth <= schedule.clientWidth + 1
     };
   });
 
-  expect(layout.contactDisplay).toBe('grid');
-  expect(layout.addressLeftOfPhone).toBe(true);
+  expect(layout.contactDisplay).toBe('flex');
+  expect(layout.addressHasAccentBorder).toBe(true);
+  expect(layout.addressIsCompact).toBe(true);
+  expect(layout.phoneIsInsideAddress).toBe(true);
+  expect(layout.caWebsiteIsInsideAddress).toBe(true);
   expect(layout.calendarFits).toBe(true);
 });
 
@@ -257,13 +280,17 @@ test('desktop site header remains visible while the pool directory scrolls', asy
   await page.goto('/pools.html');
   await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
 
-  const collapsedPoolToggles = page.locator('.pool-header__toggle[aria-expanded="false"]');
-  const toggleCount = await collapsedPoolToggles.count();
-  for (let index = toggleCount - 1; index >= 0; index -= 1) {
-    await collapsedPoolToggles.nth(index).click();
-  }
+  await page.locator('#mainContent').evaluate(main => {
+    const scrollSpacer = globalThis.document.createElement('div');
+    scrollSpacer.setAttribute('aria-hidden', 'true');
+    scrollSpacer.style.height = '100rem';
+    main.append(scrollSpacer);
+  });
 
-  await page.evaluate(() => globalThis.scrollTo(0, globalThis.document.documentElement.scrollHeight));
+  await page.evaluate(() => {
+    globalThis.document.documentElement.style.scrollBehavior = 'auto';
+    globalThis.scrollTo(0, globalThis.document.documentElement.scrollHeight);
+  });
   const scrollPosition = await page.evaluate(() => globalThis.scrollY);
   const headerTop = await page.locator('.header').evaluate(header => Math.round(header.getBoundingClientRect().top));
 
@@ -316,7 +343,7 @@ test('mobile weather safety alert keeps navigation visible and collapses with a 
   });
   const alert = page.locator('#weatherAlert');
   const toggle = page.getByRole('button', { name: 'Collapse weather safety alert' });
-  const action = page.getByRole('link', { name: 'View live CA pool status' });
+  const action = page.getByRole('link', { name: 'Live pool status' });
   const icon = page.locator('.weather-alert__toggle-icon');
   await expect(alert).toBeVisible();
   await expect(page.locator('.weather-alert__title')).toBeVisible();
@@ -326,8 +353,10 @@ test('mobile weather safety alert keeps navigation visible and collapses with a 
   expect(titleBackground).toBe(actionBackground);
   await expect(toggle).toHaveAttribute('aria-expanded', 'true');
   await expect(action).toBeVisible();
+  const expandedTitleBox = await page.locator('.weather-alert__title').boundingBox();
   const expandedToggleSize = await toggle.boundingBox();
   const expandedActionBox = await action.boundingBox();
+  expect(expandedTitleBox.x + expandedTitleBox.width).toBeLessThanOrEqual(expandedActionBox.x);
   const expandedAlertBackground = await alert.evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).backgroundColor);
   await expect(icon).toHaveCSS('transform', 'none');
   await expect(icon).toHaveCSS('transition-duration', '0s');
@@ -367,7 +396,7 @@ test('mobile weather safety alert keeps navigation visible and collapses with a 
   await page.goto('/about.html');
   const restoredToggle = page.getByRole('button', { name: 'Expand weather safety alert' });
   await expect(restoredToggle).toBeVisible();
-  await expect(page.getByRole('link', { name: 'View live CA pool status' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Live pool status' })).toBeVisible();
   const bannerWasVisibleAtFirstPaint = await page.locator('#weatherAlert').evaluate(banner => new Promise(resolve => {
     banner.ownerDocument.defaultView.requestAnimationFrame(() => resolve(!banner.hidden));
   }));

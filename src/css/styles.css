@@ -351,6 +351,19 @@ body {
   }
 
   .weather-alert__copy {
+    display: contents;
+    text-align: center;
+  }
+
+  .weather-alert__title {
+    align-self: center;
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+    margin-bottom: 0;
+  }
+
+  .weather-alert__details {
     grid-column: 1 / -1;
     grid-row: 2;
     text-align: center;
@@ -1420,23 +1433,19 @@ button.pool-filter__clear:focus-visible {
   gap: 0.75rem;
 }
 
-.pool-contact__actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.pool-contact .address-section,
-.pool-contact .phone-section,
-.pool-contact .ca-website-section {
+.pool-contact .address-section {
   margin: 0;
 }
 
 .address-section {
   background-color: var(--light-bg);
+  border-left: 3px solid var(--primary-color);
+  box-sizing: border-box;
+  max-width: 19rem;
   padding: 1rem;
   border-radius: var(--border-radius);
   margin: 0.75rem 0;
+  width: 100%;
 }
 
 /* Address Link Styling */
@@ -1481,16 +1490,12 @@ button.pool-filter__clear:focus-visible {
 }
 
 .ca-website-section {
-  margin: 0.5rem 0 0.25rem 0;
+  margin-top: 1rem;
 }
 
-/* Phone Section */
-.phone-section {
-  background-color: var(--light-bg);
-  padding: 0.75rem;
-  border-radius: var(--border-radius);
-  margin: 0.5rem 0;
-  border-left: 3px solid var(--primary-color);
+/* Phone Row */
+.address-section__phone {
+  margin-top: 1rem;
 }
 
 /* Phone Link Styling */
@@ -1498,7 +1503,7 @@ button.pool-filter__clear:focus-visible {
   color: var(--primary-color);
   text-decoration: none;
   display: inline-block;
-  margin-left: 0.5rem;
+  margin-top: 0.25rem;
   transition: var(--transition);
   border-radius: 4px;
   padding: 4px 8px;
@@ -1520,17 +1525,6 @@ button.pool-filter__clear:focus-visible {
     max-width: 82rem;
     padding-left: 1rem;
     padding-right: 1rem;
-  }
-
-  .pool-contact {
-    align-items: start;
-    display: grid;
-    grid-template-columns: minmax(14rem, 1fr) minmax(15rem, auto);
-    gap: 1rem;
-  }
-
-  .pool-contact__actions {
-    align-items: flex-end;
   }
 }
 

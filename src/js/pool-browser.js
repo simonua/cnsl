@@ -759,13 +759,14 @@ function renderPools(pools) {
       `;
     }
 
-    // Create phone number section if phone is available
+    // Create phone number row within the address section if phone is available
     let phoneHtml = '';
     const safePhoneUrl = PoolBrowserSafety.safeTelephoneUrl(pool.phone);
     if (safePhoneUrl) {
       phoneHtml = `
-        <div class="phone-section">
+        <div class="address-section__phone">
           <strong>📞 Pool Desk:</strong>
+          <br>
           <a href="${safePhoneUrl}" class="phone-link">
             ${PoolBrowserSafety.escapeHtml(pool.phone)}
           </a>
@@ -793,8 +794,6 @@ function renderPools(pools) {
                  class="address-link">
                 ${safeStreetAddress ? `${safeStreetAddress}${safeCityStateZip ? '<br>' : ''}` : ''}${safeCityStateZip || (safeStreetAddress ? '' : 'Address not available')}
               </a>
-            </div>
-            <div class="pool-contact__actions">
               ${phoneHtml}
               ${caLinkHtml}
             </div>

@@ -243,6 +243,23 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
     }
 
     /**
+     * Move the selected team's matchup first while preserving published order otherwise.
+     * @param {Array} meets - Meets scheduled on a single day
+     * @param {Object|null} favoriteTeam - Selected team record
+     * @returns {Array} Ordered copy of the supplied meets
+     */
+    static sortMeetsWithFavorite(meets, favoriteTeam) {
+      if (!Array.isArray(meets)) return [];
+
+      return [...meets].sort((first, second) => {
+        const firstIsFavorite = PreferencesService.meetIncludesFavoriteTeam(first, favoriteTeam);
+        const secondIsFavorite = PreferencesService.meetIncludesFavoriteTeam(second, favoriteTeam);
+        if (firstIsFavorite === secondIsFavorite) return 0;
+        return firstIsFavorite ? -1 : 1;
+      });
+    }
+
+    /**
      * Normalize user-visible text for alias matching.
      * @param {string} value - Value to normalize
      * @returns {string} Comparable text

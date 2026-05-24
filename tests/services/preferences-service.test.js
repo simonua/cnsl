@@ -141,5 +141,16 @@ describe('PreferencesService', () => {
       assert.equal(PreferencesService.meetIncludesFavoriteTeam({ home_team: 'Long Reach', visiting_team: 'Wilde Lake' }, favoriteTeam), false);
       assert.equal(PreferencesService.meetIncludesFavoriteTeam({ name: 'Time Trials' }, favoriteTeam), false);
     });
+
+    it('hoists the favorite matchup while preserving the remaining meet order', () => {
+      const meets = [
+        { home_team: 'Long Reach', visiting_team: 'Wilde Lake' },
+        { home_team: 'Clary\'s Forest, Hawthorn, Swansfield', visiting_team: 'Oakland Mills' },
+        { home_team: 'Thunder Hill', visiting_team: 'Huntington' }
+      ];
+
+      assert.deepEqual(PreferencesService.sortMeetsWithFavorite(meets, favoriteTeam), [meets[1], meets[0], meets[2]]);
+      assert.deepEqual(PreferencesService.sortMeetsWithFavorite(meets, null), meets);
+    });
   });
 });
