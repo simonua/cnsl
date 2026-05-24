@@ -261,9 +261,13 @@ test('mobile weather safety alert centers its content and collapses with a stabl
   const icon = page.locator('.weather-alert__toggle-icon');
   await expect(alert).toBeVisible();
   await expect(page.locator('.weather-alert__copy')).toHaveCSS('text-align', 'center');
+  const titleBackground = await page.locator('.weather-alert__title').evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).backgroundColor);
+  const actionBackground = await page.locator('.weather-alert__link').evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).backgroundColor);
+  expect(titleBackground).toBe(actionBackground);
   await expect(toggle).toHaveAttribute('aria-expanded', 'true');
   const expandedToggleSize = await toggle.boundingBox();
   await expect(icon).toHaveCSS('transform', 'none');
+  await expect(icon).toHaveCSS('transition-duration', '0s');
 
   await toggle.focus();
   await page.keyboard.press('Enter');
@@ -275,6 +279,8 @@ test('mobile weather safety alert centers its content and collapses with a stabl
   const collapsedToggleSize = await expandToggle.boundingBox();
   expect(collapsedToggleSize.width).toBe(expandedToggleSize.width);
   expect(collapsedToggleSize.height).toBe(expandedToggleSize.height);
+  expect(collapsedToggleSize.x).toBe(expandedToggleSize.x);
+  expect(collapsedToggleSize.y).toBe(expandedToggleSize.y);
 
   await page.keyboard.press('Enter');
   await expect(page.locator('#weatherAlertDetails')).toBeVisible();

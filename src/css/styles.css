@@ -220,7 +220,9 @@ html, body {
   justify-content: space-between;
   margin: 0 auto;
   max-width: 1200px;
-  padding: 0.65rem 1rem;
+  min-height: calc(44px + 1.3rem);
+  padding: 0.65rem 4.75rem 0.65rem 1rem;
+  position: relative;
 }
 
 .weather-alert__details {
@@ -236,9 +238,14 @@ html, body {
 }
 
 .weather-alert__title {
-  color: var(--weather-alert-title);
+  background-color: var(--weather-alert-action);
+  border-radius: 4px;
+  color: var(--weather-alert-action-text);
+  display: inline-block;
   font-size: 1rem;
   font-weight: 700;
+  margin-bottom: 0.2rem;
+  padding: 0.1rem 0.4rem;
 }
 
 .weather-alert__message {
@@ -288,7 +295,10 @@ html, body {
   justify-content: center;
   min-width: 44px;
   padding: 0;
+  position: absolute;
+  right: 1rem;
   box-shadow: none;
+  top: 0.65rem;
   transition: var(--transition);
   width: 44px;
 }
@@ -308,7 +318,6 @@ html, body {
 
 .weather-alert__toggle-icon {
   display: inline-flex;
-  transition: transform 0.15s ease;
 }
 
 .weather-alert__collapsed-label {
@@ -330,7 +339,7 @@ html, body {
 .weather-alert--collapsed .weather-alert__inner {
   gap: 0.75rem;
   justify-content: center;
-  padding: 0.35rem 1rem;
+  padding: 0.65rem 4.75rem 0.65rem 1rem;
 }
 
 .weather-alert--collapsed .weather-alert__toggle {
@@ -347,7 +356,9 @@ html, body {
 }
 
 .weather-alert--collapsed .weather-alert__collapsed-label {
-  display: inline;
+  display: block;
+  text-align: center;
+  width: 100%;
 }
 
 .weather-alert--collapsed .weather-alert__toggle-icon {
@@ -833,10 +844,29 @@ nav a:focus {
 }
 
 .quick-link-card .quick-link-title {
+  align-items: center;
   color: var(--white);
-  display: block;
+  display: inline-flex;
+  gap: 0.5rem;
+  justify-content: center;
+  line-height: 1;
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.25rem;
+}
+
+.quick-link-card .quick-link-icon {
+  align-items: center;
+  display: inline-flex;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.quick-link-card .quick-link-icon--raised {
+  transform: translateY(-0.0625rem);
+}
+
+.quick-link-card .quick-link-label {
+  line-height: 1;
 }
 
 /* Button links should maintain button styling */
