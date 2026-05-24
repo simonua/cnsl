@@ -222,6 +222,55 @@ test('pool directory encodes text and rejects unsafe published destinations', as
   await expect(page.locator('.phone-link').filter({ hasText: 'onclick=alert' })).toHaveCount(0);
 });
 
+test('desktop expanded pool details align contacts and fit the weekly calendar', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.addInitScript(() => {
+    localStorage.setItem('cnsl_preferences', JSON.stringify({
+      favoritePoolName: 'Bryant Woods',
+      poolScheduleLayout: 'calendar'
+    }));
+  });
+  await page.goto('/pools.html');
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+
+  const favoriteCard = page.locator('.favorite-card');
+  const calendar = favoriteCard.locator('.schedule-calendar');
+  await expect(calendar).toBeVisible();
+  const layout = await favoriteCard.evaluate(card => {
+    const addressBox = card.querySelector('.address-section').getBoundingClientRect();
+    const phoneBox = card.querySelector('.phone-section').getBoundingClientRect();
+    const schedule = card.querySelector('.schedule-calendar');
+    return {
+      contactDisplay: card.ownerDocument.defaultView.getComputedStyle(card.querySelector('.pool-contact')).display,
+      addressLeftOfPhone: addressBox.right <= phoneBox.left,
+      calendarFits: schedule.scrollWidth <= schedule.clientWidth + 1
+    };
+  });
+
+  expect(layout.contactDisplay).toBe('grid');
+  expect(layout.addressLeftOfPhone).toBe(true);
+  expect(layout.calendarFits).toBe(true);
+});
+
+test('desktop site header remains visible while the pool directory scrolls', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('/pools.html');
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+
+  const collapsedPoolToggles = page.locator('.pool-header__toggle[aria-expanded="false"]');
+  const toggleCount = await collapsedPoolToggles.count();
+  for (let index = toggleCount - 1; index >= 0; index -= 1) {
+    await collapsedPoolToggles.nth(index).click();
+  }
+
+  await page.evaluate(() => globalThis.scrollTo(0, globalThis.document.documentElement.scrollHeight));
+  const scrollPosition = await page.evaluate(() => globalThis.scrollY);
+  const headerTop = await page.locator('.header').evaluate(header => Math.round(header.getBoundingClientRect().top));
+
+  expect(scrollPosition).toBeGreaterThan(0);
+  expect(headerTop).toBe(0);
+});
+
 test('settings persist choices locally and announce clearing saved settings', async ({ page }) => {
   await page.goto('/settings.html');
   await expect(page.locator('#favoritePool')).toBeEnabled();
@@ -241,13 +290,19 @@ test('settings persist choices locally and announce clearing saved settings', as
 
 test('visible weather safety alerts render with update times on every page', async ({ page }) => {
   await prepareVisibleWeatherAlert(page);
+  await page.addInitScript(() => {
+    sessionStorage.setItem('cnsl_weather_alert_expanded', 'false');
+  });
 
   for (const path of publishedPagePaths) {
     await page.goto(path);
     await expect(page.locator('#weatherAlert')).toBeVisible();
+    await expect(page.locator('.weather-alert__title')).toHaveText('Weather safety alert');
     await expect(page.locator('#weatherAlertMessage')).toContainText('Severe Thunderstorm Warning');
     await expect(page.locator('#weatherAlertUpdated')).not.toHaveText('');
     await expect(page.locator('#weatherAlertUpdated')).toHaveAttribute('datetime', /2026-/);
+    await expect(page.locator('#weatherAlertDetails')).toBeVisible();
+    await expect(page.locator('#weatherAlertToggle')).toBeHidden();
   }
 });
 
@@ -264,6 +319,7 @@ test('mobile weather safety alert keeps navigation visible and collapses with a 
   const action = page.getByRole('link', { name: 'View live CA pool status' });
   const icon = page.locator('.weather-alert__toggle-icon');
   await expect(alert).toBeVisible();
+  await expect(page.locator('.weather-alert__title')).toBeVisible();
   await expect(page.locator('.weather-alert__copy')).toHaveCSS('text-align', 'center');
   const titleBackground = await page.locator('.weather-alert__title').evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).backgroundColor);
   const actionBackground = await page.locator('.weather-alert__link').evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).backgroundColor);
@@ -289,6 +345,7 @@ test('mobile weather safety alert keeps navigation visible and collapses with a 
   await toggle.focus();
   await page.keyboard.press('Enter');
   await expect(page.locator('#weatherAlertDetails')).toBeHidden();
+  await expect(page.locator('.weather-alert__title')).toBeVisible();
   const expandToggle = page.getByRole('button', { name: 'Expand weather safety alert' });
   await expect(expandToggle).toHaveAttribute('aria-expanded', 'false');
   await expect(action).toBeVisible();

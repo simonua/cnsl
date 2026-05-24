@@ -110,6 +110,7 @@ test('location-aware pool sorting has no WCAG A or AA automated violations', asy
 
 for (const theme of ['light', 'dark']) {
   test(`visible weather safety alert has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
     await prepareStableWeatherResponses(page);
     await prepareVisibleWeatherAlert(page);
     await page.addInitScript(selectedTheme => {

@@ -11,9 +11,9 @@
 </header>
 <section class="weather-alert" id="weatherAlert" role="alert" aria-label="Weather safety alert" hidden>
   <div class="weather-alert__inner">
-    <div class="weather-alert__details" id="weatherAlertDetails">
-      <div class="weather-alert__copy">
-        <strong class="weather-alert__title">Weather safety alert</strong>
+    <div class="weather-alert__copy">
+      <strong class="weather-alert__title">Weather safety alert</strong>
+      <div class="weather-alert__details" id="weatherAlertDetails">
         <p class="weather-alert__message" id="weatherAlertMessage"></p>
         <p class="weather-alert__updated">Last updated <time id="weatherAlertUpdated"></time></p>
       </div>
@@ -37,7 +37,8 @@
       const toggle = document.getElementById('weatherAlertToggle');
       const message = document.getElementById('weatherAlertMessage');
       const updated = document.getElementById('weatherAlertUpdated');
-      const isExpanded = sessionStorage.getItem('cnsl_weather_alert_expanded') !== 'false';
+      const isMobileViewport = window.matchMedia('(max-width: 48rem)').matches;
+      const isExpanded = !isMobileViewport || sessionStorage.getItem('cnsl_weather_alert_expanded') !== 'false';
       const actionLabel = `${isExpanded ? 'Collapse' : 'Expand'} weather safety alert`;
       const updatedAt = new Date(status.updatedAt);
 
@@ -50,6 +51,7 @@
       toggle.setAttribute('aria-expanded', String(isExpanded));
       toggle.setAttribute('aria-label', actionLabel);
       toggle.title = actionLabel;
+      toggle.hidden = !isMobileViewport;
       banner.hidden = false;
     } catch (_error) {
       return;

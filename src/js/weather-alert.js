@@ -4,6 +4,11 @@
   let scheduledRefresh = null;
   let poolDataPromise = null;
   const DISCLOSURE_STORAGE_KEY = 'cnsl_weather_alert_expanded';
+  const MOBILE_DISCLOSURE_QUERY = '(max-width: 48rem)';
+
+  function isMobileDisclosureViewport() {
+    return window.matchMedia(MOBILE_DISCLOSURE_QUERY).matches;
+  }
 
   function getWeatherRefreshMinutes() {
     return typeof PreferencesService === 'undefined'
@@ -38,17 +43,20 @@
     const toggle = document.getElementById('weatherAlertToggle');
     if (!banner || !toggle) return;
 
-    const actionLabel = `${isExpanded ? 'Collapse' : 'Expand'} weather safety alert`;
-    banner.classList.toggle('weather-alert--collapsed', !isExpanded);
-    toggle.setAttribute('aria-expanded', String(isExpanded));
+    const isMobileViewport = isMobileDisclosureViewport();
+    const effectiveExpandedState = isMobileViewport ? isExpanded : true;
+    const actionLabel = `${effectiveExpandedState ? 'Collapse' : 'Expand'} weather safety alert`;
+    banner.classList.toggle('weather-alert--collapsed', !effectiveExpandedState);
+    toggle.hidden = !isMobileViewport;
+    toggle.setAttribute('aria-expanded', String(effectiveExpandedState));
     toggle.setAttribute('aria-label', actionLabel);
     toggle.title = actionLabel;
-    if (shouldSave) saveExpandedState(isExpanded);
+    if (isMobileViewport && shouldSave) saveExpandedState(effectiveExpandedState);
   }
 
   function toggleWeatherAlert() {
     const toggle = document.getElementById('weatherAlertToggle');
-    if (!toggle) return;
+    if (!toggle || !isMobileDisclosureViewport()) return;
 
     setWeatherAlertExpanded(toggle.getAttribute('aria-expanded') !== 'true', true);
   }
@@ -102,6 +110,10 @@
     banner.hidden = false;
   }
 
+  function syncWeatherAlertDisclosure() {
+    setWeatherAlertExpanded(readSavedExpandedState());
+  }
+
   async function refreshWeatherAlert() {
     window.clearTimeout(scheduledRefresh);
     if (typeof WeatherAlertService === 'undefined') return;
@@ -140,6 +152,8 @@
   function startWeatherAlertUpdates() {
     const toggle = document.getElementById('weatherAlertToggle');
     if (toggle) toggle.addEventListener('click', toggleWeatherAlert);
+    const disclosureMediaQuery = window.matchMedia(MOBILE_DISCLOSURE_QUERY);
+    disclosureMediaQuery.addEventListener('change', syncWeatherAlertDisclosure);
 
     refreshWeatherAlert();
     document.addEventListener('visibilitychange', () => {

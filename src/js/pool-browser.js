@@ -784,17 +784,21 @@ function renderPools(pools) {
           ${distanceHtml}
         </div>
         <div class="pool-details" id="${detailsId}"${isFavorite ? '' : ' hidden'}>
-          <div class="address-section">
-            <strong>📍 Address:</strong><br>
-            <a href="${safeMapsUrl}" 
-               target="_blank" 
-               rel="noopener" 
-               class="address-link">
-              ${safeStreetAddress ? `${safeStreetAddress}${safeCityStateZip ? '<br>' : ''}` : ''}${safeCityStateZip || (safeStreetAddress ? '' : 'Address not available')}
-            </a>
+          <div class="pool-contact">
+            <div class="address-section">
+              <strong>📍 Address:</strong><br>
+              <a href="${safeMapsUrl}"
+                 target="_blank"
+                 rel="noopener"
+                 class="address-link">
+                ${safeStreetAddress ? `${safeStreetAddress}${safeCityStateZip ? '<br>' : ''}` : ''}${safeCityStateZip || (safeStreetAddress ? '' : 'Address not available')}
+              </a>
+            </div>
+            <div class="pool-contact__actions">
+              ${phoneHtml}
+              ${caLinkHtml}
+            </div>
           </div>
-          ${phoneHtml}
-          ${caLinkHtml}
           ${hoursHtml}
           ${featuresHtml}
         </div>
