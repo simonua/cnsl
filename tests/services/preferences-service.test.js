@@ -85,6 +85,19 @@ describe('PreferencesService', () => {
       ]);
     });
 
+    it('groups available features by visitor need and retains new published features', () => {
+      assert.deepEqual(PreferencesService.groupPoolFeatures([
+        'pool lift', 'ADA compliant', 'baseball', 'splash', 'lap', 'wifi', 'new amenity'
+      ]), [
+        { label: 'Accessibility & inclusion', features: ['ada compliant', 'pool lift'] },
+        { label: 'Young swimmers & non-swimmers', features: ['splash'] },
+        { label: 'Swimming & water play', features: ['lap'] },
+        { label: 'Sports & recreation', features: ['baseball'] },
+        { label: 'Amenities', features: ['wifi'] },
+        { label: 'Additional features', features: ['new amenity'] }
+      ]);
+    });
+
     it('keeps only pools containing every selected feature', () => {
       assert.deepEqual(
         PreferencesService.filterPoolsByFeatures(pools, ['beach entry', 'slide']).map(pool => pool.name),

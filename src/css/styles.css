@@ -903,14 +903,22 @@ nav a:focus {
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
   margin-bottom: 1rem;
-  padding: 0.875rem 1rem;
+  padding: 0.75rem 1rem;
 }
 
 .pool-filter__header {
   align-items: center;
   display: flex;
+  flex-wrap: wrap;
   gap: 0.75rem;
   justify-content: space-between;
+}
+
+.pool-filter__status {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+  margin-left: auto;
 }
 
 .pool-filter__toggle {
@@ -918,6 +926,7 @@ nav a:focus {
   background-color: transparent;
   background-image: none;
   border: 0;
+  box-shadow: none;
   color: var(--text-dark);
   cursor: pointer;
   display: flex;
@@ -927,18 +936,27 @@ nav a:focus {
   min-width: 0;
   padding: 0.25rem 0;
   text-align: left;
+  transform: none;
 }
 
 .pool-filter__toggle:hover,
+.pool-filter__toggle:focus,
 .pool-filter__toggle:focus-visible {
   background-color: transparent;
   background-image: none;
+  box-shadow: none;
   color: var(--primary-color);
+  transform: none;
 }
 
 .pool-filter__toggle:focus-visible {
   outline: 2px solid var(--primary-color);
   outline-offset: 2px;
+}
+
+.pool-filter__toggle::before,
+.pool-filter__clear::before {
+  display: none;
 }
 
 .pool-filter__indicator {
@@ -976,11 +994,13 @@ nav a:focus {
   background-image: none;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
+  box-shadow: none;
   color: var(--primary-color);
   cursor: pointer;
   font: inherit;
   font-size: 0.9rem;
   padding: 0.3rem 0.75rem;
+  transform: none;
 }
 
 .pool-filter__clear[hidden] {
@@ -988,9 +1008,12 @@ nav a:focus {
 }
 
 .pool-filter__clear:hover,
+.pool-filter__clear:focus,
 .pool-filter__clear:focus-visible {
   background-color: var(--light-bg);
   border-color: var(--primary-color);
+  box-shadow: none;
+  transform: none;
 }
 
 .pool-filter__fieldset {
@@ -1000,10 +1023,34 @@ nav a:focus {
 }
 
 .pool-filter__controls {
-  margin-top: 0.8rem;
+  border-top: 1px solid var(--border-color);
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
 }
 
 .pool-filter__options {
+  display: grid;
+  gap: 1rem 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+}
+
+.pool-filter__group {
+  border: 0;
+  margin: 0;
+  min-width: 0;
+  padding: 0;
+}
+
+.pool-filter__group-title {
+  color: var(--text-dark);
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  width: 100%;
+}
+
+.pool-filter__group-options {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
@@ -1059,7 +1106,8 @@ nav a:focus {
 .pool-filter__summary {
   color: var(--text-muted);
   font-size: 0.9rem;
-  margin: 0.75rem 0 0;
+  margin: 0;
+  white-space: nowrap;
 }
 
 .pool-filter__empty {

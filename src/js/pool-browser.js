@@ -492,6 +492,14 @@ function calculateDistance(coords1, coords2) {
  * @returns {string} User-visible label
  */
 function formatPoolFeatureLabel(feature) {
+  const labels = {
+    'ada compliant': 'ADA compliant',
+    shallow: 'Shallow area',
+    splash: 'Splash pad',
+    wading: 'Wading pool',
+    wifi: 'Wi-Fi'
+  };
+  if (labels[feature]) return labels[feature];
   return feature.charAt(0).toUpperCase() + feature.slice(1);
 }
 
@@ -514,29 +522,44 @@ function setupPoolFeatureFilters(pools) {
   }
 
   optionsContainer.replaceChildren();
-  availableFeatures.forEach(feature => {
-    const input = document.createElement('input');
-    input.name = 'poolFeature';
-    input.type = 'checkbox';
-    input.value = feature;
-    input.checked = selectedFeatures.includes(feature);
+  PreferencesService.groupPoolFeatures(availableFeatures).forEach(group => {
+    const groupFieldset = document.createElement('fieldset');
+    groupFieldset.className = 'pool-filter__group';
 
-    const mark = document.createElement('span');
-    mark.setAttribute('aria-hidden', 'true');
-    mark.className = 'pool-filter__mark';
-    mark.textContent = '\u2713';
+    const groupTitle = document.createElement('legend');
+    groupTitle.className = 'pool-filter__group-title';
+    groupTitle.textContent = group.label;
 
-    const labelText = document.createElement('span');
-    labelText.className = 'pool-filter__label';
-    labelText.textContent = formatPoolFeatureLabel(feature);
+    const groupOptions = document.createElement('div');
+    groupOptions.className = 'pool-filter__group-options';
 
-    const chip = document.createElement('span');
-    chip.append(mark, labelText);
+    group.features.forEach(feature => {
+      const input = document.createElement('input');
+      input.name = 'poolFeature';
+      input.type = 'checkbox';
+      input.value = feature;
+      input.checked = selectedFeatures.includes(feature);
 
-    const label = document.createElement('label');
-    label.className = 'pool-filter__option';
-    label.append(input, chip);
-    optionsContainer.appendChild(label);
+      const mark = document.createElement('span');
+      mark.setAttribute('aria-hidden', 'true');
+      mark.className = 'pool-filter__mark';
+      mark.textContent = '\u2713';
+
+      const labelText = document.createElement('span');
+      labelText.className = 'pool-filter__label';
+      labelText.textContent = formatPoolFeatureLabel(feature);
+
+      const chip = document.createElement('span');
+      chip.append(mark, labelText);
+
+      const label = document.createElement('label');
+      label.className = 'pool-filter__option';
+      label.append(input, chip);
+      groupOptions.appendChild(label);
+    });
+
+    groupFieldset.append(groupTitle, groupOptions);
+    optionsContainer.appendChild(groupFieldset);
   });
   filterSection.hidden = availableFeatures.length === 0;
   clearButton.hidden = selectedFeatures.length === 0;

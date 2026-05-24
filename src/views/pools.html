@@ -12,7 +12,10 @@
             <span class="pool-filter__title">Features</span>
             <span class="pool-filter__count" id="poolFeatureFilterCount" hidden></span>
           </button>
-          <button type="button" class="pool-filter__clear" id="clearPoolFeatureFilters" hidden>Clear</button>
+          <div class="pool-filter__status">
+            <p class="pool-filter__summary" id="poolFilterSummary" aria-live="polite"></p>
+            <button type="button" class="pool-filter__clear" id="clearPoolFeatureFilters" hidden>Clear</button>
+          </div>
         </div>
         <div class="pool-filter__controls" id="poolFeatureFilterControls" hidden>
             <fieldset class="pool-filter__fieldset">
@@ -20,7 +23,6 @@
               <div class="pool-filter__options" id="poolFeatureFilterOptions"></div>
             </fieldset>
         </div>
-        <p class="pool-filter__summary" id="poolFilterSummary" aria-live="polite"></p>
       </section>
       <div id="poolList" class="pool-list">
         <!-- Pools will be loaded dynamically via JavaScript -->

@@ -9,6 +9,29 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
 
     static POOL_SCHEDULE_LAYOUTS = ['list', 'calendar'];
 
+    static POOL_FEATURE_GROUPS = Object.freeze([
+      Object.freeze({
+        label: 'Accessibility & inclusion',
+        features: Object.freeze(['ada compliant', 'family changing room', 'pool lift', 'sensory friendly'])
+      }),
+      Object.freeze({
+        label: 'Young swimmers & non-swimmers',
+        features: Object.freeze(['beach entry', 'play features', 'shallow', 'splash', 'tot lot', 'wading'])
+      }),
+      Object.freeze({
+        label: 'Swimming & water play',
+        features: Object.freeze(['climbing wall', 'dive', 'lap', 'slide'])
+      }),
+      Object.freeze({
+        label: 'Sports & recreation',
+        features: Object.freeze(['baseball', 'basketball', 'cornhole', 'fitness pavilion', 'golf course', 'soccer', 'softball', 'sports field', 'tennis', 'volleyball'])
+      }),
+      Object.freeze({
+        label: 'Amenities',
+        features: Object.freeze(['bathhouse', 'deck', 'grill', 'heated', 'hot tub', 'party area', 'picnic area', 'shade', 'wifi'])
+      })
+    ]);
+
     static DEFAULT_PREFERENCES = Object.freeze({
       theme: 'system',
       favoriteTeamId: '',
@@ -110,6 +133,28 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
       return PreferencesService.normalizeFeatureFilters(
         pools.flatMap(pool => Array.isArray(pool.features) ? pool.features : [])
       );
+    }
+
+    /**
+     * Arrange available feature filters into visitor-oriented categories.
+     * @param {Array} features - Available feature labels
+     * @returns {Array} Visible categories containing their available features
+     */
+    static groupPoolFeatures(features) {
+      const availableFeatures = PreferencesService.normalizeFeatureFilters(features);
+      const categorizedFeatures = new Set();
+      const groups = PreferencesService.POOL_FEATURE_GROUPS.map(group => {
+        const visibleFeatures = group.features.filter(feature => availableFeatures.includes(feature));
+        visibleFeatures.forEach(feature => categorizedFeatures.add(feature));
+        return { label: group.label, features: visibleFeatures };
+      }).filter(group => group.features.length > 0);
+      const additionalFeatures = availableFeatures.filter(feature => !categorizedFeatures.has(feature));
+
+      if (additionalFeatures.length > 0) {
+        groups.push({ label: 'Additional features', features: additionalFeatures });
+      }
+
+      return groups;
     }
 
     /**
