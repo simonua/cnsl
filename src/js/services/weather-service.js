@@ -330,7 +330,7 @@ class WeatherService {
         
         const upcomingMeets = meets.filter(meet => {
             try {
-                const meetDate = new Date(meet.date);
+                const meetDate = TimeUtils.parseDateOnly(meet.date);
                 const isUpcoming = meetDate >= now && meetDate <= sevenDaysFromNow;
                 if (isUpcoming) {
                     console.log('🌦️ Found upcoming meet:', meet.name, 'on', meet.date, 'at', meet.location);
@@ -360,7 +360,7 @@ class WeatherService {
                 
                 if (pool && poolAddress) {
                     console.log('🌦️ Getting weather for', meet.location, 'at address:', poolAddress);
-                    const meetDate = new Date(meet.date);
+                    const meetDate = TimeUtils.parseDateOnly(meet.date);
                     let forecast;
                     
                     try {

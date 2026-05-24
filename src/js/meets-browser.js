@@ -53,8 +53,8 @@ async function renderMeets(meets) {
   
   // Sort meets by date
   const sortedMeets = [...meets].sort((a, b) => {
-    const dateA = a.date ? new Date(a.date) : new Date(0);
-    const dateB = b.date ? new Date(b.date) : new Date(0);
+    const dateA = a.date ? TimeUtils.parseDateOnly(a.date) : new Date(0);
+    const dateB = b.date ? TimeUtils.parseDateOnly(b.date) : new Date(0);
     return dateA - dateB;
   });
 
@@ -63,7 +63,7 @@ async function renderMeets(meets) {
   sortedMeets.forEach(meet => {
     if (!meet.date) return;
     
-    const meetDate = new Date(meet.date);
+    const meetDate = TimeUtils.parseDateOnly(meet.date);
     const dateKey = meetDate.toLocaleDateString('en-US', { 
       weekday: 'long',
       month: 'long', 
@@ -81,7 +81,7 @@ async function renderMeets(meets) {
   let nextUpcomingDateKey = null;
   const dateKeys = Object.keys(meetsByDate);
   for (const dateKey of dateKeys) {
-    const meetDate = new Date(meetsByDate[dateKey][0].date);
+    const meetDate = TimeUtils.parseDateOnly(meetsByDate[dateKey][0].date);
     if (meetDate >= today) {
       nextUpcomingDateKey = dateKey;
       break;
@@ -92,7 +92,7 @@ async function renderMeets(meets) {
   let html = '';
   
   Object.keys(meetsByDate).forEach(dateKey => {
-    const meetDate = new Date(meetsByDate[dateKey][0].date);
+    const meetDate = TimeUtils.parseDateOnly(meetsByDate[dateKey][0].date);
     const isUpcoming = meetDate >= today;
     const isToday = meetDate.toDateString() === today.toDateString();
     const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);

@@ -9,7 +9,9 @@ describe('PreferencesService', () => {
       assert.deepEqual(PreferencesService.get(createLocalStorageMock()), {
         theme: 'system',
         favoriteTeamId: '',
-        favoritePoolName: ''
+        favoritePoolName: '',
+        poolScheduleLayout: 'list',
+        poolFeatureFilters: []
       });
     });
 
@@ -18,10 +20,15 @@ describe('PreferencesService', () => {
       const saved = PreferencesService.save({
         theme: 'dark',
         favoriteTeamId: '  lrm ',
-        favoritePoolName: ' Kendall Ridge '
+        favoritePoolName: ' Kendall Ridge ',
+        poolScheduleLayout: 'calendar',
+        poolFeatureFilters: [' slide ', 'Beach Entry', 'slide']
       }, storage);
 
-      assert.deepEqual(saved, { theme: 'dark', favoriteTeamId: 'lrm', favoritePoolName: 'Kendall Ridge' });
+      assert.deepEqual(saved, {
+        theme: 'dark', favoriteTeamId: 'lrm', favoritePoolName: 'Kendall Ridge', poolScheduleLayout: 'calendar',
+        poolFeatureFilters: ['beach entry', 'slide']
+      });
       assert.deepEqual(PreferencesService.get(storage), saved);
       assert.ok(storage.getItem(PreferencesService.STORAGE_KEY));
     });
@@ -32,7 +39,7 @@ describe('PreferencesService', () => {
 
       assert.deepEqual(PreferencesService.get(storage), PreferencesService.DEFAULT_PREFERENCES);
       assert.deepEqual(PreferencesService.normalize({ theme: 'unsupported', favoriteTeamId: 10 }), {
-        theme: 'system', favoriteTeamId: '', favoritePoolName: ''
+        theme: 'system', favoriteTeamId: '', favoritePoolName: '', poolScheduleLayout: 'list', poolFeatureFilters: []
       });
     });
 
@@ -62,6 +69,28 @@ describe('PreferencesService', () => {
     it('keeps normal ordering when no available favorite is selected', () => {
       assert.deepEqual(sort(''), ['a', 'b', 'c']);
       assert.deepEqual(sort('missing'), ['a', 'b', 'c']);
+    });
+  });
+
+  describe('pool feature filtering', () => {
+    const pools = [
+      { name: 'Hopewell', features: ['Beach Entry', 'Slide', 'Wading'] },
+      { name: 'Running Brook', features: ['beach entry', 'shade'] },
+      { name: 'Bryant Woods', features: ['pool lift', 'shade'] }
+    ];
+
+    it('returns sorted published features without duplicate casing', () => {
+      assert.deepEqual(PreferencesService.getPoolFeatures(pools), [
+        'beach entry', 'pool lift', 'shade', 'slide', 'wading'
+      ]);
+    });
+
+    it('keeps only pools containing every selected feature', () => {
+      assert.deepEqual(
+        PreferencesService.filterPoolsByFeatures(pools, ['beach entry', 'slide']).map(pool => pool.name),
+        ['Hopewell']
+      );
+      assert.deepEqual(PreferencesService.filterPoolsByFeatures(pools, []), pools);
     });
   });
 

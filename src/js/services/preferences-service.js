@@ -7,10 +7,14 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
 
     static THEMES = ['system', 'light', 'dark'];
 
+    static POOL_SCHEDULE_LAYOUTS = ['list', 'calendar'];
+
     static DEFAULT_PREFERENCES = Object.freeze({
       theme: 'system',
       favoriteTeamId: '',
-      favoritePoolName: ''
+      favoritePoolName: '',
+      poolScheduleLayout: 'list',
+      poolFeatureFilters: Object.freeze([])
     });
 
     /**
@@ -72,8 +76,58 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
       const theme = PreferencesService.THEMES.includes(preferences.theme) ? preferences.theme : 'system';
       const favoriteTeamId = typeof preferences.favoriteTeamId === 'string' ? preferences.favoriteTeamId.trim() : '';
       const favoritePoolName = typeof preferences.favoritePoolName === 'string' ? preferences.favoritePoolName.trim() : '';
+      const poolScheduleLayout = PreferencesService.POOL_SCHEDULE_LAYOUTS.includes(preferences.poolScheduleLayout)
+        ? preferences.poolScheduleLayout
+        : 'list';
+      const poolFeatureFilters = PreferencesService.normalizeFeatureFilters(preferences.poolFeatureFilters);
 
-      return { theme, favoriteTeamId, favoritePoolName };
+      return { theme, favoriteTeamId, favoritePoolName, poolScheduleLayout, poolFeatureFilters };
+    }
+
+    /**
+     * Normalize selected feature labels for storage and comparison.
+     * @param {Array} features - Raw selected feature labels
+     * @returns {Array} Unique normalized feature labels
+     */
+    static normalizeFeatureFilters(features) {
+      if (!Array.isArray(features)) return [];
+
+      return [...new Set(features
+        .filter(feature => typeof feature === 'string')
+        .map(feature => feature.trim().toLowerCase())
+        .filter(Boolean))]
+        .sort((first, second) => first.localeCompare(second));
+    }
+
+    /**
+     * Get the published feature labels available across pool records.
+     * @param {Array} pools - Available pool records
+     * @returns {Array} Available normalized feature labels
+     */
+    static getPoolFeatures(pools) {
+      if (!Array.isArray(pools)) return [];
+
+      return PreferencesService.normalizeFeatureFilters(
+        pools.flatMap(pool => Array.isArray(pool.features) ? pool.features : [])
+      );
+    }
+
+    /**
+     * Keep pools that contain each selected published feature.
+     * @param {Array} pools - Available pool records
+     * @param {Array} featureFilters - Selected feature labels
+     * @returns {Array} Filtered pool records
+     */
+    static filterPoolsByFeatures(pools, featureFilters) {
+      if (!Array.isArray(pools)) return [];
+
+      const selectedFeatures = PreferencesService.normalizeFeatureFilters(featureFilters);
+      if (selectedFeatures.length === 0) return [...pools];
+
+      return pools.filter(pool => {
+        const availableFeatures = PreferencesService.normalizeFeatureFilters(pool.features);
+        return selectedFeatures.every(feature => availableFeatures.includes(feature));
+      });
     }
 
     /**

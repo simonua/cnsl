@@ -74,6 +74,19 @@ describe('TimeUtils', () => {
     });
   });
 
+  describe('parseDateOnly', () => {
+    it('preserves the published weekday for ISO calendar dates', () => {
+      const meetDate = TimeUtils.parseDateOnly('2026-06-13');
+
+      assert.equal(meetDate.getDay(), 6);
+      assert.equal(meetDate.toLocaleDateString('en-US', { weekday: 'long' }), 'Saturday');
+    });
+
+    it('rejects impossible calendar dates', () => {
+      assert.throws(() => TimeUtils.parseDateOnly('2026-02-30'), /Invalid calendar date/);
+    });
+  });
+
   describe('getCurrentEasternTimeInfo', () => {
     it('returns expected structure', () => {
       const info = TimeUtils.getCurrentEasternTimeInfo();

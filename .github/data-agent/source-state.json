@@ -1,0 +1,439 @@
+{
+  "season": 2026,
+  "acceptedOn": "2026-05-24",
+  "pages": [
+    {
+      "domains": [
+        "pools"
+      ],
+      "label": "Bryant Woods facility page",
+      "sha256": "577a76bc4fb89251854b681fd12bc371c72fcb80e67c765decb5d91614fed273",
+      "url": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/bryant-woods-pool-bw/"
+    },
+    {
+      "domains": [
+        "pools"
+      ],
+      "label": "Clary's Forest facility page",
+      "sha256": "d15773d58d1c1b52d1491250a4cc7927dfc06f6eeb79e98c25c3fb7af87901e6",
+      "url": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/clarys-forest-cf-pool/"
+    },
+    {
+      "domains": [
+        "pools"
+      ],
+      "label": "Clemens Crossing facility page",
+      "sha256": "7b3792f2619769d0cafa59ca53526769a2fea4b706c4a8c364d0c1a095674fba",
+      "url": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/clemens-crossing-cc-pool/"
+    },
+    {
+      "domains": [
+        "pools"
+      ],
+      "label": "Dasher Green facility page",
+      "sha256": "f93914bf7248148fd1f907ef7d16b0581b876d0636cc4598bb143cd264beb502",
+      "url": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/dasher-green-dg-pool/"
+    },
+    {
+      "domains": [
+        "pools"
+      ],
+      "label": "Dickinson facility page",
+      "sha256": "a400d146bae9948e3687633991b414a2fab3eb255bee83690cb855342454dca7",
+      "url": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/dickinson-pool/"
+    },
+    {
+      "domains": [
+        "pools"
+      ],
+      "label": "Dorsey Hall facility page",
+      "sha256": "c2a5c906cfd6bd848bcce7b6b1cefd9399db2c6f29f78aa2721ceadd4ee4a772",
+      "url": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/dorsey-hall-dh-pool/"
+    },
+    {
+      "domains": [
+        "pools"
+      ],
+      "label": "Faulkner Ridge facility page",
+      "sha256": "5265380a5245aba74aab09dfeb115dc297ee2dcbc1c505fe8021c805b7c566e3",
+      "url": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/faulkner-ridge-fr-pool/"
+    },
+    {
+      "domains": [
+        "pools"
+      ],
+      "label": "Hawthorn facility page",
+      "sha256": "ec3f9b2b4cbd2a4385812e785ee21c4c555621a9276760795fcbe12bfabad484",
+      "url": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/hawthorn-ha-pool/"
+    },
+    {
+      "domains": [
+        "pools"
+      ],
+      "label": "Hobbit's Glen facility page",
+      "sha256": "c097d8a8f608cd218f0f99123b8510203c97a84e7aa2c4b56b699c185e121ef9",
+      "url": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/hobbits-glen-hg-pool/"
+    },
+    {
+      "domains": [
+        "pools"
+      ],
+      "label": "Hopewell facility page",
+      "sha256": "35ef7dddfe7d893b24d66e57993a6c97308993c63582d7e4b7d1049edb645e6e",
+      "url": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/hopewell-mini-waterpark-hw/"
+    },
+    {
+      "domains": [
+        "pools"
+      ],
+      "label": "Huntington facility page",
+      "sha256": "1092542e981c3f38ea22481adf962e18bbea71c2f063a09737dade7bacc82c86",
+      "url": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/huntington-hu-pool/"
+    },
+    {
+      "domains": [
+        "pools"
+      ],
+      "label": "Jeffers Hill facility page",
+      "sha256": "411c7ad0f95abfc8cb13ffe3a7d6bf321670fc72ab31f1fedabd93e760719cb7",
+      "url": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/jeffers-hill-jh-pool/"
+    },
+    {
+      "domains": [
+        "pools"
+      ],
+      "label": "Kendall Ridge facility page",
+      "sha256": "d86e50a09dfe8f2932f9523f92a58110a3968aca5a478528611b4f16ab8f85ed",
+      "url": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/kendall-ridge-kr-pool/"
+    },
+    {
+      "domains": [
+        "pools"
+      ],
+      "label": "Locust Park facility page",
+      "sha256": "db8af00f6701e94780479aec6adf6785432ebba12a15315bcdd7a2f4f969bd93",
+      "url": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/locust-park-lp-pool/"
+    },
+    {
+      "domains": [
+        "pools"
+      ],
+      "label": "Longfellow facility page",
+      "sha256": "5727fac834c78247f4239559adf9bcde331ab04c9255f0996964060954299775",
+      "url": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/longfellow-lf-pool/"
+    },
+    {
+      "domains": [
+        "pools"
+      ],
+      "label": "MacGill's Common facility page",
+      "sha256": "c0e11ac453f557ca415cef6f7f35930ccb9bd4c4eb70d7b98d3a45ee5b26955c",
+      "url": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/macgills-common-mc-pool/"
+    },
+    {
+      "domains": [
+        "pools"
+      ],
+      "label": "Phelps Luck facility page",
+      "sha256": "be2e54c69a2d9816ba5cc8b39b38ed9c38baeaf2dfc0b0790f723aed163d0928",
+      "url": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/phelps-luck-pl-pool/"
+    },
+    {
+      "domains": [
+        "pools"
+      ],
+      "label": "River Hill facility page",
+      "sha256": "f5933c8db06038b618ade3fa23f0e6b4d8298699d936699d850c9f8a8c80734f",
+      "url": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/river-hill-rh-pool/"
+    },
+    {
+      "domains": [
+        "pools"
+      ],
+      "label": "Running Brook facility page",
+      "sha256": "807d898b1c65bda96882c22a072f27fa7a621fd34dbbf2cf9be41f12e2506e58",
+      "url": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/running-brook-rb-pool/"
+    },
+    {
+      "domains": [
+        "pools"
+      ],
+      "label": "Stevens Forest facility page",
+      "sha256": "9ec40e97c5c79d4318ea9e384e12343cd8cad7c52e750f1241d40c56502b5395",
+      "url": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/stevens-forest-sf-pool/"
+    },
+    {
+      "domains": [
+        "pools"
+      ],
+      "label": "Swansfield facility page",
+      "sha256": "751a3275148a824f3e0b2ce0095f94a3db92522e73c51879cd162000444a7f2a",
+      "url": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/swansfield-mini-water-park-sw/"
+    },
+    {
+      "domains": [
+        "pools"
+      ],
+      "label": "Talbott Springs facility page",
+      "sha256": "b008910184348e4538de5bc84513898adbf4b2e59f3b2c22d502e03ceca41d0e",
+      "url": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/talbott-springs-ts-pool/"
+    },
+    {
+      "domains": [
+        "pools"
+      ],
+      "label": "Thunder Hill facility page",
+      "sha256": "79295ef286d9b7e437d2d0ccaa8e08bf682d8582c46af600ca1379bfe98c7a67",
+      "url": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/thunder-hill-th-pool/"
+    },
+    {
+      "domains": [
+        "pools"
+      ],
+      "label": "Columbia Association pool schedule page",
+      "sha256": "275e0592b86be3980b3950d864143752311742403f36b5dd91ec3e2463c43c50",
+      "url": "https://columbiaassociation.org/sports-recreation/pools/pool-schedules/"
+    },
+    {
+      "domains": [
+        "pools"
+      ],
+      "label": "Columbia Association pool directory",
+      "sha256": "8eab0f09df013b1bd69655991bb824cfa822d383b482905789153d4df8bfda78",
+      "url": "https://experience.arcgis.com/experience/ac58c73ab9bd4640a880c8ddf46bf198"
+    },
+    {
+      "domains": [
+        "meets",
+        "teams"
+      ],
+      "label": "CNSL publication page",
+      "sha256": "a641234b27ec5cdcd1381a211c9f99aa39470da4da5a95ad8c4878443369a8c4",
+      "url": "https://www.gomotionapp.com/team/reccnsl/page/home"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "Clemens Crossing Cyclones home page",
+      "sha256": "ace427d0f6cce530f76fd627c599e3df434662b4b7ac1fc56ee042097c4c765c",
+      "url": "https://www.gomotionapp.com/team/reccnslccc/page/home"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "Clemens Crossing Cyclones staff page",
+      "sha256": "1aa5612696c51db827a4d8025ca385a729380335e9776425928540c16058a21c",
+      "url": "https://www.gomotionapp.com/team/reccnslccc/page/system/coaches"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "CHS Swim Sundevils home page",
+      "sha256": "d38c050ce6c8943526704c4782546891ccbccce2551225ad2f30083ce0fb0dad",
+      "url": "https://www.gomotionapp.com/team/reccnslcfhss/page/home"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "CHS Swim Sundevils staff page",
+      "sha256": "024d12bcc40fbd46e3a72bfaf9292983153c75f8f885d552ace5cef7f1f2d563",
+      "url": "https://www.gomotionapp.com/team/reccnslcfhss/page/system/coaches"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "Dorsey Search Dolphins home page",
+      "sha256": "3266810ba510610ebac6edc3d11102d1ed355da51f4b69becb146da663ee644c",
+      "url": "https://www.gomotionapp.com/team/reccnsldsd/page/home"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "Dorsey Search Dolphins staff page",
+      "sha256": "47925a28af01bd311f3f7d268e6a4254782f3a6b7e6541c96a6c77bf2934b894",
+      "url": "https://www.gomotionapp.com/team/reccnsldsd/page/system/coaches"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "Harper's Choice Challenge home page",
+      "sha256": "6e015cc25a1e1512a9ab42efd102b915941a15335a22887687de1b24756094ee",
+      "url": "https://www.gomotionapp.com/team/reccnslhcc/page/home"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "Harper's Choice Challenge staff page",
+      "sha256": "6a5219707acb4476096b43cc2e8ab378be2fec5a081835763c4e608acc2a9e09",
+      "url": "https://www.gomotionapp.com/team/reccnslhcc/page/system/coaches"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "Huntington Dolphins home page",
+      "sha256": "ed22704e6bd1743d7f53d4171edecb08099f3c5406459b8d75c22f79f2e76592",
+      "url": "https://www.gomotionapp.com/team/reccnslhd/page/home"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "Huntington Dolphins staff page",
+      "sha256": "d748978bc289b9c3410ebb9f0db3beeca3a1649e4397a7a1bf5262b34d991507",
+      "url": "https://www.gomotionapp.com/team/reccnslhd/page/system/coaches"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "Kings Contrivance (KC) Waves staff page",
+      "sha256": "dbdcf7971aeefe3d1420503dc8e11d5336e6a714b508eff6c1d44f61bc17e772",
+      "url": "https://www.gomotionapp.com/team/reccnslkcw/page/about/meet-the-people"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "Kings Contrivance (KC) Waves home page",
+      "sha256": "ebd233a8c14822ae7fe9ddc5d91be64f5c7139cabf2c0482e488220b9d867621",
+      "url": "https://www.gomotionapp.com/team/reccnslkcw/page/home"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "Long Reach Marlins home page",
+      "sha256": "e7fe53bdf4852eef64e8480c108d4c00dcf68d2d073fb1c764841dfd1937e4ec",
+      "url": "https://www.gomotionapp.com/team/reccnsllrm/page/home"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "Long Reach Marlins staff page",
+      "sha256": "b58685923f3898118e781d061bedbf3c9de7fe0cdc4f78a7275d174c2f651013",
+      "url": "https://www.gomotionapp.com/team/reccnsllrm/page/system/coaches"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "Owen Brown Barracudas home page",
+      "sha256": "a7ec32ce8f0579ed2be26794b2561f290e09b7d13f21e5cbe08cac3f5e7637a7",
+      "url": "https://www.gomotionapp.com/team/reccnslobb/page/home"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "Owen Brown Barracudas staff page",
+      "sha256": "eb594cefb1194675e51402af4b7573d28637d2d637b48a0ade1c730ab8e74a5c",
+      "url": "https://www.gomotionapp.com/team/reccnslobb/page/system/coaches"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "Oakland Mills Tigersharks home page",
+      "sha256": "181450a05bb52f3683389bf27dedf914f0c72973a122e9483dc2fd8b018c31d4",
+      "url": "https://www.gomotionapp.com/team/reccnslomts/page/home"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "Oakland Mills Tigersharks staff page",
+      "sha256": "31886a12bfd797e68ea2fa1d42b851259298e8b68d53d35056a94dde54b15be3",
+      "url": "https://www.gomotionapp.com/team/reccnslomts/page/system/coaches"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "Phelps Luck Snappers home page",
+      "sha256": "ab1ae9af970353610f3e264475d9ba52149b927bbf73a61c9ca401093c14f233",
+      "url": "https://www.gomotionapp.com/team/reccnslpls/page/home"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "Phelps Luck Snappers staff page",
+      "sha256": "04aa630dfe248826b517826bd7e007fb942bf5f894276f413fd727c87dbde058",
+      "url": "https://www.gomotionapp.com/team/reccnslpls/page/system/coaches"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "Pointers Run Piranhas home page",
+      "sha256": "296f9cd4c6260616524ee30abd4556f13b5b2bd39182eb33a5a5df6e7cd4c845",
+      "url": "https://www.gomotionapp.com/team/reccnslprp/page/home"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "Pointers Run Piranhas staff page",
+      "sha256": "f02fc7f31e499e7a614845a1fe83fe59a6584d36128d5dbad82173d433aec77f",
+      "url": "https://www.gomotionapp.com/team/reccnslprp/page/system/coaches"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "Pheasant Ridge Rapids home page",
+      "sha256": "44280e6582af417ed001d6ed8b883feb8ed8f31716a7462d48cfbec410592d84",
+      "url": "https://www.gomotionapp.com/team/reccnslprr/page/home"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "Pheasant Ridge Rapids staff page",
+      "sha256": "6721b93cba3cde1144b58da63ac8d4d3a551fe9221ee6f35d7fb8b0d2d8a4883",
+      "url": "https://www.gomotionapp.com/team/reccnslprr/page/system/coaches"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "Thunder Hill Lightning home page",
+      "sha256": "26510b79fa50082fd3c4d600c9cdf4e569ee6f4f26e5d1cf4b1721c70d0b0d2f",
+      "url": "https://www.gomotionapp.com/team/reccnslthl/page/home"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "Thunder Hill Lightning staff page",
+      "sha256": "5ed9b1c2ed61dfc38e72633a6f4b8cdb29240bfa63c7e574d5958c84f7995899",
+      "url": "https://www.gomotionapp.com/team/reccnslthl/page/system/coaches"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "Wilde Lake Watercats home page",
+      "sha256": "b5073fc379a8f53a96954cbdb314ead5fd50062bde630a213269141acdcc6e97",
+      "url": "https://www.gomotionapp.com/team/reccnslwlw/page/home"
+    },
+    {
+      "domains": [
+        "teams"
+      ],
+      "label": "Wilde Lake Watercats staff page",
+      "sha256": "1afb09698390e8eb394595efe42bb5902484de0a12062c82fc384f30b037b396",
+      "url": "https://www.gomotionapp.com/team/reccnslwlw/page/system/coaches"
+    }
+  ]
+}

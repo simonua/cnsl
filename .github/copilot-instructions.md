@@ -27,6 +27,7 @@ CNSL (Columbia Neighborhood Swim League) is a PWA for pool directories, team sch
 - **Use pnpm**, not npm. The lockfile is `pnpm-lock.yaml`.
 - **Use jQuery selectors** over vanilla DOM APIs in JavaScript.
 - **No minified libraries** — use full versions for now.
+- **Document meaningful features in What's New.** Any meaningful feature addition must include a corresponding update to `src/views/whats-new.html` in the same change.
 
 ## Code Organization
 

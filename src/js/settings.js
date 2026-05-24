@@ -20,6 +20,8 @@
   function applyFormValues(form, preferences) {
     const selectedTheme = form.querySelector(`input[name="theme"][value="${preferences.theme}"]`);
     if (selectedTheme) selectedTheme.checked = true;
+    const selectedScheduleLayout = form.querySelector(`input[name="poolScheduleLayout"][value="${preferences.poolScheduleLayout}"]`);
+    if (selectedScheduleLayout) selectedScheduleLayout.checked = true;
     form.elements.favoriteTeam.value = preferences.favoriteTeamId;
     form.elements.favoritePool.value = preferences.favoritePoolName;
   }
@@ -36,11 +38,14 @@
 
     form.addEventListener('change', () => {
       const theme = form.querySelector('input[name="theme"]:checked');
+      const poolScheduleLayout = form.querySelector('input[name="poolScheduleLayout"]:checked');
       const existing = PreferencesService.get();
       const saved = PreferencesService.save({
         theme: theme ? theme.value : 'system',
         favoriteTeamId: favoriteTeam.disabled ? existing.favoriteTeamId : favoriteTeam.value,
-        favoritePoolName: favoritePool.disabled ? existing.favoritePoolName : favoritePool.value
+        favoritePoolName: favoritePool.disabled ? existing.favoritePoolName : favoritePool.value,
+        poolScheduleLayout: poolScheduleLayout ? poolScheduleLayout.value : 'list',
+        poolFeatureFilters: existing.poolFeatureFilters
       });
       window.applyPreferenceTheme(saved);
       status.textContent = '';

@@ -24,6 +24,7 @@ module.exports = [
         MeetsManager: 'readonly',
         Pool: 'readonly',
         PoolSchedule: 'readonly',
+        PoolScheduleDisplay: 'readonly',
         PoolStatus: 'readonly',
         PoolNames: 'readonly',
         FileHelper: 'readonly',
@@ -32,6 +33,7 @@ module.exports = [
         TimeUtils: 'readonly',
         CNSLSearchEngine: 'readonly',
         WeatherService: 'readonly',
+        WeatherAlertService: 'readonly',
         generateEnhancedPoolLink: 'readonly',
         getPoolDataFromLocation: 'readonly',
         getPoolStatus: 'readonly',
@@ -51,9 +53,9 @@ module.exports = [
     },
   },
 
-  // Node build scripts (posthtml.js, test files, config)
+  // Node build scripts (posthtml.js, automation scripts, test files, config)
   {
-    files: ['posthtml.js', 'posthtml.config.js', 'eslint.config.js', 'test-*.js', 'tests/**/*.js'],
+    files: ['posthtml.js', 'posthtml.config.js', 'eslint.config.js', 'scripts/**/*.js', 'test-*.js', 'tests/**/*.js'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'commonjs',

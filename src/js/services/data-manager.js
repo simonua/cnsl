@@ -264,7 +264,7 @@ if (typeof window === 'undefined' || !window.DataManager) {
       return null;
     }
 
-    const dayName = TimeUtilsRef.getDayName(new Date(date));
+    const dayName = TimeUtilsRef.getDayName(TimeUtilsRef.parseDateOnly(date));
     const schedule = pool.getTimeSlots(dayName);
     const meets = this.meetsManager.getPoolConflicts(poolName, date);
 

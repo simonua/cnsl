@@ -1,6 +1,7 @@
 // Global data manager instance for pool browser
 let poolBrowserDataManager = null;
 let userCoords = null;
+let poolBrowserPools = [];
 
 // Pool-specific week states (poolId -> Date)
 const poolWeekStates = new Map();
@@ -314,7 +315,7 @@ function formatPoolHours(pool) {
     return '<div class="pool-week-display">Time utilities not available</div>';
   }
   
-  const easternTimeInfo = timeUtils.getCurrentEasternTimeInfo(); // eslint-disable-line no-unused-vars
+  const easternTimeInfo = timeUtils.getCurrentEasternTimeInfo();
   
   // Get pool status with error handling
   let poolStatus;
@@ -379,96 +380,14 @@ function formatPoolHours(pool) {
              ${dateRange ? `min="${dateRange.startDate.toISOString().split('T')[0]}" max="${dateRange.endDate.toISOString().split('T')[0]}"` : ''}>
     </div>`;
 
-  // Format hours display using new Pool class methods
-  let hoursDisplay = '';
-  const dayOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  
-  dayOrder.forEach((day, index) => {
-    const daySchedule = weekSchedule.find(d => d.day === day);
-    
-    // Calculate the specific date for this day
-    const dayDate = new Date(weekStart);
-    dayDate.setDate(weekStart.getDate() + index);
-    const monthDay = `${dayDate.getMonth() + 1}/${dayDate.getDate()}`;
-    
-    // Calculate if this is the current day for highlighting
-    const today = new Date();
-    const currentMondayStart = getMondayOfWeek(today);
-    
-    // Compare just the date parts, not the full timestamp (which includes time)
-    const weekStartDateOnly = new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate());
-    const currentMondayDateOnly = new Date(currentMondayStart.getFullYear(), currentMondayStart.getMonth(), currentMondayStart.getDate());
-    const isCurrentWeek = weekStartDateOnly.getTime() === currentMondayDateOnly.getTime();
-    
-    // Calculate current day index (0=Monday, 1=Tuesday, etc.)
-    const todayDayIndex = (today.getDay() + 6) % 7; // Convert Sunday=0 to Monday=0 format
-    const isCurrentDay = isCurrentWeek && index === todayDayIndex;
-    
-    
-    if (daySchedule && daySchedule.timeSlots && daySchedule.timeSlots.length > 0) {
-      // Check if any slot in this day is the current timeslot
-      // hasCurrentTimeSlot kept for potential future highlight logic
-      timeUtils.hasCurrentTimeSlot(daySchedule.timeSlots, isCurrentDay);
-      
-      // Style the day heading if it's the current day (regardless of time slot)
-      const dayStyle = isCurrentDay ? ' style="font-weight: bold; color: var(--primary-color);"' : '';
-      
-      // Add override indicator to day heading if there are overrides
-      let dayHeading = `${day} (${monthDay})`;
-      if (daySchedule.hasOverrides) {
-        dayHeading += ' ⚠️';
-        console.log(`🚨 Special event found for ${day} (${monthDay}):`, {
-          hasOverrides: daySchedule.hasOverrides,
-          overrideReason: daySchedule.overrideReason,
-          timeSlots: daySchedule.timeSlots
-        });
-      }
-      
-      hoursDisplay += `<div class="day-schedule"><strong${dayStyle}>${dayHeading}:</strong></div>`;
-      
-      // Show override reason if there are overrides for this day
-      if (daySchedule.hasOverrides === true && daySchedule.overrideReason && daySchedule.overrideReason.trim().length > 0) {
-        hoursDisplay += `<div class="override-notice" style="margin-left: 1rem; margin-bottom: 0.2rem;">📋 Special Schedule: ${daySchedule.overrideReason}</div>`;
-      }
-      
-      daySchedule.timeSlots.forEach(slot => {
-        let typesText = slot.activities ? ` ${timeUtils.formatActivityTypes(slot.activities)}` : '';
-        
-        // Make "Closed to Public" bold
-        if (typesText.includes('Closed to Public')) {
-          typesText = typesText.replace('Closed to Public', '<span class="closed-to-public">Closed to Public</span>');
-        }
-        
-        // Add override styling if this is an override slot, but don't add extra margin for alignment
-        let slotClass = 'time-slot';
-        const slotStyle = 'margin-left: 1rem; margin-bottom: 0.2rem;';
-        if (slot.isOverride) {
-          slotClass += ' override-slot';
-          // Override slots get the same indentation as regular slots for proper time alignment
-        }
-        
-        const notesText = slot.notes ? ` ${slot.notes}` : '';
-        const timeRange = `${slot.startTime}-${slot.endTime}`;
-        const timeHtml = timeUtils.formatTimeRangeWithHighlight(timeRange, isCurrentDay, null, poolStatus);
-
-        if (slot.isOverride) {
-          hoursDisplay += `<div class="${slotClass}" style="${slotStyle}">${timeHtml}<b>${notesText}</b></div>`;
-        } else {
-          hoursDisplay += `<div class="${slotClass}" style="${slotStyle}">${timeHtml}${typesText}${notesText}</div>`;
-        }
-      });
-    } else {
-      // Show "Closed" for days with no schedule
-      const dayDate = new Date(weekStart);
-      dayDate.setDate(weekStart.getDate() + index);
-      const monthDay = `${dayDate.getMonth() + 1}/${dayDate.getDate()}`;
-      
-      // Style the day heading if it's the current day
-      const dayStyle = isCurrentDay ? ' style="font-weight: bold; color: var(--primary-color);"' : '';
-      
-      hoursDisplay += `<div class="day-schedule"><strong${dayStyle}>${day} (${monthDay}):</strong></div>`;
-      hoursDisplay += `<div class="time-slot" style="margin-left: 1rem; margin-bottom: 0.2rem;"><span class="closed-day">Closed</span></div>`;
-    }
+  const preferences = PreferencesService.get();
+  const today = new Date(`${easternTimeInfo.date}T12:00:00`);
+  const hoursDisplay = PoolScheduleDisplay.render(weekSchedule, {
+    layout: preferences.poolScheduleLayout,
+    weekStart,
+    today,
+    timeUtils,
+    poolStatus
   });
 
   return `
@@ -479,9 +398,7 @@ function formatPoolHours(pool) {
         <span class="tooltip-text">${getStatusTooltip(poolStatus.color || 'red')}</span>
       </span><br>
       ${navigationHtml}
-      <div class="hours-details">
-        ${hoursDisplay}
-      </div>
+      ${hoursDisplay}
     </div>
   `;
 }
@@ -567,6 +484,123 @@ function calculateDistance(coords1, coords2) {
 }
 
 /**
+ * Display a feature label in sentence case.
+ * @param {string} feature - Published feature label
+ * @returns {string} User-visible label
+ */
+function formatPoolFeatureLabel(feature) {
+  return feature.charAt(0).toUpperCase() + feature.slice(1);
+}
+
+/**
+ * Render available amenity controls and restore device-local selections.
+ * @param {Array} pools - Available pool data objects
+ */
+function setupPoolFeatureFilters(pools) {
+  const filterSection = document.getElementById('poolFeatureFilter');
+  const optionsContainer = document.getElementById('poolFeatureFilterOptions');
+  const toggleButton = document.getElementById('togglePoolFeatureFilters');
+  const clearButton = document.getElementById('clearPoolFeatureFilters');
+  if (!filterSection || !optionsContainer || !toggleButton || !clearButton) return;
+
+  const availableFeatures = PreferencesService.getPoolFeatures(pools);
+  const preferences = PreferencesService.get();
+  const selectedFeatures = preferences.poolFeatureFilters.filter(feature => availableFeatures.includes(feature));
+  if (selectedFeatures.length !== preferences.poolFeatureFilters.length) {
+    PreferencesService.save({ ...preferences, poolFeatureFilters: selectedFeatures });
+  }
+
+  optionsContainer.replaceChildren();
+  availableFeatures.forEach(feature => {
+    const input = document.createElement('input');
+    input.name = 'poolFeature';
+    input.type = 'checkbox';
+    input.value = feature;
+    input.checked = selectedFeatures.includes(feature);
+
+    const mark = document.createElement('span');
+    mark.setAttribute('aria-hidden', 'true');
+    mark.className = 'pool-filter__mark';
+    mark.textContent = '\u2713';
+
+    const labelText = document.createElement('span');
+    labelText.className = 'pool-filter__label';
+    labelText.textContent = formatPoolFeatureLabel(feature);
+
+    const chip = document.createElement('span');
+    chip.append(mark, labelText);
+
+    const label = document.createElement('label');
+    label.className = 'pool-filter__option';
+    label.append(input, chip);
+    optionsContainer.appendChild(label);
+  });
+  filterSection.hidden = availableFeatures.length === 0;
+  clearButton.hidden = selectedFeatures.length === 0;
+
+  optionsContainer.onchange = handlePoolFeatureFilterChange;
+  toggleButton.onclick = togglePoolFeatureFilters;
+  clearButton.onclick = clearPoolFeatureFilters;
+}
+
+/**
+ * Show or hide the feature options while retaining applied selections.
+ */
+function togglePoolFeatureFilters() {
+  const toggleButton = document.getElementById('togglePoolFeatureFilters');
+  const controls = document.getElementById('poolFeatureFilterControls');
+  const indicator = toggleButton ? toggleButton.querySelector('.pool-filter__indicator') : null;
+  if (!toggleButton || !controls) return;
+
+  controls.hidden = !controls.hidden;
+  toggleButton.setAttribute('aria-expanded', String(!controls.hidden));
+  if (indicator) indicator.textContent = controls.hidden ? '+' : '-';
+}
+
+/**
+ * Save selected features and refresh the directory results.
+ */
+function handlePoolFeatureFilterChange() {
+  const selectedFeatures = Array.from(document.querySelectorAll('input[name="poolFeature"]:checked'))
+    .map(input => input.value);
+  const preferences = PreferencesService.get();
+  PreferencesService.save({ ...preferences, poolFeatureFilters: selectedFeatures });
+  renderPools(poolBrowserPools);
+}
+
+/**
+ * Remove all selected feature filters from this device.
+ */
+function clearPoolFeatureFilters() {
+  const preferences = PreferencesService.get();
+  PreferencesService.save({ ...preferences, poolFeatureFilters: [] });
+  setupPoolFeatureFilters(poolBrowserPools);
+  renderPools(poolBrowserPools);
+}
+
+/**
+ * Update the active filter result count and clear action.
+ * @param {number} matchingCount - Filtered pool count
+ * @param {number} totalCount - Total pool count
+ * @param {number} filterCount - Active filter count
+ */
+function updatePoolFilterSummary(matchingCount, totalCount, filterCount) {
+  const summary = document.getElementById('poolFilterSummary');
+  const clearButton = document.getElementById('clearPoolFeatureFilters');
+  const selectionCount = document.getElementById('poolFeatureFilterCount');
+  if (summary) {
+    summary.textContent = filterCount > 0
+      ? `Showing ${matchingCount} of ${totalCount} pools`
+      : `${totalCount} pools`;
+  }
+  if (clearButton) clearButton.hidden = filterCount === 0;
+  if (selectionCount) {
+    selectionCount.hidden = filterCount === 0;
+    selectionCount.textContent = filterCount > 0 ? `${filterCount} selected` : '';
+  }
+}
+
+/**
  * Renders the list of pools in the #poolList element
  * @param {Array} pools - Array of pool data objects (legacy format)
  */
@@ -585,14 +619,25 @@ function renderPools(pools) {
     return;
   }
 
-  const favoritePoolName = PreferencesService.get().favoritePoolName;
+  const preferences = PreferencesService.get();
+  const favoritePoolName = preferences.favoritePoolName;
+  const filteredPools = PreferencesService.filterPoolsByFeatures(pools, preferences.poolFeatureFilters);
+  updatePoolFilterSummary(filteredPools.length, pools.length, preferences.poolFeatureFilters.length);
+  if (filteredPools.length === 0) {
+    list.innerHTML = `
+      <div class="pool-filter__empty" role="status">
+        <h3>No matching pools</h3>
+        <p>Try removing a selected feature.</p>
+      </div>
+    `;
+    return;
+  }
   const comparePools = (a, b) => {
     const nameA = (a && a.name) ? a.name : '';
     const nameB = (b && b.name) ? b.name : '';
     return nameA.localeCompare(nameB);
   };
-  const sortedPools = PreferencesService.sortWithFavorite(pools, favoritePoolName, pool => pool.name || '', comparePools);
-  const favoritePool = sortedPools.find(pool => pool.name === favoritePoolName);
+  const sortedPools = PreferencesService.sortWithFavorite(filteredPools, favoritePoolName, pool => pool.name || '', comparePools);
 
   // If we have user location, calculate distances
   if (userCoords) {
@@ -653,7 +698,7 @@ function renderPools(pools) {
     // Format features for display as horizontal pills
     let featuresHtml;
     if (Array.isArray(features) && features.length > 0) {
-      const sortedFeatures = features.sort();
+      const sortedFeatures = [...features].sort();
       featuresHtml = `
         <div class="pool-features">
           <h4>Features</h4>
@@ -1001,6 +1046,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     // Convert Pool objects to legacy format for backward compatibility
     const legacyPools = pools.map(pool => pool.toJSON());
+    poolBrowserPools = legacyPools;
+    setupPoolFeatureFilters(legacyPools);
     
     // Always render pools first with no location data
     renderPools(legacyPools);

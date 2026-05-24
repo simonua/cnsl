@@ -15,6 +15,7 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
   static MINUTES_PER_HOUR = 60;
   static DEFAULT_TIME = '12:00am';
   static TIME_REGEX = /^(\d{1,2}):?(\d{0,2})(AM|PM)$/i;
+  static DATE_ONLY_REGEX = /^(\d{4})-(\d{2})-(\d{2})$/;
   static VALID_STATUS_COLORS = ['green', 'yellow', 'red'];
   
   // Cache for timezone offset calculations to improve performance
@@ -420,6 +421,30 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
       this._log(`Day name extraction failed: ${error.message}`, 'error');
       return 'Unknown';
     }
+  }
+
+  /**
+   * Parses an ISO calendar date without allowing UTC conversion to move it to the prior day.
+   * @param {string} dateString - Date in YYYY-MM-DD format
+   * @returns {Date} Date positioned at local midday on the requested calendar day
+   * @throws {Error} If dateString is invalid
+   */
+  static parseDateOnly(dateString) {
+    this._validateInput(dateString, 'dateString', 'string');
+    const match = dateString.match(this.DATE_ONLY_REGEX);
+    if (!match) {
+      throw new Error(`TimeUtils: Invalid date format "${dateString}". Expected format: "YYYY-MM-DD"`);
+    }
+
+    const year = Number(match[1]);
+    const month = Number(match[2]) - 1;
+    const day = Number(match[3]);
+    const date = new Date(year, month, day, 12);
+    if (date.getFullYear() !== year || date.getMonth() !== month || date.getDate() !== day) {
+      throw new Error(`TimeUtils: Invalid calendar date "${dateString}"`);
+    }
+
+    return date;
   }
 
   /**

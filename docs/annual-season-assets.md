@@ -81,3 +81,9 @@ Before publishing a new active year:
 ## Agent Workflow
 
 Use the workspace skill `/cnsl-season-rollover` when adding, auditing, or activating a season. It is stored in `.github/skills/cnsl-season-rollover/SKILL.md` and walks through source discovery, folder creation, JSON/schema work, activation, and verification.
+
+### Nightly Source Monitoring
+
+During the active season, `.github/workflows/season-data-monitor.yml` runs `scripts/season-data-agent.js` nightly. The monitor byte-compares retained official PDFs and fingerprints relevant visible text from referenced public pool, team, staff, and CNSL publication pages, confirming a changed page on a second request before reporting it. The Columbia Association schedule index is fingerprinted only for its outdoor schedule section and links. When a source changes, it opens a pull request with refreshed official documents where applicable, updated fingerprints, and a checklist for reviewing and transcribing affected JSON fields.
+
+The monitor intentionally does not automatically rewrite application JSON from PDF or webpage changes. Annual JSON remains a reviewed transcription of official material. After activating a new `YEAR`, run `node scripts/season-data-agent.js --initialize` and commit the generated `.github/data-agent/source-state.json` alongside the accepted annual baseline.

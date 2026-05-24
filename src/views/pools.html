@@ -5,6 +5,23 @@
       <p class="season-text">Loading season information...</p>
     </div>
     <div class="container">
+      <section class="pool-filter" id="poolFeatureFilter" aria-label="Pool feature filters" hidden>
+        <div class="pool-filter__header">
+          <button type="button" class="pool-filter__toggle" id="togglePoolFeatureFilters" aria-expanded="false" aria-controls="poolFeatureFilterControls">
+            <span class="pool-filter__indicator" aria-hidden="true">+</span>
+            <span class="pool-filter__title">Features</span>
+            <span class="pool-filter__count" id="poolFeatureFilterCount" hidden></span>
+          </button>
+          <button type="button" class="pool-filter__clear" id="clearPoolFeatureFilters" hidden>Clear</button>
+        </div>
+        <div class="pool-filter__controls" id="poolFeatureFilterControls" hidden>
+            <fieldset class="pool-filter__fieldset">
+              <legend class="visually-hidden">Select features required at a pool</legend>
+              <div class="pool-filter__options" id="poolFeatureFilterOptions"></div>
+            </fieldset>
+        </div>
+        <p class="pool-filter__summary" id="poolFilterSummary" aria-live="polite"></p>
+      </section>
       <div id="poolList" class="pool-list">
         <!-- Pools will be loaded dynamically via JavaScript -->
         <p class="loading">Loading pool information...</p>
@@ -18,6 +35,7 @@
     <script src="js/services/time-utils.js"></script>
     <script src="js/types/pool-enums.js"></script>
     <script src="js/pool-schedule.js"></script>
+    <script src="js/services/pool-schedule-display.js"></script>
     <script src="js/services/pool-link-helper.js"></script>
     <script src="js/models/pool.js"></script>
     <script src="js/pools-manager.js"></script>
