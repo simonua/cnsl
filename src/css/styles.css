@@ -30,7 +30,7 @@
   --weather-alert-action: #f0c34e;
   --weather-alert-action-hover: #e3b43c;
   --weather-alert-action-text: #392b00;
-  --header-height: 70px;
+  --header-height: 4.625rem;
   --footer-height: 3.25rem;
   --footer-bottom-clearance: max(0.5rem, env(safe-area-inset-bottom, 0rem));
   --border-radius: 12px;
@@ -343,7 +343,12 @@ html, body {
 
 @media (max-width: 48rem) {
   .weather-alert__inner {
-    grid-template-columns: minmax(0, 1fr) auto 44px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) auto 44px;
+    padding-top: 0.5rem;
+  }
+
+  .weather-alert--collapsed .weather-alert__inner {
+    padding-bottom: 0;
   }
 
   .weather-alert__details {
@@ -2701,6 +2706,17 @@ button[aria-label*="Voice"]:active {
 .footer a:hover,
 .footer a:focus-visible {
   text-decoration: underline;
+}
+
+@media (max-width: 48rem) {
+  :root {
+    --footer-height: 2.5rem;
+    --footer-bottom-clearance: max(0.25rem, env(safe-area-inset-bottom, 0rem));
+  }
+
+  .footer {
+    padding: 0.35rem 1rem calc(0.35rem + var(--footer-bottom-clearance));
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

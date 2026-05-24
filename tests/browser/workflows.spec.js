@@ -251,7 +251,7 @@ test('visible weather safety alerts render with update times on every page', asy
   }
 });
 
-test('mobile weather safety alert centers its content and collapses with a stable arrow control', async ({ page }) => {
+test('mobile weather safety alert keeps navigation visible and collapses with a stable arrow control', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await prepareVisibleWeatherAlert(page);
   await page.goto('/index.html');
@@ -272,6 +272,16 @@ test('mobile weather safety alert centers its content and collapses with a stabl
   const expandedAlertBackground = await alert.evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).backgroundColor);
   await expect(icon).toHaveCSS('transform', 'none');
   await expect(icon).toHaveCSS('transition-duration', '0s');
+
+  const navigationToggle = page.getByRole('button', { name: 'Open navigation menu' });
+  await navigationToggle.click();
+  const homeLink = page.locator('#navMenu a').first();
+  await expect(homeLink).toBeVisible();
+  const headerBox = await page.locator('.header').boundingBox();
+  const homeLinkBox = await homeLink.boundingBox();
+  expect(homeLinkBox.y).toBeGreaterThanOrEqual(headerBox.y + headerBox.height);
+  await page.keyboard.press('Escape');
+  await expect(navigationToggle).toBeFocused();
 
   await toggle.focus();
   await page.keyboard.press('Enter');
