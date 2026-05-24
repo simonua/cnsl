@@ -53,6 +53,12 @@ jobs:
       - name: Verify PWA artifact contract
         run: pnpm run verify:pwa
 
+      - name: Install Chromium for browser verification
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run browser accessibility and workflow checks
+        run: pnpm run test:browser
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
