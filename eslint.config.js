@@ -28,6 +28,7 @@ module.exports = [
         PoolNames: 'readonly',
         FileHelper: 'readonly',
         CacheService: 'readonly',
+        PreferencesService: 'readonly',
         TimeUtils: 'readonly',
         CNSLSearchEngine: 'readonly',
         WeatherService: 'readonly',

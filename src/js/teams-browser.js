@@ -315,7 +315,7 @@ function formatTeamStaff(staff) {
     if (matchingContacts.length === 0) return '';
 
     return `<ul class="team-staff__contacts">${matchingContacts.map(contact => `
-      <li><span class="team-staff__role">${contact.label}</span>${formatEmail(contact.email)}</li>
+      <li><a class="team-staff__email" href="mailto:${contact.email}" aria-label="${contact.label}: ${contact.email}">${contact.email}</a></li>
     `).join('')}</ul>`;
   };
 
