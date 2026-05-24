@@ -2478,12 +2478,7 @@ button[aria-label*="Voice"]:active {
 
 .footer a {
   color: var(--primary-color);
-  text-decoration: underline;
-  text-underline-offset: 0.15em;
-}
-
-.footer a:hover {
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 /* Search section styling */
