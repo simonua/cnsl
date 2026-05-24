@@ -144,8 +144,7 @@ function scrollCalendarsToToday(root = document) {
       - ((calendar.clientWidth - todayBounds.width) / 2);
     const maximumLeft = calendar.scrollWidth - calendar.clientWidth;
     const scrollLeft = Math.max(0, Math.min(maximumLeft, centeredLeft));
-    const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
-    calendar.scrollTo({ left: scrollLeft, behavior });
+    calendar.scrollLeft = scrollLeft;
   });
 }
 
@@ -405,9 +404,6 @@ function getUserLocation() {
         const pools = poolsManager.getAllPools();
         const legacyPools = pools.map(pool => pool.toJSON());
         renderPools(legacyPools);
-        
-        // Re-handle URL parameters after re-rendering to maintain pool expansion
-        setTimeout(() => handlePoolUrlParameter(), 50);
       }
     },
     // Error callback
@@ -616,6 +612,12 @@ function renderPools(pools) {
     return;
   }
 
+  const expandedPoolIds = new Set(Array.from(list.querySelectorAll('.pool-card')).filter(poolCard => {
+    const toggleButton = poolCard.querySelector('.pool-header__toggle');
+    return toggleButton && toggleButton.getAttribute('aria-expanded') === 'true';
+  }).map(poolCard => poolCard.dataset.poolId));
+  const linkedPoolId = new URLSearchParams(window.location.search).get('pool');
+  const isInitialRender = expandedPoolIds.size === 0 && !list.querySelector('.pool-card');
   const preferences = PreferencesService.get();
   const favoritePoolName = preferences.favoritePoolName;
   const filteredPools = PreferencesService.filterPoolsByFeatures(pools, preferences.poolFeatureFilters);
@@ -659,6 +661,7 @@ function renderPools(pools) {
     const detailsId = `pool-details-${String(poolId || poolName).replace(/[^a-zA-Z0-9_-]/g, '-')}`;
     const features = pool.features || [];
     const isFavorite = poolName === favoritePoolName;
+    const isExpanded = isFavorite || expandedPoolIds.has(poolId) || (isInitialRender && poolId === linkedPoolId);
     
     let distanceHtml = '';
     if (pool.distance !== undefined && !isNaN(pool.distance)) {
@@ -763,12 +766,12 @@ function renderPools(pools) {
     const safeCityStateZip = PoolBrowserSafety.escapeHtml(cityStateZip);
 
     return `
-      <div class="pool-card ${isFavorite ? 'favorite-card' : 'collapsed'}" data-pool-id="${safePoolId}">
+      <div class="pool-card ${isFavorite ? 'favorite-card' : ''}${isExpanded ? '' : ' collapsed'}" data-pool-id="${safePoolId}">
         <div class="pool-header">
-          <h2><button type="button" class="pool-header__toggle" aria-expanded="${String(isFavorite)}" aria-controls="${detailsId}">${statusIndicatorHtml}${safePoolName}${isFavorite ? ' <span class="favorite-badge">Favorite pool</span>' : ''}</button></h2>
+          <h2><button type="button" class="pool-header__toggle" aria-expanded="${String(isExpanded)}" aria-controls="${detailsId}">${statusIndicatorHtml}${safePoolName}${isFavorite ? ' <span class="favorite-badge">Favorite pool</span>' : ''}</button></h2>
           ${distanceHtml}
         </div>
-        <div class="pool-details" id="${detailsId}"${isFavorite ? '' : ' hidden'}>
+        <div class="pool-details" id="${detailsId}"${isExpanded ? '' : ' hidden'}>
           <div class="pool-contact">
             <div class="address-section">
               <div class="address-section__details">
@@ -802,41 +805,20 @@ function renderPools(pools) {
 function handlePoolUrlParameter() {
   const urlParams = new URLSearchParams(window.location.search);
   const poolId = urlParams.get('pool');
-  
-  if (poolId) {
-    // Wait a moment for the DOM to be ready, then find and expand the pool
-    setTimeout(() => {
-      const escapedPoolId = window.CSS && typeof window.CSS.escape === 'function'
-        ? window.CSS.escape(poolId)
-        : poolId.replace(/[^a-zA-Z0-9_-]/g, '');
-      const poolCard = escapedPoolId ? document.querySelector(`[data-pool-id="${escapedPoolId}"]`) : null;
-      if (poolCard) {
-        // Expand the pool card
-        poolCard.classList.remove('collapsed');
-        const toggleButton = poolCard.querySelector('.pool-header__toggle');
-        const details = poolCard.querySelector('.pool-details');
-        if (toggleButton) toggleButton.setAttribute('aria-expanded', 'true');
-        if (details) {
-          details.hidden = false;
-          scrollCalendarsToToday(details);
-        }
-        
-        // Add a highlight class for visual emphasis
-        poolCard.classList.add('highlighted');
-        
-        scrollLinkedPoolIntoView(poolCard);
-        
-        // Remove highlight after a few seconds
-        setTimeout(() => {
-          poolCard.classList.remove('highlighted');
-        }, 3000);
-      } else {
-        // If pool card not found, try again after a short delay
-        // This handles cases where rendering is still in progress
-        setTimeout(() => handlePoolUrlParameter(), 100);
-      }
-    }, 150); // Increased timeout for better reliability
-  }
+  if (!poolId) return;
+
+  const escapedPoolId = window.CSS && typeof window.CSS.escape === 'function'
+    ? window.CSS.escape(poolId)
+    : poolId.replace(/[^a-zA-Z0-9_-]/g, '');
+  const poolCard = escapedPoolId ? document.querySelector(`[data-pool-id="${escapedPoolId}"]`) : null;
+  if (!poolCard) return;
+
+  poolCard.classList.add('highlighted');
+  scrollLinkedPoolIntoView(poolCard);
+
+  setTimeout(() => {
+    poolCard.classList.remove('highlighted');
+  }, 3000);
 }
 
 /**

@@ -127,6 +127,7 @@ test('season summary and CA season action appear on the home page', async ({ pag
   await expect(page.locator('.season-text')).toHaveCount(0);
   await expect(page.getByRole('link', { name: "CA's 2026 Pool Season" })).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'Interactive CA Pool Directory' })).toBeVisible();
+  await expect.poll(() => page.locator('#poolList, #seasonInfo').evaluateAll(elements => elements.map(element => element.id))).toEqual(['poolList', 'seasonInfo']);
 });
 
 test('pool feature filters expose their state and resulting count', async ({ page }) => {
@@ -197,6 +198,18 @@ test('directory disclosures work without rendered inline event handlers', async 
 
 test('meet pool links reveal the destination below the mobile fixed header', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.context().grantPermissions(['geolocation']);
+  await page.context().setGeolocation({ latitude: 39.2105, longitude: -76.8721 });
+  await page.addInitScript(() => {
+    localStorage.setItem('cnsl_preferences', JSON.stringify({ locationAwarenessEnabled: true }));
+    sessionStorage.setItem('cnsl_linked_pool_scroll_count', '0');
+    const originalScrollTo = globalThis.scrollTo.bind(globalThis);
+    globalThis.scrollTo = (...args) => {
+      const count = Number.parseInt(sessionStorage.getItem('cnsl_linked_pool_scroll_count') || '0', 10);
+      sessionStorage.setItem('cnsl_linked_pool_scroll_count', String(count + 1));
+      originalScrollTo(...args);
+    };
+  });
   await page.goto('/meets.html');
   await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
 
@@ -212,7 +225,9 @@ test('meet pool links reveal the destination below the mobile fixed header', asy
 
   const targetCard = page.locator(`.pool-card[data-pool-id="${targetPoolId}"]`);
   await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await expect(page.locator('.distance-badge').first()).toBeVisible();
   await expect(targetCard.locator('.pool-header__toggle')).toHaveAttribute('aria-expanded', 'true');
+  await expect.poll(() => page.evaluate(() => Number.parseInt(sessionStorage.getItem('cnsl_linked_pool_scroll_count') || '0', 10))).toBe(1);
   await expect.poll(() => targetCard.evaluate(card => {
     const headerBottom = card.ownerDocument.querySelector('.header').getBoundingClientRect().bottom;
     const poolHeadingTop = card.querySelector('.pool-header').getBoundingClientRect().top;
