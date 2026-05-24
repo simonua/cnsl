@@ -40,8 +40,8 @@ function getCurrentPracticeSchedule(practice) {
   if (practice.regular.season) {
     const now = new Date();
     const [startDate, endDate] = practice.regular.season.split(' - ');
-    const seasonStart = new Date(startDate + ' 2025');
-    const seasonEnd = new Date(endDate + ' 2025');
+    const seasonStart = new Date(`${startDate} ${window.YEAR}`);
+    const seasonEnd = new Date(`${endDate} ${window.YEAR}`);
     
     if (now >= seasonStart && now <= seasonEnd) {
       return practice.regular;
@@ -81,7 +81,7 @@ function getUpcomingPractices(practice, count = 2) {
   
   // Check if we're still in season
   if (practice.regular.season) {
-    const seasonEnd = new Date(practice.regular.season.split(' - ')[1] + ' 2025');
+    const seasonEnd = new Date(`${practice.regular.season.split(' - ')[1]} ${window.YEAR}`);
     if (now > seasonEnd) return [];
   }
   

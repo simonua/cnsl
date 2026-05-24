@@ -1,6 +1,6 @@
 {
   "$schema": "pools.schema.json",
-  "seasonStartDate": "2026-05-04",
+  "seasonStartDate": "2026-05-23",
   "seasonEndDate": "2026-09-07",
   "caPoolDirectoryUrl": "https://experience.arcgis.com/experience/ac58c73ab9bd4640a880c8ddf46bf198",
   "caPoolGuideUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-schedules/",

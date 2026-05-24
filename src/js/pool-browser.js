@@ -182,7 +182,7 @@ async function loadSeasonInfo() {
       if (poolData.caPoolGuideUrl) {
         caPoolGuideLinkHtml = `
             <a href="${poolData.caPoolGuideUrl}" target="_blank" rel="noopener" class="directory-link">
-              📖 CA's 2025 Pool Season
+              📖 CA's 2026 Pool Season
             </a>
         `;
       }
