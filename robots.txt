@@ -22,4 +22,4 @@ Allow: /manifest.webmanifest
 Allow: /service-worker.js
 
 # Sitemap location
-Sitemap: https://cnsl.longreachmarlins.org/sitemap.xml
+Sitemap: https://pools.longreachmarlins.org/sitemap.xml
