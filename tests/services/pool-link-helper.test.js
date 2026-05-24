@@ -2,6 +2,7 @@ const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const {
   getPoolIdFromLocation,
+  generateGoogleMapsLink,
   generatePoolsPageLink,
   POOL_LOCATION_TO_ID_MAP
 } = require('../../src/js/services/pool-link-helper.js');
@@ -58,6 +59,12 @@ describe('pool-link-helper', () => {
       assert.ok(link.includes('<a href='));
     });
 
+    it('encodes display text before returning generated markup', () => {
+      const link = generatePoolsPageLink('bwp', '<img src=x onerror=bad>');
+      assert.ok(link.includes('&lt;img src=x onerror=bad&gt;'));
+      assert.ok(!link.includes('<img'));
+    });
+
     it('returns display text when poolId is missing', () => {
       assert.equal(generatePoolsPageLink(null, 'Test'), 'Test');
       assert.equal(generatePoolsPageLink('', 'Test'), 'Test');
@@ -65,6 +72,14 @@ describe('pool-link-helper', () => {
 
     it('returns empty string when both are missing', () => {
       assert.equal(generatePoolsPageLink(null, null), '');
+    });
+  });
+
+  describe('generateGoogleMapsLink', () => {
+    it('does not render executable map destinations', () => {
+      const link = generateGoogleMapsLink({ location: { googleMapsUrl: 'javascript:alert(1)' } }, 'Pool');
+      assert.ok(link.includes('https://www.google.com/maps/search/'));
+      assert.ok(!link.includes('javascript:'));
     });
   });
 });

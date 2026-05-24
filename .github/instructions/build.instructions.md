@@ -16,6 +16,7 @@ description: "Use when working with the build pipeline, dev server, testing, lin
 | `pnpm start` | Clean, build, watch for changes, and serve with live reload (port 9090) |
 | `pnpm run build` | One-time clean build to `out/` |
 | `pnpm test` | Run all unit tests |
+| `pnpm run test:browser` | Run Playwright workflow and axe accessibility checks against a built `out/` artifact |
 | `pnpm run lint` | Run ESLint on all JS files |
 | `pnpm run lint:fix` | Auto-fix lint issues |
 
@@ -46,6 +47,7 @@ Run `.\start.ps1` (Windows) or `./start.sh` (macOS/Linux) for an interactive men
 - Test files follow the pattern `tests/**/*.test.js`.
 - Services and models export via `module.exports` for Node.js test access.
 - Run `pnpm test` to execute all tests.
+- Run `pnpm run build && pnpm run test:browser` to validate rendered keyboard workflows and automated WCAG A/AA checks.
 
 ## Linting
 

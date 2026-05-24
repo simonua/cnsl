@@ -18,6 +18,7 @@ function closeMenu(restoreFocus = false) {
   if (nav) {
     nav.classList.remove('active');
     nav.setAttribute('aria-hidden', 'true');
+    nav.inert = true;
     if (overlay) {
       overlay.classList.remove('active');
     }
@@ -57,6 +58,7 @@ function toggleMenu() {
 
   nav.classList.add('active');
   nav.setAttribute('aria-hidden', 'false');
+  nav.inert = false;
   hamburger.classList.add('active');
   hamburger.setAttribute('aria-expanded', 'true');
   hamburger.setAttribute('aria-label', 'Close navigation menu');

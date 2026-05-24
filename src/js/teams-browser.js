@@ -1,5 +1,6 @@
 // Global data manager instance for teams browser
 let teamsBrowserDataManager = null;
+const TeamsBrowserSafety = HtmlSafety;
 
 
 // ------------------------------
@@ -184,7 +185,7 @@ function formatCurrentPracticeSchedule(practice) {
   
   // Add season info
   if (currentSchedule.season) {
-    html += `<div class="season-info"><strong>Season:</strong> ${currentSchedule.season}</div>`;
+    html += `<div class="season-info"><strong>Season:</strong> ${TeamsBrowserSafety.escapeHtml(currentSchedule.season)}</div>`;
   }
   
   // Morning practices
@@ -193,7 +194,7 @@ function formatCurrentPracticeSchedule(practice) {
       html += '<div class="practice-period">';
       html += '<strong>Morning Practice:</strong>';
       html += `<div class="practice-details">`;
-      html += `<div><strong>Days:</strong> ${morning.days}</div>`;
+      html += `<div><strong>Days:</strong> ${TeamsBrowserSafety.escapeHtml(morning.days)}</div>`;
       if (morning.location) {
         const poolLink = getEnhancedPoolLink(morning.location, morning.address);
         html += `<div><strong>Location:</strong> ${poolLink}</div>`;
@@ -202,8 +203,8 @@ function formatCurrentPracticeSchedule(practice) {
         html += '<div class="sessions">';
         morning.sessions.forEach(session => {
           html += `<div class="session-item">`;
-          html += `<span class="session-time">${session.time}</span>`;
-          html += `<span class="session-group">${session.group}</span>`;
+          html += `<span class="session-time">${TeamsBrowserSafety.escapeHtml(session.time)}</span>`;
+          html += `<span class="session-group">${TeamsBrowserSafety.escapeHtml(session.group)}</span>`;
           html += `</div>`;
         });
         html += '</div>';
@@ -216,7 +217,7 @@ function formatCurrentPracticeSchedule(practice) {
   if (currentSchedule.evening && Array.isArray(currentSchedule.evening)) {
     currentSchedule.evening.forEach(evening => {
       html += '<div class="practice-period">';
-      html += `<strong>${evening.day} Evening Practice:</strong>`;
+      html += `<strong>${TeamsBrowserSafety.escapeHtml(evening.day)} Evening Practice:</strong>`;
       html += `<div class="practice-details">`;
       if (evening.location) {
         const poolLink = getEnhancedPoolLink(evening.location, evening.address);
@@ -226,8 +227,8 @@ function formatCurrentPracticeSchedule(practice) {
         html += '<div class="sessions">';
         evening.sessions.forEach(session => {
           html += `<div class="session-item">`;
-          html += `<span class="session-time">${session.time}</span>`;
-          html += `<span class="session-group">${session.group}</span>`;
+          html += `<span class="session-time">${TeamsBrowserSafety.escapeHtml(session.time)}</span>`;
+          html += `<span class="session-group">${TeamsBrowserSafety.escapeHtml(session.group)}</span>`;
           html += `</div>`;
         });
         html += '</div>';
@@ -266,7 +267,7 @@ function getPoolMapLink(location, address) {
   }
   
   // Fallback to pools.html page
-  return `<a href="pools.html" class="location-link">${location}</a>`;
+  return `<a href="pools.html" class="location-link">${TeamsBrowserSafety.escapeHtml(location)}</a>`;
 }
 
 /**
@@ -277,7 +278,9 @@ function getPoolMapLink(location, address) {
 function createTeamLogo(teamId) {
   if (!teamId) return '';
   
-  const logoPath = `assets/images/logos/${teamId}.png`;
+  const safeTeamId = String(teamId).replace(/[^a-zA-Z0-9_-]/g, '');
+  if (!safeTeamId) return '';
+  const logoPath = `assets/images/logos/${safeTeamId}.png`;
   
   return `
     <div class="team-logo">
@@ -315,7 +318,11 @@ function formatTeamStaff(staff) {
   )) : [];
   const mailIcon = '<svg class="team-staff__mail-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a2 2 0 0 1-2.06 0L2 7"></path></svg>';
   const getAudienceContacts = audience => contacts.filter(contact => contact.audience === audience);
-  const formatEmail = (email, label) => email ? `<a class="team-staff__email" href="mailto:${email}" aria-label="${label}" title="${label}">${mailIcon}</a>` : '';
+  const formatEmail = (email, label) => {
+    const emailUrl = TeamsBrowserSafety.safeMailtoUrl(email);
+    const safeLabel = TeamsBrowserSafety.escapeHtml(label);
+    return emailUrl ? `<a class="team-staff__email" href="${emailUrl}" aria-label="${safeLabel}" title="${safeLabel}">${mailIcon}</a>` : '';
+  };
   const formatMemberEmails = (member, audience) => {
     const emailLinks = [];
     const usedEmails = new Set();
@@ -341,9 +348,11 @@ function formatTeamStaff(staff) {
     if (members.length === 0) return `<p class="team-staff__empty">${emptyMessage}${formatAudienceEmails(audience)}</p>`;
 
     return `<ul class="team-staff__list">${members.map(member => `
-      <li><span class="team-staff__name">${member.name}</span><span class="team-staff__details"><span class="team-staff__separator" aria-hidden="true">-</span><span class="team-staff__role">${member.role}</span>${formatMemberEmails(member, audience)}</span></li>
+      <li><span class="team-staff__name">${TeamsBrowserSafety.escapeHtml(member.name)}</span><span class="team-staff__details"><span class="team-staff__separator" aria-hidden="true">-</span><span class="team-staff__role">${TeamsBrowserSafety.escapeHtml(member.role)}</span>${formatMemberEmails(member, audience)}</span></li>
     `).join('')}</ul>`;
   };
+
+  const safeSourceUrl = TeamsBrowserSafety.safeHttpUrl(staff.sourceUrl);
 
   return `
     <section class="team-staff" aria-label="Publicly listed team staff">
@@ -356,8 +365,8 @@ function formatTeamStaff(staff) {
           ${formatMembers(managers, 'managers', 'No team manager names publicly listed.')}
         </div>
       </div>
-      ${staff.note ? `<p class="team-staff__note">${staff.note}</p>` : ''}
-      <a class="team-staff__source" href="${staff.sourceUrl}" target="_blank" rel="noopener">View public staff source</a>
+      ${staff.note ? `<p class="team-staff__note">${TeamsBrowserSafety.escapeHtml(staff.note)}</p>` : ''}
+      ${safeSourceUrl ? `<a class="team-staff__source" href="${safeSourceUrl}" target="_blank" rel="noopener">View public staff source</a>` : ''}
     </section>
   `;
 }
@@ -401,9 +410,13 @@ function renderTeams(teams) {
   // Generate HTML for each team
   const html = sortedTeams.map(team => {
     const teamName = team.name || 'Unknown Team';
-    const teamId = team.id || '';
+    const safeTeamName = TeamsBrowserSafety.escapeHtml(teamName);
+    const teamId = String(team.id || '');
+    const safeTeamId = TeamsBrowserSafety.escapeHtml(teamId);
     const detailsId = `team-details-${String(teamId || teamName).replace(/[^a-zA-Z0-9_-]/g, '-')}`;
-    const teamUrl = team.url || '#';
+    const teamUrl = TeamsBrowserSafety.safeHttpUrl(team.url);
+    const practiceUrl = TeamsBrowserSafety.safeHttpUrl(team.practice && team.practice.url);
+    const resultsUrl = TeamsBrowserSafety.safeHttpUrl(team.resultsUrl);
     const isFavorite = teamId === favoriteTeamId;
     const homePools = Array.isArray(team.homePools) ? team.homePools : [];
     const homePool = homePools[0] || '';
@@ -431,7 +444,7 @@ function renderTeams(teams) {
             const practicePoolLink = getEnhancedPoolLink(practice.location, practice.address);
             return `
               <div class="upcoming-practice-item">
-                <strong>${practice.type}:</strong> ${practice.day} at ${practice.time}
+                <strong>${TeamsBrowserSafety.escapeHtml(practice.type)}:</strong> ${TeamsBrowserSafety.escapeHtml(practice.day)} at ${TeamsBrowserSafety.escapeHtml(practice.time)}
                 <br><span class="practice-location">📍 ${practicePoolLink}</span>
               </div>
             `;
@@ -458,11 +471,11 @@ function renderTeams(teams) {
     }
     
     return `
-      <div class="team-card ${isFavorite ? 'favorite-card' : 'collapsed'}" data-team-id="${teamId}">
+      <div class="team-card ${isFavorite ? 'favorite-card' : 'collapsed'}" data-team-id="${safeTeamId}">
         <div class="team-header">
           ${logoHtml}
           <div class="team-header-content">
-            <h2><button type="button" class="team-header__toggle" onclick="toggleTeamCard(this)" aria-expanded="${String(isFavorite)}" aria-controls="${detailsId}">${teamName}${isFavorite ? ' <span class="favorite-badge">Favorite team</span>' : ''}</button></h2>
+            <h2><button type="button" class="team-header__toggle" onclick="toggleTeamCard(this)" aria-expanded="${String(isFavorite)}" aria-controls="${detailsId}">${safeTeamName}${isFavorite ? ' <span class="favorite-badge">Favorite team</span>' : ''}</button></h2>
           </div>
         </div>
         
@@ -473,7 +486,7 @@ function renderTeams(teams) {
             <div class="detail-item">
               <strong>🏠 Home Pool:</strong> ${poolData ? 
                 getEnhancedPoolLink(homePool, fallbackAddress) : 
-                homePool
+                TeamsBrowserSafety.escapeHtml(homePool)
               }
             </div>
           ` : ''}
@@ -483,13 +496,13 @@ function renderTeams(teams) {
           ${practiceScheduleHtml}
           
           <div class="team-actions">
-            <a href="${teamUrl}" target="_blank" rel="noopener" class="btn">🌐 Team Website</a>
-            ${team.practice && team.practice.url ? 
-              `<a href="${team.practice.url}" target="_blank" rel="noopener" class="btn">📅 Practice Schedule</a>` : 
+            ${teamUrl ? `<a href="${teamUrl}" target="_blank" rel="noopener" class="btn">🌐 Team Website</a>` : ''}
+            ${practiceUrl ? 
+              `<a href="${practiceUrl}" target="_blank" rel="noopener" class="btn">📅 Practice Schedule</a>` : 
               ''
             }
-            ${team.resultsUrl ? 
-              `<a href="${team.resultsUrl}" target="_blank" rel="noopener" class="btn">🏆 Swim Meet Results</a>` : 
+            ${resultsUrl ? 
+              `<a href="${resultsUrl}" target="_blank" rel="noopener" class="btn">🏆 Swim Meet Results</a>` : 
               ''
             }
           </div>
@@ -512,7 +525,10 @@ function handleTeamUrlParameter() {
   if (teamId) {
     // Wait a moment for the DOM to be ready, then find and expand the team
     setTimeout(() => {
-      const teamCard = document.querySelector(`[data-team-id="${teamId}"]`);
+      const escapedTeamId = window.CSS && typeof window.CSS.escape === 'function'
+        ? window.CSS.escape(teamId)
+        : teamId.replace(/[^a-zA-Z0-9_-]/g, '');
+      const teamCard = escapedTeamId ? document.querySelector(`[data-team-id="${escapedTeamId}"]`) : null;
       if (teamCard) {
         // Expand the team card
         teamCard.classList.remove('collapsed');
@@ -559,14 +575,19 @@ function generateTeamLink(teamId, teamName, options = {}) {
   } = options;
   
   if (!teamId || !teamName) {
-    return teamName || 'Unknown Team';
+    return TeamsBrowserSafety.escapeHtml(teamName || 'Unknown Team');
   }
+
+  const safeClassName = String(className).replace(/[^a-zA-Z0-9_ -]/g, '');
+  const safeTarget = target === '_blank' ? '_blank' : '_self';
+  const safeTitle = TeamsBrowserSafety.escapeHtml(title);
+  const safeTeamName = TeamsBrowserSafety.escapeHtml(teamName);
   
   return `<a href="teams.html?team=${encodeURIComponent(teamId)}" 
-             class="${className}" 
-             target="${target}" 
-             title="${title}">
-             ${teamName}
+             class="${safeClassName}" 
+             target="${safeTarget}" 
+             title="${safeTitle}">
+             ${safeTeamName}
            </a>`;
 }
 

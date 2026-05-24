@@ -7,14 +7,17 @@ description: "Use when writing or modifying unit tests. Covers test patterns, st
 
 ## Framework
 
-- Node.js built-in test runner (`node:test` module).
-- Tests are in `tests/` mirroring the `src/js/` structure.
-- Test files are named `*.test.js`.
+- Unit tests use the Node.js built-in test runner (`node:test` module).
+- Browser workflow and accessibility tests use Playwright with axe against the built artifact.
+- Unit tests mirror the `src/js/` structure and are named `*.test.js`; browser tests live in `tests/browser/` and are named `*.spec.js`.
 
 ## Structure
 
 ```
 tests/
+├── browser/
+│   ├── accessibility.spec.js # Playwright + axe route checks
+│   └── workflows.spec.js     # Keyboard, live-status, and settings flows
 ├── services/
 │   ├── time-utils.test.js
 │   ├── cache-service.test.js
@@ -47,9 +50,10 @@ describe('MyClass', () => {
 
 ## Rules
 
-- Test only DOM-free logic (services, models, types, managers).
-- Each test file covers one source module.
+- Keep `*.test.js` tests DOM-free (services, models, types, managers).
+- Use `tests/browser/*.spec.js` only for delivered page behavior that needs a real browser, including focus, semantic state, and automated accessibility inspection.
+- Each unit test file covers one source module; each browser spec covers one cohesive user workflow or verification category.
 - Use `describe` blocks to group by class/function, nested `describe` for methods.
 - Use descriptive `it` strings: "should return X when given Y".
 - No mocking frameworks — use simple stubs when needed.
-- Tests must run without a browser (Node.js only).
+- Unit tests must run without a browser; browser specs require a prior `pnpm run build` and run through `pnpm run test:browser`.

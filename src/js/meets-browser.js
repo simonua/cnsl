@@ -1,5 +1,6 @@
 // Global data manager instance for meets browser
 let meetsBrowserDataManager = null;
+const MeetsBrowserSafety = HtmlSafety;
 
 
 // ------------------------------
@@ -52,7 +53,7 @@ async function renderMeets(meets) {
   const formatTeamLabel = (label, className) => {
     const displayLabel = label || (className === 'home-team' ? 'Home Team' : 'Visiting Team');
     const isFavorite = PreferencesService.teamMatchesLabel(favoriteTeam, displayLabel);
-    return `<span class="${className}${isFavorite ? ' favorite-team' : ''}">${displayLabel}</span>`;
+    return `<span class="${className}${isFavorite ? ' favorite-team' : ''}">${MeetsBrowserSafety.escapeHtml(displayLabel)}</span>`;
   };
 
   // Get current date for highlighting upcoming meets - simplified approach
@@ -123,13 +124,14 @@ async function renderMeets(meets) {
     }
 
     // Get the meet name from the first meet on this date
-    const meetName = meetsByDate[dateKey][0].name || '';
+    const meetName = MeetsBrowserSafety.escapeHtml(meetsByDate[dateKey][0].name || '');
+    const safeDateKey = MeetsBrowserSafety.escapeHtml(dateKey);
 
     html += `
       <div class="meet-date-card ${collapsedClass}">
         <div class="meet-date-header" onclick="toggleMeetDate(this)">
           <div class="date-and-name">
-            <h2><button type="button" class="meet-date-header__toggle" aria-expanded="${String(shouldExpand)}" aria-controls="${detailsId}">${dateKey}</button></h2>
+            <h2><button type="button" class="meet-date-header__toggle" aria-expanded="${String(shouldExpand)}" aria-controls="${detailsId}">${safeDateKey}</button></h2>
             ${meetName ? `<span class="meet-name-header">${meetName}</span>` : ''}
           </div>
           <div class="status-container">
@@ -146,7 +148,7 @@ async function renderMeets(meets) {
       const time = meet.time || ('8:00 AM - 12:00 PM');
       
       // Generate enhanced location link that links to pools.html page
-      let locationLink = location;
+      let locationLink = MeetsBrowserSafety.escapeHtml(location);
       if (meetsBrowserDataManager && typeof generateEnhancedPoolLink === 'function') {
         try {
           locationLink = generateEnhancedPoolLink(location, meetsBrowserDataManager, {
@@ -157,13 +159,16 @@ async function renderMeets(meets) {
           // Add maps link for the maps icon
           if (typeof getPoolDataFromLocation === 'function') {
             const poolData = getPoolDataFromLocation(location, meetsBrowserDataManager);
-            if (poolData && poolData.location && poolData.location.googleMapsUrl) {
-              locationLink += ` <a href="${poolData.location.googleMapsUrl}" target="_blank" rel="noopener" class="maps-icon" aria-label="View ${location} on Google Maps">🗺️</a>`;
+            const safeMapsUrl = poolData && poolData.location
+              ? MeetsBrowserSafety.safeHttpUrl(poolData.location.googleMapsUrl)
+              : '';
+            if (safeMapsUrl) {
+              locationLink += ` <a href="${safeMapsUrl}" target="_blank" rel="noopener" class="maps-icon" aria-label="View ${MeetsBrowserSafety.escapeHtml(location)} on Google Maps">🗺️</a>`;
             }
           }
         } catch (error) {
           console.warn('Error generating pool link for', location, ':', error);
-          locationLink = location; // Fall back to plain text
+          locationLink = MeetsBrowserSafety.escapeHtml(location); // Fall back to plain text
         }
       }
       
@@ -173,8 +178,8 @@ async function renderMeets(meets) {
         const forecast = meet.weather.forecast;
         weatherInfo = `
           <div class="weather-info">
-            <span class="weather-temp">${forecast.temperature}°F</span>
-            <span class="weather-desc">${forecast.shortForecast}</span>
+            <span class="weather-temp">${MeetsBrowserSafety.escapeHtml(forecast.temperature)}°F</span>
+            <span class="weather-desc">${MeetsBrowserSafety.escapeHtml(forecast.shortForecast)}</span>
           </div>
         `;
       }
@@ -189,14 +194,14 @@ async function renderMeets(meets) {
           <div class="meet-details special-meet">
             <div class="meet-info">
               <div class="special-meet-title">
-                <strong>${meet.name || 'Special Meet'}</strong>
+                <strong>${MeetsBrowserSafety.escapeHtml(meet.name || 'Special Meet')}</strong>
               </div>
               <div class="meet-location-time">
                 <div class="meet-location-row">
                   <span class="meet-location">${locationLink}</span>
                 </div>
                 <div class="meet-time-row">
-                  <span class="meet-time">${time}</span>
+                  <span class="meet-time">${MeetsBrowserSafety.escapeHtml(time)}</span>
                 </div>
               </div>
               ${weatherInfo}
@@ -218,7 +223,7 @@ async function renderMeets(meets) {
                   <span class="meet-location">${locationLink}</span>
                 </div>
                 <div class="meet-time-row">
-                  <span class="meet-time">${time}</span>
+                  <span class="meet-time">${MeetsBrowserSafety.escapeHtml(time)}</span>
                 </div>
               </div>
               ${weatherInfo}
@@ -306,9 +311,9 @@ function generateWeatherDisplay(weather) {
     return `
       <div class="weather-info">
         <span class="weather-icon">${weatherIcon}</span>
-        <span class="weather-temp">${temp}</span>
-        <span class="weather-condition">${condition}</span>
-        ${wind ? `<span class="weather-wind">${wind}</span>` : ''}
+        <span class="weather-temp">${MeetsBrowserSafety.escapeHtml(temp)}</span>
+        <span class="weather-condition">${MeetsBrowserSafety.escapeHtml(condition)}</span>
+        ${wind ? `<span class="weather-wind">${MeetsBrowserSafety.escapeHtml(wind)}</span>` : ''}
       </div>
     `;
   } catch (error) {

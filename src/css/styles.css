@@ -26,6 +26,7 @@
   --favorite-badge-text: #392b00;
   --header-height: 70px;
   --footer-height: 60px;
+  --footer-bottom-clearance: max(0.5rem, env(safe-area-inset-bottom, 0rem));
   --border-radius: 12px;
   --transition: all 0.15s ease;
 }
@@ -108,7 +109,7 @@ html, body {
   background-color: var(--light-bg);
   display: flex;
   flex-direction: column;
-  padding-bottom: calc(var(--footer-height) + 1rem);
+  padding-bottom: calc(var(--footer-height) + var(--footer-bottom-clearance) + 1rem);
 }
 
 .page-wrap {
@@ -400,7 +401,7 @@ main h1 {
 }
 
 .install-app[open] {
-  margin-bottom: calc(var(--footer-height) + 1rem);
+  margin-bottom: calc(var(--footer-height) + var(--footer-bottom-clearance) + 1rem);
 }
 
 .install-app__summary {
@@ -2539,10 +2540,10 @@ button[aria-label*="Voice"]:active {
   background-color: var(--white);
   border-top: 1px solid var(--border-color);
   text-align: center;
-  padding: 1rem;
+  padding: 1rem 1rem calc(1rem + var(--footer-bottom-clearance));
   font-size: 0.85rem;
   color: var(--text-muted);
-  height: var(--footer-height);
+  height: calc(var(--footer-height) + var(--footer-bottom-clearance));
   display: flex;
   align-items: center;
   justify-content: center;

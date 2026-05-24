@@ -2,6 +2,7 @@
 let poolBrowserDataManager = null;
 let userCoords = null;
 let poolBrowserPools = [];
+const PoolBrowserSafety = HtmlSafety;
 
 // Pool-specific week states (poolId -> Date)
 const poolWeekStates = new Map();
@@ -151,9 +152,10 @@ function loadSeasonInfo() {
       
       // Add CA pool directory link if available
       let caDirectoryLinkHtml = '';
-      if (poolData.caPoolDirectoryUrl) {
+      const safeDirectoryUrl = PoolBrowserSafety.safeHttpUrl(poolData.caPoolDirectoryUrl);
+      if (safeDirectoryUrl) {
         caDirectoryLinkHtml = `
-            <a href="${poolData.caPoolDirectoryUrl}" target="_blank" rel="noopener" class="directory-link">
+            <a href="${safeDirectoryUrl}" target="_blank" rel="noopener" class="directory-link">
               📍 Interactive CA Pool Directory
             </a>
         `;
@@ -161,9 +163,10 @@ function loadSeasonInfo() {
       
       // Add CA pool guide link if available
       let caPoolGuideLinkHtml = '';
-      if (poolData.caPoolGuideUrl) {
+      const safePoolGuideUrl = PoolBrowserSafety.safeHttpUrl(poolData.caPoolGuideUrl);
+      if (safePoolGuideUrl) {
         caPoolGuideLinkHtml = `
-            <a href="${poolData.caPoolGuideUrl}" target="_blank" rel="noopener" class="directory-link">
+        <a href="${safePoolGuideUrl}" target="_blank" rel="noopener" class="directory-link">
               📖 CA's ${YEAR} Pool Season
             </a>
         `;
@@ -277,6 +280,8 @@ function formatPoolHours(pool) {
   const controlId = String(poolId).replace(/[^a-zA-Z0-9_-]/g, '-');
   const weekPickerId = `week-picker-${controlId}`;
   const poolName = pool.name || 'this pool';
+  const safePoolId = PoolBrowserSafety.escapeHtml(poolId);
+  const safePoolName = PoolBrowserSafety.escapeHtml(poolName);
   const weekStart = getPoolWeekStart(poolId);
   const weekEnd = new Date(weekStart);
   weekEnd.setDate(weekStart.getDate() + 6);
@@ -323,19 +328,22 @@ function formatPoolHours(pool) {
   
   // Get pool's valid date range for navigation constraints
   const dateRange = poolObj.getValidDateRange();
+  const statusClass = ['green', 'red', 'yellow', 'gray'].includes(poolStatus.color) ? poolStatus.color : 'gray';
+  const safeStatusIcon = PoolBrowserSafety.escapeHtml(poolStatus.icon);
+  const safeStatusText = PoolBrowserSafety.escapeHtml(poolStatus.status);
   
   // Build navigation controls
   const navigationHtml = `
-    <div class="pool-week-navigation" data-pool-id="${poolId}">
+    <div class="pool-week-navigation" data-pool-id="${safePoolId}">
       <div class="week-controls-row">
         <div class="week-display">
           <span class="week-text">Week of ${weekStartText} - ${weekEndText}</span>
         </div>
         <div class="nav-buttons">
-          <button class="nav-btn calendar-btn" data-pool-id="${poolId}" aria-label="Choose a week for ${poolName}" aria-controls="${weekPickerId}" aria-expanded="false" ${!dateRange ? 'disabled' : ''}>
+          <button class="nav-btn calendar-btn" data-pool-id="${safePoolId}" aria-label="Choose a week for ${safePoolName}" aria-controls="${weekPickerId}" aria-expanded="false" ${!dateRange ? 'disabled' : ''}>
             📅
           </button>
-          <button class="nav-btn today-btn" data-pool-id="${poolId}" ${!dateRange || !isTodayInSeason(dateRange) ? 'disabled' : ''}>
+          <button class="nav-btn today-btn" data-pool-id="${safePoolId}" ${!dateRange || !isTodayInSeason(dateRange) ? 'disabled' : ''}>
             Today
           </button>
           <button class="nav-btn prev-week" ${!dateRange || weekStart <= dateRange.startDate ? 'disabled' : ''}>
@@ -346,7 +354,7 @@ function formatPoolHours(pool) {
           </button>
         </div>
       </div>
-      <input type="date" class="week-picker" id="${weekPickerId}" aria-label="Week to display for ${poolName}" hidden
+      <input type="date" class="week-picker" id="${weekPickerId}" aria-label="Week to display for ${safePoolName}" hidden
              value="${weekStart.toISOString().split('T')[0]}"
              ${dateRange ? `min="${dateRange.startDate.toISOString().split('T')[0]}" max="${dateRange.endDate.toISOString().split('T')[0]}"` : ''}>
     </div>`;
@@ -364,9 +372,9 @@ function formatPoolHours(pool) {
   return `
     <div class="pool-hours">
       <strong>🕒 Hours:</strong> 
-      <span class="open-status status-${poolStatus.color || 'red'} status-tooltip">
-        ${poolStatus.icon} ${poolStatus.status}
-        <span class="tooltip-text">${getStatusTooltip(poolStatus.color || 'red')}</span>
+      <span class="open-status status-${statusClass} status-tooltip">
+        ${safeStatusIcon} ${safeStatusText}
+        <span class="tooltip-text">${getStatusTooltip(statusClass)}</span>
       </span><br>
       ${navigationHtml}
       ${hoursDisplay}
@@ -649,7 +657,9 @@ function renderPools(pools) {
   // Generate HTML for each pool with mobile-optimized cards
   const html = sortedPools.map(pool => {
     const poolName = pool.name || 'Unknown Pool';
-    const poolId = pool.id || '';
+    const safePoolName = PoolBrowserSafety.escapeHtml(poolName);
+    const poolId = String(pool.id || '');
+    const safePoolId = PoolBrowserSafety.escapeHtml(poolId);
     const detailsId = `pool-details-${String(poolId || poolName).replace(/[^a-zA-Z0-9_-]/g, '-')}`;
     const features = pool.features || [];
     const isFavorite = poolName === favoritePoolName;
@@ -697,7 +707,7 @@ function renderPools(pools) {
         <div class="pool-features">
           <h3>Features</h3>
           <div class="feature-pills">
-            ${sortedFeatures.map(feature => `<span class="feature-pill">${feature}</span>`).join('')}
+            ${sortedFeatures.map(feature => `<span class="feature-pill">${PoolBrowserSafety.escapeHtml(feature)}</span>`).join('')}
           </div>
         </div>
       `;
@@ -725,10 +735,11 @@ function renderPools(pools) {
 
     // Create CA Pool website link if caUrl is available
     let caLinkHtml = '';
-    if (pool.caUrl) {
+    const safeCaUrl = PoolBrowserSafety.safeHttpUrl(pool.caUrl);
+    if (safeCaUrl) {
       caLinkHtml = `
         <div class="ca-website-section">
-          <a href="${pool.caUrl}" 
+          <a href="${safeCaUrl}" 
              target="_blank" 
              rel="noopener" 
              class="ca-link">
@@ -740,31 +751,36 @@ function renderPools(pools) {
 
     // Create phone number section if phone is available
     let phoneHtml = '';
-    if (pool.phone) {
+    const safePhoneUrl = PoolBrowserSafety.safeTelephoneUrl(pool.phone);
+    if (safePhoneUrl) {
       phoneHtml = `
         <div class="phone-section">
           <strong>📞 Pool Desk:</strong>
-          <a href="tel:${pool.phone}" class="phone-link">
-            ${pool.phone}
+          <a href="${safePhoneUrl}" class="phone-link">
+            ${PoolBrowserSafety.escapeHtml(pool.phone)}
           </a>
         </div>
       `;
     }
 
+    const safeMapsUrl = PoolBrowserSafety.safeHttpUrl(mapsUrl);
+    const safeStreetAddress = PoolBrowserSafety.escapeHtml(streetAddress);
+    const safeCityStateZip = PoolBrowserSafety.escapeHtml(cityStateZip);
+
     return `
-      <div class="pool-card ${isFavorite ? 'favorite-card' : 'collapsed'}" data-pool-id="${poolId}">
+      <div class="pool-card ${isFavorite ? 'favorite-card' : 'collapsed'}" data-pool-id="${safePoolId}">
         <div class="pool-header">
-          <h2><button type="button" class="pool-header__toggle" onclick="togglePoolCard(this)" aria-expanded="${String(isFavorite)}" aria-controls="${detailsId}">${statusIndicatorHtml}${poolName}${isFavorite ? ' <span class="favorite-badge">Favorite pool</span>' : ''}</button></h2>
+          <h2><button type="button" class="pool-header__toggle" onclick="togglePoolCard(this)" aria-expanded="${String(isFavorite)}" aria-controls="${detailsId}">${statusIndicatorHtml}${safePoolName}${isFavorite ? ' <span class="favorite-badge">Favorite pool</span>' : ''}</button></h2>
           ${distanceHtml}
         </div>
         <div class="pool-details" id="${detailsId}"${isFavorite ? '' : ' hidden'}>
           <div class="address-section">
             <strong>📍 Address:</strong><br>
-            <a href="${mapsUrl}" 
+            <a href="${safeMapsUrl}" 
                target="_blank" 
                rel="noopener" 
                class="address-link">
-              ${streetAddress ? `${streetAddress}${cityStateZip ? '<br>' : ''}` : ''}${cityStateZip || (streetAddress ? '' : 'Address not available')}
+              ${safeStreetAddress ? `${safeStreetAddress}${safeCityStateZip ? '<br>' : ''}` : ''}${safeCityStateZip || (safeStreetAddress ? '' : 'Address not available')}
             </a>
           </div>
           ${phoneHtml}
@@ -790,7 +806,10 @@ function handlePoolUrlParameter() {
   if (poolId) {
     // Wait a moment for the DOM to be ready, then find and expand the pool
     setTimeout(() => {
-      const poolCard = document.querySelector(`[data-pool-id="${poolId}"]`);
+      const escapedPoolId = window.CSS && typeof window.CSS.escape === 'function'
+        ? window.CSS.escape(poolId)
+        : poolId.replace(/[^a-zA-Z0-9_-]/g, '');
+      const poolCard = escapedPoolId ? document.querySelector(`[data-pool-id="${escapedPoolId}"]`) : null;
       if (poolCard) {
         // Expand the pool card
         poolCard.classList.remove('collapsed');
@@ -900,7 +919,10 @@ function refreshPoolDisplay(poolId) {
   if (!poolBrowserDataManager) return;
   
   // Find the pool card and update just its hours section
-  const poolCard = document.querySelector(`[data-pool-id="${poolId}"]`);
+  const escapedPoolId = window.CSS && typeof window.CSS.escape === 'function'
+    ? window.CSS.escape(poolId)
+    : String(poolId).replace(/[^a-zA-Z0-9_-]/g, '');
+  const poolCard = escapedPoolId ? document.querySelector(`[data-pool-id="${escapedPoolId}"]`) : null;
   if (!poolCard) return;
   
   const poolsManager = poolBrowserDataManager.getPools();

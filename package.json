@@ -17,6 +17,7 @@
     "start": "pnpm run clean && pnpm run dev:watch",
     "start:simple": "pnpm run dev",
     "test": "node --test tests/services/*.test.js tests/models/*.test.js tests/managers/*.test.js tests/types/*.test.js",
+    "test:browser": "playwright test",
     "validate:data": "node scripts/validate-season-data.js",
     "verify:pwa": "node scripts/verify-pwa-build.js",
     "lint": "eslint .",
@@ -35,7 +36,9 @@
   },
   "homepage": "https://cnsl.longreachmarlins.org/",
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.3",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.60.0",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "browser-sync": "^3.0.4",

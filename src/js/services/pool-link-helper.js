@@ -5,6 +5,10 @@
 // Prevent multiple declarations
 if (typeof window === 'undefined' || !window.getPoolIdFromLocation) {
 
+const PoolLinkSafety = typeof module !== 'undefined' && module.exports
+  ? require('./html-safety.js')
+  : HtmlSafety;
+
 // ------------------------------
 //    POOL MAPPING AND LINKING UTILITIES
 // ------------------------------
@@ -124,7 +128,7 @@ function generatePoolsPageLink(poolId, displayText) {
   if (!poolId || !displayText) return displayText || '';
   
   const poolUrl = `pools.html?pool=${encodeURIComponent(poolId)}`;
-  return `<a href="${poolUrl}" class="location-link pool-link">${displayText}</a>`;
+  return `<a href="${poolUrl}" class="location-link pool-link">${PoolLinkSafety.escapeHtml(displayText)}</a>`;
 }
 
 /**
@@ -157,14 +161,16 @@ function generateGoogleMapsLink(poolData, displayText) {
     mapsUrl = `https://www.google.com/maps/search/?api=1&query=${poolData.location.lat},${poolData.location.lng}`;
   }
   
-  if (mapsUrl) {
-    return `<a href="${mapsUrl}" target="_blank" rel="noopener" class="location-link maps-link">${displayText}</a>`;
+  const safeDisplayText = PoolLinkSafety.escapeHtml(displayText);
+  const safeMapsUrl = PoolLinkSafety.safeHttpUrl(mapsUrl);
+  if (safeMapsUrl) {
+    return `<a href="${safeMapsUrl}" target="_blank" rel="noopener" class="location-link maps-link">${safeDisplayText}</a>`;
   }
   
   // Fallback to generic search
   const searchQuery = encodeURIComponent(`${displayText} Columbia MD`);
   mapsUrl = `https://www.google.com/maps/search/?api=1&query=${searchQuery}`;
-  return `<a href="${mapsUrl}" target="_blank" rel="noopener" class="location-link maps-link">${displayText}</a>`;
+  return `<a href="${PoolLinkSafety.safeHttpUrl(mapsUrl)}" target="_blank" rel="noopener" class="location-link maps-link">${safeDisplayText}</a>`;
 }
 
 /**
@@ -192,7 +198,11 @@ function generateEnhancedPoolLink(locationName, dataManager, options = {}) {
     const mapsLink = generateGoogleMapsLink(poolData, locationName);
     
     if (showBothLinks) {
-      return `${poolsLink} <span class="link-separator">|</span> <a href="${poolData.location?.googleMapsUrl || '#'}" target="_blank" rel="noopener" class="maps-icon" aria-label="View ${locationName} on Google Maps">🗺️</a>`;
+      const safeMapsUrl = PoolLinkSafety.safeHttpUrl(poolData.location?.googleMapsUrl);
+      const safeLocationName = PoolLinkSafety.escapeHtml(locationName);
+      return safeMapsUrl
+        ? `${poolsLink} <span class="link-separator">|</span> <a href="${safeMapsUrl}" target="_blank" rel="noopener" class="maps-icon" aria-label="View ${safeLocationName} on Google Maps">🗺️</a>`
+        : poolsLink;
     } else if (preferPoolsPage) {
       return poolsLink;
     } else {
@@ -202,11 +212,11 @@ function generateEnhancedPoolLink(locationName, dataManager, options = {}) {
   
   // Fallback when pool data not found
   if (preferPoolsPage) {
-    return `<a href="pools.html" class="location-link">${locationName}</a>`;
+    return `<a href="pools.html" class="location-link">${PoolLinkSafety.escapeHtml(locationName)}</a>`;
   } else {
     const searchQuery = encodeURIComponent(`${locationName} Columbia MD`);
     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${searchQuery}`;
-    return `<a href="${mapsUrl}" target="_blank" rel="noopener" class="location-link">${locationName}</a>`;
+    return `<a href="${PoolLinkSafety.safeHttpUrl(mapsUrl)}" target="_blank" rel="noopener" class="location-link">${PoolLinkSafety.escapeHtml(locationName)}</a>`;
   }
 }
 
