@@ -17,6 +17,7 @@
     "start": "pnpm run clean && pnpm run dev:watch",
     "start:simple": "pnpm run dev",
     "test": "node --test tests/services/*.test.js tests/models/*.test.js tests/managers/*.test.js tests/types/*.test.js",
+    "validate:data": "node scripts/validate-season-data.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
@@ -34,6 +35,8 @@
   "homepage": "https://github.com/simonua/cnsl#readme",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
     "concurrently": "^9.2.1",
     "eslint": "^10.4.0",
     "globals": "^17.6.0",

@@ -67,10 +67,13 @@ assets/data/<YEAR>/pools/pool-schedules/<filename>
 Run the repository checks after code, JSON, schema, or configuration changes:
 
 ```powershell
+pnpm run validate:data
 pnpm test
 pnpm run lint
 pnpm run build
 ```
+
+`pnpm run validate:data` targets the season selected by `YEAR`; run it after active-season corrections or after activating a newly completed year.
 
 After the build, verify:
 

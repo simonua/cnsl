@@ -1,5 +1,5 @@
 {
-  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://example.com/meets.schema.json",
   "version": "V1",
   "title": "Meet Data Schema",

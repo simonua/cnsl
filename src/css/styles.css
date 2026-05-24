@@ -373,9 +373,64 @@ main h1 {
 }
 
 .install-app {
-  margin: -1.5rem auto 2.25rem;
-  padding: 0 1rem;
+  border-top: 1px solid var(--border-color);
+  margin: 3rem auto 0;
+  max-width: 38rem;
+  padding: 0.75rem 1rem 0;
   text-align: center;
+}
+
+.install-app[hidden] {
+  display: none;
+}
+
+.install-app[open] {
+  margin-bottom: calc(var(--footer-height) + 1rem);
+}
+
+.install-app__summary {
+  align-items: center;
+  color: var(--primary-text-color);
+  cursor: pointer;
+  display: flex;
+  font-size: 1.05rem;
+  font-weight: 600;
+  justify-content: space-between;
+  list-style: none;
+  margin: 0 auto;
+  max-width: 20rem;
+  padding: 0.5rem 0;
+}
+
+.install-app__summary::-webkit-details-marker {
+  display: none;
+}
+
+.install-app__summary::after {
+  content: '+';
+  font-size: 1.35rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.install-app[open] .install-app__summary::after {
+  content: '-';
+}
+
+.install-app__summary:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 0.25rem;
+}
+
+.install-app__content {
+  padding: 1rem 0 0;
+}
+
+.install-app__description {
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0 auto 1rem;
+  max-width: 30rem;
 }
 
 .install-app__button {
@@ -383,12 +438,17 @@ main h1 {
   max-width: 20rem;
 }
 
+.install-app__button[hidden],
+.install-app__instructions[hidden] {
+  display: none;
+}
+
 .install-app__instructions {
   color: var(--text-muted);
   font-size: 0.95rem;
   line-height: 1.5;
-  max-width: 22rem;
-  margin: 0.875rem auto 0;
+  max-width: 31rem;
+  margin: 1rem auto 0;
 }
 
 .install-app__instructions:focus {
@@ -828,7 +888,8 @@ nav a:focus {
 }
 
 .pool-header h2 {
-  flex: 1 1 100%;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .pool-header h2,
@@ -893,6 +954,7 @@ nav a:focus {
 .distance-badge {
   background-color: var(--primary-color);
   color: var(--white);
+  flex: 0 0 auto;
   padding: 0.25rem 0.75rem;
   border-radius: var(--border-radius);
   font-size: 0.875rem;
@@ -2047,8 +2109,8 @@ button[aria-label*="Voice"]:active {
   background-color: var(--white);
   border: 1px solid var(--border-color);
   border-radius: 0.5rem;
-  flex: 1 1 7rem;
-  min-width: 7rem;
+  flex: 1 1 9.5rem;
+  min-width: 9.5rem;
   min-height: 12rem;
   padding: 0.5rem;
 }
@@ -2100,6 +2162,7 @@ button[aria-label*="Voice"]:active {
 }
 
 .schedule-calendar .time-range-container {
+  align-items: center;
   background-color: transparent;
   display: flex;
   font-size: 0.76rem;
@@ -2111,6 +2174,7 @@ button[aria-label*="Voice"]:active {
 
 .schedule-calendar .time-start,
 .schedule-calendar .time-end {
+  white-space: nowrap;
   width: auto;
 }
 
@@ -2507,6 +2571,7 @@ button[aria-label*="Voice"]:active {
 }
 
 .meet-date-header {
+  cursor: pointer;
   user-select: none;
   position: relative;
   padding: 1rem;
@@ -3544,6 +3609,35 @@ button[aria-label*="Voice"]:active {
 .settings-select:focus {
   outline: 2px solid var(--primary-color);
   outline-offset: 2px;
+}
+
+.settings-checkbox {
+  align-items: flex-start;
+  color: var(--text-dark);
+  cursor: pointer;
+  display: flex;
+  gap: 0.75rem;
+  line-height: 1.45;
+}
+
+.settings-checkbox input {
+  accent-color: var(--primary-color);
+  flex: 0 0 auto;
+  height: 1.25rem;
+  margin: 0.08rem 0 0;
+  width: 1.25rem;
+}
+
+.settings-checkbox input:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.settings-hint {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0.65rem 0 0 2rem;
 }
 
 .settings-actions {

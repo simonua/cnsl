@@ -1,20 +1,24 @@
 <extends src="base.html">
   <block name="content">
     <div class="welcome-section">
-      <h1 class="welcome-title">Welcome to the 2026 Outdoor Pool Season</h1>
+      <h1 class="welcome-title">Welcome to the {{ YEAR }} Outdoor Pool Season</h1>
       <p class="welcome-message">
         Find Columbia Association pool information and CNSL team and meet schedules in one place.<br>
         Please verify schedule details with official CA and CNSL sources.
       </p>
     </div>
-    <section class="install-app" id="installApp" aria-label="Install app" hidden>
-      <button class="install-app__button" id="installAppButton" type="button">Install app</button>
-      <p class="install-app__instructions" id="iosInstallInstructions" tabindex="-1" hidden>
-        On iPhone or iPad, open this page in Safari if needed, tap Share, then tap Add to Home Screen.
-      </p>
-    </section>
     <!-- <include src="components/search.html"></include> -->
     <include src="components/quick-links.html"></include>
+    <details class="install-app" id="installApp" hidden>
+      <summary class="install-app__summary">Phone Install</summary>
+      <div class="install-app__content" id="installAppContent">
+        <p class="install-app__description">Add CNSL to your Home Screen for quick access to pools, teams, and meets.</p>
+        <button class="install-app__button" id="installAppButton" type="button">Install app</button>
+        <p class="install-app__instructions" id="iosInstallInstructions" hidden>
+          On iPhone or iPad, tap the Share button in your browser, choose Add to Home Screen, then tap Add. If the option is unavailable, open this page in Safari and try again.
+        </p>
+      </div>
+    </details>
   </block>
 
   <block name="scripts">

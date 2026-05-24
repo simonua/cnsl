@@ -1,11 +1,11 @@
 <extends src="base.html">
   <block name="content">
-    <h1>What's New in 2026</h1>
+    <h1>What's New in {{ YEAR }}</h1>
     <div class="container">
-      <section class="faq-list" aria-label="2026 highlights">
+      <section class="faq-list" aria-label="{{ YEAR }} highlights">
         <article class="faq-item">
-          <h2>Ready for the 2026 season</h2>
-          <p>Pool hours, CNSL team information, and meet schedules have been updated for the 2026 outdoor pool season, with links back to published sources when you need to double-check details.</p>
+          <h2>Ready for the {{ YEAR }} season</h2>
+          <p>Pool hours, CNSL team information, and meet schedules have been updated for the {{ YEAR }} outdoor pool season, with links back to published sources when you need to double-check details.</p>
         </article>
         <article class="faq-item">
           <h2>Improved accessibility</h2>
@@ -24,12 +24,16 @@
           <p>You can select a favorite pool and favorite swim team in <a href="settings.html">Settings</a> so the information you use most is easier to reach. Your choices stay only in your browser on your device.</p>
         </article>
         <article class="faq-item">
+          <h2>Location stays in your control</h2>
+          <p>Distance estimates on the <a href="pools.html">Pools page</a> are now off by default. Enable location awareness in <a href="settings.html">Settings</a> only when you want your browser to share your current location for distance estimates.</p>
+        </article>
+        <article class="faq-item">
           <h2>More team details</h2>
           <p>The <a href="teams.html">Teams page</a> includes available team staff and practice information, helping families find the people and schedule details connected with their team.</p>
         </article>
         <article class="faq-item">
           <h2>Install it for convenient access</h2>
-          <p>The app can be added to your phone's home screen from the home page. After content has loaded, key pool, team, and meet information remains available when your connection is limited or offline.</p>
+          <p>A compact Phone Install option near the bottom of the home page expands only when you need it, with direct installation on supported Android browsers and clearer steps for iPhone and iPad. After content has loaded, key pool, team, and meet information remains available when your connection is limited or offline.</p>
         </article>
         <article class="faq-item">
           <h2>Weather safety alerts when storms matter</h2>

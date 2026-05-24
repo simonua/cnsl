@@ -11,7 +11,8 @@ describe('PreferencesService', () => {
         favoriteTeamId: '',
         favoritePoolName: '',
         poolScheduleLayout: 'list',
-        poolFeatureFilters: []
+        poolFeatureFilters: [],
+        locationAwarenessEnabled: false
       });
     });
 
@@ -22,12 +23,13 @@ describe('PreferencesService', () => {
         favoriteTeamId: '  lrm ',
         favoritePoolName: ' Kendall Ridge ',
         poolScheduleLayout: 'calendar',
-        poolFeatureFilters: [' slide ', 'Beach Entry', 'slide']
+        poolFeatureFilters: [' slide ', 'Beach Entry', 'slide'],
+        locationAwarenessEnabled: true
       }, storage);
 
       assert.deepEqual(saved, {
         theme: 'dark', favoriteTeamId: 'lrm', favoritePoolName: 'Kendall Ridge', poolScheduleLayout: 'calendar',
-        poolFeatureFilters: ['beach entry', 'slide']
+        poolFeatureFilters: ['beach entry', 'slide'], locationAwarenessEnabled: true
       });
       assert.deepEqual(PreferencesService.get(storage), saved);
       assert.ok(storage.getItem(PreferencesService.STORAGE_KEY));
@@ -39,7 +41,8 @@ describe('PreferencesService', () => {
 
       assert.deepEqual(PreferencesService.get(storage), PreferencesService.DEFAULT_PREFERENCES);
       assert.deepEqual(PreferencesService.normalize({ theme: 'unsupported', favoriteTeamId: 10 }), {
-        theme: 'system', favoriteTeamId: '', favoritePoolName: '', poolScheduleLayout: 'list', poolFeatureFilters: []
+        theme: 'system', favoriteTeamId: '', favoritePoolName: '', poolScheduleLayout: 'list', poolFeatureFilters: [],
+        locationAwarenessEnabled: false
       });
     });
 

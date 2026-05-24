@@ -2,10 +2,11 @@
   'use strict';
 
   const installApp = document.getElementById('installApp');
+  const installAppContent = document.getElementById('installAppContent');
   const installAppButton = document.getElementById('installAppButton');
   const iosInstallInstructions = document.getElementById('iosInstallInstructions');
 
-  if (!installApp || !installAppButton || !iosInstallInstructions) {
+  if (!installApp || !installAppContent || !installAppButton || !iosInstallInstructions) {
     return;
   }
 
@@ -26,18 +27,30 @@
 
   function hideInstallApp() {
     installApp.hidden = true;
+    installApp.open = false;
     iosInstallInstructions.hidden = true;
   }
 
-  if (isIos) {
-    installAppButton.textContent = 'Add to Home Screen';
-    installAppButton.setAttribute('aria-controls', 'iosInstallInstructions');
-    installAppButton.setAttribute('aria-expanded', 'false');
-    installAppButton.addEventListener('click', () => {
-      iosInstallInstructions.hidden = false;
-      installAppButton.setAttribute('aria-expanded', 'true');
-      iosInstallInstructions.focus();
+  installApp.addEventListener('toggle', () => {
+    if (!installApp.open) {
+      return;
+    }
+
+    window.requestAnimationFrame(() => {
+      const footer = document.querySelector('.footer');
+      if (footer) {
+        const obscuredHeight = installAppContent.getBoundingClientRect().bottom
+          - footer.getBoundingClientRect().top + 16;
+        if (obscuredHeight > 0) {
+          window.scrollBy({ top: obscuredHeight, behavior: 'instant' });
+        }
+      }
     });
+  });
+
+  if (isIos) {
+    installAppButton.hidden = true;
+    iosInstallInstructions.hidden = false;
     showInstallApp();
     return;
   }

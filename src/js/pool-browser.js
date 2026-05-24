@@ -183,7 +183,7 @@ async function loadSeasonInfo() {
       if (poolData.caPoolGuideUrl) {
         caPoolGuideLinkHtml = `
             <a href="${poolData.caPoolGuideUrl}" target="_blank" rel="noopener" class="directory-link">
-              📖 CA's 2026 Pool Season
+              📖 CA's ${YEAR} Pool Season
             </a>
         `;
       }
@@ -411,6 +411,10 @@ function formatPoolHours(pool) {
  * Gracefully handles cases where geolocation is denied or not available
  */
 function getUserLocation() {
+  if (!PreferencesService.get().locationAwarenessEnabled) {
+    return;
+  }
+
   // Check if geolocation is supported
   if (!navigator.geolocation) {
     console.log("Geolocation is not supported by this browser");
@@ -1087,7 +1091,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Handle URL parameters to show specific pool
     handlePoolUrlParameter();
     
-    // Then try to get location - if it works, pools will be re-rendered with distances
+    // The preference guard prevents a browser location prompt unless it is enabled in Settings.
     try {
       getUserLocation();
     } catch (locationError) {

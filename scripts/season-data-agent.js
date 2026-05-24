@@ -259,7 +259,7 @@ function formatReport({ changes, checkedOn, season }) {
     '',
     ...affectedDomains.map((domain) => guidance[domain]),
     `- [ ] Record verified source dates or transcription notes in \`src/assets/data/${season}/README.md\` when application data changes.`,
-    '- [ ] Run `pnpm test`, `pnpm run lint`, and `pnpm run build` after completing any transcription.',
+    '- [ ] Run `pnpm run validate:data`, `pnpm test`, `pnpm run lint`, and `pnpm run build` after completing any transcription.',
     '',
     'The nightly monitor pauses while this pull request is open so reviewer changes on this branch are not replaced by automation.',
     ''

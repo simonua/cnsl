@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const posthtml = require('posthtml');
+const expressions = require('posthtml-expressions')({ locals: require('./src/js/config/app-config') });
 require('posthtml-include')({ root: './src/views' });
 const extend = require('posthtml-extend')({ root: './src/views/layouts' });
 
@@ -169,6 +170,7 @@ files.forEach(file => {
   posthtml()
     .use(extend)
     .use(includePlugin)
+    .use(expressions)
     .use(versionStaticAssetsPlugin)
     .process(html)
     .then(result => {

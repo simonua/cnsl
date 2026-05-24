@@ -37,7 +37,8 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
       favoriteTeamId: '',
       favoritePoolName: '',
       poolScheduleLayout: 'list',
-      poolFeatureFilters: Object.freeze([])
+      poolFeatureFilters: Object.freeze([]),
+      locationAwarenessEnabled: false
     });
 
     /**
@@ -103,8 +104,9 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
         ? preferences.poolScheduleLayout
         : 'list';
       const poolFeatureFilters = PreferencesService.normalizeFeatureFilters(preferences.poolFeatureFilters);
+      const locationAwarenessEnabled = preferences.locationAwarenessEnabled === true;
 
-      return { theme, favoriteTeamId, favoritePoolName, poolScheduleLayout, poolFeatureFilters };
+      return { theme, favoriteTeamId, favoritePoolName, poolScheduleLayout, poolFeatureFilters, locationAwarenessEnabled };
     }
 
     /**

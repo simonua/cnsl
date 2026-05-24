@@ -119,9 +119,9 @@ async function renderMeets(meets) {
 
     html += `
       <div class="meet-date-card ${collapsedClass}">
-        <div class="meet-date-header">
+        <div class="meet-date-header" onclick="toggleMeetDate(this)">
           <div class="date-and-name">
-            <h2><button type="button" class="meet-date-header__toggle" onclick="toggleMeetDate(this)" aria-expanded="${String(shouldExpand)}" aria-controls="${detailsId}">${dateKey}</button></h2>
+            <h2><button type="button" class="meet-date-header__toggle" aria-expanded="${String(shouldExpand)}" aria-controls="${detailsId}">${dateKey}</button></h2>
             ${meetName ? `<span class="meet-name-header">${meetName}</span>` : ''}
           </div>
           <div class="status-container">
@@ -238,11 +238,12 @@ async function renderMeets(meets) {
 
 /**
  * Toggles the collapsed state of a meet date card
- * @param {Element} toggleButton - The disclosure button
+ * @param {Element} header - The selected meet date header
  */
 // eslint-disable-next-line no-unused-vars
-function toggleMeetDate(toggleButton) {
-  const meetCard = toggleButton.closest('.meet-date-card');
+function toggleMeetDate(header) {
+  const meetCard = header.closest('.meet-date-card');
+  const toggleButton = header.querySelector('.meet-date-header__toggle');
   const details = meetCard.querySelector('.meet-date-details');
   const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
   meetCard.classList.toggle('collapsed', isExpanded);

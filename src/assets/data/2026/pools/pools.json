@@ -13,7 +13,7 @@
         "street": "10451 Green Mountain Cir",
         "city": "Columbia",
         "state": "MD",
-        "zip": "21044",
+        "zip": "21045",
         "lat": 39.2218394,
         "lng": -76.8696213,
         "mapsQuery": "Bryant Woods Pool Columbia MD",
@@ -23,7 +23,6 @@
       "features": [
         "hot tub",
         "lap",
-        "pool lift",
         "shade",
         "wading",
         "wifi"
@@ -1307,7 +1306,7 @@
       "name": "Dickinson",
       "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/dickinson-pool/",
       "location": {
-        "street": "7425 Weather Worn Way",
+        "street": "7425 Weatherworn Way",
         "city": "Columbia",
         "state": "MD",
         "zip": "21046",
@@ -1561,7 +1560,7 @@
       "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/dorsey-hall-dh-pool/",
       "location": {
         "street": "4649 Columbia Rd",
-        "city": "Columbia",
+        "city": "Ellicott City",
         "state": "MD",
         "zip": "21042",
         "lat": 39.2501487,
@@ -2002,7 +2001,7 @@
       "name": "Faulkner Ridge",
       "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/faulkner-ridge-fr-pool/",
       "location": {
-        "street": "10518 Marble Faun Ln",
+        "street": "10518 Marble Faun Court",
         "city": "Columbia",
         "state": "MD",
         "zip": "21044",
@@ -2703,7 +2702,7 @@
       "name": "Hobbit's Glen",
       "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/hobbits-glen-hg-pool/",
       "location": {
-        "street": "11130 Willow Bottom Dr",
+        "street": "11130 Willowbottom Drive",
         "city": "Columbia",
         "state": "MD",
         "zip": "21044",
@@ -2954,7 +2953,7 @@
       "name": "Hopewell",
       "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/hopewell-mini-waterpark-hw/",
       "location": {
-        "street": "9200 Rustling Lead",
+        "street": "9200 Rustling Leaf",
         "city": "Columbia",
         "state": "MD",
         "zip": "21045",
@@ -4793,7 +4792,7 @@
       "name": "Longfellow",
       "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/longfellow-lf-pool/",
       "location": {
-        "street": "5257 Eliots Oak Rd",
+        "street": "5267 Eliots Oak Road",
         "city": "Columbia",
         "state": "MD",
         "zip": "21044",
@@ -7594,7 +7593,7 @@
       "name": "Swansfield",
       "caUrl": "https://columbiaassociation.org/sports-recreation/pools/pool-locations/swansfield-mini-water-park-sw/",
       "location": {
-        "street": "5669 Cedar Ln",
+        "street": "5659 Cedar Lane",
         "city": "Columbia",
         "state": "MD",
         "zip": "21044",

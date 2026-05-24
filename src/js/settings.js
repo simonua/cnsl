@@ -24,6 +24,7 @@
     if (selectedScheduleLayout) selectedScheduleLayout.checked = true;
     form.elements.favoriteTeam.value = preferences.favoriteTeamId;
     form.elements.favoritePool.value = preferences.favoritePoolName;
+    form.elements.locationAwarenessEnabled.checked = preferences.locationAwarenessEnabled;
   }
 
   document.addEventListener('DOMContentLoaded', async () => {
@@ -45,7 +46,8 @@
         favoriteTeamId: favoriteTeam.disabled ? existing.favoriteTeamId : favoriteTeam.value,
         favoritePoolName: favoritePool.disabled ? existing.favoritePoolName : favoritePool.value,
         poolScheduleLayout: poolScheduleLayout ? poolScheduleLayout.value : 'list',
-        poolFeatureFilters: existing.poolFeatureFilters
+        poolFeatureFilters: existing.poolFeatureFilters,
+        locationAwarenessEnabled: form.elements.locationAwarenessEnabled.checked
       });
       window.applyPreferenceTheme(saved);
       status.textContent = '';

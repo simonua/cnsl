@@ -20,17 +20,26 @@
           </div>
         </fieldset>
 
-        <div class="settings-group">
-          <label class="settings-label" for="favoriteTeam">Favorite swim team</label>
-          <select class="settings-select" id="favoriteTeam" name="favoriteTeam" disabled>
-            <option value="">Loading teams...</option>
-          </select>
-        </div>
+        <fieldset class="settings-group">
+          <legend>Location awareness</legend>
+          <label class="settings-checkbox" for="locationAwarenessEnabled">
+            <input type="checkbox" id="locationAwarenessEnabled" name="locationAwarenessEnabled" aria-describedby="locationAwarenessHint">
+            <span>Use my current location to estimate distances to pools</span>
+          </label>
+          <p class="settings-hint" id="locationAwarenessHint">Off by default. When enabled, the Pools page asks your browser for location access. Your current location is not saved by this site.</p>
+        </fieldset>
 
         <div class="settings-group">
           <label class="settings-label" for="favoritePool">Favorite pool</label>
           <select class="settings-select" id="favoritePool" name="favoritePool" disabled>
             <option value="">Loading pools...</option>
+          </select>
+        </div>
+
+        <div class="settings-group">
+          <label class="settings-label" for="favoriteTeam">Favorite swim team</label>
+          <select class="settings-select" id="favoriteTeam" name="favoriteTeam" disabled>
+            <option value="">Loading teams...</option>
           </select>
         </div>
 
@@ -41,7 +50,7 @@
       </form>
 
       <p class="settings-local-notice">
-        <strong>Stored on this device only.</strong> Your appearance and favorite selections stay in this browser's local storage. They are not sent to CNSL, Columbia Association, or this website's owner. Clearing this browser's site data removes them.
+        <strong>Stored on this device only.</strong> Your settings stay in this browser's local storage. They are not sent to CNSL, Columbia Association, or this website's owner. Clearing this browser's site data removes them.
       </p>
     </section>
   </block>

@@ -45,7 +45,7 @@ Pools, meets, and teams are stored beneath annual domain folders in `src/assets/
 
 See [Annual Season Assets](docs/annual-season-assets.md) for the exact PDF, JSON, and schema layout and the checklist for preparing a new season such as 2027.
 
-While a season is active, a nightly source monitor checks the official pool, meet, and team references used by the active annual data. Changed evidence is submitted as a review pull request; structured JSON updates remain reviewed transcriptions of the official material. See [Seasonal Data Source Monitor](.github/data-agent/README.md) for coverage and operation.
+While a season is active, a nightly source monitor checks the official pool, meet, and team references used by the active annual data. Changed evidence is submitted as a review pull request; structured JSON updates remain reviewed transcriptions of the official material. Run `pnpm run validate:data` after annual-data changes to validate active schemas, references, URLs, and retained official source documents. See [Seasonal Data Source Monitor](.github/data-agent/README.md) for coverage and operation.
 
 ### GitHub Actions Workflow
 
@@ -54,9 +54,10 @@ This project uses GitHub Actions to automatically build and deploy the website t
 1. Checks out the repository
 2. Sets up Node.js
 3. Installs dependencies
-4. Builds the project using PostHTML
-5. Uploads the built files as an artifact
-6. Deploys the artifact to GitHub Pages
+4. Validates active annual data against its schemas and retained-source inventory
+5. Builds the project using PostHTML
+6. Uploads the built files as an artifact
+7. Deploys the artifact to GitHub Pages
 
 The workflow configuration is located in `.github/workflows/build-deploy.yml`.
 

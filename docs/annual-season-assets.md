@@ -72,7 +72,7 @@ Before publishing a new active year:
 - Confirm the annual `README.md` lists each official download and whether a local copy was stored and transcribed.
 - Confirm the annual `README.md` records when official pool-location pages were checked for `features`, and that each pool has a reviewed feature array.
 - Confirm each published JSON file has a sibling `.schema.json` file.
-- Validate data against its schema, including ISO `YYYY-MM-DD` date formats.
+- Run `pnpm run validate:data` to validate active JSON against its schemas, including ISO `YYYY-MM-DD` dates, source URLs, cross-domain references, and retained official PDF inventory.
 - Run `pnpm test` to validate seasonal path expectations and application logic.
 - Run `pnpm run lint`.
 - Run `pnpm run build`, then confirm the new active year appears under `out/assets/data/<YEAR>/` and archived years are absent.
@@ -87,3 +87,9 @@ Use the workspace skill `/cnsl-season-rollover` when adding, auditing, or activa
 During the active season, `.github/workflows/season-data-monitor.yml` runs `scripts/season-data-agent.js` nightly. The monitor byte-compares retained official PDFs and fingerprints relevant visible text from referenced public pool, team, staff, and CNSL publication pages, confirming a changed page on a second request before reporting it. The Columbia Association schedule index is fingerprinted only for its outdoor schedule section and links. When a source changes, it opens a pull request with refreshed official documents where applicable, updated fingerprints, and a checklist for reviewing and transcribing affected JSON fields.
 
 The monitor intentionally does not automatically rewrite application JSON from PDF or webpage changes. Annual JSON remains a reviewed transcription of official material. After activating a new `YEAR`, run `node scripts/season-data-agent.js --initialize` and commit the generated `.github/data-agent/source-state.json` alongside the accepted annual baseline.
+
+### Active Data Validation Gate
+
+Run `pnpm run validate:data` after transcribing or correcting active annual data. The command validates the active `YEAR` JSON documents against their sibling draft-07 schemas with date, URI, and email formats enabled, and checks identifiers, seasonal date ranges, HTTPS source links, team-to-pool and meet-location references, and locally retained official PDF files. It reads local accepted evidence only and does not fetch or rewrite official sources.
+
+The GitHub Pages deployment workflow runs this command before building and uploading the site artifact, so structurally invalid or internally inconsistent active-season data cannot be published without correction.
