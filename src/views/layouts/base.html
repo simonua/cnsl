@@ -4,22 +4,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CA Pool & CNSL Assistant</title>
-
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZMBPYQKLQP"></script>
-  <script>
-    if (window.location.hostname != "localhost") {
-      window.dataLayer = window.dataLayer || [];
-      function gtag() { dataLayer.push(arguments); }
-      gtag('js', new Date());
-      gtag('config', 'G-ZMBPYQKLQP');
+  <block name="metadata">
+    <title>Columbia, MD Outdoor Pools &amp; CNSL Schedules | CA Pool Assistant</title>
+    <meta name="description" content="Find Columbia Association outdoor pools, CNSL swim teams, and meet schedules for summer swimming in Columbia, Maryland." />
+    <link rel="canonical" href="https://cnsl.longreachmarlins.org/" />
+  </block>
+  <meta property="og:site_name" content="CA Pool &amp; CNSL Assistant" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:image" content="https://cnsl.longreachmarlins.org/assets/images/cnsl-logo.jpg" />
+  <meta property="og:image:alt" content="CA Pool and CNSL Assistant logo" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://cnsl.longreachmarlins.org/assets/images/cnsl-logo.jpg" />
+  <meta name="twitter:image:alt" content="CA Pool and CNSL Assistant logo" />
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "@id": "https://cnsl.longreachmarlins.org/#website",
+      "url": "https://cnsl.longreachmarlins.org/",
+      "name": "CA Pool & CNSL Assistant",
+      "description": "Columbia Association outdoor pool, CNSL team, and swim meet information for Columbia, Maryland.",
+      "inLanguage": "en-US"
     }
   </script>
 
   <!-- Google Tag Manager - should be placed as high as possible -->
   <script>
-    if (window.location.hostname != "localhost") {
+    if (window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
       (function (w, d, s, l, i) {
         w[l] = w[l] || []; w[l].push({
           'gtm.start':
@@ -56,9 +67,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="CA Pool Assistant">
-  
-  <!-- Canonical URL -->
-  <link rel="canonical" href="https://pools.longreachmarlins.org/">
   
   <block name="head"></block>
 </head>

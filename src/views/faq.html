@@ -1,4 +1,67 @@
 <extends src="base.html">
+  <block name="metadata">
+    <title>CNSL &amp; Columbia Association Pool FAQs | Columbia, MD</title>
+    <meta name="description" content="Answers about CNSL swim teams, Columbia Association pools, meet locations, app installation, privacy, and source verification in Columbia, MD." />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <link rel="canonical" href="https://cnsl.longreachmarlins.org/faq.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="CNSL &amp; Columbia Association Pool FAQs | Columbia, MD" />
+    <meta property="og:description" content="Answers about CNSL swim teams, Columbia Association pools, meet locations, app installation, privacy, and official sources." />
+    <meta property="og:url" content="https://cnsl.longreachmarlins.org/faq.html" />
+    <meta name="twitter:title" content="CNSL &amp; Columbia Association Pool FAQs | Columbia, MD" />
+    <meta name="twitter:description" content="Answers about CNSL swim teams, Columbia Association pools, meet locations, app installation, privacy, and official sources." />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "name": "CNSL and Columbia Association Pool Frequently Asked Questions",
+        "url": "https://cnsl.longreachmarlins.org/faq.html",
+        "isPartOf": { "@id": "https://cnsl.longreachmarlins.org/#website" },
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is CNSL?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "CNSL stands for Columbia Neighborhood Swim League, a summer recreational swim league in Columbia, Maryland."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I find my team's practice schedule?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Visit the Teams page to find your team's practice schedule and other information."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Where are meets held?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Meets are held at team home pools. Visit the Meets page for details on upcoming meets and locations."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Where does this app get its data, and when was it checked?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Pool information is transcribed from publicly available Columbia Association publications, while team and meet information is transcribed from publicly available official CNSL publications. These official public sources are the source of truth for this app. While often very helpful, social media and other community-shared information cannot be authoritative here. Accepted {{ YEAR }} season data was last checked against its official public sources on {{ OFFICIAL_SOURCE_CHECKED_ON }}."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is this an official web app?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. It is an independent community project and is not operated by or affiliated with Columbia Association. Please verify time-sensitive details with official Columbia Association and CNSL sources."
+            }
+          }
+        ]
+      }
+    </script>
+  </block>
   <block name="content">
     <h1>Frequently Asked Questions</h1>
     <div class="container">
@@ -16,6 +79,12 @@
           <p>Meets are held at team home pools. Visit the <a href="meets.html">Meets page</a> for details on upcoming meets and locations.</p>
         </div>
         <div class="faq-item">
+          <h2>Where does this app get its data, and when was it checked?</h2>
+          <p>Pool information is transcribed from publicly available <a href="https://columbiaassociation.org/sports-recreation/pools/pool-schedules/" target="_blank" rel="noopener">Columbia Association (CA) publications</a>. Team and meet information is transcribed from publicly available <a href="https://www.gomotionapp.com/team/reccnsl/page/home" target="_blank" rel="noopener">official CNSL publications</a>. These official public sources are the source of truth for this web app.</p>
+          <p>Information shared through social media, email, messaging groups, or other community channels may be helpful, but it is not treated as authoritative here unless it is reflected in an official public source.</p>
+          <p><strong>Last accepted official-source check for {{ YEAR }} data:</strong> <time datetime="{{ OFFICIAL_SOURCE_CHECKED_ON }}">{{ OFFICIAL_SOURCE_CHECKED_ON }}</time>. Published details can change, so please confirm time-sensitive plans at the official sources before heading out.</p>
+        </div>
+        <div class="faq-item">
           <h2>How can my team request a data update?</h2>
           <p>Team representatives can email <a href="mailto:simonkurtz@gmail.com?subject=CNSL%20Data%20Update">simonkurtz@gmail.com</a> with the subject "CNSL Data Update" and the corrected information or published source link.</p>
         </div>
@@ -27,8 +96,8 @@
           <h2>Is this an official web app?</h2>
           <p>No. It is not operated by or affiliated with Columbia Association (CA). CA does not provide an API for publicly-available 
             data and directs users to their websites and app. This web app was created by a swim parent, who wanted an easier, quicker, 
-            and more tailored path to get pool and team information. All data used for this web app is accessible publicly via CA websites.<br/>          
-            This web app provides information for the {{ YEAR }} outdoor pool season; please verify schedule details with official CA and CNSL sources.
+            and more tailored path to get pool and team information.<br/>          
+            This web app provides information for the {{ YEAR }} outdoor pool season; please verify time-sensitive details with official CA and CNSL sources.
           </p>
         </div>
         <div class="faq-item">

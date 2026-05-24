@@ -20,6 +20,8 @@ description: "Use when working with JSON data files, schemas, or data loading. C
 - JSON and schema files live together as `<domain>/<domain>.json` and `<domain>/<domain>.schema.json`.
 - Official PDF subfolders are domain-specific: `pools/pool-schedules/`, `meets/meet-schedules/`, and `teams/team-schedules/` when source PDFs exist. Retain league-wide practice schedules and team-assignment PDFs under `teams/team-schedules/` when published.
 - Pool facility `features` come from the official Columbia Association page stored in each pool's `caUrl`. For every season rollover, review each page's description and Amenities list, normalize useful terms into feature labels, and record the verification date in the annual README instead of copying the prior year's array without review.
+- Official public Columbia Association pages/documents are authoritative for pool data, and official public CNSL publication/team pages are authoritative for meet and team data. Do not accept social media or other community-shared information as data evidence unless it appears in an official public source.
+- For the active season, keep the accepted official-source check date in the annual README synchronized with `OFFICIAL_SOURCE_CHECKED_ON` in `src/js/config/app-config.js`, which supplies the public FAQ date.
 - Use the `cnsl-season-rollover` skill when creating, auditing, or activating annual data.
 
 ## Schema Conventions

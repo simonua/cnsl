@@ -10,7 +10,7 @@ CNSL (Columbia Neighborhood Swim League) is a PWA for pool directories, team sch
 
 - **Build**: PostHTML compiles `src/views/` HTML templates into `out/`. Custom build script in `posthtml.js`.
 - **Package manager**: pnpm (not npm). All scripts use `pnpm run`.
-- **Dev server**: `pnpm start` runs concurrent watch + live-server on port 9090.
+- **Dev server**: `pnpm start` runs concurrent watch + BrowserSync on port 9090.
 - **Source structure**:
   - `src/views/` — HTML pages and PostHTML components/layouts
   - `src/js/` — JavaScript (jQuery-based, no bundler)

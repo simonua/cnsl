@@ -258,7 +258,7 @@ function formatReport({ changes, checkedOn, season }) {
     '## Data Review Checklist',
     '',
     ...affectedDomains.map((domain) => guidance[domain]),
-    `- [ ] Record verified source dates or transcription notes in \`src/assets/data/${season}/README.md\` when application data changes.`,
+    `- [ ] After accepting reviewed application data, update \`OFFICIAL_SOURCE_CHECKED_ON\` in \`src/js/config/app-config.js\` and record the same accepted source-check date in \`src/assets/data/${season}/README.md\` so the FAQ reports data currency.`,
     '- [ ] Run `pnpm run validate:data`, `pnpm test`, `pnpm run lint`, and `pnpm run build` after completing any transcription.',
     '',
     'The nightly monitor pauses while this pull request is open so reviewer changes on this branch are not replaced by automation.',

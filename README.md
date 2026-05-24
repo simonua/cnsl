@@ -4,7 +4,7 @@
 ![PWA Ready](https://img.shields.io/badge/PWA-ready-0abf53?logo=googlechrome&logoColor=white&style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)
 
-A lightweight, mobile-first web app that helps Columbia Neighborhood Swim League (CNSL) swimmers, families, and fans quickly find information about pool openings, team practices, meets, and league policies. Includes natural language search and voice input for on-the-go access.
+A lightweight, mobile-first web app that helps Columbia Neighborhood Swim League (CNSL) swimmers, families, and fans quickly find information about pool openings, team practices, meets, and league resources.
 
 ---
 
@@ -54,10 +54,12 @@ This project uses GitHub Actions to automatically build and deploy the website t
 1. Checks out the repository
 2. Sets up Node.js
 3. Installs dependencies
-4. Validates active annual data against its schemas and retained-source inventory
-5. Builds the project using PostHTML
-6. Uploads the built files as an artifact
-7. Deploys the artifact to GitHub Pages
+4. Runs lint and unit-test checks
+5. Validates active annual data against its schemas and retained-source inventory
+6. Builds the project using PostHTML
+7. Verifies the generated PWA cache, offline, and publication metadata contract
+8. Uploads the built files as an artifact
+9. Deploys the artifact to GitHub Pages
 
 The workflow configuration is located in `.github/workflows/build-deploy.yml`.
 
@@ -65,24 +67,22 @@ A second workflow, `.github/workflows/season-data-monitor.yml`, checks official 
 
 ---
 
-## 🔍 Features
+## Features
 
-- Natural language search ("Where do the Barracudas swim today?")
 - Mobile-friendly design with large, tappable buttons
-- Voice input via Web Speech API
 - Team profiles with coaches and practice schedules
 - Meet calendar with pool closures
 - FAQs and league documents from official CNSL sources
-- Installable Progressive Web App (PWA)
-- WCAG-compliant accessible layout and color palette
+- Installable Progressive Web App (PWA) with offline application-shell and seasonal directory caching
+- Keyboard-friendly navigation, status announcements, and reduced-motion support
 - Hosted via GitHub Pages with custom domain and HTTPS
 
 ---
 
-## 🧱 Repo Structure
+## Repo Structure
 
 /CNSL
-├── index.html                 # Copilot homepage with natural language search (generated)
+├── index.html                 # Season overview homepage (generated)
 ├── pools.html                 # Pool directory with filters (generated)
 ├── teams.html                 # Team cards and practice info (generated)
 ├── meets.html                 # Meet schedule with closures (generated)
@@ -94,12 +94,12 @@ A second workflow, `.github/workflows/season-data-monitor.yml`, checks official 
 │   ├── css/
 │   │   └── styles.css         # Site-wide responsive and accessible styles
 │   └── js/
-│       ├── copilot.js         # Copilot logic
 │       ├── pool-browser.js    # Pool browser functionality
-│       └── speech.js          # Voice input functionality
+│       ├── teams-browser.js   # Team browser functionality
+│       └── meets-browser.js   # Meet schedule functionality
 ├── manifest.webmanifest       # PWA configuration
 ├── service-worker.js          # Offline asset caching
-├── CNAME                      # Custom domain declaration
+├── robots.txt / sitemap.xml   # Published crawler metadata
 ├── README.md                  # Project overview and data sources
 └── assets/
     ├── images/                # Logos and icons
@@ -123,7 +123,7 @@ All content is built on publicly available resources from the Columbia Neighborh
 This site is hosted via **GitHub Pages**:
 
 - Repo: [github.com/simonua/cnsl](https://github.com/simonua/cnsl)
-- Live site: [pools.longreachmarlins.org](https://pools.longreachmarlins.org)
+- Live site: [cnsl.longreachmarlins.org](https://cnsl.longreachmarlins.org)
 
 Custom domain configured with GitHub DNS and secured with HTTPS.
 

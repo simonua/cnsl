@@ -4,6 +4,12 @@
 
 The 2026 folder is the active season selected by the application. Pools, meets, and teams now contain application-ready JSON and schema files backed by retained official source documents.
 
+## Source Authority And Currency
+
+Pool information is accepted only from official public Columbia Association pages and documents. Meet and team information is accepted only from official public CNSL publication and team pages. Social media posts, email threads, messaging groups, and other community-shared content are not source evidence for application data unless the information is published through an official public source.
+
+**Last accepted official-source check:** 2026-05-24. This accepted review date is published in the FAQ through `OFFICIAL_SOURCE_CHECKED_ON` in `src/js/config/app-config.js`; update both records together after a reviewed official-source refresh or check changes accepted application data.
+
 | Domain | Local assets | Application readiness | Source status |
 | --- | --- | --- | --- |
 | Pools | `pools/pools.json`, `pools/pools.schema.json`, and 23 PDFs in `pools/pool-schedules/` | Ready, including facility features | Columbia Association pool pages and directory URLs are recorded in `pools/pools.json` |

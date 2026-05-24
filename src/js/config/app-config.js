@@ -3,6 +3,7 @@
  */
 (function initializeAppConfig(globalScope) {
   const YEAR = 2026;
+  const OFFICIAL_SOURCE_CHECKED_ON = '2026-05-24';
 
   if (Object.prototype.hasOwnProperty.call(globalScope, 'YEAR')) {
     if (globalScope.YEAR !== YEAR) {
@@ -18,6 +19,6 @@
   }
 
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { YEAR };
+    module.exports = { OFFICIAL_SOURCE_CHECKED_ON, YEAR };
   }
 })(globalThis);

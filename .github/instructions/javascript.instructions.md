@@ -11,11 +11,11 @@ applyTo: "src/js/**/*.js"
 - Use the singleton pattern for managers: expose a `getXxxManager()` factory that caches the instance.
 - Standardize on `getDataManager()` for DataManager access — never `new DataManager()` directly.
 
-## jQuery
+## DOM APIs
 
-- Use jQuery selectors (`$('#id')`, `$('.class')`) over vanilla DOM APIs.
-- Use full (non-minified) jQuery. Do not add minified builds.
-- Prefer `$(document).ready()` or `$(() => { })` for initialization.
+- Use native DOM APIs (`document.getElementById`, `querySelector`, and event listeners) consistently with the existing controllers.
+- Do not add a DOM library for new behavior unless a broader architecture decision explicitly introduces one.
+- Prefer `DOMContentLoaded` for initialization when a deferred script is not sufficient.
 
 ## Code Organization
 

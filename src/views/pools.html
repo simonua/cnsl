@@ -1,4 +1,27 @@
 <extends src="base.html">
+  <block name="metadata">
+    <title>Columbia Association Outdoor Pools | {{ YEAR }} Pool Directory</title>
+    <meta name="description" content="Browse Columbia Association outdoor pools in Columbia, MD, with facility features and published schedule details for the {{ YEAR }} season." />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <link rel="canonical" href="https://cnsl.longreachmarlins.org/pools.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Columbia Association Outdoor Pools | {{ YEAR }} Pool Directory" />
+    <meta property="og:description" content="Browse Columbia Association outdoor pools in Columbia, MD, with facility features and published schedule details for the {{ YEAR }} season." />
+    <meta property="og:url" content="https://cnsl.longreachmarlins.org/pools.html" />
+    <meta name="twitter:title" content="Columbia Association Outdoor Pools | {{ YEAR }} Pool Directory" />
+    <meta name="twitter:description" content="Browse Columbia Association outdoor pools in Columbia, MD, with facility features and published schedule details for the {{ YEAR }} season." />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "Columbia Association Outdoor Pools",
+        "url": "https://cnsl.longreachmarlins.org/pools.html",
+        "description": "Columbia Association outdoor pools with published {{ YEAR }} schedule and facility information in Columbia, Maryland.",
+        "isPartOf": { "@id": "https://cnsl.longreachmarlins.org/#website" },
+        "about": { "@type": "Thing", "name": "Columbia Association outdoor pools" }
+      }
+    </script>
+  </block>
   <block name="content">
     <h1>Outdoor Pool Directory</h1>
     <div class="season-info" id="seasonInfo">
@@ -52,49 +75,5 @@
     <script src="js/services/cache-service.js" defer></script>
     <!-- Application scripts -->
     <script src="js/pool-browser.js" defer></script>
-
-    <script>
-      // PWA Installation Detection
-      let deferredPrompt;
-
-      window.addEventListener('beforeinstallprompt', (e) => {
-        console.log('💡 PWA: App can be installed');
-        // Prevent the mini-infobar from appearing on mobile
-        e.preventDefault();
-        // Stash the event so it can be triggered later
-        deferredPrompt = e;
-      });
-
-      window.addEventListener('appinstalled', () => {
-        console.log('✅ PWA: App was installed successfully');
-        deferredPrompt = null;
-      });
-
-      // Check if app is running in standalone mode (installed as PWA)
-      if (window.matchMedia('(display-mode: standalone)').matches) {
-        console.log('📱 PWA: Running in standalone mode');
-      }
-
-      // Log FileHelper environment info on load
-      document.addEventListener('DOMContentLoaded', () => {
-        if (window.FileHelper) {
-          window.FileHelper.logEnvironmentInfo();
-        } else {
-          console.error('❌ FileHelper not loaded or not available');
-        }
-
-        // Log manifest info for debugging
-        if (navigator.userAgent.includes('Android')) {
-          console.log('🤖 Android device detected');
-          fetch('manifest.webmanifest')
-            .then(response => response.json())
-            .then(manifest => {
-              console.log('📋 Manifest loaded:', manifest);
-              console.log('🎨 Icons available:', manifest.icons.length);
-            })
-            .catch(err => console.error('❌ Manifest load failed:', err));
-        }
-      });
-    </script>
   </block>
 </extends>

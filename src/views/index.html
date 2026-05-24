@@ -1,4 +1,34 @@
 <extends src="base.html">
+  <block name="metadata">
+    <title>Columbia, MD Outdoor Pools &amp; CNSL Schedules | {{ YEAR }}</title>
+    <meta name="description" content="Find Columbia Association outdoor pools, CNSL swim teams, and meet schedules for the {{ YEAR }} summer swim season in Columbia, Maryland." />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <link rel="canonical" href="https://cnsl.longreachmarlins.org/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Columbia, MD Outdoor Pools &amp; CNSL Schedules | {{ YEAR }}" />
+    <meta property="og:description" content="Find Columbia Association outdoor pools, CNSL swim teams, and meet schedules for the {{ YEAR }} summer swim season in Columbia, Maryland." />
+    <meta property="og:url" content="https://cnsl.longreachmarlins.org/" />
+    <meta name="twitter:title" content="Columbia, MD Outdoor Pools &amp; CNSL Schedules | {{ YEAR }}" />
+    <meta name="twitter:description" content="Find Columbia Association outdoor pools, CNSL swim teams, and meet schedules for the {{ YEAR }} summer swim season in Columbia, Maryland." />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "@id": "https://cnsl.longreachmarlins.org/#app",
+        "name": "CA Pool & CNSL Assistant",
+        "url": "https://cnsl.longreachmarlins.org/",
+        "description": "Find Columbia Association outdoor pools, CNSL swim teams, and meet schedules for the {{ YEAR }} summer swim season in Columbia, Maryland.",
+        "applicationCategory": "SportsApplication",
+        "operatingSystem": "Any",
+        "isAccessibleForFree": true,
+        "inLanguage": "en-US",
+        "areaServed": {
+          "@type": "City",
+          "name": "Columbia, Maryland"
+        }
+      }
+    </script>
+  </block>
   <block name="content">
     <div class="welcome-section">
       <h1 class="welcome-title">Welcome to the {{ YEAR }} Outdoor Pool Season</h1>

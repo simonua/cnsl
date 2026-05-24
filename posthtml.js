@@ -1,7 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const posthtml = require('posthtml');
-const expressions = require('posthtml-expressions')({ locals: require('./src/js/config/app-config') });
+const appConfig = require('./src/js/config/app-config');
+const expressions = require('posthtml-expressions')({ locals: appConfig });
 require('posthtml-include')({ root: './src/views' });
 const extend = require('posthtml-extend')({ root: './src/views/layouts' });
 
@@ -79,7 +80,7 @@ const includePlugin = (tree) => {
 function versionStaticAssetUrl(url) {
   if (typeof url !== 'string') return url;
 
-  const match = url.match(/^(\/?(?:(?:css|js|assets)\/[^?#]+|(?:manifest|site)\.webmanifest|browserconfig\.xml))(?:\?[^#]*)?(#.*)?$/);
+  const match = url.match(/^(\/?(?:(?:css|js|assets)\/[^?#]+|manifest\.webmanifest|browserconfig\.xml))(?:\?[^#]*)?(#.*)?$/);
   if (!match) return url;
 
   return `${match[1]}?v=${cacheVersion}${match[2] || ''}`;
@@ -125,32 +126,87 @@ copyDir('./src/css', path.join(outDir, 'css'));
 console.log(`⚙️ [${timestamp()}] Copying JS directory...`);
 copyDir('./src/js', path.join(outDir, 'js'));
 
-// Copy static files from root, handling service worker specially
-const rootStaticFiles = ['browserconfig.xml', 'CNAME', 'LICENSE', 'manifest.webmanifest', 'site.webmanifest'];
-rootStaticFiles.forEach(file => {
-  if (fs.existsSync(file)) {
-    fs.copyFileSync(file, path.join(outDir, file));
-    console.log(`Copied static file: ${file}`);
-  } else {
-    console.warn(`Static file not found: ${file}`);
+// Copy required publishing artifacts and optional GitHub Pages domain ownership.
+const requiredRootStaticFiles = ['browserconfig.xml', 'LICENSE', 'manifest.webmanifest', 'robots.txt', 'sitemap.xml'];
+requiredRootStaticFiles.forEach(file => {
+  if (!fs.existsSync(file)) {
+    throw new Error(`Required static file not found: ${file}`);
   }
+  fs.copyFileSync(file, path.join(outDir, file));
+  console.log(`Copied static file: ${file}`);
 });
 
-// Handle service-worker.js specially to update the cache version
-const serviceWorkerPath = 'service-worker.js';
-if (fs.existsSync(serviceWorkerPath)) {
-  let swContent = fs.readFileSync(serviceWorkerPath, 'utf8');
-  
-  // Replace the cache version with the date and epoch suffix
-  swContent = swContent.replace(
+if (fs.existsSync('CNAME')) {
+  fs.copyFileSync('CNAME', path.join(outDir, 'CNAME'));
+  console.log('Copied optional static file: CNAME');
+}
+
+function collectPrecacheResources(directory, rootDirectory = directory) {
+  const resources = [];
+  const entries = fs.readdirSync(directory, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const entryPath = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      resources.push(...collectPrecacheResources(entryPath, rootDirectory));
+      continue;
+    }
+
+    const relativePath = path.relative(rootDirectory, entryPath).replace(/\\/g, '/');
+    if (['LICENSE', 'robots.txt', 'sitemap.xml', 'service-worker.js', 'precache-manifest.js'].includes(relativePath)) continue;
+    if (relativePath.startsWith('assets/data/')) {
+      if ([
+        `assets/data/${appConfig.YEAR}/pools/pools.json`,
+        `assets/data/${appConfig.YEAR}/teams/teams.json`,
+        `assets/data/${appConfig.YEAR}/meets/meets.json`
+      ].includes(relativePath)) {
+        resources.push(relativePath);
+      }
+      continue;
+    }
+    if (/\.(?:html|css|js|webmanifest|xml|png|jpg|ico|pdf)$/i.test(relativePath)) {
+      resources.push(relativePath);
+    }
+  }
+
+  return resources;
+}
+
+function writePwaArtifacts() {
+  const requiredOfflineResources = [
+    'index.html',
+    'offline.html',
+    'pools.html',
+    'teams.html',
+    'meets.html',
+    'css/styles.css',
+    'manifest.webmanifest',
+    `assets/data/${appConfig.YEAR}/pools/pools.json`,
+    `assets/data/${appConfig.YEAR}/teams/teams.json`,
+    `assets/data/${appConfig.YEAR}/meets/meets.json`
+  ];
+  const resources = ['./', ...collectPrecacheResources(outDir).sort()];
+  const missingResources = requiredOfflineResources.filter(resource => !resources.includes(resource));
+  if (missingResources.length > 0) {
+    throw new Error(`Required offline resources missing from output: ${missingResources.join(', ')}`);
+  }
+
+  fs.writeFileSync(
+    path.join(outDir, 'precache-manifest.js'),
+    `self.PRECACHE_RESOURCES = ${JSON.stringify(resources, null, 2)};\n`
+  );
+
+  const serviceWorkerPath = 'service-worker.js';
+  if (!fs.existsSync(serviceWorkerPath)) {
+    throw new Error(`Required static file not found: ${serviceWorkerPath}`);
+  }
+  const swContent = fs.readFileSync(serviceWorkerPath, 'utf8').replace(
     /const CACHE_VERSION = .*?;/,
     `const CACHE_VERSION = '${cacheVersion}';`
   );
-  
   fs.writeFileSync(path.join(outDir, serviceWorkerPath), swContent);
+  console.log(`Generated PWA precache inventory with ${resources.length} resources.`);
   console.log(`Updated and copied service-worker.js with cache version: ${cacheVersion}`);
-} else {
-  console.warn(`Service worker file not found: ${serviceWorkerPath}`);
 }
 
 // Get all HTML files from src directory
@@ -184,6 +240,7 @@ const pageBuilds = files.map(file => {
 
 Promise.all(pageBuilds)
   .then(() => {
+    writePwaArtifacts();
     console.log(`✅ [${timestamp()}] Build completed! Processed ${totalFiles} HTML files.`);
   })
   .catch(() => {

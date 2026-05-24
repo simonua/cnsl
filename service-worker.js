@@ -1,9 +1,14 @@
 // Cache version - replaced with the build identifier in generated output.
 const CACHE_VERSION = 'development';
 const APP_BASE_URL = new URL('./', self.location.href);
-importScripts(new URL(`js/config/app-config.js?v=${CACHE_VERSION}`, APP_BASE_URL).toString());
+try {
+  importScripts(new URL(`precache-manifest.js?v=${CACHE_VERSION}`, APP_BASE_URL).toString());
+} catch (error) {
+  console.warn('Precache inventory is unavailable; caching the minimum offline shell.', error);
+}
 
 const CACHE_NAME = `cnsl-static-${CACHE_VERSION}`;
+const OFFLINE_PAGE = 'offline.html';
 
 // Check if running in development mode (localhost or port 9090)
 const isDevelopment = self.location.hostname === 'localhost' || 
@@ -12,89 +17,49 @@ const isDevelopment = self.location.hostname === 'localhost' ||
                       self.location.href.includes('localhost') ||
                       self.location.href.includes('127.0.0.1');
 
-// Resources to cache
-const STATIC_RESOURCES = [
+const MINIMUM_OFFLINE_RESOURCES = [
   './',
   'index.html',
-  'about.html',
-  'pools.html',
-  'teams.html',
-  'meets.html',
-  'swim-meet-resources.html',
-  'faq.html',
-  'settings.html',
-  'whats-new.html',
+  OFFLINE_PAGE,
   'css/styles.css',
-  'js/copilot.js',
   'js/navigation.js',
-  'js/pwa.js',
-  'js/install-app.js',
-  'js/preferences-theme.js',
-  'js/settings.js',
-  'js/pool-browser.js',
-  'js/teams-browser.js',
-  'js/meets-browser.js',
-  'js/meets-browser-simple.js',
-  'js/pools-manager.js',
-  'js/teams-manager.js',
-  'js/meets-manager.js',
-  'js/pool-schedule.js',
-  'js/weather-alert.js',
-  'js/models/pool.js',
-  'js/config/app-config.js',
-  'js/config/weather-config.js',
-  'js/types/pool-enums.js',
-  'js/services/data-manager.js',
-  'js/services/file-helper.js',
-  'js/services/time-utils.js',
-  'js/services/cache-service.js',
-  'js/services/preferences-service.js',
-  'js/services/weather-service.js',
-  'js/services/weather-alert-service.js',
-  'js/services/search-engine.js',
-  'js/services/speech.js',
-  'js/services/pool-link-helper.js',
-  'js/services/pool-schedule-display.js',
-  `assets/data/${YEAR}/pools/pools.json`,
-  `assets/data/${YEAR}/teams/teams.json`,
-  `assets/data/${YEAR}/meets/meets.json`,
-  'assets/images/cnsl-logo.jpg',
-  'assets/images/cnsl-logo-230x230.jpg',
-  'assets/images/logos/lrm.png',
-  'assets/images/logos/ccc.png',
-  'assets/images/logos/cfhss.png',
-  'assets/images/logos/dsd.png',
-  'assets/images/logos/hcc.png',
-  'assets/images/logos/hd.png',
-  'assets/images/logos/kcw.png',
-  'assets/images/logos/omts.png',
-  'assets/images/logos/obb.png',
-  'assets/images/logos/pls.png',
-  'assets/images/logos/prp.png',
-  'assets/images/logos/prr.png',
-  'assets/images/logos/thl.png',
-  'assets/images/logos/wlw.png',
-  'assets/swim-meet-resources/Judge - Rev B 062025.pdf',
-  'assets/swim-meet-resources/Timer - Rev B 062025.pdf',
-  'assets/swim-meet-resources/Timesheet Runner - Rev B 062025.pdf',
-  'assets/favicons/android-chrome-192x192.png',
-  'assets/favicons/android-chrome-512x512.png',
-  'assets/favicons/apple-touch-icon.png',
-  'assets/favicons/favicon-32x32.png',
-  'assets/favicons/favicon-16x16.png',
-  'assets/favicons/favicon.ico',
-  'manifest.webmanifest',
-  'browserconfig.xml'
-].map(resource => {
-  const url = new URL(resource, APP_BASE_URL);
+  'manifest.webmanifest'
+];
+
+function createVersionedUrl(resource) {
+  const url = new URL(typeof resource === 'string' ? resource : resource.url, APP_BASE_URL);
   url.searchParams.set('v', CACHE_VERSION);
   return url.toString();
-});
+}
 
-function createVersionedRequest(request) {
-  const url = new URL(request.url);
-  url.searchParams.set('v', CACHE_VERSION);
-  return new Request(url.toString(), request);
+const CORE_RESOURCES = MINIMUM_OFFLINE_RESOURCES.map(createVersionedUrl);
+const STATIC_RESOURCES = [...new Set((self.PRECACHE_RESOURCES || MINIMUM_OFFLINE_RESOURCES).map(createVersionedUrl))];
+
+async function cacheOptionalResources(cache) {
+  const coreResources = new Set(CORE_RESOURCES);
+  const optionalResources = STATIC_RESOURCES.filter(resource => !coreResources.has(resource));
+  const failedResources = (await Promise.all(optionalResources.map(async resource => {
+    try {
+      await cache.add(resource);
+      return null;
+    } catch (_error) {
+      return resource;
+    }
+  }))).filter(Boolean);
+
+  if (failedResources.length > 0) {
+    console.warn(`Unable to precache ${failedResources.length} optional resource(s). They remain available online.`);
+  }
+}
+
+async function findOfflineNavigationResponse(request) {
+  const cache = await caches.open(CACHE_NAME);
+  const requestUrl = new URL(request.url);
+  const exactMatch = await cache.match(createVersionedUrl(requestUrl.toString()));
+  if (exactMatch) return exactMatch;
+  requestUrl.search = '';
+  return (await cache.match(createVersionedUrl(requestUrl.toString())))
+    || cache.match(createVersionedUrl(OFFLINE_PAGE));
 }
 
 self.addEventListener("install", event => {
@@ -109,9 +74,10 @@ self.addEventListener("install", event => {
 
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => {
+      .then(async cache => {
         console.log(`Creating cache: ${CACHE_NAME}`);
-        return cache.addAll(STATIC_RESOURCES);
+        await cache.addAll(CORE_RESOURCES);
+        await cacheOptionalResources(cache);
       })
       .then(() => {
         console.log(`Cache ${CACHE_NAME} created successfully`);
@@ -187,6 +153,10 @@ self.addEventListener("fetch", event => {
     return;
   }
 
+  if (requestUrl.origin !== APP_BASE_URL.origin) {
+    return;
+  }
+
   // Only handle GET requests for caching
   if (event.request.method !== 'GET') {
     event.respondWith(fetch(event.request));
@@ -203,20 +173,19 @@ self.addEventListener("fetch", event => {
         .then(response => {
           if (response && response.status === 200) {
             const responseClone = response.clone();
-            caches.open(CACHE_NAME).then(cache => {
-              cache.put(createVersionedRequest(event.request), responseClone);
-            });
+            return caches.open(CACHE_NAME)
+              .then(cache => cache.put(createVersionedUrl(event.request), responseClone))
+              .then(() => response);
           }
           return response;
         })
-        .catch(() => caches.open(CACHE_NAME)
-          .then(cache => cache.match(event.request, { ignoreSearch: true })))
+        .catch(() => findOfflineNavigationResponse(event.request))
     );
     return;
   }
   
   if (isDataFile) {
-    const cacheRequest = createVersionedRequest(event.request);
+    const cacheRequest = createVersionedUrl(event.request);
 
     // Network-first strategy for JSON data files
     event.respondWith(
@@ -224,9 +193,9 @@ self.addEventListener("fetch", event => {
         .then(response => {
           if (response && response.status === 200) {
             const responseClone = response.clone();
-            caches.open(CACHE_NAME).then(cache => {
-              cache.put(cacheRequest, responseClone);
-            });
+            return caches.open(CACHE_NAME)
+              .then(cache => cache.put(cacheRequest, responseClone))
+              .then(() => response);
           }
           return response;
         })
@@ -239,9 +208,10 @@ self.addEventListener("fetch", event => {
                 return cachedResponse;
               }
               console.error('Both network and cache failed for data file:', error);
-              return new Response('Data unavailable', { 
-                status: 408,
-                statusText: 'Network error'
+              return new Response(JSON.stringify({ error: 'Data unavailable while offline.' }), {
+                headers: { 'Content-Type': 'application/json' },
+                status: 503,
+                statusText: 'Offline'
               });
             });
         })
@@ -251,7 +221,7 @@ self.addEventListener("fetch", event => {
 
   // Versioned static resources stay cache-first until a new worker installs a new cache.
   event.respondWith(
-    caches.open(CACHE_NAME).then(cache => cache.match(createVersionedRequest(event.request))
+    caches.open(CACHE_NAME).then(cache => cache.match(createVersionedUrl(event.request))
       .then(response => response || cache.match(event.request)))
       .then(response => {
         if (response) {
@@ -264,17 +234,17 @@ self.addEventListener("fetch", event => {
             // Only cache successful responses
             if (response && response.status === 200 && response.type === 'basic') {
               const responseClone = response.clone();
-              caches.open(CACHE_NAME).then(cache => {
-                cache.put(createVersionedRequest(event.request), responseClone);
-              });
+              return caches.open(CACHE_NAME)
+                .then(cache => cache.put(createVersionedUrl(event.request), responseClone))
+                .then(() => response);
             }
             return response;
           })
           .catch(error => {
             console.error('Fetch failed:', error);
-            return new Response('Network error occurred', { 
-              status: 408,
-              statusText: 'Network error'
+            return new Response('This resource is unavailable while offline.', {
+              status: 503,
+              statusText: 'Offline'
             });
           });
       })

@@ -136,6 +136,7 @@ describe('season data agent', () => {
       assert.match(report, /pools\/pools\.json/);
       assert.match(report, /meets\/meets\.json/);
       assert.match(report, /teams\/teams\.json/);
+      assert.match(report, /OFFICIAL_SOURCE_CHECKED_ON/);
       assert.match(report, /pnpm run validate:data/);
     });
   });

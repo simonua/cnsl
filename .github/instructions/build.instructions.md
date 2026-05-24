@@ -28,8 +28,8 @@ Run `.\start.ps1` (Windows) or `./start.sh` (macOS/Linux) for an interactive men
 1. `rimraf out` — Clean output directory
 2. `node posthtml.js` — Custom build script that:
    - Copies `src/assets/`, `src/css/`, `src/js/` to `out/`
-   - Copies root static files (`CNAME`, manifests, `browserconfig.xml`)
-   - Updates `service-worker.js` cache version with build timestamp
+   - Copies required root static files (`manifest.webmanifest`, `browserconfig.xml`, `robots.txt`, `sitemap.xml`, and `LICENSE`) and copies optional `CNAME` only when configured
+   - Generates a precache inventory from the delivered artifact and updates `service-worker.js` with a build cache version
    - Processes HTML with PostHTML (extend + include plugins)
    - Excludes `data/2025/` and `images/logos/originals/` from copy
 
@@ -38,6 +38,7 @@ Run `.\start.ps1` (Windows) or `./start.sh` (macOS/Linux) for an interactive men
 - `out/` is the build output directory (gitignored).
 - Never edit files in `out/` — they are overwritten on every build.
 - GitHub Pages serves from the `out/` directory (or configured branch).
+- `pnpm run verify:pwa` validates generated offline/cache, manifest, canonical, and crawler artifacts after a build.
 
 ## Testing
 
