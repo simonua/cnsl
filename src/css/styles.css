@@ -921,11 +921,11 @@ nav a:focus {
   margin-left: auto;
 }
 
-.pool-filter__toggle {
+button.pool-filter__toggle {
   align-items: center;
-  background-color: transparent;
-  background-image: none;
+  background: transparent;
   border: 0;
+  border-radius: 0.25rem;
   box-shadow: none;
   color: var(--text-dark);
   cursor: pointer;
@@ -934,35 +934,37 @@ nav a:focus {
   font-weight: 600;
   gap: 0.6rem;
   min-width: 0;
+  overflow: visible;
   padding: 0.25rem 0;
   text-align: left;
   transform: none;
+  width: auto;
 }
 
-.pool-filter__toggle:hover,
-.pool-filter__toggle:focus,
-.pool-filter__toggle:focus-visible {
-  background-color: transparent;
-  background-image: none;
+button.pool-filter__toggle:hover,
+button.pool-filter__toggle:focus,
+button.pool-filter__toggle:active,
+button.pool-filter__toggle:focus-visible {
+  background: transparent;
   box-shadow: none;
   color: var(--primary-color);
   transform: none;
 }
 
-.pool-filter__toggle:focus-visible {
+button.pool-filter__toggle:focus-visible {
   outline: 2px solid var(--primary-color);
   outline-offset: 2px;
 }
 
-.pool-filter__toggle::before,
-.pool-filter__clear::before {
+button.pool-filter__toggle::before,
+button.pool-filter__clear::before {
   display: none;
 }
 
 .pool-filter__indicator {
   align-items: center;
   border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
+  border-radius: 50%;
   color: var(--primary-color);
   display: inline-flex;
   height: 1.5rem;
@@ -971,7 +973,7 @@ nav a:focus {
   width: 1.5rem;
 }
 
-.pool-filter__toggle[aria-expanded="true"] .pool-filter__indicator {
+button.pool-filter__toggle[aria-expanded="true"] .pool-filter__indicator {
   border-color: var(--primary-color);
 }
 
@@ -989,9 +991,8 @@ nav a:focus {
   display: none;
 }
 
-.pool-filter__clear {
-  background-color: transparent;
-  background-image: none;
+button.pool-filter__clear {
+  background: transparent;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   box-shadow: none;
@@ -999,6 +1000,8 @@ nav a:focus {
   cursor: pointer;
   font: inherit;
   font-size: 0.9rem;
+  min-width: 0;
+  overflow: visible;
   padding: 0.3rem 0.75rem;
   transform: none;
 }
@@ -1007,10 +1010,11 @@ nav a:focus {
   display: none;
 }
 
-.pool-filter__clear:hover,
-.pool-filter__clear:focus,
-.pool-filter__clear:focus-visible {
-  background-color: var(--light-bg);
+button.pool-filter__clear:hover,
+button.pool-filter__clear:focus,
+button.pool-filter__clear:active,
+button.pool-filter__clear:focus-visible {
+  background: var(--light-bg);
   border-color: var(--primary-color);
   box-shadow: none;
   transform: none;
@@ -1031,7 +1035,7 @@ nav a:focus {
 .pool-filter__options {
   display: grid;
   gap: 1rem 1.25rem;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  grid-template-columns: 1fr;
 }
 
 .pool-filter__group {
@@ -1054,6 +1058,12 @@ nav a:focus {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+@media (min-width: 48rem) {
+  .pool-filter__options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .pool-filter__option {

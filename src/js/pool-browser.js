@@ -204,7 +204,7 @@ async function loadSeasonInfo() {
       
       seasonInfo.innerHTML = `
         <p class="season-text">
-          The CA Outdoor Pool season runs from <b>${startDateText}</b> to <b>${endDateText}</b><br/> 
+          The ${YEAR} CA Outdoor Pool season runs from <b>${startDateText}</b> to <b>${endDateText}</b><br/> 
           <span class="season-note">(Memorial Day weekend to Labor Day weekend)</span>
         </p>
         ${linksHtml}
