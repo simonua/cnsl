@@ -13,6 +13,9 @@ A lightweight, mobile-first web app that helps Columbia Neighborhood Swim League
 ### Setup
 
 ```bash
+# Use Node.js 24 or newer from the checked-in baseline
+nvm use
+
 # Install dependencies
 pnpm install
 ```
@@ -64,7 +67,7 @@ pnpm exec playwright install chromium
 pnpm run test:browser:smoke
 
 # One-page Axe feedback when iterating on a specific affected surface
-pnpm exec playwright test tests/browser/accessibility.spec.js --grep "light theme accessibility.*pools has no WCAG A or AA automated violations"
+pnpm run test:browser tests/browser/accessibility.spec.js --grep "light theme accessibility.*pools has no WCAG A or AA automated violations"
 
 # Complete browser gate before release
 pnpm run test:browser

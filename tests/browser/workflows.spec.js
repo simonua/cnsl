@@ -256,6 +256,9 @@ test('mobile weather safety alert keeps navigation visible and collapses with a 
   await prepareVisibleWeatherAlert(page);
   await page.goto('/index.html');
 
+  await page.locator('.site-title').evaluate(title => {
+    title.textContent = 'CA Pool and CNSL Assistant Weather Safety Information';
+  });
   const alert = page.locator('#weatherAlert');
   const toggle = page.getByRole('button', { name: 'Collapse weather safety alert' });
   const action = page.getByRole('link', { name: 'View live CA pool status' });

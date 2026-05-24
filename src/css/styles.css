@@ -415,7 +415,7 @@ html, body {
   width: min(58vw, 14rem);
   height: 100vh;
   background: linear-gradient(180deg, var(--primary-color), var(--primary-dark));
-  padding-top: var(--header-height);
+  padding-top: var(--nav-top-offset, var(--header-height));
   transition: right 0.3s ease;
   z-index: 999;
   box-shadow: -4px 0 20px rgba(0,0,0,0.3);
