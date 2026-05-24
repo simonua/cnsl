@@ -90,7 +90,7 @@
         // Log manifest info for debugging
         if (navigator.userAgent.includes('Android')) {
           console.log('🤖 Android device detected');
-          fetch('/manifest.webmanifest')
+          fetch('manifest.webmanifest')
             .then(response => response.json())
             .then(manifest => {
               console.log('📋 Manifest loaded:', manifest);

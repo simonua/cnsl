@@ -1,6 +1,7 @@
 // Cache version - replaced with the build identifier in generated output.
 const CACHE_VERSION = 'development';
-importScripts(`/js/config/app-config.js?v=${CACHE_VERSION}`);
+const APP_BASE_URL = new URL('./', self.location.href);
+importScripts(new URL(`js/config/app-config.js?v=${CACHE_VERSION}`, APP_BASE_URL).toString());
 
 const CACHE_NAME = `cnsl-static-${CACHE_VERSION}`;
 
@@ -13,71 +14,82 @@ const isDevelopment = self.location.hostname === 'localhost' ||
 
 // Resources to cache
 const STATIC_RESOURCES = [
-  "/",
-  "/index.html",
-  "/pools.html",
-  "/teams.html",
-  "/meets.html",
-  "/swim-meet-resources.html",
-  "/faq.html",
-  "/settings.html",
-  "/css/styles.css",
-  "/js/copilot.js",
-  "/js/navigation.js",
-  "/js/pwa.js",
-  "/js/install-app.js",
-  "/js/preferences-theme.js",
-  "/js/settings.js",
-  "/js/pool-browser.js",
-  "/js/teams-browser.js",
-  "/js/meets-browser.js",
-  "/js/meets-browser-simple.js",
-  "/js/pools-manager.js",
-  "/js/teams-manager.js",
-  "/js/meets-manager.js",
-  "/js/pool-schedule.js",
-  "/js/models/pool.js",
-  "/js/config/app-config.js",
-  "/js/config/weather-config.js",
-  "/js/types/pool-enums.js",
-  "/js/services/data-manager.js",
-  "/js/services/file-helper.js",
-  "/js/services/time-utils.js",
-  "/js/services/cache-service.js",
-  "/js/services/preferences-service.js",
-  "/js/services/weather-service.js",
-  "/js/services/search-engine.js",
-  "/js/services/speech.js",
-  "/js/services/pool-link-helper.js",
-  `/assets/data/${YEAR}/pools/pools.json`,
-  `/assets/data/${YEAR}/pools/pools.schema.json`,
-  "/assets/images/cnsl-logo.jpg",
-  "/assets/images/cnsl-logo-230x230.jpg",
-  "/assets/images/logos/lrm.png",
-  "/assets/images/logos/ccc.png",
-  "/assets/images/logos/cfhss.png",
-  "/assets/images/logos/dsd.png",
-  "/assets/images/logos/hcc.png",
-  "/assets/images/logos/hd.png",
-  "/assets/images/logos/kcw.png",
-  "/assets/images/logos/omts.png",
-  "/assets/images/logos/obb.png",
-  "/assets/images/logos/pls.png",
-  "/assets/images/logos/prp.png",
-  "/assets/images/logos/prr.png",
-  "/assets/images/logos/thl.png",
-  "/assets/images/logos/wlw.png",
-  "/assets/swim-meet-resources/Judge - Rev B 062025.pdf",
-  "/assets/swim-meet-resources/Timer - Rev B 062025.pdf",
-  "/assets/swim-meet-resources/Timesheet Runner - Rev B 062025.pdf",
-  "/assets/favicons/android-chrome-192x192.png",
-  "/assets/favicons/android-chrome-512x512.png",
-  "/assets/favicons/apple-touch-icon.png",
-  "/assets/favicons/favicon-32x32.png",
-  "/assets/favicons/favicon-16x16.png",
-  "/assets/favicons/favicon.ico",
-  "/manifest.webmanifest"
-].map(resource => `${resource}${resource.includes('?') ? '&' : '?'}v=${CACHE_VERSION}`);
+  './',
+  'index.html',
+  'about.html',
+  'pools.html',
+  'teams.html',
+  'meets.html',
+  'swim-meet-resources.html',
+  'faq.html',
+  'settings.html',
+  'whats-new.html',
+  'css/styles.css',
+  'js/copilot.js',
+  'js/navigation.js',
+  'js/pwa.js',
+  'js/install-app.js',
+  'js/preferences-theme.js',
+  'js/settings.js',
+  'js/pool-browser.js',
+  'js/teams-browser.js',
+  'js/meets-browser.js',
+  'js/meets-browser-simple.js',
+  'js/pools-manager.js',
+  'js/teams-manager.js',
+  'js/meets-manager.js',
+  'js/pool-schedule.js',
+  'js/weather-alert.js',
+  'js/models/pool.js',
+  'js/config/app-config.js',
+  'js/config/weather-config.js',
+  'js/types/pool-enums.js',
+  'js/services/data-manager.js',
+  'js/services/file-helper.js',
+  'js/services/time-utils.js',
+  'js/services/cache-service.js',
+  'js/services/preferences-service.js',
+  'js/services/weather-service.js',
+  'js/services/weather-alert-service.js',
+  'js/services/search-engine.js',
+  'js/services/speech.js',
+  'js/services/pool-link-helper.js',
+  'js/services/pool-schedule-display.js',
+  `assets/data/${YEAR}/pools/pools.json`,
+  `assets/data/${YEAR}/teams/teams.json`,
+  `assets/data/${YEAR}/meets/meets.json`,
+  'assets/images/cnsl-logo.jpg',
+  'assets/images/cnsl-logo-230x230.jpg',
+  'assets/images/logos/lrm.png',
+  'assets/images/logos/ccc.png',
+  'assets/images/logos/cfhss.png',
+  'assets/images/logos/dsd.png',
+  'assets/images/logos/hcc.png',
+  'assets/images/logos/hd.png',
+  'assets/images/logos/kcw.png',
+  'assets/images/logos/omts.png',
+  'assets/images/logos/obb.png',
+  'assets/images/logos/pls.png',
+  'assets/images/logos/prp.png',
+  'assets/images/logos/prr.png',
+  'assets/images/logos/thl.png',
+  'assets/images/logos/wlw.png',
+  'assets/swim-meet-resources/Judge - Rev B 062025.pdf',
+  'assets/swim-meet-resources/Timer - Rev B 062025.pdf',
+  'assets/swim-meet-resources/Timesheet Runner - Rev B 062025.pdf',
+  'assets/favicons/android-chrome-192x192.png',
+  'assets/favicons/android-chrome-512x512.png',
+  'assets/favicons/apple-touch-icon.png',
+  'assets/favicons/favicon-32x32.png',
+  'assets/favicons/favicon-16x16.png',
+  'assets/favicons/favicon.ico',
+  'manifest.webmanifest',
+  'browserconfig.xml'
+].map(resource => {
+  const url = new URL(resource, APP_BASE_URL);
+  url.searchParams.set('v', CACHE_VERSION);
+  return url.toString();
+});
 
 function createVersionedRequest(request) {
   const url = new URL(request.url);
@@ -183,6 +195,25 @@ self.addEventListener("fetch", event => {
 
   // Check if this is a data file (JSON) - use network-first for data files for faster updates
   const isDataFile = requestUrl.pathname.includes('/assets/data/') && requestUrl.pathname.endsWith('.json');
+  const isNavigationRequest = event.request.mode === 'navigate';
+
+  if (isNavigationRequest) {
+    event.respondWith(
+      fetch(event.request, { cache: 'no-cache' })
+        .then(response => {
+          if (response && response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(createVersionedRequest(event.request), responseClone);
+            });
+          }
+          return response;
+        })
+        .catch(() => caches.open(CACHE_NAME)
+          .then(cache => cache.match(event.request, { ignoreSearch: true })))
+    );
+    return;
+  }
   
   if (isDataFile) {
     const cacheRequest = createVersionedRequest(event.request);
@@ -220,7 +251,8 @@ self.addEventListener("fetch", event => {
 
   // Versioned static resources stay cache-first until a new worker installs a new cache.
   event.respondWith(
-    caches.open(CACHE_NAME).then(cache => cache.match(event.request, { ignoreSearch: true }))
+    caches.open(CACHE_NAME).then(cache => cache.match(createVersionedRequest(event.request))
+      .then(response => response || cache.match(event.request)))
       .then(response => {
         if (response) {
           return response;
@@ -233,7 +265,7 @@ self.addEventListener("fetch", event => {
             if (response && response.status === 200 && response.type === 'basic') {
               const responseClone = response.clone();
               caches.open(CACHE_NAME).then(cache => {
-                cache.put(event.request, responseClone);
+                cache.put(createVersionedRequest(event.request), responseClone);
               });
             }
             return response;

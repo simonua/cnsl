@@ -39,6 +39,9 @@
     }
   });
 
-  navigator.serviceWorker.register('/service-worker.js')
+  const serviceWorkerUrl = new URL('service-worker.js', window.location.href);
+
+  navigator.serviceWorker.register(serviceWorkerUrl, { updateViaCache: 'none' })
+    .then(registration => registration.update())
     .catch(error => console.error('Service Worker registration failed:', error));
 }());
