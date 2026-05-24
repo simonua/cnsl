@@ -6,7 +6,7 @@ The 2025 folder is an archived season and is excluded from published builds. It 
 
 | Domain | Local assets | Archive coverage | Source status |
 | --- | --- | --- | --- |
-| Pools | `pools/pools.json`, `pools/pools.schema.json`, and 23 PDFs in `pools/pool-schedules/` | Complete | Columbia Association pool source URLs are recorded in `pools/pools.json` |
+| Pools | `pools/pools.json`, `pools/pools.schema.json`, and 23 PDFs in `pools/pool-schedules/` | Complete, including facility features | Columbia Association pool pages and directory URLs are recorded in `pools/pools.json` |
 | Meets | `meets/meets.json` and `meets/meets.schema.json` | Complete | Official CNSL meet schedule URL recorded in `meets/meets.json` |
 | Teams | `teams/teams.json` and `teams/teams.schema.json` | Complete | Individual team source URLs recorded; no verified central PDF link |
 
@@ -18,6 +18,13 @@ Pool schedule PDFs are stored in `pools/pool-schedules/`. The annual data file r
 | --- | --- | --- |
 | Columbia Association 2025 pool season guide | [View season guide](https://columbiaassociation.org/swim/your-guide-to-cas-2025-pool-season/) | `pools/pools.json` and `pools/pool-schedules/` |
 | Columbia Association pool directory | [View pool directory](https://experience.arcgis.com/experience/ac58c73ab9bd4640a880c8ddf46bf198) | `pools/pools.json` |
+| Columbia Association individual pool-location pages | Official page stored as each `pools[].caUrl` | `pools[].features`, verified 2026-05-24 |
+
+### Feature Correction
+
+Existing CA-backed feature values were retained and missing `pools[].features` values were completed on 2026-05-24 from each official Columbia Association pool-location page, using its facility description and Amenities list. Published wording is normalized to compact schema labels, such as `lap` for a lane pool, `play features` for water features, and `splash` for a splash pad.
+
+This update makes the archived application dataset complete for the currently published facility amenities; because the verification used current CA pages, it should not be interpreted as a historical snapshot of the exact feature text published during the 2025 season.
 
 ## Meets
 
@@ -41,4 +48,5 @@ If an official 2025 league-wide team-assignment or practice PDF is recovered, ad
 ## Archive Notes
 
 - The 2025 assets remain available as source history and should not be revised without an explicit archived-data correction.
+- The 2026-05-24 facility-feature completion is an explicitly requested archived-data correction sourced from current official CA pool pages.
 - The build intentionally excludes `data/2025/` from published output.

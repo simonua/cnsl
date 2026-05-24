@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft-07/schema#",
   "$id": "https://example.com/meets.schema.json",
+  "version": "V1",
   "title": "Meet Data Schema",
   "description": "Schema for meet data containing regular and special meets",
   "type": "object",

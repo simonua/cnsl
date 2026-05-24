@@ -21,11 +21,12 @@
       },
       "phone": "410-730-5326",
       "features": [
-        "lap",
-        "wading",
-        "wifi",
         "hot tub",
-        "pool lift"
+        "lap",
+        "pool lift",
+        "shade",
+        "wading",
+        "wifi"
       ],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Bryant_Woods.pdf",
       "schedules": [
@@ -322,7 +323,18 @@
         "googleMapsUrl": "https://maps.app.goo.gl/USbbviedhzT6mXAc7"
       },
       "phone": "410-964-0805",
-      "features": [],
+      "features": [
+        "beach entry",
+        "dive",
+        "hot tub",
+        "lap",
+        "play features",
+        "pool lift",
+        "shade",
+        "volleyball",
+        "wading",
+        "wifi"
+      ],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Clarys_Forest.pdf",
       "schedules": []
     },
@@ -341,7 +353,17 @@
         "googleMapsUrl": "https://maps.app.goo.gl/nDhXsSz8vgU3NLWh6"
       },
       "phone": "410-997-4214",      
-      "features": [],
+      "features": [
+        "dive",
+        "lap",
+        "pool lift",
+        "shade",
+        "slide",
+        "soccer",
+        "softball",
+        "wading",
+        "wifi"
+      ],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Clemens_Crossing.pdf",
       "schedules": []
     },
@@ -360,7 +382,16 @@
         "googleMapsUrl": "https://maps.app.goo.gl/ccMhQkE8MaApGSTP6"
       },
       "phone": "410-715-3194",
-      "features": [],
+      "features": [
+        "bathhouse",
+        "cornhole",
+        "hot tub",
+        "lap",
+        "shade",
+        "slide",
+        "wading",
+        "wifi"
+      ],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Dasher_Green.pdf",
       "schedules": []
     },
@@ -379,7 +410,18 @@
         "googleMapsUrl": "https://maps.app.goo.gl/G4ChZdAMEPsCsg9G9"
       },
       "phone": "410-381-3080",
-      "features": [],
+      "features": [
+        "ADA compliant",
+        "beach entry",
+        "lap",
+        "play features",
+        "pool lift",
+        "shade",
+        "slide",
+        "volleyball",
+        "wading",
+        "wifi"
+      ],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Dickinson_Pool.pdf",
       "schedules": []
     },
@@ -398,7 +440,21 @@
         "googleMapsUrl": "https://maps.app.goo.gl/d8a4CdahR1YtAUxL8"
       },
       "phone": "410-461-1481",
-      "features": [],
+      "features": [
+        "ADA compliant",
+        "basketball",
+        "beach entry",
+        "hot tub",
+        "lap",
+        "play features",
+        "pool lift",
+        "shade",
+        "slide",
+        "tot lot",
+        "volleyball",
+        "wading",
+        "wifi"
+      ],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Dorsey_Hall.pdf",
       "schedules": []
     },
@@ -417,7 +473,16 @@
         "googleMapsUrl": "https://maps.app.goo.gl/CZjfGdxz5LL4Ehk49"
       },
       "phone": "410-730-5292",
-      "features": [],
+      "features": [
+        "basketball",
+        "beach entry",
+        "dive",
+        "lap",
+        "play features",
+        "slide",
+        "wading",
+        "wifi"
+      ],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Faulkner_Ridge.pdf",
       "schedules": []
     },
@@ -436,7 +501,21 @@
         "googleMapsUrl": "https://maps.app.goo.gl/2QVrxxmmGQVnDRKS8"
       },
       "phone": "410-730-0943",
-      "features": [],
+      "features": [
+        "ADA compliant",
+        "basketball",
+        "beach entry",
+        "dive",
+        "hot tub",
+        "lap",
+        "play features",
+        "pool lift",
+        "shade",
+        "slide",
+        "tot lot",
+        "wading",
+        "wifi"
+      ],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Hawthorn.pdf",
       "schedules": []
     },
@@ -455,7 +534,17 @@
         "googleMapsUrl": "https://maps.app.goo.gl/VQgb4qbeZs4aeB9r9"
       },
       "phone": "410-730-6770",
-      "features": [],
+      "features": [
+        "basketball",
+        "golf course",
+        "lap",
+        "shade",
+        "shallow",
+        "tennis",
+        "tot lot",
+        "wading",
+        "wifi"
+      ],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Hobbits_Glen.pdf",
       "schedules": []
     },
@@ -474,7 +563,19 @@
         "googleMapsUrl": "https://maps.app.goo.gl/bLiRAA7xdfhMbJnX9"
       },
       "phone": "410-381-1460",
-      "features": [],
+      "features": [
+        "baseball",
+        "basketball",
+        "lap",
+        "pool lift",
+        "shade",
+        "slide",
+        "splash",
+        "sports field",
+        "tot lot",
+        "wading",
+        "wifi"
+      ],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Hopewell.pdf",
       "schedules": []
     },
@@ -493,7 +594,15 @@
         "googleMapsUrl": "https://maps.app.goo.gl/ynLi2WRYwM7BmUKYA"
       },
       "phone": "301-490-3310",
-      "features": [],
+      "features": [
+        "deck",
+        "hot tub",
+        "lap",
+        "shade",
+        "slide",
+        "wading",
+        "wifi"
+      ],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Huntington.pdf",
       "schedules": []
     },
@@ -512,7 +621,14 @@
         "googleMapsUrl": "https://maps.app.goo.gl/tTho6AftfVxAPzEH8"
       },
       "phone": "410-730-1220",
-      "features": [],
+      "features": [
+        "climbing wall",
+        "lap",
+        "shade",
+        "volleyball",
+        "wading",
+        "wifi"
+      ],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Jeffers_Hill.pdf",
       "schedules": []
     },
@@ -534,10 +650,16 @@
       "features": [
         "ADA compliant",
         "beach entry",
+        "dive",
         "hot tub",
+        "lap",
+        "party area",
         "play features",
         "pool lift",
+        "shade",
+        "slide",
         "volleyball",
+        "wading",
         "wifi"
       ],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Kendall_Ridge.pdf",
@@ -1036,7 +1158,13 @@
         "googleMapsUrl": "https://maps.app.goo.gl/cr5nz16axo9QMNM57"
       },
       "phone": "410-730-5621",
-      "features": [],
+      "features": [
+        "basketball",
+        "lap",
+        "slide",
+        "wading",
+        "wifi"
+      ],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Locust_Park.pdf",
       "schedules": []
     },
@@ -1055,7 +1183,18 @@
         "googleMapsUrl": "https://maps.app.goo.gl/sXwyg4Dsvjba2ukU6"
       },
       "phone": "410-730-4978",
-      "features": [],
+      "features": [
+        "ADA compliant",
+        "basketball",
+        "beach entry",
+        "dive",
+        "lap",
+        "play features",
+        "shade",
+        "slide",
+        "wading",
+        "wifi"
+      ],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Longfellow.pdf",
       "schedules": []
     },
@@ -1074,7 +1213,15 @@
         "googleMapsUrl": "https://maps.app.goo.gl/NRXjnEGVoyBmzmXP7"
       },
       "phone": "410-730-5995",
-      "features": [],
+      "features": [
+        "basketball",
+        "lap",
+        "sensory friendly",
+        "shade",
+        "volleyball",
+        "wading",
+        "wifi"
+      ],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Macgills_Common.pdf",
       "schedules": []
     },
@@ -1093,7 +1240,14 @@
         "googleMapsUrl": "https://maps.app.goo.gl/rjeXTRjCS1miCPy79"
       },
       "phone": "410-730-5765",
-      "features": [],
+      "features": [
+        "dive",
+        "lap",
+        "picnic area",
+        "shade",
+        "wading",
+        "wifi"
+      ],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Phelps_Luck.pdf",
       "schedules": []
     },
@@ -1112,7 +1266,19 @@
         "googleMapsUrl": "https://maps.app.goo.gl/BiEz14tBdHNcGiUz5"
       },
       "phone": "410-531-0191",
-      "features": [],
+      "features": [
+        "ADA compliant",
+        "beach entry",
+        "hot tub",
+        "lap",
+        "picnic area",
+        "play features",
+        "pool lift",
+        "shade",
+        "slide",
+        "wading",
+        "wifi"
+      ],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/River_Hill.pdf",
       "schedules": []
     },
@@ -1131,7 +1297,14 @@
         "googleMapsUrl": "https://maps.app.goo.gl/C4hLgLBoCyTiqN178"
       },
       "phone": "410-730-5293",
-      "features": [],
+      "features": [
+        "basketball",
+        "dive",
+        "lap",
+        "shade",
+        "splash",
+        "wifi"
+      ],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Running_Brook.pdf",
       "schedules": []
     },
@@ -1150,7 +1323,16 @@
         "googleMapsUrl": "https://maps.app.goo.gl/sz76wNDeNmt9Er87A"
       },
       "phone": "410-730-5452",
-      "features": [],
+      "features": [
+        "fitness pavilion",
+        "heated",
+        "hot tub",
+        "lap",
+        "pool lift",
+        "shade",
+        "wading",
+        "wifi"
+      ],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Stevens_Forest.pdf",
       "schedules": []
     },
@@ -1169,7 +1351,20 @@
         "googleMapsUrl": "https://maps.app.goo.gl/X24sByCcNba2KppMA"
       },
       "phone": "410-730-3180",
-      "features": [],
+      "features": [
+        "basketball",
+        "bathhouse",
+        "family changing room",
+        "heated",
+        "lap",
+        "party area",
+        "pool lift",
+        "shade",
+        "slide",
+        "splash",
+        "tot lot",
+        "wifi"
+      ],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Swansfield.pdf",
       "schedules": []
     },
@@ -1188,7 +1383,17 @@
         "googleMapsUrl": "https://maps.app.goo.gl/ThxBCzAsArVLqf8UA"
       },
       "phone": "410-730-5421",
-      "features": [],
+      "features": [
+        "basketball",
+        "grill",
+        "lap",
+        "picnic area",
+        "play features",
+        "shade",
+        "slide",
+        "wading",
+        "wifi"
+      ],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Talbott_Springs.pdf",
       "schedules": []
     },
@@ -1207,7 +1412,15 @@
         "googleMapsUrl": "https://maps.app.goo.gl/4V7Q9XNr6R7ejB1B9"
       },
       "phone": "410-730-5563",
-      "features": [],
+      "features": [
+        "dive",
+        "lap",
+        "shade",
+        "tot lot",
+        "volleyball",
+        "wading",
+        "wifi"
+      ],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Thunder_Hill.pdf",
       "schedules": []
     }

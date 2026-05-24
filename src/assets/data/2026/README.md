@@ -6,7 +6,7 @@ The 2026 folder is the active season selected by the application. Pools, meets, 
 
 | Domain | Local assets | Application readiness | Source status |
 | --- | --- | --- | --- |
-| Pools | `pools/pools.json`, `pools/pools.schema.json`, and 23 PDFs in `pools/pool-schedules/` | Ready | Columbia Association pool source URLs are recorded in `pools/pools.json` |
+| Pools | `pools/pools.json`, `pools/pools.schema.json`, and 23 PDFs in `pools/pool-schedules/` | Ready, including facility features | Columbia Association pool pages and directory URLs are recorded in `pools/pools.json` |
 | Meets | `meets/meets.json`, `meets/meets.schema.json`, and one PDF in `meets/meet-schedules/` | Ready | Official CNSL meet schedule downloaded and transcribed |
 | Teams | `teams/teams.json`, `teams/teams.schema.json`, and two PDFs in `teams/team-schedules/` | Ready | Official CNSL practice and team-assignment documents retained; supported team fields transcribed |
 
@@ -18,6 +18,7 @@ Pool schedule PDFs are stored in `pools/pool-schedules/`. The annual data file r
 | --- | --- | --- |
 | Columbia Association pool schedule page | [View pool schedules](https://columbiaassociation.org/sports-recreation/pools/pool-schedules/) | `pools/pools.json` and `pools/pool-schedules/` |
 | Columbia Association pool directory | [View pool directory](https://experience.arcgis.com/experience/ac58c73ab9bd4640a880c8ddf46bf198) | `pools/pools.json` |
+| Columbia Association individual pool-location pages | Official page stored as each `pools[].caUrl` | `pools[].features`, verified 2026-05-24 |
 
 ## Meets
 
@@ -42,6 +43,7 @@ The 2026 CNSL downloads above were verified from the official [CNSL home page](h
 
 ## Transcription Notes
 
+- Missing pool facility features were completed from each official Columbia Association pool-location page on 2026-05-24, while existing CA-backed values were retained. The update combines the pages' facility descriptions and Amenities lists, normalizing terms to schema labels such as `lap`, `play features`, and `splash` while retaining specifically published amenities such as `heated`, `climbing wall`, and `sensory friendly`.
 - The meets file transcribes the five scheduled dual-meet dates and three special-meet entries from the official PDF.
 - The teams file preserves the stable team IDs and destination URL pattern from the archived model, updating current home and practice pool associations from official 2026 sources.
 - The central practice PDF supplies pool associations and team-wide practice windows, while directing families to each team for age-group times; the 2025-modeled JSON records the supported pool associations. Registration-assignment matrices remain in their official PDF because the application schema does not model them.
