@@ -251,22 +251,30 @@ test('visible weather safety alerts render with update times on every page', asy
   }
 });
 
-test('mobile weather safety alert centers its content and collapses to a warning control', async ({ page }) => {
+test('mobile weather safety alert centers its content and collapses with a stable arrow control', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await prepareVisibleWeatherAlert(page);
   await page.goto('/index.html');
 
   const alert = page.locator('#weatherAlert');
   const toggle = page.getByRole('button', { name: 'Collapse weather safety alert' });
+  const icon = page.locator('.weather-alert__toggle-icon');
   await expect(alert).toBeVisible();
   await expect(page.locator('.weather-alert__copy')).toHaveCSS('text-align', 'center');
   await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  const expandedToggleSize = await toggle.boundingBox();
+  await expect(icon).toHaveCSS('transform', 'none');
 
   await toggle.focus();
   await page.keyboard.press('Enter');
   await expect(page.locator('#weatherAlertDetails')).toBeHidden();
-  await expect(page.getByRole('button', { name: 'Expand weather safety alert' })).toHaveAttribute('aria-expanded', 'false');
-  await expect(page.locator('.weather-alert__warning-icon')).toBeVisible();
+  const expandToggle = page.getByRole('button', { name: 'Expand weather safety alert' });
+  await expect(expandToggle).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.locator('.weather-alert__collapsed-label')).toBeVisible();
+  await expect(icon).toHaveCSS('transform', 'matrix(-1, 0, 0, -1, 0, 0)');
+  const collapsedToggleSize = await expandToggle.boundingBox();
+  expect(collapsedToggleSize.width).toBe(expandedToggleSize.width);
+  expect(collapsedToggleSize.height).toBe(expandedToggleSize.height);
 
   await page.keyboard.press('Enter');
   await expect(page.locator('#weatherAlertDetails')).toBeVisible();
