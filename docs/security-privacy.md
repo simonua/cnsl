@@ -4,7 +4,7 @@ Updated: 2026-05-25
 
 ## Analytics Decision
 
-The deployed site uses Google Analytics to understand site and feature usage. The tag enables analytics storage so GA4 can recognize users and sessions for standard reporting, while advertising storage, Google signals, and advertising personalization remain disabled. Application-authored page views include the public page path and title only; query strings, fragments, and referrers are not included. There is no in-app analytics preference. Local development does not load the Google tag, keeping development and automated browser checks deterministic.
+The deployed site uses Google Analytics to understand site and feature usage. The tag enables analytics storage so GA4 can recognize users and sessions for standard reporting, while advertising storage, Google signals, and advertising personalization remain disabled. Application-authored page views include the public page path and title only; query strings, fragments, and referrers are not included. On each measured page load, the site also sends a `ca_version` event containing the fixed public application release value displayed in the footer as `app_version`, so usage can be compared across releases. There is no in-app analytics preference. Local development does not load the Google tag, keeping development and automated browser checks deterministic.
 
 When a visitor changes their favorite pool or favorite team in Settings, the site sends a `ca_select_favorite` usage event with `favorite_type` and `favorite_value` parameters. Those values are restricted to fixed public pool/team choices loaded from the published directory, or `none`; the app will not send arbitrary strings through that event. The app-defined event parameters do not supply visitor names, staff or contact details, location-awareness state, current coordinates, appearance settings, free-form text, or identifiers. As with standard GA4 events when analytics storage is enabled, GA4 can associate the event with its first-party reporting identifiers. Location is requested only by the Pools page when the visitor separately enables distance estimates.
 
@@ -15,6 +15,7 @@ Preferences stored by this app do not include analytics state or an analytics id
 | Measurement | Data Sent | Status |
 | --- | --- | --- |
 | Page use | Public page path and page title supplied by the app | Implemented |
+| App version on page load | Public footer release value as `app_version` through `ca_version` | Implemented |
 | Sharing action | Fixed share method and fixed home-page item value | Implemented |
 | Favorite change | `pool` or `team` plus one published directory choice or `none` | Implemented |
 | Enhanced measurement | Automatically measured interaction types and associated fields enabled in GA4 web stream administration | Administrative configuration; retain only reviewed event types |

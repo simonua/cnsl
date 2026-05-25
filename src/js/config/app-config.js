@@ -51,6 +51,7 @@
   }
 
   exposeConstant('YEAR', YEAR);
+  exposeConstant('APP_VERSION', APP_VERSION);
   exposeConstant('HOME_PAGE_HOSTNAME', HOME_PAGE_HOSTNAME);
   exposeConstant('HOME_PAGE_URL', HOME_PAGE_URL);
   exposeConstant('GA4_MEASUREMENT_ID', GA4_MEASUREMENT_ID);

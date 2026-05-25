@@ -165,7 +165,7 @@ test('season summary and sharing actions appear only on the home page', async ({
   await expect.poll(() => page.locator('#poolList, #seasonInfo').evaluateAll(elements => elements.map(element => element.id))).toEqual(['poolList', 'seasonInfo']);
 });
 
-test('analytics publishes a page view only after the Google tag script loads', async ({ page }) => {
+test('analytics publishes a page view and public app version only after the Google tag script loads', async ({ page }) => {
   let releaseTagScript;
   let reportTagScriptRequest;
   const tagScriptRequested = new Promise(resolve => {
@@ -191,6 +191,7 @@ test('analytics publishes a page view only after the Google tag script loads', a
   await page.goto('https://pools.longreachmarlins.org/index.html', { waitUntil: 'domcontentloaded' });
   await tagScriptRequested;
   const measurementId = await page.evaluate(() => globalThis.GA4_MEASUREMENT_ID);
+  const appVersion = await page.evaluate(() => globalThis.APP_VERSION);
 
   await expect.poll(() => page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
     .toEqual([
@@ -224,12 +225,16 @@ test('analytics publishes a page view only after the Google tag script loads', a
       ['set'],
       ['js'],
       ['config', measurementId],
-      ['event', 'page_view']
+      ['event', 'page_view'],
+      ['event', 'ca_version']
     ]
   });
-  await expect.poll(() => page.evaluate(() => Array.from(globalThis.dataLayer.at(-1))[2])).toMatchObject({
+  await expect.poll(() => page.evaluate(() => Array.from(globalThis.dataLayer.at(-2))[2])).toMatchObject({
     page_location: 'https://pools.longreachmarlins.org/index.html',
     page_referrer: ''
+  });
+  await expect.poll(() => page.evaluate(() => Array.from(globalThis.dataLayer.at(-1))[2])).toEqual({
+    app_version: appVersion
   });
 });
 

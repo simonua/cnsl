@@ -2,7 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 const vm = require('node:vm');
-const { GA4_MEASUREMENT_ID, HOME_PAGE_HOSTNAME, HOME_PAGE_URL, YEAR } = require('../src/js/config/app-config.js');
+const { APP_VERSION, GA4_MEASUREMENT_ID, HOME_PAGE_HOSTNAME, HOME_PAGE_URL, YEAR } = require('../src/js/config/app-config.js');
 
 const outDir = path.join(__dirname, '..', 'out');
 const siteOrigin = HOME_PAGE_URL;
@@ -71,6 +71,7 @@ const appEventNames = [...`${analytics}\n${settings}`.matchAll(/window\.gtag\('e
 const customAppEventNames = appEventNames.filter(eventName => eventName !== 'page_view');
 assert.match(GA4_MEASUREMENT_ID, /^G-[A-Z0-9]+$/, 'Analytics configuration must use a GA4 web-stream measurement ID, not a numeric property ID.');
 assert.match(appConfig, new RegExp(GA4_MEASUREMENT_ID), 'Delivered application configuration must include the configured GA4 measurement ID.');
+assert.match(appConfig, /exposeConstant\('APP_VERSION', APP_VERSION\)/, 'Delivered application configuration must expose the published app version to browser measurement.');
 assert.match(analytics, /window\.GA4_MEASUREMENT_ID/, 'Analytics must publish through the configured GA4 web-stream measurement ID.');
 assert.match(analytics, /analytics_storage:\s*'granted'/, 'Analytics must allow usage measurement storage for standard GA4 reporting.');
 assert.doesNotMatch(analytics, /analytics_storage:\s*'denied'/, 'Analytics measurement must not be downgraded to cookieless pings only.');
@@ -85,6 +86,9 @@ assert.match(analytics, /page_referrer:\s*''/, 'Analytics must not send page ref
 assert.match(analytics, /window\.gtag\('event', 'page_view'/, 'Sanitized page measurement must use the GA4 page_view event recognized by standard reports.');
 assert.doesNotMatch(analytics, /window\.gtag\('event', 'ca_page_view'/, 'Page measurement must not be renamed to a custom event that standard GA4 page reporting ignores.');
 assert.match(analytics, /window\.gtag\('event', 'ca_share'/, 'Share measurement must use the app-specific analytics event prefix.');
+assert.match(analytics, /window\.gtag\('event', 'ca_version'/, 'Version measurement must use the app-specific analytics event prefix.');
+assert.match(analytics, /app_version:\s*window\.APP_VERSION/, 'Version measurement must send only the configured published app version.');
+assert.match(appConfig, new RegExp(APP_VERSION.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), 'Delivered application configuration must include the published app version.');
 assert.match(settings, /window\.gtag\('event', 'ca_select_favorite'/, 'Favorite measurement must use the app-specific analytics event prefix.');
 assert.ok(appEventNames.length > 0, 'The delivered application must declare its expected analytics events.');
 customAppEventNames.forEach(eventName => assert.match(eventName, /^ca_/, `Custom application analytics event must use the ca_ prefix: ${eventName}`));

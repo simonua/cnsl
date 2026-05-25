@@ -65,6 +65,9 @@
       page_title: document.title,
       ...getMeasuredPageParameters()
     });
+    window.gtag('event', 'ca_version', {
+      app_version: window.APP_VERSION
+    });
   }, { once: true });
   document.head.appendChild(script);
 }());
