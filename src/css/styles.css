@@ -1874,6 +1874,7 @@ button[aria-label*="Voice"]:active {
   .quick-link-card:visited,
   .quick-link-card:hover,
   .quick-link-card:focus {
+    height: 3rem;
     min-height: 3rem;
     padding: 0.65rem 0.35rem;
   }
