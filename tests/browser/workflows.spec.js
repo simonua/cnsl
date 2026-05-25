@@ -639,7 +639,7 @@ test('visible weather safety alerts render with update times on every page', asy
   for (const path of publishedPagePaths) {
     await page.goto(path);
     await expect(page.locator('#weatherAlert')).toBeVisible();
-    await expect(page.locator('.weather-alert__title')).toHaveText('Weather safety alert');
+    await expect(page.locator('.weather-alert__title')).toHaveText('Weather alert');
     await expect(page.locator('#weatherAlertMessage')).toContainText('Severe Thunderstorm Warning');
     await expect(page.locator('#weatherAlertUpdated')).not.toHaveText('');
     await expect(page.locator('#weatherAlertUpdated')).toHaveAttribute('datetime', /2026-/);
