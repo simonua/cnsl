@@ -1,7 +1,7 @@
 (function initializeAnalytics() {
   'use strict';
 
-  function getAnonymousPageParameters() {
+  function getMeasuredPageParameters() {
     return {
       page_location: `${window.HOME_PAGE_URL}${window.location.pathname}`,
       page_referrer: ''
@@ -40,13 +40,13 @@
     ad_storage: 'denied',
     ad_user_data: 'denied',
     ad_personalization: 'denied',
-    analytics_storage: 'denied'
+    analytics_storage: 'granted'
   });
   window.gtag('set', 'ads_data_redaction', true);
   window.gtag('set', {
     allow_google_signals: false,
     allow_ad_personalization_signals: false,
-    ...getAnonymousPageParameters()
+    ...getMeasuredPageParameters()
   });
   window.gtag('js', new Date());
   window.gtag('config', window.GA4_MEASUREMENT_ID, {
@@ -57,7 +57,7 @@
   });
   window.gtag('event', 'page_view', {
     page_title: document.title,
-    ...getAnonymousPageParameters()
+    ...getMeasuredPageParameters()
   });
 
   const script = document.createElement('script');

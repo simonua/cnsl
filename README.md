@@ -108,7 +108,7 @@ A second workflow, `.github/workflows/season-data-monitor.yml`, checks official 
 - FAQs and league documents from official CNSL sources
 - Installable Progressive Web App (PWA) with offline application-shell and seasonal directory caching
 - Keyboard-friendly navigation, status announcements, and reduced-motion support
-- Anonymized aggregate usage analytics on the deployed site, without tracking individual visitors
+- Purpose-limited Google Analytics usage reporting on the deployed site, with advertising personalization disabled
 - Hosted via GitHub Pages with custom domain and HTTPS
 
 ---
