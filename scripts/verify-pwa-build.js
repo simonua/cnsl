@@ -5,7 +5,7 @@ const vm = require('node:vm');
 const { YEAR } = require('../src/js/config/app-config.js');
 
 const outDir = path.join(__dirname, '..', 'out');
-const siteOrigin = 'https://cnsl.longreachmarlins.org';
+const siteOrigin = 'https://pools.longreachmarlins.org';
 const requiredArtifacts = [
   'index.html',
   'offline.html',
@@ -58,6 +58,16 @@ precacheResources.filter(resource => resource !== './').forEach(resource => {
 const worker = fs.readFileSync(path.join(outDir, 'service-worker.js'), 'utf8');
 assert.doesNotMatch(worker, /const CACHE_VERSION = 'development'/, 'Built service worker must have a release cache version.');
 assert.match(worker, /precache-manifest\.js/, 'Service worker must import the generated precache inventory.');
+
+const analytics = fs.readFileSync(path.join(outDir, 'js', 'analytics.js'), 'utf8');
+assert.match(analytics, /analytics_storage:\s*'denied'/, 'Analytics must deny identifying analytics storage.');
+assert.match(analytics, /ad_storage:\s*'denied'/, 'Analytics must deny advertising storage.');
+assert.match(analytics, /allow_google_signals:\s*false/, 'Analytics must disable Google advertising signals.');
+assert.match(analytics, /allow_ad_personalization_signals:\s*false/, 'Analytics must disable advertising personalization.');
+assert.match(analytics, /send_page_view:\s*false/, 'Analytics must suppress automatic unsanitized page views.');
+assert.match(analytics, /page_location:\s*`\$\{window\.location\.origin\}\$\{window\.location\.pathname\}`/, 'Analytics page locations must exclude query strings and fragments.');
+assert.match(analytics, /page_referrer:\s*''/, 'Analytics must not send page referrers.');
+assert.doesNotMatch(analytics, /user_id|user_properties|document\.referrer|location\.search|location\.hash/, 'Analytics must not add identifiers, user profiling values, or unsanitized navigation data.');
 
 Object.entries(canonicalPages).forEach(([page, canonical]) => {
   const html = fs.readFileSync(path.join(outDir, page), 'utf8');

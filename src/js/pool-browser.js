@@ -472,7 +472,7 @@ function setupPoolFeatureFilters(pools) {
   optionsContainer.replaceChildren();
   PreferencesService.groupPoolFeatures(availableFeatures).forEach(group => {
     const groupFieldset = document.createElement('fieldset');
-    groupFieldset.className = 'pool-filter__group';
+    groupFieldset.className = `pool-filter__group pool-filter__group--${group.key}`;
 
     const groupTitle = document.createElement('legend');
     groupTitle.className = 'pool-filter__group-title';
@@ -496,7 +496,7 @@ function setupPoolFeatureFilters(pools) {
       chip.append(labelText);
 
       const label = document.createElement('label');
-      label.className = 'pool-filter__option';
+      label.className = `pool-filter__option pool-filter__option--${group.key}`;
       label.append(input, chip);
       groupOptions.appendChild(label);
     });
@@ -661,7 +661,8 @@ function renderPools(pools) {
     const detailsId = `pool-details-${String(poolId || poolName).replace(/[^a-zA-Z0-9_-]/g, '-')}`;
     const features = pool.features || [];
     const isFavorite = poolName === favoritePoolName;
-    const isExpanded = isFavorite || expandedPoolIds.has(poolId) || (isInitialRender && poolId === linkedPoolId);
+    const isExpanded = (isInitialRender && poolId === linkedPoolId)
+      || (isFavorite ? preferences.favoritePoolExpanded : expandedPoolIds.has(poolId));
     
     let distanceHtml = '';
     if (pool.distance !== undefined && !isNaN(pool.distance)) {
@@ -706,7 +707,7 @@ function renderPools(pools) {
         <div class="pool-features">
           <h3>Features</h3>
           <div class="feature-pills">
-            ${sortedFeatures.map(feature => `<span class="feature-pill">${PoolBrowserSafety.escapeHtml(feature)}</span>`).join('')}
+            ${sortedFeatures.map(feature => `<span class="feature-pill feature-pill--${PreferencesService.getPoolFeatureCategory(feature)}">${PoolBrowserSafety.escapeHtml(formatPoolFeatureLabel(feature))}</span>`).join('')}
           </div>
         </div>
       `;
@@ -748,7 +749,7 @@ function renderPools(pools) {
       `;
     }
 
-    // Create phone number row within the address section if phone is available
+    // Create phone number action if a published phone number is available
     let phoneHtml = '';
     const safePhoneUrl = PoolBrowserSafety.safeTelephoneUrl(pool.phone);
     if (safePhoneUrl) {
@@ -782,9 +783,8 @@ function renderPools(pools) {
                    class="address-link">
                   ${safeStreetAddress ? `${safeStreetAddress}${safeCityStateZip ? '<br>' : ''}` : ''}${safeCityStateZip || (safeStreetAddress ? '' : 'Address not available')}
                 </a>
-                ${phoneHtml}
               </div>
-              ${caLinkHtml}
+              ${(caLinkHtml || phoneHtml) ? `<div class="address-section__actions">${caLinkHtml}${phoneHtml}</div>` : ''}
             </div>
           </div>
           ${hoursHtml}
@@ -831,6 +831,10 @@ function togglePoolCard(toggleButton) {
   const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
   poolCard.classList.toggle('collapsed', isExpanded);
   toggleButton.setAttribute('aria-expanded', String(!isExpanded));
+  if (poolCard.classList.contains('favorite-card')) {
+    const preferences = PreferencesService.get();
+    PreferencesService.save({ ...preferences, favoritePoolExpanded: !isExpanded });
+  }
   if (details) {
     details.hidden = isExpanded;
     if (!isExpanded) scrollCalendarsToToday(details);

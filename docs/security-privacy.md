@@ -1,14 +1,25 @@
 # Security And Privacy Decision
 
-Updated: 2026-05-24
+Updated: 2026-05-25
 
 ## Analytics Decision
 
-The deployed site uses anonymized aggregate usage analytics through Google Tag Manager to understand general site use without tracking individual visitors. There is no analytics-consent preference to store or administer. Local development does not load Tag Manager, keeping development and automated browser checks deterministic.
+The deployed site uses anonymized aggregate usage analytics through the Google tag for Google Analytics to understand general site use without tracking individual visitors. The tag denies analytics and advertising storage, disables Google signals and advertising personalization, redacts advertising data, and emits page views only with the public page path and title; query strings, fragments, and referrers are not included. There is no analytics-consent preference to store or administer because the app does not enable identifying analytics storage. Local development does not load the Google tag, keeping development and automated browser checks deterministic.
 
-This site does not deliberately send favorite pool, favorite team, location-awareness state, current coordinates, or annual-directory content to analytics. Location is requested only by the Pools page when the visitor separately enables distance estimates.
+When a visitor changes their favorite pool or favorite team in Settings, the site sends a `select_favorite` aggregate usage event with `favorite_type` and `favorite_value` parameters. Those values are restricted to fixed public pool/team choices loaded from the published directory, or `none`; the app will not send arbitrary strings through that event. It does not deliberately send visitor names, staff or contact details, location-awareness state, current coordinates, appearance settings, free-form text, persistent identifiers, or annual-directory content beyond an explicitly approved fixed public choice. Location is requested only by the Pools page when the visitor separately enables distance estimates.
 
-Preferences stored on the device do not include analytics state and are not deliberately sent through analytics.
+Preferences stored on the device do not include analytics state or an analytics identifier. Favorite selections remain stored locally and are additionally counted only when the visitor changes one of those published choices.
+
+### Measured And Permitted Choice Data
+
+| Measurement | Data Sent | Status |
+| --- | --- | --- |
+| Page use | Public page path and page title only | Implemented |
+| Sharing action | Fixed share method and fixed home-page item value | Implemented |
+| Favorite change | `pool` or `team` plus one published directory choice or `none` | Implemented |
+| Pool-feature filter use | Only a fixed published pool-feature choice, if introduced with disclosure and regression tests | Permitted boundary; not currently implemented |
+
+Any future analytics change must remain purpose-limited to aggregate app and feature use. It must not introduce `user_id`, user properties describing a visitor, Google advertising/signals features, cookies or other analytics storage, requested coordinates, contact details, user-entered text, or unsanitized URLs/referrers. New fixed-choice events, including pool-feature filter measurement, require an update to the implemented-measurement table and tests proving arbitrary values cannot be emitted before release. The Google Analytics property must also keep Google signals, advertising personalization, and granular location/device reporting disabled wherever its administrative controls can collect data beyond this source configuration. Enhanced measurement must remain disabled unless each enabled automatic event and every transmitted field has been reviewed and documented as meeting this anonymous-data boundary.
 
 ## Browser Policy Decision
 
@@ -17,7 +28,7 @@ GitHub Pages does not provide repository-managed HTTP response headers for this 
 | Directive Area | Allowed Sources | Reason |
 | --- | --- | --- |
 | Default, base URL, manifest, worker | Same origin only | Site artifact and PWA lifecycle. |
-| Scripts | Same origin, inline script content, `https://www.googletagmanager.com` | Site JavaScript, JSON-LD structured metadata, and deployed-site Tag Manager. |
+| Scripts | Same origin, inline script content, `https://www.googletagmanager.com` | Site JavaScript, JSON-LD structured metadata, and the deployed-site Google tag for Analytics. |
 | Styles | Same origin and inline styles | Existing calendar positioning/status presentation still uses controlled inline styles. |
 | Connections | Same origin, `https://api.weather.gov`, Google Analytics endpoints | Annual/static content, weather safety alerts, and anonymized usage measurement. |
 | Images | Same origin, data URLs, Google Analytics endpoints | Delivered images and possible analytics beacon transport. |
@@ -27,7 +38,7 @@ The use of `unsafe-inline` is an acknowledged constraint rather than a blanket s
 
 ## Validation
 
-- The artifact verifier requires the shared deployed-site analytics bootstrap and rejects the removed consent loader or consent setting.
+- The artifact verifier requires the shared deployed-site analytics bootstrap, its anonymous configuration guardrails, and rejects the removed consent loader or consent setting.
 - Automated accessibility scans exercise all published routes under the enforced default policy.
 - The secure-origin release checklist requires a browser-console CSP review while deployed-site analytics is active.
 - Published text in About, FAQ, Settings, and What's New describes the visitor-facing privacy behavior.

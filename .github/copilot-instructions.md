@@ -29,6 +29,7 @@ CNSL (Columbia Neighborhood Swim League) is a PWA for pool directories, team sch
 - **No minified libraries** — use full versions for now.
 - **Document meaningful features in What's New.** Any meaningful feature addition must include a corresponding update to `src/views/whats-new.html` in the same change.
 - **Accessibility is required.** All new or modified user-facing experiences must meet WCAG 2.0 Level AA at minimum across the affected page or workflow. Do not complete a site change with known accessibility regressions.
+- **Analytics must remain anonymous and purpose-limited.** Use Google Analytics only for aggregate app-use and feature-use measurement. Never send names, contact details, account or device identifiers, precise or saved location, free-form/user-provided text, URL query/fragment values, referrers, or any data intended to identify or profile a visitor. Any tracked app choice must be a fixed public option needed to understand feature use, documented in the privacy decision, and protected by tests. Keep analytics/ad storage denied and Google advertising/personalization signals disabled in the tag configuration; require GA4 administrative features such as enhanced measurement and granular location/device reporting to remain disabled unless every collected field has been separately audited against this boundary.
 
 ## Accessibility Requirements
 

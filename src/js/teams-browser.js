@@ -380,6 +380,10 @@ function toggleTeamCard(toggleButton) {
   const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
   teamCard.classList.toggle('collapsed', isExpanded);
   toggleButton.setAttribute('aria-expanded', String(!isExpanded));
+  if (teamCard.classList.contains('favorite-card')) {
+    const preferences = PreferencesService.get();
+    PreferencesService.save({ ...preferences, favoriteTeamExpanded: !isExpanded });
+  }
   if (details) details.hidden = isExpanded;
 }
 
@@ -397,7 +401,9 @@ function renderTeams(teams) {
     return;
   }
 
-  const favoriteTeamId = PreferencesService.get().favoriteTeamId;
+  const preferences = PreferencesService.get();
+  const favoriteTeamId = preferences.favoriteTeamId;
+  const favoriteTeamExpanded = preferences.favoriteTeamExpanded;
   const compareTeams = (a, b) => {
     const nameA = (a && a.name) ? a.name : '';
     const nameB = (b && b.name) ? b.name : '';
@@ -416,6 +422,7 @@ function renderTeams(teams) {
     const practiceUrl = TeamsBrowserSafety.safeHttpUrl(team.practice && team.practice.url);
     const resultsUrl = TeamsBrowserSafety.safeHttpUrl(team.resultsUrl);
     const isFavorite = teamId === favoriteTeamId;
+    const isExpanded = isFavorite && favoriteTeamExpanded;
     const homePools = Array.isArray(team.homePools) ? team.homePools : [];
     const homePool = homePools[0] || '';
     
@@ -469,15 +476,15 @@ function renderTeams(teams) {
     }
     
     return `
-      <div class="team-card ${isFavorite ? 'favorite-card' : 'collapsed'}" data-team-id="${safeTeamId}">
+      <div class="team-card ${isFavorite ? `favorite-card${isExpanded ? '' : ' collapsed'}` : 'collapsed'}" data-team-id="${safeTeamId}">
         <div class="team-header">
           ${logoHtml}
           <div class="team-header-content">
-            <h2><button type="button" class="team-header__toggle" aria-expanded="${String(isFavorite)}" aria-controls="${detailsId}">${safeTeamName}${isFavorite ? ' <span class="favorite-badge">Favorite team</span>' : ''}</button></h2>
+            <h2><button type="button" class="team-header__toggle" aria-expanded="${String(isExpanded)}" aria-controls="${detailsId}">${safeTeamName}${isFavorite ? ' <span class="favorite-badge">Favorite team</span>' : ''}</button></h2>
           </div>
         </div>
         
-        <div class="team-details" id="${detailsId}"${isFavorite ? '' : ' hidden'}>
+        <div class="team-details" id="${detailsId}"${isExpanded ? '' : ' hidden'}>
           ${upcomingPracticesHtml}
           
           ${homePool ? `

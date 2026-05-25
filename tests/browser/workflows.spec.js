@@ -172,10 +172,59 @@ test('pool feature filters expose their state and resulting count', async ({ pag
   const filters = page.locator('#togglePoolFeatureFilters');
   await filters.click();
   await expect(filters).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.locator('.pool-filter__group--accessibility')).toBeVisible();
+  await expect(page.locator('.pool-filter__option--young-swimmers').first()).toBeVisible();
+  await expect(page.locator('.pool-filter__option--water-play').first()).toBeVisible();
+  const chipColors = await Promise.all([
+    page.locator('.pool-filter__option--accessibility > span').first().evaluate(chip => globalThis.getComputedStyle(chip).backgroundColor),
+    page.locator('.pool-filter__option--young-swimmers > span').first().evaluate(chip => globalThis.getComputedStyle(chip).backgroundColor),
+    page.locator('.pool-filter__option--water-play > span').first().evaluate(chip => globalThis.getComputedStyle(chip).backgroundColor)
+  ]);
+  expect(new Set(chipColors).size).toBe(3);
   await page.locator('input[name="poolFeature"]').first().check();
 
   await expect(page.locator('#poolFilterSummary')).toHaveText(/Showing \d+ of 23 pools/);
   await expect(page.locator('#poolFeatureFilterCount')).toHaveText('1 selected');
+});
+
+test('collapsed favorite pool stays collapsed after filters redraw the directory', async ({ page }) => {
+  await page.goto('/pools.html');
+  await page.evaluate(() => {
+    localStorage.setItem('cnsl_preferences', JSON.stringify({ favoritePoolName: 'Bryant Woods' }));
+  });
+  await page.reload();
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+
+  let favoriteToggle = page.locator('.favorite-card .pool-header__toggle');
+  await expect(favoriteToggle).toHaveAttribute('aria-expanded', 'true');
+  await favoriteToggle.click();
+  await expect(favoriteToggle).toHaveAttribute('aria-expanded', 'false');
+
+  await page.locator('#togglePoolFeatureFilters').click();
+  await page.locator('input[name="poolFeature"]').first().check();
+  await page.locator('#clearPoolFeatureFilters').click();
+  favoriteToggle = page.locator('.favorite-card .pool-header__toggle');
+  await expect(favoriteToggle).toHaveAttribute('aria-expanded', 'false');
+
+  await page.reload();
+  await expect(page.locator('.favorite-card .pool-header__toggle')).toHaveAttribute('aria-expanded', 'false');
+});
+
+test('collapsed favorite team stays collapsed after returning to the directory', async ({ page }) => {
+  await page.goto('/teams.html');
+  await page.evaluate(() => {
+    localStorage.setItem('cnsl_preferences', JSON.stringify({ favoriteTeamId: 'cfhss' }));
+  });
+  await page.reload();
+  await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
+
+  const favoriteToggle = page.locator('.favorite-card .team-header__toggle');
+  await expect(favoriteToggle).toHaveAttribute('aria-expanded', 'true');
+  await favoriteToggle.click();
+  await expect(favoriteToggle).toHaveAttribute('aria-expanded', 'false');
+
+  await page.reload();
+  await expect(page.locator('.favorite-card .team-header__toggle')).toHaveAttribute('aria-expanded', 'false');
 });
 
 test('location distances use outlined pills and can sort nearest pools first', async ({ page }) => {
@@ -361,12 +410,13 @@ test('desktop expanded pool details group contact links and fit the weekly calen
       addressIsFullWidth: Math.abs(addressBox.width - contactBox.width) <= 1,
       addressIsIndented: addressLinkBox.left > addressDetailsBox.left,
       caWebsiteIsBesideAddress: caWebsiteBox.left >= addressDetailsBox.right && caWebsiteBox.top < addressDetailsBox.bottom,
-      phoneFollowsAddressClosely: phoneBox.top - addressLinkBox.bottom <= 12,
+      phoneIsUnderCaWebsite: phoneBox.top >= caWebsiteBox.bottom && phoneBox.left >= addressDetailsBox.right,
       phoneIsInsideAddress: phoneBox.top > addressBox.top && phoneBox.bottom <= addressBox.bottom,
       caWebsiteIsInsideAddress: caWebsiteBox.bottom <= addressBox.bottom,
       calendarFits: schedule.scrollWidth <= schedule.clientWidth + 1,
       featuresHasAccentBorder: card.ownerDocument.defaultView.getComputedStyle(features).borderLeftWidth === '3px',
-      featuresGap: Math.round(features.getBoundingClientRect().top - hours.getBoundingClientRect().bottom)
+      addressToHoursGap: Math.round(hours.getBoundingClientRect().top - contactBox.bottom),
+      hoursToFeaturesGap: Math.round(features.getBoundingClientRect().top - hours.getBoundingClientRect().bottom)
     };
   });
 
@@ -375,12 +425,12 @@ test('desktop expanded pool details group contact links and fit the weekly calen
   expect(layout.addressIsFullWidth).toBe(true);
   expect(layout.addressIsIndented).toBe(true);
   expect(layout.caWebsiteIsBesideAddress).toBe(true);
-  expect(layout.phoneFollowsAddressClosely).toBe(true);
+  expect(layout.phoneIsUnderCaWebsite).toBe(true);
   expect(layout.phoneIsInsideAddress).toBe(true);
   expect(layout.caWebsiteIsInsideAddress).toBe(true);
   expect(layout.calendarFits).toBe(true);
   expect(layout.featuresHasAccentBorder).toBe(true);
-  expect(layout.featuresGap).toBeLessThanOrEqual(12);
+  expect(layout.addressToHoursGap).toBe(layout.hoursToFeaturesGap);
 });
 
 test('mobile calendar schedules reveal today when a pool is expanded', async ({ page }) => {
@@ -435,6 +485,10 @@ test('desktop site header remains visible while the pool directory scrolls', asy
 });
 
 test('settings persist choices locally and announce clearing saved settings', async ({ page }) => {
+  await page.addInitScript(() => {
+    globalThis.recordedAnalyticsEvents = [];
+    globalThis.gtag = (...eventArguments) => globalThis.recordedAnalyticsEvents.push(eventArguments);
+  });
   await page.goto('/settings.html');
   await expect(page.locator('#favoritePool')).toBeEnabled();
 
@@ -446,9 +500,35 @@ test('settings persist choices locally and announce clearing saved settings', as
   await expect(page.getByLabel('Share anonymous page usage through Google Analytics')).toHaveCount(0);
   await expect.poll(() => page.evaluate(() => Object.hasOwn(JSON.parse(localStorage.getItem('cnsl_preferences')), 'analyticsEnabled'))).toBe(false);
   await expect(page.locator('#cnslAnalyticsScript')).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([]);
+
+  await page.locator('#favoritePool').selectOption({ label: 'Bryant Woods' });
+  await page.locator('#favoriteTeam').selectOption('cfhss');
+  await page.locator('#favoritePool').selectOption('');
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
+    ['event', 'select_favorite', { favorite_type: 'pool', favorite_value: 'Bryant Woods' }],
+    ['event', 'select_favorite', { favorite_type: 'team', favorite_value: 'cfhss' }],
+    ['event', 'select_favorite', { favorite_type: 'pool', favorite_value: 'none' }]
+  ]);
+
+  await page.locator('#favoriteTeam').evaluate(select => {
+    const untrustedOption = select.ownerDocument.createElement('option');
+    untrustedOption.value = 'person@example.com';
+    untrustedOption.textContent = 'Untrusted value';
+    select.appendChild(untrustedOption);
+    select.value = untrustedOption.value;
+    select.dispatchEvent(new select.ownerDocument.defaultView.Event('change', { bubbles: true }));
+  });
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toHaveLength(3);
 
   await page.getByRole('button', { name: 'Clear saved settings' }).click();
   await expect(page.locator('#settingsStatus')).toHaveText('Saved settings removed from this device.');
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
+    ['event', 'select_favorite', { favorite_type: 'pool', favorite_value: 'Bryant Woods' }],
+    ['event', 'select_favorite', { favorite_type: 'team', favorite_value: 'cfhss' }],
+    ['event', 'select_favorite', { favorite_type: 'pool', favorite_value: 'none' }],
+    ['event', 'select_favorite', { favorite_type: 'team', favorite_value: 'none' }]
+  ]);
 });
 
 test('visible weather safety alerts render with update times on every page', async ({ page }) => {

@@ -13,22 +13,27 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
 
     static POOL_FEATURE_GROUPS = Object.freeze([
       Object.freeze({
+        key: 'accessibility',
         label: 'Accessibility & inclusion',
         features: Object.freeze(['ada compliant', 'family changing room', 'pool lift', 'sensory friendly'])
       }),
       Object.freeze({
+        key: 'young-swimmers',
         label: 'Young swimmers & non-swimmers',
         features: Object.freeze(['beach entry', 'play features', 'shallow', 'splash', 'tot lot', 'wading'])
       }),
       Object.freeze({
+        key: 'water-play',
         label: 'Swimming & water play',
         features: Object.freeze(['climbing wall', 'dive', 'lap', 'slide'])
       }),
       Object.freeze({
+        key: 'recreation',
         label: 'Sports & recreation',
         features: Object.freeze(['baseball', 'basketball', 'cornhole', 'fitness pavilion', 'golf course', 'soccer', 'softball', 'sports field', 'tennis', 'volleyball'])
       }),
       Object.freeze({
+        key: 'amenities',
         label: 'Amenities',
         features: Object.freeze(['bathhouse', 'deck', 'grill', 'heated', 'hot tub', 'party area', 'picnic area', 'shade', 'wifi'])
       })
@@ -38,6 +43,8 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
       theme: 'system',
       favoriteTeamId: '',
       favoritePoolName: '',
+      favoriteTeamExpanded: true,
+      favoritePoolExpanded: true,
       poolScheduleLayout: 'list',
       poolFeatureFilters: Object.freeze([]),
       locationAwarenessEnabled: false,
@@ -103,6 +110,8 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
       const theme = PreferencesService.THEMES.includes(preferences.theme) ? preferences.theme : 'system';
       const favoriteTeamId = typeof preferences.favoriteTeamId === 'string' ? preferences.favoriteTeamId.trim() : '';
       const favoritePoolName = typeof preferences.favoritePoolName === 'string' ? preferences.favoritePoolName.trim() : '';
+      const favoriteTeamExpanded = preferences.favoriteTeamExpanded !== false;
+      const favoritePoolExpanded = preferences.favoritePoolExpanded !== false;
       const poolScheduleLayout = PreferencesService.POOL_SCHEDULE_LAYOUTS.includes(preferences.poolScheduleLayout)
         ? preferences.poolScheduleLayout
         : 'list';
@@ -114,7 +123,7 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
         ? requestedWeatherRefreshMinutes
         : PreferencesService.DEFAULT_PREFERENCES.weatherRefreshMinutes;
 
-      return { theme, favoriteTeamId, favoritePoolName, poolScheduleLayout, poolFeatureFilters, locationAwarenessEnabled, weatherRefreshMinutes };
+      return { theme, favoriteTeamId, favoritePoolName, favoriteTeamExpanded, favoritePoolExpanded, poolScheduleLayout, poolFeatureFilters, locationAwarenessEnabled, weatherRefreshMinutes };
     }
 
     /**
@@ -156,15 +165,26 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
       const groups = PreferencesService.POOL_FEATURE_GROUPS.map(group => {
         const visibleFeatures = group.features.filter(feature => availableFeatures.includes(feature));
         visibleFeatures.forEach(feature => categorizedFeatures.add(feature));
-        return { label: group.label, features: visibleFeatures };
+        return { key: group.key, label: group.label, features: visibleFeatures };
       }).filter(group => group.features.length > 0);
       const additionalFeatures = availableFeatures.filter(feature => !categorizedFeatures.has(feature));
 
       if (additionalFeatures.length > 0) {
-        groups.push({ label: 'Additional features', features: additionalFeatures });
+        groups.push({ key: 'additional', label: 'Additional features', features: additionalFeatures });
       }
 
       return groups;
+    }
+
+    /**
+     * Resolve the display category for one published feature.
+     * @param {string} feature - Published feature label
+     * @returns {string} Stable category key for styling and display grouping
+     */
+    static getPoolFeatureCategory(feature) {
+      const normalizedFeature = PreferencesService.normalizeFeatureFilters([feature])[0];
+      const group = PreferencesService.POOL_FEATURE_GROUPS.find(candidate => candidate.features.includes(normalizedFeature));
+      return group ? group.key : 'additional';
     }
 
     /**

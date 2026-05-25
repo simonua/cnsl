@@ -30,6 +30,31 @@
   --weather-alert-action: #f0c34e;
   --weather-alert-action-hover: #e3b43c;
   --weather-alert-action-text: #392b00;
+  --feature-accessibility-bg: #e6f4f1;
+  --feature-accessibility-border: #147d72;
+  --feature-accessibility-text: #115e59;
+  --feature-accessibility-selected-bg: #126b63;
+  --feature-young-swimmers-bg: #f1ecf8;
+  --feature-young-swimmers-border: #7856a9;
+  --feature-young-swimmers-text: #56377d;
+  --feature-young-swimmers-selected-bg: #654391;
+  --feature-water-play-bg: #e6eff8;
+  --feature-water-play-border: #005ea8;
+  --feature-water-play-text: #004578;
+  --feature-water-play-selected-bg: #00518e;
+  --feature-recreation-bg: #e9f5ea;
+  --feature-recreation-border: #2b7a44;
+  --feature-recreation-text: #1f6337;
+  --feature-recreation-selected-bg: #23683a;
+  --feature-amenities-bg: #f0f2f4;
+  --feature-amenities-border: #5d6975;
+  --feature-amenities-text: #384550;
+  --feature-amenities-selected-bg: #4f5d69;
+  --feature-additional-bg: #f0f2f4;
+  --feature-additional-border: #5d6975;
+  --feature-additional-text: #384550;
+  --feature-additional-selected-bg: #4f5d69;
+  --feature-selected-text: #ffffff;
   --header-height: 4.625rem;
   --footer-height: 3.25rem;
   --footer-bottom-clearance: max(0.5rem, env(safe-area-inset-bottom, 0rem));
@@ -68,6 +93,31 @@
   --weather-alert-action: #f1c64b;
   --weather-alert-action-hover: #ffd76b;
   --weather-alert-action-text: #392b00;
+  --feature-accessibility-bg: #133433;
+  --feature-accessibility-border: #45bfb3;
+  --feature-accessibility-text: #a9e7e1;
+  --feature-accessibility-selected-bg: #1b625d;
+  --feature-young-swimmers-bg: #30253f;
+  --feature-young-swimmers-border: #be99ed;
+  --feature-young-swimmers-text: #e5d6fa;
+  --feature-young-swimmers-selected-bg: #65449a;
+  --feature-water-play-bg: #142a3f;
+  --feature-water-play-border: #58b0ee;
+  --feature-water-play-text: #c9e4fa;
+  --feature-water-play-selected-bg: #124a70;
+  --feature-recreation-bg: #183326;
+  --feature-recreation-border: #4ac46b;
+  --feature-recreation-text: #c0edcc;
+  --feature-recreation-selected-bg: #21633b;
+  --feature-amenities-bg: #252f38;
+  --feature-amenities-border: #7e909f;
+  --feature-amenities-text: #d7e0e7;
+  --feature-amenities-selected-bg: #455665;
+  --feature-additional-bg: #252f38;
+  --feature-additional-border: #7e909f;
+  --feature-additional-text: #d7e0e7;
+  --feature-additional-selected-bg: #455665;
+  --feature-selected-text: #f1f5f8;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -102,6 +152,31 @@
     --weather-alert-action: #f1c64b;
     --weather-alert-action-hover: #ffd76b;
     --weather-alert-action-text: #392b00;
+    --feature-accessibility-bg: #133433;
+    --feature-accessibility-border: #45bfb3;
+    --feature-accessibility-text: #a9e7e1;
+    --feature-accessibility-selected-bg: #1b625d;
+    --feature-young-swimmers-bg: #30253f;
+    --feature-young-swimmers-border: #be99ed;
+    --feature-young-swimmers-text: #e5d6fa;
+    --feature-young-swimmers-selected-bg: #65449a;
+    --feature-water-play-bg: #142a3f;
+    --feature-water-play-border: #58b0ee;
+    --feature-water-play-text: #c9e4fa;
+    --feature-water-play-selected-bg: #124a70;
+    --feature-recreation-bg: #183326;
+    --feature-recreation-border: #4ac46b;
+    --feature-recreation-text: #c0edcc;
+    --feature-recreation-selected-bg: #21633b;
+    --feature-amenities-bg: #252f38;
+    --feature-amenities-border: #7e909f;
+    --feature-amenities-text: #d7e0e7;
+    --feature-amenities-selected-bg: #455665;
+    --feature-additional-bg: #252f38;
+    --feature-additional-border: #7e909f;
+    --feature-additional-text: #d7e0e7;
+    --feature-additional-selected-bg: #455665;
+    --feature-selected-text: #f1f5f8;
   }
 }
 
@@ -499,12 +574,16 @@ main {
   margin-bottom: 60px !important;
 }
 
+main.container {
+  padding-top: 0.75rem;
+}
+
 /* Page Headers */
 main h1 {
   color: var(--text-muted);
   font-size: 2rem;
   font-weight: 600;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.75rem;
   text-align: center;
 }
 
@@ -1240,10 +1319,6 @@ nav a:focus {
   padding: 1rem;
 }
 
-.pool-hours + .pool-features {
-  margin-top: -0.75rem;
-}
-
 .pool-features h3 {
   color: var(--primary-color);
   margin-bottom: 0.5rem;
@@ -1408,6 +1483,27 @@ button.pool-filter__clear:focus-visible {
   width: 100%;
 }
 
+.pool-filter__group--accessibility .pool-filter__group-title {
+  color: var(--feature-accessibility-text);
+}
+
+.pool-filter__group--young-swimmers .pool-filter__group-title {
+  color: var(--feature-young-swimmers-text);
+}
+
+.pool-filter__group--water-play .pool-filter__group-title {
+  color: var(--feature-water-play-text);
+}
+
+.pool-filter__group--recreation .pool-filter__group-title {
+  color: var(--feature-recreation-text);
+}
+
+.pool-filter__group--amenities .pool-filter__group-title,
+.pool-filter__group--additional .pool-filter__group-title {
+  color: var(--feature-amenities-text);
+}
+
 .pool-filter__group-options {
   display: flex;
   flex-wrap: wrap;
@@ -1431,10 +1527,10 @@ button.pool-filter__clear:focus-visible {
 }
 
 .pool-filter__option > span {
-  background-color: var(--light-bg);
-  border: 1px solid var(--border-color);
+  background-color: var(--feature-chip-bg, var(--light-bg));
+  border: 1px solid var(--feature-chip-border, var(--border-color));
   border-radius: var(--border-radius);
-  color: var(--text-dark);
+  color: var(--feature-chip-text, var(--text-dark));
   display: block;
   font-size: 0.9rem;
   padding: 0.25rem 0.55rem;
@@ -1446,10 +1542,10 @@ button.pool-filter__clear:focus-visible {
 }
 
 .pool-filter__option input:checked + span {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
-  box-shadow: inset 0 0 0 1px var(--primary-dark);
-  color: var(--white);
+  background-color: var(--feature-chip-selected-bg, var(--primary-color));
+  border-color: var(--feature-chip-selected-bg, var(--primary-color));
+  box-shadow: inset 0 0 0 1px var(--feature-chip-border, var(--primary-dark));
+  color: var(--feature-selected-text);
 }
 
 .pool-filter__option input:focus-visible + span {
@@ -1493,13 +1589,56 @@ button.pool-filter__clear:focus-visible {
 .feature-pill {
   display: inline-block;
   padding: 0.25rem 0.75rem;
-  background-color: var(--primary-color);
-  color: var(--white);
+  background-color: var(--feature-chip-bg, var(--feature-additional-bg));
+  border: 1px solid var(--feature-chip-border, var(--feature-additional-border));
+  color: var(--feature-chip-text, var(--feature-additional-text));
   border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 500;
   white-space: nowrap;
   margin: 0.2rem 0.3rem 0.2rem 0;
+}
+
+.pool-filter__option--accessibility,
+.feature-pill--accessibility {
+  --feature-chip-bg: var(--feature-accessibility-bg);
+  --feature-chip-border: var(--feature-accessibility-border);
+  --feature-chip-text: var(--feature-accessibility-text);
+  --feature-chip-selected-bg: var(--feature-accessibility-selected-bg);
+}
+
+.pool-filter__option--young-swimmers,
+.feature-pill--young-swimmers {
+  --feature-chip-bg: var(--feature-young-swimmers-bg);
+  --feature-chip-border: var(--feature-young-swimmers-border);
+  --feature-chip-text: var(--feature-young-swimmers-text);
+  --feature-chip-selected-bg: var(--feature-young-swimmers-selected-bg);
+}
+
+.pool-filter__option--water-play,
+.feature-pill--water-play {
+  --feature-chip-bg: var(--feature-water-play-bg);
+  --feature-chip-border: var(--feature-water-play-border);
+  --feature-chip-text: var(--feature-water-play-text);
+  --feature-chip-selected-bg: var(--feature-water-play-selected-bg);
+}
+
+.pool-filter__option--recreation,
+.feature-pill--recreation {
+  --feature-chip-bg: var(--feature-recreation-bg);
+  --feature-chip-border: var(--feature-recreation-border);
+  --feature-chip-text: var(--feature-recreation-text);
+  --feature-chip-selected-bg: var(--feature-recreation-selected-bg);
+}
+
+.pool-filter__option--amenities,
+.feature-pill--amenities,
+.pool-filter__option--additional,
+.feature-pill--additional {
+  --feature-chip-bg: var(--feature-amenities-bg);
+  --feature-chip-border: var(--feature-amenities-border);
+  --feature-chip-text: var(--feature-amenities-text);
+  --feature-chip-selected-bg: var(--feature-amenities-selected-bg);
 }
 
 .pool-actions {
@@ -1536,6 +1675,14 @@ button.pool-filter__clear:focus-visible {
 
 .address-section__details {
   min-width: 0;
+}
+
+.address-section__actions {
+  align-items: flex-end;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  justify-self: end;
 }
 
 /* Address Link Styling */
@@ -1587,7 +1734,7 @@ button.pool-filter__clear:focus-visible {
 
 /* Phone Row */
 .address-section__phone {
-  margin-top: 0.35rem;
+  margin-top: 0;
 }
 
 /* Phone Link Styling */
@@ -2309,6 +2456,11 @@ button[aria-label*="Voice"]:active {
   border-left: 3px solid var(--info-color);
 }
 
+.pool-details .pool-hours,
+.pool-details .pool-features {
+  margin: 0;
+}
+
 .pool-hours .open-status {
   font-weight: 600;
   margin-left: 0.5rem;
@@ -2781,6 +2933,10 @@ button[aria-label*="Voice"]:active {
   overflow: visible;
   transition: opacity 0.1s ease;
   opacity: 1;
+}
+
+.pool-card:not(.collapsed) .pool-details {
+  margin-top: 0.75rem;
 }
 
 .pool-card.collapsed .pool-details {
@@ -3373,6 +3529,10 @@ button[aria-label*="Voice"]:active {
   padding-top: 0;
   padding-bottom: 0;
   display: none;
+}
+
+.team-card.collapsed .team-header {
+  margin-bottom: 0;
 }
 
 /* Search functionality for meets page */

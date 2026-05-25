@@ -41,7 +41,7 @@
   "bugs": {
     "url": "https://github.com/simonua/cnsl/issues"
   },
-  "homepage": "https://cnsl.longreachmarlins.org/",
+  "homepage": "https://pools.longreachmarlins.org/",
   "devDependencies": {
     "@axe-core/playwright": "^4.11.3",
     "@eslint/js": "^10.0.1",

@@ -70,6 +70,15 @@ for (const theme of ['light', 'dark']) {
       test(`${scenario.name} has no WCAG A or AA automated violations`, async ({ page }) => {
         await loadScenario(page, scenario, theme);
 
+        if (scenario.name === 'pools') {
+          await page.locator('#togglePoolFeatureFilters').click();
+          const poolToggle = page.locator('.pool-header__toggle').first();
+          if (await poolToggle.getAttribute('aria-expanded') !== 'true') await poolToggle.click();
+          await page.locator('input[name="poolFeature"]').evaluateAll(inputs => inputs.forEach(input => {
+            input.checked = true;
+          }));
+        }
+
         const results = await new AxeBuilder({ page })
           .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
           .analyze();

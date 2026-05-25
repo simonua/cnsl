@@ -10,6 +10,8 @@ describe('PreferencesService', () => {
         theme: 'system',
         favoriteTeamId: '',
         favoritePoolName: '',
+        favoriteTeamExpanded: true,
+        favoritePoolExpanded: true,
         poolScheduleLayout: 'list',
         poolFeatureFilters: [],
         locationAwarenessEnabled: false,
@@ -23,6 +25,8 @@ describe('PreferencesService', () => {
         theme: 'dark',
         favoriteTeamId: '  lrm ',
         favoritePoolName: ' Kendall Ridge ',
+        favoriteTeamExpanded: false,
+        favoritePoolExpanded: false,
         poolScheduleLayout: 'calendar',
         poolFeatureFilters: [' slide ', 'Beach Entry', 'slide'],
         locationAwarenessEnabled: true,
@@ -31,7 +35,8 @@ describe('PreferencesService', () => {
       }, storage);
 
       assert.deepEqual(saved, {
-        theme: 'dark', favoriteTeamId: 'lrm', favoritePoolName: 'Kendall Ridge', poolScheduleLayout: 'calendar',
+        theme: 'dark', favoriteTeamId: 'lrm', favoritePoolName: 'Kendall Ridge', favoriteTeamExpanded: false,
+        favoritePoolExpanded: false, poolScheduleLayout: 'calendar',
         poolFeatureFilters: ['beach entry', 'slide'], locationAwarenessEnabled: true, weatherRefreshMinutes: 10
       });
       assert.deepEqual(PreferencesService.get(storage), saved);
@@ -44,7 +49,8 @@ describe('PreferencesService', () => {
 
       assert.deepEqual(PreferencesService.get(storage), PreferencesService.DEFAULT_PREFERENCES);
       assert.deepEqual(PreferencesService.normalize({ theme: 'unsupported', favoriteTeamId: 10 }), {
-        theme: 'system', favoriteTeamId: '', favoritePoolName: '', poolScheduleLayout: 'list', poolFeatureFilters: [],
+        theme: 'system', favoriteTeamId: '', favoritePoolName: '', favoriteTeamExpanded: true,
+        favoritePoolExpanded: true, poolScheduleLayout: 'list', poolFeatureFilters: [],
         locationAwarenessEnabled: false, weatherRefreshMinutes: 5
       });
     });
@@ -101,13 +107,22 @@ describe('PreferencesService', () => {
       assert.deepEqual(PreferencesService.groupPoolFeatures([
         'pool lift', 'ADA compliant', 'baseball', 'splash', 'lap', 'wifi', 'new amenity'
       ]), [
-        { label: 'Accessibility & inclusion', features: ['ada compliant', 'pool lift'] },
-        { label: 'Young swimmers & non-swimmers', features: ['splash'] },
-        { label: 'Swimming & water play', features: ['lap'] },
-        { label: 'Sports & recreation', features: ['baseball'] },
-        { label: 'Amenities', features: ['wifi'] },
-        { label: 'Additional features', features: ['new amenity'] }
+        { key: 'accessibility', label: 'Accessibility & inclusion', features: ['ada compliant', 'pool lift'] },
+        { key: 'young-swimmers', label: 'Young swimmers & non-swimmers', features: ['splash'] },
+        { key: 'water-play', label: 'Swimming & water play', features: ['lap'] },
+        { key: 'recreation', label: 'Sports & recreation', features: ['baseball'] },
+        { key: 'amenities', label: 'Amenities', features: ['wifi'] },
+        { key: 'additional', label: 'Additional features', features: ['new amenity'] }
       ]);
+    });
+
+    it('resolves published features to stable visual categories', () => {
+      assert.equal(PreferencesService.getPoolFeatureCategory('Pool Lift'), 'accessibility');
+      assert.equal(PreferencesService.getPoolFeatureCategory('wading'), 'young-swimmers');
+      assert.equal(PreferencesService.getPoolFeatureCategory('slide'), 'water-play');
+      assert.equal(PreferencesService.getPoolFeatureCategory('tennis'), 'recreation');
+      assert.equal(PreferencesService.getPoolFeatureCategory('shade'), 'amenities');
+      assert.equal(PreferencesService.getPoolFeatureCategory('new amenity'), 'additional');
     });
 
     it('keeps only pools containing every selected feature', () => {

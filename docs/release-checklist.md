@@ -48,7 +48,10 @@ Automated axe results do not substitute for this walkthrough. Do not state full 
 
 ## Privacy And Policy Check
 
-- Confirm an HTTPS deployed page loads the intended anonymized Google Tag Manager/Analytics path, without sending saved preference values or requested location through application code.
+- Confirm an HTTPS deployed page loads the intended anonymized Google Analytics path with analytics/ad storage denied, advertising and Google signals disabled, and no referrer or query/fragment page data transmitted.
+- Confirm application events send no PII, contact details, coordinates, free-form text, persistent identifier, or user-property data. An implemented, documented event may include only an audited fixed public app choice, such as a favorite pool/team choice or a published pool-feature filter choice; tests must reject arbitrary values.
+- Compare the emitted application events with the implemented-measurement table in [Security And Privacy Decision](security-privacy.md); an approved fixed-choice category is not collected until that table identifies it as implemented.
+- In Google Analytics administration, confirm Google signals, advertising personalization, and granular location/device reporting are disabled for every applicable region; confirm enhanced measurement is disabled or limited only to separately audited anonymous fields; and confirm no linked advertising destination broadens data use.
 - Confirm Settings exposes no obsolete analytics-consent toggle or stored analytics preference.
 - Check the browser console for Content Security Policy violations on all published routes while analytics is active on HTTPS.
 - Revisit [Security And Privacy Decision](security-privacy.md) before adding any external script, API, image, frame, font, or analytics destination.

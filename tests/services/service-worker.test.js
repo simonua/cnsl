@@ -46,7 +46,7 @@ function createWorkerHarness(precacheResources) {
   };
   const scope = {
     PRECACHE_RESOURCES: precacheResources,
-    location: new URL('https://cnsl.longreachmarlins.org/service-worker.js'),
+    location: new URL('https://pools.longreachmarlins.org/service-worker.js'),
     clients: {
       claim: async () => undefined,
       matchAll: async () => []
@@ -145,7 +145,7 @@ describe('service worker cache strategy', () => {
     const response = await harness.dispatch('fetch', {
       method: 'GET',
       mode: 'navigate',
-      url: 'https://cnsl.longreachmarlins.org/not-cached.html'
+      url: 'https://pools.longreachmarlins.org/not-cached.html'
     });
 
     assert.match(await response.text(), /offline\.html\?v=development/);
@@ -160,7 +160,7 @@ describe('service worker cache strategy', () => {
     const response = await harness.dispatch('fetch', {
       method: 'GET',
       mode: 'cors',
-      url: `https://cnsl.longreachmarlins.org/${dataPath}`
+      url: `https://pools.longreachmarlins.org/${dataPath}`
     });
 
     assert.equal(response.status, 200);

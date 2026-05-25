@@ -38,3 +38,10 @@ applyTo: "src/js/**/*.js"
 - Keep DOM-free logic in services/models so it can be tested with Node.js.
 - Export via `if (typeof module !== 'undefined') module.exports = { ... }` for Node.js test access.
 - Services and models must not reference `$`, `document`, or `window` directly.
+
+## Analytics Privacy Boundary
+
+- Analytics events may report aggregate feature use only; do not introduce identifiers, contact data, coordinates, stored device values, user-entered strings, URL query/fragment content, or referrer data.
+- Track a selectable value only when it is drawn from a fixed, published application option set and the collection is disclosed in `docs/security-privacy.md`.
+- Keep Google tag initialization cookieless and non-personalized: analytics/ad storage denied, Google signals and ad personalization disabled, and page measurement stripped of referrers, query strings, and fragments. Do not rely on GA4 enhanced measurement for new events unless its collected fields have been reviewed under this same boundary.
+- Add regression coverage for every new analytics event or configuration change.
