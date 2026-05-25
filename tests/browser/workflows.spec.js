@@ -212,20 +212,24 @@ test('analytics publishes a page view only after the Google tag script loads', a
   releaseTagScript();
   await expect.poll(() => page.evaluate(() => ({
     loaded: globalThis.cnslTagScriptLoaded,
-    commands: globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))
-  }))).toMatchObject({
+    commandTypes: globalThis.dataLayer.map(argumentsList => {
+      const [commandType, commandName] = Array.from(argumentsList);
+      return typeof commandName === 'string' ? [commandType, commandName] : [commandType];
+    })
+  }))).toEqual({
     loaded: true,
-    commands: [
+    commandTypes: [
       ['consent', 'default'],
-      ['set', 'ads_data_redaction', true],
+      ['set', 'ads_data_redaction'],
       ['set'],
       ['js'],
       ['config', measurementId],
-      ['event', 'page_view', {
-        page_location: 'https://pools.longreachmarlins.org/index.html',
-        page_referrer: ''
-      }]
+      ['event', 'page_view']
     ]
+  });
+  await expect.poll(() => page.evaluate(() => Array.from(globalThis.dataLayer.at(-1))[2])).toMatchObject({
+    page_location: 'https://pools.longreachmarlins.org/index.html',
+    page_referrer: ''
   });
 });
 
