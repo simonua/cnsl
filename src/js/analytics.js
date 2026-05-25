@@ -1,7 +1,7 @@
 (function initializeAnalytics() {
   'use strict';
 
-  const measurementId = 'G-ZMBPYQKLQP';
+  const measurementId = 'G-359968724';
 
   function getAnonymousPageParameters() {
     return {
