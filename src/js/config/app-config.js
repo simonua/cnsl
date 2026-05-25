@@ -4,7 +4,7 @@
 (function initializeAppConfig(globalScope) {
   const YEAR = 2026;
   const OFFICIAL_SOURCE_CHECKED_ON = '2026-05-24';
-  const APP_VERSION = '2.0.0-beta.6';
+  const APP_VERSION = '2.0.0-beta.7';
   const APP_LAST_UPDATED_ON = '2026-05-25';
   const HOME_PAGE_HOSTNAME = 'pools.longreachmarlins.org';
   const HOME_PAGE_URL = `https://${HOME_PAGE_HOSTNAME}`;
