@@ -28,9 +28,9 @@ GitHub Pages does not provide repository-managed HTTP response headers for this 
 | Directive Area | Allowed Sources | Reason |
 | --- | --- | --- |
 | Default, base URL, manifest, worker | Same origin only | Site artifact and PWA lifecycle. |
-| Scripts | Same origin, inline script content, `https://www.googletagmanager.com` | Site JavaScript, JSON-LD structured metadata, and the deployed-site Google tag for Analytics. |
+| Scripts | Same origin, inline script content, `https://www.googletagmanager.com`, `https://static.cloudflareinsights.com` | Site JavaScript, JSON-LD structured metadata, the deployed-site Google tag for Analytics, and the Cloudflare Insights beacon loaded by the delivery layer. |
 | Styles | Same origin and inline styles | Existing calendar positioning/status presentation still uses controlled inline styles. |
-| Connections | Same origin, `https://api.weather.gov`, Google Analytics endpoints | Annual/static content, weather safety alerts, and anonymized usage measurement. |
+| Connections | Same origin, `https://api.weather.gov`, Google Analytics endpoints, `https://cloudflareinsights.com` | Annual/static content, weather safety alerts, anonymized usage measurement, and Cloudflare Insights beacon delivery telemetry. |
 | Images | Same origin, data URLs, Google Analytics endpoints | Delivered images and possible analytics beacon transport. |
 | Frames and objects | None | No embedded third-party user experience is required. |
 

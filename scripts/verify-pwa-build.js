@@ -93,6 +93,9 @@ Object.entries(canonicalPages).forEach(([page, canonical]) => {
   assert.deepEqual(canonicalLinks, [`<link rel="canonical" href="${canonical}">`], `${page} must publish its one canonical URL.`);
   assert.equal((html.match(/<title>/g) || []).length, 1, `${page} must publish one title.`);
   assert.match(html, /http-equiv="Content-Security-Policy"/, `${page} must publish the shared browser security policy.`);
+  assert.match(html, /connect-src[^;"]*https:\/\/www\.google-analytics\.com/, `${page} must permit Google Analytics collection requests.`);
+  assert.match(html, /script-src[^;"]*https:\/\/static\.cloudflareinsights\.com/, `${page} must permit the Cloudflare Insights beacon script.`);
+  assert.match(html, /connect-src[^;"]*https:\/\/cloudflareinsights\.com/, `${page} must permit Cloudflare Insights beacon reporting.`);
   assert.ok(
     html.indexOf('js/config/app-config.js?v=') < html.indexOf('js/analytics.js?v='),
     `${page} must load application URL configuration before analytics handling.`
