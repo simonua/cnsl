@@ -70,7 +70,8 @@ const customAppEventNames = appEventNames.filter(eventName => eventName !== 'pag
 assert.match(GA4_MEASUREMENT_ID, /^G-[A-Z0-9]+$/, 'Analytics configuration must use a GA4 web-stream measurement ID, not a numeric property ID.');
 assert.match(appConfig, new RegExp(GA4_MEASUREMENT_ID), 'Delivered application configuration must include the configured GA4 measurement ID.');
 assert.match(analytics, /window\.GA4_MEASUREMENT_ID/, 'Analytics must publish through the configured GA4 web-stream measurement ID.');
-assert.match(analytics, /analytics_storage:\s*'denied'/, 'Analytics must deny identifying analytics storage.');
+assert.match(analytics, /analytics_storage:\s*'granted'/, 'Analytics must allow usage measurement storage for standard GA4 reporting.');
+assert.doesNotMatch(analytics, /analytics_storage:\s*'denied'/, 'Analytics measurement must not be downgraded to cookieless pings only.');
 assert.match(analytics, /ad_storage:\s*'denied'/, 'Analytics must deny advertising storage.');
 assert.match(analytics, /allow_google_signals:\s*false/, 'Analytics must disable Google advertising signals.');
 assert.match(analytics, /allow_ad_personalization_signals:\s*false/, 'Analytics must disable advertising personalization.');
