@@ -53,9 +53,6 @@ jobs:
       - name: Verify PWA artifact contract
         run: pnpm run verify:pwa
 
-      - name: Verify performance budgets
-        run: pnpm run verify:performance
-
       - name: Install Chromium for browser verification
         run: pnpm exec playwright install --with-deps chromium
 

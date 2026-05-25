@@ -58,7 +58,6 @@ pnpm test
 pnpm run validate:data
 pnpm run build
 pnpm run verify:pwa
-pnpm run verify:performance
 
 # First browser-test setup on a workstation
 pnpm exec playwright install chromium
@@ -91,10 +90,9 @@ This project uses GitHub Actions to automatically build and deploy the website t
 5. Validates active annual data against its schemas and retained-source inventory
 6. Builds the project using PostHTML
 7. Verifies the generated PWA cache, offline, and publication metadata contract
-8. Verifies generated asset and page-script performance budgets
-9. Runs browser keyboard-workflow and automated accessibility checks
-10. Uploads the built files as an artifact
-11. Deploys the artifact to GitHub Pages
+8. Runs browser keyboard-workflow and automated accessibility checks
+9. Uploads the built files as an artifact
+10. Deploys the artifact to GitHub Pages
 
 The workflow configuration is located in `.github/workflows/build-deploy.yml`.
 

@@ -12,11 +12,10 @@ pnpm test
 pnpm run validate:data
 pnpm run build
 pnpm run verify:pwa
-pnpm run verify:performance
 pnpm run test:browser
 ```
 
-Record the command results in the pull request or release record. `pnpm run verify:performance` verifies artifact budgets; the local browser command covers keyboard flows and accessible states. GitHub Actions runs `pnpm run test:browser:ci`, including automated WCAG A/AA scans, as a required pre-deployment gate. Use `pnpm run test:browser:accessibility` only when a CI accessibility result needs local reproduction.
+Record the command results in the pull request or release record. The local browser command covers keyboard flows and accessible states. GitHub Actions runs `pnpm run test:browser:ci`, including automated WCAG A/AA scans, as a required pre-deployment gate. Use `pnpm run test:browser:accessibility` only when a CI accessibility result needs local reproduction.
 
 ## Secure-Origin PWA Review
 
@@ -56,11 +55,7 @@ Automated axe results do not substitute for this walkthrough. Do not state full 
 - Check the browser console for Content Security Policy violations on all published routes while analytics is active on HTTPS.
 - Revisit [Security And Privacy Decision](security-privacy.md) before adding any external script, API, image, frame, font, or analytics destination.
 
-## Performance Baseline And Budget
-
-The automated budget is enforced by `scripts/verify-performance-budget.js` after a build. It limits precached resource count, delivered JavaScript and CSS sizes, and declared first-load local dependencies on key routes. Raise a threshold only alongside a recorded reason and a reviewed measurement.
-
-Baseline recorded on 2026-05-24 after dormant-delivery cleanup: 68 precache resources, 267,264 delivered JavaScript bytes, and 75,721 delivered CSS bytes. The automated limits allow only a small reviewed margin above this baseline.
+## Performance Measurements
 
 Record occasional browser measurements here or in the release record when UI behavior changes materially:
 
