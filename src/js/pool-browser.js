@@ -452,6 +452,17 @@ function formatPoolFeatureLabel(feature) {
 }
 
 /**
+ * Order feature pills by visitor-facing category, then alphabetically within each category.
+ * @param {Array} features - Published feature labels
+ * @returns {Array} Ordered normalized feature labels
+ */
+function sortPoolFeaturesForDisplay(features) {
+  return PreferencesService.groupPoolFeatures(features).flatMap(group => [...group.features].sort((first, second) => (
+    formatPoolFeatureLabel(first).localeCompare(formatPoolFeatureLabel(second))
+  )));
+}
+
+/**
  * Render available amenity controls and restore device-local selections.
  * @param {Array} pools - Available pool data objects
  */
@@ -459,8 +470,9 @@ function setupPoolFeatureFilters(pools) {
   const filterSection = document.getElementById('poolFeatureFilter');
   const optionsContainer = document.getElementById('poolFeatureFilterOptions');
   const toggleButton = document.getElementById('togglePoolFeatureFilters');
+  const controls = document.getElementById('poolFeatureFilterControls');
   const clearButton = document.getElementById('clearPoolFeatureFilters');
-  if (!filterSection || !optionsContainer || !toggleButton || !clearButton) return;
+  if (!filterSection || !optionsContainer || !toggleButton || !controls || !clearButton) return;
 
   const availableFeatures = PreferencesService.getPoolFeatures(pools);
   const preferences = PreferencesService.get();
@@ -505,11 +517,23 @@ function setupPoolFeatureFilters(pools) {
     optionsContainer.appendChild(groupFieldset);
   });
   filterSection.hidden = availableFeatures.length === 0;
+  filterSection.classList.toggle('pool-filter--collapsed', controls.hidden);
   clearButton.hidden = selectedFeatures.length === 0;
 
   optionsContainer.onchange = handlePoolFeatureFilterChange;
   toggleButton.onclick = togglePoolFeatureFilters;
+  filterSection.onclick = handlePoolFeatureFilterSurfaceClick;
   clearButton.onclick = clearPoolFeatureFilters;
+}
+
+function handlePoolFeatureFilterSurfaceClick(event) {
+  const controls = document.getElementById('poolFeatureFilterControls');
+  const target = event.target;
+  if (!controls || !(target instanceof Element) || target.closest('button, .pool-filter__controls')) return;
+
+  if (controls.hidden || target.closest('.pool-filter__header')) {
+    togglePoolFeatureFilters();
+  }
 }
 
 /**
@@ -518,10 +542,12 @@ function setupPoolFeatureFilters(pools) {
 function togglePoolFeatureFilters() {
   const toggleButton = document.getElementById('togglePoolFeatureFilters');
   const controls = document.getElementById('poolFeatureFilterControls');
+  const filterSection = document.getElementById('poolFeatureFilter');
   const indicator = toggleButton ? toggleButton.querySelector('.pool-filter__indicator') : null;
   if (!toggleButton || !controls) return;
 
   controls.hidden = !controls.hidden;
+  if (filterSection) filterSection.classList.toggle('pool-filter--collapsed', controls.hidden);
   toggleButton.setAttribute('aria-expanded', String(!controls.hidden));
   if (indicator) indicator.textContent = controls.hidden ? '+' : '-';
 }
@@ -702,7 +728,7 @@ function renderPools(pools) {
     // Format features for display as horizontal pills
     let featuresHtml;
     if (Array.isArray(features) && features.length > 0) {
-      const sortedFeatures = [...features].sort();
+      const sortedFeatures = sortPoolFeaturesForDisplay(features);
       featuresHtml = `
         <div class="pool-features">
           <h3>Features</h3>

@@ -365,7 +365,7 @@ function formatTeamStaff(staff) {
         </div>
       </div>
       ${staff.note ? `<p class="team-staff__note">${TeamsBrowserSafety.escapeHtml(staff.note)}</p>` : ''}
-      ${safeSourceUrl ? `<a class="team-staff__source" href="${safeSourceUrl}" target="_blank" rel="noopener">View public staff source</a>` : ''}
+      ${safeSourceUrl ? `<a class="team-staff__source" href="${safeSourceUrl}" target="_blank" rel="noopener">View CNSL team staff info</a>` : ''}
     </section>
   `;
 }
@@ -497,20 +497,27 @@ function renderTeams(teams) {
           ` : ''}
 
           ${staffHtml}
+
+          ${teamUrl ? `
+            <div class="team-actions team-actions--website">
+              <a href="${teamUrl}" target="_blank" rel="noopener" class="btn">🌐 Team Website</a>
+            </div>
+          ` : ''}
           
           ${practiceScheduleHtml}
           
-          <div class="team-actions">
-            ${teamUrl ? `<a href="${teamUrl}" target="_blank" rel="noopener" class="btn">🌐 Team Website</a>` : ''}
-            ${practiceUrl ? 
-              `<a href="${practiceUrl}" target="_blank" rel="noopener" class="btn">📅 Practice Schedule</a>` : 
-              ''
-            }
-            ${resultsUrl ? 
-              `<a href="${resultsUrl}" target="_blank" rel="noopener" class="btn">🏆 Swim Meet Results</a>` : 
-              ''
-            }
-          </div>
+          ${practiceUrl || resultsUrl ? `
+            <div class="team-actions">
+              ${practiceUrl ? 
+                `<a href="${practiceUrl}" target="_blank" rel="noopener" class="btn">📅 Practice Schedule</a>` : 
+                ''
+              }
+              ${resultsUrl ? 
+                `<a href="${resultsUrl}" target="_blank" rel="noopener" class="btn">🏆 Swim Meet Results</a>` : 
+                ''
+              }
+            </div>
+          ` : ''}
         </div>
       </div>
     `;

@@ -170,7 +170,7 @@ test('pool feature filters expose their state and resulting count', async ({ pag
   await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
 
   const filters = page.locator('#togglePoolFeatureFilters');
-  await filters.click();
+  await page.locator('#poolFeatureFilter').click({ position: { x: 4, y: 4 } });
   await expect(filters).toHaveAttribute('aria-expanded', 'true');
   await expect(page.locator('.pool-filter__group--accessibility')).toBeVisible();
   await expect(page.locator('.pool-filter__option--young-swimmers').first()).toBeVisible();
@@ -185,6 +185,37 @@ test('pool feature filters expose their state and resulting count', async ({ pag
 
   await expect(page.locator('#poolFilterSummary')).toHaveText(/Showing \d+ of 23 pools/);
   await expect(page.locator('#poolFeatureFilterCount')).toHaveText('1 selected');
+
+  await page.locator('#clearPoolFeatureFilters').click();
+  await expect(filters).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.locator('#poolFilterSummary')).toHaveText('23 pools');
+});
+
+test('pool tile features are ordered by category then alphabetically', async ({ page }) => {
+  await page.route('**/assets/data/2026/pools/pools.json*', async route => {
+    const response = await route.fetch();
+    const poolData = await response.json();
+    const scrambledFeatures = ['wifi', 'slide', 'wading', 'lap', 'ada compliant', 'bathhouse', 'family changing room', 'beach entry'];
+    poolData.pools.forEach(pool => {
+      pool.features = scrambledFeatures;
+    });
+    await route.fulfill({ response, json: poolData });
+  });
+  await page.goto('/pools.html');
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+
+  const firstPoolCard = page.locator('.pool-card').first();
+  await firstPoolCard.locator('.pool-header__toggle').click();
+  await expect(firstPoolCard.locator('.feature-pill')).toHaveText([
+    'ADA compliant',
+    'Family changing room',
+    'Beach entry',
+    'Wading pool',
+    'Lap',
+    'Slide',
+    'Bathhouse',
+    'Wi-Fi'
+  ]);
 });
 
 test('collapsed favorite pool stays collapsed after filters redraw the directory', async ({ page }) => {

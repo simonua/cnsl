@@ -1337,10 +1337,15 @@ nav a:focus {
 
 .pool-filter__header {
   align-items: center;
+  cursor: pointer;
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
   justify-content: space-between;
+}
+
+.pool-filter--collapsed {
+  cursor: pointer;
 }
 
 .pool-filter__status {
@@ -3500,6 +3505,11 @@ button[aria-label*="Voice"]:active {
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
+}
+
+.team-actions--website {
+  margin-top: 0;
+  padding-top: 0;
 }
 
 .team-actions .btn {
