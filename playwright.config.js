@@ -7,7 +7,7 @@ module.exports = defineConfig({
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['github'], ['list']] : 'list',
-  workers: 3,
+  workers: 2,
   timeout: 45000,
   expect: {
     timeout: 10000
