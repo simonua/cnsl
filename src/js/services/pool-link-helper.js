@@ -2,6 +2,10 @@
  * Pool Link Helper - Utilities for linking to pools from various pages
  */
 
+if (typeof module !== 'undefined' && module.exports && typeof globalThis.GOOGLE_MAPS_SEARCH_BASE_URL === 'undefined') {
+  require('../config/app-config.js');
+}
+
 // Prevent multiple declarations
 if (typeof window === 'undefined' || !window.getPoolIdFromLocation) {
 
@@ -148,17 +152,17 @@ function generateGoogleMapsLink(poolData, displayText) {
   } else if (poolData.address) {
     // Legacy format fallback
     const encodedAddress = encodeURIComponent(poolData.address);
-    mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+    mapsUrl = `${globalThis.GOOGLE_MAPS_SEARCH_BASE_URL}${encodedAddress}`;
   } else if (poolData.location && poolData.location.mapsQuery) {
     // New format fallback using mapsQuery
     const encodedQuery = encodeURIComponent(poolData.location.mapsQuery);
-    mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+    mapsUrl = `${globalThis.GOOGLE_MAPS_SEARCH_BASE_URL}${encodedQuery}`;
   } else if (poolData.lat && poolData.lng) {
     // Coordinate fallback
-    mapsUrl = `https://www.google.com/maps/search/?api=1&query=${poolData.lat},${poolData.lng}`;
+    mapsUrl = `${globalThis.GOOGLE_MAPS_SEARCH_BASE_URL}${poolData.lat},${poolData.lng}`;
   } else if (poolData.location && poolData.location.lat && poolData.location.lng) {
     // New format coordinates
-    mapsUrl = `https://www.google.com/maps/search/?api=1&query=${poolData.location.lat},${poolData.location.lng}`;
+    mapsUrl = `${globalThis.GOOGLE_MAPS_SEARCH_BASE_URL}${poolData.location.lat},${poolData.location.lng}`;
   }
   
   const safeDisplayText = PoolLinkSafety.escapeHtml(displayText);
@@ -169,7 +173,7 @@ function generateGoogleMapsLink(poolData, displayText) {
   
   // Fallback to generic search
   const searchQuery = encodeURIComponent(`${displayText} Columbia MD`);
-  mapsUrl = `https://www.google.com/maps/search/?api=1&query=${searchQuery}`;
+  mapsUrl = `${globalThis.GOOGLE_MAPS_SEARCH_BASE_URL}${searchQuery}`;
   return `<a href="${PoolLinkSafety.safeHttpUrl(mapsUrl)}" target="_blank" rel="noopener" class="location-link maps-link">${safeDisplayText}</a>`;
 }
 
@@ -215,7 +219,7 @@ function generateEnhancedPoolLink(locationName, dataManager, options = {}) {
     return `<a href="pools.html" class="location-link">${PoolLinkSafety.escapeHtml(locationName)}</a>`;
   } else {
     const searchQuery = encodeURIComponent(`${locationName} Columbia MD`);
-    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${searchQuery}`;
+    const mapsUrl = `${globalThis.GOOGLE_MAPS_SEARCH_BASE_URL}${searchQuery}`;
     return `<a href="${PoolLinkSafety.safeHttpUrl(mapsUrl)}" target="_blank" rel="noopener" class="location-link">${PoolLinkSafety.escapeHtml(locationName)}</a>`;
   }
 }

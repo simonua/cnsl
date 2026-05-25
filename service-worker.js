@@ -1,21 +1,20 @@
 // Cache version - replaced with the build identifier in generated output.
 const CACHE_VERSION = 'development';
 const APP_BASE_URL = new URL('./', self.location.href);
+importScripts(new URL(`js/config/app-config.js?v=${CACHE_VERSION}`, APP_BASE_URL).toString());
 try {
   importScripts(new URL(`precache-manifest.js?v=${CACHE_VERSION}`, APP_BASE_URL).toString());
 } catch (error) {
   console.warn('Precache inventory is unavailable; caching the minimum offline shell.', error);
 }
 
-const CACHE_NAME = `cnsl-static-${CACHE_VERSION}`;
+const CACHE_NAME = `${PWA_CACHE_PREFIX}${CACHE_VERSION}`;
 const OFFLINE_PAGE = 'offline.html';
 
 // Check if running in development mode (localhost or port 9090)
-const isDevelopment = self.location.hostname === 'localhost' || 
-                      self.location.hostname === '127.0.0.1' ||
-                      self.location.port === '9090' ||
-                      self.location.href.includes('localhost') ||
-                      self.location.href.includes('127.0.0.1');
+const isDevelopment = LOCAL_DEVELOPMENT_HOSTNAMES.includes(self.location.hostname)
+                      || self.location.port === LOCAL_DEVELOPMENT_PORT
+                      || LOCAL_DEVELOPMENT_HOSTNAMES.some(hostname => self.location.href.includes(hostname));
 
 const MINIMUM_OFFLINE_RESOURCES = [
   './',
@@ -102,7 +101,7 @@ self.addEventListener("activate", event => {
       caches.keys().then(cacheNames => {
         return Promise.all(
           cacheNames
-            .filter(name => name.startsWith('cnsl-static-') && name !== CACHE_NAME)
+            .filter(name => name.startsWith(PWA_CACHE_PREFIX) && name !== CACHE_NAME)
             .map(name => {
               console.log(`Deleting old cache: ${name}`);
               return caches.delete(name);
@@ -127,11 +126,9 @@ self.addEventListener("activate", event => {
 self.addEventListener("fetch", event => {
   // Check if this request is to localhost/development
   const requestUrl = new URL(event.request.url);
-  const isLocalRequest = requestUrl.hostname === 'localhost' || 
-                         requestUrl.hostname === '127.0.0.1' ||
-                         requestUrl.port === '9090' ||
-                         requestUrl.href.includes('localhost') ||
-                         requestUrl.href.includes('127.0.0.1');
+  const isLocalRequest = LOCAL_DEVELOPMENT_HOSTNAMES.includes(requestUrl.hostname)
+                         || requestUrl.port === LOCAL_DEVELOPMENT_PORT
+                         || LOCAL_DEVELOPMENT_HOSTNAMES.some(hostname => requestUrl.href.includes(hostname));
   
   // Skip cache in development mode or for local requests - always fetch fresh
   if (isDevelopment || isLocalRequest) {

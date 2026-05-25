@@ -3,11 +3,9 @@
 
   let scheduledRefresh = null;
   let poolDataPromise = null;
-  const DISCLOSURE_STORAGE_KEY = 'cnsl_weather_alert_expanded';
-  const MOBILE_DISCLOSURE_QUERY = '(max-width: 48rem)';
 
   function isMobileDisclosureViewport() {
-    return window.matchMedia(MOBILE_DISCLOSURE_QUERY).matches;
+    return window.matchMedia(window.WEATHER_ALERT_MOBILE_MEDIA_QUERY).matches;
   }
 
   function getWeatherRefreshMinutes() {
@@ -23,7 +21,7 @@
 
   function readSavedExpandedState() {
     try {
-      const savedState = window.sessionStorage.getItem(DISCLOSURE_STORAGE_KEY);
+      const savedState = window.sessionStorage.getItem(window.WEATHER_ALERT_DISCLOSURE_STORAGE_KEY);
       return savedState === null ? true : savedState === 'true';
     } catch (_error) {
       return true;
@@ -32,7 +30,7 @@
 
   function saveExpandedState(isExpanded) {
     try {
-      window.sessionStorage.setItem(DISCLOSURE_STORAGE_KEY, String(isExpanded));
+      window.sessionStorage.setItem(window.WEATHER_ALERT_DISCLOSURE_STORAGE_KEY, String(isExpanded));
     } catch (_error) {
       return;
     }
@@ -152,7 +150,7 @@
   function startWeatherAlertUpdates() {
     const toggle = document.getElementById('weatherAlertToggle');
     if (toggle) toggle.addEventListener('click', toggleWeatherAlert);
-    const disclosureMediaQuery = window.matchMedia(MOBILE_DISCLOSURE_QUERY);
+    const disclosureMediaQuery = window.matchMedia(window.WEATHER_ALERT_MOBILE_MEDIA_QUERY);
     disclosureMediaQuery.addEventListener('change', syncWeatherAlertDisclosure);
 
     refreshWeatherAlert();

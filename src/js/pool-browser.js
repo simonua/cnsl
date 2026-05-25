@@ -705,7 +705,7 @@ function renderPools(pools) {
       const state = pool.location.state || '';
       const zip = pool.location.zip || '';
       cityStateZip = (city + ', ' + state + ' ' + zip).trim();
-      mapsUrl = pool.location.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(pool.location.mapsQuery || '')}`;
+      mapsUrl = pool.location.googleMapsUrl || `${globalThis.GOOGLE_MAPS_SEARCH_BASE_URL}${encodeURIComponent(pool.location.mapsQuery || '')}`;
     } else {
       // Legacy format - handle flat address property
       const fullAddress = pool.address || '';
@@ -722,7 +722,7 @@ function renderPools(pools) {
       }
       
       const locationQuery = encodeURIComponent(pool.mapsQuery || fullAddress || '');
-      mapsUrl = `https://www.google.com/maps/search/?api=1&query=${locationQuery}`;
+      mapsUrl = `${globalThis.GOOGLE_MAPS_SEARCH_BASE_URL}${locationQuery}`;
     }
 
     // Format features for display as horizontal pills

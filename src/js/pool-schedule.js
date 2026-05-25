@@ -131,7 +131,7 @@ if (typeof window === 'undefined' || !window.PoolSchedule) {
     
     // Get current time in Eastern timezone
     const now = new Date();
-    const easternTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
+    const easternTime = new Date(now.toLocaleString("en-US", { timeZone: TimeUtilsRef.TIMEZONE }));
     const dayName = TimeUtilsRef.getDayName(easternTime);
     const status = this.getStatusAtTime(dayName, easternTime);
     

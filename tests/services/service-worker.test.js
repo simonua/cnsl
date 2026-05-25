@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const { LOCAL_DEVELOPMENT_HOSTNAMES, LOCAL_DEVELOPMENT_PORT, PWA_CACHE_PREFIX } = require('../../src/js/config/app-config.js');
 
 const workerSource = fs.readFileSync(path.join(__dirname, '..', '..', 'service-worker.js'), 'utf8');
 const coreResources = [
@@ -63,11 +64,14 @@ function createWorkerHarness(precacheResources) {
     Request,
     Response,
     Promise,
+    LOCAL_DEVELOPMENT_HOSTNAMES,
+    LOCAL_DEVELOPMENT_PORT,
+    PWA_CACHE_PREFIX,
     self: scope,
     fetch: request => fetchImplementation(request),
     caches: {
       open: async () => cache,
-      keys: async () => ['cnsl-static-old', 'unrelated-cache'],
+      keys: async () => [`${PWA_CACHE_PREFIX}old`, 'unrelated-cache'],
       delete: async name => {
         deletedCaches.push(name);
         return true;
@@ -172,6 +176,6 @@ describe('service worker cache strategy', () => {
 
     await harness.dispatch('activate');
 
-    assert.deepEqual(harness.deletedCaches, ['cnsl-static-old']);
+    assert.deepEqual(harness.deletedCaches, [`${PWA_CACHE_PREFIX}old`]);
   });
 });

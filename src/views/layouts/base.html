@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; connect-src 'self' https://api.weather.gov https://www.google-analytics.com https://*.google-analytics.com; frame-src 'none'; img-src 'self' data: https://www.google-analytics.com https://*.google-analytics.com; manifest-src 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; worker-src 'self';" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; connect-src 'self' {{ WEATHER_API_BASE_URL }} https://www.google-analytics.com https://*.google-analytics.com; frame-src 'none'; img-src 'self' data: https://www.google-analytics.com https://*.google-analytics.com; manifest-src 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; worker-src 'self';" />
   <block name="metadata">
     <title>Columbia, MD Outdoor Pools &amp; CNSL Schedules | CA Pool Assistant</title>
     <meta name="description" content="Find Columbia Association outdoor pools, CNSL swim teams, and meet schedules for summer swimming in Columbia, Maryland." />
@@ -29,9 +29,9 @@
     }
   </script>
 
+  <script src="js/config/app-config.js"></script>
   <script src="js/services/preferences-service.js"></script>
   <script src="js/preferences-theme.js"></script>
-  <script src="js/config/app-config.js"></script>
   <script src="js/analytics.js"></script>
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="manifest" href="manifest.webmanifest" />

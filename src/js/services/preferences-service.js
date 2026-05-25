@@ -1,15 +1,19 @@
 /**
  * Manages device-local application preferences and favorite matching.
  */
+if (typeof module !== 'undefined' && module.exports && typeof globalThis.PREFERENCES_STORAGE_KEY === 'undefined') {
+  require('../config/app-config.js');
+}
+
 if (typeof window === 'undefined' || !window.PreferencesService) {
   class PreferencesService {
-    static STORAGE_KEY = 'cnsl_preferences';
+    static STORAGE_KEY = globalThis.PREFERENCES_STORAGE_KEY;
 
     static THEMES = ['system', 'light', 'dark'];
 
     static POOL_SCHEDULE_LAYOUTS = ['list', 'calendar'];
 
-    static WEATHER_REFRESH_MINUTES = Object.freeze([0, 5, 10]);
+    static WEATHER_REFRESH_MINUTES = globalThis.WEATHER_ALERT_REFRESH_MINUTES_OPTIONS;
 
     static POOL_FEATURE_GROUPS = Object.freeze([
       Object.freeze({
@@ -48,7 +52,7 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
       poolScheduleLayout: 'list',
       poolFeatureFilters: Object.freeze([]),
       locationAwarenessEnabled: false,
-      weatherRefreshMinutes: 5
+      weatherRefreshMinutes: globalThis.WEATHER_ALERT_DEFAULT_REFRESH_MINUTES
     });
 
     /**

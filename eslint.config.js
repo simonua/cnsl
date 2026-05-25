@@ -78,6 +78,9 @@ module.exports = [
       sourceType: 'script',
       globals: {
         ...globals.serviceworker,
+        LOCAL_DEVELOPMENT_HOSTNAMES: 'readonly',
+        LOCAL_DEVELOPMENT_PORT: 'readonly',
+        PWA_CACHE_PREFIX: 'readonly',
         YEAR: 'readonly',
       },
     },

@@ -5,9 +5,8 @@
     return;
   }
 
-  const isLocalDevelopment = window.location.hostname === 'localhost'
-    || window.location.hostname === '127.0.0.1'
-    || window.location.port === '9090';
+  const isLocalDevelopment = window.LOCAL_DEVELOPMENT_HOSTNAMES.includes(window.location.hostname)
+    || window.location.port === window.LOCAL_DEVELOPMENT_PORT;
 
   if (isLocalDevelopment) {
     navigator.serviceWorker.getRegistrations()
@@ -17,7 +16,7 @@
     if ('caches' in window) {
       caches.keys()
         .then(names => Promise.all(names
-          .filter(name => name.startsWith('cnsl-static-'))
+          .filter(name => name.startsWith(window.PWA_CACHE_PREFIX))
           .map(name => caches.delete(name))))
         .catch(error => console.error('Unable to clear local application caches:', error));
     }

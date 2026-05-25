@@ -1,15 +1,19 @@
 /**
  * Evaluates National Weather Service data for outdoor pool safety notices.
  */
+if (typeof module !== 'undefined' && module.exports && typeof globalThis.WEATHER_API_BASE_URL === 'undefined') {
+  require('../config/app-config.js');
+}
+
 if (typeof window === 'undefined' || !window.WeatherAlertService) {
   class WeatherAlertService {
-    static BASE_URL = 'https://api.weather.gov';
-    static COLUMBIA_MD_POINT = '39.2014,-76.8610';
-    static CACHE_KEY = 'cnsl_weather_alert_status';
-    static DEFAULT_REFRESH_MINUTES = 5;
-    static FORECAST_WINDOW_HOURS = 24;
-    static POOL_OPENING_LEAD_MINUTES = 60;
-    static EASTERN_TIMEZONE = 'America/New_York';
+    static BASE_URL = globalThis.WEATHER_API_BASE_URL;
+    static COLUMBIA_MD_POINT = globalThis.WEATHER_LOCATION_POINT;
+    static CACHE_KEY = globalThis.WEATHER_ALERT_STATUS_STORAGE_KEY;
+    static DEFAULT_REFRESH_MINUTES = globalThis.WEATHER_ALERT_DEFAULT_REFRESH_MINUTES;
+    static FORECAST_WINDOW_HOURS = globalThis.WEATHER_ALERT_FORECAST_WINDOW_HOURS;
+    static POOL_OPENING_LEAD_MINUTES = globalThis.WEATHER_ALERT_OPENING_LEAD_MINUTES;
+    static EASTERN_TIMEZONE = globalThis.APP_TIMEZONE;
     static ALERT_PATTERN = /\b(?:thunderstorms?|t-?storms?|lightning|tornado(?:es)?|flash flood|flood warning|hurricane|tropical storm|extreme wind|high wind warning|hail)\b/i;
     static FORECAST_PATTERN = /\b(?:thunderstorms?|t-?storms?|lightning|tornado(?:es)?|hail)\b/i;
 
@@ -114,7 +118,7 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
 
     static normalizeRefreshMinutes(value) {
       const refreshMinutes = Number(value);
-      return [0, 5, 10].includes(refreshMinutes) ? refreshMinutes : WeatherAlertService.DEFAULT_REFRESH_MINUTES;
+      return globalThis.WEATHER_ALERT_REFRESH_MINUTES_OPTIONS.includes(refreshMinutes) ? refreshMinutes : WeatherAlertService.DEFAULT_REFRESH_MINUTES;
     }
 
     static withUpdatedAt(status, now) {

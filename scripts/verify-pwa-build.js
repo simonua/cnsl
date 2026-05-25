@@ -2,7 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 const vm = require('node:vm');
-const { HOME_PAGE_HOSTNAME, HOME_PAGE_URL, YEAR } = require('../src/js/config/app-config.js');
+const { GA4_MEASUREMENT_ID, HOME_PAGE_HOSTNAME, HOME_PAGE_URL, YEAR } = require('../src/js/config/app-config.js');
 
 const outDir = path.join(__dirname, '..', 'out');
 const siteOrigin = HOME_PAGE_URL;
@@ -58,14 +58,18 @@ precacheResources.filter(resource => resource !== './').forEach(resource => {
 
 const worker = fs.readFileSync(path.join(outDir, 'service-worker.js'), 'utf8');
 assert.doesNotMatch(worker, /const CACHE_VERSION = 'development'/, 'Built service worker must have a release cache version.');
+assert.match(worker, /js\/config\/app-config\.js/, 'Service worker must load shared application configuration.');
 assert.match(worker, /precache-manifest\.js/, 'Service worker must import the generated precache inventory.');
 
 const analytics = fs.readFileSync(path.join(outDir, 'js', 'analytics.js'), 'utf8');
+const appConfig = fs.readFileSync(path.join(outDir, 'js', 'config', 'app-config.js'), 'utf8');
 const settings = fs.readFileSync(path.join(outDir, 'js', 'settings.js'), 'utf8');
 const appEventNames = [...`${analytics}\n${settings}`.matchAll(/window\.gtag\('event', '([^']+)'/g)]
   .map(match => match[1]);
 const customAppEventNames = appEventNames.filter(eventName => eventName !== 'page_view');
-assert.match(analytics, /const measurementId = 'G-ZMBPYQKLQP'/, 'Analytics must publish to the configured GA4 web-stream measurement ID, not a numeric property ID.');
+assert.match(GA4_MEASUREMENT_ID, /^G-[A-Z0-9]+$/, 'Analytics configuration must use a GA4 web-stream measurement ID, not a numeric property ID.');
+assert.match(appConfig, new RegExp(GA4_MEASUREMENT_ID), 'Delivered application configuration must include the configured GA4 measurement ID.');
+assert.match(analytics, /window\.GA4_MEASUREMENT_ID/, 'Analytics must publish through the configured GA4 web-stream measurement ID.');
 assert.match(analytics, /analytics_storage:\s*'denied'/, 'Analytics must deny identifying analytics storage.');
 assert.match(analytics, /ad_storage:\s*'denied'/, 'Analytics must deny advertising storage.');
 assert.match(analytics, /allow_google_signals:\s*false/, 'Analytics must disable Google advertising signals.');

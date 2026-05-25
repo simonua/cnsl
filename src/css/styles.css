@@ -6,6 +6,7 @@
   --primary-light: #40e0d0;
   --secondary-color: #6c757d;
   --success-color: #28a745;
+  --success-highlight-text-color: #102115;
   --warning-color: #ffc107;
   --error-color: #dc3545;
   --info-color: #17a2b8;
@@ -2889,7 +2890,7 @@ button[aria-label*="Voice"]:active {
 .time-dash.highlighted-time-slot-green,
 .time-end.highlighted-time-slot-green {
   background-color: var(--success-color) !important;
-  color: white !important;
+  color: var(--success-highlight-text-color) !important;
   padding: 0.2rem 0.4rem !important;
   border-radius: 0.3rem !important;
   font-weight: bold !important;

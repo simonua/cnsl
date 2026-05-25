@@ -3,6 +3,10 @@
  * Enhanced with comprehensive error handling and validation
  */
 
+if (typeof module !== 'undefined' && module.exports && typeof globalThis.APP_TIMEZONE === 'undefined') {
+  require('../config/app-config.js');
+}
+
 // Prevent multiple declarations
 if (typeof window === 'undefined' || !window.TimeUtils) {
   class TimeUtils {
@@ -10,7 +14,7 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
   //    CONSTANTS
   // ------------------------------
 
-  static TIMEZONE = 'America/New_York';
+  static TIMEZONE = globalThis.APP_TIMEZONE;
   static MINUTES_PER_DAY = 1440;
   static MINUTES_PER_HOUR = 60;
   static DEFAULT_TIME = '12:00am';
@@ -830,7 +834,7 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
     const styleMap = {
       'green': {
         className: ' highlighted-time-slot-green',
-        inlineStyle: ' style="background-color: #28a745 !important; color: white !important; padding: 0.2rem 0.4rem !important; border-radius: 0.3rem !important; font-weight: bold !important;"'
+        inlineStyle: ' style="background-color: #28a745 !important; color: var(--success-highlight-text-color) !important; padding: 0.2rem 0.4rem !important; border-radius: 0.3rem !important; font-weight: bold !important;"'
       },
       'yellow': {
         className: ' highlighted-time-slot-yellow',

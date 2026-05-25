@@ -1,8 +1,6 @@
 (function initializeAnalytics() {
   'use strict';
 
-  const measurementId = 'G-ZMBPYQKLQP';
-
   function getAnonymousPageParameters() {
     return {
       page_location: `${window.HOME_PAGE_URL}${window.location.pathname}`,
@@ -51,7 +49,7 @@
     ...getAnonymousPageParameters()
   });
   window.gtag('js', new Date());
-  window.gtag('config', measurementId, {
+  window.gtag('config', window.GA4_MEASUREMENT_ID, {
     allow_google_signals: false,
     allow_ad_personalization_signals: false,
     ignore_referrer: true,
@@ -65,6 +63,6 @@
   const script = document.createElement('script');
   script.id = 'cnslAnalyticsScript';
   script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(measurementId)}`;
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(window.GA4_MEASUREMENT_ID)}`;
   document.head.appendChild(script);
 }());
