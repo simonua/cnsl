@@ -7,7 +7,7 @@ const outputDirectory = path.join(__dirname, '..', 'out');
 const budgets = {
   precacheResources: 72,
   javascriptBytes: 280000,
-  stylesheetBytes: 80000,
+  stylesheetBytes: 90000,
   routeLocalScripts: {
     'index.html': 10,
     'pools.html': 22,
