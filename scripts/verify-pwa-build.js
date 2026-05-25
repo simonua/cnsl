@@ -60,6 +60,9 @@ assert.doesNotMatch(worker, /const CACHE_VERSION = 'development'/, 'Built servic
 assert.match(worker, /precache-manifest\.js/, 'Service worker must import the generated precache inventory.');
 
 const analytics = fs.readFileSync(path.join(outDir, 'js', 'analytics.js'), 'utf8');
+const settings = fs.readFileSync(path.join(outDir, 'js', 'settings.js'), 'utf8');
+const appEventNames = [...`${analytics}\n${settings}`.matchAll(/window\.gtag\('event', '([^']+)'/g)]
+  .map(match => match[1]);
 assert.match(analytics, /analytics_storage:\s*'denied'/, 'Analytics must deny identifying analytics storage.');
 assert.match(analytics, /ad_storage:\s*'denied'/, 'Analytics must deny advertising storage.');
 assert.match(analytics, /allow_google_signals:\s*false/, 'Analytics must disable Google advertising signals.');
@@ -67,6 +70,11 @@ assert.match(analytics, /allow_ad_personalization_signals:\s*false/, 'Analytics 
 assert.match(analytics, /send_page_view:\s*false/, 'Analytics must suppress automatic unsanitized page views.');
 assert.match(analytics, /page_location:\s*`\$\{window\.location\.origin\}\$\{window\.location\.pathname\}`/, 'Analytics page locations must exclude query strings and fragments.');
 assert.match(analytics, /page_referrer:\s*''/, 'Analytics must not send page referrers.');
+assert.match(analytics, /window\.gtag\('event', 'ca_page_view'/, 'Page measurement must use the app-specific analytics event prefix.');
+assert.match(analytics, /window\.gtag\('event', 'ca_share'/, 'Share measurement must use the app-specific analytics event prefix.');
+assert.match(settings, /window\.gtag\('event', 'ca_select_favorite'/, 'Favorite measurement must use the app-specific analytics event prefix.');
+assert.ok(appEventNames.length > 0, 'The delivered application must declare its expected analytics events.');
+appEventNames.forEach(eventName => assert.match(eventName, /^ca_/, `Application analytics event must use the ca_ prefix: ${eventName}`));
 assert.doesNotMatch(analytics, /user_id|user_properties|document\.referrer|location\.search|location\.hash/, 'Analytics must not add identifiers, user profiling values, or unsanitized navigation data.');
 
 Object.entries(canonicalPages).forEach(([page, canonical]) => {

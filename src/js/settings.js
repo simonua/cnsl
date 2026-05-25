@@ -33,7 +33,7 @@
     if (typeof window.gtag !== 'function') return;
     if (favoriteValue && !publishedValues.has(favoriteValue)) return;
 
-    window.gtag('event', 'select_favorite', {
+    window.gtag('event', 'ca_select_favorite', {
       favorite_type: favoriteType,
       favorite_value: favoriteValue || 'none'
     });

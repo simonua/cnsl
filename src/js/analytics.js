@@ -17,7 +17,7 @@
 
       if (!shareLink || typeof window.gtag !== 'function') return;
 
-      window.gtag('event', 'share', {
+      window.gtag('event', 'ca_share', {
         method: shareLink.dataset.analyticsShareMethod,
         content_type: 'website',
         item_id: 'home_page'
@@ -58,7 +58,7 @@
     ignore_referrer: true,
     send_page_view: false
   });
-  window.gtag('event', 'page_view', {
+  window.gtag('event', 'ca_page_view', {
     page_title: document.title,
     ...getAnonymousPageParameters()
   });

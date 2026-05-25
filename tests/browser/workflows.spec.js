@@ -144,9 +144,9 @@ test('season summary and sharing actions appear only on the home page', async ({
     });
   }
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
-    ['event', 'share', { method: 'text', content_type: 'website', item_id: 'home_page' }],
-    ['event', 'share', { method: 'email', content_type: 'website', item_id: 'home_page' }],
-    ['event', 'share', { method: 'facebook', content_type: 'website', item_id: 'home_page' }]
+    ['event', 'ca_share', { method: 'text', content_type: 'website', item_id: 'home_page' }],
+    ['event', 'ca_share', { method: 'email', content_type: 'website', item_id: 'home_page' }],
+    ['event', 'ca_share', { method: 'facebook', content_type: 'website', item_id: 'home_page' }]
   ]);
 
   await page.setViewportSize({ width: 390, height: 844 });
@@ -537,9 +537,9 @@ test('settings persist choices locally and announce clearing saved settings', as
   await page.locator('#favoriteTeam').selectOption('cfhss');
   await page.locator('#favoritePool').selectOption('');
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
-    ['event', 'select_favorite', { favorite_type: 'pool', favorite_value: 'Bryant Woods' }],
-    ['event', 'select_favorite', { favorite_type: 'team', favorite_value: 'cfhss' }],
-    ['event', 'select_favorite', { favorite_type: 'pool', favorite_value: 'none' }]
+    ['event', 'ca_select_favorite', { favorite_type: 'pool', favorite_value: 'Bryant Woods' }],
+    ['event', 'ca_select_favorite', { favorite_type: 'team', favorite_value: 'cfhss' }],
+    ['event', 'ca_select_favorite', { favorite_type: 'pool', favorite_value: 'none' }]
   ]);
 
   await page.locator('#favoriteTeam').evaluate(select => {
@@ -555,10 +555,10 @@ test('settings persist choices locally and announce clearing saved settings', as
   await page.getByRole('button', { name: 'Clear saved settings' }).click();
   await expect(page.locator('#settingsStatus')).toHaveText('Saved settings removed from this device.');
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
-    ['event', 'select_favorite', { favorite_type: 'pool', favorite_value: 'Bryant Woods' }],
-    ['event', 'select_favorite', { favorite_type: 'team', favorite_value: 'cfhss' }],
-    ['event', 'select_favorite', { favorite_type: 'pool', favorite_value: 'none' }],
-    ['event', 'select_favorite', { favorite_type: 'team', favorite_value: 'none' }]
+    ['event', 'ca_select_favorite', { favorite_type: 'pool', favorite_value: 'Bryant Woods' }],
+    ['event', 'ca_select_favorite', { favorite_type: 'team', favorite_value: 'cfhss' }],
+    ['event', 'ca_select_favorite', { favorite_type: 'pool', favorite_value: 'none' }],
+    ['event', 'ca_select_favorite', { favorite_type: 'team', favorite_value: 'none' }]
   ]);
 });
 
