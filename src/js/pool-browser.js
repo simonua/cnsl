@@ -692,7 +692,8 @@ function renderPools(pools) {
     
     let distanceHtml = '';
     if (pool.distance !== undefined && !isNaN(pool.distance)) {
-      distanceHtml = `<span class="distance-badge">📍 ${pool.distance.toFixed(1)} mi</span>`;
+      const distanceMiles = pool.distance.toFixed(1);
+      distanceHtml = `<span class="distance-badge" aria-label="${distanceMiles} miles away">${distanceMiles} mi</span>`;
     }
 
     // Handle both location formats (new location object vs legacy flat properties)
