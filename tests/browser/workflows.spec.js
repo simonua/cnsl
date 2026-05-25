@@ -165,6 +165,70 @@ test('season summary and sharing actions appear only on the home page', async ({
   await expect.poll(() => page.locator('#poolList, #seasonInfo').evaluateAll(elements => elements.map(element => element.id))).toEqual(['poolList', 'seasonInfo']);
 });
 
+test('analytics publishes a page view only after the Google tag script loads', async ({ page }) => {
+  let releaseTagScript;
+  let reportTagScriptRequest;
+  const tagScriptRequested = new Promise(resolve => {
+    reportTagScriptRequest = resolve;
+  });
+  await page.route('https://www.googletagmanager.com/**', async route => {
+    reportTagScriptRequest();
+    await new Promise(release => {
+      releaseTagScript = release;
+    });
+    await route.fulfill({
+      contentType: 'application/javascript',
+      body: 'globalThis.cnslTagScriptLoaded = true;'
+    });
+  });
+
+  await page.route('https://pools.longreachmarlins.org/**', async route => {
+    const requestedUrl = new URL(route.request().url());
+    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    await route.fulfill({ response });
+  });
+
+  await page.goto('https://pools.longreachmarlins.org/index.html', { waitUntil: 'domcontentloaded' });
+  await tagScriptRequested;
+  const measurementId = await page.evaluate(() => globalThis.GA4_MEASUREMENT_ID);
+
+  await expect.poll(() => page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
+    .toEqual([
+      ['consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'granted'
+      }],
+      ['set', 'ads_data_redaction', true],
+      ['set', {
+        allow_google_signals: false,
+        allow_ad_personalization_signals: false,
+        page_location: 'https://pools.longreachmarlins.org/index.html',
+        page_referrer: ''
+      }]
+    ]);
+
+  releaseTagScript();
+  await expect.poll(() => page.evaluate(() => ({
+    loaded: globalThis.cnslTagScriptLoaded,
+    commands: globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))
+  }))).toMatchObject({
+    loaded: true,
+    commands: [
+      ['consent', 'default'],
+      ['set', 'ads_data_redaction', true],
+      ['set'],
+      ['js'],
+      ['config', measurementId],
+      ['event', 'page_view', {
+        page_location: 'https://pools.longreachmarlins.org/index.html',
+        page_referrer: ''
+      }]
+    ]
+  });
+});
+
 test('pool feature filters expose their state and resulting count', async ({ page }) => {
   await page.goto('/pools.html');
   await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');

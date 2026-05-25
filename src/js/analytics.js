@@ -48,21 +48,23 @@
     allow_ad_personalization_signals: false,
     ...getMeasuredPageParameters()
   });
-  window.gtag('js', new Date());
-  window.gtag('config', window.GA4_MEASUREMENT_ID, {
-    allow_google_signals: false,
-    allow_ad_personalization_signals: false,
-    ignore_referrer: true,
-    send_page_view: false
-  });
-  window.gtag('event', 'page_view', {
-    page_title: document.title,
-    ...getMeasuredPageParameters()
-  });
 
   const script = document.createElement('script');
   script.id = 'cnslAnalyticsScript';
   script.async = true;
   script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(window.GA4_MEASUREMENT_ID)}`;
+  script.addEventListener('load', () => {
+    window.gtag('js', new Date());
+    window.gtag('config', window.GA4_MEASUREMENT_ID, {
+      allow_google_signals: false,
+      allow_ad_personalization_signals: false,
+      ignore_referrer: true,
+      send_page_view: false
+    });
+    window.gtag('event', 'page_view', {
+      page_title: document.title,
+      ...getMeasuredPageParameters()
+    });
+  }, { once: true });
   document.head.appendChild(script);
 }());
