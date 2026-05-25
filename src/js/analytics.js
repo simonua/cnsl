@@ -1,7 +1,7 @@
 (function initializeAnalytics() {
   'use strict';
 
-  const measurementId = 'G-359968724';
+  const measurementId = 'G-ZMBPYQKLQP';
 
   function getAnonymousPageParameters() {
     return {
@@ -57,7 +57,7 @@
     ignore_referrer: true,
     send_page_view: false
   });
-  window.gtag('event', 'ca_page_view', {
+  window.gtag('event', 'page_view', {
     page_title: document.title,
     ...getAnonymousPageParameters()
   });

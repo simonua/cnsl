@@ -64,6 +64,8 @@ const analytics = fs.readFileSync(path.join(outDir, 'js', 'analytics.js'), 'utf8
 const settings = fs.readFileSync(path.join(outDir, 'js', 'settings.js'), 'utf8');
 const appEventNames = [...`${analytics}\n${settings}`.matchAll(/window\.gtag\('event', '([^']+)'/g)]
   .map(match => match[1]);
+const customAppEventNames = appEventNames.filter(eventName => eventName !== 'page_view');
+assert.match(analytics, /const measurementId = 'G-ZMBPYQKLQP'/, 'Analytics must publish to the configured GA4 web-stream measurement ID, not a numeric property ID.');
 assert.match(analytics, /analytics_storage:\s*'denied'/, 'Analytics must deny identifying analytics storage.');
 assert.match(analytics, /ad_storage:\s*'denied'/, 'Analytics must deny advertising storage.');
 assert.match(analytics, /allow_google_signals:\s*false/, 'Analytics must disable Google advertising signals.');
@@ -73,11 +75,12 @@ assert.match(analytics, /window\.location\.hostname\s*===\s*window\.HOME_PAGE_HO
 assert.match(analytics, /window\.location\.protocol\s*===\s*'https:'/, 'Analytics must initialize only over HTTPS.');
 assert.match(analytics, /page_location:\s*`\$\{window\.HOME_PAGE_URL\}\$\{window\.location\.pathname\}`/, 'Analytics page locations must use the configured production origin without query strings or fragments.');
 assert.match(analytics, /page_referrer:\s*''/, 'Analytics must not send page referrers.');
-assert.match(analytics, /window\.gtag\('event', 'ca_page_view'/, 'Page measurement must use the app-specific analytics event prefix.');
+assert.match(analytics, /window\.gtag\('event', 'page_view'/, 'Sanitized page measurement must use the GA4 page_view event recognized by standard reports.');
+assert.doesNotMatch(analytics, /window\.gtag\('event', 'ca_page_view'/, 'Page measurement must not be renamed to a custom event that standard GA4 page reporting ignores.');
 assert.match(analytics, /window\.gtag\('event', 'ca_share'/, 'Share measurement must use the app-specific analytics event prefix.');
 assert.match(settings, /window\.gtag\('event', 'ca_select_favorite'/, 'Favorite measurement must use the app-specific analytics event prefix.');
 assert.ok(appEventNames.length > 0, 'The delivered application must declare its expected analytics events.');
-appEventNames.forEach(eventName => assert.match(eventName, /^ca_/, `Application analytics event must use the ca_ prefix: ${eventName}`));
+customAppEventNames.forEach(eventName => assert.match(eventName, /^ca_/, `Custom application analytics event must use the ca_ prefix: ${eventName}`));
 assert.doesNotMatch(analytics, /user_id|user_properties|document\.referrer|location\.search|location\.hash/, 'Analytics must not add identifiers, user profiling values, or unsanitized navigation data.');
 
 Object.entries(canonicalPages).forEach(([page, canonical]) => {
