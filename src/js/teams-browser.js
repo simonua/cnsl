@@ -1,6 +1,9 @@
 // Global data manager instance for teams browser
 let teamsBrowserDataManager = null;
 const TeamsBrowserSafety = HtmlSafety;
+const AVAILABLE_TEAM_LOGOS = new Set([
+  'ccc', 'cfhss', 'dsd', 'hcc', 'hd', 'kcw', 'lrm', 'obb', 'omts', 'pls', 'prp', 'prr', 'thl', 'wlw'
+]);
 
 
 // ------------------------------
@@ -279,16 +282,11 @@ function createTeamLogo(teamId) {
   if (!teamId) return '';
   
   const safeTeamId = String(teamId).replace(/[^a-zA-Z0-9_-]/g, '');
-  if (!safeTeamId) return '';
-  const logoPath = `assets/images/logos/${safeTeamId}.png`;
+  if (!safeTeamId || !AVAILABLE_TEAM_LOGOS.has(safeTeamId)) return '';
   
   return `
     <div class="team-logo">
-      <img 
-        src="${logoPath}" 
-        alt="" 
-        class="team-logo-img"
-      />
+      <span class="team-logo-img team-logo-img--${safeTeamId}" aria-hidden="true"></span>
     </div>
   `;
 }
@@ -524,11 +522,6 @@ function renderTeams(teams) {
   }).join('');
 
     list.innerHTML = html;
-    list.querySelectorAll('.team-logo-img').forEach(image => {
-      image.addEventListener('error', () => {
-        image.parentElement.hidden = true;
-      });
-    });
 }
 
 /**

@@ -3281,7 +3281,7 @@ button[aria-label*="Voice"]:active {
   display: block;
   width: 100%;
   height: 100%;
-  background-image: url('../assets/images/logos/team-logos.png');
+  background-image: url('../assets/images/logos/team-logos@2x.png');
   background-repeat: no-repeat;
   background-size: 240px 240px;
   border-radius: var(--border-radius);

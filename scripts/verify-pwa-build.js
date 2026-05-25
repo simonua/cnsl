@@ -18,6 +18,7 @@ const requiredArtifacts = [
   'manifest.webmanifest',
   'precache-manifest.js',
   'service-worker.js',
+  'assets/images/logos/team-logos@2x.png',
   `assets/data/${YEAR}/pools/pools.json`,
   `assets/data/${YEAR}/teams/teams.json`,
   `assets/data/${YEAR}/meets/meets.json`
@@ -52,6 +53,7 @@ requiredArtifacts
   .filter(resource => !['CNAME', 'robots.txt', 'sitemap.xml', 'precache-manifest.js', 'service-worker.js'].includes(resource))
   .forEach(resource => assert.ok(precacheResources.includes(resource), `Precache inventory is missing: ${resource}`));
 assert.ok(!precacheResources.some(resource => resource.includes('/data/2025/')), 'Archived season data must not be precached.');
+assert.ok(!precacheResources.some(resource => /^assets\/images\/logos\/(?!team-logos@2x\.png$)[^/]+\.png$/i.test(resource)), 'Individual team logos must not be precached once the sprite is published.');
 precacheResources.filter(resource => resource !== './').forEach(resource => {
   assert.ok(fs.existsSync(path.join(outDir, resource)), `Precache inventory references an absent artifact: ${resource}`);
 });
