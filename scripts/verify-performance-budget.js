@@ -17,10 +17,12 @@ const budgets = {
   }
 };
 
-function totalBytes(directory) {
+function totalTextBytes(directory) {
   return fs.readdirSync(directory, { withFileTypes: true }).reduce((total, entry) => {
     const entryPath = path.join(directory, entry.name);
-    return total + (entry.isDirectory() ? totalBytes(entryPath) : fs.statSync(entryPath).size);
+    return total + (entry.isDirectory()
+      ? totalTextBytes(entryPath)
+      : Buffer.byteLength(fs.readFileSync(entryPath, 'utf8').replace(/\r\n/g, '\n'), 'utf8'));
   }, 0);
 }
 
@@ -34,8 +36,8 @@ assert.ok(fs.existsSync(outputDirectory), 'Build output is missing. Run pnpm run
 const manifestContext = { self: {} };
 vm.runInNewContext(fs.readFileSync(path.join(outputDirectory, 'precache-manifest.js'), 'utf8'), manifestContext);
 const precacheResources = manifestContext.self.PRECACHE_RESOURCES.length;
-const javascriptBytes = totalBytes(path.join(outputDirectory, 'js'));
-const stylesheetBytes = totalBytes(path.join(outputDirectory, 'css'));
+const javascriptBytes = totalTextBytes(path.join(outputDirectory, 'js'));
+const stylesheetBytes = totalTextBytes(path.join(outputDirectory, 'css'));
 const routeScriptCounts = Object.fromEntries(
   Object.keys(budgets.routeLocalScripts).map(pageName => [pageName, countLocalScripts(pageName)])
 );
