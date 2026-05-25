@@ -8,21 +8,21 @@
   <block name="metadata">
     <title>Columbia, MD Outdoor Pools &amp; CNSL Schedules | CA Pool Assistant</title>
     <meta name="description" content="Find Columbia Association outdoor pools, CNSL swim teams, and meet schedules for summer swimming in Columbia, Maryland." />
-    <link rel="canonical" href="https://pools.longreachmarlins.org/" />
+    <link rel="canonical" href="{{ HOME_PAGE_URL }}/" />
   </block>
   <meta property="og:site_name" content="CA Pool &amp; CNSL Assistant" />
   <meta property="og:locale" content="en_US" />
-  <meta property="og:image" content="https://pools.longreachmarlins.org/assets/images/cnsl-logo.jpg" />
+  <meta property="og:image" content="{{ HOME_PAGE_URL }}/assets/images/cnsl-logo.jpg" />
   <meta property="og:image:alt" content="CA Pool and CNSL Assistant logo" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:image" content="https://pools.longreachmarlins.org/assets/images/cnsl-logo.jpg" />
+  <meta name="twitter:image" content="{{ HOME_PAGE_URL }}/assets/images/cnsl-logo.jpg" />
   <meta name="twitter:image:alt" content="CA Pool and CNSL Assistant logo" />
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
-      "@id": "https://pools.longreachmarlins.org/#website",
-      "url": "https://pools.longreachmarlins.org/",
+      "@id": "{{ HOME_PAGE_URL }}/#website",
+      "url": "{{ HOME_PAGE_URL }}/",
       "name": "CA Pool & CNSL Assistant",
       "description": "Columbia Association outdoor pool, CNSL team, and swim meet information for Columbia, Maryland.",
       "inLanguage": "en-US"
@@ -31,6 +31,7 @@
 
   <script src="js/services/preferences-service.js"></script>
   <script src="js/preferences-theme.js"></script>
+  <script src="js/config/app-config.js"></script>
   <script src="js/analytics.js"></script>
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="manifest" href="manifest.webmanifest" />
@@ -77,7 +78,6 @@
   <!-- Critical navigation script must be available immediately -->
   <script src="js/navigation.js"></script>
   <script src="js/pwa.js"></script>
-  <script src="js/config/app-config.js"></script>
   <script src="js/services/weather-alert-service.js"></script>
   <script src="js/weather-alert.js"></script>
 

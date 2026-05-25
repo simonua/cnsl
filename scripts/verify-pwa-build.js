@@ -2,11 +2,12 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 const vm = require('node:vm');
-const { YEAR } = require('../src/js/config/app-config.js');
+const { HOME_PAGE_HOSTNAME, HOME_PAGE_URL, YEAR } = require('../src/js/config/app-config.js');
 
 const outDir = path.join(__dirname, '..', 'out');
-const siteOrigin = 'https://pools.longreachmarlins.org';
+const siteOrigin = HOME_PAGE_URL;
 const requiredArtifacts = [
+  'CNAME',
   'index.html',
   'offline.html',
   'pools.html',
@@ -48,7 +49,7 @@ vm.runInNewContext(fs.readFileSync(path.join(outDir, 'precache-manifest.js'), 'u
 const precacheResources = manifestContext.self.PRECACHE_RESOURCES;
 assert.ok(Array.isArray(precacheResources), 'The generated precache inventory must define an array.');
 requiredArtifacts
-  .filter(resource => !['robots.txt', 'sitemap.xml', 'precache-manifest.js', 'service-worker.js'].includes(resource))
+  .filter(resource => !['CNAME', 'robots.txt', 'sitemap.xml', 'precache-manifest.js', 'service-worker.js'].includes(resource))
   .forEach(resource => assert.ok(precacheResources.includes(resource), `Precache inventory is missing: ${resource}`));
 assert.ok(!precacheResources.some(resource => resource.includes('/data/2025/')), 'Archived season data must not be precached.');
 precacheResources.filter(resource => resource !== './').forEach(resource => {
@@ -68,7 +69,9 @@ assert.match(analytics, /ad_storage:\s*'denied'/, 'Analytics must deny advertisi
 assert.match(analytics, /allow_google_signals:\s*false/, 'Analytics must disable Google advertising signals.');
 assert.match(analytics, /allow_ad_personalization_signals:\s*false/, 'Analytics must disable advertising personalization.');
 assert.match(analytics, /send_page_view:\s*false/, 'Analytics must suppress automatic unsanitized page views.');
-assert.match(analytics, /page_location:\s*`\$\{window\.location\.origin\}\$\{window\.location\.pathname\}`/, 'Analytics page locations must exclude query strings and fragments.');
+assert.match(analytics, /window\.location\.hostname\s*===\s*window\.HOME_PAGE_HOSTNAME/, 'Analytics must initialize only on the configured production hostname.');
+assert.match(analytics, /window\.location\.protocol\s*===\s*'https:'/, 'Analytics must initialize only over HTTPS.');
+assert.match(analytics, /page_location:\s*`\$\{window\.HOME_PAGE_URL\}\$\{window\.location\.pathname\}`/, 'Analytics page locations must use the configured production origin without query strings or fragments.');
 assert.match(analytics, /page_referrer:\s*''/, 'Analytics must not send page referrers.');
 assert.match(analytics, /window\.gtag\('event', 'ca_page_view'/, 'Page measurement must use the app-specific analytics event prefix.');
 assert.match(analytics, /window\.gtag\('event', 'ca_share'/, 'Share measurement must use the app-specific analytics event prefix.');
@@ -83,6 +86,10 @@ Object.entries(canonicalPages).forEach(([page, canonical]) => {
   assert.deepEqual(canonicalLinks, [`<link rel="canonical" href="${canonical}">`], `${page} must publish its one canonical URL.`);
   assert.equal((html.match(/<title>/g) || []).length, 1, `${page} must publish one title.`);
   assert.match(html, /http-equiv="Content-Security-Policy"/, `${page} must publish the shared browser security policy.`);
+  assert.ok(
+    html.indexOf('js/config/app-config.js?v=') < html.indexOf('js/analytics.js?v='),
+    `${page} must load application URL configuration before analytics handling.`
+  );
   assert.match(html, /js\/analytics\.js\?v=/, `${page} must load deployed-site analytics handling.`);
   assert.doesNotMatch(html, /analytics-consent\.js|onclick=/, `${page} must not publish the obsolete consent loader or inline click handlers.`);
 });
@@ -104,5 +111,8 @@ Object.entries(canonicalPages)
 const robots = fs.readFileSync(path.join(outDir, 'robots.txt'), 'utf8');
 assert.doesNotMatch(robots, /Disallow: \/offline\.html/, 'Crawler rules must allow discovery of the offline noindex directive.');
 assert.match(robots, new RegExp(`Sitemap: ${siteOrigin.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/sitemap\\.xml`), 'Crawler rules must reference the published sitemap.');
+
+const customDomain = fs.readFileSync(path.join(outDir, 'CNAME'), 'utf8').trim();
+assert.equal(customDomain, HOME_PAGE_HOSTNAME, 'Published GitHub Pages output must retain the configured custom domain.');
 
 console.log(`Verified PWA artifact: ${precacheResources.length} cached resources for the ${YEAR} season.`);

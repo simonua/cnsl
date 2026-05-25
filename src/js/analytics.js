@@ -5,7 +5,7 @@
 
   function getAnonymousPageParameters() {
     return {
-      page_location: `${window.location.origin}${window.location.pathname}`,
+      page_location: `${window.HOME_PAGE_URL}${window.location.pathname}`,
       page_referrer: ''
     };
   }
@@ -25,15 +25,14 @@
     });
   }
 
-  function isLocalDevelopment() {
-    return window.location.hostname === 'localhost'
-      || window.location.hostname === '127.0.0.1'
-      || window.location.port === '9090';
+  function isProductionSite() {
+    return window.location.protocol === 'https:'
+      && window.location.hostname === window.HOME_PAGE_HOSTNAME;
   }
 
   initializeShareTracking();
 
-  if (isLocalDevelopment() || document.getElementById('cnslAnalyticsScript')) return;
+  if (!isProductionSite() || document.getElementById('cnslAnalyticsScript')) return;
 
   window.dataLayer = window.dataLayer || [];
   window.gtag = window.gtag || function gtag() {

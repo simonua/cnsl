@@ -4,7 +4,10 @@ const posthtml = require('posthtml');
 const appConfig = require('./src/js/config/app-config');
 const expressions = require('posthtml-expressions')({ locals: appConfig });
 require('posthtml-include')({ root: './src/views' });
-const extend = require('posthtml-extend')({ root: './src/views/layouts' });
+const extend = require('posthtml-extend')({
+  expressions: { locals: appConfig },
+  root: './src/views/layouts'
+});
 
 // Add timestamp for build logging
 const timestamp = () => new Date().toLocaleTimeString();
@@ -126,8 +129,8 @@ copyDir('./src/css', path.join(outDir, 'css'));
 console.log(`⚙️ [${timestamp()}] Copying JS directory...`);
 copyDir('./src/js', path.join(outDir, 'js'));
 
-// Copy required publishing artifacts and optional GitHub Pages domain ownership.
-const requiredRootStaticFiles = ['browserconfig.xml', 'LICENSE', 'manifest.webmanifest', 'robots.txt', 'sitemap.xml'];
+// Copy required publishing artifacts, including GitHub Pages custom-domain ownership.
+const requiredRootStaticFiles = ['browserconfig.xml', 'CNAME', 'LICENSE', 'manifest.webmanifest', 'robots.txt', 'sitemap.xml'];
 requiredRootStaticFiles.forEach(file => {
   if (!fs.existsSync(file)) {
     throw new Error(`Required static file not found: ${file}`);
@@ -135,11 +138,6 @@ requiredRootStaticFiles.forEach(file => {
   fs.copyFileSync(file, path.join(outDir, file));
   console.log(`Copied static file: ${file}`);
 });
-
-if (fs.existsSync('CNAME')) {
-  fs.copyFileSync('CNAME', path.join(outDir, 'CNAME'));
-  console.log('Copied optional static file: CNAME');
-}
 
 function collectPrecacheResources(directory, rootDirectory = directory) {
   const resources = [];

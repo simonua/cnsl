@@ -1,6 +1,6 @@
 const { afterEach, beforeEach, describe, it } = require('node:test');
 const assert = require('node:assert/strict');
-const { YEAR } = require('../../src/js/config/app-config.js');
+const { HOME_PAGE_HOSTNAME, HOME_PAGE_URL, YEAR } = require('../../src/js/config/app-config.js');
 const FileHelper = require('../../src/js/services/file-helper.js');
 
 describe('FileHelper', () => {
@@ -30,6 +30,18 @@ describe('FileHelper', () => {
       assert.equal(globalThis.YEAR, YEAR);
       assert.equal(descriptor.writable, false);
       assert.equal(FileHelper.getSeasonYear(), YEAR);
+    });
+
+    it('exposes the immutable HTTPS home-page configuration globally', () => {
+      const hostnameDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'HOME_PAGE_HOSTNAME');
+      const urlDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'HOME_PAGE_URL');
+
+      assert.equal(HOME_PAGE_HOSTNAME, 'pools.longreachmarlins.org');
+      assert.equal(HOME_PAGE_URL, 'https://pools.longreachmarlins.org');
+      assert.equal(globalThis.HOME_PAGE_HOSTNAME, HOME_PAGE_HOSTNAME);
+      assert.equal(globalThis.HOME_PAGE_URL, HOME_PAGE_URL);
+      assert.equal(hostnameDescriptor.writable, false);
+      assert.equal(urlDescriptor.writable, false);
     });
   });
 

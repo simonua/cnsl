@@ -6,24 +6,35 @@
   const OFFICIAL_SOURCE_CHECKED_ON = '2026-05-24';
   const APP_VERSION = '2.0.0-beta.6';
   const APP_LAST_UPDATED_ON = '2026-05-25';
+  const HOME_PAGE_HOSTNAME = 'pools.longreachmarlins.org';
+  const HOME_PAGE_URL = `https://${HOME_PAGE_HOSTNAME}`;
 
-  if (Object.prototype.hasOwnProperty.call(globalScope, 'YEAR')) {
-    if (globalScope.YEAR !== YEAR) {
-      throw new Error('The configured season year does not match the loaded application configuration.');
+  function exposeConstant(name, value) {
+    if (Object.prototype.hasOwnProperty.call(globalScope, name)) {
+      if (globalScope[name] !== value) {
+        throw new Error(`The configured ${name} does not match the loaded application configuration.`);
+      }
+      return;
     }
-  } else {
-    Object.defineProperty(globalScope, 'YEAR', {
+
+    Object.defineProperty(globalScope, name, {
       configurable: false,
       enumerable: true,
-      value: YEAR,
+      value,
       writable: false
     });
   }
+
+  exposeConstant('YEAR', YEAR);
+  exposeConstant('HOME_PAGE_HOSTNAME', HOME_PAGE_HOSTNAME);
+  exposeConstant('HOME_PAGE_URL', HOME_PAGE_URL);
 
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
       APP_LAST_UPDATED_ON,
       APP_VERSION,
+      HOME_PAGE_HOSTNAME,
+      HOME_PAGE_URL,
       OFFICIAL_SOURCE_CHECKED_ON,
       YEAR
     };
