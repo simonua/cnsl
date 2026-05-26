@@ -8,6 +8,7 @@
       "url": "https://www.gomotionapp.com/team/reccnslcfhss/page/home",
       "calendarUrl": "https://www.gomotionapp.com/team/reccnslcfhss/page/calendar",
       "homePools": ["Swansfield"],
+      "timeTrialsPool": "Swansfield",
       "practicePools": ["Clary's Forest", "Hawthorn", "Swansfield"],
       "practice": {
         "url": "https://www.gomotionapp.com/team/reccnslcfhss/page/team-information/practice-schedule",
@@ -89,6 +90,7 @@
       "url": "https://www.gomotionapp.com/team/reccnslccc/page/home",
       "calendarUrl": "https://www.gomotionapp.com/team/reccnslccc/page/calendar",
       "homePools": ["Clemens Crossing"],
+      "timeTrialsPool": "Clemens Crossing",
       "practicePools": ["Clemens Crossing", "Clary's Forest", "Hawthorn"],
       "staff": {
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslccc/page/system/coaches",
@@ -112,6 +114,7 @@
       "keywords": ["dorsey search dolphins", "dorsey's search dolphins", "dorsey search", "dolphins"],
       "url": "https://www.gomotionapp.com/team/reccnsldsd/page/home",
       "homePools": ["Dorsey Hall"],
+      "timeTrialsPool": "Dorsey Hall",
       "practicePools": ["Dorsey Hall", "Phelps Luck", "Running Brook", "Thunder Hill"],
       "practice": {
         "url": "https://www.gomotionapp.com/team/reccnsldsd/page/practice-schedule"
@@ -134,6 +137,7 @@
       "url": "https://www.gomotionapp.com/team/reccnslhcc/page/home",
       "calendarUrl": "https://www.gomotionapp.com/team/reccnslhcc/page/calendar",
       "homePools": ["Longfellow"],
+      "timeTrialsPool": "Longfellow",
       "practicePools": ["Longfellow", "Faulkner Ridge", "Swansfield"],
       "practice": {
         "url": "https://www.gomotionapp.com/team/reccnslhcc/page/team-information/practice-schedule"
@@ -161,6 +165,7 @@
       "url": "https://www.gomotionapp.com/team/reccnslhd/page/home",
       "calendarUrl": "https://www.gomotionapp.com/team/reccnslhd/page/calendar",
       "homePools": ["Huntington"],
+      "timeTrialsPool": "Huntington",
       "practicePools": ["Huntington", "Hopewell", "Dickinson"],
       "practice": {
         "url": "https://www.gomotionapp.com/team/reccnslhd/page/home",
@@ -218,6 +223,7 @@
       "keywords": ["kings contrivance waves", "kc", "kings contrivance", "waves"],
       "url": "https://www.gomotionapp.com/team/reccnslkcw/page/home",
       "homePools": ["Huntington", "MacGill's Common"],
+      "timeTrialsPool": "Huntington",
       "practicePools": ["MacGill's Common", "Huntington", "Dickinson"],
       "staff": {
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslkcw/page/about/meet-the-people",
@@ -239,6 +245,7 @@
       "keywords": ["long reach marlins", "long reach", "marlins"],
       "url": "https://www.gomotionapp.com/team/reccnsllrm/page/home",
       "homePools": ["Kendall Ridge"],
+      "timeTrialsPool": "Kendall Ridge",
       "practicePools": ["Kendall Ridge", "Jeffers Hill", "Locust Park", "Stevens Forest"],
       "practice": {
         "url": "https://www.gomotionapp.com/team/reccnsllrm/page/practice-schedule",
@@ -336,6 +343,7 @@
       "keywords": ["oakland mills tigersharks", "oakland mills", "tigersharks"],
       "url": "https://www.gomotionapp.com/team/reccnslomts/page/home",
       "homePools": ["Stevens Forest"],
+      "timeTrialsPool": "Stevens Forest",
       "practicePools": ["Stevens Forest", "Dasher Green", "Talbott Springs"],
       "practice": {
         "url": "https://www.gomotionapp.com/team/reccnslomts/page/practice-schedule"
@@ -368,6 +376,7 @@
       "url": "https://www.gomotionapp.com/team/reccnslobb/page/home",
       "calendarUrl": "https://www.gomotionapp.com/team/reccnslobb/page/calendar",
       "homePools": ["Dasher Green"],
+      "timeTrialsPool": "Dasher Green",
       "practicePools": ["Dasher Green", "Hopewell", "Talbott Springs"],
       "practice": {
         "url": "https://www.gomotionapp.com/team/reccnslobb/page/practice-schedule1"
@@ -396,6 +405,7 @@
       "keywords": ["pheasant ridge rapids", "pheasant ridge", "rapids"],
       "url": "https://www.gomotionapp.com/team/reccnslprr/page/home",
       "homePools": ["River Hill"],
+      "timeTrialsPool": "River Hill",
       "practicePools": ["River Hill", "MacGill's Common", "Hobbit's Glen", "Running Brook"],
       "staff": {
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslprr/page/system/coaches",
@@ -423,6 +433,7 @@
       "url": "https://www.gomotionapp.com/team/reccnslpls/page/home",
       "calendarUrl": "https://www.gomotionapp.com/team/reccnslpls/page/calendar",
       "homePools": ["Phelps Luck"],
+      "timeTrialsPool": "Phelps Luck",
       "practicePools": ["Phelps Luck", "Kendall Ridge", "Locust Park"],
       "practice": {
         "url": "https://www.gomotionapp.com/team/reccnslpls/page/practices",
@@ -508,6 +519,7 @@
       "url": "https://www.gomotionapp.com/team/reccnslprp/page/home",
       "calendarUrl": "https://www.gomotionapp.com/team/reccnslprp/page/calendar",
       "homePools": ["River Hill"],
+      "timeTrialsPool": "Jeffers Hill",
       "practicePools": ["River Hill", "Clemens Crossing", "Hobbit's Glen", "Longfellow"],
       "practice": {
         "url": "https://www.gomotionapp.com/team/reccnslprp/page/practices",
@@ -590,6 +602,7 @@
       "url": "https://www.gomotionapp.com/team/reccnslthl/page/home",
       "calendarUrl": "https://www.gomotionapp.com/team/reccnslthl/page/calendar",
       "homePools": ["Thunder Hill"],
+      "timeTrialsPool": "Thunder Hill",
       "practicePools": ["Thunder Hill", "Locust Park", "Talbott Springs"],
       "staff": {
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslthl/page/system/coaches",
@@ -615,6 +628,7 @@
       "url": "https://www.gomotionapp.com/team/reccnslwlw/page/home",
       "calendarUrl": "https://www.gomotionapp.com/team/reccnslwlw/page/calendar",
       "homePools": ["Faulkner Ridge"],
+      "timeTrialsPool": "Faulkner Ridge",
       "practicePools": ["Faulkner Ridge", "Longfellow"],
       "staff": {
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslwlw/page/system/coaches",

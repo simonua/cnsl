@@ -39,6 +39,12 @@
     })).filter(practice => practice.sessions.length > 0);
   }
 
+  function getMeetLocation(meet, team) {
+    const isTimeTrials = typeof meet.name === 'string' && /^Time Trials\b/i.test(meet.name);
+    const usesTeamHomePool = typeof meet.location === 'string' && /^Each Team's Home Pool\b/i.test(meet.location);
+    return isTimeTrials && usesTeamHomePool && team.timeTrialsPool ? `${team.timeTrialsPool} Pool` : meet.location;
+  }
+
   function getNextMeet(meets, team, firstDate) {
     return meets.filter(meet => {
       if (!meet.date) return false;
@@ -48,7 +54,7 @@
     }).map(meet => ({
       date: startOfDay(`${meet.date}T12:00:00`),
       label: `Next swim event: ${meet.name || 'Meet'}`,
-      location: meet.location,
+      location: getMeetLocation(meet, team),
       sessions: [],
       teams: meet.visiting_team || meet.awayTeam ? `${meet.visiting_team || meet.awayTeam} at ${meet.home_team || meet.homeTeam}` : '',
       type: 'meet'

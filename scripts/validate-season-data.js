@@ -131,7 +131,7 @@ function collectIntegrityErrors({ meetsData, poolsData, season, teamsData }) {
     TeamScheduleService.getValidationErrors(team.practice, season).forEach((error) => {
       errors.push(`${team.name} practice ${error}`);
     });
-    [...team.homePools, ...team.practicePools].forEach((poolName) => {
+    [...team.homePools, ...team.practicePools, team.timeTrialsPool].filter(Boolean).forEach((poolName) => {
       if (!poolNames.has(poolName)) {
         errors.push(`${team.name} references unknown pool: ${poolName}.`);
       }

@@ -451,7 +451,8 @@ test('team directory shows the same next practices and swim event agenda as home
   await expect(agenda).toContainText('Next morning practice');
   await expect(agenda).toContainText('Next evening practice');
   await expect(agenda).toContainText('Next swim event: Time Trials for returning/experienced swimmers');
-  await expect(agenda.getByRole('link', { name: 'Jeffers Hill Pool' })).toHaveAttribute('href', 'pools.html?pool=jhp');
+  await expect(agenda).not.toContainText("Each Team's Home Pool");
+  await expect(agenda).not.toContainText('Jeffers Hill Pool');
 });
 
 test('home page shows the next practices and swim event for a selected favorite team', async ({ page }) => {
@@ -472,7 +473,8 @@ test('home page shows the next practices and swim event for a selected favorite 
   await expect(agenda).toContainText('Next swim event: Time Trials for returning/experienced swimmers');
   await expect(agenda).toContainText('Phelps Luck Pool');
   await expect(agenda.getByRole('link', { name: 'Phelps Luck Pool' }).first()).toHaveAttribute('href', 'pools.html?pool=plp');
-  await expect(agenda.getByRole('link', { name: 'Jeffers Hill Pool' })).toHaveAttribute('href', 'pools.html?pool=jhp');
+  await expect(agenda).not.toContainText("Each Team's Home Pool");
+  await expect(agenda).not.toContainText('Jeffers Hill Pool');
   await expect(agenda).toContainText('First Splash: 5:00 - 5:30pm');
 
   const toggle = page.locator('#favoriteWeekToggle');
