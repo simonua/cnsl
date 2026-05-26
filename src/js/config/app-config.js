@@ -9,16 +9,21 @@
   const APP_LAST_UPDATED_ON = '2026-05-26';
   const HOME_PAGE_HOSTNAME = 'pools.longreachmarlins.org';
   const HOME_PAGE_URL = `https://${HOME_PAGE_HOSTNAME}`;
+  const CONTACT_EMAIL = 'simonkurtz@gmail.com';
+  const SHARE_MESSAGE = `Find Columbia pools and CNSL schedules: ${HOME_PAGE_URL}`;
 
   // Public destinations referenced by authored site content.
   const EXTERNAL_LINKS = Object.freeze({
-    CA_POOL_DIRECTORY: 'https://experience.arcgis.com/experience/ac58c73ab9bd4640a880c8ddf46bf198',
-    CA_POOL_SCHEDULES: 'https://columbiaassociation.org/sports-recreation/pools/pool-schedules/',
+    DATA_MISMATCH_EMAIL: `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Assistant App Data Mismatch')}`,
+    EMAIL_SHARE: `mailto:?subject=${encodeURIComponent('Columbia Pools and CNSL Schedules')}&body=${encodeURIComponent(SHARE_MESSAGE)}`,
     FACEBOOK_SHARE: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(HOME_PAGE_URL)}`,
+    FEATURE_REQUEST_EMAIL: `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Assistant App Feature Request')}`,
+    FEEDBACK_EMAIL: `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('CA Pool & CNSL Assistant App Feedback')}`,
     GITHUB_REPOSITORY: 'https://github.com/simonua/cnsl',
     GOOGLE_ANALYTICS_PRIVACY_GUIDANCE: 'https://support.google.com/analytics/answer/6366371?hl=en#zippy=%2Cin-this-article',
     LINKEDIN_PROFILE: 'https://www.linkedin.com/in/simonkurtz',
-    OFFICIAL_CNSL_SITE: 'https://www.gomotionapp.com/team/reccnsl/page/home'
+    OFFICIAL_CNSL_SITE: 'https://www.gomotionapp.com/team/reccnsl/page/home',
+    SMS_SHARE: `sms:?&body=${encodeURIComponent(SHARE_MESSAGE)}`
   });
 
   // External services and regional behavior.
@@ -90,6 +95,7 @@
       APP_TIMEZONE,
       APP_VERSION,
       APP_VERSION_STORAGE_KEY,
+      CONTACT_EMAIL,
       EXTERNAL_LINKS,
       GA4_MEASUREMENT_ID,
       GOOGLE_MAPS_SEARCH_BASE_URL,

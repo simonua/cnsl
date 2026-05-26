@@ -142,13 +142,13 @@
           </article>
           <article class="faq-item">
             <h3>Where does this app get its data, and when was it checked?</h3>
-            <p>Pool information is transcribed from publicly available <a href="{{ EXTERNAL_LINKS.CA_POOL_SCHEDULES }}" target="_blank" rel="noopener">Columbia Association (CA) publications</a>. Team and meet information is transcribed from publicly available <a href="{{ EXTERNAL_LINKS.OFFICIAL_CNSL_SITE }}" target="_blank" rel="noopener">official CNSL publications</a>. These official public sources are the source of truth for this web app.</p>
+            <p>Pool information is transcribed from publicly available <a href="{{ ACTIVE_SEASON.CA_POOL_SCHEDULES_URL }}" target="_blank" rel="noopener">Columbia Association (CA) publications</a>. Team and meet information is transcribed from publicly available <a href="{{ EXTERNAL_LINKS.OFFICIAL_CNSL_SITE }}" target="_blank" rel="noopener">official CNSL publications</a>. These official public sources are the source of truth for this web app.</p>
             <p>Information shared through social media, email, messaging groups, or other community channels can be helpful, but is not treated as authoritative here unless it is reflected in an official public source.</p>
             <p><strong>Last accepted official-source check for {{ YEAR }} data:</strong> <time datetime="{{ OFFICIAL_SOURCE_CHECKED_ON }}">{{ OFFICIAL_SOURCE_CHECKED_ON }}</time>. Published details can change, so please confirm time-sensitive plans before heading out.</p>
           </article>
           <article class="faq-item">
             <h3>What if information in this app does not match an official source?</h3>
-            <p>CA and CNSL control their official published information; I do not. If information shown in this app does not match an official public CA or CNSL source, email <a href="mailto:simonkurtz@gmail.com?subject=Assistant%20App%20Data%20Mismatch">simonkurtz@gmail.com</a> with the subject "Assistant App Data Mismatch" and a link to the official published source. I can review and update what this app displays, but I cannot change information published by CA or CNSL. This app is maintained in my spare time, so updates may not be immediate.</p>
+            <p>CA and CNSL control their official published information; I do not. If information shown in this app does not match an official public CA or CNSL source, email <a href="{{ EXTERNAL_LINKS.DATA_MISMATCH_EMAIL }}">{{ CONTACT_EMAIL }}</a> with the subject "Assistant App Data Mismatch" and a link to the official published source. I can review and update what this app displays, but I cannot change information published by CA or CNSL. This app is maintained in my spare time, so updates may not be immediate.</p>
           </article>
         </section>
 
@@ -173,7 +173,7 @@
           <h2 id="faq-feedback" class="faq-list__heading">Feedback and Requests</h2>
           <article class="faq-item">
             <h3>How can I request a feature or share feedback?</h3>
-            <p>Email <a href="mailto:simonkurtz@gmail.com?subject=Assistant%20App%20Feature%20Request">simonkurtz@gmail.com</a> with the subject "Assistant App Feature Request" and a brief description of what would make the app more useful for your summer swim experience.</p>
+            <p>Email <a href="{{ EXTERNAL_LINKS.FEATURE_REQUEST_EMAIL }}">{{ CONTACT_EMAIL }}</a> with the subject "Assistant App Feature Request" and a brief description of what would make the app more useful for your summer swim experience.</p>
           </article>
         </section>
       </div>

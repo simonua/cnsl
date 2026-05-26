@@ -3,10 +3,50 @@ const path = require('path');
 const crypto = require('node:crypto');
 const posthtml = require('posthtml');
 const appConfig = require('./src/js/config/app-config');
-const expressions = require('posthtml-expressions')({ locals: appConfig });
+const annualDataSourceDir = './src/assets/data';
+const activeSeason = String(appConfig.YEAR);
+const activeSeasonPoolsPath = path.join(annualDataSourceDir, activeSeason, 'pools', 'pools.json');
+const activeSeasonPools = JSON.parse(fs.readFileSync(activeSeasonPoolsPath, 'utf8'));
+
+function formatSeasonDate(dateString) {
+  const date = new Date(`${dateString}T00:00:00Z`);
+  if (Number.isNaN(date.getTime())) {
+    throw new Error(`Active season pool metadata includes an invalid date: ${dateString}.`);
+  }
+
+  return date.toLocaleDateString('en-US', { day: 'numeric', month: 'long', timeZone: 'UTC' });
+}
+
+function createActiveSeasonTemplateMetadata() {
+  const { caPoolDirectoryUrl, caPoolGuideUrl, seasonEndDate, seasonStartDate } = activeSeasonPools;
+  const expectedYearPrefix = `${activeSeason}-`;
+
+  if (!seasonStartDate?.startsWith(expectedYearPrefix) || !seasonEndDate?.startsWith(expectedYearPrefix)) {
+    throw new Error(`Active season pool metadata dates must belong to configured YEAR ${activeSeason}.`);
+  }
+  if (seasonStartDate > seasonEndDate) {
+    throw new Error('Active season pool metadata start date must not follow its end date.');
+  }
+  if (![caPoolDirectoryUrl, caPoolGuideUrl].every(url => typeof url === 'string' && /^https:\/\//.test(url))) {
+    throw new Error('Active season pool metadata must provide HTTPS Columbia Association source URLs.');
+  }
+
+  return Object.freeze({
+    CA_POOL_DIRECTORY_URL: caPoolDirectoryUrl,
+    CA_POOL_SCHEDULES_URL: caPoolGuideUrl,
+    END_DATE_LABEL: formatSeasonDate(seasonEndDate),
+    END_DATE_ON: seasonEndDate,
+    START_DATE_LABEL: formatSeasonDate(seasonStartDate),
+    START_DATE_ON: seasonStartDate
+  });
+}
+
+const ACTIVE_SEASON = createActiveSeasonTemplateMetadata();
+const templateLocals = { ...appConfig, ACTIVE_SEASON };
+const expressions = require('posthtml-expressions')({ locals: templateLocals });
 require('posthtml-include')({ root: './src/views' });
 const extend = require('posthtml-extend')({
-  expressions: { locals: appConfig },
+  expressions: { locals: templateLocals },
   root: './src/views/layouts'
 });
 
@@ -133,8 +173,6 @@ const authorizeInlineStructuredDataPlugin = (tree) => {
 
 const srcDir = './src/views';
 const outDir = './out';
-const annualDataSourceDir = './src/assets/data';
-const activeSeason = String(appConfig.YEAR);
 const unpublishedSeasonDirectories = fs.readdirSync(annualDataSourceDir, { withFileTypes: true })
   .filter(entry => entry.isDirectory() && entry.name !== activeSeason)
   .map(entry => `data/${entry.name}`);

@@ -122,7 +122,7 @@ test('season summary and sharing actions appear only on the home page', async ({
   await expect(page.getByRole('link', { name: 'Text' })).toHaveAttribute('href', 'sms:?&body=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org');
   await expect(page.getByRole('link', { name: 'Email' })).toHaveAttribute('href', 'mailto:?subject=Columbia%20Pools%20and%20CNSL%20Schedules&body=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org');
   await expect(page.getByRole('link', { name: 'Facebook (opens in new tab)' })).toHaveAttribute('href', 'https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fpools.longreachmarlins.org');
-  await expect(page.getByRole('link', { name: 'Send Feedback' })).toHaveAttribute('href', 'mailto:simonkurtz@gmail.com?subject=Assistant%20App%20Feedback');
+  await expect(page.getByRole('link', { name: 'Send Feedback' })).toHaveAttribute('href', 'mailto:simonkurtz@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20App%20Feedback');
   await page.getByRole('link', { name: 'Meets' }).focus();
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Text' })).toBeFocused();

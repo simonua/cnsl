@@ -84,6 +84,12 @@ function calculateDirectoryBytes(directory) {
 }
 
 const artifactBytes = calculateDirectoryBytes(outDir);
+const activeSeasonPools = JSON.parse(fs.readFileSync(path.join(outDir, 'assets', 'data', String(YEAR), 'pools', 'pools.json'), 'utf8'));
+const formatSeasonDate = dateString => new Date(`${dateString}T00:00:00Z`).toLocaleDateString('en-US', {
+  day: 'numeric',
+  month: 'long',
+  timeZone: 'UTC'
+});
 
 const manifest = JSON.parse(fs.readFileSync(path.join(outDir, 'manifest.webmanifest'), 'utf8'));
 assert.equal(manifest.id, './', 'The install manifest must retain a stable application id.');
@@ -185,6 +191,15 @@ Object.entries(canonicalPages).forEach(([page, canonical]) => {
 
 const settingsHtml = fs.readFileSync(path.join(outDir, 'settings.html'), 'utf8');
 assert.doesNotMatch(settingsHtml, /name="analyticsEnabled"/, 'Settings must not expose a removed analytics-consent choice.');
+
+const homeHtml = fs.readFileSync(path.join(outDir, 'index.html'), 'utf8');
+assert.ok(homeHtml.includes(`href="${activeSeasonPools.caPoolGuideUrl}"`), 'Home page must render its official pool-schedule destination from active annual metadata.');
+assert.ok(homeHtml.includes(`datetime="${activeSeasonPools.seasonStartDate}">${formatSeasonDate(activeSeasonPools.seasonStartDate)}</time>`), 'Home page must render the active annual season start date.');
+assert.ok(homeHtml.includes(`datetime="${activeSeasonPools.seasonEndDate}">${formatSeasonDate(activeSeasonPools.seasonEndDate)}</time>`), 'Home page must render the active annual season end date.');
+assert.ok(homeHtml.includes(`href="${activeSeasonPools.caPoolDirectoryUrl}"`), 'Shared weather alert must render its official pool-directory destination from active annual metadata.');
+
+const faqHtml = fs.readFileSync(path.join(outDir, 'faq.html'), 'utf8');
+assert.ok(faqHtml.includes(`href="${activeSeasonPools.caPoolGuideUrl}"`), 'FAQ must render its official pool-source destination from active annual metadata.');
 
 const offlineHtml = fs.readFileSync(path.join(outDir, 'offline.html'), 'utf8');
 assert.match(offlineHtml, /<meta name="robots" content="noindex">/, 'Offline fallback must not be indexed.');

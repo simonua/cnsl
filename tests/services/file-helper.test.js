@@ -1,6 +1,6 @@
 const { afterEach, beforeEach, describe, it } = require('node:test');
 const assert = require('node:assert/strict');
-const { HOME_PAGE_HOSTNAME, HOME_PAGE_URL, YEAR } = require('../../src/js/config/app-config.js');
+const { CONTACT_EMAIL, EXTERNAL_LINKS, HOME_PAGE_HOSTNAME, HOME_PAGE_URL, YEAR } = require('../../src/js/config/app-config.js');
 const FileHelper = require('../../src/js/services/file-helper.js');
 
 describe('FileHelper', () => {
@@ -42,6 +42,15 @@ describe('FileHelper', () => {
       assert.equal(globalThis.HOME_PAGE_URL, HOME_PAGE_URL);
       assert.equal(hostnameDescriptor.writable, false);
       assert.equal(urlDescriptor.writable, false);
+    });
+
+    it('centralizes authored share and contact destinations', () => {
+      assert.equal(CONTACT_EMAIL, 'simonkurtz@gmail.com');
+      assert.equal(EXTERNAL_LINKS.SMS_SHARE, 'sms:?&body=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org');
+      assert.equal(EXTERNAL_LINKS.EMAIL_SHARE, 'mailto:?subject=Columbia%20Pools%20and%20CNSL%20Schedules&body=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org');
+      assert.equal(EXTERNAL_LINKS.FEEDBACK_EMAIL, 'mailto:simonkurtz@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20App%20Feedback');
+      assert.equal(EXTERNAL_LINKS.DATA_MISMATCH_EMAIL, 'mailto:simonkurtz@gmail.com?subject=Assistant%20App%20Data%20Mismatch');
+      assert.equal(EXTERNAL_LINKS.FEATURE_REQUEST_EMAIL, 'mailto:simonkurtz@gmail.com?subject=Assistant%20App%20Feature%20Request');
     });
   });
 
