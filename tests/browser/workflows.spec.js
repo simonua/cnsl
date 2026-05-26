@@ -254,7 +254,7 @@ test('release updates are announced once after a stable version is acknowledged'
 
   const notice = page.locator('#releaseNotice');
   await expect(notice).toBeVisible();
-  await expect(notice).toContainText('App updated to version 2.1.0.');
+  await expect(notice).toContainText('App updated to V2.1.0.');
   const closeBox = await page.getByRole('button', { name: 'Dismiss application update' }).boundingBox();
   const menuBox = await page.getByRole('button', { name: 'Open navigation menu' }).boundingBox();
   expect(closeBox.width).toBe(menuBox.width);
