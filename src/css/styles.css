@@ -907,6 +907,17 @@ main h1 {
   margin: 0;
 }
 
+.favorite-week__heading h2 {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.favorite-week__heading .favorite-badge {
+  margin-left: 0;
+}
+
 button.favorite-week__toggle {
   align-items: center;
   background: transparent;
@@ -966,7 +977,30 @@ button.favorite-week__toggle:focus-visible {
 }
 
 .favorite-week__directory-link {
+  align-items: center;
+  background-color: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--primary-text-color);
+  display: inline-flex;
   font-size: 0.95rem;
+  font-weight: 600;
+  margin-top: 0.7rem;
+  padding: 0.3rem 0.55rem;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.favorite-week__directory-link:hover {
+  background-color: var(--light-bg);
+  border-color: var(--primary-color);
+  text-decoration: underline;
+  text-underline-offset: 0.18rem;
+}
+
+.favorite-week__directory-link:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 0.15rem;
 }
 
 .favorite-week__status {
@@ -4152,7 +4186,7 @@ button.settings-dialog__close:focus {
   font-size: 0.95rem;
   line-height: 1.45;
   margin: 0;
-  padding: 1rem 1.25rem 0;
+  padding: 1rem 1.25rem 0.5rem;
 }
 
 .settings-layout {
