@@ -4,6 +4,7 @@ const {
   getPoolIdFromLocation,
   generateGoogleMapsLink,
   generatePoolsPageLink,
+  generateLinkedPoolMentions,
   POOL_LOCATION_TO_ID_MAP
 } = require('../../src/js/services/pool-link-helper.js');
 
@@ -34,6 +35,8 @@ describe('pool-link-helper', () => {
 
     it('returns pool ID for name with Pool suffix', () => {
       assert.equal(getPoolIdFromLocation('Bryant Woods Pool'), 'bwp');
+      assert.equal(getPoolIdFromLocation("Clary's Forest Pool"), 'cfp');
+      assert.equal(getPoolIdFromLocation("Hobbit's Glen Pool"), 'hgp');
     });
 
     it('handles case-insensitive lookup', () => {
@@ -72,6 +75,15 @@ describe('pool-link-helper', () => {
 
     it('returns empty string when both are missing', () => {
       assert.equal(generatePoolsPageLink(null, null), '');
+    });
+  });
+
+  describe('generateLinkedPoolMentions', () => {
+    it('links a named pool embedded within safely rendered location text', () => {
+      const link = generateLinkedPoolMentions("Each Team's Home Pool (Pointers Run at Jeffers Hill Pool) <script>");
+      assert.ok(link.includes('pools.html?pool=jhp'));
+      assert.ok(link.includes('Jeffers Hill Pool</a>'));
+      assert.ok(link.includes('&lt;script&gt;'));
     });
   });
 

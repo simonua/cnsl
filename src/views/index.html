@@ -29,6 +29,9 @@
       }
     </script>
   </block>
+  <block name="notice">
+    <include src="components/release-notice.html"></include>
+  </block>
   <block name="content">
     <div class="welcome-section">
       <h1 class="welcome-title">Welcome to the<br/>{{ YEAR }} Outdoor Pool Season</h1>
@@ -47,7 +50,7 @@
     <include src="components/quick-links.html"></include>
     <section class="favorite-week" id="favoriteWeek" aria-labelledby="favoriteWeekTitle" hidden>
       <div class="favorite-week__heading">
-        <h2 id="favoriteWeekTitle">Your team's next seven days</h2>
+        <h2 id="favoriteWeekTitle">Your team's upcoming events</h2>
         <a href="teams.html" class="favorite-week__directory-link">Team details</a>
       </div>
       <p class="favorite-week__status" id="favoriteWeekStatus" role="status" aria-live="polite">Loading your team's schedule.</p>
@@ -83,6 +86,8 @@
   </block>
 
   <block name="scripts">
+    <script src="js/services/release-notice-service.js"></script>
+    <script src="js/release-notice.js"></script>
     <script src="js/home-schedule.js" defer></script>
     <script src="js/install-app.js" defer></script>
   </block>

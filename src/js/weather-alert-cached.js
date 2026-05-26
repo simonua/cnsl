@@ -12,8 +12,7 @@
     const toggle = document.getElementById('weatherAlertToggle');
     const message = document.getElementById('weatherAlertMessage');
     const updated = document.getElementById('weatherAlertUpdated');
-    const isMobileViewport = window.matchMedia(globalThis.WEATHER_ALERT_MOBILE_MEDIA_QUERY).matches;
-    const isExpanded = !isMobileViewport || sessionStorage.getItem(globalThis.WEATHER_ALERT_DISCLOSURE_STORAGE_KEY) !== 'false';
+    const isExpanded = sessionStorage.getItem(globalThis.WEATHER_ALERT_DISCLOSURE_STORAGE_KEY) !== 'false';
     const actionLabel = `${isExpanded ? 'Collapse' : 'Expand'} weather safety alert`;
     const updatedAt = new Date(status.updatedAt);
 
@@ -26,7 +25,7 @@
     toggle.setAttribute('aria-expanded', String(isExpanded));
     toggle.setAttribute('aria-label', actionLabel);
     toggle.title = actionLabel;
-    toggle.hidden = !isMobileViewport;
+    toggle.hidden = false;
     banner.hidden = false;
   } catch (_error) {
     return;

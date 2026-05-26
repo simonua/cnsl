@@ -109,7 +109,7 @@ for (const theme of ['light', 'dark']) {
     }, theme);
     await page.goto('/index.html');
     await expect(page.locator('#favoriteWeek')).toBeVisible();
-    await expect(page.locator('#favoriteWeekStatus')).toContainText('published practice or meet schedule entries');
+    await expect(page.locator('#favoriteWeekStatus')).toContainText('next published practice or swim event entries');
 
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])

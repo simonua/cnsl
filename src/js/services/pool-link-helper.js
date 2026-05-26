@@ -27,6 +27,8 @@ const POOL_LOCATION_TO_ID_MAP = {
   'Bryant Woods Pool': 'bwp',
   'Clarys Forest': 'cfp', 
   'Clarys Forest Pool': 'cfp',
+  'Clary\'s Forest': 'cfp',
+  'Clary\'s Forest Pool': 'cfp',
   'Clemens Crossing': 'ccp',
   'Clemens Crossing Pool': 'ccp',
   'Dasher Green': 'dgp',
@@ -40,6 +42,8 @@ const POOL_LOCATION_TO_ID_MAP = {
   'Hawthorn Pool': 'hcp',
   'Hobbits Glen': 'hgp',
   'Hobbits Glen Pool': 'hgp',
+  'Hobbit\'s Glen': 'hgp',
+  'Hobbit\'s Glen Pool': 'hgp',
   'Hopewell': 'hop',
   'Hopewell Pool': 'hop',
   'Huntington': 'hup',
@@ -133,6 +137,31 @@ function generatePoolsPageLink(poolId, displayText) {
   
   const poolUrl = `pools.html?pool=${encodeURIComponent(poolId)}`;
   return `<a href="${poolUrl}" class="location-link pool-link">${PoolLinkSafety.escapeHtml(displayText)}</a>`;
+}
+
+/**
+ * Link every recognizable pool mentioned in published location text.
+ * @param {string} locationText - Location text that may contain pool names
+ * @returns {string} - Safe HTML containing deep links for known pools
+ */
+function generateLinkedPoolMentions(locationText) {
+  if (!locationText) return '';
+
+  const text = String(locationText);
+  const escapedPoolNames = Object.keys(POOL_LOCATION_TO_ID_MAP)
+    .sort((first, second) => second.length - first.length)
+    .map(poolName => poolName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const poolNamePattern = new RegExp(escapedPoolNames.join('|'), 'gi');
+  let lastIndex = 0;
+  let html = '';
+
+  for (const match of text.matchAll(poolNamePattern)) {
+    html += PoolLinkSafety.escapeHtml(text.slice(lastIndex, match.index));
+    html += generatePoolsPageLink(getPoolIdFromLocation(match[0]), match[0]);
+    lastIndex = match.index + match[0].length;
+  }
+
+  return `${html}${PoolLinkSafety.escapeHtml(text.slice(lastIndex))}`;
 }
 
 /**
@@ -231,6 +260,7 @@ if (typeof module !== 'undefined' && module.exports) {
     getPoolIdFromLocation,
     getPoolDataFromLocation,
     generatePoolsPageLink,
+    generateLinkedPoolMentions,
     generateGoogleMapsLink,
     generateEnhancedPoolLink
   };
@@ -241,6 +271,7 @@ if (typeof window !== 'undefined') {
   window.getPoolIdFromLocation = getPoolIdFromLocation;
   window.getPoolDataFromLocation = getPoolDataFromLocation;
   window.generatePoolsPageLink = generatePoolsPageLink;
+  window.generateLinkedPoolMentions = generateLinkedPoolMentions;
   window.generateGoogleMapsLink = generateGoogleMapsLink;
   window.generateEnhancedPoolLink = generateEnhancedPoolLink;
 }

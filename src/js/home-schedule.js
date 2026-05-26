@@ -1,9 +1,11 @@
 /**
- * Shows the selected team's practices and meets for the coming seven days.
+ * Shows the selected team's next morning practice, evening practice, and swim event.
  */
 (function initializeHomeSchedule() {
+  const SCHEDULE_LOOKAHEAD_DAYS = 366;
   const AGENDA_DEPENDENCIES = [
     'js/services/html-safety.js',
+    'js/services/pool-link-helper.js',
     'js/teams-manager.js',
     'js/meets-manager.js',
     'js/services/file-helper.js',
@@ -44,21 +46,36 @@
   }
 
   function getFavoriteMeets(meets, team, firstDate) {
-    const finalDate = new Date(firstDate);
-    finalDate.setDate(finalDate.getDate() + 6);
-
     return meets.filter(meet => {
-      if (!meet.date || !PreferencesService.meetIncludesFavoriteTeam(meet, team)) return false;
+      if (!meet.date) return false;
       const meetDate = startOfDay(`${meet.date}T12:00:00`);
-      return meetDate >= firstDate && meetDate <= finalDate;
+      const hasMatchup = Boolean(meet.visiting_team || meet.awayTeam || meet.home_team || meet.homeTeam);
+      return meetDate >= firstDate && (!hasMatchup || PreferencesService.meetIncludesFavoriteTeam(meet, team));
     }).map(meet => ({
       date: startOfDay(`${meet.date}T12:00:00`),
-      label: meet.name || 'Meet',
+      label: `Next swim event: ${meet.name || 'Meet'}`,
       location: meet.location,
       sessions: [],
-      teams: `${meet.visiting_team || meet.awayTeam} at ${meet.home_team || meet.homeTeam}`,
+      teams: meet.visiting_team || meet.awayTeam ? `${meet.visiting_team || meet.awayTeam} at ${meet.home_team || meet.homeTeam}` : '',
       type: 'meet'
-    }));
+    })).sort((first, second) => first.date - second.date).slice(0, 1);
+  }
+
+  function getNextPractices(practices) {
+    const classifyPractice = practice => {
+      if (practice.label === 'Morning Practice') return 'morning';
+      if (practice.label === 'Evening Practice') return 'evening';
+
+      const sessionTimes = practice.sessions.map(session => session.time).join(' ');
+      if (/am\b/i.test(sessionTimes) && !/pm\b/i.test(sessionTimes)) return 'morning';
+      if (/pm\b/i.test(sessionTimes) && !/am\b/i.test(sessionTimes)) return 'evening';
+      return null;
+    };
+
+    return ['morning', 'evening'].map(period => {
+      const practice = practices.find(entry => classifyPractice(entry) === period);
+      return practice ? { ...practice, label: `Next ${period} practice` } : null;
+    }).filter(Boolean);
   }
 
   function renderEvents(container, events) {
@@ -77,7 +94,7 @@
             <strong>${HtmlSafety.escapeHtml(event.label)}</strong>
             ${event.teams ? `<span>${HtmlSafety.escapeHtml(event.teams)}</span>` : ''}
             ${event.sessions.map(session => `<span>${HtmlSafety.escapeHtml(session.group)}: ${HtmlSafety.escapeHtml(session.time)}</span>`).join('')}
-            <span>${HtmlSafety.escapeHtml(event.location)}</span>
+            <span>${globalThis.generateLinkedPoolMentions(event.location)}</span>
           </li>
         `).join('')}</ul>
       </li>
@@ -112,17 +129,18 @@
         return;
       }
 
-      document.getElementById('favoriteWeekTitle').textContent = `${team.name}: next seven days`;
       const today = startOfDay(new Date());
-      const practices = TeamScheduleService.getUpcomingPractices(team.practice, today, 7);
+      const practices = getNextPractices(TeamScheduleService.getUpcomingPractices(team.practice, today, SCHEDULE_LOOKAHEAD_DAYS));
       const meets = getFavoriteMeets(dataManager.getMeets().getAllMeets(), team, today);
       const events = [...practices, ...meets];
+      const eventNoun = events.length === 1 ? 'event' : 'events';
+      document.getElementById('favoriteWeekTitle').textContent = `${team.name}: ${events.length} practice or swim ${eventNoun} upcoming`;
       if (events.length === 0) {
-        status.textContent = 'No published practices or meets are scheduled in the next seven days.';
+        status.textContent = 'No upcoming published practices or swim events are available.';
         return;
       }
 
-      status.textContent = `${events.length} published practice or meet schedule entries in the next seven days.`;
+      status.textContent = `Showing ${events.length} next published practice or swim event entries.`;
       renderEvents(schedule, events);
     } catch (error) {
       console.error('Failed to load favorite team schedule:', error);

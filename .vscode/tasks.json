@@ -36,6 +36,9 @@
       "command": "pnpm",
       "args": ["run", "build"],
       "group": "build",
+      "presentation": {
+        "close": true
+      },
       "problemMatcher": {
         "owner": "cnsl-build",
         "pattern": {

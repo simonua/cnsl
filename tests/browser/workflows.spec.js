@@ -249,18 +249,23 @@ test('analytics publishes a page view and public app version only after the Goog
 });
 
 test('release updates are announced once after a stable version is acknowledged', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/index.html');
 
   const notice = page.locator('#releaseNotice');
   await expect(notice).toBeVisible();
-  await expect(notice).toContainText('Version 2.1.0 is available.');
+  await expect(notice).toContainText('App updated to version 2.1.0.');
+  const closeBox = await page.getByRole('button', { name: 'Dismiss application update' }).boundingBox();
+  const menuBox = await page.getByRole('button', { name: 'Open navigation menu' }).boundingBox();
+  expect(closeBox.width).toBe(menuBox.width);
+  expect(closeBox.x).toBe(menuBox.x);
   await page.getByRole('button', { name: 'Dismiss application update' }).focus();
   await page.keyboard.press('Enter');
   await expect(notice).toBeHidden();
   await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_current_version'))).toBe('2.1.0');
 
   await page.goto('/pools.html');
-  await expect(page.locator('#releaseNotice')).toBeHidden();
+  await expect(page.locator('#releaseNotice')).toHaveCount(0);
 
   await page.evaluate(() => localStorage.setItem('cnsl_current_version', '2.0.0'));
   await page.goto('/index.html');
@@ -412,7 +417,7 @@ test('team directory displays verified regular practices from public team schedu
   await expect(sundevils.getByRole('link', { name: 'Team Calendar' })).toHaveAttribute('href', /\/page\/calendar$/);
 });
 
-test('home page shows the next seven days for a selected favorite team', async ({ page }) => {
+test('home page shows the next practices and swim event for a selected favorite team', async ({ page }) => {
   await page.clock.setFixedTime(new Date('2026-05-26T12:00:00'));
   await page.addInitScript(() => {
     localStorage.setItem('cnsl_preferences', JSON.stringify({ favoriteTeamId: 'pls' }));
@@ -421,10 +426,15 @@ test('home page shows the next seven days for a selected favorite team', async (
 
   const agenda = page.locator('#favoriteWeek');
   await expect(agenda).toBeVisible();
-  await expect(agenda.getByRole('heading', { name: /Phelps Luck Snappers: next seven days/ })).toBeVisible();
-  await expect(page.locator('#favoriteWeekStatus')).toContainText('published practice or meet schedule entries');
-  await expect(agenda).toContainText('Pre-season Practice');
+  await expect(agenda.getByRole('heading', { name: /Phelps Luck Snappers: 3 practice or swim events upcoming/ })).toBeVisible();
+  await expect(page.locator('#favoriteWeekStatus')).toContainText('3 next published practice or swim event entries');
+  await expect(agenda.locator('.favorite-week__events li')).toHaveCount(3);
+  await expect(agenda).toContainText('Next morning practice');
+  await expect(agenda).toContainText('Next evening practice');
+  await expect(agenda).toContainText('Next swim event: Time Trials for returning/experienced swimmers');
   await expect(agenda).toContainText('Phelps Luck Pool');
+  await expect(agenda.getByRole('link', { name: 'Phelps Luck Pool' }).first()).toHaveAttribute('href', 'pools.html?pool=plp');
+  await expect(agenda.getByRole('link', { name: 'Jeffers Hill Pool' })).toHaveAttribute('href', 'pools.html?pool=jhp');
   await expect(agenda).toContainText('First Splash: 5:00 - 5:30pm');
 });
 
@@ -441,7 +451,7 @@ test('home page loads agenda dependencies only after a favorite team is selected
   });
 
   await expect(page.locator('#favoriteWeek')).toBeVisible();
-  await expect(page.locator('script[data-home-schedule-dependency]')).toHaveCount(6);
+  await expect(page.locator('script[data-home-schedule-dependency]')).toHaveCount(7);
   await expect(page.locator('#favoriteWeek')).toContainText('Phelps Luck Pool');
 });
 
@@ -702,6 +712,19 @@ test('desktop site header remains visible while the pool directory scrolls', asy
   expect(headerTop).toBe(0);
 });
 
+test('settings dialog remains centered in the viewport', async ({ page }) => {
+  for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 800 }]) {
+    await page.setViewportSize(viewport);
+    await page.goto('/settings.html');
+    const dialog = page.locator('#settingsDialog');
+    await expect(dialog).toBeVisible();
+    const bounds = await dialog.boundingBox();
+
+    expect(Math.abs(bounds.x + (bounds.width / 2) - (viewport.width / 2))).toBeLessThanOrEqual(1);
+    expect(Math.abs(bounds.y + (bounds.height / 2) - (viewport.height / 2))).toBeLessThanOrEqual(1);
+  }
+});
+
 test('settings persist choices locally and announce clearing saved settings', async ({ page }) => {
   await page.addInitScript(() => {
     globalThis.recordedAnalyticsEvents = [];
@@ -768,7 +791,7 @@ test('settings persist choices locally and announce clearing saved settings', as
   ]);
 });
 
-test('visible weather safety alerts render with update times on every page', async ({ page }) => {
+test('desktop weather safety alerts restore collapsed details on every page', async ({ page }) => {
   await prepareVisibleWeatherAlert(page);
   await page.addInitScript(() => {
     sessionStorage.setItem('cnsl_weather_alert_expanded', 'false');
@@ -781,10 +804,15 @@ test('visible weather safety alerts render with update times on every page', asy
     await expect(page.locator('#weatherAlertMessage')).toContainText('Severe Thunderstorm Warning');
     await expect(page.locator('#weatherAlertUpdated')).not.toHaveText('');
     await expect(page.locator('#weatherAlertUpdated')).toHaveAttribute('datetime', /2026-/);
-    await expect(page.locator('#weatherAlertDetails')).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Live pool status' })).toBeVisible();
-    await expect(page.locator('#weatherAlertToggle')).toBeHidden();
+    await expect(page.locator('#weatherAlertDetails')).toBeHidden();
+    await expect(page.getByRole('link', { name: 'Live pool status' })).toBeHidden();
+    await expect(page.getByRole('button', { name: 'Expand weather safety alert' })).toBeVisible();
   }
+
+  await page.getByRole('button', { name: 'Expand weather safety alert' }).click();
+  await expect(page.locator('#weatherAlertDetails')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Live pool status' })).toBeVisible();
+  await expect.poll(() => page.evaluate(() => sessionStorage.getItem('cnsl_weather_alert_expanded'))).toBe('true');
 });
 
 test('mobile weather safety alert keeps navigation visible and collapses with a stable arrow control', async ({ page }) => {
