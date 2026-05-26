@@ -100,7 +100,7 @@
     ad_storage: 'denied',
     ad_user_data: 'denied',
     ad_personalization: 'denied',
-    analytics_storage: 'denied'
+    analytics_storage: 'granted'
   });
   window.gtag('set', 'ads_data_redaction', true);
   window.gtag('set', {

@@ -41,7 +41,7 @@ applyTo: "src/js/**/*.js"
 
 ## Analytics Privacy Boundary
 
-- Analytics events may report site and feature use only; do not introduce account identifiers, contact data, coordinates, application-stored device values, user-entered strings, URL query/fragment content, or referrer data.
-- Track a selectable value only when it is drawn from a fixed, published application option set and the collection is disclosed in `docs/security-privacy.md`.
-- Keep Google tag measurement non-personalized: analytics storage enabled for standard GA4 user/session reporting, advertising storage denied, Google signals and ad personalization disabled, and app-authored page measurement stripped of referrers, query strings, and fragments. Do not enable additional GA4 enhanced measurement events unless their collected fields have been reviewed under this same boundary.
+- Analytics events may report public page counts and coarse feature-use categories only; do not introduce account identifiers, contact data, coordinates, application-stored device values, selected preference values, user-entered strings, URL query/fragment content, or referrer data.
+- Do not track selected pools, teams, filter values, themes, layouts, refresh values, or location choices; settings analytics may report the changed setting category only.
+- Keep Google tag measurement purpose-limited: analytics storage enabled for Google's disclosed usage/session reporting, advertising storage denied, Google signals and ad personalization disabled, and app-authored page measurement stripped of referrers, query strings, and fragments. Do not enable additional GA4 enhanced measurement events unless separately reviewed under this same boundary.
 - Add regression coverage for every new analytics event or configuration change.

@@ -48,10 +48,10 @@ Automated axe results do not substitute for this walkthrough. Do not state full 
 
 ## Privacy And Policy Check
 
-- Confirm an HTTPS deployed page loads the intended Google Analytics path with analytics storage granted, advertising storage and Google signals disabled, and no app-authored referrer or query/fragment page data transmitted.
-- Confirm application events send no PII, contact details, coordinates, free-form text, persistent identifier, or user-property data. An implemented, documented event may include only an audited fixed public app choice, such as a favorite pool/team choice or a published pool-feature filter choice; tests must reject arbitrary values.
-- Compare the emitted application events with the implemented-measurement table in [Security And Privacy Decision](security-privacy.md); an approved fixed-choice category is not collected until that table identifies it as implemented.
-- In Google Analytics administration, confirm Google signals and advertising personalization are disabled for every applicable region; confirm enhanced measurement and granular location/device reporting are limited only to separately audited fields; and confirm no linked advertising destination broadens data use.
+- Confirm an HTTPS deployed page loads the intended Google Analytics path with analytics storage granted for disclosed usage/session reporting, advertising storage and Google signals disabled, and no app-authored referrer or query/fragment page data transmitted.
+- Confirm application events send no PII, contact details, coordinates, free-form text, persistent identifier, user-property data, saved preference value, selected pool/team, or selected filter value. Measurement may count public page paths and coarse feature-interaction categories only.
+- Compare delivered requests with the categorical data-collection boundary in [Security And Privacy Decision](security-privacy.md); any field outside that boundary requires a separate privacy review before collection.
+- In Google Analytics administration, confirm Google signals, advertising personalization, enhanced measurement, and granular location/device reporting are disabled unless a separately reviewed exception exists; confirm no linked advertising destination broadens purpose-limited usage reporting into advertising or profiling use.
 - Confirm Settings exposes no obsolete analytics-consent toggle or stored analytics preference.
 - Check the browser console for Content Security Policy violations on all published routes while analytics is active on HTTPS.
 - Revisit [Security And Privacy Decision](security-privacy.md) before adding any external script, API, image, frame, font, or analytics destination.
@@ -62,7 +62,7 @@ Record occasional browser measurements here or in the release record when UI beh
 
 | Measurement | Route Or Scope | Result | Date / Environment |
 | --- | --- | --- | --- |
-| Published artifact size | Generated public `out/` artifact | 1,542,363 bytes observed; active season output only | 2026-05-26 / local clean build and `verify:pwa` |
+| Published artifact size | Generated public `out/` artifact | 1,543,971 bytes observed; active season output only | 2026-05-26 / local clean build and `verify:pwa` |
 | Directory usable/render completion | Pools, Teams, Meets | Pending next HTTPS release review | - |
 | First-view request count and transfer size | Home and Pools | Pending next HTTPS release review | - |
 

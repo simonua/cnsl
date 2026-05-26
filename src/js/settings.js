@@ -110,6 +110,10 @@
     if (existing.favoriteTeamId !== cleared.favoriteTeamId) trackPublishedSettingChange('favorite_team', cleared.favoriteTeamId, publishedTeamIds);
   }
 
+  function notifyPreferencesChanged() {
+    window.dispatchEvent(new CustomEvent('cnsl:preferences-changed', { detail: { source: 'settings-dialog' } }));
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     const dialog = document.getElementById('settingsDialog');
     const form = document.getElementById('settingsForm');
@@ -181,6 +185,10 @@
       trackChangedFormSetting(event.target, existing, saved, publishedPoolNames, publishedTeamIds);
       window.applyPreferenceTheme(saved);
       preferencesChanged = preferencesChanged || JSON.stringify(existing) !== JSON.stringify(saved);
+      if (event.target.name === 'weatherRefreshMinutes' && saved.weatherRefreshMinutes !== existing.weatherRefreshMinutes) {
+        notifyPreferencesChanged();
+        preferencesChanged = false;
+      }
       status.textContent = '';
     });
 
@@ -198,7 +206,7 @@
     closeButton.addEventListener('click', () => dialog.close());
     dialog.addEventListener('close', () => {
       if (preferencesChanged) {
-        window.dispatchEvent(new CustomEvent('cnsl:preferences-changed', { detail: { source: 'settings-dialog' } }));
+        notifyPreferencesChanged();
         preferencesChanged = false;
       }
       if (restoreFocusTo && restoreFocusTo.isConnected) restoreFocusTo.focus();

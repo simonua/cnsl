@@ -1,30 +1,20 @@
 # CNSL Engineering Refactoring Plan
 
-Status: Active recommendations only. Completed or closed items are removed when resolved.
+Status: Active recommendations only. Completed or closed items are removed when resolved. No high-priority recommendations remain open.
 
 Updated: 2026-05-26
 
 ## Scope
 
-This living backlog contains only actionable refactoring findings from the current integrated tree. It prioritizes security and privacy governance, seasonal-data reliability, accessibility validation, maintainability, and visitor-facing performance. Completed implementation evidence belongs in release records and focused design documentation rather than this backlog.
+This living backlog contains only actionable refactoring findings from the current integrated tree. It prioritizes seasonal-data reliability, accessibility validation, maintainability, and visitor-facing performance. Completed implementation evidence belongs in release records and focused design documentation rather than this backlog.
 
 ## Priority Matrix
 
 | Priority | Recommendation | Impact | Effort | Exit Criterion |
 | --- | --- | --- | --- | --- |
-| RED - High | H1. Reconcile expanded analytics with an approved measurement record. | Privacy-governance and release-review risk. | Medium | Every emitted application event and permitted field is documented and tested against the purpose-limited boundary. |
 | ORANGE - Medium | M1. Validate detailed practice recurrence as renderable data. | A source typo can pass validation while hiding schedule entries. | Medium | Invalid recurrence input fails validation with team-specific context and has negative tests. |
 | ORANGE - Medium | M2. Exercise new schedule experiences in accessibility gates. | The agenda and expanded practice UI can regress outside axe coverage. | Low-Medium | Light/dark automated checks cover visible agenda and detailed-practice states. |
-| ORANGE - Medium | M3. Avoid conditional agenda cost on every home visit. | Primary-route scripts execute even when no favorite schedule can display. | Medium | Agenda dependencies load conditionally or a measured home-route budget is enforced. |
 | GREEN - Low | L1. Make seasonal-monitor evidence allowlisting directly testable. | Future workflow changes could weaken protected-data boundaries unnoticed. | Low | The accepted-path rule runs through a focused automated test or reusable validation command. |
-
-## High Priority
-
-### H1. Reconcile Analytics Collection With The Decision Record
-
-**Finding**: [analytics.js](../src/js/analytics.js), [settings.js](../src/js/settings.js), and [workflows.spec.js](../tests/browser/workflows.spec.js) implement and test fixed-choice setting events and external-link interaction measurement. [security-privacy.md](security-privacy.md) describes these categories generally, while [release-checklist.md](release-checklist.md) requires an implemented-measurement table identifying approved collected fields.
-
-**Recommendation**: Restore an itemized implemented-measurement record for each emitted application event and its permitted fields, explicitly approve or remove each setting category, and retain tests proving arbitrary values and destination details cannot be emitted.
 
 ## Medium Priority
 
@@ -40,12 +30,6 @@ This living backlog contains only actionable refactoring findings from the curre
 
 **Recommendation**: Add light/dark axe scenarios for a visible favorite-team agenda and an expanded detailed-practice schedule, including meaningful loading or empty states introduced by that workflow.
 
-### M3. Avoid Conditional Agenda Cost On Every Home Visit
-
-**Finding**: [index.html](../src/views/index.html) always loads the teams, meets, data-manager, and schedule dependency chain, while [home-schedule.js](../src/js/home-schedule.js) hides the feature when the visitor has no favorite team. No home-route request or transfer budget currently captures this cost.
-
-**Recommendation**: Move agenda acquisition behind a small conditional bootstrap or define and enforce an accepted home-route asset budget with measured evidence.
-
 ## Low Priority
 
 ### L1. Make Seasonal-Monitor Allowlisting Directly Testable
@@ -58,7 +42,7 @@ This living backlog contains only actionable refactoring findings from the curre
 
 | Check | Current Status | Required Outcome |
 | --- | --- | --- |
-| `pnpm run test:browser:smoke -- --workers=1` | Non-passing run is present in the current session. | Diagnose and pass affected browser interactions before release. |
+| `pnpm run test:browser` | The weather-alert-off scenario currently fails because an active banner remains visible after selecting Off. | Diagnose and pass the weather interaction before release. |
 | `pnpm run test:browser:ci` | A complete final run has not been recorded for the integrated change set. | All workflow and automated WCAG A/AA cases pass in one completed run. |
 | HTTPS release walkthrough | Pending delivered-site evidence. | Record PWA lifecycle, keyboard/screen-reader, CSP, and analytics results using [release-checklist.md](release-checklist.md). |
 

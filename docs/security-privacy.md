@@ -4,11 +4,11 @@ Updated: 2026-05-26
 
 ## Analytics Decision
 
-The deployed site uses Google Analytics to understand site and feature usage. The tag enables analytics storage so GA4 can recognize users and sessions for standard reporting, while advertising storage, Google signals, and advertising personalization remain disabled. Measurement is implemented only in the maintained analytics script; the tracker ID remains in shared application configuration. There is no in-app analytics preference, and local development does not load the Google tag.
+The deployed site uses Google Analytics for purpose-limited site and feature usage reporting. Analytics storage is enabled so Google Analytics can count usage and sessions using its own first-party analytics identifiers; advertising storage, Google signals, and advertising personalization are disabled. The app does not send an account identity or app-maintained identifier to Analytics. Measurement is implemented only in the maintained analytics script; the tracker ID remains in shared application configuration. There is no in-app analytics preference, and local development does not load the Google tag.
 
-App-authored measurement is limited to public site navigation and feature interactions, outbound-link use without destination details, and settings choices drawn from visible fixed options or the published pool and team directory. Page measurement excludes query strings, fragments, and referrers. Settings measurement excludes current coordinates, and external-link measurement does not send the link URL, label, or destination host. Location is requested only by the Pools page when a visitor separately enables distance estimates.
+App-authored measurement is limited to public page-path counts, app version adoption, use of visible sharing methods, external-link use without destination details, and the category of a settings interaction. It does not transmit a selected pool, team, filter, layout, theme, refresh value, location choice, or expanded-state value. Page measurement excludes query strings, fragments, and referrers. External-link measurement does not send the link URL, label, or destination host. Location is requested only by the Pools page when a visitor separately enables distance estimates.
 
-Preferences stored by this app do not include analytics state or an analytics identifier. GA4 may set its own first-party analytics identifiers for reporting because analytics storage is enabled. Any future analytics change must remain purpose-limited to site and feature use and must not introduce visitor identifiers, contact details, requested coordinates, user-entered text, or unsanitized URLs or referrers. Regression tests must protect that boundary. Enhanced measurement or granular device/location reporting must remain limited to fields separately reviewed against it.
+Preferences stored by this app do not include analytics state or an analytics identifier. Google Analytics may use its own first-party analytics storage for usage and session reporting. Any future analytics change must remain purpose-limited to site and feature use and must not introduce app-authored visitor identifiers, stored preference values, contact details, requested coordinates, user-entered text, or unsanitized URLs or referrers. Regression tests protect that categorical boundary. Enhanced measurement or granular device/location reporting must remain disabled unless separately reviewed against it.
 
 ## Browser Policy Decision
 
@@ -27,7 +27,7 @@ Arbitrary inline executable scripts are no longer permitted: the early cached-we
 
 ## Validation
 
-- The artifact verifier requires analytics storage for standard reporting, rejects direct Google tracking calls outside the analytics module, protects the advertising and navigation-data guardrails, rejects arbitrary inline executable scripts, and rejects the removed consent loader or consent setting.
+- The artifact verifier requires the disclosed analytics-storage setting, rejects transmitted setting values and direct Google tracking calls outside the analytics module, protects the advertising and navigation-data guardrails, rejects arbitrary inline executable scripts, and rejects the removed consent loader or consent setting.
 - Automated accessibility scans exercise all published routes under the enforced default policy.
 - The secure-origin release checklist requires a browser-console CSP review while deployed-site analytics is active.
 - Published text in About, FAQ, Settings, and What's New describes the visitor-facing privacy behavior.

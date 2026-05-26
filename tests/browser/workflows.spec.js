@@ -208,7 +208,7 @@ test('analytics publishes a page view and public app version only after the Goog
         ad_storage: 'denied',
         ad_user_data: 'denied',
         ad_personalization: 'denied',
-        analytics_storage: 'denied'
+        analytics_storage: 'granted'
       }],
       ['set', 'ads_data_redaction', true],
       ['set', {
@@ -268,7 +268,6 @@ test('pool feature filters expose their state and resulting count', async ({ pag
     page.locator('.pool-filter__option--water-play > span').first().evaluate(chip => globalThis.getComputedStyle(chip).backgroundColor)
   ]);
   expect(new Set(chipColors).size).toBe(3);
-  const firstFeature = await page.locator('input[name="poolFeature"]').first().inputValue();
   await page.locator('input[name="poolFeature"]').first().check();
 
   await expect(page.locator('#poolFilterSummary')).toHaveText(/Showing \d+ of 23 pools/);
