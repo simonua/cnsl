@@ -171,6 +171,23 @@ describe('service worker cache strategy', () => {
     assert.match(await response.text(), /pools\.json\?v=development/);
   });
 
+  it('should fetch a newer explicitly versioned static resource while an older worker controls the page', async () => {
+    const resourcePath = 'js/home-schedule.js';
+    const harness = createWorkerHarness([...coreResources, resourcePath]);
+    await harness.dispatch('install');
+
+    const requestedUrl = `https://pools.longreachmarlins.org/${resourcePath}?v=next-build`;
+    harness.setFetchImplementation(async request => new Response(`fresh:${request.url}`, { status: 200 }));
+
+    const response = await harness.dispatch('fetch', {
+      method: 'GET',
+      mode: 'cors',
+      url: requestedUrl
+    });
+
+    assert.equal(await response.text(), `fresh:${requestedUrl}`);
+  });
+
   it('should delete obsolete versioned caches during activation', async () => {
     const harness = createWorkerHarness(coreResources);
 

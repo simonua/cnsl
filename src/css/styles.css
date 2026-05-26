@@ -942,6 +942,13 @@ main h1 {
   font-size: 0.95rem;
 }
 
+@media (min-width: 48.0625rem) {
+  .favorite-week {
+    margin-inline: auto;
+    max-width: 48rem;
+  }
+}
+
 /* Share Site Section */
 .share-site {
   margin: 2.5rem auto 0;

@@ -239,7 +239,7 @@ function formatReport({ changes, checkedOn, season }) {
     const domains = (change.domains || [change.domain]).join(', ');
     const evidence = change.localPath
       ? `src/assets/data/${season}/${change.localPath}`
-      : '.github/data-agent/source-state.json';
+      : '.github/automation/season-data-monitor/source-state.json';
     return `| ${domains} | [${change.label}](${change.url}) | ${change.kind} | \`${evidence}\` |`;
   });
   const guidance = {
@@ -287,8 +287,8 @@ async function monitorSources({
 } = {}) {
   const season = await readActiveYear(repositoryRoot);
   const dataRoot = path.join(repositoryRoot, 'src', 'assets', 'data', String(season));
-  const statePath = path.join(repositoryRoot, '.github', 'data-agent', 'source-state.json');
-  const reportPath = path.join(repositoryRoot, '.github', 'data-agent', 'update-report.md');
+  const statePath = path.join(repositoryRoot, '.github', 'automation', 'season-data-monitor', 'source-state.json');
+  const reportPath = path.join(repositoryRoot, '.github', 'automation', 'season-data-monitor', 'update-report.md');
   const [annualReadme, meetsData, poolsData, teamsData] = await Promise.all([
     fs.readFile(path.join(dataRoot, 'README.md'), 'utf8'),
     readJson(path.join(dataRoot, 'meets', 'meets.json')),

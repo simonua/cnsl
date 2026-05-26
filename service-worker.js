@@ -31,6 +31,11 @@ function createVersionedUrl(resource) {
   return url.toString();
 }
 
+function createStaticResourceCacheKey(resource) {
+  const url = new URL(typeof resource === 'string' ? resource : resource.url, APP_BASE_URL);
+  return url.searchParams.has('v') ? url.toString() : createVersionedUrl(url.toString());
+}
+
 const CORE_RESOURCES = MINIMUM_OFFLINE_RESOURCES.map(createVersionedUrl);
 const STATIC_RESOURCES = [...new Set((self.PRECACHE_RESOURCES || MINIMUM_OFFLINE_RESOURCES).map(createVersionedUrl))];
 
@@ -216,9 +221,10 @@ self.addEventListener("fetch", event => {
     return;
   }
 
-  // Versioned static resources stay cache-first until a new worker installs a new cache.
+  // Preserve an explicitly requested build version while a previous worker still controls a page.
+  const staticResourceCacheKey = createStaticResourceCacheKey(event.request);
   event.respondWith(
-    caches.open(CACHE_NAME).then(cache => cache.match(createVersionedUrl(event.request))
+    caches.open(CACHE_NAME).then(cache => cache.match(staticResourceCacheKey)
       .then(response => response || cache.match(event.request)))
       .then(response => {
         if (response) {
@@ -232,7 +238,7 @@ self.addEventListener("fetch", event => {
             if (response && response.status === 200 && response.type === 'basic') {
               const responseClone = response.clone();
               return caches.open(CACHE_NAME)
-                .then(cache => cache.put(createVersionedUrl(event.request), responseClone))
+                .then(cache => cache.put(staticResourceCacheKey, responseClone))
                 .then(() => response);
             }
             return response;

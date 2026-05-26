@@ -166,7 +166,7 @@ describe('season data agent', () => {
         fs.mkdir(path.join(dataRoot, 'meets', 'meet-schedules'), { recursive: true }),
         fs.mkdir(path.join(dataRoot, 'teams', 'team-schedules'), { recursive: true }),
         fs.mkdir(path.join(root, 'src', 'js', 'config'), { recursive: true }),
-        fs.mkdir(path.join(root, '.github', 'data-agent'), { recursive: true })
+        fs.mkdir(path.join(root, '.github', 'automation', 'season-data-monitor'), { recursive: true })
       ]);
       await Promise.all([
         fs.writeFile(path.join(root, 'src', 'js', 'config', 'app-config.js'), 'const YEAR = 2026;\n'),
@@ -185,7 +185,7 @@ describe('season data agent', () => {
         fs.writeFile(path.join(dataRoot, 'pools', 'pool-schedules', 'pool.pdf'), pdfContent),
         fs.writeFile(path.join(dataRoot, 'meets', 'meet-schedules', 'meet.pdf'), pdfContent),
         fs.writeFile(path.join(dataRoot, 'teams', 'team-schedules', 'practice.pdf'), pdfContent),
-        fs.writeFile(path.join(root, '.github', 'data-agent', 'source-state.json'), JSON.stringify({
+        fs.writeFile(path.join(root, '.github', 'automation', 'season-data-monitor', 'source-state.json'), JSON.stringify({
           acceptedOn: '2026-05-24',
           season: 2026,
           pages: pageUrls.map((url) => ({ domains: ['pools'], label: 'Source', sha256: sha256(normalizeHtml(baselineContent)), url }))

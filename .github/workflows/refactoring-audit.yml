@@ -55,7 +55,7 @@ jobs:
           request_json="$(jq -n \
             --arg title "${AUDIT_TITLE_PREFIX} - ${audit_date}" \
             --arg repo "$GITHUB_REPOSITORY" \
-            --rawfile body .github/refactoring-agent/audit-request.md \
+            --rawfile body .github/automation/refactoring-audit/audit-request.md \
             '{
               title: $title,
               body: $body,

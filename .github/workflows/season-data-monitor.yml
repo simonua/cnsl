@@ -78,11 +78,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -c "$UPDATE_BRANCH"
-          git add -- .github/data-agent/source-state.json .github/data-agent/update-report.md "src/assets/data/$SEASON"
+          git add -- .github/automation/season-data-monitor/source-state.json .github/automation/season-data-monitor/update-report.md "src/assets/data/$SEASON"
           git commit -m "Update ${SEASON} official seasonal source material"
           git push --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/$UPDATE_BRANCH"
           gh pr create \
             --base main \
             --head "$UPDATE_BRANCH" \
             --title "Review ${SEASON} official seasonal source updates" \
-            --body-file .github/data-agent/update-report.md
+            --body-file .github/automation/season-data-monitor/update-report.md
