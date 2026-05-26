@@ -110,7 +110,7 @@
           <h2 id="faq-functionality" class="faq-list__heading">Using the App</h2>
           <article class="faq-item">
             <h3>What is CNSL?</h3>
-            <p><a href="https://www.gomotionapp.com/team/reccnsl/page/home" target="_blank" rel="noopener">CNSL</a> stands for Columbia Neighborhood Swim League, a summer recreational swim league in Columbia, MD.</p>
+            <p><a href="{{ EXTERNAL_LINKS.OFFICIAL_CNSL_SITE }}" target="_blank" rel="noopener">CNSL</a> stands for Columbia Neighborhood Swim League, a summer recreational swim league in Columbia, MD.</p>
           </article>
           <article class="faq-item">
             <h3>How do I find a pool schedule, team practice, or meet?</h3>
@@ -142,7 +142,7 @@
           </article>
           <article class="faq-item">
             <h3>Where does this app get its data, and when was it checked?</h3>
-            <p>Pool information is transcribed from publicly available <a href="https://columbiaassociation.org/sports-recreation/pools/pool-schedules/" target="_blank" rel="noopener">Columbia Association (CA) publications</a>. Team and meet information is transcribed from publicly available <a href="https://www.gomotionapp.com/team/reccnsl/page/home" target="_blank" rel="noopener">official CNSL publications</a>. These official public sources are the source of truth for this web app.</p>
+            <p>Pool information is transcribed from publicly available <a href="{{ EXTERNAL_LINKS.CA_POOL_SCHEDULES }}" target="_blank" rel="noopener">Columbia Association (CA) publications</a>. Team and meet information is transcribed from publicly available <a href="{{ EXTERNAL_LINKS.OFFICIAL_CNSL_SITE }}" target="_blank" rel="noopener">official CNSL publications</a>. These official public sources are the source of truth for this web app.</p>
             <p>Information shared through social media, email, messaging groups, or other community channels can be helpful, but is not treated as authoritative here unless it is reflected in an official public source.</p>
             <p><strong>Last accepted official-source check for {{ YEAR }} data:</strong> <time datetime="{{ OFFICIAL_SOURCE_CHECKED_ON }}">{{ OFFICIAL_SOURCE_CHECKED_ON }}</time>. Published details can change, so please confirm time-sensitive plans before heading out.</p>
           </article>
@@ -157,7 +157,7 @@
           <article class="faq-item">
             <h3>What data is measured or stored?</h3>
             <p>This web app does not request names, contact details, account identifiers, or other personally identifiable information. The deployed site uses Google Analytics for purpose-limited site and feature usage reporting. Analytics storage is enabled so Google Analytics can count visits and sessions using its own first-party analytics identifiers; advertising personalization and Google signals are disabled.</p>
-            <p>App-defined measurement does not send visitor names, contact details, current coordinates, saved settings values, selected pools or teams, selected filters, free-form content, URL query or fragment values, referrers, or outbound-link destination details. You can also read <a href="https://support.google.com/analytics/answer/6366371?hl=en#zippy=%2Cin-this-article" target="_blank" rel="noopener noreferrer">Google Analytics guidance on personally identifiable information</a>.</p>
+            <p>App-defined measurement does not send visitor names, contact details, current coordinates, saved settings values, selected pools or teams, selected filters, free-form content, URL query or fragment values, referrers, or outbound-link destination details. You can also read <a href="{{ EXTERNAL_LINKS.GOOGLE_ANALYTICS_PRIVACY_GUIDANCE }}" target="_blank" rel="noopener noreferrer">Google Analytics guidance on personally identifiable information</a>.</p>
           </article>
           <article class="faq-item">
             <h3>Does the app use my location?</h3>
