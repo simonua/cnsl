@@ -115,6 +115,8 @@ assert.match(worker, /precache-manifest\.js/, 'Service worker must import the ge
 
 const analytics = fs.readFileSync(path.join(outDir, 'js', 'analytics.js'), 'utf8');
 const appConfig = fs.readFileSync(path.join(outDir, 'js', 'config', 'app-config.js'), 'utf8');
+const appConfigBrowserContext = {};
+vm.runInNewContext(appConfig, appConfigBrowserContext);
 const nonAnalyticsBrowserCode = fs.readdirSync(path.join(outDir, 'js'), { recursive: true })
   .filter(resource => resource.endsWith('.js') && resource !== 'analytics.js')
   .map(resource => fs.readFileSync(path.join(outDir, 'js', resource), 'utf8'))
@@ -124,7 +126,7 @@ const appEventNames = [...analytics.matchAll(/window\.gtag\('event', '([^']+)'/g
 const customAppEventNames = appEventNames.filter(eventName => eventName !== 'page_view');
 assert.match(GA4_MEASUREMENT_ID, /^G-[A-Z0-9]+$/, 'Analytics configuration must use a GA4 web-stream measurement ID, not a numeric property ID.');
 assert.match(appConfig, new RegExp(GA4_MEASUREMENT_ID), 'Delivered application configuration must include the configured GA4 measurement ID.');
-assert.match(appConfig, /exposeConstant\('APP_VERSION', APP_VERSION\)/, 'Delivered application configuration must expose the published app version to browser measurement.');
+assert.equal(appConfigBrowserContext.APP_VERSION, APP_VERSION, 'Delivered application configuration must expose the published app version to browser measurement.');
 assert.match(analytics, /window\.GA4_MEASUREMENT_ID/, 'Analytics must publish through the configured GA4 web-stream measurement ID.');
 assert.match(analytics, /analytics_storage:\s*'granted'/, 'Analytics must allow the disclosed usage and session reporting.');
 assert.doesNotMatch(analytics, /analytics_storage:\s*'denied'/, 'Analytics measurement must retain the disclosed usage and session reporting.');
