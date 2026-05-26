@@ -81,6 +81,48 @@ describe('season data validation', () => {
       assert.ok(errors.includes('Known Team calendar URL must use HTTPS: http://teams.test/calendar.'));
       assert.ok(errors.includes('Regular meet 1 references an unknown team alias: missing team.'));
     });
+
+    it('should reject detailed practice recurrence text that cannot render', () => {
+      const errors = collectIntegrityErrors({
+        season: 2026,
+        poolsData: {
+          caPoolDirectoryUrl: 'https://pools.test/directory',
+          caPoolGuideUrl: 'https://pools.test/guide',
+          seasonStartDate: '2026-05-23',
+          seasonEndDate: '2026-09-07',
+          pools: [{
+            id: 'pool',
+            name: 'Known Pool',
+            caUrl: 'https://pools.test/known',
+            scheduleUrl: 'https://pools.test/Known_Pool.pdf',
+            location: { googleMapsUrl: 'https://maps.google.com/known' },
+            schedules: []
+          }]
+        },
+        teamsData: {
+          teams: [{
+            id: 'team',
+            name: 'Known Team',
+            keywords: ['known'],
+            url: 'https://teams.test/known',
+            homePools: ['Known Pool'],
+            practicePools: ['Known Pool'],
+            staff: { sourceUrl: 'https://teams.test/staff' },
+            practice: {
+              preseason: [{ period: 'May 29 - May 26', days: 'Business days' }]
+            }
+          }]
+        },
+        meetsData: {
+          url: 'https://league.test/meets.pdf',
+          regular_meets: [],
+          special_meets: []
+        }
+      });
+
+      assert.ok(errors.includes('Known Team practice preseason entry 1 date range cannot be rendered: May 29 - May 26.'));
+      assert.ok(errors.includes('Known Team practice preseason entry 1 weekdays cannot be rendered: Business days.'));
+    });
   });
 
   describe('validateActiveSeason', () => {

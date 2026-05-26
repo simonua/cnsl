@@ -20,7 +20,9 @@ Only one automation PR is opened at a time. While it is pending, nightly checks 
 
 `.github/workflows/season-data-monitor.yml` runs nightly at 05:17 UTC and passes `--season-only`; the monitor uses `seasonStartDate` and `seasonEndDate` from active pool data. A manual workflow dispatch can opt into checking outside that date range.
 
-The repository must allow GitHub Actions to create pull requests. The workflow uses the built-in token with only `contents: write` and `pull-requests: write` permissions and a dedicated `automation/season-source-updates` branch.
+The workflow uses the `CNSL_Data_Updater_PR_Token` repository secret to push the dedicated `automation/season-source-updates` branch and create review pull requests. Keep that token narrowly scoped to repository contents and pull-request creation; the built-in workflow token remains `contents: read` only for checkout.
+
+Before creating a pull request, the workflow runs `scripts/validate-season-monitor-boundary.js` against every annual-data path changed by automation. Only retained official PDF evidence paths for the active season are permitted; JSON, schemas, READMEs, and cross-season files must remain reviewer-authored changes.
 
 ## Rollover
 

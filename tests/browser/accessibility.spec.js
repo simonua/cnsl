@@ -100,6 +100,48 @@ for (const theme of ['light', 'dark']) {
   });
 }
 
+for (const theme of ['light', 'dark']) {
+  test(`favorite-team agenda has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
+    await page.clock.setFixedTime(new Date('2026-05-26T12:00:00'));
+    await prepareStableWeatherResponses(page);
+    await page.addInitScript(selectedTheme => {
+      localStorage.setItem('cnsl_preferences', JSON.stringify({ theme: selectedTheme, favoriteTeamId: 'pls' }));
+    }, theme);
+    await page.goto('/index.html');
+    await expect(page.locator('#favoriteWeek')).toBeVisible();
+    await expect(page.locator('#favoriteWeekStatus')).toContainText('published practice or meet schedule entries');
+
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .analyze();
+    const violations = results.violations.map(violation => ({
+      id: violation.id,
+      impact: violation.impact,
+      targets: violation.nodes.map(node => node.target)
+    }));
+
+    expect(violations).toEqual([]);
+  });
+
+  test(`expanded detailed-practice schedule has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
+    await loadScenario(page, pageScenarios.find(scenario => scenario.name === 'teams'), theme);
+    const teamToggle = page.locator('.team-card[data-team-id="cfhss"] .team-header__toggle');
+    if (await teamToggle.getAttribute('aria-expanded') !== 'true') await teamToggle.click();
+    await expect(page.locator('.team-card[data-team-id="cfhss"] .practice-schedule')).toBeVisible();
+
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .analyze();
+    const violations = results.violations.map(violation => ({
+      id: violation.id,
+      impact: violation.impact,
+      targets: violation.nodes.map(node => node.target)
+    }));
+
+    expect(violations).toEqual([]);
+  });
+}
+
 test('location-aware pool sorting has no WCAG A or AA automated violations', async ({ page }) => {
   await prepareStableWeatherResponses(page);
   await page.context().grantPermissions(['geolocation']);

@@ -12,6 +12,27 @@ describe('TeamScheduleService', () => {
     });
   });
 
+  describe('getValidationErrors', () => {
+    it('should reject practice recurrence values that cannot render schedule entries', () => {
+      const errors = TeamScheduleService.getValidationErrors({
+        preseason: [{ period: 'May 29 - May 26', days: 'Pool closed' }],
+        regular: {
+          season: 'Not a season',
+          morning: [{ days: 'Weekdays' }],
+          evening: [{ day: 'Later' }]
+        }
+      }, 2026);
+
+      assert.deepEqual(errors, [
+        'preseason entry 1 date range cannot be rendered: May 29 - May 26.',
+        'preseason entry 1 weekdays cannot be rendered: Pool closed.',
+        'regular season date range cannot be rendered: Not a season.',
+        'regular morning entry 1 weekdays cannot be rendered: Weekdays.',
+        'regular evening entry 1 weekdays cannot be rendered: Later.'
+      ]);
+    });
+  });
+
   describe('getUpcomingPractices', () => {
     it('should combine pre-season and regular recurring practices in a seven-day window', () => {
       const practice = {

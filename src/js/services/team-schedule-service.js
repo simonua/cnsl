@@ -16,6 +16,7 @@ if (typeof window === 'undefined' || !window.TeamScheduleService) {
 
       dates[0].setHours(0, 0, 0, 0);
       dates[1].setHours(23, 59, 59, 999);
+      if (dates[0] > dates[1]) return null;
       return { startDate: dates[0], endDate: dates[1] };
     }
 
@@ -31,6 +32,39 @@ if (typeof window === 'undefined' || !window.TeamScheduleService) {
       }
 
       return foundDays;
+    }
+
+    static getValidationErrors(practice, year = globalThis.YEAR) {
+      if (!practice) return [];
+
+      const errors = [];
+      const validateRange = (value, label) => {
+        if (!TeamScheduleService.parseSeasonRange(value, year)) {
+          errors.push(`${label} date range cannot be rendered: ${value}.`);
+        }
+      };
+      const validateDays = (value, label) => {
+        if (TeamScheduleService.parseWeekdays(value).length === 0) {
+          errors.push(`${label} weekdays cannot be rendered: ${value}.`);
+        }
+      };
+
+      (practice.preseason || []).forEach((period, index) => {
+        validateRange(period.period, `preseason entry ${index + 1}`);
+        validateDays(period.days, `preseason entry ${index + 1}`);
+      });
+
+      if (practice.regular) {
+        validateRange(practice.regular.season, 'regular season');
+        (practice.regular.morning || []).forEach((entry, index) => {
+          validateDays(entry.days, `regular morning entry ${index + 1}`);
+        });
+        (practice.regular.evening || []).forEach((entry, index) => {
+          validateDays(entry.day, `regular evening entry ${index + 1}`);
+        });
+      }
+
+      return errors;
     }
 
     static getPracticePatterns(practice) {

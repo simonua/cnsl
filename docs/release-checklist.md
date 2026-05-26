@@ -62,7 +62,7 @@ Record occasional browser measurements here or in the release record when UI beh
 
 | Measurement | Route Or Scope | Result | Date / Environment |
 | --- | --- | --- | --- |
-| Published artifact size | Generated public `out/` artifact | 1,543,971 bytes observed; active season output only | 2026-05-26 / local clean build and `verify:pwa` |
+| Published artifact size | Generated public `out/` artifact | 1,545,251 bytes observed; active season output only | 2026-05-26 / local clean build and `verify:pwa` |
 | Directory usable/render completion | Pools, Teams, Meets | Pending next HTTPS release review | - |
 | First-view request count and transfer size | Home and Pools | Pending next HTTPS release review | - |
 

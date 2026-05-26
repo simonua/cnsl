@@ -5,6 +5,7 @@ const path = require('node:path');
 const Ajv = require('ajv');
 const addFormats = require('ajv-formats');
 const { parseReadmePdfSources } = require('./season-data-agent');
+const { TeamScheduleService } = require('../src/js/services/team-schedule-service');
 
 const DOMAINS = Object.freeze(['pools', 'meets', 'teams']);
 const REPOSITORY_ROOT = path.resolve(__dirname, '..');
@@ -127,6 +128,9 @@ function collectIntegrityErrors({ meetsData, poolsData, season, teamsData }) {
     if (team.practice && team.practice.url) {
       validateHttpsUrl(errors, `${team.name} practice URL`, team.practice.url);
     }
+    TeamScheduleService.getValidationErrors(team.practice, season).forEach((error) => {
+      errors.push(`${team.name} practice ${error}`);
+    });
     [...team.homePools, ...team.practicePools].forEach((poolName) => {
       if (!poolNames.has(poolName)) {
         errors.push(`${team.name} references unknown pool: ${poolName}.`);

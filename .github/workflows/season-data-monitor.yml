@@ -12,8 +12,7 @@ on:
         type: boolean
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
@@ -71,6 +70,10 @@ jobs:
             echo "Invalid season output: $SEASON" >&2
             exit 1
           fi
+
+          { git diff --name-only -- "src/assets/data/$SEASON"; git ls-files --others --exclude-standard -- "src/assets/data/$SEASON"; } \
+            | sort -u \
+            | node scripts/validate-season-monitor-boundary.js "$SEASON"
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
