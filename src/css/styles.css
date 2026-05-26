@@ -4,6 +4,13 @@
   --primary-dark: #004578;
   --primary-text-color: #004578;
   --primary-light: #40e0d0;
+  --accent-bg: #005ea8;
+  --accent-dark: #004578;
+  --accent-deep: #003d70;
+  --accent-text: #ffffff;
+  --primary-soft-bg: rgba(0, 120, 212, 0.05);
+  --primary-soft-bg-strong: rgba(0, 120, 212, 0.1);
+  --primary-soft-shadow: rgba(0, 120, 212, 0.3);
   --secondary-color: #6c757d;
   --success-color: #28a745;
   --success-highlight-text-color: #102115;
@@ -14,6 +21,8 @@
   --warning-text-color: #664d03;
   --error-text-color: #b02a37;
   --info-text-color: #0b6673;
+  --warning-highlight-text-color: #332600;
+  --error-highlight-text-color: #ffffff;
   --light-bg: #f8f9fa;
   --white: #ffffff;
   --text-dark: #212529;
@@ -31,6 +40,19 @@
   --weather-alert-action: #f0c34e;
   --weather-alert-action-hover: #e3b43c;
   --weather-alert-action-text: #392b00;
+  --weather-info-bg: rgba(255, 255, 255, 0.8);
+  --warning-soft-bg: rgba(255, 193, 7, 0.15);
+  --warning-soft-bg-muted: rgba(255, 193, 7, 0.1);
+  --warning-soft-bg-strong: rgba(255, 193, 7, 0.3);
+  --success-story-bg: linear-gradient(135deg, rgba(40, 167, 69, 0.05), rgba(40, 167, 69, 0.02));
+  --success-story-border: rgba(40, 167, 69, 0.2);
+  --meet-today-bg: #f8fff9;
+  --meet-upcoming-bg: #f0faff;
+  --meet-past-bg: #f5f5f5;
+  --meet-special-bg: #fffef0;
+  --neutral-status-color: #666666;
+  --tooltip-bg: #333333;
+  --tooltip-text: #ffffff;
   --feature-accessibility-bg: #e6f4f1;
   --feature-accessibility-border: #147d72;
   --feature-accessibility-text: #115e59;
@@ -51,10 +73,6 @@
   --feature-amenities-border: #5d6975;
   --feature-amenities-text: #384550;
   --feature-amenities-selected-bg: #4f5d69;
-  --feature-additional-bg: #f0f2f4;
-  --feature-additional-border: #5d6975;
-  --feature-additional-text: #384550;
-  --feature-additional-selected-bg: #4f5d69;
   --feature-selected-text: #ffffff;
   --header-height: 4.625rem;
   --footer-height: 3.25rem;
@@ -69,6 +87,13 @@
   --primary-dark: #176cae;
   --primary-text-color: #58b0ee;
   --primary-light: #52d5ca;
+  --accent-bg: #176cae;
+  --accent-dark: #115686;
+  --accent-deep: #0b3f65;
+  --accent-text: #f1f5f8;
+  --primary-soft-bg: rgba(88, 176, 238, 0.12);
+  --primary-soft-bg-strong: rgba(88, 176, 238, 0.18);
+  --primary-soft-shadow: rgba(88, 176, 238, 0.36);
   --success-color: #4ac46b;
   --warning-color: #f1c64b;
   --error-color: #f06a78;
@@ -77,6 +102,8 @@
   --warning-text-color: #f1c64b;
   --error-text-color: #f06a78;
   --info-text-color: #48c5d5;
+  --warning-highlight-text-color: #332600;
+  --error-highlight-text-color: #102115;
   --light-bg: #101820;
   --white: #1b2731;
   --text-dark: #f1f5f8;
@@ -94,6 +121,19 @@
   --weather-alert-action: #f1c64b;
   --weather-alert-action-hover: #ffd76b;
   --weather-alert-action-text: #392b00;
+  --weather-info-bg: #162d3d;
+  --warning-soft-bg: rgba(241, 198, 75, 0.16);
+  --warning-soft-bg-muted: rgba(241, 198, 75, 0.1);
+  --warning-soft-bg-strong: rgba(241, 198, 75, 0.24);
+  --success-story-bg: linear-gradient(135deg, rgba(74, 196, 107, 0.13), rgba(74, 196, 107, 0.06));
+  --success-story-border: rgba(74, 196, 107, 0.32);
+  --meet-today-bg: #183326;
+  --meet-upcoming-bg: #142a3f;
+  --meet-past-bg: #252f38;
+  --meet-special-bg: #332d1d;
+  --neutral-status-color: #b5c3cf;
+  --tooltip-bg: #252f38;
+  --tooltip-text: #f1f5f8;
   --feature-accessibility-bg: #133433;
   --feature-accessibility-border: #45bfb3;
   --feature-accessibility-text: #a9e7e1;
@@ -114,10 +154,6 @@
   --feature-amenities-border: #7e909f;
   --feature-amenities-text: #d7e0e7;
   --feature-amenities-selected-bg: #455665;
-  --feature-additional-bg: #252f38;
-  --feature-additional-border: #7e909f;
-  --feature-additional-text: #d7e0e7;
-  --feature-additional-selected-bg: #455665;
   --feature-selected-text: #f1f5f8;
 }
 
@@ -128,6 +164,13 @@
     --primary-dark: #176cae;
     --primary-text-color: #58b0ee;
     --primary-light: #52d5ca;
+    --accent-bg: #176cae;
+    --accent-dark: #115686;
+    --accent-deep: #0b3f65;
+    --accent-text: #f1f5f8;
+    --primary-soft-bg: rgba(88, 176, 238, 0.12);
+    --primary-soft-bg-strong: rgba(88, 176, 238, 0.18);
+    --primary-soft-shadow: rgba(88, 176, 238, 0.36);
     --success-color: #4ac46b;
     --warning-color: #f1c64b;
     --error-color: #f06a78;
@@ -136,6 +179,8 @@
     --warning-text-color: #f1c64b;
     --error-text-color: #f06a78;
     --info-text-color: #48c5d5;
+    --warning-highlight-text-color: #332600;
+    --error-highlight-text-color: #102115;
     --light-bg: #101820;
     --white: #1b2731;
     --text-dark: #f1f5f8;
@@ -153,6 +198,19 @@
     --weather-alert-action: #f1c64b;
     --weather-alert-action-hover: #ffd76b;
     --weather-alert-action-text: #392b00;
+    --weather-info-bg: #162d3d;
+    --warning-soft-bg: rgba(241, 198, 75, 0.16);
+    --warning-soft-bg-muted: rgba(241, 198, 75, 0.1);
+    --warning-soft-bg-strong: rgba(241, 198, 75, 0.24);
+    --success-story-bg: linear-gradient(135deg, rgba(74, 196, 107, 0.13), rgba(74, 196, 107, 0.06));
+    --success-story-border: rgba(74, 196, 107, 0.32);
+    --meet-today-bg: #183326;
+    --meet-upcoming-bg: #142a3f;
+    --meet-past-bg: #252f38;
+    --meet-special-bg: #332d1d;
+    --neutral-status-color: #b5c3cf;
+    --tooltip-bg: #252f38;
+    --tooltip-text: #f1f5f8;
     --feature-accessibility-bg: #133433;
     --feature-accessibility-border: #45bfb3;
     --feature-accessibility-text: #a9e7e1;
@@ -173,10 +231,6 @@
     --feature-amenities-border: #7e909f;
     --feature-amenities-text: #d7e0e7;
     --feature-amenities-selected-bg: #455665;
-    --feature-additional-bg: #252f38;
-    --feature-additional-border: #7e909f;
-    --feature-additional-text: #d7e0e7;
-    --feature-additional-selected-bg: #455665;
     --feature-selected-text: #f1f5f8;
   }
 }
@@ -239,8 +293,8 @@ body {
 
 /* Header - Sticky at top */
 .header {
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-  color: var(--white);
+  background: linear-gradient(135deg, var(--accent-bg), var(--accent-dark));
+  color: var(--accent-text);
   padding: 0.75rem 1rem;
   display: flex;
   justify-content: space-between;
@@ -634,14 +688,14 @@ button.release-notice__close:focus {
 }
 
 .hamburger:focus-visible {
-  outline: 3px solid var(--white);
+  outline: 3px solid var(--accent-text);
   outline-offset: 2px;
 }
 
 .hamburger span {
   width: 100%;
   height: 3px;
-  background: var(--white);
+  background: var(--accent-text);
   border-radius: 0;
   transition: var(--transition);
   display: block;
@@ -656,7 +710,7 @@ button.release-notice__close:focus {
   right: -100%;
   width: min(58vw, 14rem);
   height: 100vh;
-  background: linear-gradient(180deg, var(--primary-color), var(--primary-dark));
+  background: linear-gradient(180deg, var(--accent-bg), var(--accent-dark));
   padding-top: var(--nav-top-offset, var(--header-height));
   transition: right 0.3s ease;
   z-index: 999;
@@ -675,7 +729,7 @@ button.release-notice__close:focus {
 .nav-menu a {
   display: block;
   padding: 0.875rem 1.25rem;
-  color: var(--white);
+  color: var(--accent-text);
   text-decoration: none;
   font-size: 1.1rem;
   font-weight: 500;
@@ -843,8 +897,19 @@ main h1 {
 /* Season Info Section */
 .season-info {
   text-align: center;
-  margin-bottom: 2rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-style: italic;
+  margin-bottom: 0.75rem;
   padding: 0 1rem;
+}
+
+.season-info a {
+  font-style: normal;
+}
+
+.season-info .ca-links {
+  margin-top: 0.625rem;
 }
 
 .season-text {
@@ -872,7 +937,7 @@ main h1 {
   padding: 8px 16px;
   border: 1px solid var(--primary-color);
   border-radius: var(--border-radius);
-  background-color: rgba(0, 120, 212, 0.05);
+  background-color: var(--primary-soft-bg);
   font-weight: 500;
   transition: var(--transition);
 }
@@ -883,7 +948,7 @@ main h1 {
   background-color: var(--primary-color);
   text-decoration: none;
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 120, 212, 0.3);
+  box-shadow: 0 2px 8px var(--primary-soft-shadow);
 }
 
 .favorite-week {
@@ -1132,7 +1197,8 @@ input::placeholder {
 }
 
 /* Buttons */
-button, .btn {
+.btn,
+.install-app__button {
   padding: 0.875rem 1.5rem;
   font-size: 1.1rem;
   font-weight: 600;
@@ -1148,11 +1214,12 @@ button, .btn {
   justify-content: center;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-  color: var(--white);
+  background: linear-gradient(135deg, var(--accent-bg), var(--accent-dark));
+  color: var(--accent-text);
 }
 
-button::before, .btn::before {
+.btn::before,
+.install-app__button::before {
   content: '';
   position: absolute;
   top: 0;
@@ -1163,18 +1230,23 @@ button::before, .btn::before {
   transition: left 0.5s;
 }
 
-button:hover::before, .btn:hover::before {
+.btn:hover::before,
+.install-app__button:hover::before {
   left: 100%;
 }
 
-button:hover, button:focus, .btn:hover, .btn:focus {
+.btn:hover,
+.btn:focus,
+.install-app__button:hover,
+.install-app__button:focus {
   transform: translateY(-3px);
   box-shadow: var(--shadow-hover);
-  background: linear-gradient(135deg, var(--primary-dark), #003d70);
+  background: linear-gradient(135deg, var(--accent-dark), var(--accent-deep));
   text-decoration: none;
 }
 
-button:active, .btn:active {
+.btn:active,
+.install-app__button:active {
   transform: translateY(-1px);
 }
 
@@ -1212,7 +1284,7 @@ select:focus-visible {
 .site-title:visited,
 .site-title:hover,
 .site-title:focus {
-  color: var(--white);
+  color: var(--accent-text);
   text-decoration: none;
 }
 
@@ -1220,7 +1292,7 @@ nav a,
 nav a:visited,
 nav a:hover,
 nav a:focus {
-  color: var(--white);
+  color: var(--accent-text);
   text-decoration: none;
 }
 
@@ -1228,9 +1300,9 @@ nav a:focus {
 .quick-link-card:visited,
 .quick-link-card:hover,
 .quick-link-card:focus {
-  color: var(--white);
+  color: var(--accent-text);
   text-decoration: none;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  background: linear-gradient(135deg, var(--accent-bg), var(--accent-dark));
   border-radius: var(--border-radius);
   padding: 1rem;
   display: block;
@@ -1248,12 +1320,12 @@ nav a:focus {
 
 .quick-link-card:hover,
 .quick-link-card:focus {
-  background: linear-gradient(135deg, var(--primary-dark), #003d70);
+  background: linear-gradient(135deg, var(--accent-dark), var(--accent-deep));
 }
 
 .quick-link-card .quick-link-title {
   align-items: center;
-  color: var(--white);
+  color: var(--accent-text);
   display: inline-flex;
   gap: 0.5rem;
   justify-content: center;
@@ -1330,11 +1402,21 @@ nav a:focus {
 }
 
 .team-details,
-.pool-details,
-.meet-details {
+.pool-details {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+}
+
+.meet-details {
+  color: var(--text-muted);
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .detail-item {
@@ -1361,8 +1443,8 @@ nav a:focus {
 .meet-location-row {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .meet-time-row .results-link {
@@ -1778,9 +1860,9 @@ button.pool-filter__clear:focus-visible {
 .feature-pill {
   display: inline-block;
   padding: 0.25rem 0.75rem;
-  background-color: var(--feature-chip-bg, var(--feature-additional-bg));
-  border: 1px solid var(--feature-chip-border, var(--feature-additional-border));
-  color: var(--feature-chip-text, var(--feature-additional-text));
+  background-color: var(--feature-chip-bg, var(--feature-amenities-bg));
+  border: 1px solid var(--feature-chip-border, var(--feature-amenities-border));
+  color: var(--feature-chip-text, var(--feature-amenities-text));
   border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 500;
@@ -1889,7 +1971,7 @@ button.pool-filter__clear:focus-visible {
 .address-link:hover,
 .address-link:focus {
   color: var(--primary-dark);
-  background-color: rgba(0, 120, 212, 0.1);
+  background-color: var(--primary-soft-bg-strong);
   text-decoration: underline;
 }
 
@@ -1903,7 +1985,7 @@ button.pool-filter__clear:focus-visible {
   border-radius: 4px;
   padding: 4px 8px;
   border: 1px solid var(--primary-color);
-  background-color: rgba(0, 120, 212, 0.05);
+  background-color: var(--primary-soft-bg);
   font-weight: 500;
 }
 
@@ -1913,7 +1995,7 @@ button.pool-filter__clear:focus-visible {
   background-color: var(--primary-color);
   text-decoration: none;
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 120, 212, 0.3);
+  box-shadow: 0 2px 8px var(--primary-soft-shadow);
 }
 
 .ca-website-section {
@@ -2068,102 +2150,6 @@ button.pool-filter__clear:focus-visible {
   }
 }
 
-/* Enhanced Copilot Feature Styles */
-.highlighted-feature {
-  background: var(--highlight-bg, #fff3cd);
-  color: var(--highlight-text, #856404);
-  padding: 0.1rem 0.3rem;
-  border-radius: 0.2rem;
-  font-weight: 600;
-}
-
-.feature-tag {
-  display: inline-block;
-  background: var(--tag-bg, #e9ecef);
-  color: var(--tag-text, #495057);
-  padding: 0.25rem 0.5rem;
-  margin: 0.1rem;
-  border-radius: 0.8rem;
-  font-size: 0.85rem;
-  border: 1px solid var(--border-color, #dee2e6);
-}
-
-.feature-tag:hover {
-  background: var(--primary-color);
-  color: white;
-  cursor: pointer;
-}
-
-.features-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  margin: 0.5rem 0;
-}
-
-.pool-status {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.9rem;
-}
-
-.feature-result .pool-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
-.open-pools-section, .closed-pools-section {
-  margin: 1rem 0;
-}
-
-.open-pools-section h4 {
-  color: var(--success-text-color);
-  margin-bottom: 0.5rem;
-}
-
-.closed-pools-section h4 {
-  color: var(--error-text-color);
-  margin-bottom: 0.5rem;
-}
-
-.suggestions-section {
-  margin: 1rem 0;
-  padding: 1rem;
-  background: var(--card-bg, #f8f9fa);
-  border-radius: 0.5rem;
-  border: 1px solid var(--border-color, #dee2e6);
-}
-
-.suggestion-list {
-  list-style-type: none;
-  padding-left: 0;
-}
-
-.suggestion-list li {
-  padding: 0.25rem 0;
-  margin: 0.25rem 0;
-  padding-left: 1rem;
-  position: relative;
-}
-
-.suggestion-list li:before {
-  content: "💡";
-  position: absolute;
-  left: 0;
-}
-
-.action-buttons {
-  margin-top: 1rem;
-  text-align: center;
-}
-
-.practice-schedule {
-  margin: 0.5rem 0;
-}
-
 .session-item {
   display: flex;
   justify-content: space-between;
@@ -2186,26 +2172,10 @@ button.pool-filter__clear:focus-visible {
   margin-right: 90px;
 }
 
-.meet-item {
-  display: flex;
-  gap: 1rem;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid var(--border-color, #eee);
-}
-
-.meet-item:last-child {
-  border-bottom: none;
-}
-
 .meet-date {
   font-weight: 600;
   color: var(--primary-color);
   min-width: 5rem;
-}
-
-.meet-details {
-  flex: 1;
-  margin-bottom: 1rem;
 }
 
 .meet-location {
@@ -2220,7 +2190,7 @@ button.pool-filter__clear:focus-visible {
   gap: 0.5rem;
   margin-top: 0.5rem;
   padding: 0.4rem 0.6rem;
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--weather-info-bg);
   border-radius: 0.5rem;
   border: 1px solid var(--border-color);
   font-size: 0.85rem;
@@ -2266,18 +2236,18 @@ button.pool-filter__clear:focus-visible {
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
-  background: var(--primary-color, #1976d2);
-  color: white;
+  background: var(--accent-bg);
+  color: var(--accent-text);
   text-decoration: none;
   font-size: 1rem;
   transition: all 0.2s ease;
 }
 
 .results-link:hover {
-  background: var(--primary-dark, #1565c0);
+  background: var(--accent-dark);
   transform: scale(1.1);
   text-decoration: none;
-  color: white;
+  color: var(--accent-text);
 }
 
 /* Pool-specific Week Navigation Controls */
@@ -2332,7 +2302,7 @@ button.pool-filter__clear:focus-visible {
 }
 
 .calendar-btn:hover:not(:disabled) {
-  background-color: var(--background-light);
+  background-color: var(--light-bg);
   border-color: var(--primary-color);
 }
 
@@ -2385,30 +2355,7 @@ button.pool-filter__clear:focus-visible {
   border-color: var(--primary-color);
   outline: 2px solid var(--primary-color);
   outline-offset: 2px;
-  box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.1);
-}
-
-/* Legacy date picker styles - keep for compatibility */
-.date-picker-container {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-shrink: 0;
-}
-
-.calendar-icon-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.calendar-icon {
-  position: absolute;
-  left: 0.5rem;
-  font-size: 1rem;
-  z-index: 1;
-  pointer-events: none;
-  color: var(--text-dark);
+  box-shadow: 0 0 0 2px var(--primary-soft-bg-strong);
 }
 
 .nav-btn {
@@ -2431,10 +2378,10 @@ button.pool-filter__clear:focus-visible {
 
 .nav-btn:hover:not(:disabled),
 .nav-btn:focus:not(:disabled) {
-  background: var(--primary-color);
-  color: var(--white);
+  background: var(--accent-bg);
+  color: var(--accent-text);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 120, 212, 0.3);
+  box-shadow: 0 2px 8px var(--primary-soft-shadow);
 }
 
 .nav-btn:disabled {
@@ -2949,21 +2896,10 @@ button.pool-filter__clear:focus-visible {
   font-weight: bold;
 }
 
-/* Open/Closed Status Colors - Updated for better support */
 .open-status {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-}
-
-.pool-hours:has-text("🟢") .open-status,
-.pool-hours:contains("Open Now") .open-status {
-  color: var(--success-text-color);
-}
-
-.pool-hours:has-text("🔴") .open-status,
-.pool-hours:contains("Closed") .open-status {
-  color: var(--error-text-color);
 }
 
 /* Pool Collapsible Functionality */
@@ -3000,20 +2936,7 @@ button.pool-filter__clear:focus-visible {
 }
 
 .pool-status-indicator.gray {
-  background-color: #666666;
-}
-
-/* Legacy support */
-.pool-status-indicator.open {
-  background-color: var(--success-color);
-}
-
-.pool-status-indicator.warning {
-  background-color: var(--warning-color);
-}
-
-.pool-status-indicator.closed {
-  background-color: var(--error-color);
+  background-color: var(--neutral-status-color);
 }
 
 /* Status color classes for text elements */
@@ -3030,7 +2953,7 @@ button.pool-filter__clear:focus-visible {
 }
 
 .status-gray {
-  color: #666666;
+  color: var(--neutral-status-color);
 }
 
 .status-tbd {
@@ -3048,8 +2971,8 @@ button.pool-filter__clear:focus-visible {
 .status-tooltip .tooltip-text {
   visibility: hidden;
   width: 160px;
-  background-color: #333;
-  color: #fff;
+  background-color: var(--tooltip-bg);
+  color: var(--tooltip-text);
   text-align: center;
   border-radius: 6px;
   padding: 8px;
@@ -3073,7 +2996,7 @@ button.pool-filter__clear:focus-visible {
   margin-left: -5px;
   border-width: 5px;
   border-style: solid;
-  border-color: #333 transparent transparent transparent;
+  border-color: var(--tooltip-bg) transparent transparent transparent;
 }
 
 .status-tooltip:hover .tooltip-text {
@@ -3107,10 +3030,7 @@ button.pool-filter__clear:focus-visible {
 }
 
 /* Time slot highlighting based on pool status */
-.highlighted-time-slot-green,
-.time-start.highlighted-time-slot-green,
-.time-dash.highlighted-time-slot-green,
-.time-end.highlighted-time-slot-green {
+.highlighted-time-slot-green {
   background-color: var(--success-color) !important;
   color: var(--success-highlight-text-color) !important;
   padding: 0.2rem 0.4rem !important;
@@ -3118,40 +3038,17 @@ button.pool-filter__clear:focus-visible {
   font-weight: bold !important;
 }
 
-.highlighted-time-slot-yellow,
-.time-start.highlighted-time-slot-yellow,
-.time-dash.highlighted-time-slot-yellow,
-.time-end.highlighted-time-slot-yellow {
+.highlighted-time-slot-yellow {
   background-color: var(--warning-color) !important;
-  color: black !important;
+  color: var(--warning-highlight-text-color) !important;
   padding: 0.2rem 0.4rem !important;
   border-radius: 0.3rem !important;
   font-weight: bold !important;
 }
 
-.highlighted-time-slot-red,
-.time-start.highlighted-time-slot-red,
-.time-dash.highlighted-time-slot-red,
-.time-end.highlighted-time-slot-red {
+.highlighted-time-slot-red {
   background-color: var(--error-color) !important;
-  color: white !important;
-  padding: 0.2rem 0.4rem !important;
-  border-radius: 0.3rem !important;
-  font-weight: bold !important;
-}
-
-/* Test highlighting classes - temporary */
-.test-highlight-green {
-  background-color: var(--success-color) !important;
-  color: white !important;
-  padding: 0.2rem 0.4rem !important;
-  border-radius: 0.3rem !important;
-  font-weight: bold !important;
-}
-
-.test-highlight-yellow {
-  background-color: var(--warning-color) !important;
-  color: black !important;
+  color: var(--error-highlight-text-color) !important;
   padding: 0.2rem 0.4rem !important;
   border-radius: 0.3rem !important;
   font-weight: bold !important;
@@ -3176,39 +3073,32 @@ button.pool-filter__clear:focus-visible {
 
 /* Schedule Override Styles */
 .override-notice {
-  background-color: rgba(255, 193, 7, 0.15);
+  background-color: var(--warning-soft-bg);
   border-left: 4px solid var(--warning-color);
   padding: 0.5rem;
   margin: 0.5rem 0;
   font-size: 0.9rem;
   border-radius: 4px;
-  color: #856404;
+  color: var(--warning-text-color);
 }
 
 .override-slot {
-  background-color: rgba(255, 193, 7, 0.1);
+  background-color: var(--warning-soft-bg-muted);
   margin: 0.1rem 0;
 }
 
 .override-slot .time-range-container {
-  background-color: rgba(255, 193, 7, 0.3);
+  background-color: var(--warning-soft-bg-strong);
   font-weight: 600;
 }
 
-/* Highlighted pool card for URL parameter navigation */
-.pool-card.highlighted {
-  border: 2px solid var(--primary-color);
-  box-shadow: 0 0 15px rgba(0, 120, 212, 0.3);
-  transform: scale(1.02);
-  background-color: rgba(0, 120, 212, 0.05);
-}
-
-/* Highlighted team card for URL parameter navigation */
+/* Highlighted card for URL parameter navigation */
+.pool-card.highlighted,
 .team-card.highlighted {
   border: 2px solid var(--primary-color);
-  box-shadow: 0 0 15px rgba(0, 120, 212, 0.3);
+  box-shadow: 0 0 15px var(--primary-soft-shadow);
   transform: scale(1.02);
-  background-color: rgba(0, 120, 212, 0.05);
+  background-color: var(--primary-soft-bg);
 }
 
 /* Footer Styles */
@@ -3373,35 +3263,39 @@ button.pool-filter__clear:focus-visible {
 /* Individual Meet Items within Date Cards */
 .meet-item {
   background-color: var(--light-bg);
+  border-bottom: 1px solid var(--border-color);
   border-radius: var(--border-radius);
+  display: flex;
+  gap: 1rem;
   padding: 1rem;
   margin-bottom: 0.75rem;
   border-left: 3px solid var(--info-color);
 }
 
 .meet-item:last-child {
+  border-bottom: none;
   margin-bottom: 0;
 }
 
 .meet-item.meet-today {
   border-left-color: var(--success-color);
-  background: linear-gradient(135deg, var(--white), #f8fff9);
+  background: linear-gradient(135deg, var(--white), var(--meet-today-bg));
 }
 
 .meet-item.meet-upcoming {
   border-left-color: var(--info-color);
-  background: linear-gradient(135deg, var(--white), #f0faff);
+  background: linear-gradient(135deg, var(--white), var(--meet-upcoming-bg));
 }
 
 .meet-item.meet-past {
   border-left-color: var(--text-muted);
-  background: linear-gradient(135deg, var(--white), #f5f5f5);
+  background: linear-gradient(135deg, var(--white), var(--meet-past-bg));
   opacity: 0.8;
 }
 
 .meet-item.special-meet {
   border-left-color: var(--warning-color);
-  background: linear-gradient(135deg, var(--white), #fffef0);
+  background: linear-gradient(135deg, var(--white), var(--meet-special-bg));
 }
 
 .meet-name,
@@ -3410,14 +3304,6 @@ button.pool-filter__clear:focus-visible {
   color: var(--primary-text-color);
   margin-bottom: 0.5rem;
   font-size: 1.1rem;
-}
-
-.meet-details {
-  display: flex;
-  gap: 1rem;
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  flex-wrap: wrap;
 }
 
 /* Indent meet information on desktop */
@@ -3438,20 +3324,9 @@ button.pool-filter__clear:focus-visible {
   align-items: center;
 }
 
-.location-link {
-  color: var(--primary-color);
-  text-decoration: none;
-  transition: var(--transition);
-}
-
-.location-link:hover {
-  text-decoration: underline;
-  color: var(--primary-dark);
-}
-
 .today-tag {
   background-color: var(--success-color);
-  color: var(--white);
+  color: var(--accent-text);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.75rem;
@@ -3461,7 +3336,7 @@ button.pool-filter__clear:focus-visible {
 
 .tomorrow-tag {
   background-color: var(--warning-color);
-  color: var(--white);
+  color: var(--warning-highlight-text-color);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.75rem;
@@ -3560,17 +3435,14 @@ button.pool-filter__clear:focus-visible {
 
 .team-staff__name {
   display: block;
+  color: var(--text-dark);
+  font-weight: 600;
 }
 
 .team-staff__details {
   display: flex;
   align-items: center;
   gap: 0.375rem;
-}
-
-.team-staff__name {
-  color: var(--text-dark);
-  font-weight: 600;
 }
 
 .team-staff__separator,
@@ -3634,16 +3506,6 @@ button.pool-filter__clear:focus-visible {
   font-size: 0.85rem;
 }
 
-.season-info {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  font-style: italic;
-  margin-bottom: 0.75rem;
-
-  a {font-style: normal;}
-  .ca-links {margin-top: 10px;}
-}
-
 .practice-period {
   margin-bottom: 1rem;
 }
@@ -3671,7 +3533,7 @@ button.pool-filter__clear:focus-visible {
 
 .sessions {
   margin-top: 0.5rem;
-  background-color: rgba(0, 120, 212, 0.05);
+  background-color: var(--primary-soft-bg);
   border-radius: 6px;
   padding: 0.5rem;
 }
@@ -3681,6 +3543,10 @@ button.pool-filter__clear:focus-visible {
   color: var(--primary-color);
   text-decoration: none;
   transition: var(--transition);
+}
+
+.pool-link {
+  font-weight: 500;
 }
 
 .pool-link:hover,
@@ -3703,17 +3569,6 @@ button.pool-filter__clear:focus-visible {
   padding-top: 0;
 }
 
-.team-actions .btn {
-  color: var(--white) !important;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-}
-
-.team-actions .btn:hover {
-  color: var(--white) !important;
-  background: linear-gradient(135deg, var(--primary-dark), #003d70);
-  text-decoration: none;
-}
-
 /* Team Card Collapsible Functionality */
 .team-card {
   position: relative;
@@ -3734,30 +3589,6 @@ button.pool-filter__clear:focus-visible {
 
 .team-card.collapsed .team-header {
   margin-bottom: 0;
-}
-
-.btn-secondary {
-  background: var(--border-color) !important;
-  color: var(--text-color) !important;
-}
-
-.btn-secondary:hover {
-  background: var(--text-muted) !important;
-  color: var(--white) !important;
-  text-decoration: none;
-}
-
-/* Pool Link Styling */
-.pool-link {
-  font-weight: 500;
-  color: var(--primary-color);
-  text-decoration: none;
-  transition: var(--transition);
-}
-
-.pool-link:hover {
-  color: var(--primary-dark);
-  text-decoration: underline;
 }
 
 .maps-link {
@@ -3784,13 +3615,6 @@ button.pool-filter__clear:focus-visible {
 .link-separator {
   color: var(--text-muted);
   margin: 0 0.25rem;
-}
-
-/* Meet location enhancements */
-.meet-location-row {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
 }
 
 /* Welcome Section Mobile Responsive */
@@ -3850,8 +3674,8 @@ button.pool-filter__clear:focus-visible {
 }
 
 .cnsl-link-card {
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-  color: var(--white);
+  background: linear-gradient(135deg, var(--accent-bg), var(--accent-dark));
+  color: var(--accent-text);
   border-radius: var(--border-radius);
   padding: 1.5rem;
   text-align: center;
@@ -3885,8 +3709,8 @@ button.pool-filter__clear:focus-visible {
 
 .cnsl-link-btn:hover {
   background: transparent;
-  color: var(--white);
-  border-color: var(--white);
+  color: var(--accent-text);
+  border-color: var(--accent-text);
   transform: translateY(-1px);
 }
 
@@ -4006,21 +3830,21 @@ button.pool-filter__clear:focus-visible {
 }
 
 .btn-primary {
-  background: var(--primary-color);
-  color: var(--white);
+  background: var(--accent-bg);
+  color: var(--accent-text);
 }
 
 .btn-primary:visited {
-  background: var(--primary-color);
-  color: var(--white);
+  background: var(--accent-bg);
+  color: var(--accent-text);
 }
 
 .btn-primary:hover,
 .btn-primary:visited:hover {
-  background: var(--primary-dark);
-  color: var(--white);
+  background: var(--accent-dark);
+  color: var(--accent-text);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 120, 212, 0.3);
+  box-shadow: 0 2px 8px var(--primary-soft-shadow);
 }
 
 .btn-secondary {
@@ -4037,14 +3861,14 @@ button.pool-filter__clear:focus-visible {
 
 .btn-secondary:hover,
 .btn-secondary:visited:hover {
-  background: var(--primary-color);
-  color: var(--white);
+  background: var(--accent-bg);
+  color: var(--accent-text);
   transform: translateY(-1px);
 }
 
 .success-story {
-  background: linear-gradient(135deg, rgba(40, 167, 69, 0.05), rgba(40, 167, 69, 0.02));
-  border: 1px solid rgba(40, 167, 69, 0.2);
+  background: var(--success-story-bg);
+  border: 1px solid var(--success-story-border);
   border-radius: var(--border-radius);
   padding: 1.5rem;
   margin-top: 2rem;
