@@ -38,13 +38,23 @@
           </div>
         </div>
         <div class="pool-filter__controls" id="poolFeatureFilterControls" hidden>
-            <section class="pool-sort" id="poolSortControls" aria-label="Pool sorting" hidden>
-              <label class="pool-sort__label" for="poolSortOrder">Sort pools by</label>
-              <select class="pool-sort__select" id="poolSortOrder" name="poolSortOrder">
-                <option value="name">Default order</option>
-                <option value="distance">Nearest distance</option>
-              </select>
-            </section>
+            <div class="pool-filter__quick-controls">
+              <div class="pool-sort" id="poolAvailabilityControls">
+                <label class="pool-sort__label" for="poolAvailabilityFilter">Availability</label>
+                <select class="pool-sort__select" id="poolAvailabilityFilter" name="poolAvailabilityFilter">
+                  <option value="all">All pools</option>
+                  <option value="open-now">Open now</option>
+                  <option value="open-next-two-hours">Open for next 2 hours</option>
+                </select>
+              </div>
+              <section class="pool-sort" id="poolSortControls" aria-label="Pool sorting" hidden>
+                <label class="pool-sort__label" for="poolSortOrder">Sort pools by</label>
+                <select class="pool-sort__select" id="poolSortOrder" name="poolSortOrder">
+                  <option value="name">Default order</option>
+                  <option value="distance">Nearest distance</option>
+                </select>
+              </section>
+            </div>
             <fieldset class="pool-filter__fieldset">
               <legend class="visually-hidden">Select features required at a pool</legend>
               <div class="pool-filter__options" id="poolFeatureFilterOptions"></div>

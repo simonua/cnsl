@@ -323,6 +323,47 @@ test('pool feature filters expose their state and resulting count', async ({ pag
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).poolFeatureFilters)).toEqual([]);
 });
 
+test('pool availability filters show pools open now or for the next two hours', async ({ page }) => {
+  await page.route('**/assets/data/2026/pools/pools.json*', async route => {
+    const response = await route.fetch();
+    const poolData = await response.json();
+    poolData.pools.forEach((pool, index) => {
+      pool.schedules = [{
+        startDate: '2026-05-23',
+        endDate: '2026-09-07',
+        hours: [{
+          weekDays: ['Tue'],
+          startTime: '1:00PM',
+          endTime: index === 0 ? '6:00PM' : '4:00PM',
+          types: ['Rec Swim']
+        }]
+      }];
+      pool.scheduleOverrides = [];
+    });
+    await route.fulfill({ response, json: poolData });
+  });
+  await page.goto('/pools.html');
+  await page.evaluate(() => {
+    globalThis.TimeUtils.getCurrentEasternTimeInfo = () => ({
+      date: '2026-05-26', day: 'Tue', minutes: 15 * 60, isValid: true
+    });
+    globalThis.dispatchEvent(new globalThis.Event('cnsl:preferences-changed'));
+  });
+  await page.locator('#togglePoolFeatureFilters').click();
+
+  await page.selectOption('#poolAvailabilityFilter', 'open-now');
+  await expect(page.locator('#poolFilterSummary')).toHaveText('Showing 23 of 23 pools');
+
+  await page.selectOption('#poolAvailabilityFilter', 'open-next-two-hours');
+  await expect(page.locator('#poolFilterSummary')).toHaveText('Showing 1 of 23 pools');
+  await expect(page.locator('#poolList .pool-card')).toHaveCount(1);
+  await expect(page.locator('#poolFeatureFilterCount')).toHaveText('1 selected');
+
+  await page.locator('#clearPoolFeatureFilters').click();
+  await expect(page.locator('#poolAvailabilityFilter')).toHaveValue('all');
+  await expect(page.locator('#poolFilterSummary')).toHaveText('23 pools');
+});
+
 test('pool tile features are ordered by category then alphabetically', async ({ page }) => {
   await page.route('**/assets/data/2026/pools/pools.json*', async route => {
     const response = await route.fetch();

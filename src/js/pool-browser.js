@@ -3,6 +3,8 @@ let poolBrowserDataManager = null;
 let userCoords = null;
 let poolBrowserPools = [];
 let poolSortOrder = 'name';
+let poolAvailabilityFilter = 'all';
+const POOL_AVAILABILITY_FILTERS = new Set(['all', 'open-now', 'open-next-two-hours']);
 const PoolBrowserSafety = HtmlSafety;
 
 // Pool-specific week states (poolId -> Date)
@@ -518,12 +520,13 @@ function setupPoolFeatureFilters(pools) {
   });
   filterSection.hidden = availableFeatures.length === 0;
   filterSection.classList.toggle('pool-filter--collapsed', controls.hidden);
-  clearButton.hidden = selectedFeatures.length === 0;
+  clearButton.hidden = selectedFeatures.length === 0 && poolAvailabilityFilter === 'all';
 
   optionsContainer.onchange = handlePoolFeatureFilterChange;
   toggleButton.onclick = togglePoolFeatureFilters;
   filterSection.onclick = handlePoolFeatureFilterSurfaceClick;
   clearButton.onclick = clearPoolFeatureFilters;
+  setupPoolAvailabilityControl();
 }
 
 function handlePoolFeatureFilterSurfaceClick(event) {
@@ -574,11 +577,39 @@ function handlePoolFeatureFilterChange() {
 function clearPoolFeatureFilters() {
   const preferences = PreferencesService.get();
   PreferencesService.save({ ...preferences, poolFeatureFilters: [] });
+  poolAvailabilityFilter = 'all';
   if (preferences.poolFeatureFilters.length > 0 && window.cnslAnalytics) {
     window.cnslAnalytics.trackPublishedSettingChange('pool_feature_filters', [], new Set());
   }
   setupPoolFeatureFilters(poolBrowserPools);
   renderPools(poolBrowserPools);
+}
+
+/**
+ * Configure the clock-dependent availability filter without persisting it between visits.
+ */
+function setupPoolAvailabilityControl() {
+  const select = document.getElementById('poolAvailabilityFilter');
+  if (!select) return;
+
+  select.value = poolAvailabilityFilter;
+  select.onchange = handlePoolAvailabilityChange;
+}
+
+/**
+ * Filter the directory by published public-use hours around the current time.
+ * @param {Event} event - Availability select change event
+ */
+function handlePoolAvailabilityChange(event) {
+  const requestedFilter = event.target.value;
+  poolAvailabilityFilter = POOL_AVAILABILITY_FILTERS.has(requestedFilter) ? requestedFilter : 'all';
+  renderPools(poolBrowserPools);
+  const descriptions = {
+    all: 'all pools',
+    'open-now': 'pools open now',
+    'open-next-two-hours': 'pools open for the next 2 hours'
+  };
+  setPoolListStatus(`Pool directory filtered to ${descriptions[poolAvailabilityFilter]}.`, false);
 }
 
 /**
@@ -628,6 +659,21 @@ function updatePoolFilterSummary(matchingCount, totalCount, filterCount) {
 }
 
 /**
+ * Apply the selected live-availability requirement to matching pools.
+ * @param {Array} pools - Pools already matched by facility features
+ * @returns {Array} Pools matching the selected availability condition
+ */
+function filterPoolsByAvailability(pools) {
+  if (poolAvailabilityFilter === 'all' || !poolBrowserDataManager) return pools;
+
+  const requiredMinutes = poolAvailabilityFilter === 'open-next-two-hours' ? 120 : 0;
+  return pools.filter(pool => {
+    const poolModel = poolBrowserDataManager.getPool(pool.name);
+    return poolModel && poolModel.isOpenForNextMinutes(requiredMinutes);
+  });
+}
+
+/**
  * Renders the list of pools in the #poolList element
  * @param {Array} pools - Array of pool data objects (legacy format)
  */
@@ -654,13 +700,15 @@ function renderPools(pools) {
   const isInitialRender = expandedPoolIds.size === 0 && !list.querySelector('.pool-card');
   const preferences = PreferencesService.get();
   const favoritePoolName = preferences.favoritePoolName;
-  const filteredPools = PreferencesService.filterPoolsByFeatures(pools, preferences.poolFeatureFilters);
-  updatePoolFilterSummary(filteredPools.length, pools.length, preferences.poolFeatureFilters.length);
+  const matchingFeaturePools = PreferencesService.filterPoolsByFeatures(pools, preferences.poolFeatureFilters);
+  const filteredPools = filterPoolsByAvailability(matchingFeaturePools);
+  const activeFilterCount = preferences.poolFeatureFilters.length + (poolAvailabilityFilter === 'all' ? 0 : 1);
+  updatePoolFilterSummary(filteredPools.length, pools.length, activeFilterCount);
   if (filteredPools.length === 0) {
     list.innerHTML = `
       <div class="pool-filter__empty" role="status">
         <h2>No matching pools</h2>
-        <p>Try removing a selected feature.</p>
+        <p>Try changing availability or removing a selected feature.</p>
       </div>
     `;
     return;

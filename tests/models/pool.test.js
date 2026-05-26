@@ -2,6 +2,7 @@ const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const { createSamplePoolData, suppressConsole } = require('../helpers/test-helpers.js');
 const { PoolStatus } = require('../../src/js/types/pool-enums.js');
+const TimeUtils = require('../../src/js/services/time-utils.js');
 global.PoolStatus = PoolStatus;
 const Pool = require('../../src/js/models/pool.js');
 
@@ -110,6 +111,61 @@ describe('Pool', () => {
         { startTime: '2:00PM', endTime: '4:00PM', isOverride: true },
         { startTime: '4:00pm', endTime: '5:00PM', isOverride: false }
       ]);
+    });
+
+    it('requires continuous public-use hours for near-term availability', () => {
+      const originalGetCurrentEasternTimeInfo = TimeUtils.getCurrentEasternTimeInfo;
+      TimeUtils.getCurrentEasternTimeInfo = () => ({
+        date: '2026-05-26', day: 'Tue', minutes: 13 * 60, isValid: true
+      });
+
+      try {
+        const pool = new Pool(createSamplePoolData({
+          schedules: [{
+            startDate: '2026-05-23',
+            endDate: '2026-09-07',
+            hours: [
+              { weekDays: ['Tue'], startTime: '1:00PM', endTime: '2:00PM', types: ['Rec Swim'] },
+              { weekDays: ['Tue'], startTime: '2:00PM', endTime: '3:00PM', types: ['Closed to Public'] },
+              { weekDays: ['Tue'], startTime: '3:00PM', endTime: '5:00PM', types: ['Rec Swim'] }
+            ]
+          }]
+        }));
+
+        assert.equal(pool.isOpenForNextMinutes(), true);
+        assert.equal(pool.isOpenForNextMinutes(60), true);
+        assert.equal(pool.isOpenForNextMinutes(120), false);
+      } finally {
+        TimeUtils.getCurrentEasternTimeInfo = originalGetCurrentEasternTimeInfo;
+      }
+    });
+
+    it('applies dated overrides to live public availability', () => {
+      const originalGetCurrentEasternTimeInfo = TimeUtils.getCurrentEasternTimeInfo;
+      TimeUtils.getCurrentEasternTimeInfo = () => ({
+        date: '2026-05-26', day: 'Tue', minutes: 14 * 60, isValid: true
+      });
+
+      try {
+        const pool = new Pool(createSamplePoolData({
+          schedules: [{
+            startDate: '2026-05-23',
+            endDate: '2026-09-07',
+            hours: [{ weekDays: ['Tue'], startTime: '1:00PM', endTime: '5:00PM', types: ['Rec Swim'] }]
+          }],
+          scheduleOverrides: [{
+            startDate: '2026-05-26',
+            endDate: '2026-05-26',
+            reason: 'Private event',
+            hours: [{ weekDays: ['Tue'], startTime: '2:00PM', endTime: '3:00PM', types: ['Closed to Public'] }]
+          }]
+        }));
+
+        assert.equal(pool.getCurrentStatus(), PoolStatus.CLOSED_TO_PUBLIC);
+        assert.equal(pool.isOpenForNextMinutes(), false);
+      } finally {
+        TimeUtils.getCurrentEasternTimeInfo = originalGetCurrentEasternTimeInfo;
+      }
     });
   });
 

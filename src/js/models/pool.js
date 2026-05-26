@@ -276,53 +276,109 @@ if (typeof window === 'undefined') {
     const currentDay = easternTimeInfo.day.substring(0, 3); // Get short day name (Mon, Tue, etc.)
     const currentTime = easternTimeInfo.minutes;
 
-    // Find the current active schedule
-    const activeSchedule = this.legacySchedules.find(schedule => {
-      return currentDate >= schedule.startDate && currentDate <= schedule.endDate;
-    });
+    return this._getLegacyStatusAtMinutes(this._getLegacyTimeSlotsForDate(currentDate, currentDay), currentTime);
+  }
 
-    if (!activeSchedule || !activeSchedule.hours) {
-      return PoolStatusRef.CLOSED;
+  /**
+   * Check whether public-use hours cover now through the requested duration.
+   * @param {number} durationMinutes - Minutes of continuous availability required after now
+   * @returns {boolean} Whether the pool remains open to the public for that duration
+   */
+  isOpenForNextMinutes(durationMinutes = 0) {
+    if (!Number.isFinite(durationMinutes) || durationMinutes < 0) return false;
+
+    const TimeUtilsRef = this._getTimeUtils();
+    const PoolStatusRef = this._getPoolStatus();
+    if (!TimeUtilsRef || !PoolStatusRef) return false;
+
+    if (!this.legacySchedules) {
+      const now = TimeUtilsRef.getEasternTime();
+      const intervalMinutes = Math.max(1, durationMinutes);
+      for (let offset = 0; offset < intervalMinutes; offset += 1) {
+        const candidateTime = new Date(now.getTime() + (offset * TimeUtilsRef.MINUTES_PER_HOUR * 1000));
+        const status = this.schedule.getStatusAtTime(TimeUtilsRef.getDayName(candidateTime), candidateTime);
+        if (status !== PoolStatusRef.OPEN) return false;
+      }
+      return true;
     }
 
-    // Find today's hours
-    const todayHours = activeSchedule.hours.filter(h => 
-      h.weekDays && h.weekDays.includes(currentDay)
-    );
-    
-    if (!todayHours.length) {
-      return PoolStatusRef.CLOSED;
-    }
+    const easternTimeInfo = TimeUtilsRef.getCurrentEasternTimeInfo();
+    if (!easternTimeInfo.isValid) return false;
+    const requiredUntil = easternTimeInfo.minutes + durationMinutes;
+    if (requiredUntil > TimeUtilsRef.MINUTES_PER_DAY) return false;
 
-    // Check current time against all time slots
-    for (const hour of todayHours) {
-      // Skip time slots with invalid or missing start/end times
-      if (!hour.startTime || !hour.endTime || 
-          typeof hour.startTime !== 'string' || 
-          typeof hour.endTime !== 'string') {
-        console.warn(`[Pool] Skipping invalid time slot for ${this.name}:`, hour);
+    const timeSlots = this._getLegacyTimeSlotsForDate(easternTimeInfo.date, easternTimeInfo.day.substring(0, 3));
+    let coveredUntil = easternTimeInfo.minutes;
+    for (const slot of timeSlots) {
+      if (this._getLegacySlotStatus(slot) !== PoolStatusRef.OPEN) continue;
+      const startMinutes = TimeUtilsRef.timeStringToMinutes(slot.startTime);
+      const endMinutes = TimeUtilsRef.timeStringToMinutes(slot.endTime);
+      if (startMinutes > coveredUntil) break;
+      if (startMinutes <= coveredUntil && endMinutes > coveredUntil) {
+        coveredUntil = endMinutes;
+        if (coveredUntil >= requiredUntil) return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Find published or overriding slots for a calendar day.
+   * @private
+   * @param {string} dateString - Date in YYYY-MM-DD format
+   * @param {string} shortDay - Day abbreviation
+   * @returns {Array} Ordered time slots
+   */
+  _getLegacyTimeSlotsForDate(dateString, shortDay) {
+    const activeSchedule = this.legacySchedules.find(schedule => (
+      dateString >= schedule.startDate && dateString <= schedule.endDate
+    ));
+    const overrideForDate = this._getScheduleOverrideForDate(dateString, shortDay);
+    if (overrideForDate) return this._mergeScheduleWithOverride(activeSchedule, shortDay, overrideForDate);
+    if (!activeSchedule || !activeSchedule.hours) return [];
+
+    return activeSchedule.hours.filter(hour => hour.weekDays && hour.weekDays.includes(shortDay));
+  }
+
+  /**
+   * Resolve public access for a legacy schedule slot.
+   * @private
+   * @param {Object} slot - Published schedule slot
+   * @returns {PoolStatus} Access status represented by the slot
+   */
+  _getLegacySlotStatus(slot) {
+    const PoolStatusRef = this._getPoolStatus();
+    const TimeUtilsRef = this._getTimeUtils();
+    if (!PoolStatusRef || !TimeUtilsRef) return { isOpen: false, color: 'gray' };
+
+    const activityTypes = TimeUtilsRef.formatActivityTypes(slot.types || slot.activities).toLowerCase();
+    if (activityTypes.includes('closed to public')) return PoolStatusRef.CLOSED_TO_PUBLIC;
+    if (activityTypes.includes('cnsl practice only')) return PoolStatusRef.PRACTICE_ONLY;
+    if (activityTypes.includes('swim meet')) return PoolStatusRef.SWIM_MEET;
+    return PoolStatusRef.OPEN;
+  }
+
+  /**
+   * Resolve status for a point within legacy schedule slots.
+   * @private
+   * @param {Array} timeSlots - Applicable slots for the date
+   * @param {number} currentTime - Minute of day to inspect
+   * @returns {PoolStatus} Current access status
+   */
+  _getLegacyStatusAtMinutes(timeSlots, currentTime) {
+    const PoolStatusRef = this._getPoolStatus();
+    const TimeUtilsRef = this._getTimeUtils();
+    if (!PoolStatusRef || !TimeUtilsRef) return { isOpen: false, color: 'gray' };
+
+    for (const slot of timeSlots) {
+      if (!slot.startTime || !slot.endTime || typeof slot.startTime !== 'string' || typeof slot.endTime !== 'string') {
+        console.warn(`[Pool] Skipping invalid time slot for ${this.name}:`, slot);
         continue;
       }
-      
-      const startMinutes = TimeUtilsRef.timeStringToMinutes(hour.startTime);
-      const endMinutes = TimeUtilsRef.timeStringToMinutes(hour.endTime);
-      
-      if (currentTime >= startMinutes && currentTime < endMinutes) {
-        // Check activity types to determine access level
-        const activityTypes = TimeUtilsRef.formatActivityTypes(hour.types).toLowerCase();
-        
-        if (activityTypes.includes('closed to public')) {
-          return PoolStatusRef.CLOSED_TO_PUBLIC;
-        } else if (activityTypes.includes('cnsl practice only')) {
-          return PoolStatusRef.PRACTICE_ONLY;
-        } else if (activityTypes.includes('swim meet')) {
-          return PoolStatusRef.SWIM_MEET;
-        } else {
-          return PoolStatusRef.OPEN;
-        }
-      }
+      const startMinutes = TimeUtilsRef.timeStringToMinutes(slot.startTime);
+      const endMinutes = TimeUtilsRef.timeStringToMinutes(slot.endTime);
+      if (currentTime >= startMinutes && currentTime < endMinutes) return this._getLegacySlotStatus(slot);
     }
-
     return PoolStatusRef.CLOSED;
   }
 
