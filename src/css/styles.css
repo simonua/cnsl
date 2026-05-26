@@ -582,6 +582,10 @@ button.release-notice__close:focus {
   display: none;
 }
 
+.weather-alert--collapsed .weather-alert__inner {
+  padding-bottom: 0.8rem;
+}
+
 .weather-alert--collapsed .weather-alert__toggle {
   background: var(--weather-alert-action);
   border: 1px solid var(--weather-alert-action-text);
@@ -608,7 +612,7 @@ button.release-notice__close:focus {
   }
 
   .weather-alert--collapsed .weather-alert__inner {
-    padding-bottom: 0.25rem;
+    padding-bottom: 0.4rem;
   }
 
   .weather-alert__copy {
@@ -850,12 +854,10 @@ main h1 {
 
 .install-app__toggle-icon {
   display: inline-flex;
-  transform: rotate(180deg);
-  transition: transform var(--transition);
 }
 
-.install-app[open] .install-app__toggle-icon {
-  transform: none;
+.install-app:not([open]) .install-app__toggle-icon {
+  transform: rotate(180deg);
 }
 
 .install-app__summary:hover {
