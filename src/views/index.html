@@ -51,9 +51,9 @@
     <include src="components/quick-links.html"></include>
     <section class="favorite-week" id="favoriteWeek" aria-labelledby="favoriteWeekTitle" hidden>
       <div class="favorite-week__heading">
-        <h2><button class="favorite-week__toggle" id="favoriteWeekToggle" type="button" aria-expanded="true" aria-controls="favoriteWeekContent"><span id="favoriteWeekTitle">Your team's upcoming events</span></button></h2>
+        <h2><button class="favorite-week__toggle" id="favoriteWeekToggle" type="button" aria-expanded="true" aria-controls="favoriteWeekContent"><span class="favorite-week__toggle-icon" aria-hidden="true">&#9650;</span><span id="favoriteWeekTitle">Your team's upcoming events</span></button></h2>
       </div>
-      <div id="favoriteWeekContent">
+      <div class="favorite-week__content" id="favoriteWeekContent">
         <a href="teams.html" class="favorite-week__directory-link">Team details</a>
         <p class="favorite-week__status" id="favoriteWeekStatus" role="status" aria-live="polite">Loading your team's schedule.</p>
         <div id="favoriteWeekSchedule"></div>

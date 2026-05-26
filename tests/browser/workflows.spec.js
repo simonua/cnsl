@@ -896,14 +896,18 @@ test('desktop weather safety alerts restore collapsed details on every page', as
     await expect(page.getByRole('button', { name: 'Expand weather safety alert' })).toBeVisible();
   }
 
+  const collapsedAlertBox = await page.locator('#weatherAlert').boundingBox();
   const collapsedTitleBox = await page.locator('.weather-alert__title').boundingBox();
   const collapsedToggleBox = await page.getByRole('button', { name: 'Expand weather safety alert' }).boundingBox();
   await page.getByRole('button', { name: 'Expand weather safety alert' }).click();
   await expect(page.locator('#weatherAlertDetails')).toBeVisible();
   await expect(page.getByRole('link', { name: 'Live pool status' })).toBeVisible();
+  const expandedAlertBox = await page.locator('#weatherAlert').boundingBox();
   const expandedTitleBox = await page.locator('.weather-alert__title').boundingBox();
   const expandedToggleBox = await page.getByRole('button', { name: 'Collapse weather safety alert' }).boundingBox();
   const expandedActionBox = await page.getByRole('link', { name: 'Live pool status' }).boundingBox();
+  expect(collapsedAlertBox.height).toBeCloseTo(70, 1);
+  expect(expandedAlertBox.height).toBe(collapsedAlertBox.height);
   expect(expandedTitleBox.y).toBe(collapsedTitleBox.y);
   expect(expandedTitleBox.height).toBe(collapsedTitleBox.height);
   expect(collapsedToggleBox.height).toBe(collapsedTitleBox.height);
