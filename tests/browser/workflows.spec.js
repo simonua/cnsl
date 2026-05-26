@@ -773,17 +773,24 @@ test('desktop site header remains visible while the pool directory scrolls', asy
   expect(headerTop).toBe(0);
 });
 
-test('settings dialog remains centered in the viewport', async ({ page }) => {
-  for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 800 }]) {
-    await page.setViewportSize(viewport);
-    await page.goto('/settings.html');
-    const dialog = page.locator('#settingsDialog');
-    await expect(dialog).toBeVisible();
-    const bounds = await dialog.boundingBox();
+test('settings dialog is right-aligned on mobile and centered on desktop', async ({ page }) => {
+  const mobileViewport = { width: 390, height: 844 };
+  await page.setViewportSize(mobileViewport);
+  await page.goto('/settings.html');
+  const dialog = page.locator('#settingsDialog');
+  await expect(dialog).toBeVisible();
+  let bounds = await dialog.boundingBox();
 
-    expect(Math.abs(bounds.x + (bounds.width / 2) - (viewport.width / 2))).toBeLessThanOrEqual(1);
-    expect(Math.abs(bounds.y + (bounds.height / 2) - (viewport.height / 2))).toBeLessThanOrEqual(1);
-  }
+  expect(Math.abs(bounds.x + bounds.width - mobileViewport.width)).toBeLessThanOrEqual(1);
+  expect(Math.abs(bounds.y + (bounds.height / 2) - (mobileViewport.height / 2))).toBeLessThanOrEqual(1);
+
+  const desktopViewport = { width: 1280, height: 800 };
+  await page.setViewportSize(desktopViewport);
+  await page.goto('/settings.html');
+  bounds = await dialog.boundingBox();
+
+  expect(Math.abs(bounds.x + (bounds.width / 2) - (desktopViewport.width / 2))).toBeLessThanOrEqual(1);
+  expect(Math.abs(bounds.y + (bounds.height / 2) - (desktopViewport.height / 2))).toBeLessThanOrEqual(1);
 });
 
 test('settings persist choices locally and announce clearing saved settings', async ({ page }) => {

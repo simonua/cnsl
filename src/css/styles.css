@@ -4325,6 +4325,7 @@ button.settings-dialog__close:focus {
 
 @media (max-width: 480px) {
   .settings-dialog {
+    margin: auto 0 auto auto;
     max-height: calc(100dvh - 1rem);
     width: calc(100% - 1rem);
   }
