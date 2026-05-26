@@ -1,5 +1,46 @@
-(function initializeSettingsPage() {
+(function initializeSettingsDialog() {
   'use strict';
+
+  const dependencyScripts = [
+    { source: 'js/services/time-utils.js', ready: () => Boolean(window.TimeUtils) },
+    { source: 'js/types/pool-enums.js', ready: () => Boolean(window.PoolStatus) },
+    { source: 'js/pool-schedule.js', ready: () => Boolean(window.PoolSchedule) },
+    { source: 'js/models/pool.js', ready: () => Boolean(window.Pool) },
+    { source: 'js/pools-manager.js', ready: () => Boolean(window.PoolsManager) },
+    { source: 'js/teams-manager.js', ready: () => Boolean(window.TeamsManager) },
+    { source: 'js/services/file-helper.js', ready: () => Boolean(window.FileHelper) },
+    { source: 'js/services/data-manager.js', ready: () => Boolean(window.DataManager) }
+  ];
+
+  function loadScript(dependency) {
+    if (dependency.ready()) return Promise.resolve();
+
+    return new Promise((resolve, reject) => {
+      const existing = Array.from(document.scripts).find(script => script.getAttribute('src') === dependency.source);
+      const script = existing || document.createElement('script');
+      const handleLoad = () => {
+        if (dependency.ready()) {
+          resolve();
+        } else {
+          reject(new Error(`Settings dependency did not initialize: ${dependency.source}`));
+        }
+      };
+      const handleError = () => reject(new Error(`Unable to load settings dependency: ${dependency.source}`));
+
+      script.addEventListener('load', handleLoad, { once: true });
+      script.addEventListener('error', handleError, { once: true });
+      if (!existing) {
+        script.src = dependency.source;
+        document.body.appendChild(script);
+      }
+    });
+  }
+
+  async function ensureDataDependencies() {
+    for (const dependency of dependencyScripts) {
+      await loadScript(dependency);
+    }
+  }
 
   function populateSelect(select, items, emptyText, getValue, getLabel) {
     select.innerHTML = '';
@@ -69,17 +110,57 @@
     if (existing.favoriteTeamId !== cleared.favoriteTeamId) trackPublishedSettingChange('favorite_team', cleared.favoriteTeamId, publishedTeamIds);
   }
 
-  document.addEventListener('DOMContentLoaded', async () => {
+  document.addEventListener('DOMContentLoaded', () => {
+    const dialog = document.getElementById('settingsDialog');
     const form = document.getElementById('settingsForm');
-    if (!form) return;
+    if (!dialog || !form) return;
 
     const favoriteTeam = document.getElementById('favoriteTeam');
     const favoritePool = document.getElementById('favoritePool');
     const status = document.getElementById('settingsStatus');
+    const closeButton = document.getElementById('closeSettings');
     const publishedTeamIds = new Set();
     const publishedPoolNames = new Set();
-    const preferences = PreferencesService.get();
-    applyFormValues(form, preferences);
+    let optionsPromise = null;
+    let restoreFocusTo = null;
+    let preferencesChanged = false;
+
+    applyFormValues(form, PreferencesService.get());
+
+    async function loadFavoriteOptions() {
+      if (optionsPromise) return optionsPromise;
+
+      optionsPromise = (async () => {
+        try {
+          await ensureDataDependencies();
+          const dataManager = getDataManager();
+          await dataManager.initialize(['pools', 'teams']);
+          const teams = dataManager.getTeams().getAllTeams().sort((first, second) => first.name.localeCompare(second.name));
+          const pools = dataManager.getPools().getAllPools().sort((first, second) => first.getName().localeCompare(second.getName()));
+
+          teams.forEach(team => publishedTeamIds.add(team.id));
+          pools.forEach(pool => publishedPoolNames.add(pool.getName()));
+
+          populateSelect(favoriteTeam, teams, 'No favorite team', team => team.id, team => team.name);
+          populateSelect(favoritePool, pools, 'No favorite pool', pool => pool.getName(), pool => pool.getName());
+          applyFormValues(form, PreferencesService.get());
+        } catch (error) {
+          console.error('Unable to load setting options:', error);
+          status.textContent = 'Team and pool choices are temporarily unavailable. Other settings still apply automatically.';
+        }
+      })();
+      return optionsPromise;
+    }
+
+    function openSettingsDialog(trigger) {
+      if (typeof window.closeMenu === 'function') window.closeMenu(false);
+      restoreFocusTo = trigger && trigger.closest('#navMenu') ? document.querySelector('.hamburger') : trigger;
+      status.textContent = '';
+      applyFormValues(form, PreferencesService.get());
+      if (!dialog.open) dialog.showModal();
+      closeButton.focus();
+      loadFavoriteOptions();
+    }
 
     form.addEventListener('change', event => {
       const theme = form.querySelector('input[name="theme"]:checked');
@@ -99,26 +180,9 @@
       });
       trackChangedFormSetting(event.target, existing, saved, publishedPoolNames, publishedTeamIds);
       window.applyPreferenceTheme(saved);
-      window.dispatchEvent(new CustomEvent('cnsl:preferences-changed'));
+      preferencesChanged = preferencesChanged || JSON.stringify(existing) !== JSON.stringify(saved);
       status.textContent = '';
     });
-
-    try {
-      const dataManager = getDataManager();
-      await dataManager.initialize(['pools', 'teams']);
-      const teams = dataManager.getTeams().getAllTeams().sort((first, second) => first.name.localeCompare(second.name));
-      const pools = dataManager.getPools().getAllPools().sort((first, second) => first.getName().localeCompare(second.getName()));
-
-      teams.forEach(team => publishedTeamIds.add(team.id));
-      pools.forEach(pool => publishedPoolNames.add(pool.getName()));
-
-      populateSelect(favoriteTeam, teams, 'No favorite team', team => team.id, team => team.name);
-      populateSelect(favoritePool, pools, 'No favorite pool', pool => pool.getName(), pool => pool.getName());
-      applyFormValues(form, PreferencesService.get());
-    } catch (error) {
-      console.error('Unable to load setting options:', error);
-      status.textContent = 'Team and pool choices are temporarily unavailable. Appearance can still be saved.';
-    }
 
     document.getElementById('clearSettings').addEventListener('click', () => {
       const existing = PreferencesService.get();
@@ -127,8 +191,27 @@
       trackClearedSettings(existing, cleared, publishedPoolNames, publishedTeamIds);
       applyFormValues(form, cleared);
       window.applyPreferenceTheme(cleared);
-      window.dispatchEvent(new CustomEvent('cnsl:preferences-changed'));
+      preferencesChanged = preferencesChanged || JSON.stringify(existing) !== JSON.stringify(cleared);
       status.textContent = 'Saved settings removed from this device.';
     });
+
+    closeButton.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('close', () => {
+      if (preferencesChanged) {
+        window.dispatchEvent(new CustomEvent('cnsl:preferences-changed', { detail: { source: 'settings-dialog' } }));
+        preferencesChanged = false;
+      }
+      if (restoreFocusTo && restoreFocusTo.isConnected) restoreFocusTo.focus();
+    });
+
+    document.addEventListener('click', event => {
+      const trigger = event.target.closest('a[href="settings.html"], [data-settings-open]');
+      if (!trigger) return;
+      event.preventDefault();
+      openSettingsDialog(trigger);
+    });
+
+    const automaticLauncher = document.querySelector('[data-settings-auto-open]');
+    if (automaticLauncher) openSettingsDialog(automaticLauncher);
   });
 }());

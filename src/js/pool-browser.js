@@ -986,6 +986,19 @@ function setupPoolNavigationHandlers() {
   document.addEventListener('change', handlePoolDatePickerChange);
 }
 
+function refreshPoolsForPreferences() {
+  if (!document.getElementById('poolList') || poolBrowserPools.length === 0) return;
+
+  if (!PreferencesService.get().locationAwarenessEnabled) {
+    userCoords = null;
+    poolSortOrder = 'name';
+    setupPoolSortControl();
+  }
+  setupPoolFeatureFilters(poolBrowserPools);
+  renderPools(poolBrowserPools);
+  if (PreferencesService.get().locationAwarenessEnabled && !userCoords) getUserLocation();
+}
+
 /**
  * Handle clicks on pool navigation buttons
  * @param {Event} event - Click event
@@ -1130,6 +1143,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     setPoolListStatus('Pool information is currently unavailable. Please try again later.', false);
   }
 });
+
+window.addEventListener('cnsl:preferences-changed', refreshPoolsForPreferences);
 
 // Make functions available globally
 window.getMondayOfWeek = getMondayOfWeek;

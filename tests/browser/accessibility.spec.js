@@ -79,6 +79,12 @@ for (const theme of ['light', 'dark']) {
           }));
         }
 
+        if (scenario.name === 'teams') {
+          const sundevilsToggle = page.locator('.team-card[data-team-id="cfhss"] .team-header__toggle');
+          if (await sundevilsToggle.getAttribute('aria-expanded') !== 'true') await sundevilsToggle.click();
+          await expect(page.getByRole('link', { name: 'Team Calendar' })).toBeVisible();
+        }
+
         const results = await new AxeBuilder({ page })
           .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
           .analyze();

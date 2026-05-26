@@ -323,6 +323,7 @@ function renderTeams(teams) {
     const detailsId = `team-details-${String(teamId || teamName).replace(/[^a-zA-Z0-9_-]/g, '-')}`;
     const teamUrl = TeamsBrowserSafety.safeHttpUrl(team.url);
     const practiceUrl = TeamsBrowserSafety.safeHttpUrl(team.practice && team.practice.url);
+    const calendarUrl = TeamsBrowserSafety.safeHttpUrl(team.calendarUrl);
     const resultsUrl = TeamsBrowserSafety.safeHttpUrl(team.resultsUrl);
     const isFavorite = teamId === favoriteTeamId;
     const isExpanded = isFavorite && favoriteTeamExpanded;
@@ -410,10 +411,14 @@ function renderTeams(teams) {
           
           ${practiceScheduleHtml}
           
-          ${practiceUrl || resultsUrl ? `
+          ${practiceUrl || calendarUrl || resultsUrl ? `
             <div class="team-actions">
               ${practiceUrl ? 
                 `<a href="${practiceUrl}" target="_blank" rel="noopener" class="btn">📅 Practice Schedule</a>` : 
+                ''
+              }
+              ${calendarUrl ?
+                `<a href="${calendarUrl}" target="_blank" rel="noopener" class="btn">📅 Team Calendar</a>` :
                 ''
               }
               ${resultsUrl ? 
@@ -428,6 +433,11 @@ function renderTeams(teams) {
   }).join('');
 
     list.innerHTML = html;
+}
+
+function refreshTeamsForPreferences() {
+  if (!teamsBrowserDataManager || !document.getElementById('teamList')) return;
+  renderTeams(teamsBrowserDataManager.getTeams().getAllTeams());
 }
 
 /**
@@ -550,3 +560,5 @@ document.addEventListener("DOMContentLoaded", async () => {
     setTeamListStatus('Team information is currently unavailable. Please try again later.', false);
   }
 });
+
+window.addEventListener('cnsl:preferences-changed', refreshTeamsForPreferences);

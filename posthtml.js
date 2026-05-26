@@ -133,6 +133,11 @@ const authorizeInlineStructuredDataPlugin = (tree) => {
 
 const srcDir = './src/views';
 const outDir = './out';
+const annualDataSourceDir = './src/assets/data';
+const activeSeason = String(appConfig.YEAR);
+const unpublishedSeasonDirectories = fs.readdirSync(annualDataSourceDir, { withFileTypes: true })
+  .filter(entry => entry.isDirectory() && entry.name !== activeSeason)
+  .map(entry => `data/${entry.name}`);
 
 // Clean and create output directory
 deleteDir(outDir);
@@ -142,6 +147,7 @@ fs.mkdirSync(outDir, { recursive: true });
 // Copy assets directory (excluding large file directories)
 console.log(`📁 [${timestamp()}] Copying assets directory...`);
 copyDir('./src/assets', path.join(outDir, 'assets'), [
+  ...unpublishedSeasonDirectories,
   `data/${appConfig.YEAR}/pools/pool-schedules`,
   `data/${appConfig.YEAR}/meets/meet-schedules`,
   `data/${appConfig.YEAR}/teams/team-schedules`,

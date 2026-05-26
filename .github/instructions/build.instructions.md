@@ -36,7 +36,8 @@ Run `.\start.ps1` (Windows) or `./start.sh` (macOS/Linux) for an interactive men
    - Copies required root static files (`manifest.webmanifest`, `browserconfig.xml`, `robots.txt`, `sitemap.xml`, and `LICENSE`) and copies optional `CNAME` only when configured
    - Generates a precache inventory from the delivered artifact and updates `service-worker.js` with a build cache version
    - Processes HTML with PostHTML (extend + include plugins)
-   - Excludes `data/2025/` and `images/logos/originals/` from copy
+   - Publishes only `data/<YEAR>/` for the configured active season; all other annual data folders are excluded
+   - Excludes retained active-season PDF evidence directories and `images/logos/originals/` from copy
 
 ## Output
 
@@ -51,6 +52,7 @@ Run `.\start.ps1` (Windows) or `./start.sh` (macOS/Linux) for an interactive men
 - Test files follow the pattern `tests/**/*.test.js`.
 - Services and models export via `module.exports` for Node.js test access.
 - Choose local checks by affected behavior while iterating; do not run the complete test suite for a documentation-only change or an isolated edit already covered by one focused test file.
+- Run `pnpm run lint` whenever executable JavaScript, JavaScript configuration, build scripts, or automation scripts change; combine it with the focused behavior check below when applicable.
 
 | Change Scope | Local Iteration Check | When To Widen Coverage |
 |---|---|---|
@@ -69,3 +71,5 @@ Run `.\start.ps1` (Windows) or `./start.sh` (macOS/Linux) for an interactive men
 - ESLint 10+ with flat config (`eslint.config.js`).
 - Three environments: browser JS (`src/js/`), Node build scripts, service worker.
 - App globals (jQuery, DataManager, etc.) are declared in the ESLint config.
+- A lint failure blocks the GitHub build and must be resolved before deployment.
+- Values exposed by `src/js/config/app-config.js` should be read from `globalThis` or `window` in browser scripts unless an intentional bare script global is also declared in `eslint.config.js`.

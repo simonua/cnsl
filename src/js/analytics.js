@@ -31,8 +31,7 @@
     if (!allowedValues || !allowedValues.has(normalizedValue)) return;
 
     publishEvent('ca_setting_change', {
-      setting_name: settingName,
-      setting_value: normalizedValue
+      setting_name: settingName
     });
   }
 
@@ -44,8 +43,7 @@
     if (normalizedValues.some(value => !publishedValues.has(value))) return;
 
     publishEvent('ca_setting_change', {
-      setting_name: settingName,
-      setting_value: normalizedValues.length > 0 ? normalizedValues.join('|') : 'none'
+      setting_name: settingName
     });
   }
 
@@ -102,7 +100,7 @@
     ad_storage: 'denied',
     ad_user_data: 'denied',
     ad_personalization: 'denied',
-    analytics_storage: 'granted'
+    analytics_storage: 'denied'
   });
   window.gtag('set', 'ads_data_redaction', true);
   window.gtag('set', {

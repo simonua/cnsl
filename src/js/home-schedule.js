@@ -2,7 +2,36 @@
  * Shows the selected team's practices and meets for the coming seven days.
  */
 (function initializeHomeSchedule() {
-  const ScheduleSafety = HtmlSafety;
+  const AGENDA_DEPENDENCIES = [
+    'js/services/html-safety.js',
+    'js/teams-manager.js',
+    'js/meets-manager.js',
+    'js/services/file-helper.js',
+    'js/services/data-manager.js',
+    'js/services/team-schedule-service.js'
+  ];
+  let dependenciesPromise;
+
+  function loadScript(source) {
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = source;
+      script.dataset.homeScheduleDependency = source;
+      script.addEventListener('load', resolve, { once: true });
+      script.addEventListener('error', () => reject(new Error(`Unable to load ${source}.`)), { once: true });
+      document.head.appendChild(script);
+    });
+  }
+
+  function loadAgendaDependencies() {
+    if (!dependenciesPromise) {
+      dependenciesPromise = AGENDA_DEPENDENCIES.reduce(
+        (loadPromise, source) => loadPromise.then(() => loadScript(source)),
+        Promise.resolve()
+      );
+    }
+    return dependenciesPromise;
+  }
 
   function startOfDay(value) {
     const date = new Date(value);
@@ -42,28 +71,39 @@
 
     container.innerHTML = `<ol class="favorite-week__days">${[...days.values()].map(day => `
       <li class="favorite-week__day">
-        <h3>${ScheduleSafety.escapeHtml(formatDay(day.date))}</h3>
+        <h3>${HtmlSafety.escapeHtml(formatDay(day.date))}</h3>
         <ul class="favorite-week__events">${day.events.map(event => `
           <li>
-            <strong>${ScheduleSafety.escapeHtml(event.label)}</strong>
-            ${event.teams ? `<span>${ScheduleSafety.escapeHtml(event.teams)}</span>` : ''}
-            ${event.sessions.map(session => `<span>${ScheduleSafety.escapeHtml(session.group)}: ${ScheduleSafety.escapeHtml(session.time)}</span>`).join('')}
-            <span>${ScheduleSafety.escapeHtml(event.location)}</span>
+            <strong>${HtmlSafety.escapeHtml(event.label)}</strong>
+            ${event.teams ? `<span>${HtmlSafety.escapeHtml(event.teams)}</span>` : ''}
+            ${event.sessions.map(session => `<span>${HtmlSafety.escapeHtml(session.group)}: ${HtmlSafety.escapeHtml(session.time)}</span>`).join('')}
+            <span>${HtmlSafety.escapeHtml(event.location)}</span>
           </li>
         `).join('')}</ul>
       </li>
     `).join('')}</ol>`;
   }
 
-  document.addEventListener('DOMContentLoaded', async () => {
+  async function renderFavoriteWeek() {
     const section = document.getElementById('favoriteWeek');
     const status = document.getElementById('favoriteWeekStatus');
     const schedule = document.getElementById('favoriteWeekSchedule');
     const favoriteTeamId = PreferencesService.get().favoriteTeamId;
-    if (!section || !status || !schedule || !favoriteTeamId) return;
+    if (!section || !status || !schedule) return;
+
+    if (!favoriteTeamId) {
+      section.hidden = true;
+      schedule.replaceChildren();
+      return;
+    }
 
     section.hidden = false;
+    status.textContent = 'Loading your team\'s schedule.';
+    schedule.replaceChildren();
     try {
+      await loadAgendaDependencies();
+      if (PreferencesService.get().favoriteTeamId !== favoriteTeamId) return;
+
       const dataManager = getDataManager();
       await dataManager.initialize(['teams', 'meets']);
       const team = PreferencesService.findFavoriteTeam(dataManager.getTeams().getAllTeams(), favoriteTeamId);
@@ -88,5 +128,8 @@
       console.error('Failed to load favorite team schedule:', error);
       status.textContent = 'Your team schedule is currently unavailable. Please try again later.';
     }
-  });
+  }
+
+  document.addEventListener('DOMContentLoaded', renderFavoriteWeek);
+  window.addEventListener('cnsl:preferences-changed', renderFavoriteWeek);
 })();

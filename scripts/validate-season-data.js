@@ -120,6 +120,9 @@ function collectIntegrityErrors({ meetsData, poolsData, season, teamsData }) {
     if (team.resultsUrl) {
       validateHttpsUrl(errors, `${team.name} results URL`, team.resultsUrl);
     }
+    if (team.calendarUrl) {
+      validateHttpsUrl(errors, `${team.name} calendar URL`, team.calendarUrl);
+    }
     validateHttpsUrl(errors, `${team.name} staff source URL`, team.staff.sourceUrl);
     if (team.practice && team.practice.url) {
       validateHttpsUrl(errors, `${team.name} practice URL`, team.practice.url);

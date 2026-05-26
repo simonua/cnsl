@@ -7,76 +7,8 @@
   </block>
   <block name="content">
     <h1>Settings</h1>
-    <section class="settings-layout" aria-label="Application preferences">
-      <form class="settings-form" id="settingsForm">
-        <fieldset class="settings-group">
-          <legend>Appearance</legend>
-          <div class="settings-segmented" role="radiogroup" aria-label="Appearance theme">
-            <label><input type="radio" name="theme" value="system"> Device default</label>
-            <label><input type="radio" name="theme" value="light"> Light</label>
-            <label><input type="radio" name="theme" value="dark"> Dark</label>
-          </div>
-        </fieldset>
-
-        <fieldset class="settings-group">
-          <legend>Pool schedule view</legend>
-          <div class="settings-segmented settings-segmented--two" role="radiogroup" aria-label="Pool schedule view">
-            <label><input type="radio" name="poolScheduleLayout" value="list"> List</label>
-            <label><input type="radio" name="poolScheduleLayout" value="calendar"> Weekly calendar</label>
-          </div>
-        </fieldset>
-
-        <fieldset class="settings-group">
-          <legend>Location awareness</legend>
-          <label class="settings-checkbox" for="locationAwarenessEnabled">
-            <input type="checkbox" id="locationAwarenessEnabled" name="locationAwarenessEnabled" aria-describedby="locationAwarenessHint">
-            <span>Use my current location to estimate distances to pools</span>
-          </label>
-          <p class="settings-hint" id="locationAwarenessHint">Off by default. When enabled, the Pools page asks your browser for location access. Your current location is not saved by this site.</p>
-        </fieldset>
-
-        <fieldset class="settings-group">
-          <legend>Weather safety alerts</legend>
-          <div class="settings-segmented" role="radiogroup" aria-label="Weather update frequency">
-            <label><input type="radio" name="weatherRefreshMinutes" value="0"> Off</label>
-            <label><input type="radio" name="weatherRefreshMinutes" value="5"> 5 min</label>
-            <label><input type="radio" name="weatherRefreshMinutes" value="10"> 10 min</label>
-          </div>
-          <p class="settings-hint">Weather is checked only from one hour before the first scheduled pool activity until pools close. Visible alerts show when they were last updated.</p>
-        </fieldset>
-
-        <div class="settings-group">
-          <label class="settings-label" for="favoritePool">Favorite pool</label>
-          <select class="settings-select" id="favoritePool" name="favoritePool" disabled>
-            <option value="">Loading pools...</option>
-          </select>
-        </div>
-
-        <div class="settings-group">
-          <label class="settings-label" for="favoriteTeam">Favorite swim team</label>
-          <select class="settings-select" id="favoriteTeam" name="favoriteTeam" disabled>
-            <option value="">Loading teams...</option>
-          </select>
-        </div>
-
-        <div class="settings-actions">
-          <button class="btn settings-clear" id="clearSettings" type="button">Clear saved settings</button>
-        </div>
-        <p class="settings-status" id="settingsStatus" aria-live="polite"></p>
-      </form>
-
+    <section class="settings-launch" aria-label="Application preferences">
+      <button class="btn" type="button" data-settings-open data-settings-auto-open>Open settings</button>
     </section>
-  </block>
-
-  <block name="scripts">
-    <script src="js/services/time-utils.js"></script>
-    <script src="js/types/pool-enums.js"></script>
-    <script src="js/pool-schedule.js"></script>
-    <script src="js/models/pool.js"></script>
-    <script src="js/pools-manager.js"></script>
-    <script src="js/teams-manager.js"></script>
-    <script src="js/services/data-manager.js"></script>
-    <script src="js/services/file-helper.js" defer></script>
-    <script src="js/settings.js" defer></script>
   </block>
 </extends>

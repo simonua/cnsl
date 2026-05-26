@@ -16,7 +16,7 @@ pnpm run verify:pwa
 pnpm run test:browser
 ```
 
-Record the command results in the pull request or release record. `pnpm run verify:pwa` reports and enforces the intended public artifact footprint and prevents retained annual evidence PDFs from entering the deployment. The local browser command covers keyboard flows and accessible states. GitHub Actions runs the high-severity dependency audit and `pnpm run test:browser:ci`, including automated WCAG A/AA scans, as required pre-deployment gates. Use `pnpm run test:browser:accessibility` only when a CI accessibility result needs local reproduction.
+Record the command results in the pull request or release record. `pnpm run verify:pwa` reports the public artifact footprint, requires that only the configured active season's data is emitted, and prevents retained annual evidence PDFs from entering the deployment. The local browser command covers keyboard flows and accessible states. GitHub Actions runs the high-severity dependency audit and `pnpm run test:browser:ci`, including automated WCAG A/AA scans, as required pre-deployment gates. Use `pnpm run test:browser:accessibility` only when a CI accessibility result needs local reproduction.
 
 ## Secure-Origin PWA Review
 
@@ -62,7 +62,7 @@ Record occasional browser measurements here or in the release record when UI beh
 
 | Measurement | Route Or Scope | Result | Date / Environment |
 | --- | --- | --- | --- |
-| Published artifact size | Generated public `out/` artifact | 1,494,487 bytes; enforced budget 2,500,000 bytes | 2026-05-26 / local clean build and `verify:pwa` |
+| Published artifact size | Generated public `out/` artifact | 1,542,363 bytes observed; active season output only | 2026-05-26 / local clean build and `verify:pwa` |
 | Directory usable/render completion | Pools, Teams, Meets | Pending next HTTPS release review | - |
 | First-view request count and transfer size | Home and Pools | Pending next HTTPS release review | - |
 

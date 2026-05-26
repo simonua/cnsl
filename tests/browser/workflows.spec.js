@@ -208,7 +208,7 @@ test('analytics publishes a page view and public app version only after the Goog
         ad_storage: 'denied',
         ad_user_data: 'denied',
         ad_personalization: 'denied',
-        analytics_storage: 'granted'
+        analytics_storage: 'denied'
       }],
       ['set', 'ads_data_redaction', true],
       ['set', {
@@ -278,8 +278,8 @@ test('pool feature filters expose their state and resulting count', async ({ pag
   await expect(filters).toHaveAttribute('aria-expanded', 'true');
   await expect(page.locator('#poolFilterSummary')).toHaveText('23 pools');
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
-    ['event', 'ca_setting_change', { setting_name: 'pool_feature_filters', setting_value: firstFeature }],
-    ['event', 'ca_setting_change', { setting_name: 'pool_feature_filters', setting_value: 'none' }]
+    ['event', 'ca_setting_change', { setting_name: 'pool_feature_filters' }],
+    ['event', 'ca_setting_change', { setting_name: 'pool_feature_filters' }]
   ]);
 
   await page.locator('#poolFeatureFilterOptions').evaluate(options => {
@@ -339,7 +339,7 @@ test('collapsed favorite pool stays collapsed after filters redraw the directory
   await favoriteToggle.click();
   await expect(favoriteToggle).toHaveAttribute('aria-expanded', 'false');
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.at(-1))).toEqual([
-    'event', 'ca_setting_change', { setting_name: 'favorite_pool_expanded', setting_value: 'collapsed' }
+    'event', 'ca_setting_change', { setting_name: 'favorite_pool_expanded' }
   ]);
 
   await page.locator('#togglePoolFeatureFilters').click();
@@ -369,7 +369,7 @@ test('collapsed favorite team stays collapsed after returning to the directory',
   await favoriteToggle.click();
   await expect(favoriteToggle).toHaveAttribute('aria-expanded', 'false');
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
-    ['event', 'ca_setting_change', { setting_name: 'favorite_team_expanded', setting_value: 'collapsed' }]
+    ['event', 'ca_setting_change', { setting_name: 'favorite_team_expanded' }]
   ]);
 
   await page.reload();
@@ -386,6 +386,7 @@ test('team directory displays verified regular practices from public team schedu
   await expect(sundevils.locator('.practice-schedule')).toContainText('Swansfield Pool');
   await expect(sundevils.locator('.practice-schedule')).toContainText('8:00 - 8:30am');
   await expect(sundevils.getByRole('link', { name: 'Practice Schedule' })).toHaveAttribute('href', /practice-schedule/);
+  await expect(sundevils.getByRole('link', { name: 'Team Calendar' })).toHaveAttribute('href', /\/page\/calendar$/);
 });
 
 test('home page shows the next seven days for a selected favorite team', async ({ page }) => {
@@ -402,6 +403,23 @@ test('home page shows the next seven days for a selected favorite team', async (
   await expect(agenda).toContainText('Pre-season Practice');
   await expect(agenda).toContainText('Phelps Luck Pool');
   await expect(agenda).toContainText('First Splash: 5:00 - 5:30pm');
+});
+
+test('home page loads agenda dependencies only after a favorite team is selected', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-05-26T12:00:00'));
+  await page.goto('/index.html');
+
+  await expect(page.locator('#favoriteWeek')).toBeHidden();
+  await expect(page.locator('script[data-home-schedule-dependency]')).toHaveCount(0);
+
+  await page.evaluate(() => {
+    localStorage.setItem('cnsl_preferences', JSON.stringify({ favoriteTeamId: 'pls' }));
+    globalThis.dispatchEvent(new globalThis.Event('cnsl:preferences-changed'));
+  });
+
+  await expect(page.locator('#favoriteWeek')).toBeVisible();
+  await expect(page.locator('script[data-home-schedule-dependency]')).toHaveCount(6);
+  await expect(page.locator('#favoriteWeek')).toContainText('Phelps Luck Pool');
 });
 
 test('location distances use outlined pills and can sort nearest pools first', async ({ page }) => {
@@ -680,23 +698,23 @@ test('settings persist choices locally and announce clearing saved settings', as
   await expect.poll(() => page.evaluate(() => Object.hasOwn(JSON.parse(localStorage.getItem('cnsl_preferences')), 'analyticsEnabled'))).toBe(false);
   await expect(page.locator('#cnslAnalyticsScript')).toHaveCount(0);
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
-    ['event', 'ca_setting_change', { setting_name: 'theme', setting_value: 'dark' }],
-    ['event', 'ca_setting_change', { setting_name: 'pool_schedule_layout', setting_value: 'calendar' }],
-    ['event', 'ca_setting_change', { setting_name: 'location_awareness', setting_value: 'enabled' }],
-    ['event', 'ca_setting_change', { setting_name: 'weather_refresh_minutes', setting_value: '10' }]
+    ['event', 'ca_setting_change', { setting_name: 'theme' }],
+    ['event', 'ca_setting_change', { setting_name: 'pool_schedule_layout' }],
+    ['event', 'ca_setting_change', { setting_name: 'location_awareness' }],
+    ['event', 'ca_setting_change', { setting_name: 'weather_refresh_minutes' }]
   ]);
 
   await page.locator('#favoritePool').selectOption({ label: 'Bryant Woods' });
   await page.locator('#favoriteTeam').selectOption('cfhss');
   await page.locator('#favoritePool').selectOption('');
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
-    ['event', 'ca_setting_change', { setting_name: 'theme', setting_value: 'dark' }],
-    ['event', 'ca_setting_change', { setting_name: 'pool_schedule_layout', setting_value: 'calendar' }],
-    ['event', 'ca_setting_change', { setting_name: 'location_awareness', setting_value: 'enabled' }],
-    ['event', 'ca_setting_change', { setting_name: 'weather_refresh_minutes', setting_value: '10' }],
-    ['event', 'ca_setting_change', { setting_name: 'favorite_pool', setting_value: 'Bryant Woods' }],
-    ['event', 'ca_setting_change', { setting_name: 'favorite_team', setting_value: 'cfhss' }],
-    ['event', 'ca_setting_change', { setting_name: 'favorite_pool', setting_value: 'none' }]
+    ['event', 'ca_setting_change', { setting_name: 'theme' }],
+    ['event', 'ca_setting_change', { setting_name: 'pool_schedule_layout' }],
+    ['event', 'ca_setting_change', { setting_name: 'location_awareness' }],
+    ['event', 'ca_setting_change', { setting_name: 'weather_refresh_minutes' }],
+    ['event', 'ca_setting_change', { setting_name: 'favorite_pool' }],
+    ['event', 'ca_setting_change', { setting_name: 'favorite_team' }],
+    ['event', 'ca_setting_change', { setting_name: 'favorite_pool' }]
   ]);
 
   await page.locator('#favoriteTeam').evaluate(select => {
@@ -712,18 +730,18 @@ test('settings persist choices locally and announce clearing saved settings', as
   await page.getByRole('button', { name: 'Clear saved settings' }).click();
   await expect(page.locator('#settingsStatus')).toHaveText('Saved settings removed from this device.');
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
-    ['event', 'ca_setting_change', { setting_name: 'theme', setting_value: 'dark' }],
-    ['event', 'ca_setting_change', { setting_name: 'pool_schedule_layout', setting_value: 'calendar' }],
-    ['event', 'ca_setting_change', { setting_name: 'location_awareness', setting_value: 'enabled' }],
-    ['event', 'ca_setting_change', { setting_name: 'weather_refresh_minutes', setting_value: '10' }],
-    ['event', 'ca_setting_change', { setting_name: 'favorite_pool', setting_value: 'Bryant Woods' }],
-    ['event', 'ca_setting_change', { setting_name: 'favorite_team', setting_value: 'cfhss' }],
-    ['event', 'ca_setting_change', { setting_name: 'favorite_pool', setting_value: 'none' }],
-    ['event', 'ca_setting_change', { setting_name: 'theme', setting_value: 'system' }],
-    ['event', 'ca_setting_change', { setting_name: 'pool_schedule_layout', setting_value: 'list' }],
-    ['event', 'ca_setting_change', { setting_name: 'location_awareness', setting_value: 'disabled' }],
-    ['event', 'ca_setting_change', { setting_name: 'weather_refresh_minutes', setting_value: '5' }],
-    ['event', 'ca_setting_change', { setting_name: 'favorite_team', setting_value: 'none' }]
+    ['event', 'ca_setting_change', { setting_name: 'theme' }],
+    ['event', 'ca_setting_change', { setting_name: 'pool_schedule_layout' }],
+    ['event', 'ca_setting_change', { setting_name: 'location_awareness' }],
+    ['event', 'ca_setting_change', { setting_name: 'weather_refresh_minutes' }],
+    ['event', 'ca_setting_change', { setting_name: 'favorite_pool' }],
+    ['event', 'ca_setting_change', { setting_name: 'favorite_team' }],
+    ['event', 'ca_setting_change', { setting_name: 'favorite_pool' }],
+    ['event', 'ca_setting_change', { setting_name: 'theme' }],
+    ['event', 'ca_setting_change', { setting_name: 'pool_schedule_layout' }],
+    ['event', 'ca_setting_change', { setting_name: 'location_awareness' }],
+    ['event', 'ca_setting_change', { setting_name: 'weather_refresh_minutes' }],
+    ['event', 'ca_setting_change', { setting_name: 'favorite_team' }]
   ]);
 });
 
@@ -741,6 +759,7 @@ test('visible weather safety alerts render with update times on every page', asy
     await expect(page.locator('#weatherAlertUpdated')).not.toHaveText('');
     await expect(page.locator('#weatherAlertUpdated')).toHaveAttribute('datetime', /2026-/);
     await expect(page.locator('#weatherAlertDetails')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Live pool status' })).toBeVisible();
     await expect(page.locator('#weatherAlertToggle')).toBeHidden();
   }
 });
@@ -757,8 +776,12 @@ test('mobile weather safety alert keeps navigation visible and collapses with a 
   const toggle = page.getByRole('button', { name: 'Collapse weather safety alert' });
   const action = page.getByRole('link', { name: 'Live pool status' });
   const icon = page.locator('.weather-alert__toggle-icon');
+  const warningIcon = page.locator('.weather-alert__warning-icon');
+  const liveIndicator = page.locator('.weather-alert__live-indicator');
   await expect(alert).toBeVisible();
   await expect(page.locator('.weather-alert__title')).toBeVisible();
+  await expect(warningIcon).toBeVisible();
+  await expect(liveIndicator).toBeVisible();
   await expect(page.locator('.weather-alert__copy')).toHaveCSS('text-align', 'center');
   const titleBackground = await page.locator('.weather-alert__title').evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).backgroundColor);
   const actionBackground = await page.locator('.weather-alert__link').evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).backgroundColor);
@@ -771,7 +794,7 @@ test('mobile weather safety alert keeps navigation visible and collapses with a 
   expect(expandedToggleSize.width).toBe(expandedToggleSize.height);
   expect(expandedToggleSize.height).toBe(expandedTitleBox.height);
   expect(expandedToggleSize.height).toBe(expandedActionBox.height);
-  expect(expandedTitleBox.x + expandedTitleBox.width).toBeLessThanOrEqual(expandedActionBox.x);
+  expect(expandedActionBox.y).toBeGreaterThanOrEqual(expandedTitleBox.y + expandedTitleBox.height);
   const expandedAlertBackground = await alert.evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).backgroundColor);
   await expect(icon).toHaveCSS('transform', 'none');
   await expect(icon).toHaveCSS('transition-duration', '0s');
@@ -792,17 +815,14 @@ test('mobile weather safety alert keeps navigation visible and collapses with a 
   await expect(page.locator('.weather-alert__title')).toBeVisible();
   const expandToggle = page.getByRole('button', { name: 'Expand weather safety alert' });
   await expect(expandToggle).toHaveAttribute('aria-expanded', 'false');
-  await expect(action).toBeVisible();
+  await expect(action).toBeHidden();
   await expect(icon).toHaveCSS('transform', 'matrix(-1, 0, 0, -1, 0, 0)');
   const collapsedToggleSize = await expandToggle.boundingBox();
-  const collapsedActionBox = await action.boundingBox();
   const collapsedAlertBackground = await alert.evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).backgroundColor);
   expect(collapsedToggleSize.width).toBe(expandedToggleSize.width);
   expect(collapsedToggleSize.height).toBe(expandedToggleSize.height);
   expect(collapsedToggleSize.x).toBe(expandedToggleSize.x);
   expect(collapsedToggleSize.y).toBe(expandedToggleSize.y);
-  expect(collapsedActionBox.x).toBe(expandedActionBox.x);
-  expect(collapsedActionBox.y).toBe(expandedActionBox.y);
   expect(collapsedAlertBackground).toBe(expandedAlertBackground);
   await expect.poll(() => page.evaluate(() => sessionStorage.getItem('cnsl_weather_alert_expanded'))).toBe('false');
 
@@ -811,7 +831,7 @@ test('mobile weather safety alert keeps navigation visible and collapses with a 
   await page.goto('/about.html');
   const restoredToggle = page.getByRole('button', { name: 'Expand weather safety alert' });
   await expect(restoredToggle).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Live pool status' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Live pool status' })).toBeHidden();
   const bannerWasVisibleAtFirstPaint = await page.locator('#weatherAlert').evaluate(banner => new Promise(resolve => {
     banner.ownerDocument.defaultView.requestAnimationFrame(() => resolve(!banner.hidden));
   }));
@@ -821,6 +841,7 @@ test('mobile weather safety alert keeps navigation visible and collapses with a 
   await restoredToggle.focus();
   await page.keyboard.press('Enter');
   await expect(page.locator('#weatherAlertDetails')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Live pool status' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Collapse weather safety alert' })).toBeFocused();
   await expect.poll(() => page.evaluate(() => sessionStorage.getItem('cnsl_weather_alert_expanded'))).toBe('true');
 });

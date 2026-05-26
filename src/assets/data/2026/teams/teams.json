@@ -6,6 +6,7 @@
       "name": "CHS Swim Sundevils",
       "keywords": ["chs", "clary's forest", "hawthorn", "swansfield", "sundevils"],
       "url": "https://www.gomotionapp.com/team/reccnslcfhss/page/home",
+      "calendarUrl": "https://www.gomotionapp.com/team/reccnslcfhss/page/calendar",
       "homePools": ["Swansfield"],
       "practicePools": ["Clary's Forest", "Hawthorn", "Swansfield"],
       "practice": {
@@ -86,6 +87,7 @@
       "name": "Clemens Crossing Cyclones",
       "keywords": ["clemens crossing cyclones", "clemens crossing", "cyclones"],
       "url": "https://www.gomotionapp.com/team/reccnslccc/page/home",
+      "calendarUrl": "https://www.gomotionapp.com/team/reccnslccc/page/calendar",
       "homePools": ["Clemens Crossing"],
       "practicePools": ["Clemens Crossing", "Clary's Forest", "Hawthorn"],
       "staff": {
@@ -130,6 +132,7 @@
       "name": "Harper's Choice Challenge",
       "keywords": ["harper's choice challenge", "harpers choice challenge", "harper's choice", "challenge"],
       "url": "https://www.gomotionapp.com/team/reccnslhcc/page/home",
+      "calendarUrl": "https://www.gomotionapp.com/team/reccnslhcc/page/calendar",
       "homePools": ["Longfellow"],
       "practicePools": ["Longfellow", "Faulkner Ridge", "Swansfield"],
       "practice": {
@@ -156,6 +159,7 @@
       "name": "Huntington Dolphins",
       "keywords": ["huntington dolphins", "huntington", "dolphins"],
       "url": "https://www.gomotionapp.com/team/reccnslhd/page/home",
+      "calendarUrl": "https://www.gomotionapp.com/team/reccnslhd/page/calendar",
       "homePools": ["Huntington"],
       "practicePools": ["Huntington", "Hopewell", "Dickinson"],
       "practice": {
@@ -362,6 +366,7 @@
       "name": "Owen Brown Barracudas",
       "keywords": ["owen brown barracudas", "owen brown", "barracudas"],
       "url": "https://www.gomotionapp.com/team/reccnslobb/page/home",
+      "calendarUrl": "https://www.gomotionapp.com/team/reccnslobb/page/calendar",
       "homePools": ["Dasher Green"],
       "practicePools": ["Dasher Green", "Hopewell", "Talbott Springs"],
       "practice": {
@@ -416,6 +421,7 @@
       "name": "Phelps Luck Snappers",
       "keywords": ["phelps luck snappers", "phelps luck", "snappers"],
       "url": "https://www.gomotionapp.com/team/reccnslpls/page/home",
+      "calendarUrl": "https://www.gomotionapp.com/team/reccnslpls/page/calendar",
       "homePools": ["Phelps Luck"],
       "practicePools": ["Phelps Luck", "Kendall Ridge", "Locust Park"],
       "practice": {
@@ -500,6 +506,7 @@
       "name": "Pointers Run Piranhas",
       "keywords": ["pointers run piranhas", "pointers run", "piranhas"],
       "url": "https://www.gomotionapp.com/team/reccnslprp/page/home",
+      "calendarUrl": "https://www.gomotionapp.com/team/reccnslprp/page/calendar",
       "homePools": ["River Hill"],
       "practicePools": ["River Hill", "Clemens Crossing", "Hobbit's Glen", "Longfellow"],
       "practice": {
@@ -581,6 +588,7 @@
       "name": "Thunder Hill Lightning",
       "keywords": ["thunder hill lightning", "thunder hill", "lightning"],
       "url": "https://www.gomotionapp.com/team/reccnslthl/page/home",
+      "calendarUrl": "https://www.gomotionapp.com/team/reccnslthl/page/calendar",
       "homePools": ["Thunder Hill"],
       "practicePools": ["Thunder Hill", "Locust Park", "Talbott Springs"],
       "staff": {
@@ -605,6 +613,7 @@
       "name": "Wilde Lake Watercats",
       "keywords": ["wilde lake watercats", "wilde lake", "watercats"],
       "url": "https://www.gomotionapp.com/team/reccnslwlw/page/home",
+      "calendarUrl": "https://www.gomotionapp.com/team/reccnslwlw/page/calendar",
       "homePools": ["Faulkner Ridge"],
       "practicePools": ["Faulkner Ridge", "Longfellow"],
       "staff": {

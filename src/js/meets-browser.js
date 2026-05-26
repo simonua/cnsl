@@ -253,6 +253,11 @@ async function renderMeets(meets) {
   list.innerHTML = html;
 }
 
+function refreshMeetsForPreferences() {
+  if (!meetsBrowserDataManager || !document.getElementById('meetList')) return;
+  renderMeets(meetsBrowserDataManager.getMeets().getAllMeets());
+}
+
 /**
  * Toggles the collapsed state of a meet date card
  * @param {Element} header - The selected meet date header
@@ -294,6 +299,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     setMeetListStatus('Meet schedule is currently unavailable. Please try again later.', false);
   }
 });
+
+window.addEventListener('cnsl:preferences-changed', refreshMeetsForPreferences);
 
 // ------------------------------
 //    WEATHER DISPLAY FUNCTIONS

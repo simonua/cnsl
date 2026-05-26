@@ -28,26 +28,18 @@
           },
           {
             "@type": "Question",
-            "name": "How do I find my team's practice schedule?",
+            "name": "How do I find a pool schedule, team practice, or meet?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Visit the Teams page to find your team's practice schedule and other information."
+              "text": "Use the Pools page for outdoor pool information, the Teams page for practice details, and the Meets page for meet dates and host pools."
             }
           },
           {
             "@type": "Question",
-            "name": "Where are meets held?",
+            "name": "Can I install the app and use it offline?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Meets are held at team home pools. Visit the Meets page for details on upcoming meets and locations."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Where does this app get its data, and when was it checked?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Pool information is transcribed from publicly available Columbia Association publications, while team and meet information is transcribed from publicly available official CNSL publications. These official public sources are the source of truth for this app. While often very helpful, social media and other community-shared information cannot be authoritative here. Accepted {{ YEAR }} season data was last checked against its official public sources on {{ OFFICIAL_SOURCE_CHECKED_ON }}."
+              "text": "Yes. This Progressive Web App can be added to a phone home screen. After its resources have loaded, key pool, team, and meet information remains available when a connection is limited or offline."
             }
           },
           {
@@ -55,7 +47,55 @@
             "name": "Is this an official web app?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "No. It is an independent community project and is not operated by or affiliated with Columbia Association. Please verify time-sensitive details with official Columbia Association and CNSL sources."
+              "text": "No. It is an independent community project and is not operated by or affiliated with Columbia Association or CNSL. Please verify time-sensitive details with their official sources."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Where does this app get its data, and when was it checked?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Pool information is transcribed from publicly available Columbia Association publications, while team and meet information is transcribed from publicly available official CNSL publications. Accepted {{ YEAR }} season data was last checked against its official public sources on {{ OFFICIAL_SOURCE_CHECKED_ON }}."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What if information in this app does not match an official source?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Columbia Association and CNSL control their official published information; this independent app does not. If information shown in this app does not match an official public source, email simonkurtz@gmail.com with the source link so the app can be reviewed and updated. This app is maintained in spare time, so updates may not be immediate."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What data is measured or stored?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The site does not request personally identifiable information. Preferences are stored in the visitor's browser. Google Analytics is used for purpose-limited site and feature usage measurement; advertising personalization and Google signals are disabled."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does the app use my location?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Distance estimates are off by default. If location awareness is enabled, the browser provides the current location to calculate nearby pool distances; app-defined measurement does not send coordinates."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Where are my preferences saved?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Settings are saved in the visitor's browser on their device and can be removed from the Settings page or by clearing this site's browser data."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How can I request a feature or share feedback?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Email simonkurtz@gmail.com with the subject Assistant App Feature Request and a brief description of what would make the app more useful."
             }
           }
         ]
@@ -66,69 +106,76 @@
     <h1>Frequently Asked Questions</h1>
     <div class="container">
       <div id="faqList" class="faq-list">
-        <div class="faq-item">
-          <h2>What is CNSL?</h2>
-          <p>CNSL stands for Columbia Neighborhood Swim League, a summer recreational swim league in Columbia, MD.</p>
-        </div>
-        <div class="faq-item">
-          <h2>How do I find my team's practice schedule?</h2>
-          <p>Visit the <a href="teams.html">Teams page</a> to find your team's practice schedule and other information.</p>
-        </div>
-        <div class="faq-item">
-          <h2>Where are meets held?</h2>
-          <p>Meets are held at team home pools. Visit the <a href="meets.html">Meets page</a> for details on upcoming meets and locations.</p>
-        </div>
-        <div class="faq-item">
-          <h2>Where does this app get its data, and when was it checked?</h2>
-          <p>Pool information is transcribed from publicly available <a href="https://columbiaassociation.org/sports-recreation/pools/pool-schedules/" target="_blank" rel="noopener">Columbia Association (CA) publications</a>. Team and meet information is transcribed from publicly available <a href="https://www.gomotionapp.com/team/reccnsl/page/home" target="_blank" rel="noopener">official CNSL publications</a>. These official public sources are the source of truth for this web app.</p>
-          <p>Information shared through social media, email, messaging groups, or other community channels may be helpful, but it is not treated as authoritative here unless it is reflected in an official public source.</p>
-          <p><strong>Last accepted official-source check for {{ YEAR }} data:</strong> <time datetime="{{ OFFICIAL_SOURCE_CHECKED_ON }}">{{ OFFICIAL_SOURCE_CHECKED_ON }}</time>. Published details can change, so please confirm time-sensitive plans at the official sources before heading out.</p>
-        </div>
-        <div class="faq-item">
-          <h2>How can my team request a data update?</h2>
-          <p>Team representatives can email <a href="mailto:simonkurtz@gmail.com?subject=CNSL%20Data%20Update">simonkurtz@gmail.com</a> with the subject "CNSL Data Update" and the corrected information or published source link.</p>
-        </div>
-        <div class="faq-item">
-          <h2>How can I request a feature?</h2>
-          <p>Have an idea that would make this app more useful? Email <a href="mailto:simonkurtz@gmail.com?subject=CNSL%20Feature%20Request">simonkurtz@gmail.com</a> with the subject "CNSL Feature Request" and a brief description of what would help.</p>
-        </div>
-        <div class="faq-item">
-          <h2>Is this an official web app?</h2>
-          <p>No. It is not operated by or affiliated with Columbia Association (CA). CA does not provide an API for publicly-available 
-            data and directs users to their websites and app. This web app was created by a swim parent, who wanted an easier, quicker, 
-            and more tailored path to get pool and team information.<br/>          
-            This web app provides information for the {{ YEAR }} outdoor pool season; please verify time-sensitive details with official CA and CNSL sources.
-          </p>
-        </div>
-        <div class="faq-item">
-          <h2>Can I add this to my phone's home screen like an app?</h2>
-          <p>Yes! This website is a Progressive Web App (PWA) that can be added to your home screen for easy access. 
-            It is fully functioning without an internet connection as all team, pool, and meet data is part of the web app.<br/><br/>
-            <strong>On iPhone/iPad:</strong><br/>
-            1. Open this website in Safari<br/>
-            2. Tap the Share button (square with arrow pointing up)<br/>
-            3. Scroll down and tap "Add to Home Screen"<br/>
-            4. Give it a name (like "CNSL") and tap "Add"<br/><br/>
-            <strong>On Android:</strong><br/>
-            1. Open this website in Chrome<br/>
-            2. Tap the three-dot menu (⋮)<br/>
-            3. Tap "Add to Home screen" or "Install app"<br/>
-            4. Give it a name and tap "Add"<br/><br/>
-            Once added, you can launch it from your home screen just like any other app! It will work offline for previously viewed content.
-          </p>
-        </div>
-        <div class="faq-item">
-          <h2>What data do you track or keep?</h2>
-          <p><b>No personally identifiable information (PII) is tracked.</b><br/>
-            This web app uses Google Analytics to help me generally understand site and feature use. Analytics storage is enabled for standard user and session reporting. Advertising personalization and Google signals are disabled, and the app excludes referrers and page query details from its page measurements.
-            That measurement is intended to describe site use rather than identify a visitor. The web app is free. Maintaining and hosting it on GitHub Pages is free.
-            I do not intend to monetize with ads, subscriptions, purchases, selling data (which I don't track anyway), or any other means. 
-            This web app exists for the community and is a labor of love that exists solely for your and my convenience as we all navigate 
-            yet another busy summer.<br/><br/>
-            Settings are saved in your browser on your device. Changed settings may be counted using only visible fixed choices or published directory options. App-defined measurement does not send visitor names, contact details, current coordinates, free-form content, or outbound-link destination details. You can remove local choices at any time from the <a href="settings.html">Settings page</a> or by clearing this site's browser data.<br/><br/>
-            You can also read <a href="https://support.google.com/analytics/answer/6366371?hl=en#zippy=%2Cin-this-article" target="_blank" rel="noopener noreferrer">Google Analytics guidance on PII</a>.
-          </p>
-        </div>
+        <section class="faq-list__category" aria-labelledby="faq-functionality">
+          <h2 id="faq-functionality" class="faq-list__heading">Using the App</h2>
+          <article class="faq-item">
+            <h3>What is CNSL?</h3>
+            <p><a href="https://www.gomotionapp.com/team/reccnsl/page/home" target="_blank" rel="noopener">CNSL</a> stands for Columbia Neighborhood Swim League, a summer recreational swim league in Columbia, MD.</p>
+          </article>
+          <article class="faq-item">
+            <h3>How do I find a pool schedule, team practice, or meet?</h3>
+            <p>Use the <a href="pools.html">Pools page</a> for outdoor pool information, the <a href="teams.html">Teams page</a> for team and practice details, and the <a href="meets.html">Meets page</a> for meet dates and host pools.</p>
+          </article>
+          <article class="faq-item">
+            <h3>Can I install the app and use it offline?</h3>
+            <p>Yes. This site is a Progressive Web App (PWA) that can be added to your home screen. After its resources have loaded, key pool, team, and meet information remains available when your connection is limited or offline.</p>
+            <p><strong>On iPhone or iPad:</strong></p>
+            <ol>
+              <li>Open this website in Safari.</li>
+              <li>Tap the Share button, then select "Add to Home Screen."</li>
+              <li>Choose a name and tap "Add."</li>
+            </ol>
+            <p><strong>On Android:</strong></p>
+            <ol>
+              <li>Open this website in Chrome.</li>
+              <li>Open the menu and select "Add to Home screen" or "Install app."</li>
+              <li>Choose a name and confirm the installation.</li>
+            </ol>
+          </article>
+        </section>
+
+        <section class="faq-list__category" aria-labelledby="faq-sources">
+          <h2 id="faq-sources" class="faq-list__heading">Official Information and Corrections</h2>
+          <article class="faq-item">
+            <h3>Is this an official web app?</h3>
+            <p>No. This is an independent community project and is not operated by or affiliated with Columbia Association (CA) or CNSL. CA and CNSL control their official published information; I do not control or change their data. This app provides information for the {{ YEAR }} outdoor pool season, so please confirm time-sensitive plans with official CA and CNSL sources.</p>
+          </article>
+          <article class="faq-item">
+            <h3>Where does this app get its data, and when was it checked?</h3>
+            <p>Pool information is transcribed from publicly available <a href="https://columbiaassociation.org/sports-recreation/pools/pool-schedules/" target="_blank" rel="noopener">Columbia Association (CA) publications</a>. Team and meet information is transcribed from publicly available <a href="https://www.gomotionapp.com/team/reccnsl/page/home" target="_blank" rel="noopener">official CNSL publications</a>. These official public sources are the source of truth for this web app.</p>
+            <p>Information shared through social media, email, messaging groups, or other community channels can be helpful, but is not treated as authoritative here unless it is reflected in an official public source.</p>
+            <p><strong>Last accepted official-source check for {{ YEAR }} data:</strong> <time datetime="{{ OFFICIAL_SOURCE_CHECKED_ON }}">{{ OFFICIAL_SOURCE_CHECKED_ON }}</time>. Published details can change, so please confirm time-sensitive plans before heading out.</p>
+          </article>
+          <article class="faq-item">
+            <h3>What if information in this app does not match an official source?</h3>
+            <p>CA and CNSL control their official published information; I do not. If information shown in this app does not match an official public CA or CNSL source, email <a href="mailto:simonkurtz@gmail.com?subject=Assistant%20App%20Data%20Mismatch">simonkurtz@gmail.com</a> with the subject "Assistant App Data Mismatch" and a link to the official published source. I can review and update what this app displays, but I cannot change information published by CA or CNSL. This app is maintained in my spare time, so updates may not be immediate.</p>
+          </article>
+        </section>
+
+        <section class="faq-list__category" aria-labelledby="faq-privacy">
+          <h2 id="faq-privacy" class="faq-list__heading">Privacy and Preferences</h2>
+          <article class="faq-item">
+            <h3>What data is measured or stored?</h3>
+            <p>This web app does not request names, contact details, account identifiers, or other personally identifiable information. The deployed site uses Google Analytics for purpose-limited site and feature usage measurement. Analytics storage is enabled for standard user and session reporting; advertising personalization and Google signals are disabled.</p>
+            <p>App-defined measurement does not send visitor names, contact details, current coordinates, free-form content, URL query or fragment values, referrers, or outbound-link destination details. You can also read <a href="https://support.google.com/analytics/answer/6366371?hl=en#zippy=%2Cin-this-article" target="_blank" rel="noopener noreferrer">Google Analytics guidance on personally identifiable information</a>.</p>
+          </article>
+          <article class="faq-item">
+            <h3>Does the app use my location?</h3>
+            <p>Distance estimates are off by default. If you turn location awareness on in <a href="settings.html">Settings</a>, your browser provides your current location to calculate nearby pool distances. App-defined measurement does not send your coordinates.</p>
+          </article>
+          <article class="faq-item">
+            <h3>Where are my preferences saved?</h3>
+            <p>Settings are saved in your browser on your device. Preference changes may be measured only using visible fixed choices or published directory options. You can remove your local choices from the <a href="settings.html">Settings page</a> or by clearing this site's browser data.</p>
+          </article>
+        </section>
+
+        <section class="faq-list__category" aria-labelledby="faq-feedback">
+          <h2 id="faq-feedback" class="faq-list__heading">Feedback and Requests</h2>
+          <article class="faq-item">
+            <h3>How can I request a feature or share feedback?</h3>
+            <p>Email <a href="mailto:simonkurtz@gmail.com?subject=Assistant%20App%20Feature%20Request">simonkurtz@gmail.com</a> with the subject "Assistant App Feature Request" and a brief description of what would make the app more useful for your summer swim experience.</p>
+          </article>
+        </section>
       </div>
     </div>
   </block>
