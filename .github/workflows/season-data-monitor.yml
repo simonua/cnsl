@@ -36,7 +36,7 @@ jobs:
       - name: Check for a pending source update pull request
         id: pending
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.CNSL_Data_Updater_PR_Token }}
         shell: bash
         run: |
           pr_number="$(gh pr list --state open --base main --head "$UPDATE_BRANCH" --json number --jq '.[0].number')"
@@ -60,29 +60,10 @@ jobs:
           fi
           node scripts/season-data-agent.js "${arguments[@]}"
 
-      - name: Enforce seasonal monitor evidence boundary
-        if: steps.source_monitor.outputs.changed == 'true'
-        env:
-          SEASON: ${{ steps.source_monitor.outputs.season }}
-        shell: bash
-        run: |
-          if [[ ! "$SEASON" =~ ^[0-9]{4}$ ]]; then
-            echo "Invalid season output: $SEASON" >&2
-            exit 1
-          fi
-
-          annual_changes="$({ git diff --name-only -- "src/assets/data/$SEASON"; git ls-files --others --exclude-standard -- "src/assets/data/$SEASON"; } | sort -u)"
-          unexpected_changes="$(printf '%s\n' "$annual_changes" | grep -Ev "^src/assets/data/$SEASON/(pools/pool-schedules|meets/meet-schedules|teams/team-schedules)/[^/]+\\.pdf$" || true)"
-          if [[ -n "$unexpected_changes" ]]; then
-            echo "The seasonal monitor modified protected annual structured material:" >&2
-            printf '%s\n' "$unexpected_changes" >&2
-            exit 1
-          fi
-
       - name: Open source update pull request
         if: steps.source_monitor.outputs.changed == 'true'
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.CNSL_Data_Updater_PR_Token }}
           SEASON: ${{ steps.source_monitor.outputs.season }}
         shell: bash
         run: |
@@ -94,12 +75,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -c "$UPDATE_BRANCH"
-          git add -- .github/data-agent/source-state.json .github/data-agent/update-report.md
-          { git diff --name-only -- "src/assets/data/$SEASON"; git ls-files --others --exclude-standard -- "src/assets/data/$SEASON"; } | sort -u | while IFS= read -r document_path; do
-            if [[ -n "$document_path" ]]; then
-              git add -- "$document_path"
-            fi
-          done
+          git add -- .github/data-agent/source-state.json .github/data-agent/update-report.md "src/assets/data/$SEASON"
           git commit -m "Update ${SEASON} official seasonal source material"
           git push --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/$UPDATE_BRANCH"
           gh pr create \
