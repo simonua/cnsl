@@ -65,6 +65,22 @@ describe('TimeUtils', () => {
         assert.equal(result, input.toLowerCase());
       }
     });
+
+    it('normalizes out-of-range values and safely handles invalid values', () => {
+      suppressConsole(() => {
+        assert.equal(TimeUtils.minutesToTimeString(-30), '11:30pm');
+        assert.equal(TimeUtils.minutesToTimeString(1500), '1:00am');
+        assert.equal(TimeUtils.minutesToTimeString('invalid'), '12:00am');
+      });
+    });
+  });
+
+  describe('formatActivityTypes', () => {
+    it('normalizes strings and filters invalid array entries', () => {
+      assert.equal(TimeUtils.formatActivityTypes('  Rec Swim  '), 'Rec Swim');
+      assert.equal(TimeUtils.formatActivityTypes([' Laps ', '', null, 'Rec Swim']), 'Laps, Rec Swim');
+      assert.equal(TimeUtils.formatActivityTypes(null), '');
+    });
   });
 
   describe('getEasternTime', () => {
@@ -123,6 +139,33 @@ describe('TimeUtils', () => {
       const result = suppressConsole(() => TimeUtils.isCurrentTimeSlot('11:00PM', '6:00AM', 60, true));
       assert.equal(result, true);
     });
+
+    it('does not highlight slots outside the current day or with invalid values', () => {
+      suppressConsole(() => {
+        assert.equal(TimeUtils.isCurrentTimeSlot('9:00AM', '5:00PM', 600, false), false);
+        assert.equal(TimeUtils.isCurrentTimeSlot('bad', '5:00PM', 600, true), false);
+        assert.equal(TimeUtils.isCurrentTimeSlot('9:00AM', '5:00PM', 2000, true), false);
+      });
+    });
+  });
+
+  describe('hasCurrentTimeSlot', () => {
+    it('skips malformed slots and identifies an active published slot', () => {
+      const originalGetCurrentEasternTimeInfo = TimeUtils.getCurrentEasternTimeInfo;
+      TimeUtils.getCurrentEasternTimeInfo = () => ({ isValid: true, minutes: 600 });
+
+      try {
+        const result = suppressConsole(() => TimeUtils.hasCurrentTimeSlot([
+          null,
+          { startTime: '9:00AM' },
+          { startTime: '9:00AM', endTime: '11:00AM' }
+        ], true));
+        assert.equal(result, true);
+        assert.equal(TimeUtils.hasCurrentTimeSlot([], true), false);
+      } finally {
+        TimeUtils.getCurrentEasternTimeInfo = originalGetCurrentEasternTimeInfo;
+      }
+    });
   });
 
   describe('formatTimeRangeWithHighlight', () => {
@@ -130,6 +173,18 @@ describe('TimeUtils', () => {
       const result = TimeUtils.formatTimeRangeWithHighlight('9:00AM-5:00PM', false);
       assert.ok(typeof result === 'string');
       assert.ok(result.length > 0);
+    });
+
+    it('highlights valid active ranges and safely returns invalid markup', () => {
+      const highlighted = suppressConsole(() => TimeUtils.formatTimeRangeWithHighlight(
+        '9:00AM-5:00PM', true, 600, { color: 'green' }
+      ));
+      const invalid = suppressConsole(() => TimeUtils.formatTimeRangeWithHighlight('<bad>', true));
+
+      assert.match(highlighted, /highlighted-time-slot-green/);
+      assert.match(invalid, /invalid/);
+      assert.match(invalid, /&lt;bad&gt;/);
+      assert.doesNotMatch(invalid, /<bad>/);
     });
   });
 

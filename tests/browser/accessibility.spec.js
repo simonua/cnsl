@@ -202,3 +202,77 @@ for (const theme of ['light', 'dark']) {
     expect(collapsedViolations).toEqual([]);
   });
 }
+
+for (const theme of ['light', 'dark']) {
+  test(`open mobile navigation has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await loadScenario(page, pageScenarios.find(scenario => scenario.name === 'home'), theme);
+    await page.getByRole('button', { name: 'Open navigation menu' }).click();
+    await expect(page.locator('#navMenu')).toHaveAttribute('aria-hidden', 'false');
+
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .analyze();
+    const violations = results.violations.map(violation => ({
+      id: violation.id,
+      impact: violation.impact,
+      targets: violation.nodes.map(node => node.target)
+    }));
+
+    expect(violations).toEqual([]);
+  });
+
+  test(`expanded iOS install guidance has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.addInitScript(() => {
+      Object.defineProperty(globalThis.navigator, 'userAgent', {
+        configurable: true,
+        value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1'
+      });
+    });
+    await loadScenario(page, pageScenarios.find(scenario => scenario.name === 'home'), theme);
+    await page.getByText('Phone Install').click();
+    await expect(page.locator('#iosInstallInstructions')).toBeVisible();
+
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .analyze();
+    const violations = results.violations.map(violation => ({
+      id: violation.id,
+      impact: violation.impact,
+      targets: violation.nodes.map(node => node.target)
+    }));
+
+    expect(violations).toEqual([]);
+  });
+
+  test(`expanded Android install action has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.addInitScript(() => {
+      Object.defineProperty(globalThis.navigator, 'userAgent', {
+        configurable: true,
+        value: 'Mozilla/5.0 (Linux; Android 15; Mobile) AppleWebKit/537.36 Chrome/136.0 Mobile Safari/537.36'
+      });
+    });
+    await loadScenario(page, pageScenarios.find(scenario => scenario.name === 'home'), theme);
+    await page.evaluate(() => {
+      const installPrompt = new Event('beforeinstallprompt', { cancelable: true });
+      installPrompt.prompt = () => {};
+      installPrompt.userChoice = Promise.resolve({ outcome: 'dismissed' });
+      globalThis.dispatchEvent(installPrompt);
+    });
+    await page.getByText('Phone Install').click();
+    await expect(page.getByRole('button', { name: 'Install app' })).toBeVisible();
+
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .analyze();
+    const violations = results.violations.map(violation => ({
+      id: violation.id,
+      impact: violation.impact,
+      targets: violation.nodes.map(node => node.target)
+    }));
+
+    expect(violations).toEqual([]);
+  });
+}

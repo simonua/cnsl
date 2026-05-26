@@ -248,6 +248,30 @@ test('analytics publishes a page view and public app version only after the Goog
   await page.unrouteAll({ behavior: 'ignoreErrors' });
 });
 
+test('release updates are announced once after a stable version is acknowledged', async ({ page }) => {
+  await page.goto('/index.html');
+
+  const notice = page.locator('#releaseNotice');
+  await expect(notice).toBeVisible();
+  await expect(notice).toContainText('Version 2.1.0 is available.');
+  await page.getByRole('button', { name: 'Dismiss application update' }).focus();
+  await page.keyboard.press('Enter');
+  await expect(notice).toBeHidden();
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_current_version'))).toBe('2.1.0');
+
+  await page.goto('/pools.html');
+  await expect(page.locator('#releaseNotice')).toBeHidden();
+
+  await page.evaluate(() => localStorage.setItem('cnsl_current_version', '2.0.0'));
+  await page.goto('/index.html');
+  await expect(page.locator('#releaseNotice')).toBeVisible();
+  await page.locator('#releaseNoticeLink').click();
+  await expect(page).toHaveURL(/\/whats-new\.html$/);
+  await expect(page.getByRole('heading', { name: 'Version 2.1.0 - May 2026' })).toBeVisible();
+  await expect(page.locator('#releaseNotice')).toBeHidden();
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_current_version'))).toBe('2.1.0');
+});
+
 test('pool feature filters expose their state and resulting count', async ({ page }) => {
   await page.addInitScript(() => {
     globalThis.recordedAnalyticsEvents = [];

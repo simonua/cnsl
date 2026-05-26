@@ -18,6 +18,13 @@ describe('PoolNames', () => {
       assert.ok(name.length > 0);
     }
   });
+
+  it('lists, validates, and normalizes published pool names', () => {
+    assert.equal(PoolNames.getAllPoolNames().length, 23);
+    assert.equal(PoolNames.isValidPoolName('Bryant Woods'), true);
+    assert.equal(PoolNames.isValidPoolName('Unknown Pool'), false);
+    assert.equal(PoolNames.toEnumName("Macgill's Common"), 'MACGILLS_COMMON');
+  });
 });
 
 describe('PoolStatus', () => {

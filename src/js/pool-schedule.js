@@ -4,9 +4,32 @@
 
 // Prevent multiple declarations
 if (typeof window === 'undefined' || !window.PoolSchedule) {
+  const NodeTimeUtils = typeof module !== 'undefined' && module.exports
+    ? require('./services/time-utils.js')
+    : null;
+  const NodePoolStatus = typeof module !== 'undefined' && module.exports
+    ? require('./types/pool-enums.js').PoolStatus
+    : null;
+
   class PoolSchedule {
   constructor(scheduleData) {
     this.scheduleData = scheduleData || {};
+  }
+
+  /**
+   * Get TimeUtils reference safely
+   * @private
+   * @returns {Object|null} - TimeUtils object or null if not available
+   */
+  _getTimeUtils() {
+    if (typeof globalThis !== 'undefined' && globalThis.TimeUtils) {
+      return globalThis.TimeUtils;
+    }
+    if (NodeTimeUtils) {
+      return NodeTimeUtils;
+    }
+    console.error('TimeUtils is not available');
+    return null;
   }
 
   /**
@@ -15,11 +38,11 @@ if (typeof window === 'undefined' || !window.PoolSchedule) {
    * @returns {Object|null} - PoolStatus object or null if not available
    */
   _getPoolStatus() {
-    if (typeof window !== 'undefined' && window.PoolStatus) {
-      return window.PoolStatus;
+    if (typeof globalThis !== 'undefined' && globalThis.PoolStatus) {
+      return globalThis.PoolStatus;
     }
-    if (typeof PoolStatus !== 'undefined') {
-      return PoolStatus;
+    if (NodePoolStatus) {
+      return NodePoolStatus;
     }
     console.error('PoolStatus is not available');
     return null;
@@ -90,8 +113,8 @@ if (typeof window === 'undefined' || !window.PoolSchedule) {
     }
 
     const currentTime = TimeUtilsRef.formatTimeForComparison(time);
-    const openTime = TimeUtilsRef.parseTimeString(open);
-    const closeTime = TimeUtilsRef.parseTimeString(close);
+    const openTime = TimeUtilsRef.timeStringToMinutes(open);
+    const closeTime = TimeUtilsRef.timeStringToMinutes(close);
 
     if (currentTime >= openTime && currentTime <= closeTime) {
       // Check for restrictions during this time
@@ -135,7 +158,7 @@ if (typeof window === 'undefined' || !window.PoolSchedule) {
     const dayName = TimeUtilsRef.getDayName(easternTime);
     const status = this.getStatusAtTime(dayName, easternTime);
     
-    return status.status === 'open';
+    return status.isOpen;
   }
 
   /**
@@ -244,8 +267,8 @@ if (typeof window === 'undefined' || !window.PoolSchedule) {
     }
 
     const currentTime = TimeUtilsRef.formatTimeForComparison(time);
-    const restrictionStart = TimeUtilsRef.parseTimeString(restriction.start);
-    const restrictionEnd = TimeUtilsRef.parseTimeString(restriction.end);
+    const restrictionStart = TimeUtilsRef.timeStringToMinutes(restriction.start);
+    const restrictionEnd = TimeUtilsRef.timeStringToMinutes(restriction.end);
 
     return currentTime >= restrictionStart && currentTime <= restrictionEnd;
   }

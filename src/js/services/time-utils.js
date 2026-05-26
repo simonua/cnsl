@@ -738,7 +738,7 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
       const parts = normalizedTimeRange.split('-');
       if (parts.length !== 2) {
         this._log(`Invalid time range format: "${timeRange}". Expected "startTime-endTime"`, 'warn');
-        return `<span class="time-range-container invalid">${timeRange}</span>`;
+        return `<span class="time-range-container invalid">${this._escapeHtml(timeRange)}</span>`;
       }
 
       const startTime = parts[0].trim();
@@ -750,7 +750,7 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
         this._validateTimeString(endTime);
       } catch (timeValidationError) {
         this._log(`Time validation failed for range "${timeRange}": ${timeValidationError.message}`, 'warn');
-        return `<span class="time-range-container invalid">${timeRange}</span>`;
+        return `<span class="time-range-container invalid">${this._escapeHtml(timeRange)}</span>`;
       }
 
       // Get current time if not provided

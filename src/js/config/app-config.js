@@ -5,8 +5,8 @@
   // Published site and active season metadata.
   const YEAR = 2026;
   const OFFICIAL_SOURCE_CHECKED_ON = '2026-05-26';
-  const APP_VERSION = '2.0.0';
-  const APP_LAST_UPDATED_ON = '2026-05-25';
+  const APP_VERSION = '2.1.0';
+  const APP_LAST_UPDATED_ON = '2026-05-26';
   const HOME_PAGE_HOSTNAME = 'pools.longreachmarlins.org';
   const HOME_PAGE_URL = `https://${HOME_PAGE_HOSTNAME}`;
 
@@ -26,6 +26,7 @@
 
   // Device-local preference and presentation state keys.
   const PREFERENCES_STORAGE_KEY = 'cnsl_preferences';
+  const APP_VERSION_STORAGE_KEY = 'cnsl_current_version';
   const WEATHER_ALERT_STATUS_STORAGE_KEY = 'cnsl_weather_alert_status';
   const WEATHER_ALERT_DISCLOSURE_STORAGE_KEY = 'cnsl_weather_alert_expanded';
 
@@ -57,6 +58,7 @@
   exposeConstant('GA4_MEASUREMENT_ID', GA4_MEASUREMENT_ID);
   exposeConstant('APP_TIMEZONE', APP_TIMEZONE);
   exposeConstant('PREFERENCES_STORAGE_KEY', PREFERENCES_STORAGE_KEY);
+  exposeConstant('APP_VERSION_STORAGE_KEY', APP_VERSION_STORAGE_KEY);
   exposeConstant('WEATHER_API_BASE_URL', WEATHER_API_BASE_URL);
   exposeConstant('WEATHER_LOCATION_POINT', WEATHER_LOCATION_POINT);
   exposeConstant('WEATHER_ALERT_STATUS_STORAGE_KEY', WEATHER_ALERT_STATUS_STORAGE_KEY);
@@ -76,6 +78,7 @@
       APP_LAST_UPDATED_ON,
       APP_TIMEZONE,
       APP_VERSION,
+      APP_VERSION_STORAGE_KEY,
       GA4_MEASUREMENT_ID,
       GOOGLE_MAPS_SEARCH_BASE_URL,
       HOME_PAGE_HOSTNAME,

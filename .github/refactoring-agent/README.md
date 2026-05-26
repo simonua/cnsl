@@ -1,6 +1,6 @@
 # Scheduled Refactoring Auditor
 
-The monthly refactoring audit delegates a documentation-only assessment to GitHub Copilot cloud agent. Copilot reviews the repository using `.github/agents/refactoring-auditor.agent.md` and opens a pull request refreshing `docs/refactoring-plan.md` with evidence-based high, medium, and low priorities.
+The monthly refactoring audit delegates a documentation-only assessment to GitHub Copilot cloud agent. Copilot reviews the repository using `.github/agents/refactoring-auditor.agent.md` and opens a pull request refreshing `docs/refactoring-plan.md` with evidence-based high, medium, and low priorities. The custom agent targets GitHub Copilot cloud execution and is not intended as a VS Code interactive agent.
 
 ## Schedule And Duplicate Protection
 
@@ -19,4 +19,6 @@ The token requirements follow GitHub's documented API contract for assigning an 
 
 ## Review Boundary
 
-The audit agent may inspect the application and run verification commands, but it is instructed to change only `docs/refactoring-plan.md`. Refactoring implementation, dependency updates, workflow changes, and annual-data maintenance remain separate reviewed tasks.
+The audit agent may inspect the application and run verification commands, but it is instructed to change only `docs/refactoring-plan.md`. Any pull request updating that plan is validated by `.github/workflows/refactoring-plan-boundary.yml`, which runs the validator from the trusted base branch and rejects additional files, plan deletion, or plan renames. Refactoring implementation, dependency updates, workflow changes, and annual-data maintenance remain separate reviewed tasks.
+
+When an audit identifies no actionable findings, the plan may remain in its compact empty-state format rather than accumulating empty priority sections or roadmap rows. The audit must still state its date, verification status, pending manual checks, and preservation guardrails.

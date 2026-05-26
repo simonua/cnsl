@@ -71,6 +71,8 @@
 
     <div class="nav-overlay" id="navOverlay" aria-hidden="true"></div>
 
+    <include src="components/release-notice.html"></include>
+
     <main class="container" id="mainContent" tabindex="-1">
       <block name="content"></block>
     </main>
@@ -82,6 +84,8 @@
 
   <!-- Critical navigation script must be available immediately -->
   <script src="js/navigation.js"></script>
+  <script src="js/services/release-notice-service.js"></script>
+  <script src="js/release-notice.js"></script>
   <script src="js/pwa.js"></script>
   <script src="js/services/weather-alert-service.js"></script>
   <script src="js/weather-alert.js"></script>

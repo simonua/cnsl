@@ -1,6 +1,8 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const { createSamplePoolData, suppressConsole } = require('../helpers/test-helpers.js');
+const { PoolStatus } = require('../../src/js/types/pool-enums.js');
+global.PoolStatus = PoolStatus;
 const Pool = require('../../src/js/models/pool.js');
 
 describe('Pool', () => {
@@ -32,6 +34,82 @@ describe('Pool', () => {
     it('returns pool name', () => {
       const pool = new Pool(createSamplePoolData());
       assert.equal(pool.getName(), 'Bryant Woods');
+    });
+  });
+
+  describe('published details', () => {
+    it('returns feature, amenity, and contact values without exposing mutable arrays', () => {
+      const pool = new Pool(createSamplePoolData({
+        features: ['Lap lanes'],
+        amenities: ['Bathhouse'],
+        website: 'https://example.com/pool'
+      }));
+      const features = pool.getFeatures();
+      const amenities = pool.getAmenities();
+      features.push('Changed');
+      amenities.push('Changed');
+
+      assert.deepEqual(pool.getFeatures(), ['Lap lanes']);
+      assert.deepEqual(pool.getAmenities(), ['Bathhouse']);
+      assert.equal(pool.hasFeature('Lap lanes'), true);
+      assert.equal(pool.hasAmenity('Bathhouse'), true);
+      assert.deepEqual(pool.getContactInfo(), {
+        address: 'Columbia, MD 21044',
+        phone: '410-555-1234',
+        website: 'https://example.com/pool'
+      });
+    });
+
+    it('searches name, address, feature, and amenity content case insensitively', () => {
+      const pool = new Pool(createSamplePoolData({
+        features: ['Beach entry'],
+        amenities: ['Changing room']
+      }));
+
+      assert.equal(pool.search('bRyAnT').matches.name, true);
+      assert.equal(pool.search('columbia').matches.address, true);
+      assert.equal(pool.search('beach').matches.features, true);
+      assert.equal(pool.search('changing').matches.amenities, true);
+      assert.equal(pool.search('not present').hasMatch, false);
+    });
+  });
+
+  describe('schedule output', () => {
+    it('delegates new-format hours and status checks to the schedule model', () => {
+      const pool = new Pool(createSamplePoolData({
+        hours: { Monday: { open: '9:00AM', close: '5:00PM' } }
+      }));
+
+      assert.equal(pool.getHoursForDay('Monday'), '9:00AM - 5:00PM');
+      assert.equal(pool.getStatusAtTime('Monday', new Date(2026, 5, 1, 12, 0)), PoolStatus.OPEN);
+    });
+
+    it('splits regular hours around a dated swim meet override', () => {
+      const pool = new Pool(createSamplePoolData({
+        schedules: [{
+          startDate: '2026-05-25',
+          endDate: '2026-05-31',
+          hours: [{ weekDays: ['Mon'], startTime: '1:00PM', endTime: '5:00PM', types: ['Rec Swim'] }]
+        }],
+        scheduleOverrides: [{
+          startDate: '2026-05-25',
+          endDate: '2026-05-31',
+          reason: 'Swim Meet',
+          hours: [{ weekDays: ['Mon'], startTime: '2:00PM', endTime: '4:00PM', types: ['Swim Meet'] }]
+        }]
+      }));
+
+      const monday = pool.getWeekScheduleForDate(new Date(2026, 4, 25))[0];
+      assert.equal(monday.hasOverrides, true);
+      assert.deepEqual(monday.timeSlots.map(slot => ({
+        endTime: slot.endTime,
+        isOverride: slot.isOverride,
+        startTime: slot.startTime
+      })), [
+        { startTime: '1:00PM', endTime: '2:00pm', isOverride: false },
+        { startTime: '2:00PM', endTime: '4:00PM', isOverride: true },
+        { startTime: '4:00pm', endTime: '5:00PM', isOverride: false }
+      ]);
     });
   });
 
@@ -67,6 +145,19 @@ describe('Pool', () => {
         assert.equal(typeof summary, 'object');
         assert.ok('name' in summary);
       });
+    });
+  });
+
+  describe('date ranges', () => {
+    it('reports the first and last published schedule dates', () => {
+      const pool = new Pool(createSamplePoolData({ schedules: [
+        { startDate: '2026-06-01', endDate: '2026-06-14', hours: [] },
+        { startDate: '2026-05-23', endDate: '2026-05-31', hours: [] }
+      ] }));
+      const range = pool.getValidDateRange();
+
+      assert.equal(range.startDate.toISOString().slice(0, 10), '2026-05-23');
+      assert.equal(range.endDate.toISOString().slice(0, 10), '2026-06-14');
     });
   });
 });
