@@ -6,6 +6,13 @@ const { APP_VERSION, GA4_MEASUREMENT_ID, HOME_PAGE_HOSTNAME, HOME_PAGE_URL, YEAR
 
 const outDir = path.join(__dirname, '..', 'out');
 const siteOrigin = HOME_PAGE_URL;
+const socialPreviewImage = `${siteOrigin}/assets/images/cnsl-logo.jpg`;
+const MAX_PUBLISHED_ARTIFACT_BYTES = 2_500_000;
+const unpublishedAnnualEvidenceDirectories = [
+  `assets/data/${YEAR}/pools/pool-schedules`,
+  `assets/data/${YEAR}/meets/meet-schedules`,
+  `assets/data/${YEAR}/teams/team-schedules`
+];
 const requiredArtifacts = [
   'CNAME',
   'index.html',
@@ -34,12 +41,42 @@ const canonicalPages = {
   'about.html': `${siteOrigin}/about.html`,
   'swim-meet-resources.html': `${siteOrigin}/swim-meet-resources.html`
 };
+const indexablePages = new Set([
+  'index.html',
+  'pools.html',
+  'teams.html',
+  'meets.html',
+  'faq.html',
+  'whats-new.html',
+  'about.html',
+  'swim-meet-resources.html'
+]);
 
 assert.ok(fs.existsSync(outDir), 'Build output is missing. Run pnpm run build before verifying the PWA artifact.');
 requiredArtifacts.forEach(resource => {
   assert.ok(fs.existsSync(path.join(outDir, resource)), `Required published artifact is missing: ${resource}`);
 });
 assert.ok(!fs.existsSync(path.join(outDir, 'site.webmanifest')), 'The deprecated duplicate manifest must not be published.');
+unpublishedAnnualEvidenceDirectories.forEach(directory => {
+  assert.ok(!fs.existsSync(path.join(outDir, directory)), `Retained annual evidence must not be included in the public artifact: ${directory}`);
+});
+[
+  'assets/swim-meet-resources/Judge - Rev B 062025.pdf',
+  'assets/swim-meet-resources/Timer - Rev B 062025.pdf',
+  'assets/swim-meet-resources/Timesheet Runner - Rev B 062025.pdf'
+].forEach(resource => {
+  assert.ok(fs.existsSync(path.join(outDir, resource)), `Visitor-facing swim meet resource must remain published: ${resource}`);
+});
+
+function calculateDirectoryBytes(directory) {
+  return fs.readdirSync(directory, { withFileTypes: true }).reduce((total, entry) => {
+    const entryPath = path.join(directory, entry.name);
+    return total + (entry.isDirectory() ? calculateDirectoryBytes(entryPath) : fs.statSync(entryPath).size);
+  }, 0);
+}
+
+const artifactBytes = calculateDirectoryBytes(outDir);
+assert.ok(artifactBytes <= MAX_PUBLISHED_ARTIFACT_BYTES, `Published artifact size ${artifactBytes} bytes exceeds the ${MAX_PUBLISHED_ARTIFACT_BYTES}-byte budget.`);
 
 const manifest = JSON.parse(fs.readFileSync(path.join(outDir, 'manifest.webmanifest'), 'utf8'));
 assert.equal(manifest.id, './', 'The install manifest must retain a stable application id.');
@@ -65,8 +102,11 @@ assert.match(worker, /precache-manifest\.js/, 'Service worker must import the ge
 
 const analytics = fs.readFileSync(path.join(outDir, 'js', 'analytics.js'), 'utf8');
 const appConfig = fs.readFileSync(path.join(outDir, 'js', 'config', 'app-config.js'), 'utf8');
-const settings = fs.readFileSync(path.join(outDir, 'js', 'settings.js'), 'utf8');
-const appEventNames = [...`${analytics}\n${settings}`.matchAll(/window\.gtag\('event', '([^']+)'/g)]
+const nonAnalyticsBrowserCode = fs.readdirSync(path.join(outDir, 'js'), { recursive: true })
+  .filter(resource => resource.endsWith('.js') && resource !== 'analytics.js')
+  .map(resource => fs.readFileSync(path.join(outDir, 'js', resource), 'utf8'))
+  .join('\n');
+const appEventNames = [...analytics.matchAll(/window\.gtag\('event', '([^']+)'/g)]
   .map(match => match[1]);
 const customAppEventNames = appEventNames.filter(eventName => eventName !== 'page_view');
 assert.match(GA4_MEASUREMENT_ID, /^G-[A-Z0-9]+$/, 'Analytics configuration must use a GA4 web-stream measurement ID, not a numeric property ID.');
@@ -85,11 +125,13 @@ assert.match(analytics, /page_location:\s*`\$\{window\.HOME_PAGE_URL\}\$\{window
 assert.match(analytics, /page_referrer:\s*''/, 'Analytics must not send page referrers.');
 assert.match(analytics, /window\.gtag\('event', 'page_view'/, 'Sanitized page measurement must use the GA4 page_view event recognized by standard reports.');
 assert.doesNotMatch(analytics, /window\.gtag\('event', 'ca_page_view'/, 'Page measurement must not be renamed to a custom event that standard GA4 page reporting ignores.');
-assert.match(analytics, /window\.gtag\('event', 'ca_share'/, 'Share measurement must use the app-specific analytics event prefix.');
+assert.match(analytics, /publishEvent\('ca_share'/, 'Share measurement must be owned by the analytics module.');
 assert.match(analytics, /window\.gtag\('event', 'ca_version'/, 'Version measurement must use the app-specific analytics event prefix.');
+assert.match(analytics, /publishEvent\('ca_external_link'/, 'External-link measurement must be owned by the analytics module.');
+assert.match(analytics, /publishEvent\('ca_setting_change'/, 'Settings measurement must be owned by the analytics module.');
 assert.match(analytics, /app_version:\s*window\.APP_VERSION/, 'Version measurement must send only the configured published app version.');
 assert.match(appConfig, new RegExp(APP_VERSION.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), 'Delivered application configuration must include the published app version.');
-assert.match(settings, /window\.gtag\('event', 'ca_select_favorite'/, 'Favorite measurement must use the app-specific analytics event prefix.');
+assert.doesNotMatch(nonAnalyticsBrowserCode, /\b(?:window\.)?gtag\s*\(/, 'Delivered browser scripts must publish measurement only through the analytics module API.');
 assert.ok(appEventNames.length > 0, 'The delivered application must declare its expected analytics events.');
 customAppEventNames.forEach(eventName => assert.match(eventName, /^ca_/, `Custom application analytics event must use the ca_ prefix: ${eventName}`));
 assert.doesNotMatch(analytics, /user_id|user_properties|document\.referrer|location\.search|location\.hash/, 'Analytics must not add identifiers, user profiling values, or unsanitized navigation data.');
@@ -97,9 +139,30 @@ assert.doesNotMatch(analytics, /user_id|user_properties|document\.referrer|locat
 Object.entries(canonicalPages).forEach(([page, canonical]) => {
   const html = fs.readFileSync(path.join(outDir, page), 'utf8');
   const canonicalLinks = html.match(/<link rel="canonical" href="[^"]+">/g) || [];
+  const pageTitle = html.match(/<title>([^<]+)<\/title>/)?.[1];
+  const pageDescription = html.match(/<meta name="description" content="([^"]+)">/)?.[1];
   assert.deepEqual(canonicalLinks, [`<link rel="canonical" href="${canonical}">`], `${page} must publish its one canonical URL.`);
   assert.equal((html.match(/<title>/g) || []).length, 1, `${page} must publish one title.`);
+  assert.ok(pageTitle && pageTitle.length <= 55, `${page} must publish a concise title of at most 55 characters.`);
+  assert.ok(pageDescription, `${page} must publish a meta description.`);
+  assert.ok(html.includes(`<meta property="og:image" content="${socialPreviewImage}">`), `${page} must publish its absolute Open Graph image URL.`);
+  assert.match(html, /<meta property="og:image:type" content="image\/jpeg">/, `${page} must identify the social preview image type.`);
+  assert.match(html, /<meta property="og:image:width" content="230">/, `${page} must identify the social preview image width.`);
+  assert.match(html, /<meta property="og:image:height" content="180">/, `${page} must identify the social preview image height.`);
+  assert.match(html, /<meta name="twitter:card" content="summary">/, `${page} must use the preview card supported by its logo image.`);
+  assert.ok(html.includes(`<meta name="twitter:image" content="${socialPreviewImage}">`), `${page} must publish its absolute Twitter image URL.`);
+  if (indexablePages.has(page)) {
+    assert.match(html, /<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">/, `${page} must allow enhanced search previews.`);
+    assert.match(html, /<meta property="og:type" content="website">/, `${page} must declare its Open Graph page type.`);
+    assert.ok(html.includes(`<meta property="og:title" content="${pageTitle}">`), `${page} must align its Open Graph title with its page title.`);
+    assert.ok(html.includes(`<meta name="twitter:title" content="${pageTitle}">`), `${page} must align its Twitter title with its page title.`);
+    assert.ok(html.includes(`<meta property="og:description" content="${pageDescription}">`), `${page} must align its Open Graph description with its search description.`);
+    assert.ok(html.includes(`<meta name="twitter:description" content="${pageDescription}">`), `${page} must align its Twitter description with its search description.`);
+    assert.ok(html.includes(`<meta property="og:url" content="${canonical}">`), `${page} must publish its canonical URL for social sharing.`);
+  }
   assert.match(html, /http-equiv="Content-Security-Policy"/, `${page} must publish the shared browser security policy.`);
+  assert.doesNotMatch(html, /script-src[^;"]*'unsafe-inline'/, `${page} must not permit arbitrary inline executable scripts.`);
+  assert.match(html, /script-src[^;"]*'sha256-[A-Za-z0-9+/]+=*'/, `${page} must authorize its inline structured data with a CSP hash.`);
   assert.match(html, /connect-src[^;"]*https:\/\/www\.google-analytics\.com/, `${page} must permit Google Analytics collection requests.`);
   assert.match(html, /script-src[^;"]*https:\/\/static\.cloudflareinsights\.com/, `${page} must permit the Cloudflare Insights beacon script.`);
   assert.match(html, /connect-src[^;"]*https:\/\/cloudflareinsights\.com/, `${page} must permit Cloudflare Insights beacon reporting.`);
@@ -108,6 +171,7 @@ Object.entries(canonicalPages).forEach(([page, canonical]) => {
     `${page} must load application URL configuration before analytics handling.`
   );
   assert.match(html, /js\/analytics\.js\?v=/, `${page} must load deployed-site analytics handling.`);
+  assert.match(html, /js\/weather-alert-cached\.js\?v=/, `${page} must load cached weather rendering from a same-origin script.`);
   assert.doesNotMatch(html, /analytics-consent\.js|onclick=/, `${page} must not publish the obsolete consent loader or inline click handlers.`);
 });
 
@@ -132,4 +196,4 @@ assert.match(robots, new RegExp(`Sitemap: ${siteOrigin.replace(/[.*+?^${}()|[\]\
 const customDomain = fs.readFileSync(path.join(outDir, 'CNAME'), 'utf8').trim();
 assert.equal(customDomain, HOME_PAGE_HOSTNAME, 'Published GitHub Pages output must retain the configured custom domain.');
 
-console.log(`Verified PWA artifact: ${precacheResources.length} cached resources for the ${YEAR} season.`);
+console.log(`Verified PWA artifact: ${precacheResources.length} cached resources and ${artifactBytes} bytes for the ${YEAR} season (budget ${MAX_PUBLISHED_ARTIFACT_BYTES} bytes).`);

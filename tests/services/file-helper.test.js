@@ -52,19 +52,10 @@ describe('FileHelper', () => {
       assert.equal(FileHelper.getMeetsDataPath(), 'assets/data/2026/meets/meets.json');
     });
 
-    it('should return a year and domain scoped pool schedules path in production', () => {
-      assert.equal(FileHelper.getPoolSchedulesBasePath(), 'assets/data/2026/pools/pool-schedules/');
-      assert.equal(
-        FileHelper.getPoolSchedulePath('Bryant_Woods.pdf'),
-        'assets/data/2026/pools/pool-schedules/Bryant_Woods.pdf'
-      );
-    });
-
     it('should retain year and domain segments in direct source development mode', () => {
       global.document.querySelectorAll = selector => selector.includes('script[src*="src/js/"]') ? [{}] : [];
 
       assert.equal(FileHelper.getPoolsDataPath(), 'src/assets/data/2026/pools/pools.json');
-      assert.equal(FileHelper.getPoolSchedulesBasePath(), 'src/assets/data/2026/pools/pool-schedules/');
     });
   });
 });

@@ -8,6 +8,60 @@
       "url": "https://www.gomotionapp.com/team/reccnslcfhss/page/home",
       "homePools": ["Swansfield"],
       "practicePools": ["Clary's Forest", "Hawthorn", "Swansfield"],
+      "practice": {
+        "url": "https://www.gomotionapp.com/team/reccnslcfhss/page/team-information/practice-schedule",
+        "preseason": [
+          {
+            "period": "May 26 - May 29",
+            "days": "Tuesday - Friday",
+            "location": "Hawthorn Pool",
+            "sessions": [
+              { "time": "5:00 - 5:30pm", "group": "New Swimmers" },
+              { "time": "5:30 - 6:00pm", "group": "8 & Under" },
+              { "time": "6:00 - 6:30pm", "group": "9-12" },
+              { "time": "6:30 - 7:00pm", "group": "13-18" }
+            ]
+          },
+          {
+            "period": "June 1 - June 18",
+            "days": "Monday - Friday",
+            "location": "Hawthorn Pool",
+            "sessions": [
+              { "time": "5:00 - 5:30pm", "group": "8 & Under and New Swimmers" },
+              { "time": "5:30 - 6:15pm", "group": "9-12" },
+              { "time": "6:15 - 7:00pm", "group": "13-18" }
+            ]
+          }
+        ],
+        "regular": {
+          "season": "June 19 - July 24",
+          "morning": [
+            {
+              "days": "Tuesday - Friday",
+              "location": "Swansfield Pool",
+              "sessions": [
+                { "time": "8:00 - 8:30am", "group": "8 & Under" },
+                { "time": "8:30 - 9:15am", "group": "9-12" },
+                { "time": "9:15 - 10:00am", "group": "13-18" }
+              ]
+            }
+          ],
+          "evening": [
+            { "day": "Monday", "location": "Clary's Forest Pool", "sessions": [
+              { "time": "5:00 - 5:45pm", "group": "10 & Under" },
+              { "time": "5:45 - 6:30pm", "group": "11 & Up" }
+            ] },
+            { "day": "Wednesday", "location": "Hawthorn Pool", "sessions": [
+              { "time": "5:00 - 5:45pm", "group": "10 & Under" },
+              { "time": "5:45 - 6:30pm", "group": "11 & Up" }
+            ] },
+            { "day": "Thursday", "location": "Swansfield Pool", "sessions": [
+              { "time": "5:00 - 5:45pm", "group": "10 & Under" },
+              { "time": "5:45 - 6:30pm", "group": "11 & Up" }
+            ] }
+          ]
+        }
+      },
       "staff": {
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslcfhss/page/system/coaches",
         "verifiedOn": "2026-05-24",
@@ -57,6 +111,9 @@
       "url": "https://www.gomotionapp.com/team/reccnsldsd/page/home",
       "homePools": ["Dorsey Hall"],
       "practicePools": ["Dorsey Hall", "Phelps Luck", "Running Brook", "Thunder Hill"],
+      "practice": {
+        "url": "https://www.gomotionapp.com/team/reccnsldsd/page/practice-schedule"
+      },
       "staff": {
         "sourceUrl": "https://www.gomotionapp.com/team/reccnsldsd/page/system/coaches",
         "verifiedOn": "2026-05-24",
@@ -75,6 +132,9 @@
       "url": "https://www.gomotionapp.com/team/reccnslhcc/page/home",
       "homePools": ["Longfellow"],
       "practicePools": ["Longfellow", "Faulkner Ridge", "Swansfield"],
+      "practice": {
+        "url": "https://www.gomotionapp.com/team/reccnslhcc/page/team-information/practice-schedule"
+      },
       "staff": {
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslhcc/page/system/coaches",
         "verifiedOn": "2026-05-24",
@@ -98,6 +158,44 @@
       "url": "https://www.gomotionapp.com/team/reccnslhd/page/home",
       "homePools": ["Huntington"],
       "practicePools": ["Huntington", "Hopewell", "Dickinson"],
+      "practice": {
+        "url": "https://www.gomotionapp.com/team/reccnslhd/page/home",
+        "preseason": [
+          {
+            "period": "May 26 - June 19",
+            "days": "Monday - Friday",
+            "location": "Huntington Pool",
+            "sessions": [
+              { "time": "5:00 - 5:30pm", "group": "New Swimmers" },
+              { "time": "5:30 - 6:15pm", "group": "10 & Under" },
+              { "time": "6:15 - 7:00pm", "group": "11 & Older" }
+            ]
+          }
+        ],
+        "regular": {
+          "season": "June 22 - July 24",
+          "morning": [
+            { "days": "Tuesday - Friday", "location": "Huntington Pool", "sessions": [
+              { "time": "8:30 - 9:15am", "group": "10 & Under" },
+              { "time": "9:15 - 10:00am", "group": "11 & Older" }
+            ] }
+          ],
+          "evening": [
+            { "day": "Monday", "location": "Huntington Pool", "sessions": [
+              { "time": "5:00 - 5:45pm", "group": "10 & Under" },
+              { "time": "5:45 - 6:30pm", "group": "11 & Older" }
+            ] },
+            { "day": "Wednesday", "location": "Hopewell Pool", "sessions": [
+              { "time": "6:30 - 7:15pm", "group": "10 & Under" },
+              { "time": "7:15 - 8:00pm", "group": "11 & Older" }
+            ] },
+            { "day": "Thursday", "location": "Dickinson Pool", "sessions": [
+              { "time": "5:00 - 5:45pm", "group": "10 & Under" },
+              { "time": "5:45 - 6:30pm", "group": "11 & Older" }
+            ] }
+          ]
+        }
+      },
       "staff": {
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslhd/page/system/coaches",
         "verifiedOn": "2026-05-24",
@@ -138,6 +236,77 @@
       "url": "https://www.gomotionapp.com/team/reccnsllrm/page/home",
       "homePools": ["Kendall Ridge"],
       "practicePools": ["Kendall Ridge", "Jeffers Hill", "Locust Park", "Stevens Forest"],
+      "practice": {
+        "url": "https://www.gomotionapp.com/team/reccnsllrm/page/practice-schedule",
+        "preseason": [
+          {
+            "period": "May 26 - May 29",
+            "days": "Tuesday - Friday",
+            "location": "Locust Park Pool",
+            "sessions": [
+              { "time": "5:00 - 5:30pm", "group": "First Splash" },
+              { "time": "5:30 - 6:00pm", "group": "8 and under" },
+              { "time": "6:00 - 6:30pm", "group": "9 - 12" },
+              { "time": "6:30 - 7:00pm", "group": "13 and over" }
+            ]
+          },
+          {
+            "period": "June 1 - June 5",
+            "days": "Monday - Friday",
+            "location": "Locust Park Pool",
+            "sessions": [
+              { "time": "5:00 - 5:30pm", "group": "Lap requirement training" },
+              { "time": "5:30 - 6:00pm", "group": "8 and under" },
+              { "time": "6:00 - 6:30pm", "group": "9 - 12" },
+              { "time": "6:30 - 7:00pm", "group": "13 and over" }
+            ]
+          },
+          {
+            "period": "June 8 - June 11",
+            "days": "Monday - Thursday",
+            "location": "Locust Park Pool",
+            "sessions": [
+              { "time": "5:00 - 5:30pm", "group": "8 and under" },
+              { "time": "5:30 - 6:15pm", "group": "9 - 12" },
+              { "time": "6:15 - 7:00pm", "group": "13 and over" }
+            ]
+          },
+          {
+            "period": "June 15 - June 18",
+            "days": "Monday - Thursday",
+            "location": "Locust Park Pool",
+            "sessions": [
+              { "time": "5:00 - 5:30pm", "group": "8 and under" },
+              { "time": "5:30 - 6:15pm", "group": "9 - 12" },
+              { "time": "6:15 - 7:00pm", "group": "13 and over" }
+            ]
+          }
+        ],
+        "regular": {
+          "season": "June 19 - July 23",
+          "morning": [
+            { "days": "Tuesday - Friday", "location": "Kendall Ridge Pool", "sessions": [
+              { "time": "8:00 - 8:45am", "group": "13 and over" },
+              { "time": "8:45 - 9:30am", "group": "9 - 12" },
+              { "time": "9:30 - 10:00am", "group": "8 and under" }
+            ] }
+          ],
+          "evening": [
+            { "day": "Monday", "location": "Stevens Forest Pool", "sessions": [
+              { "time": "6:30 - 7:15pm", "group": "10 and under" },
+              { "time": "7:15 - 8:00pm", "group": "11 and over" }
+            ] },
+            { "day": "Tuesday", "location": "Kendall Ridge Pool", "sessions": [
+              { "time": "5:00 - 5:45pm", "group": "10 and under" },
+              { "time": "5:45 - 6:30pm", "group": "11 and over" }
+            ] },
+            { "day": "Thursday", "location": "Jeffers Hill Pool", "sessions": [
+              { "time": "5:00 - 5:45pm", "group": "10 and under" },
+              { "time": "5:45 - 6:30pm", "group": "11 and over" }
+            ] }
+          ]
+        }
+      },
       "staff": {
         "sourceUrl": "https://www.gomotionapp.com/team/reccnsllrm/page/system/coaches",
         "verifiedOn": "2026-05-24",
@@ -164,6 +333,9 @@
       "url": "https://www.gomotionapp.com/team/reccnslomts/page/home",
       "homePools": ["Stevens Forest"],
       "practicePools": ["Stevens Forest", "Dasher Green", "Talbott Springs"],
+      "practice": {
+        "url": "https://www.gomotionapp.com/team/reccnslomts/page/practice-schedule"
+      },
       "staff": {
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslomts/page/system/coaches",
         "verifiedOn": "2026-05-24",
@@ -192,6 +364,9 @@
       "url": "https://www.gomotionapp.com/team/reccnslobb/page/home",
       "homePools": ["Dasher Green"],
       "practicePools": ["Dasher Green", "Hopewell", "Talbott Springs"],
+      "practice": {
+        "url": "https://www.gomotionapp.com/team/reccnslobb/page/practice-schedule1"
+      },
       "staff": {
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslobb/page/system/coaches",
         "verifiedOn": "2026-05-24",
@@ -243,6 +418,70 @@
       "url": "https://www.gomotionapp.com/team/reccnslpls/page/home",
       "homePools": ["Phelps Luck"],
       "practicePools": ["Phelps Luck", "Kendall Ridge", "Locust Park"],
+      "practice": {
+        "url": "https://www.gomotionapp.com/team/reccnslpls/page/practices",
+        "preseason": [
+          {
+            "period": "May 26 - May 29",
+            "days": "Tuesday - Friday",
+            "location": "Phelps Luck Pool",
+            "sessions": [
+              { "time": "5:00 - 5:30pm", "group": "First Splash" },
+              { "time": "5:30 - 6:00pm", "group": "8 and under" },
+              { "time": "6:00 - 6:30pm", "group": "9 - 12" },
+              { "time": "6:30 - 7:00pm", "group": "13 and over" }
+            ]
+          },
+          {
+            "period": "June 1 - June 5",
+            "days": "Monday - Friday",
+            "location": "Phelps Luck Pool",
+            "sessions": [
+              { "time": "5:00 - 5:30pm", "group": "Lap requirement training" },
+              { "time": "5:30 - 6:00pm", "group": "8 and under" },
+              { "time": "6:00 - 6:30pm", "group": "9 - 12" },
+              { "time": "6:30 - 7:00pm", "group": "13 and over" }
+            ]
+          },
+          {
+            "period": "June 8 - June 18",
+            "days": "Monday - Friday",
+            "location": "Phelps Luck Pool",
+            "sessions": [
+              { "time": "5:00 - 5:30pm", "group": "8 and under" },
+              { "time": "5:30 - 6:15pm", "group": "9 - 12" },
+              { "time": "6:15 - 7:00pm", "group": "13 and over" }
+            ]
+          }
+        ],
+        "regular": {
+          "season": "June 19 - July 24",
+          "morning": [
+            { "days": "Tuesday - Friday", "location": "Phelps Luck Pool", "sessions": [
+              { "time": "8:00 - 8:30am", "group": "8 and under" },
+              { "time": "8:30 - 9:15am", "group": "9 - 12" },
+              { "time": "9:15 - 10:00am", "group": "13 - 18" }
+            ] }
+          ],
+          "evening": [
+            { "day": "Tuesday", "location": "Kendall Ridge Pool", "sessions": [
+              { "time": "6:30 - 7:00pm", "group": "8 and under" },
+              { "time": "6:30 - 7:15pm", "group": "9 - 10" },
+              { "time": "7:15 - 8:00pm", "group": "11 - 18" }
+            ] },
+            { "day": "Wednesday", "location": "Phelps Luck Pool", "sessions": [
+              { "time": "6:30 - 7:00pm", "group": "8 and under" },
+              { "time": "6:30 - 7:15pm", "group": "9 - 10" },
+              { "time": "7:15 - 8:00pm", "group": "11 - 18" }
+            ] },
+            { "day": "Thursday", "location": "Locust Park Pool", "sessions": [
+              { "time": "5:00 - 5:30pm", "group": "8 and under" },
+              { "time": "5:00 - 5:45pm", "group": "9 - 10" },
+              { "time": "5:45 - 6:30pm", "group": "11 - 18" }
+            ] }
+          ]
+        }
+      },
       "staff": {
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslpls/page/system/coaches",
         "verifiedOn": "2026-05-24",
@@ -263,6 +502,61 @@
       "url": "https://www.gomotionapp.com/team/reccnslprp/page/home",
       "homePools": ["River Hill"],
       "practicePools": ["River Hill", "Clemens Crossing", "Hobbit's Glen", "Longfellow"],
+      "practice": {
+        "url": "https://www.gomotionapp.com/team/reccnslprp/page/practices",
+        "preseason": [
+          { "period": "May 26 - June 18", "days": "Monday & Wednesday", "location": "River Hill Pool", "sessions": [
+            { "time": "5:00 - 5:30pm", "group": "New Swimmers" },
+            { "time": "5:30 - 6:00pm", "group": "8 and under" },
+            { "time": "6:00 - 6:30pm", "group": "9 - 10" },
+            { "time": "6:30 - 7:00pm", "group": "11 and up" }
+          ] },
+          { "period": "May 26 - June 18", "days": "Tuesday & Thursday", "location": "Hobbit's Glen Pool", "sessions": [
+            { "time": "5:00 - 5:30pm", "group": "New Swimmers" },
+            { "time": "5:30 - 6:00pm", "group": "8 and under" },
+            { "time": "6:00 - 6:30pm", "group": "9 - 10" },
+            { "time": "6:30 - 7:00pm", "group": "11 and up" }
+          ] },
+          { "period": "May 26 - June 18", "days": "Friday", "location": "Hobbit's Glen Pool", "sessions": [
+            { "time": "4:00 - 4:30pm", "group": "11 and up" },
+            { "time": "4:30 - 5:00pm", "group": "9 - 10" },
+            { "time": "5:00 - 5:30pm", "group": "New Swimmers" },
+            { "time": "5:30 - 6:00pm", "group": "8 and under" }
+          ] }
+        ],
+        "regular": {
+          "season": "June 19 - July 23",
+          "morning": [
+            { "days": "Tuesday & Thursday", "location": "River Hill Pool", "sessions": [
+              { "time": "10:00 - 10:40am", "group": "8 and under" },
+              { "time": "10:40 - 11:20am", "group": "9 - 10" },
+              { "time": "11:20 - 12:00pm", "group": "11 and up" }
+            ] },
+            { "days": "Wednesday & Friday", "location": "River Hill Pool", "sessions": [
+              { "time": "8:00 - 8:40am", "group": "8 and under" },
+              { "time": "8:40 - 9:20am", "group": "9 - 10" },
+              { "time": "9:20 - 10:00am", "group": "11 and up" }
+            ] }
+          ],
+          "evening": [
+            { "day": "Monday", "location": "Longfellow Pool", "sessions": [
+              { "time": "4:00 - 4:30pm", "group": "8 and under" },
+              { "time": "4:30 - 5:00pm", "group": "9 - 10" },
+              { "time": "5:00 - 5:30pm", "group": "11 and up" }
+            ] },
+            { "day": "Tuesday", "location": "Clemens Crossing Pool", "sessions": [
+              { "time": "6:30 - 7:00pm", "group": "8 and under" },
+              { "time": "7:00 - 7:30pm", "group": "9 - 10" },
+              { "time": "7:30 - 8:00pm", "group": "11 and up" }
+            ] },
+            { "day": "Wednesday", "location": "Hobbit's Glen Pool", "sessions": [
+              { "time": "5:00 - 5:30pm", "group": "8 and under" },
+              { "time": "5:30 - 6:00pm", "group": "9 - 10" },
+              { "time": "6:00 - 6:30pm", "group": "11 and up" }
+            ] }
+          ]
+        }
+      },
       "staff": {
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslprp/page/system/coaches",
         "verifiedOn": "2026-05-24",

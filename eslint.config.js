@@ -32,6 +32,7 @@ module.exports = [
         CacheService: 'readonly',
         PreferencesService: 'readonly',
         TimeUtils: 'readonly',
+        TeamScheduleService: 'readonly',
         CNSLSearchEngine: 'readonly',
         WeatherService: 'readonly',
         WeatherAlertService: 'readonly',

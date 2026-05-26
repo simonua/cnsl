@@ -83,6 +83,7 @@ describe('season data agent', () => {
         teamsData: {
           teams: [{
             name: 'Marlins',
+            practice: { url: 'https://team.test/practices' },
             staff: { sourceUrl: 'https://team.test/staff' },
             url: 'https://team.test/home'
           }]
@@ -94,6 +95,7 @@ describe('season data agent', () => {
       assert.ok(sources.documents.some((source) => source.domain === 'meets'));
       assert.ok(sources.documents.some((source) => source.domain === 'teams'));
       assert.ok(sources.pages.some((source) => source.url === 'https://pools.test/bryant'));
+      assert.ok(sources.pages.some((source) => source.url === 'https://team.test/practices'));
       assert.deepStrictEqual(
         sources.pages.find((source) => source.url === 'https://league.test/home').domains,
         ['meets', 'teams']

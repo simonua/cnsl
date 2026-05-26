@@ -45,6 +45,14 @@
       </p>
     </div>
     <include src="components/quick-links.html"></include>
+    <section class="favorite-week" id="favoriteWeek" aria-labelledby="favoriteWeekTitle" hidden>
+      <div class="favorite-week__heading">
+        <h2 id="favoriteWeekTitle">Your team's next seven days</h2>
+        <a href="teams.html" class="favorite-week__directory-link">Team details</a>
+      </div>
+      <p class="favorite-week__status" id="favoriteWeekStatus" role="status" aria-live="polite">Loading your team's schedule.</p>
+      <div id="favoriteWeekSchedule"></div>
+    </section>
     <section class="share-site" aria-labelledby="shareSiteTitle">
       <h2 class="share-site__title" id="shareSiteTitle">Share this site</h2>
       <div class="share-site__links">
@@ -75,6 +83,13 @@
   </block>
 
   <block name="scripts">
+    <script src="js/services/html-safety.js"></script>
+    <script src="js/teams-manager.js"></script>
+    <script src="js/meets-manager.js"></script>
+    <script src="js/services/file-helper.js"></script>
+    <script src="js/services/data-manager.js"></script>
+    <script src="js/services/team-schedule-service.js"></script>
+    <script src="js/home-schedule.js" defer></script>
     <script src="js/install-app.js" defer></script>
   </block>
 </extends>

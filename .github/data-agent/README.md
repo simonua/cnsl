@@ -6,7 +6,7 @@ The nightly monitor checks public sources that support the active `YEAR` data se
 
 - Pools: each retained pool schedule PDF, the Columbia Association schedule and directory pages, and each pool facility page supplying features.
 - Meets: the retained official meet-schedule PDF and the CNSL publication page.
-- Teams: retained practice and assignment PDFs, each public team and staff page, and the CNSL publication page.
+- Teams: retained practice and assignment PDFs, each public team, staff, and recorded practice-schedule page, and the CNSL publication page.
 
 Stored PDFs are compared byte-for-byte against the public document and replaced on an update branch when they change. Web pages are reduced to relevant visible text and compared against fingerprints in `source-state.json`, which avoids routine script or styling changes causing review traffic. The Columbia Association schedule index is limited to its outdoor-pool schedule section and destination links so changes to indoor schedules or promotional page chrome are ignored. A differing page fingerprint must be reproduced by a second request in the same run before it opens a pull request.
 

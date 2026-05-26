@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const crypto = require('node:crypto');
 const posthtml = require('posthtml');
 const appConfig = require('./src/js/config/app-config');
 const expressions = require('posthtml-expressions')({ locals: appConfig });
@@ -100,6 +101,36 @@ const versionStaticAssetsPlugin = (tree) => {
   return tree;
 };
 
+const authorizeInlineStructuredDataPlugin = (tree) => {
+  const inlineScriptHashes = new Set();
+  let policyMeta = null;
+
+  tree.walk(node => {
+    if (node.tag === 'script' && (!node.attrs || !node.attrs.src)) {
+      if (!node.attrs || node.attrs.type !== 'application/ld+json') {
+        throw new Error('Inline executable scripts are not permitted; use a same-origin script asset instead.');
+      }
+      const scriptContent = Array.isArray(node.content) ? node.content.join('') : (node.content || '');
+      const digest = crypto.createHash('sha256').update(scriptContent).digest('base64');
+      inlineScriptHashes.add(`'sha256-${digest}'`);
+    }
+    if (node.tag === 'meta' && node.attrs && node.attrs['http-equiv'] === 'Content-Security-Policy') {
+      policyMeta = node;
+    }
+    return node;
+  });
+
+  if (!policyMeta) {
+    throw new Error('Shared Content-Security-Policy metadata is missing from a rendered page.');
+  }
+
+  policyMeta.attrs.content = policyMeta.attrs.content.replace(
+    '__INLINE_SCRIPT_HASHES__',
+    [...inlineScriptHashes].join(' ')
+  );
+  return tree;
+};
+
 const srcDir = './src/views';
 const outDir = './out';
 
@@ -110,7 +141,12 @@ fs.mkdirSync(outDir, { recursive: true });
 
 // Copy assets directory (excluding large file directories)
 console.log(`📁 [${timestamp()}] Copying assets directory...`);
-copyDir('./src/assets', path.join(outDir, 'assets'), ['data/2025', 'images/logos/originals']);
+copyDir('./src/assets', path.join(outDir, 'assets'), [
+  `data/${appConfig.YEAR}/pools/pool-schedules`,
+  `data/${appConfig.YEAR}/meets/meet-schedules`,
+  `data/${appConfig.YEAR}/teams/team-schedules`,
+  'images/logos/originals'
+]);
 
 // Verify swim meet resources were copied
 const swimMeetResourcesPath = path.join(outDir, 'assets', 'swim-meet-resources');
@@ -224,6 +260,7 @@ const pageBuilds = files.map(file => {
     .use(extend)
     .use(includePlugin)
     .use(expressions)
+    .use(authorizeInlineStructuredDataPlugin)
     .use(versionStaticAssetsPlugin)
     .process(html)
     .then(result => {

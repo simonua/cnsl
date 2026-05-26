@@ -556,10 +556,15 @@ function togglePoolFeatureFilters() {
  * Save selected features and refresh the directory results.
  */
 function handlePoolFeatureFilterChange() {
+  const availableFeatures = new Set(PreferencesService.getPoolFeatures(poolBrowserPools));
   const selectedFeatures = Array.from(document.querySelectorAll('input[name="poolFeature"]:checked'))
-    .map(input => input.value);
+    .map(input => input.value)
+    .filter(feature => availableFeatures.has(feature));
   const preferences = PreferencesService.get();
-  PreferencesService.save({ ...preferences, poolFeatureFilters: selectedFeatures });
+  const saved = PreferencesService.save({ ...preferences, poolFeatureFilters: selectedFeatures });
+  if (saved.poolFeatureFilters.join('|') !== preferences.poolFeatureFilters.join('|') && window.cnslAnalytics) {
+    window.cnslAnalytics.trackPublishedSettingChange('pool_feature_filters', saved.poolFeatureFilters, availableFeatures);
+  }
   renderPools(poolBrowserPools);
 }
 
@@ -569,6 +574,9 @@ function handlePoolFeatureFilterChange() {
 function clearPoolFeatureFilters() {
   const preferences = PreferencesService.get();
   PreferencesService.save({ ...preferences, poolFeatureFilters: [] });
+  if (preferences.poolFeatureFilters.length > 0 && window.cnslAnalytics) {
+    window.cnslAnalytics.trackPublishedSettingChange('pool_feature_filters', [], new Set());
+  }
   setupPoolFeatureFilters(poolBrowserPools);
   renderPools(poolBrowserPools);
 }
@@ -861,6 +869,7 @@ function togglePoolCard(toggleButton) {
   if (poolCard.classList.contains('favorite-card')) {
     const preferences = PreferencesService.get();
     PreferencesService.save({ ...preferences, favoritePoolExpanded: !isExpanded });
+    if (window.cnslAnalytics) window.cnslAnalytics.trackFixedSettingChange('favorite_pool_expanded', isExpanded ? 'collapsed' : 'expanded');
   }
   if (details) {
     details.hidden = isExpanded;

@@ -145,9 +145,18 @@ test('season summary and sharing actions appear only on the home page', async ({
   }
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
     ['event', 'ca_share', { method: 'text', content_type: 'website', item_id: 'home_page' }],
+    ['event', 'ca_external_link', {}],
     ['event', 'ca_share', { method: 'email', content_type: 'website', item_id: 'home_page' }],
-    ['event', 'ca_share', { method: 'facebook', content_type: 'website', item_id: 'home_page' }]
+    ['event', 'ca_external_link', {}],
+    ['event', 'ca_share', { method: 'facebook', content_type: 'website', item_id: 'home_page' }],
+    ['event', 'ca_external_link', {}]
   ]);
+
+  await page.locator('a.directory-link').evaluate(link => {
+    link.addEventListener('click', event => event.preventDefault(), { once: true });
+    link.dispatchEvent(new globalThis.MouseEvent('click', { bubbles: true, cancelable: true }));
+  });
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.at(-1))).toEqual(['event', 'ca_external_link', {}]);
 
   await page.setViewportSize({ width: 390, height: 844 });
   const compactLinkLayout = await page.locator('.quick-link-card').evaluateAll(cards => cards.map(card => {
@@ -236,9 +245,14 @@ test('analytics publishes a page view and public app version only after the Goog
   await expect.poll(() => page.evaluate(() => Array.from(globalThis.dataLayer.at(-1))[2])).toEqual({
     app_version: appVersion
   });
+  await page.unrouteAll({ behavior: 'ignoreErrors' });
 });
 
 test('pool feature filters expose their state and resulting count', async ({ page }) => {
+  await page.addInitScript(() => {
+    globalThis.recordedAnalyticsEvents = [];
+    globalThis.gtag = (...eventArguments) => globalThis.recordedAnalyticsEvents.push(eventArguments);
+  });
   await page.goto('/pools.html');
   await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
 
@@ -254,6 +268,7 @@ test('pool feature filters expose their state and resulting count', async ({ pag
     page.locator('.pool-filter__option--water-play > span').first().evaluate(chip => globalThis.getComputedStyle(chip).backgroundColor)
   ]);
   expect(new Set(chipColors).size).toBe(3);
+  const firstFeature = await page.locator('input[name="poolFeature"]').first().inputValue();
   await page.locator('input[name="poolFeature"]').first().check();
 
   await expect(page.locator('#poolFilterSummary')).toHaveText(/Showing \d+ of 23 pools/);
@@ -262,6 +277,22 @@ test('pool feature filters expose their state and resulting count', async ({ pag
   await page.locator('#clearPoolFeatureFilters').click();
   await expect(filters).toHaveAttribute('aria-expanded', 'true');
   await expect(page.locator('#poolFilterSummary')).toHaveText('23 pools');
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
+    ['event', 'ca_setting_change', { setting_name: 'pool_feature_filters', setting_value: firstFeature }],
+    ['event', 'ca_setting_change', { setting_name: 'pool_feature_filters', setting_value: 'none' }]
+  ]);
+
+  await page.locator('#poolFeatureFilterOptions').evaluate(options => {
+    const untrustedInput = options.ownerDocument.createElement('input');
+    untrustedInput.type = 'checkbox';
+    untrustedInput.name = 'poolFeature';
+    untrustedInput.value = 'person@example.com';
+    untrustedInput.checked = true;
+    options.appendChild(untrustedInput);
+    untrustedInput.dispatchEvent(new options.ownerDocument.defaultView.Event('change', { bubbles: true }));
+  });
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toHaveLength(2);
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).poolFeatureFilters)).toEqual([]);
 });
 
 test('pool tile features are ordered by category then alphabetically', async ({ page }) => {
@@ -292,6 +323,10 @@ test('pool tile features are ordered by category then alphabetically', async ({ 
 });
 
 test('collapsed favorite pool stays collapsed after filters redraw the directory', async ({ page }) => {
+  await page.addInitScript(() => {
+    globalThis.recordedAnalyticsEvents = [];
+    globalThis.gtag = (...eventArguments) => globalThis.recordedAnalyticsEvents.push(eventArguments);
+  });
   await page.goto('/pools.html');
   await page.evaluate(() => {
     localStorage.setItem('cnsl_preferences', JSON.stringify({ favoritePoolName: 'Bryant Woods' }));
@@ -303,6 +338,9 @@ test('collapsed favorite pool stays collapsed after filters redraw the directory
   await expect(favoriteToggle).toHaveAttribute('aria-expanded', 'true');
   await favoriteToggle.click();
   await expect(favoriteToggle).toHaveAttribute('aria-expanded', 'false');
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.at(-1))).toEqual([
+    'event', 'ca_setting_change', { setting_name: 'favorite_pool_expanded', setting_value: 'collapsed' }
+  ]);
 
   await page.locator('#togglePoolFeatureFilters').click();
   await page.locator('input[name="poolFeature"]').first().check();
@@ -315,6 +353,10 @@ test('collapsed favorite pool stays collapsed after filters redraw the directory
 });
 
 test('collapsed favorite team stays collapsed after returning to the directory', async ({ page }) => {
+  await page.addInitScript(() => {
+    globalThis.recordedAnalyticsEvents = [];
+    globalThis.gtag = (...eventArguments) => globalThis.recordedAnalyticsEvents.push(eventArguments);
+  });
   await page.goto('/teams.html');
   await page.evaluate(() => {
     localStorage.setItem('cnsl_preferences', JSON.stringify({ favoriteTeamId: 'cfhss' }));
@@ -326,9 +368,40 @@ test('collapsed favorite team stays collapsed after returning to the directory',
   await expect(favoriteToggle).toHaveAttribute('aria-expanded', 'true');
   await favoriteToggle.click();
   await expect(favoriteToggle).toHaveAttribute('aria-expanded', 'false');
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
+    ['event', 'ca_setting_change', { setting_name: 'favorite_team_expanded', setting_value: 'collapsed' }]
+  ]);
 
   await page.reload();
   await expect(page.locator('.favorite-card .team-header__toggle')).toHaveAttribute('aria-expanded', 'false');
+});
+
+test('team directory displays verified regular practices from public team schedules', async ({ page }) => {
+  await page.goto('/teams.html');
+  await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
+
+  const sundevils = page.locator('.team-card[data-team-id="cfhss"]');
+  await sundevils.locator('.team-header__toggle').click();
+  await expect(sundevils.locator('.practice-schedule')).toContainText('Regular Practice Schedule');
+  await expect(sundevils.locator('.practice-schedule')).toContainText('Swansfield Pool');
+  await expect(sundevils.locator('.practice-schedule')).toContainText('8:00 - 8:30am');
+  await expect(sundevils.getByRole('link', { name: 'Practice Schedule' })).toHaveAttribute('href', /practice-schedule/);
+});
+
+test('home page shows the next seven days for a selected favorite team', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-05-26T12:00:00'));
+  await page.addInitScript(() => {
+    localStorage.setItem('cnsl_preferences', JSON.stringify({ favoriteTeamId: 'pls' }));
+  });
+  await page.goto('/index.html');
+
+  const agenda = page.locator('#favoriteWeek');
+  await expect(agenda).toBeVisible();
+  await expect(agenda.getByRole('heading', { name: /Phelps Luck Snappers: next seven days/ })).toBeVisible();
+  await expect(page.locator('#favoriteWeekStatus')).toContainText('published practice or meet schedule entries');
+  await expect(agenda).toContainText('Pre-season Practice');
+  await expect(agenda).toContainText('Phelps Luck Pool');
+  await expect(agenda).toContainText('First Splash: 5:00 - 5:30pm');
 });
 
 test('location distances use outlined pills and can sort nearest pools first', async ({ page }) => {
@@ -597,6 +670,8 @@ test('settings persist choices locally and announce clearing saved settings', as
   await expect(page.locator('#favoritePool')).toBeEnabled();
 
   await page.getByLabel('Dark').check();
+  await page.getByLabel('Weekly calendar').check();
+  await page.getByLabel('Use my current location to estimate distances to pools').check();
   await page.getByLabel('10 min').check();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).theme)).toBe('dark');
@@ -604,15 +679,24 @@ test('settings persist choices locally and announce clearing saved settings', as
   await expect(page.getByLabel('Share anonymous page usage through Google Analytics')).toHaveCount(0);
   await expect.poll(() => page.evaluate(() => Object.hasOwn(JSON.parse(localStorage.getItem('cnsl_preferences')), 'analyticsEnabled'))).toBe(false);
   await expect(page.locator('#cnslAnalyticsScript')).toHaveCount(0);
-  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([]);
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
+    ['event', 'ca_setting_change', { setting_name: 'theme', setting_value: 'dark' }],
+    ['event', 'ca_setting_change', { setting_name: 'pool_schedule_layout', setting_value: 'calendar' }],
+    ['event', 'ca_setting_change', { setting_name: 'location_awareness', setting_value: 'enabled' }],
+    ['event', 'ca_setting_change', { setting_name: 'weather_refresh_minutes', setting_value: '10' }]
+  ]);
 
   await page.locator('#favoritePool').selectOption({ label: 'Bryant Woods' });
   await page.locator('#favoriteTeam').selectOption('cfhss');
   await page.locator('#favoritePool').selectOption('');
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
-    ['event', 'ca_select_favorite', { favorite_type: 'pool', favorite_value: 'Bryant Woods' }],
-    ['event', 'ca_select_favorite', { favorite_type: 'team', favorite_value: 'cfhss' }],
-    ['event', 'ca_select_favorite', { favorite_type: 'pool', favorite_value: 'none' }]
+    ['event', 'ca_setting_change', { setting_name: 'theme', setting_value: 'dark' }],
+    ['event', 'ca_setting_change', { setting_name: 'pool_schedule_layout', setting_value: 'calendar' }],
+    ['event', 'ca_setting_change', { setting_name: 'location_awareness', setting_value: 'enabled' }],
+    ['event', 'ca_setting_change', { setting_name: 'weather_refresh_minutes', setting_value: '10' }],
+    ['event', 'ca_setting_change', { setting_name: 'favorite_pool', setting_value: 'Bryant Woods' }],
+    ['event', 'ca_setting_change', { setting_name: 'favorite_team', setting_value: 'cfhss' }],
+    ['event', 'ca_setting_change', { setting_name: 'favorite_pool', setting_value: 'none' }]
   ]);
 
   await page.locator('#favoriteTeam').evaluate(select => {
@@ -623,15 +707,23 @@ test('settings persist choices locally and announce clearing saved settings', as
     select.value = untrustedOption.value;
     select.dispatchEvent(new select.ownerDocument.defaultView.Event('change', { bubbles: true }));
   });
-  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toHaveLength(3);
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toHaveLength(7);
 
   await page.getByRole('button', { name: 'Clear saved settings' }).click();
   await expect(page.locator('#settingsStatus')).toHaveText('Saved settings removed from this device.');
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
-    ['event', 'ca_select_favorite', { favorite_type: 'pool', favorite_value: 'Bryant Woods' }],
-    ['event', 'ca_select_favorite', { favorite_type: 'team', favorite_value: 'cfhss' }],
-    ['event', 'ca_select_favorite', { favorite_type: 'pool', favorite_value: 'none' }],
-    ['event', 'ca_select_favorite', { favorite_type: 'team', favorite_value: 'none' }]
+    ['event', 'ca_setting_change', { setting_name: 'theme', setting_value: 'dark' }],
+    ['event', 'ca_setting_change', { setting_name: 'pool_schedule_layout', setting_value: 'calendar' }],
+    ['event', 'ca_setting_change', { setting_name: 'location_awareness', setting_value: 'enabled' }],
+    ['event', 'ca_setting_change', { setting_name: 'weather_refresh_minutes', setting_value: '10' }],
+    ['event', 'ca_setting_change', { setting_name: 'favorite_pool', setting_value: 'Bryant Woods' }],
+    ['event', 'ca_setting_change', { setting_name: 'favorite_team', setting_value: 'cfhss' }],
+    ['event', 'ca_setting_change', { setting_name: 'favorite_pool', setting_value: 'none' }],
+    ['event', 'ca_setting_change', { setting_name: 'theme', setting_value: 'system' }],
+    ['event', 'ca_setting_change', { setting_name: 'pool_schedule_layout', setting_value: 'list' }],
+    ['event', 'ca_setting_change', { setting_name: 'location_awareness', setting_value: 'disabled' }],
+    ['event', 'ca_setting_change', { setting_name: 'weather_refresh_minutes', setting_value: '5' }],
+    ['event', 'ca_setting_change', { setting_name: 'favorite_team', setting_value: 'none' }]
   ]);
 });
 

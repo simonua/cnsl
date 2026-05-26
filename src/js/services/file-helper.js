@@ -250,27 +250,6 @@ if (typeof window === 'undefined' || !window.FileHelper) {
   }
 
   // ------------------------------
-  //    DOCUMENT PATH RESOLUTION
-  // ------------------------------
-
-  /**
-   * Gets the correct path for pool schedule PDFs
-   * @returns {string} Base path for pool schedule PDFs
-   */
-  static getPoolSchedulesBasePath() {
-    return this.getSeasonDataBasePath('pools') + 'pool-schedules/';
-  }
-
-  /**
-   * Gets the correct path for a pool schedule PDF
-   * @param {string} filename - The PDF file name
-   * @returns {string} Full path to the pool schedule PDF
-   */
-  static getPoolSchedulePath(filename) {
-    return this.getPoolSchedulesBasePath() + filename;
-  }
-
-  // ------------------------------
   //    FILE LOADING METHODS
   // ------------------------------
 
@@ -330,8 +309,7 @@ if (typeof window === 'undefined' || !window.FileHelper) {
       },
       assetPaths: {
         favicons: this.getFaviconsBasePath(),
-        teamLogos: this.getTeamLogosBasePath(),
-        poolSchedules: this.getPoolSchedulesBasePath()
+        teamLogos: this.getTeamLogosBasePath()
       }
     };
   }

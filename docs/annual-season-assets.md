@@ -26,14 +26,14 @@ src/assets/data/
         <official-team-assignments>.pdf
 ```
 
-The domain directories and JSON filenames are intentionally repetitive. Runtime helpers resolve seasonal JSON as `assets/data/<YEAR>/<domain>/<domain>.json`, and pool schedule links resolve as `assets/data/<YEAR>/pools/pool-schedules/<filename>`.
+The domain directories and JSON filenames are intentionally repetitive. Runtime helpers resolve seasonal JSON as `assets/data/<YEAR>/<domain>/<domain>.json`. Retained annual PDFs are audit evidence and are excluded from the public build; visitor schedule links use reviewed official HTTPS URLs stored in annual JSON.
 
 ## Current Coverage
 
 | Season | Pools | Meets | Teams | Publication Role |
 | --- | --- | --- | --- | --- |
 | `2025` | JSON, schema, PDF schedules, CA facility features | JSON, schema; source link in annual README | JSON, schema; sources in annual README | Archived; excluded from builds |
-| `2026` | JSON, schema, PDF schedules, CA facility features | JSON, schema, source PDF and link in annual README | JSON, schema, source PDFs and links in annual README | Active season selected by `YEAR` |
+| `2026` | JSON, schema, PDF schedules, CA facility features | JSON, schema, source PDF and link in annual README | JSON, schema, source PDFs and links in annual README; reviewed detailed practices recorded where publicly complete | Active season selected by `YEAR` |
 
 Do not assume an empty or PDF-only annual directory is application-ready. A view can load a domain for an active year only after its JSON file and schema have been created and validated.
 
@@ -77,7 +77,7 @@ Before publishing a new active year:
 - Run `pnpm run validate:data` to validate active JSON against its schemas, including ISO `YYYY-MM-DD` dates, source URLs, cross-domain references, and retained official PDF inventory.
 - Run `pnpm test` to validate seasonal path expectations and application logic.
 - Run `pnpm run lint`.
-- Run `pnpm run build`, then confirm the new active year appears under `out/assets/data/<YEAR>/` and archived years are absent.
+- Run `pnpm run build`, then confirm the new active-year JSON and schemas appear under `out/assets/data/<YEAR>/`, archived years are absent, and retained annual PDF evidence is absent from the public build.
 - Load the pools, teams, and meets screens locally to catch missing active-domain JSON files before deployment.
 
 ## Agent Workflow

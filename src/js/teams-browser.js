@@ -45,26 +45,12 @@ function findPoolByName(poolName) {
 }
 
 /**
- * Get current practice schedule (similar to pool current schedule logic)
+ * Get the published regular-season practice schedule.
  * @param {Object} practice - Practice object from team data
  * @returns {Object|null} - Current active practice schedule or null
  */
 function getCurrentPracticeSchedule(practice) {
-  if (!practice || !practice.regular) return null;
-  
-  // Check if we're currently in regular season
-  if (practice.regular.season) {
-    const now = new Date();
-    const [startDate, endDate] = practice.regular.season.split(' - ');
-    const seasonStart = new Date(`${startDate} ${window.YEAR}`);
-    const seasonEnd = new Date(`${endDate} ${window.YEAR}`);
-    
-    if (now >= seasonStart && now <= seasonEnd) {
-      return practice.regular;
-    }
-  }
-  
-  return null;
+  return practice && practice.regular ? practice.regular : null;
 }
 
 /**
@@ -84,98 +70,16 @@ function getEnhancedPoolLink(location, _fallbackAddress) {
 }
 
 /**
- * Get next two upcoming practices
+ * Get upcoming published practice blocks within the next seven days.
  * @param {Object} practice - Practice object from team data
  * @returns {Array} - Array of next two upcoming practices
  */
 function getUpcomingPractices(practice, count = 2) {
-  if (!practice || !practice.regular) return [];
-  
-  const now = new Date();
-  const currentTime = now.getHours() * 60 + now.getMinutes();
-  const practices = [];
-  
-  // Check if we're still in season
-  if (practice.regular.season) {
-    const seasonEnd = new Date(`${practice.regular.season.split(' - ')[1]} ${window.YEAR}`);
-    if (now > seasonEnd) return [];
-  }
-  
-  // Helper to add practice to results
-  const addPractice = (day, dayIndex, time, location, address, type) => {
-    if (practices.length < count) {
-      practices.push({
-        day,
-        dayIndex,
-        time,
-        location,
-        address,
-        type
-      });
-    }
-  };
-  
-  // Check upcoming practices for the next 7 days
-  for (let daysAhead = 0; daysAhead < 7 && practices.length < count; daysAhead++) {
-    const checkDate = new Date(now);
-    checkDate.setDate(checkDate.getDate() + daysAhead);
-    const checkDay = checkDate.getDay();
-    const isToday = daysAhead === 0;
-    
-    // Morning practices (Tuesday-Friday)
-    if (practice.regular.morning && Array.isArray(practice.regular.morning)) {
-      for (const morning of practice.regular.morning) {
-        if ([2, 3, 4, 5].includes(checkDay)) {
-          const hasPassedToday = isToday && currentTime >= 10 * 60; // 10 AM cutoff
-          if (!hasPassedToday) {
-            const sessions = morning.sessions;
-            const firstSession = sessions && sessions[0] ? sessions[0] : null;
-            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-            
-            addPractice(
-              dayNames[checkDay],
-              checkDay,
-              firstSession ? firstSession.time : 'Morning',
-              morning.location,
-              morning.address,
-              'Morning Practice'
-            );
-          }
-        }
-      }
-    }
-    
-    // Evening practices
-    if (practice.regular.evening && Array.isArray(practice.regular.evening)) {
-      for (const evening of practice.regular.evening) {
-        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        const eveningDayIndex = dayNames.indexOf(evening.day);
-        
-        if (eveningDayIndex === checkDay) {
-          const hasPassedToday = isToday && currentTime >= 20 * 60; // 8 PM cutoff
-          if (!hasPassedToday) {
-            const sessions = evening.sessions;
-            const firstSession = sessions && sessions[0] ? sessions[0] : null;
-            
-            addPractice(
-              evening.day,
-              eveningDayIndex,
-              firstSession ? firstSession.time : 'Evening',
-              evening.location,
-              evening.address,
-              'Evening Practice'
-            );
-          }
-        }
-      }
-    }
-  }
-  
-  return practices;
+  return TeamScheduleService.getUpcomingPractices(practice, new Date(), 7).slice(0, count);
 }
 
 /**
- * Format current practice schedule (simplified, no preseason)
+ * Format the published regular practice schedule.
  * @param {Object} practice - Practice object from team data
  * @returns {string} - HTML string for current practice schedule
  */
@@ -184,7 +88,7 @@ function formatCurrentPracticeSchedule(practice) {
   if (!currentSchedule) return '';
   
   let html = '<div class="practice-schedule">';
-  html += '<h3>🏊‍♂️ Current Practice Schedule</h3>';
+  html += '<h3>Regular Practice Schedule</h3>';
   
   // Add season info
   if (currentSchedule.season) {
@@ -381,6 +285,7 @@ function toggleTeamCard(toggleButton) {
   if (teamCard.classList.contains('favorite-card')) {
     const preferences = PreferencesService.get();
     PreferencesService.save({ ...preferences, favoriteTeamExpanded: !isExpanded });
+    if (window.cnslAnalytics) window.cnslAnalytics.trackFixedSettingChange('favorite_team_expanded', isExpanded ? 'collapsed' : 'expanded');
   }
   if (details) details.hidden = isExpanded;
 }
@@ -447,7 +352,8 @@ function renderTeams(teams) {
             const practicePoolLink = getEnhancedPoolLink(practice.location, practice.address);
             return `
               <div class="upcoming-practice-item">
-                <strong>${TeamsBrowserSafety.escapeHtml(practice.type)}:</strong> ${TeamsBrowserSafety.escapeHtml(practice.day)} at ${TeamsBrowserSafety.escapeHtml(practice.time)}
+                <strong>${TeamsBrowserSafety.escapeHtml(practice.label)}:</strong> ${TeamsBrowserSafety.escapeHtml(practice.date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }))}
+                <br>${practice.sessions.map(session => `${TeamsBrowserSafety.escapeHtml(session.group)}: ${TeamsBrowserSafety.escapeHtml(session.time)}`).join('; ')}
                 <br><span class="practice-location">📍 ${practicePoolLink}</span>
               </div>
             `;

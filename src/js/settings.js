@@ -29,14 +29,44 @@
     form.elements.locationAwarenessEnabled.checked = preferences.locationAwarenessEnabled;
   }
 
-  function trackFavoriteSelection(favoriteType, favoriteValue, publishedValues) {
-    if (typeof window.gtag !== 'function') return;
-    if (favoriteValue && !publishedValues.has(favoriteValue)) return;
+  function trackFixedSettingChange(settingName, settingValue) {
+    if (!window.cnslAnalytics) return;
+    window.cnslAnalytics.trackFixedSettingChange(settingName, settingValue);
+  }
 
-    window.gtag('event', 'ca_select_favorite', {
-      favorite_type: favoriteType,
-      favorite_value: favoriteValue || 'none'
-    });
+  function trackPublishedSettingChange(settingName, selectedValue, publishedValues) {
+    if (!window.cnslAnalytics) return;
+    window.cnslAnalytics.trackPublishedSettingChange(settingName, selectedValue ? [selectedValue] : [], publishedValues);
+  }
+
+  function trackChangedFormSetting(changedField, existing, saved, publishedPoolNames, publishedTeamIds) {
+    if (changedField.name === 'theme' && saved.theme !== existing.theme) {
+      trackFixedSettingChange('theme', saved.theme);
+    } else if (changedField.name === 'poolScheduleLayout' && saved.poolScheduleLayout !== existing.poolScheduleLayout) {
+      trackFixedSettingChange('pool_schedule_layout', saved.poolScheduleLayout);
+    } else if (changedField.name === 'locationAwarenessEnabled' && saved.locationAwarenessEnabled !== existing.locationAwarenessEnabled) {
+      trackFixedSettingChange('location_awareness', saved.locationAwarenessEnabled ? 'enabled' : 'disabled');
+    } else if (changedField.name === 'weatherRefreshMinutes' && saved.weatherRefreshMinutes !== existing.weatherRefreshMinutes) {
+      trackFixedSettingChange('weather_refresh_minutes', saved.weatherRefreshMinutes);
+    } else if (changedField.name === 'favoritePool' && saved.favoritePoolName !== existing.favoritePoolName) {
+      trackPublishedSettingChange('favorite_pool', saved.favoritePoolName, publishedPoolNames);
+    } else if (changedField.name === 'favoriteTeam' && saved.favoriteTeamId !== existing.favoriteTeamId) {
+      trackPublishedSettingChange('favorite_team', saved.favoriteTeamId, publishedTeamIds);
+    }
+  }
+
+  function trackClearedSettings(existing, cleared, publishedPoolNames, publishedTeamIds) {
+    if (existing.theme !== cleared.theme) trackFixedSettingChange('theme', cleared.theme);
+    if (existing.poolScheduleLayout !== cleared.poolScheduleLayout) trackFixedSettingChange('pool_schedule_layout', cleared.poolScheduleLayout);
+    if (existing.locationAwarenessEnabled !== cleared.locationAwarenessEnabled) trackFixedSettingChange('location_awareness', 'disabled');
+    if (existing.weatherRefreshMinutes !== cleared.weatherRefreshMinutes) trackFixedSettingChange('weather_refresh_minutes', cleared.weatherRefreshMinutes);
+    if (existing.favoritePoolExpanded !== cleared.favoritePoolExpanded) trackFixedSettingChange('favorite_pool_expanded', 'expanded');
+    if (existing.favoriteTeamExpanded !== cleared.favoriteTeamExpanded) trackFixedSettingChange('favorite_team_expanded', 'expanded');
+    if (existing.poolFeatureFilters.length !== cleared.poolFeatureFilters.length && window.cnslAnalytics) {
+      window.cnslAnalytics.trackPublishedSettingChange('pool_feature_filters', [], new Set());
+    }
+    if (existing.favoritePoolName !== cleared.favoritePoolName) trackPublishedSettingChange('favorite_pool', cleared.favoritePoolName, publishedPoolNames);
+    if (existing.favoriteTeamId !== cleared.favoriteTeamId) trackPublishedSettingChange('favorite_team', cleared.favoriteTeamId, publishedTeamIds);
   }
 
   document.addEventListener('DOMContentLoaded', async () => {
@@ -67,12 +97,7 @@
         locationAwarenessEnabled: form.elements.locationAwarenessEnabled.checked,
         weatherRefreshMinutes: weatherRefreshMinutes ? Number(weatherRefreshMinutes.value) : existing.weatherRefreshMinutes
       });
-      if (event.target === favoritePool && saved.favoritePoolName !== existing.favoritePoolName) {
-        trackFavoriteSelection('pool', saved.favoritePoolName, publishedPoolNames);
-      }
-      if (event.target === favoriteTeam && saved.favoriteTeamId !== existing.favoriteTeamId) {
-        trackFavoriteSelection('team', saved.favoriteTeamId, publishedTeamIds);
-      }
+      trackChangedFormSetting(event.target, existing, saved, publishedPoolNames, publishedTeamIds);
       window.applyPreferenceTheme(saved);
       window.dispatchEvent(new CustomEvent('cnsl:preferences-changed'));
       status.textContent = '';
@@ -99,12 +124,7 @@
       const existing = PreferencesService.get();
       PreferencesService.clear();
       const cleared = PreferencesService.get();
-      if (existing.favoritePoolName !== cleared.favoritePoolName) {
-        trackFavoriteSelection('pool', cleared.favoritePoolName, publishedPoolNames);
-      }
-      if (existing.favoriteTeamId !== cleared.favoriteTeamId) {
-        trackFavoriteSelection('team', cleared.favoriteTeamId, publishedTeamIds);
-      }
+      trackClearedSettings(existing, cleared, publishedPoolNames, publishedTeamIds);
       applyFormValues(form, cleared);
       window.applyPreferenceTheme(cleared);
       window.dispatchEvent(new CustomEvent('cnsl:preferences-changed'));

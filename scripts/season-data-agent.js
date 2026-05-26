@@ -131,6 +131,9 @@ function collectSources({ annualReadme, meetsData, poolsData, teamsData }) {
     if (team.staff && team.staff.sourceUrl) {
       addPage(pageMap, team.staff.sourceUrl, `${team.name} staff page`, 'teams');
     }
+    if (team.practice && team.practice.url) {
+      addPage(pageMap, team.practice.url, `${team.name} practice schedule page`, 'teams');
+    }
   });
 
   const leagueHomeMatch = annualReadme.match(/\[CNSL home page\]\((https?:\/\/[^)]+)\)/i);
@@ -239,7 +242,7 @@ function formatReport({ changes, checkedOn, season }) {
   const guidance = {
     meets: `- [ ] Review the official meet schedule evidence and update \`src/assets/data/${season}/meets/meets.json\` if dates, locations, or matchups changed.`,
     pools: `- [ ] Review pool schedules, directory entries, and facility amenities; update \`src/assets/data/${season}/pools/pools.json\` if published values changed.`,
-    teams: `- [ ] Review practice assignments and public team/staff pages; update \`src/assets/data/${season}/teams/teams.json\` if supported fields changed.`
+    teams: `- [ ] Review practice assignments and public team, staff, and practice-schedule pages; update \`src/assets/data/${season}/teams/teams.json\` if supported fields changed.`
   };
 
   return [
