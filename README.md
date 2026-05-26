@@ -58,24 +58,9 @@ pnpm test
 pnpm run validate:data
 pnpm run build
 pnpm run verify:pwa
-
-# First browser-test setup on a workstation
-pnpm exec playwright install chromium
-
-# Focused local browser feedback while changing visitor-facing behavior
-pnpm run test:browser:smoke
-
-# Full local workflow checks, without the slower WCAG scan matrix
-pnpm run test:browser
-
-# Explicit local WCAG reproduction when diagnosing a CI failure
-pnpm run test:browser:accessibility --grep "light theme accessibility.*pools has no WCAG A or AA automated violations"
-
-# Complete browser gate run by GitHub Actions before deployment
-pnpm run test:browser:ci
 ```
 
-Browser verification runs against the built artifact in Chromium. Local browser commands cover keyboard and rendered workflow feedback without running the slow automated WCAG scan matrix. GitHub Actions runs `pnpm run test:browser:ci`, including the full automated WCAG A/AA inspection, before deployment; use `pnpm run test:browser:accessibility` locally only when reproducing a relevant failure. Use the [Release Verification Checklist](docs/release-checklist.md) for the secure-origin installed-PWA and manual assistive-technology checks that automated scans cannot establish.
+Playwright browser verification is deferred to the `Nightly Browser Verification` GitHub Actions workflow. Each night, it compares the current `main` revision with the preceding scheduled run and runs Chromium workflow and automated WCAG A/AA checks only after repository updates. Browser results are reported separately and do not delay or block a GitHub Pages build. Use the [Release Verification Checklist](docs/release-checklist.md) for the secure-origin installed-PWA and manual assistive-technology checks that automation cannot establish.
 
 Design and maintenance decisions are recorded in [Runtime And Stylesheet Ownership](docs/runtime-architecture.md) and [Security And Privacy Decision](docs/security-privacy.md).
 
@@ -90,11 +75,12 @@ This project uses GitHub Actions to automatically build and deploy the website t
 5. Validates active annual data against its schemas and retained-source inventory
 6. Builds the project using PostHTML
 7. Verifies the generated PWA cache, offline, and publication metadata contract
-8. Runs browser keyboard-workflow and automated accessibility checks
-9. Uploads the built files as an artifact
-10. Deploys the artifact to GitHub Pages
+8. Uploads the built files as an artifact
+9. Deploys the artifact to GitHub Pages
 
-The workflow configuration is located in `.github/workflows/build-deploy.yml`.
+Separately, the nightly browser-verification workflow runs Playwright only when the repository head has changed since its previous scheduled run.
+
+Workflow configurations are located in `.github/workflows/build-deploy.yml` and `.github/workflows/nightly-browser-verification.yml`.
 
 A second workflow, `.github/workflows/season-data-monitor.yml`, checks official active-season data sources nightly and opens a review pull request when source evidence changes.
 

@@ -34,6 +34,6 @@ If repository evidence supports no actionable recommendations, preserve a compac
 
 ## Verification
 
-When feasible in the cloud agent environment, run `pnpm run lint`, `pnpm test`, `pnpm run validate:data`, `pnpm run build`, `pnpm run verify:pwa`, and `pnpm run test:browser:ci`. Record results accurately in the plan, including checks that could not be executed or browser dependencies that could not be installed.
+When feasible in the cloud agent environment, run `pnpm run lint`, `pnpm test`, `pnpm run validate:data`, `pnpm run build`, and `pnpm run verify:pwa`. Do not run Playwright as part of the audit; note that it is executed only by the separate nightly browser-verification workflow after repository updates. Record results accurately in the plan, including checks that could not be executed.
 
 Open a pull request containing only the refreshed refactoring plan for human review.

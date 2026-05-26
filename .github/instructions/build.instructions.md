@@ -17,10 +17,7 @@ description: "Use when working with the build pipeline, dev server, testing, lin
 | `pnpm run build` | One-time clean build to `out/` |
 | `pnpm test` | Run all unit tests |
 | `node --test tests/<area>/<module>.test.js` | Run one affected unit-test file during iteration |
-| `pnpm run test:browser:smoke` | Run focused Playwright interactions during UI iteration |
-| `pnpm run test:browser` | Run local Playwright workflow checks against a built `out/` artifact |
-| `pnpm run test:browser:accessibility` | Explicitly reproduce Playwright axe accessibility checks locally when needed |
-| `pnpm run test:browser:ci` | Run workflow and automated WCAG A/AA checks in GitHub Actions |
+| `pnpm run test:browser:nightly` | Run Playwright workflow and WCAG A/AA checks from the conditional nightly workflow only |
 | `pnpm run lint` | Run ESLint on all JS files |
 | `pnpm run lint:fix` | Auto-fix lint issues |
 
@@ -58,13 +55,13 @@ Run `.\start.ps1` (Windows) or `./start.sh` (macOS/Linux) for an interactive men
 |---|---|---|
 | Documentation or agent instructions only | Review the changed content and links; no application test is required. | Run the named command only if the edit changes a command, workflow, or release requirement. |
 | One service, model, manager, or type | `node --test tests/<area>/<module>.test.js` | Run `pnpm test` when shared contracts, utility behavior, or several consumers change. |
-| Visitor-facing view, CSS, or interaction | `pnpm run build` and `pnpm run test:browser:smoke` when its scenarios cover the changed flow. | Run the relevant workflow coverage before publishing; use the accessibility command when diagnosing or final-validating affected accessibility behavior. |
+| Visitor-facing view, CSS, or interaction | `pnpm run build` and inspect the affected workflow in the running site. | The next nightly browser-verification run covers Playwright workflows and automated accessibility after repository updates. |
 | Annual data or active-season configuration | Follow the season rollover verification, beginning with `pnpm run validate:data`. | Use its complete required checks when activating or publishing a season. |
 | Build, PWA/offline, privacy/analytics, shared navigation, or release candidate | Use the complete automated gate in the release checklist. | Complete secure-origin or manual review sections where required. |
 
-- Run `pnpm run build && pnpm run test:browser` locally before publishing visitor-facing changes to validate rendered keyboard workflows.
+- Do not run Playwright locally as part of development or release verification; it is reserved for the nightly browser-verification workflow.
 - The complete local release gate is defined in [docs/release-checklist.md](../../docs/release-checklist.md); it is a publishing checkpoint rather than the default iteration loop.
-- GitHub Actions runs `pnpm run test:browser:ci` before deployment to enforce the automated WCAG A/AA gate. Use `pnpm run test:browser:accessibility` locally only to diagnose or reproduce those failures.
+- The GitHub Pages build contains no Playwright setup or execution. A nightly GitHub Actions workflow runs `pnpm run test:browser:nightly` only when `main` has a different head revision from its prior scheduled run, and its result does not block deployment.
 
 ## Linting
 
