@@ -21,6 +21,8 @@ description: "Use when working with the build pipeline, dev server, testing, lin
 | `pnpm run lint` | Run ESLint on all JS files |
 | `pnpm run lint:fix` | Auto-fix lint issues |
 
+Reuse a running `CNSL: Start Development Server` task at `http://localhost:9090/` across chat sessions rather than starting a second live-reload server for the same workspace.
+
 ## Dev CLI
 
 Run `.\start.ps1` (Windows) or `./start.sh` (macOS/Linux) for an interactive menu covering setup, verification, linting, and testing.
@@ -60,6 +62,7 @@ Run `.\start.ps1` (Windows) or `./start.sh` (macOS/Linux) for an interactive men
 | Build, PWA/offline, privacy/analytics, shared navigation, or release candidate | Use the complete automated gate in the release checklist. | Complete secure-origin or manual review sections where required. |
 
 - Do not run Playwright locally as part of development or release verification; it is reserved for the nightly browser-verification workflow.
+- The nightly workflow must run Playwright through `pnpm run test:browser:nightly`. The Playwright configuration serializes invocations for the same workspace, waiting for an existing browser-test process to finish and recovering locks abandoned by interrupted runs.
 - The complete local release gate is defined in [docs/release-checklist.md](../../docs/release-checklist.md); it is a publishing checkpoint rather than the default iteration loop.
 - The GitHub Pages build contains no Playwright setup or execution. A nightly GitHub Actions workflow runs `pnpm run test:browser:nightly` only when `main` has a different head revision from its prior scheduled run, and its result does not block deployment.
 

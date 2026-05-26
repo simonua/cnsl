@@ -64,7 +64,7 @@
       }
 
       const events = globalThis.TeamAgendaDisplay.getUpcomingEvents(team, dataManager.getMeets().getAllMeets());
-      document.getElementById('favoriteWeekTitle').textContent = globalThis.TeamAgendaDisplay.getTitle(team.name, events);
+      document.getElementById('favoriteWeekTitle').textContent = globalThis.TeamAgendaDisplay.getTitle(team.name);
       if (events.length === 0) {
         status.textContent = globalThis.TeamAgendaDisplay.getStatus(events);
         return;

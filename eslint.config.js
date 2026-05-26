@@ -57,7 +57,7 @@ module.exports = [
 
   // Node build scripts (posthtml.js, automation scripts, test files, config)
   {
-    files: ['posthtml.js', 'posthtml.config.js', 'playwright.config.js', 'eslint.config.js', 'scripts/**/*.js', 'test-*.js', 'tests/**/*.js'],
+    files: ['posthtml.js', 'posthtml.config.js', 'playwright.config.js', 'browser-sync.config.js', 'eslint.config.js', 'scripts/**/*.js', 'test-*.js', 'tests/**/*.js'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'commonjs',

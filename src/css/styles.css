@@ -4178,9 +4178,8 @@ button.settings-dialog__close:focus {
 
 .settings-group {
   border: none;
-  border-bottom: 1px solid var(--border-color);
   margin: 0 0 1.25rem;
-  padding: 0 0 1.25rem;
+  padding: 0;
 }
 
 .settings-group legend,
@@ -4281,6 +4280,7 @@ button.settings-dialog__close:focus {
 .settings-checkbox-list {
   display: grid;
   gap: 0.65rem;
+  padding-inline-start: 0.75rem;
 }
 
 .settings-hint {
@@ -4292,6 +4292,10 @@ button.settings-dialog__close:focus {
 
 .settings-hint--flush {
   margin: 0 0 0.9rem;
+}
+
+.settings-segmented + .settings-hint--flush {
+  margin-top: 0.65rem;
 }
 
 .settings-actions {

@@ -197,6 +197,8 @@
     });
 
     document.getElementById('clearSettings').addEventListener('click', () => {
+      if (!window.confirm('Clear all saved settings from this device?')) return;
+
       const existing = PreferencesService.get();
       PreferencesService.clear();
       const cleared = PreferencesService.get();
@@ -204,7 +206,6 @@
       applyFormValues(form, cleared);
       window.applyPreferenceTheme(cleared);
       preferencesChanged = preferencesChanged || JSON.stringify(existing) !== JSON.stringify(cleared);
-      status.textContent = 'Saved settings removed from this device.';
     });
 
     closeButton.addEventListener('click', () => dialog.close());

@@ -70,9 +70,8 @@
       .sort((first, second) => first.date - second.date);
   }
 
-  function getTitle(teamName, events) {
-    const eventNoun = events.length === 1 ? 'event' : 'events';
-    return `${teamName}: ${events.length} practice or swim ${eventNoun} upcoming`;
+  function getTitle(teamName) {
+    return `${teamName}: Upcoming events`;
   }
 
   function getStatus(events) {

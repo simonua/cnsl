@@ -28,6 +28,12 @@ after(() => {
 });
 
 describe('TeamAgendaDisplay', () => {
+  describe('getTitle', () => {
+    it('uses the team name with a concise upcoming events label', () => {
+      assert.equal(TeamAgendaDisplay.getTitle('Long Reach Marlins'), 'Long Reach Marlins: Upcoming events');
+    });
+  });
+
   describe('renderEvents', () => {
     it('renders agenda dates with full month names', () => {
       const html = TeamAgendaDisplay.renderEvents([{

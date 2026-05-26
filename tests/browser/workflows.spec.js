@@ -1,45 +1,49 @@
 const { test, expect } = require('@playwright/test');
-
-async function prepareStableWeatherResponses(page) {
-  await page.route('https://api.weather.gov/**', async route => {
-    const requestUrl = route.request().url();
-    if (requestUrl.includes('/alerts/')) {
-      await route.fulfill({ json: { features: [] } });
-      return;
-    }
-    if (requestUrl.includes('/points/')) {
-      await route.fulfill({ json: { properties: { forecast: 'https://api.weather.gov/gridpoints/test' } } });
-      return;
-    }
-    await route.fulfill({ json: { properties: { periods: [] } } });
-  });
-}
-
-async function prepareVisibleWeatherAlert(page) {
-  await page.unroute('https://api.weather.gov/**');
-  await page.route('https://api.weather.gov/**', route => route.fulfill({
-    json: { features: [{ properties: { event: 'Severe Thunderstorm Warning' } }] }
-  }));
-  await page.route('**/assets/data/2026/pools/pools.json*', async route => {
-    const response = await route.fetch();
-    const data = await response.json();
-    data.pools[0].schedules = [{
-      startDate: '2026-01-01',
-      endDate: '2026-12-31',
-      hours: [{
-        weekDays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-        types: ['Rec Swim'],
-        startTime: '12:00am',
-        endTime: '11:59pm'
-      }]
-    }];
-    await route.fulfill({ response, json: data });
-  });
-}
+const {
+  MOBILE_VIEWPORT,
+  initializeAnalyticsRecorder,
+  prepareStableWeatherResponses,
+  prepareVisibleWeatherAlert,
+  seedPreferences,
+  setAgendaReferenceTime
+} = require('./browser-test-helpers');
 
 const publishedPagePaths = [
   '/index.html', '/pools.html', '/teams.html', '/meets.html', '/settings.html',
   '/swim-meet-resources.html', '/whats-new.html', '/about.html', '/faq.html', '/offline.html'
+];
+
+const directoryScenarios = [
+  {
+    path: '/pools.html',
+    list: '#poolList',
+    status: '#poolListStatus',
+    announcement: /Pool directory loaded\. 23 pools available\./,
+    readyText: /Pool directory loaded\./,
+    domains: ['pools'],
+    surface: '.pool-card.collapsed',
+    toggle: '.pool-header__toggle'
+  },
+  {
+    path: '/teams.html',
+    list: '#teamList',
+    status: '#teamListStatus',
+    announcement: /Team directory loaded\./,
+    readyText: /Team directory loaded\./,
+    domains: ['meets', 'pools', 'teams'],
+    surface: '.team-card.collapsed',
+    toggle: '.team-header__toggle'
+  },
+  {
+    path: '/meets.html',
+    list: '#meetList',
+    status: '#meetListStatus',
+    announcement: /Meet schedule loaded\./,
+    readyText: /Meet schedule loaded\./,
+    domains: ['meets', 'pools', 'teams'],
+    surface: '.meet-date-card.collapsed',
+    toggle: '.meet-date-header__toggle'
+  }
 ];
 
 test.beforeEach(async ({ page }) => {
@@ -47,7 +51,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('navigation contains keyboard focus and restores it when dismissed', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
+  await page.setViewportSize(MOBILE_VIEWPORT);
   await page.goto('/pools.html');
   await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
 
@@ -70,23 +74,15 @@ test('navigation contains keyboard focus and restores it when dismissed', async 
   await expect(page.locator('#mainContent')).toHaveJSProperty('inert', false);
 });
 
-for (const scenario of [
-  { path: '/pools.html', list: '#poolList', status: '#poolListStatus', message: /Pool directory loaded\. 23 pools available\./ },
-  { path: '/teams.html', list: '#teamList', status: '#teamListStatus', message: /Team directory loaded\./ },
-  { path: '/meets.html', list: '#meetList', status: '#meetListStatus', message: /Meet schedule loaded\./ }
-]) {
+for (const scenario of directoryScenarios) {
   test(`${scenario.path} announces completed directory loading`, async ({ page }) => {
     await page.goto(scenario.path);
-    await expect(page.locator(scenario.status)).toHaveText(scenario.message);
+    await expect(page.locator(scenario.status)).toHaveText(scenario.announcement);
     await expect(page.locator(scenario.list)).toHaveAttribute('aria-busy', 'false');
   });
 }
 
-for (const scenario of [
-  { path: '/pools.html', status: '#poolListStatus', readyText: /Pool directory loaded\./, domains: ['pools'] },
-  { path: '/teams.html', status: '#teamListStatus', readyText: /Team directory loaded\./, domains: ['meets', 'pools', 'teams'] },
-  { path: '/meets.html', status: '#meetListStatus', readyText: /Meet schedule loaded\./, domains: ['meets', 'pools', 'teams'] }
-]) {
+for (const scenario of directoryScenarios) {
   test(`${scenario.path} requests only the annual data required for its workflow`, async ({ page }) => {
     const requestedDomains = [];
     page.on('request', request => {
@@ -118,10 +114,7 @@ test('malformed published pool responses are announced as unavailable', async ({
 });
 
 test('season summary and sharing actions appear only on the home page', async ({ page }) => {
-  await page.addInitScript(() => {
-    globalThis.recordedAnalyticsEvents = [];
-    globalThis.gtag = (...eventArguments) => globalThis.recordedAnalyticsEvents.push(eventArguments);
-  });
+  await initializeAnalyticsRecorder(page);
   await page.goto('/');
 
   await expect(page.locator('.season-text')).toHaveText('The 2026 season runs from May 23 to September 7.');
@@ -161,7 +154,7 @@ test('season summary and sharing actions appear only on the home page', async ({
   });
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.at(-1))).toEqual(['event', 'ca_external_link', {}]);
 
-  await page.setViewportSize({ width: 390, height: 844 });
+  await page.setViewportSize(MOBILE_VIEWPORT);
   const compactLinkLayout = await page.locator('.quick-link-card').evaluateAll(cards => cards.map(card => {
     const bounds = card.getBoundingClientRect();
     return { top: bounds.top, right: bounds.right, height: bounds.height };
@@ -252,7 +245,7 @@ test('analytics publishes a page view and public app version only after the Goog
 });
 
 test('release updates are announced once after a stable version is acknowledged', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
+  await page.setViewportSize(MOBILE_VIEWPORT);
   await page.goto('/index.html');
 
   const notice = page.locator('#releaseNotice');
@@ -281,10 +274,7 @@ test('release updates are announced once after a stable version is acknowledged'
 });
 
 test('pool feature filters expose their state and resulting count', async ({ page }) => {
-  await page.addInitScript(() => {
-    globalThis.recordedAnalyticsEvents = [];
-    globalThis.gtag = (...eventArguments) => globalThis.recordedAnalyticsEvents.push(eventArguments);
-  });
+  await initializeAnalyticsRecorder(page);
   await page.goto('/pools.html');
   await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
 
@@ -354,10 +344,7 @@ test('pool tile features are ordered by category then alphabetically', async ({ 
 });
 
 test('collapsed favorite pool stays collapsed after filters redraw the directory', async ({ page }) => {
-  await page.addInitScript(() => {
-    globalThis.recordedAnalyticsEvents = [];
-    globalThis.gtag = (...eventArguments) => globalThis.recordedAnalyticsEvents.push(eventArguments);
-  });
+  await initializeAnalyticsRecorder(page);
   await page.goto('/pools.html');
   await page.evaluate(() => {
     localStorage.setItem('cnsl_preferences', JSON.stringify({ favoritePoolName: 'Bryant Woods' }));
@@ -384,10 +371,7 @@ test('collapsed favorite pool stays collapsed after filters redraw the directory
 });
 
 test('collapsed favorite team stays collapsed after returning to the directory', async ({ page }) => {
-  await page.addInitScript(() => {
-    globalThis.recordedAnalyticsEvents = [];
-    globalThis.gtag = (...eventArguments) => globalThis.recordedAnalyticsEvents.push(eventArguments);
-  });
+  await initializeAnalyticsRecorder(page);
   await page.goto('/teams.html');
   await page.evaluate(() => {
     localStorage.setItem('cnsl_preferences', JSON.stringify({ favoriteTeamId: 'cfhss' }));
@@ -408,7 +392,7 @@ test('collapsed favorite team stays collapsed after returning to the directory',
 });
 
 test('team directory displays verified regular practices from public team schedules', async ({ page }) => {
-  await page.clock.setFixedTime(new Date('2026-05-26T12:00:00'));
+  await setAgendaReferenceTime(page);
   await page.goto('/teams.html');
   await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
 
@@ -422,9 +406,7 @@ test('team directory displays verified regular practices from public team schedu
 });
 
 test('team directory filters regular practice times to selected practice groups', async ({ page }) => {
-  await page.addInitScript(() => {
-    localStorage.setItem('cnsl_preferences', JSON.stringify({ practiceGroups: ['9-10'] }));
-  });
+  await seedPreferences(page, { practiceGroups: ['9-10'] });
   await page.goto('/teams.html');
   await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
 
@@ -439,14 +421,14 @@ test('team directory filters regular practice times to selected practice groups'
 });
 
 test('team directory shows the same next practices and swim event agenda as home', async ({ page }) => {
-  await page.clock.setFixedTime(new Date('2026-05-26T12:00:00'));
+  await setAgendaReferenceTime(page);
   await page.goto('/teams.html');
   await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
 
   const snappers = page.locator('.team-card[data-team-id="pls"]');
   await snappers.locator('.team-header__toggle').click();
   const agenda = snappers.locator('.favorite-week');
-  await expect(agenda.getByRole('heading', { name: /Phelps Luck Snappers: 3 practice or swim events upcoming/ })).toBeVisible();
+  await expect(agenda.getByRole('heading', { name: /Phelps Luck Snappers: Upcoming events/ })).toBeVisible();
   await expect(agenda.locator('.favorite-week__events li')).toHaveCount(3);
   await expect(agenda).toContainText('Next morning practice');
   await expect(agenda).toContainText('Next evening practice');
@@ -456,15 +438,16 @@ test('team directory shows the same next practices and swim event agenda as home
 });
 
 test('home page shows the next practices and swim event for a selected favorite team', async ({ page }) => {
-  await page.clock.setFixedTime(new Date('2026-05-26T12:00:00'));
-  await page.addInitScript(() => {
-    localStorage.setItem('cnsl_preferences', JSON.stringify({ favoriteTeamId: 'pls' }));
-  });
+  await setAgendaReferenceTime(page);
+  await seedPreferences(page, { favoriteTeamId: 'pls' });
   await page.goto('/index.html');
 
   const agenda = page.locator('#favoriteWeek');
   await expect(agenda).toBeVisible();
-  await expect(agenda.getByRole('heading', { name: /Phelps Luck Snappers: 3 practice or swim events upcoming/ })).toBeVisible();
+  await expect(agenda.getByRole('heading', { name: /Phelps Luck Snappers: Upcoming events/ })).toBeVisible();
+  await expect(agenda.locator('.favorite-badge')).toHaveText('Favorite team');
+  const teamDetailsLink = agenda.getByRole('link', { name: 'Team details' });
+  await expect(teamDetailsLink).toBeVisible();
   await expect(page.locator('#favoriteWeekStatus')).toContainText('3 next published practice or swim event entries');
   await expect(agenda.locator('.favorite-week__events li')).toHaveCount(3);
   await expect(agenda).toContainText('Tuesday, May 26');
@@ -481,15 +464,15 @@ test('home page shows the next practices and swim event for a selected favorite 
   await toggle.press('Enter');
   await expect(toggle).toHaveAttribute('aria-expanded', 'false');
   await expect(page.locator('#favoriteWeekContent')).toBeHidden();
+  await expect(teamDetailsLink).toBeHidden();
   await toggle.press('Enter');
   await expect(page.locator('#favoriteWeekContent')).toBeVisible();
+  await expect(teamDetailsLink).toBeVisible();
 });
 
 test('shared team agenda filters published practice times by selected group', async ({ page }) => {
-  await page.clock.setFixedTime(new Date('2026-05-26T12:00:00'));
-  await page.addInitScript(() => {
-    localStorage.setItem('cnsl_preferences', JSON.stringify({ favoriteTeamId: 'pls', practiceGroups: ['8-under'] }));
-  });
+  await setAgendaReferenceTime(page);
+  await seedPreferences(page, { favoriteTeamId: 'pls', practiceGroups: ['8-under'] });
   await page.goto('/index.html');
 
   const agenda = page.locator('#favoriteWeek');
@@ -500,7 +483,7 @@ test('shared team agenda filters published practice times by selected group', as
 });
 
 test('home page loads agenda dependencies only after a favorite team is selected', async ({ page }) => {
-  await page.clock.setFixedTime(new Date('2026-05-26T12:00:00'));
+  await setAgendaReferenceTime(page);
   await page.goto('/index.html');
 
   await expect(page.locator('#favoriteWeek')).toBeHidden();
@@ -519,9 +502,7 @@ test('home page loads agenda dependencies only after a favorite team is selected
 test('location distances use outlined pills and can sort nearest pools first', async ({ page }) => {
   await page.context().grantPermissions(['geolocation']);
   await page.context().setGeolocation({ latitude: 39.2105, longitude: -76.8721 });
-  await page.addInitScript(() => {
-    localStorage.setItem('cnsl_preferences', JSON.stringify({ locationAwarenessEnabled: true }));
-  });
+  await seedPreferences(page, { locationAwarenessEnabled: true });
   await page.goto('/pools.html');
 
   const sortControl = page.locator('#poolSortControls');
@@ -570,7 +551,7 @@ test('directory disclosures work without rendered inline event handlers', async 
 });
 
 test('meet pool links reveal the destination below the mobile fixed header', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
+  await page.setViewportSize(MOBILE_VIEWPORT);
   await page.context().grantPermissions(['geolocation']);
   await page.context().setGeolocation({ latitude: 39.2105, longitude: -76.8721 });
   await page.addInitScript(() => {
@@ -609,9 +590,7 @@ test('meet pool links reveal the destination below the mobile fixed header', asy
 });
 
 test('favorite team matchups appear first on every meet day they compete', async ({ page }) => {
-  await page.addInitScript(() => {
-    localStorage.setItem('cnsl_preferences', JSON.stringify({ favoriteTeamId: 'cfhss' }));
-  });
+  await seedPreferences(page, { favoriteTeamId: 'cfhss' });
   await page.goto('/meets.html');
   await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
 
@@ -623,11 +602,7 @@ test('favorite team matchups appear first on every meet day they compete', async
   expect(favoriteDayPlacement.every(firstIsFavorite => firstIsFavorite)).toBe(true);
 });
 
-for (const scenario of [
-  { path: '/pools.html', status: '#poolListStatus', surface: '.pool-card.collapsed', toggle: '.pool-header__toggle' },
-  { path: '/teams.html', status: '#teamListStatus', surface: '.team-card.collapsed', toggle: '.team-header__toggle' },
-  { path: '/meets.html', status: '#meetListStatus', surface: '.meet-date-card.collapsed', toggle: '.meet-date-header__toggle' }
-]) {
+for (const scenario of directoryScenarios) {
   test(`${scenario.path} directory tiles point, stay still, and expand from their surface`, async ({ page }) => {
     await page.goto(scenario.path);
     await expect(page.locator(scenario.status)).toContainText('loaded.');
@@ -668,11 +643,9 @@ test('pool directory encodes text and rejects unsafe published destinations', as
 
 test('desktop expanded pool details group contact links and fit the weekly calendar', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  await page.addInitScript(() => {
-    localStorage.setItem('cnsl_preferences', JSON.stringify({
-      favoritePoolName: 'Bryant Woods',
-      poolScheduleLayout: 'calendar'
-    }));
+  await seedPreferences(page, {
+    favoritePoolName: 'Bryant Woods',
+    poolScheduleLayout: 'calendar'
   });
   await page.goto('/pools.html');
   await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
@@ -725,9 +698,7 @@ test('desktop expanded pool details group contact links and fit the weekly calen
 test('mobile calendar schedules reveal today when a pool is expanded', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 900 });
   await page.clock.setFixedTime(new Date('2026-06-24T12:00:00-04:00'));
-  await page.addInitScript(() => {
-    localStorage.setItem('cnsl_preferences', JSON.stringify({ poolScheduleLayout: 'calendar' }));
-  });
+  await seedPreferences(page, { poolScheduleLayout: 'calendar' });
   await page.goto('/pools.html');
   await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
 
@@ -776,7 +747,7 @@ test('desktop site header remains visible while the pool directory scrolls', asy
 });
 
 test('settings dialog is right-aligned on mobile and centered on desktop', async ({ page }) => {
-  const mobileViewport = { width: 390, height: 844 };
+  const mobileViewport = MOBILE_VIEWPORT;
   await page.setViewportSize(mobileViewport);
   await page.goto('/settings.html');
   const dialog = page.locator('#settingsDialog');
@@ -799,11 +770,8 @@ test('settings dialog is right-aligned on mobile and centered on desktop', async
   expect(Math.abs(bounds.y + (bounds.height / 2) - (desktopViewport.height / 2))).toBeLessThanOrEqual(1);
 });
 
-test('settings persist choices locally and announce clearing saved settings', async ({ page }) => {
-  await page.addInitScript(() => {
-    globalThis.recordedAnalyticsEvents = [];
-    globalThis.gtag = (...eventArguments) => globalThis.recordedAnalyticsEvents.push(eventArguments);
-  });
+test('settings persist choices locally and confirm before clearing saved settings', async ({ page }) => {
+  await initializeAnalyticsRecorder(page);
   await page.goto('/settings.html');
   await expect(page.locator('#favoritePool')).toBeEnabled();
   await expect(page.getByRole('group', { name: 'Practice groups' })).toBeVisible();
@@ -854,8 +822,25 @@ test('settings persist choices locally and announce clearing saved settings', as
   });
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toHaveLength(7);
 
+  const dismissedClearPrompt = page.waitForEvent('dialog').then(async dialog => {
+    expect(dialog.type()).toBe('confirm');
+    expect(dialog.message()).toBe('Clear all saved settings from this device?');
+    await dialog.dismiss();
+  });
   await page.getByRole('button', { name: 'Clear saved settings' }).click();
-  await expect(page.locator('#settingsStatus')).toHaveText('Saved settings removed from this device.');
+  await dismissedClearPrompt;
+  await expect(page.getByLabel('Dark')).toBeChecked();
+  await expect(page.getByLabel('First Splash')).not.toBeChecked();
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toHaveLength(7);
+
+  const acceptedClearPrompt = page.waitForEvent('dialog').then(async dialog => {
+    expect(dialog.type()).toBe('confirm');
+    expect(dialog.message()).toBe('Clear all saved settings from this device?');
+    await dialog.accept();
+  });
+  await page.getByRole('button', { name: 'Clear saved settings' }).click();
+  await acceptedClearPrompt;
+  await expect(page.locator('#settingsStatus')).toBeEmpty();
   await expect(page.getByLabel('First Splash')).toBeChecked();
   await expect(page.getByLabel('8 and under')).toBeChecked();
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
@@ -899,7 +884,7 @@ test('desktop weather safety alerts restore collapsed details on every page', as
 });
 
 test('mobile weather safety alert keeps navigation visible and collapses with a stable arrow control', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
+  await page.setViewportSize(MOBILE_VIEWPORT);
   await prepareVisibleWeatherAlert(page);
   await page.goto('/index.html');
 
