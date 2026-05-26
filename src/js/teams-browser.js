@@ -16,7 +16,7 @@ const AVAILABLE_TEAM_LOGOS = new Set([
 async function initializeTeamsBrowser() {
   if (!teamsBrowserDataManager) {
     teamsBrowserDataManager = getDataManager();
-    await teamsBrowserDataManager.initialize(['pools', 'teams']);
+    await teamsBrowserDataManager.initialize(['pools', 'teams', 'meets']);
   }
 }
 
@@ -69,13 +69,8 @@ function getEnhancedPoolLink(location, _fallbackAddress) {
   });
 }
 
-/**
- * Get upcoming published practice blocks within the next seven days.
- * @param {Object} practice - Practice object from team data
- * @returns {Array} - Array of next two upcoming practices
- */
-function getUpcomingPractices(practice, count = 2) {
-  return TeamScheduleService.getUpcomingPractices(practice, new Date(), 7).slice(0, count);
+function getVisiblePracticeSessions(sessions) {
+  return PreferencesService.filterPracticeSessions(sessions, PreferencesService.get().practiceAgeGroups);
 }
 
 /**
@@ -86,6 +81,15 @@ function getUpcomingPractices(practice, count = 2) {
 function formatCurrentPracticeSchedule(practice) {
   const currentSchedule = getCurrentPracticeSchedule(practice);
   if (!currentSchedule) return '';
+  const morningPractices = Array.isArray(currentSchedule.morning) ? currentSchedule.morning.map(morning => ({
+    ...morning,
+    sessions: getVisiblePracticeSessions(morning.sessions)
+  })).filter(morning => morning.sessions.length > 0) : [];
+  const eveningPractices = Array.isArray(currentSchedule.evening) ? currentSchedule.evening.map(evening => ({
+    ...evening,
+    sessions: getVisiblePracticeSessions(evening.sessions)
+  })).filter(evening => evening.sessions.length > 0) : [];
+  if (morningPractices.length === 0 && eveningPractices.length === 0) return '';
   
   let html = '<div class="practice-schedule">';
   html += '<h3>Regular Practice Schedule</h3>';
@@ -96,8 +100,8 @@ function formatCurrentPracticeSchedule(practice) {
   }
   
   // Morning practices
-  if (currentSchedule.morning && Array.isArray(currentSchedule.morning)) {
-    currentSchedule.morning.forEach(morning => {
+  if (morningPractices.length > 0) {
+    morningPractices.forEach(morning => {
       html += '<div class="practice-period">';
       html += '<strong>Morning Practice:</strong>';
       html += `<div class="practice-details">`;
@@ -106,7 +110,7 @@ function formatCurrentPracticeSchedule(practice) {
         const poolLink = getEnhancedPoolLink(morning.location, morning.address);
         html += `<div><strong>Location:</strong> ${poolLink}</div>`;
       }
-      if (morning.sessions && Array.isArray(morning.sessions)) {
+      if (morning.sessions.length > 0) {
         html += '<div class="sessions">';
         morning.sessions.forEach(session => {
           html += `<div class="session-item">`;
@@ -121,8 +125,8 @@ function formatCurrentPracticeSchedule(practice) {
   }
   
   // Evening practices
-  if (currentSchedule.evening && Array.isArray(currentSchedule.evening)) {
-    currentSchedule.evening.forEach(evening => {
+  if (eveningPractices.length > 0) {
+    eveningPractices.forEach(evening => {
       html += '<div class="practice-period">';
       html += `<strong>${TeamsBrowserSafety.escapeHtml(evening.day)} Evening Practice:</strong>`;
       html += `<div class="practice-details">`;
@@ -130,7 +134,7 @@ function formatCurrentPracticeSchedule(practice) {
         const poolLink = getEnhancedPoolLink(evening.location, evening.address);
         html += `<div><strong>Location:</strong> ${poolLink}</div>`;
       }
-      if (evening.sessions && Array.isArray(evening.sessions)) {
+      if (evening.sessions.length > 0) {
         html += '<div class="sessions">';
         evening.sessions.forEach(session => {
           html += `<div class="session-item">`;
@@ -146,17 +150,6 @@ function formatCurrentPracticeSchedule(practice) {
   
   html += '</div>';
   return html;
-}
-
-/**
- * Get the next upcoming practice information (simplified - now using getUpcomingPractices)
- * @param {Object} practice - Practice object from team data
- * @returns {Object|null} - Next practice info or null
- */
-// eslint-disable-next-line no-unused-vars
-function getNextPractice(practice) {
-  const upcoming = getUpcomingPractices(practice, 1);
-  return upcoming.length > 0 ? upcoming[0] : null;
 }
 
 /**
@@ -336,32 +329,22 @@ function renderTeams(teams) {
     // Find pool data for the home pool using data manager
     const poolData = homePool ? findPoolByName(homePool) : null;
     
-    // Get next two upcoming practices
-    const upcomingPractices = getUpcomingPractices(team.practice, 2);
+    const upcomingEvents = globalThis.TeamAgendaDisplay.getUpcomingEvents(team, teamsBrowserDataManager.getMeets().getAllMeets());
+    const agendaTitleId = `team-agenda-title-${String(teamId || teamName).replace(/[^a-zA-Z0-9_-]/g, '-')}`;
     
     // Format current practice schedule (no preseason)
     const practiceScheduleHtml = formatCurrentPracticeSchedule(team.practice);
     const staffHtml = formatTeamStaff(team.staff);
     
-    // Create upcoming practices HTML for header area
-    let upcomingPracticesHtml = '';
-    if (upcomingPractices.length > 0) {
-      upcomingPracticesHtml = `
-        <div class="upcoming-practices">
-          <h3>📅 Next Practices</h3>
-          ${upcomingPractices.map(practice => {
-            const practicePoolLink = getEnhancedPoolLink(practice.location, practice.address);
-            return `
-              <div class="upcoming-practice-item">
-                <strong>${TeamsBrowserSafety.escapeHtml(practice.label)}:</strong> ${TeamsBrowserSafety.escapeHtml(practice.date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }))}
-                <br>${practice.sessions.map(session => `${TeamsBrowserSafety.escapeHtml(session.group)}: ${TeamsBrowserSafety.escapeHtml(session.time)}`).join('; ')}
-                <br><span class="practice-location">📍 ${practicePoolLink}</span>
-              </div>
-            `;
-          }).join('')}
+    const upcomingEventsHtml = `
+      <section class="favorite-week" aria-labelledby="${agendaTitleId}">
+        <div class="favorite-week__heading">
+          <h3 id="${agendaTitleId}">${TeamsBrowserSafety.escapeHtml(globalThis.TeamAgendaDisplay.getTitle(teamName, upcomingEvents))}</h3>
         </div>
-      `;
-    }
+        <p class="favorite-week__status">${TeamsBrowserSafety.escapeHtml(globalThis.TeamAgendaDisplay.getStatus(upcomingEvents))}</p>
+        ${globalThis.TeamAgendaDisplay.renderEvents(upcomingEvents, 4)}
+      </section>
+    `;
     
     // Get fallback address for legacy compatibility
     let fallbackAddress;
@@ -390,7 +373,7 @@ function renderTeams(teams) {
         </div>
         
         <div class="team-details" id="${detailsId}"${isExpanded ? '' : ' hidden'}>
-          ${upcomingPracticesHtml}
+          ${upcomingEventsHtml}
           
           ${homePool ? `
             <div class="detail-item">

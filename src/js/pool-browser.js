@@ -304,11 +304,11 @@ function formatPoolHours(pool) {
   
   // Format the week display text
   const weekStartText = weekStart.toLocaleDateString('en-US', { 
-    month: 'short', 
+    month: 'long', 
     day: 'numeric' 
   });
   const weekEndText = weekEnd.toLocaleDateString('en-US', { 
-    month: 'short', 
+    month: 'long', 
     day: 'numeric' 
   });
   

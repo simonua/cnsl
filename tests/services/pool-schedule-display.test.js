@@ -18,8 +18,8 @@ const weekSchedule = [{
 }];
 
 const options = {
-  weekStart: new Date(2026, 4, 18),
-  today: new Date(2026, 4, 20),
+  weekStart: new Date(2026, 5, 15),
+  today: new Date(2026, 5, 17),
   timeUtils,
   poolStatus: { color: 'green' }
 };
@@ -31,6 +31,7 @@ describe('PoolScheduleDisplay', () => {
 
       assert.match(html, /pool-schedule-list/);
       assert.match(html, /day-schedule is-today/);
+      assert.match(html, /Wed \(June 17\)/);
       assert.match(html, /day-schedule is-today[^]*?<\/div><div class="time-slot"/);
       assert.doesNotMatch(html, /schedule-activity--public/);
     });
@@ -40,6 +41,7 @@ describe('PoolScheduleDisplay', () => {
 
       assert.match(html, /schedule-calendar/);
       assert.match(html, /schedule-calendar__day is-today/);
+      assert.match(html, /aria-label="Wed June 17"/);
       assert.match(html, />Today</);
       assert.match(html, /schedule-activity--public/);
       assert.match(html, /schedule-activity--restricted/);

@@ -892,10 +892,46 @@ main h1 {
   justify-content: space-between;
 }
 
-.favorite-week__heading h2 {
+.favorite-week__heading h2,
+.favorite-week__heading h3 {
   color: var(--primary-text-color);
   font-size: 1.25rem;
   margin: 0;
+}
+
+.favorite-week__toggle {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  gap: 0.625rem;
+  padding: 0;
+  text-align: left;
+}
+
+.favorite-week__toggle::before {
+  border-block-end: 2px solid currentColor;
+  border-inline-end: 2px solid currentColor;
+  content: '';
+  display: inline-block;
+  flex-shrink: 0;
+  height: 0.5rem;
+  transform: rotate(45deg);
+  transition: transform var(--transition);
+  width: 0.5rem;
+}
+
+.favorite-week__toggle[aria-expanded="false"]::before {
+  transform: rotate(-45deg);
+}
+
+.favorite-week__toggle:focus-visible {
+  border-radius: var(--border-radius);
+  outline: 2px solid var(--primary-color);
+  outline-offset: 0.25rem;
 }
 
 .favorite-week__directory-link {
@@ -919,7 +955,8 @@ main h1 {
   padding: 0.75rem 0;
 }
 
-.favorite-week__day h3 {
+.favorite-week__day h3,
+.favorite-week__day h4 {
   color: var(--primary-text-color);
   font-size: 1rem;
   margin: 0 0 0.5rem;
@@ -969,6 +1006,10 @@ main h1 {
   flex-wrap: wrap;
   gap: 0.75rem;
   justify-content: center;
+}
+
+.share-site__feedback {
+  margin-top: 1rem;
 }
 
 .share-site__link,
@@ -3407,45 +3448,6 @@ button.pool-filter__clear:focus-visible {
 .team-logo-img--thl { background-position: 0 -186px; }
 .team-logo-img--wlw { background-position: -62px -186px; }
 
-.upcoming-practice {
-  background-color: var(--light-bg);
-  padding: 0.75rem;
-  border-radius: var(--border-radius);
-  margin-bottom: 1rem;
-  border-left: 3px solid var(--success-color);
-  font-size: 0.9rem;
-}
-
-.upcoming-practices {
-  background-color: var(--light-bg);
-  padding: 1rem;
-  border-radius: var(--border-radius);
-  margin-bottom: 1rem;
-  border-left: 3px solid var(--success-color);
-}
-
-.upcoming-practices h3 {
-  color: var(--success-text-color);
-  margin-bottom: 0.75rem;
-  font-weight: 600;
-  font-size: 1rem;
-}
-
-.upcoming-practice-item {
-  margin-bottom: 0.75rem;
-  font-size: 0.9rem;
-}
-
-.upcoming-practice-item:last-child {
-  margin-bottom: 0;
-}
-
-.practice-location {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  margin-left: 0.5rem;
-}
-
 .practice-schedule {
   background-color: var(--light-bg);
   padding: 1rem;
@@ -4232,11 +4234,20 @@ button.settings-dialog__close:focus {
   outline-offset: 2px;
 }
 
+.settings-checkbox-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
 .settings-hint {
   color: var(--text-muted);
   font-size: 0.9rem;
   line-height: 1.5;
   margin: 0.65rem 0 0 2rem;
+}
+
+.settings-hint--flush {
+  margin: 0 0 0.9rem;
 }
 
 .settings-actions {

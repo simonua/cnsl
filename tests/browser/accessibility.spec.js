@@ -127,6 +127,7 @@ for (const theme of ['light', 'dark']) {
     await loadScenario(page, pageScenarios.find(scenario => scenario.name === 'teams'), theme);
     const teamToggle = page.locator('.team-card[data-team-id="cfhss"] .team-header__toggle');
     if (await teamToggle.getAttribute('aria-expanded') !== 'true') await teamToggle.click();
+    await expect(page.locator('.team-card[data-team-id="cfhss"] .favorite-week')).toBeVisible();
     await expect(page.locator('.team-card[data-team-id="cfhss"] .practice-schedule')).toBeVisible();
 
     const results = await new AxeBuilder({ page })

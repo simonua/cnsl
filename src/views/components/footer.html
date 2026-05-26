@@ -1,6 +1,6 @@
 <footer class="footer">
   <p>
     <a href="https://www.linkedin.com/in/simonkurtz" target="_blank" rel="noopener noreferrer">Simon Kurtz</a> | 
-    <time datetime="{{ APP_LAST_UPDATED_ON }}">{{ new Date(APP_LAST_UPDATED_ON).toLocaleDateString('en-US', { year: '2-digit', month: '2-digit', day: '2-digit', timeZone: 'UTC' }) }}</time> - <a href="https://github.com/simonua/cnsl" target="_blank" rel="noopener noreferrer">{{ APP_VERSION }}</a>
+    <time datetime="{{ APP_LAST_UPDATED_ON }}">{{ new Date(APP_LAST_UPDATED_ON).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }) }}</time> - <a href="https://github.com/simonua/cnsl" target="_blank" rel="noopener noreferrer">{{ APP_VERSION }}</a>
   </p>
 </footer>

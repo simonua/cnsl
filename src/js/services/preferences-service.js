@@ -15,6 +15,14 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
 
     static WEATHER_REFRESH_MINUTES = globalThis.WEATHER_ALERT_REFRESH_MINUTES_OPTIONS;
 
+    static PRACTICE_AGE_GROUPS = Object.freeze([
+      Object.freeze({ key: '8-under', label: '8 and under', minimumAge: 0, maximumAge: 8 }),
+      Object.freeze({ key: '9-10', label: '9-10', minimumAge: 9, maximumAge: 10 }),
+      Object.freeze({ key: '11-12', label: '11-12', minimumAge: 11, maximumAge: 12 }),
+      Object.freeze({ key: '13-14', label: '13-14', minimumAge: 13, maximumAge: 14 }),
+      Object.freeze({ key: '15-18', label: '15-18', minimumAge: 15, maximumAge: 18 })
+    ]);
+
     static POOL_FEATURE_GROUPS = Object.freeze([
       Object.freeze({
         key: 'accessibility',
@@ -51,6 +59,7 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
       favoritePoolExpanded: true,
       poolScheduleLayout: 'list',
       poolFeatureFilters: Object.freeze([]),
+      practiceAgeGroups: Object.freeze(['8-under', '9-10', '11-12', '13-14', '15-18']),
       locationAwarenessEnabled: false,
       weatherRefreshMinutes: globalThis.WEATHER_ALERT_DEFAULT_REFRESH_MINUTES
     });
@@ -120,6 +129,7 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
         ? preferences.poolScheduleLayout
         : 'list';
       const poolFeatureFilters = PreferencesService.normalizeFeatureFilters(preferences.poolFeatureFilters);
+      const practiceAgeGroups = PreferencesService.normalizePracticeAgeGroups(preferences.practiceAgeGroups);
       const locationAwarenessEnabled = preferences.locationAwarenessEnabled === true;
 
       const requestedWeatherRefreshMinutes = Number(preferences.weatherRefreshMinutes);
@@ -127,7 +137,7 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
         ? requestedWeatherRefreshMinutes
         : PreferencesService.DEFAULT_PREFERENCES.weatherRefreshMinutes;
 
-      return { theme, favoriteTeamId, favoritePoolName, favoriteTeamExpanded, favoritePoolExpanded, poolScheduleLayout, poolFeatureFilters, locationAwarenessEnabled, weatherRefreshMinutes };
+      return { theme, favoriteTeamId, favoritePoolName, favoriteTeamExpanded, favoritePoolExpanded, poolScheduleLayout, poolFeatureFilters, practiceAgeGroups, locationAwarenessEnabled, weatherRefreshMinutes };
     }
 
     /**
@@ -143,6 +153,64 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
         .map(feature => feature.trim().toLowerCase())
         .filter(Boolean))]
         .sort((first, second) => first.localeCompare(second));
+    }
+
+    /**
+     * Keep selected age-group keys ordered, and default older settings to all groups.
+     * @param {Array|undefined} ageGroups - Raw selected age-group keys
+     * @returns {Array} Ordered valid age-group keys
+     */
+    static normalizePracticeAgeGroups(ageGroups) {
+      const allAgeGroups = PreferencesService.PRACTICE_AGE_GROUPS.map(ageGroup => ageGroup.key);
+      if (typeof ageGroups === 'undefined' || !Array.isArray(ageGroups)) return allAgeGroups;
+
+      return allAgeGroups.filter(ageGroup => ageGroups.includes(ageGroup));
+    }
+
+    /**
+     * Keep practice sessions that apply to at least one selected age group.
+     * Skill-based sessions without a published age range remain visible.
+     * @param {Array} sessions - Published practice sessions
+     * @param {Array|undefined} selectedAgeGroups - Selected age-group keys
+     * @returns {Array} Sessions relevant to the selection
+     */
+    static filterPracticeSessions(sessions, selectedAgeGroups) {
+      if (!Array.isArray(sessions)) return [];
+
+      const selectedKeys = PreferencesService.normalizePracticeAgeGroups(selectedAgeGroups);
+      const selectedRanges = PreferencesService.PRACTICE_AGE_GROUPS.filter(ageGroup => selectedKeys.includes(ageGroup.key));
+
+      return sessions.filter(session => {
+        const sessionRange = PreferencesService.getPracticeSessionAgeRange(session && session.group);
+        if (!sessionRange) return true;
+
+        return selectedRanges.some(ageGroup => (
+          ageGroup.minimumAge <= sessionRange.maximumAge && ageGroup.maximumAge >= sessionRange.minimumAge
+        ));
+      });
+    }
+
+    /**
+     * Resolve an age-labelled published practice group to its inclusive swimmer ages.
+     * @param {string} groupLabel - Published practice group label
+     * @returns {{minimumAge: number, maximumAge: number}|null} Age span, if specified
+     */
+    static getPracticeSessionAgeRange(groupLabel) {
+      if (typeof groupLabel !== 'string') return null;
+
+      const normalizedLabel = groupLabel.toLowerCase();
+      const youngerMatch = normalizedLabel.match(/\b(\d{1,2})\s*(?:&|and)\s*(?:under|younger)\b/);
+      if (youngerMatch) return { minimumAge: 0, maximumAge: Number(youngerMatch[1]) };
+
+      const olderMatch = normalizedLabel.match(/\b(\d{1,2})\s*(?:&|and)\s*(?:up|over|older)\b/);
+      if (olderMatch) return { minimumAge: Number(olderMatch[1]), maximumAge: 18 };
+
+      const rangeMatch = normalizedLabel.match(/\b(\d{1,2})\s*-\s*(\d{1,2})\b/);
+      if (!rangeMatch) return null;
+
+      const minimumAge = Number(rangeMatch[1]);
+      const maximumAge = Number(rangeMatch[2]);
+      return minimumAge <= maximumAge ? { minimumAge, maximumAge } : null;
     }
 
     /**

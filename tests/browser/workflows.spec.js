@@ -84,7 +84,7 @@ for (const scenario of [
 
 for (const scenario of [
   { path: '/pools.html', status: '#poolListStatus', readyText: /Pool directory loaded\./, domains: ['pools'] },
-  { path: '/teams.html', status: '#teamListStatus', readyText: /Team directory loaded\./, domains: ['pools', 'teams'] },
+  { path: '/teams.html', status: '#teamListStatus', readyText: /Team directory loaded\./, domains: ['meets', 'pools', 'teams'] },
   { path: '/meets.html', status: '#meetListStatus', readyText: /Meet schedule loaded\./, domains: ['meets', 'pools', 'teams'] }
 ]) {
   test(`${scenario.path} requests only the annual data required for its workflow`, async ({ page }) => {
@@ -129,6 +129,7 @@ test('season summary and sharing actions appear only on the home page', async ({
   await expect(page.getByRole('link', { name: 'Text' })).toHaveAttribute('href', 'sms:?&body=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org');
   await expect(page.getByRole('link', { name: 'Email' })).toHaveAttribute('href', 'mailto:?subject=Columbia%20Pools%20and%20CNSL%20Schedules&body=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org');
   await expect(page.getByRole('link', { name: 'Facebook (opens in new tab)' })).toHaveAttribute('href', 'https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fpools.longreachmarlins.org');
+  await expect(page.getByRole('link', { name: 'Send Feedback' })).toHaveAttribute('href', 'mailto:simonkurtz@gmail.com?subject=Assistant%20App%20Feedback');
   await page.getByRole('link', { name: 'Meets' }).focus();
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Text' })).toBeFocused();
@@ -136,6 +137,8 @@ test('season summary and sharing actions appear only on the home page', async ({
   await expect(page.getByRole('link', { name: 'Email' })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Facebook (opens in new tab)' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('link', { name: 'Send Feedback' })).toBeFocused();
 
   for (const method of ['text', 'email', 'facebook']) {
     await page.locator(`[data-analytics-share-method="${method}"] .share-site__icon`).evaluate(icon => {
@@ -405,6 +408,7 @@ test('collapsed favorite team stays collapsed after returning to the directory',
 });
 
 test('team directory displays verified regular practices from public team schedules', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-05-26T12:00:00'));
   await page.goto('/teams.html');
   await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
 
@@ -415,6 +419,39 @@ test('team directory displays verified regular practices from public team schedu
   await expect(sundevils.locator('.practice-schedule')).toContainText('8:00 - 8:30am');
   await expect(sundevils.getByRole('link', { name: 'Practice Schedule' })).toHaveAttribute('href', /practice-schedule/);
   await expect(sundevils.getByRole('link', { name: 'Team Calendar' })).toHaveAttribute('href', /\/page\/calendar$/);
+});
+
+test('team directory filters regular practice times to selected age-group interests', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('cnsl_preferences', JSON.stringify({ practiceAgeGroups: ['9-10'] }));
+  });
+  await page.goto('/teams.html');
+  await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
+
+  const sundevils = page.locator('.team-card[data-team-id="cfhss"]');
+  await sundevils.locator('.team-header__toggle').click();
+  const schedule = sundevils.locator('.practice-schedule');
+  await expect(schedule).toContainText('8:30 - 9:15am');
+  await expect(schedule).toContainText('5:00 - 5:45pm');
+  await expect(schedule).not.toContainText('8:00 - 8:30am');
+  await expect(schedule).not.toContainText('9:15 - 10:00am');
+  await expect(schedule).not.toContainText('5:45 - 6:30pm');
+});
+
+test('team directory shows the same next practices and swim event agenda as home', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-05-26T12:00:00'));
+  await page.goto('/teams.html');
+  await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
+
+  const snappers = page.locator('.team-card[data-team-id="pls"]');
+  await snappers.locator('.team-header__toggle').click();
+  const agenda = snappers.locator('.favorite-week');
+  await expect(agenda.getByRole('heading', { name: /Phelps Luck Snappers: 3 practice or swim events upcoming/ })).toBeVisible();
+  await expect(agenda.locator('.favorite-week__events li')).toHaveCount(3);
+  await expect(agenda).toContainText('Next morning practice');
+  await expect(agenda).toContainText('Next evening practice');
+  await expect(agenda).toContainText('Next swim event: Time Trials for returning/experienced swimmers');
+  await expect(agenda.getByRole('link', { name: 'Jeffers Hill Pool' })).toHaveAttribute('href', 'pools.html?pool=jhp');
 });
 
 test('home page shows the next practices and swim event for a selected favorite team', async ({ page }) => {
@@ -429,6 +466,7 @@ test('home page shows the next practices and swim event for a selected favorite 
   await expect(agenda.getByRole('heading', { name: /Phelps Luck Snappers: 3 practice or swim events upcoming/ })).toBeVisible();
   await expect(page.locator('#favoriteWeekStatus')).toContainText('3 next published practice or swim event entries');
   await expect(agenda.locator('.favorite-week__events li')).toHaveCount(3);
+  await expect(agenda).toContainText('Tuesday, May 26');
   await expect(agenda).toContainText('Next morning practice');
   await expect(agenda).toContainText('Next evening practice');
   await expect(agenda).toContainText('Next swim event: Time Trials for returning/experienced swimmers');
@@ -436,6 +474,27 @@ test('home page shows the next practices and swim event for a selected favorite 
   await expect(agenda.getByRole('link', { name: 'Phelps Luck Pool' }).first()).toHaveAttribute('href', 'pools.html?pool=plp');
   await expect(agenda.getByRole('link', { name: 'Jeffers Hill Pool' })).toHaveAttribute('href', 'pools.html?pool=jhp');
   await expect(agenda).toContainText('First Splash: 5:00 - 5:30pm');
+
+  const toggle = page.locator('#favoriteWeekToggle');
+  await toggle.press('Enter');
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.locator('#favoriteWeekContent')).toBeHidden();
+  await toggle.press('Enter');
+  await expect(page.locator('#favoriteWeekContent')).toBeVisible();
+});
+
+test('shared team agenda filters age-labelled practice times by selected interest', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-05-26T12:00:00'));
+  await page.addInitScript(() => {
+    localStorage.setItem('cnsl_preferences', JSON.stringify({ favoriteTeamId: 'pls', practiceAgeGroups: ['8-under'] }));
+  });
+  await page.goto('/index.html');
+
+  const agenda = page.locator('#favoriteWeek');
+  await expect(agenda).toContainText('8 and under: 5:30 - 6:00pm');
+  await expect(agenda).toContainText('First Splash: 5:00 - 5:30pm');
+  await expect(agenda).not.toContainText('9 - 12: 6:00 - 6:30pm');
+  await expect(agenda).not.toContainText('13 and over: 6:30 - 7:00pm');
 });
 
 test('home page loads agenda dependencies only after a favorite team is selected', async ({ page }) => {
@@ -451,7 +510,7 @@ test('home page loads agenda dependencies only after a favorite team is selected
   });
 
   await expect(page.locator('#favoriteWeek')).toBeVisible();
-  await expect(page.locator('script[data-home-schedule-dependency]')).toHaveCount(7);
+  await expect(page.locator('script[data-home-schedule-dependency]')).toHaveCount(8);
   await expect(page.locator('#favoriteWeek')).toContainText('Phelps Luck Pool');
 });
 
@@ -663,7 +722,7 @@ test('desktop expanded pool details group contact links and fit the weekly calen
 
 test('mobile calendar schedules reveal today when a pool is expanded', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 900 });
-  await page.clock.setFixedTime(new Date('2026-05-24T12:00:00-04:00'));
+  await page.clock.setFixedTime(new Date('2026-06-24T12:00:00-04:00'));
   await page.addInitScript(() => {
     localStorage.setItem('cnsl_preferences', JSON.stringify({ poolScheduleLayout: 'calendar' }));
   });
@@ -679,7 +738,9 @@ test('mobile calendar schedules reveal today when a pool is expanded', async ({ 
   }))).toEqual({ fits: true, actionToRight: true });
   const calendar = firstPool.locator('.schedule-calendar');
   await expect(calendar).toBeVisible();
+  await expect(firstPool.locator('.week-text')).toContainText('Week of June 22 - June 28');
   await expect(calendar.locator('.schedule-calendar__day.is-today')).toBeVisible();
+  await expect(calendar.locator('.schedule-calendar__day.is-today')).toContainText('June 24');
   await expect.poll(() => calendar.evaluate(element => element.scrollLeft)).toBeGreaterThan(0);
   expect(await calendar.evaluate(element => {
     const today = element.querySelector('.schedule-calendar__day.is-today');
@@ -732,14 +793,18 @@ test('settings persist choices locally and announce clearing saved settings', as
   });
   await page.goto('/settings.html');
   await expect(page.locator('#favoritePool')).toBeEnabled();
+  await expect(page.getByLabel('8 and under')).toBeChecked();
+  await expect(page.getByLabel('9-10')).toBeChecked();
 
   await page.getByLabel('Dark').check();
   await page.getByLabel('Weekly calendar').check();
   await page.getByLabel('Use my current location to estimate distances to pools').check();
   await page.getByLabel('10 min').check();
+  await page.getByLabel('8 and under').uncheck();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).theme)).toBe('dark');
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).weatherRefreshMinutes)).toBe(10);
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).practiceAgeGroups)).toEqual(['9-10', '11-12', '13-14', '15-18']);
   await expect(page.getByLabel('Share anonymous page usage through Google Analytics')).toHaveCount(0);
   await expect.poll(() => page.evaluate(() => Object.hasOwn(JSON.parse(localStorage.getItem('cnsl_preferences')), 'analyticsEnabled'))).toBe(false);
   await expect(page.locator('#cnslAnalyticsScript')).toHaveCount(0);
@@ -775,6 +840,7 @@ test('settings persist choices locally and announce clearing saved settings', as
 
   await page.getByRole('button', { name: 'Clear saved settings' }).click();
   await expect(page.locator('#settingsStatus')).toHaveText('Saved settings removed from this device.');
+  await expect(page.getByLabel('8 and under')).toBeChecked();
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
     ['event', 'ca_setting_change', { setting_name: 'theme' }],
     ['event', 'ca_setting_change', { setting_name: 'pool_schedule_layout' }],

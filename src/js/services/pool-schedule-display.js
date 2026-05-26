@@ -39,7 +39,7 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
         return {
           day,
           date,
-          monthDay: `${date.getMonth() + 1}/${date.getDate()}`,
+          monthDay: date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' }),
           isCurrentDay: PoolScheduleDisplay.isSameDate(date, today),
           schedule: weekSchedule.find(scheduleDay => scheduleDay.day === day) || null
         };

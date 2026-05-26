@@ -14,6 +14,7 @@ describe('PreferencesService', () => {
         favoritePoolExpanded: true,
         poolScheduleLayout: 'list',
         poolFeatureFilters: [],
+        practiceAgeGroups: ['8-under', '9-10', '11-12', '13-14', '15-18'],
         locationAwarenessEnabled: false,
         weatherRefreshMinutes: 5
       });
@@ -29,6 +30,7 @@ describe('PreferencesService', () => {
         favoritePoolExpanded: false,
         poolScheduleLayout: 'calendar',
         poolFeatureFilters: [' slide ', 'Beach Entry', 'slide'],
+        practiceAgeGroups: ['15-18', '9-10', 'unknown'],
         locationAwarenessEnabled: true,
         weatherRefreshMinutes: 10,
         analyticsEnabled: true
@@ -37,7 +39,8 @@ describe('PreferencesService', () => {
       assert.deepEqual(saved, {
         theme: 'dark', favoriteTeamId: 'lrm', favoritePoolName: 'Kendall Ridge', favoriteTeamExpanded: false,
         favoritePoolExpanded: false, poolScheduleLayout: 'calendar',
-        poolFeatureFilters: ['beach entry', 'slide'], locationAwarenessEnabled: true, weatherRefreshMinutes: 10
+        poolFeatureFilters: ['beach entry', 'slide'], practiceAgeGroups: ['9-10', '15-18'],
+        locationAwarenessEnabled: true, weatherRefreshMinutes: 10
       });
       assert.deepEqual(PreferencesService.get(storage), saved);
       assert.ok(storage.getItem(PreferencesService.STORAGE_KEY));
@@ -51,6 +54,7 @@ describe('PreferencesService', () => {
       assert.deepEqual(PreferencesService.normalize({ theme: 'unsupported', favoriteTeamId: 10 }), {
         theme: 'system', favoriteTeamId: '', favoritePoolName: '', favoriteTeamExpanded: true,
         favoritePoolExpanded: true, poolScheduleLayout: 'list', poolFeatureFilters: [],
+        practiceAgeGroups: ['8-under', '9-10', '11-12', '13-14', '15-18'],
         locationAwarenessEnabled: false, weatherRefreshMinutes: 5
       });
     });
@@ -131,6 +135,39 @@ describe('PreferencesService', () => {
         ['Hopewell']
       );
       assert.deepEqual(PreferencesService.filterPoolsByFeatures(pools, []), pools);
+    });
+  });
+
+  describe('practice age-group filtering', () => {
+    const sessions = [
+      { group: '8 & Under', time: '8:00am' },
+      { group: '9 - 12', time: '8:30am' },
+      { group: '13 and over', time: '9:15am' },
+      { group: 'First Splash', time: '5:00pm' }
+    ];
+
+    it('defaults older saved preferences to all practice age groups', () => {
+      assert.deepEqual(PreferencesService.normalize({ theme: 'dark' }).practiceAgeGroups, [
+        '8-under', '9-10', '11-12', '13-14', '15-18'
+      ]);
+    });
+
+    it('includes published ranges that overlap selected standard age groups', () => {
+      assert.deepEqual(
+        PreferencesService.filterPracticeSessions(sessions, ['11-12']).map(session => session.group),
+        ['9 - 12', 'First Splash']
+      );
+      assert.deepEqual(
+        PreferencesService.filterPracticeSessions([{ group: '10 & Under' }, { group: '11 & Up' }], ['9-10']),
+        [{ group: '10 & Under' }]
+      );
+    });
+
+    it('retains non-age sessions when all age-group interests are unchecked', () => {
+      assert.deepEqual(
+        PreferencesService.filterPracticeSessions(sessions, []).map(session => session.group),
+        ['First Splash']
+      );
     });
   });
 

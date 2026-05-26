@@ -2,7 +2,6 @@
  * Shows the selected team's next morning practice, evening practice, and swim event.
  */
 (function initializeHomeSchedule() {
-  const SCHEDULE_LOOKAHEAD_DAYS = 366;
   const AGENDA_DEPENDENCIES = [
     'js/services/html-safety.js',
     'js/services/pool-link-helper.js',
@@ -10,7 +9,8 @@
     'js/meets-manager.js',
     'js/services/file-helper.js',
     'js/services/data-manager.js',
-    'js/services/team-schedule-service.js'
+    'js/services/team-schedule-service.js',
+    'js/services/team-agenda-display.js'
   ];
   let dependenciesPromise;
 
@@ -33,72 +33,6 @@
       );
     }
     return dependenciesPromise;
-  }
-
-  function startOfDay(value) {
-    const date = new Date(value);
-    date.setHours(0, 0, 0, 0);
-    return date;
-  }
-
-  function formatDay(date) {
-    return date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
-  }
-
-  function getFavoriteMeets(meets, team, firstDate) {
-    return meets.filter(meet => {
-      if (!meet.date) return false;
-      const meetDate = startOfDay(`${meet.date}T12:00:00`);
-      const hasMatchup = Boolean(meet.visiting_team || meet.awayTeam || meet.home_team || meet.homeTeam);
-      return meetDate >= firstDate && (!hasMatchup || PreferencesService.meetIncludesFavoriteTeam(meet, team));
-    }).map(meet => ({
-      date: startOfDay(`${meet.date}T12:00:00`),
-      label: `Next swim event: ${meet.name || 'Meet'}`,
-      location: meet.location,
-      sessions: [],
-      teams: meet.visiting_team || meet.awayTeam ? `${meet.visiting_team || meet.awayTeam} at ${meet.home_team || meet.homeTeam}` : '',
-      type: 'meet'
-    })).sort((first, second) => first.date - second.date).slice(0, 1);
-  }
-
-  function getNextPractices(practices) {
-    const classifyPractice = practice => {
-      if (practice.label === 'Morning Practice') return 'morning';
-      if (practice.label === 'Evening Practice') return 'evening';
-
-      const sessionTimes = practice.sessions.map(session => session.time).join(' ');
-      if (/am\b/i.test(sessionTimes) && !/pm\b/i.test(sessionTimes)) return 'morning';
-      if (/pm\b/i.test(sessionTimes) && !/am\b/i.test(sessionTimes)) return 'evening';
-      return null;
-    };
-
-    return ['morning', 'evening'].map(period => {
-      const practice = practices.find(entry => classifyPractice(entry) === period);
-      return practice ? { ...practice, label: `Next ${period} practice` } : null;
-    }).filter(Boolean);
-  }
-
-  function renderEvents(container, events) {
-    const days = new Map();
-    events.sort((first, second) => first.date - second.date).forEach(event => {
-      const key = event.date.toDateString();
-      if (!days.has(key)) days.set(key, { date: event.date, events: [] });
-      days.get(key).events.push(event);
-    });
-
-    container.innerHTML = `<ol class="favorite-week__days">${[...days.values()].map(day => `
-      <li class="favorite-week__day">
-        <h3>${HtmlSafety.escapeHtml(formatDay(day.date))}</h3>
-        <ul class="favorite-week__events">${day.events.map(event => `
-          <li>
-            <strong>${HtmlSafety.escapeHtml(event.label)}</strong>
-            ${event.teams ? `<span>${HtmlSafety.escapeHtml(event.teams)}</span>` : ''}
-            ${event.sessions.map(session => `<span>${HtmlSafety.escapeHtml(session.group)}: ${HtmlSafety.escapeHtml(session.time)}</span>`).join('')}
-            <span>${globalThis.generateLinkedPoolMentions(event.location)}</span>
-          </li>
-        `).join('')}</ul>
-      </li>
-    `).join('')}</ol>`;
   }
 
   async function renderFavoriteWeek() {
@@ -129,25 +63,36 @@
         return;
       }
 
-      const today = startOfDay(new Date());
-      const practices = getNextPractices(TeamScheduleService.getUpcomingPractices(team.practice, today, SCHEDULE_LOOKAHEAD_DAYS));
-      const meets = getFavoriteMeets(dataManager.getMeets().getAllMeets(), team, today);
-      const events = [...practices, ...meets];
-      const eventNoun = events.length === 1 ? 'event' : 'events';
-      document.getElementById('favoriteWeekTitle').textContent = `${team.name}: ${events.length} practice or swim ${eventNoun} upcoming`;
+      const events = globalThis.TeamAgendaDisplay.getUpcomingEvents(team, dataManager.getMeets().getAllMeets());
+      document.getElementById('favoriteWeekTitle').textContent = globalThis.TeamAgendaDisplay.getTitle(team.name, events);
       if (events.length === 0) {
-        status.textContent = 'No upcoming published practices or swim events are available.';
+        status.textContent = globalThis.TeamAgendaDisplay.getStatus(events);
         return;
       }
 
-      status.textContent = `Showing ${events.length} next published practice or swim event entries.`;
-      renderEvents(schedule, events);
+      status.textContent = globalThis.TeamAgendaDisplay.getStatus(events);
+      schedule.innerHTML = globalThis.TeamAgendaDisplay.renderEvents(events);
     } catch (error) {
       console.error('Failed to load favorite team schedule:', error);
       status.textContent = 'Your team schedule is currently unavailable. Please try again later.';
     }
   }
 
-  document.addEventListener('DOMContentLoaded', renderFavoriteWeek);
+  function initializeFavoriteWeekToggle() {
+    const toggle = document.getElementById('favoriteWeekToggle');
+    const content = document.getElementById('favoriteWeekContent');
+    if (!toggle || !content) return;
+
+    toggle.addEventListener('click', () => {
+      const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+      toggle.setAttribute('aria-expanded', String(!isExpanded));
+      content.hidden = isExpanded;
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    initializeFavoriteWeekToggle();
+    renderFavoriteWeek();
+  });
   window.addEventListener('cnsl:preferences-changed', renderFavoriteWeek);
 })();
