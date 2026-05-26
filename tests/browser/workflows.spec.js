@@ -903,8 +903,14 @@ test('desktop weather safety alerts restore collapsed details on every page', as
   await expect(page.getByRole('link', { name: 'Live pool status' })).toBeVisible();
   const expandedTitleBox = await page.locator('.weather-alert__title').boundingBox();
   const expandedToggleBox = await page.getByRole('button', { name: 'Collapse weather safety alert' }).boundingBox();
+  const expandedActionBox = await page.getByRole('link', { name: 'Live pool status' }).boundingBox();
   expect(expandedTitleBox.y).toBe(collapsedTitleBox.y);
+  expect(expandedTitleBox.height).toBe(collapsedTitleBox.height);
+  expect(collapsedToggleBox.height).toBe(collapsedTitleBox.height);
   expect(expandedToggleBox.y).toBe(collapsedToggleBox.y);
+  expect(expandedToggleBox.height).toBe(collapsedToggleBox.height);
+  expect(expandedActionBox.y).toBe(expandedToggleBox.y);
+  expect(expandedActionBox.height).toBe(expandedToggleBox.height);
   await expect.poll(() => page.evaluate(() => sessionStorage.getItem('cnsl_weather_alert_expanded'))).toBe('true');
 });
 
