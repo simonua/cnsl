@@ -4,19 +4,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; connect-src 'self' {{ WEATHER_API_BASE_URL }} https://www.google-analytics.com https://*.google-analytics.com https://cloudflareinsights.com; frame-src 'none'; img-src 'self' data: https://www.google-analytics.com https://*.google-analytics.com; manifest-src 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; worker-src 'self';" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; connect-src 'self' {{ WEATHER_API_BASE_URL }} https://www.google-analytics.com https://*.google-analytics.com https://cloudflareinsights.com; frame-src 'none'; img-src 'self' data: https://www.google-analytics.com https://*.google-analytics.com; manifest-src 'self'; object-src 'none'; script-src 'self' __INLINE_SCRIPT_HASHES__ https://www.googletagmanager.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; worker-src 'self';" />
   <block name="metadata">
-    <title>Columbia, MD Outdoor Pools &amp; CNSL Schedules | CA Pool Assistant</title>
+    <title>CNSL Pools &amp; Schedules | Columbia, MD</title>
     <meta name="description" content="Find Columbia Association outdoor pools, CNSL swim teams, and meet schedules for summer swimming in Columbia, Maryland." />
     <link rel="canonical" href="{{ HOME_PAGE_URL }}/" />
   </block>
   <meta property="og:site_name" content="CA Pool &amp; CNSL Assistant" />
   <meta property="og:locale" content="en_US" />
   <meta property="og:image" content="{{ HOME_PAGE_URL }}/assets/images/cnsl-logo.jpg" />
-  <meta property="og:image:alt" content="CA Pool and CNSL Assistant logo" />
-  <meta name="twitter:card" content="summary_large_image" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:width" content="230" />
+  <meta property="og:image:height" content="180" />
+  <meta property="og:image:alt" content="CNSL Columbia Neighborhood Swim League logo" />
+  <meta name="twitter:card" content="summary" />
   <meta name="twitter:image" content="{{ HOME_PAGE_URL }}/assets/images/cnsl-logo.jpg" />
-  <meta name="twitter:image:alt" content="CA Pool and CNSL Assistant logo" />
+  <meta name="twitter:image:alt" content="CNSL Columbia Neighborhood Swim League logo" />
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
