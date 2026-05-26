@@ -3285,23 +3285,23 @@ button[aria-label*="Voice"]:active {
   height: 100%;
   background-image: url('../assets/images/logos/team-logos@2x.png');
   background-repeat: no-repeat;
-  background-size: 240px 240px;
+  background-size: 246px 246px;
   border-radius: var(--border-radius);
 }
 
-.team-logo-img--cfhss { background-position: -60px 0; }
-.team-logo-img--dsd { background-position: -120px 0; }
-.team-logo-img--hcc { background-position: -180px 0; }
-.team-logo-img--hd { background-position: 0 -60px; }
-.team-logo-img--kcw { background-position: -60px -60px; }
-.team-logo-img--lrm { background-position: -120px -60px; }
-.team-logo-img--obb { background-position: -180px -60px; }
-.team-logo-img--omts { background-position: 0 -120px; }
-.team-logo-img--pls { background-position: -60px -120px; }
-.team-logo-img--prp { background-position: -120px -120px; }
-.team-logo-img--prr { background-position: -180px -120px; }
-.team-logo-img--thl { background-position: 0 -180px; }
-.team-logo-img--wlw { background-position: -60px -180px; }
+.team-logo-img--cfhss { background-position: -62px 0; }
+.team-logo-img--dsd { background-position: -124px 0; }
+.team-logo-img--hcc { background-position: -186px 0; }
+.team-logo-img--hd { background-position: 0 -62px; }
+.team-logo-img--kcw { background-position: -62px -62px; }
+.team-logo-img--lrm { background-position: -124px -62px; }
+.team-logo-img--obb { background-position: -186px -62px; }
+.team-logo-img--omts { background-position: 0 -124px; }
+.team-logo-img--pls { background-position: -62px -124px; }
+.team-logo-img--prp { background-position: -124px -124px; }
+.team-logo-img--prr { background-position: -186px -124px; }
+.team-logo-img--thl { background-position: 0 -186px; }
+.team-logo-img--wlw { background-position: -62px -186px; }
 
 .upcoming-practice {
   background-color: var(--light-bg);
