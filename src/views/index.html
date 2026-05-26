@@ -33,6 +33,7 @@
     <include src="components/release-notice.html"></include>
   </block>
   <block name="content">
+    <div class="home-view">
     <div class="welcome-section">
       <h1 class="welcome-title">Welcome to the<br/>{{ YEAR }} Outdoor Pool Season</h1>
       <p class="welcome-message">
@@ -50,7 +51,7 @@
     <include src="components/quick-links.html"></include>
     <section class="favorite-week" id="favoriteWeek" aria-labelledby="favoriteWeekTitle" hidden>
       <div class="favorite-week__heading">
-        <h2><button class="favorite-week__toggle" id="favoriteWeekToggle" type="button" aria-expanded="true" aria-controls="favoriteWeekContent"><span id="favoriteWeekTitle">Your team's upcoming events</span></button> <span class="favorite-badge">Favorite team</span></h2>
+        <h2><button class="favorite-week__toggle" id="favoriteWeekToggle" type="button" aria-expanded="true" aria-controls="favoriteWeekContent"><span id="favoriteWeekTitle">Your team's upcoming events</span></button></h2>
       </div>
       <div id="favoriteWeekContent">
         <a href="teams.html" class="favorite-week__directory-link">Team details</a>
@@ -82,7 +83,7 @@
       </div>
     </section>
     <details class="install-app" id="installApp" hidden>
-      <summary class="install-app__summary">Phone Install</summary>
+      <summary class="install-app__summary">Phone Install <span class="install-app__toggle-icon" aria-hidden="true">&#9650;</span></summary>
       <div class="install-app__content" id="installAppContent">
         <p class="install-app__description">Add CNSL to your Home Screen for quick access to pools, teams, and meets.</p>
         <button class="install-app__button" id="installAppButton" type="button">Install app</button>
@@ -91,6 +92,7 @@
         </p>
       </div>
     </details>
+    </div>
   </block>
 
   <block name="scripts">

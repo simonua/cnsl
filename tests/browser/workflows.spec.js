@@ -160,7 +160,14 @@ test('season summary and sharing actions appear only on the home page', async ({
     return { top: bounds.top, right: bounds.right, height: bounds.height };
   }));
   expect(new Set(compactLinkLayout.map(card => card.top)).size).toBe(1);
-  expect(compactLinkLayout.every(card => card.right <= 390 && card.height >= 44 && card.height < 80)).toBe(true);
+  expect(compactLinkLayout.every(card => card.right <= MOBILE_VIEWPORT.width && card.height >= 44 && card.height < 80)).toBe(true);
+
+  const compactShareLayout = await page.locator('.share-site__links .share-site__link').evaluateAll(links => links.map(link => {
+    const bounds = link.getBoundingClientRect();
+    return { top: bounds.top, right: bounds.right, height: bounds.height };
+  }));
+  expect(new Set(compactShareLayout.map(link => link.top)).size).toBe(1);
+  expect(compactShareLayout.every(link => link.right <= MOBILE_VIEWPORT.width && link.height >= 44)).toBe(true);
 
   await page.goto('/pools.html');
   await expect(page.locator('.season-text')).toHaveCount(0);
@@ -444,11 +451,11 @@ test('home page shows the next practices and swim event for a selected favorite 
 
   const agenda = page.locator('#favoriteWeek');
   await expect(agenda).toBeVisible();
-  await expect(agenda.getByRole('heading', { name: /Phelps Luck Snappers: Upcoming events/ })).toBeVisible();
-  await expect(agenda.locator('.favorite-badge')).toHaveText('Favorite team');
+  await expect(agenda.getByRole('heading', { name: /Upcoming Snappers events/ })).toBeVisible();
+  await expect(agenda.locator('.favorite-badge')).toHaveCount(0);
   const teamDetailsLink = agenda.getByRole('link', { name: 'Team details' });
   await expect(teamDetailsLink).toBeVisible();
-  await expect(page.locator('#favoriteWeekStatus')).toContainText('3 next published practice or swim event entries');
+  await expect(page.locator('#favoriteWeekStatus')).toBeHidden();
   await expect(agenda.locator('.favorite-week__events li')).toHaveCount(3);
   await expect(agenda).toContainText('Tuesday, May 26');
   await expect(agenda).toContainText('Next morning practice');
@@ -468,6 +475,18 @@ test('home page shows the next practices and swim event for a selected favorite 
   await toggle.press('Enter');
   await expect(page.locator('#favoriteWeekContent')).toBeVisible();
   await expect(teamDetailsLink).toBeVisible();
+});
+
+test('home page keeps its three-link rows intact on narrow phones', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 900 });
+  await page.goto('/index.html');
+
+  const hasSingleRow = selector => page.locator(selector).evaluateAll(elements => (
+    new Set(elements.map(element => Math.round(element.getBoundingClientRect().top))).size === 1
+  ));
+
+  await expect.poll(() => hasSingleRow('.quick-links-grid .quick-link-card')).toBe(true);
+  await expect.poll(() => hasSingleRow('.share-site__links .share-site__link')).toBe(true);
 });
 
 test('shared team agenda filters published practice times by selected group', async ({ page }) => {
@@ -696,7 +715,7 @@ test('desktop expanded pool details group contact links and fit the weekly calen
 });
 
 test('mobile calendar schedules reveal today when a pool is expanded', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 900 });
+  await page.setViewportSize({ ...MOBILE_VIEWPORT, height: 900 });
   await page.clock.setFixedTime(new Date('2026-06-24T12:00:00-04:00'));
   await seedPreferences(page, { poolScheduleLayout: 'calendar' });
   await page.goto('/pools.html');

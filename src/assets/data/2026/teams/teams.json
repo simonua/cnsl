@@ -4,6 +4,7 @@
     {
       "id": "cfhss",
       "name": "CHS Swim Sundevils",
+      "shortName": "Sundevils",
       "keywords": ["chs", "clary's forest", "hawthorn", "swansfield", "sundevils"],
       "url": "https://www.gomotionapp.com/team/reccnslcfhss/page/home",
       "calendarUrl": "https://www.gomotionapp.com/team/reccnslcfhss/page/calendar",
@@ -86,6 +87,7 @@
     {
       "id": "ccc",
       "name": "Clemens Crossing Cyclones",
+      "shortName": "Cyclones",
       "keywords": ["clemens crossing cyclones", "clemens crossing", "cyclones"],
       "url": "https://www.gomotionapp.com/team/reccnslccc/page/home",
       "calendarUrl": "https://www.gomotionapp.com/team/reccnslccc/page/calendar",
@@ -111,6 +113,7 @@
     {
       "id": "dsd",
       "name": "Dorsey Search Dolphins",
+      "shortName": "Dolphins",
       "keywords": ["dorsey search dolphins", "dorsey's search dolphins", "dorsey search", "dolphins"],
       "url": "https://www.gomotionapp.com/team/reccnsldsd/page/home",
       "homePools": ["Dorsey Hall"],
@@ -133,6 +136,7 @@
     {
       "id": "hcc",
       "name": "Harper's Choice Challenge",
+      "shortName": "Challenge",
       "keywords": ["harper's choice challenge", "harpers choice challenge", "harper's choice", "challenge"],
       "url": "https://www.gomotionapp.com/team/reccnslhcc/page/home",
       "calendarUrl": "https://www.gomotionapp.com/team/reccnslhcc/page/calendar",
@@ -161,6 +165,7 @@
     {
       "id": "hd",
       "name": "Huntington Dolphins",
+      "shortName": "Dolphins",
       "keywords": ["huntington dolphins", "huntington", "dolphins"],
       "url": "https://www.gomotionapp.com/team/reccnslhd/page/home",
       "calendarUrl": "https://www.gomotionapp.com/team/reccnslhd/page/calendar",
@@ -220,6 +225,7 @@
     {
       "id": "kcw",
       "name": "Kings Contrivance (KC) Waves",
+      "shortName": "Waves",
       "keywords": ["kings contrivance waves", "kc", "kings contrivance", "waves"],
       "url": "https://www.gomotionapp.com/team/reccnslkcw/page/home",
       "homePools": ["Huntington", "MacGill's Common"],
@@ -242,6 +248,7 @@
     {
       "id": "lrm",
       "name": "Long Reach Marlins",
+      "shortName": "Marlins",
       "keywords": ["long reach marlins", "long reach", "marlins"],
       "url": "https://www.gomotionapp.com/team/reccnsllrm/page/home",
       "homePools": ["Kendall Ridge"],
@@ -340,6 +347,7 @@
     {
       "id": "omts",
       "name": "Oakland Mills Tigersharks",
+      "shortName": "Tigersharks",
       "keywords": ["oakland mills tigersharks", "oakland mills", "tigersharks"],
       "url": "https://www.gomotionapp.com/team/reccnslomts/page/home",
       "homePools": ["Stevens Forest"],
@@ -372,6 +380,7 @@
     {
       "id": "obb",
       "name": "Owen Brown Barracudas",
+      "shortName": "Barracudas",
       "keywords": ["owen brown barracudas", "owen brown", "barracudas"],
       "url": "https://www.gomotionapp.com/team/reccnslobb/page/home",
       "calendarUrl": "https://www.gomotionapp.com/team/reccnslobb/page/calendar",
@@ -402,6 +411,7 @@
     {
       "id": "prr",
       "name": "Pheasant Ridge Rapids",
+      "shortName": "Rapids",
       "keywords": ["pheasant ridge rapids", "pheasant ridge", "rapids"],
       "url": "https://www.gomotionapp.com/team/reccnslprr/page/home",
       "homePools": ["River Hill"],
@@ -429,6 +439,7 @@
     {
       "id": "pls",
       "name": "Phelps Luck Snappers",
+      "shortName": "Snappers",
       "keywords": ["phelps luck snappers", "phelps luck", "snappers"],
       "url": "https://www.gomotionapp.com/team/reccnslpls/page/home",
       "calendarUrl": "https://www.gomotionapp.com/team/reccnslpls/page/calendar",
@@ -515,6 +526,7 @@
     {
       "id": "prp",
       "name": "Pointers Run Piranhas",
+      "shortName": "Piranhas",
       "keywords": ["pointers run piranhas", "pointers run", "piranhas"],
       "url": "https://www.gomotionapp.com/team/reccnslprp/page/home",
       "calendarUrl": "https://www.gomotionapp.com/team/reccnslprp/page/calendar",
@@ -598,6 +610,7 @@
     {
       "id": "thl",
       "name": "Thunder Hill Lightning",
+      "shortName": "Lightning",
       "keywords": ["thunder hill lightning", "thunder hill", "lightning"],
       "url": "https://www.gomotionapp.com/team/reccnslthl/page/home",
       "calendarUrl": "https://www.gomotionapp.com/team/reccnslthl/page/calendar",
@@ -624,6 +637,7 @@
     {
       "id": "wlw",
       "name": "Wilde Lake Watercats",
+      "shortName": "Watercats",
       "keywords": ["wilde lake watercats", "wilde lake", "watercats"],
       "url": "https://www.gomotionapp.com/team/reccnslwlw/page/home",
       "calendarUrl": "https://www.gomotionapp.com/team/reccnslwlw/page/calendar",

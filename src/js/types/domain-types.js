@@ -100,6 +100,7 @@
  * @typedef {Object} TeamRecord
  * @property {string} id
  * @property {string} name
+ * @property {string} shortName
  * @property {string[]} keywords
  * @property {string} url
  * @property {string} [resultsUrl]

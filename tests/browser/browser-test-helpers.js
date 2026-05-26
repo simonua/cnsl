@@ -1,4 +1,5 @@
-const MOBILE_VIEWPORT = Object.freeze({ width: 390, height: 844 });
+// Compact modern Android baseline; recent standard iPhone portrait widths are wider.
+const MOBILE_VIEWPORT = Object.freeze({ width: 360, height: 780 });
 
 async function prepareStableWeatherResponses(page) {
   await page.route('https://api.weather.gov/**', async route => {

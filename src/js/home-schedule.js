@@ -49,6 +49,7 @@
     }
 
     section.hidden = false;
+    status.hidden = false;
     status.textContent = 'Loading your team\'s schedule.';
     schedule.replaceChildren();
     try {
@@ -64,13 +65,14 @@
       }
 
       const events = globalThis.TeamAgendaDisplay.getUpcomingEvents(team, dataManager.getMeets().getAllMeets());
-      document.getElementById('favoriteWeekTitle').textContent = globalThis.TeamAgendaDisplay.getTitle(team.name);
+      document.getElementById('favoriteWeekTitle').textContent = `Upcoming ${team.shortName || team.name} events`;
       if (events.length === 0) {
         status.textContent = globalThis.TeamAgendaDisplay.getStatus(events);
         return;
       }
 
-      status.textContent = globalThis.TeamAgendaDisplay.getStatus(events);
+      status.textContent = '';
+      status.hidden = true;
       schedule.innerHTML = globalThis.TeamAgendaDisplay.renderEvents(events);
     } catch (error) {
       console.error('Failed to load favorite team schedule:', error);
