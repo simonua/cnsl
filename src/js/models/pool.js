@@ -337,7 +337,15 @@ if (typeof window === 'undefined') {
     if (overrideForDate) return this._mergeScheduleWithOverride(activeSchedule, shortDay, overrideForDate);
     if (!activeSchedule || !activeSchedule.hours) return [];
 
-    return activeSchedule.hours.filter(hour => hour.weekDays && hour.weekDays.includes(shortDay));
+    const TimeUtilsRef = this._getTimeUtils();
+    if (!TimeUtilsRef) return [];
+
+    return activeSchedule.hours.filter(hour => (
+      hour.weekDays && hour.weekDays.includes(shortDay)
+    )).sort((first, second) => {
+      if (typeof first.startTime !== 'string' || typeof second.startTime !== 'string') return 0;
+      return TimeUtilsRef.timeStringToMinutes(first.startTime) - TimeUtilsRef.timeStringToMinutes(second.startTime);
+    });
   }
 
   /**
