@@ -21,8 +21,9 @@ The updated plan must include:
 - For every item, a finding, repository evidence with file references, a scoped plan, and acceptance checks.
 - A phased roadmap table that sequences work according to risk and prerequisites.
 - Guardrails that preserve human review of seasonal data and avoid edits to generated output.
+- A final `Priority Summary` section that concisely recaps actionable `High`, `Medium`, and `Low` priority items for the reviewer.
 
-If repository evidence supports no actionable recommendations, preserve a compact empty-state plan instead of adding empty priority sections or an empty roadmap. It must still record the audit date, scope, validation performed or unavailable, any pending manual or delivered-site checks, and the guardrails.
+If repository evidence supports no actionable recommendations, preserve a compact empty-state plan instead of adding empty priority sections, an empty roadmap, or an empty priority summary. It must still record the audit date, scope, validation performed or unavailable, any pending manual or delivered-site checks, and the guardrails, and clearly state that there are no active recommendations.
 
 ## Assessment Rules
 
