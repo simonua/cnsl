@@ -32,10 +32,10 @@
   }
 
   function getVisiblePractices(practices) {
-    const selectedAgeGroups = globalThis.PreferencesService.get().practiceAgeGroups;
+    const selectedPracticeGroups = globalThis.PreferencesService.get().practiceGroups;
     return practices.map(practice => ({
       ...practice,
-      sessions: globalThis.PreferencesService.filterPracticeSessions(practice.sessions, selectedAgeGroups)
+      sessions: globalThis.PreferencesService.filterPracticeSessions(practice.sessions, selectedPracticeGroups)
     })).filter(practice => practice.sessions.length > 0);
   }
 

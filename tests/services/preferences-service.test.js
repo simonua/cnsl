@@ -14,7 +14,7 @@ describe('PreferencesService', () => {
         favoritePoolExpanded: true,
         poolScheduleLayout: 'list',
         poolFeatureFilters: [],
-        practiceAgeGroups: ['8-under', '9-10', '11-12', '13-14', '15-18'],
+        practiceGroups: ['first-splash', '8-under', '9-10', '11-12', '13-14', '15-18'],
         locationAwarenessEnabled: false,
         weatherRefreshMinutes: 5
       });
@@ -30,7 +30,7 @@ describe('PreferencesService', () => {
         favoritePoolExpanded: false,
         poolScheduleLayout: 'calendar',
         poolFeatureFilters: [' slide ', 'Beach Entry', 'slide'],
-        practiceAgeGroups: ['15-18', '9-10', 'unknown'],
+        practiceGroups: ['15-18', 'first-splash', '9-10', 'unknown'],
         locationAwarenessEnabled: true,
         weatherRefreshMinutes: 10,
         analyticsEnabled: true
@@ -39,7 +39,7 @@ describe('PreferencesService', () => {
       assert.deepEqual(saved, {
         theme: 'dark', favoriteTeamId: 'lrm', favoritePoolName: 'Kendall Ridge', favoriteTeamExpanded: false,
         favoritePoolExpanded: false, poolScheduleLayout: 'calendar',
-        poolFeatureFilters: ['beach entry', 'slide'], practiceAgeGroups: ['9-10', '15-18'],
+        poolFeatureFilters: ['beach entry', 'slide'], practiceGroups: ['first-splash', '9-10', '15-18'],
         locationAwarenessEnabled: true, weatherRefreshMinutes: 10
       });
       assert.deepEqual(PreferencesService.get(storage), saved);
@@ -54,7 +54,7 @@ describe('PreferencesService', () => {
       assert.deepEqual(PreferencesService.normalize({ theme: 'unsupported', favoriteTeamId: 10 }), {
         theme: 'system', favoriteTeamId: '', favoritePoolName: '', favoriteTeamExpanded: true,
         favoritePoolExpanded: true, poolScheduleLayout: 'list', poolFeatureFilters: [],
-        practiceAgeGroups: ['8-under', '9-10', '11-12', '13-14', '15-18'],
+        practiceGroups: ['first-splash', '8-under', '9-10', '11-12', '13-14', '15-18'],
         locationAwarenessEnabled: false, weatherRefreshMinutes: 5
       });
     });
@@ -138,7 +138,7 @@ describe('PreferencesService', () => {
     });
   });
 
-  describe('practice age-group filtering', () => {
+  describe('practice-group filtering', () => {
     const sessions = [
       { group: '8 & Under', time: '8:00am' },
       { group: '9 - 12', time: '8:30am' },
@@ -146,15 +146,25 @@ describe('PreferencesService', () => {
       { group: 'First Splash', time: '5:00pm' }
     ];
 
-    it('defaults older saved preferences to all practice age groups', () => {
-      assert.deepEqual(PreferencesService.normalize({ theme: 'dark' }).practiceAgeGroups, [
-        '8-under', '9-10', '11-12', '13-14', '15-18'
+    it('defaults new preferences to all practice groups', () => {
+      assert.deepEqual(PreferencesService.normalize({ theme: 'dark' }).practiceGroups, [
+        'first-splash', '8-under', '9-10', '11-12', '13-14', '15-18'
       ]);
     });
 
-    it('includes published ranges that overlap selected standard age groups', () => {
+    it('migrates saved age-only preferences with First Splash still selected', () => {
+      assert.deepEqual(PreferencesService.normalize({ practiceAgeGroups: ['11-12'] }).practiceGroups, [
+        'first-splash', '11-12'
+      ]);
+    });
+
+    it('includes published ranges and named programs that are selected', () => {
       assert.deepEqual(
         PreferencesService.filterPracticeSessions(sessions, ['11-12']).map(session => session.group),
+        ['9 - 12']
+      );
+      assert.deepEqual(
+        PreferencesService.filterPracticeSessions(sessions, ['first-splash', '11-12']).map(session => session.group),
         ['9 - 12', 'First Splash']
       );
       assert.deepEqual(
@@ -163,11 +173,17 @@ describe('PreferencesService', () => {
       );
     });
 
-    it('retains non-age sessions when all age-group interests are unchecked', () => {
+    it('excludes First Splash when no selectable practice groups are checked', () => {
       assert.deepEqual(
         PreferencesService.filterPracticeSessions(sessions, []).map(session => session.group),
-        ['First Splash']
+        []
       );
+    });
+
+    it('retains published sessions that have no configured filter group', () => {
+      assert.deepEqual(PreferencesService.filterPracticeSessions([{ group: 'New Swimmers' }], []), [
+        { group: 'New Swimmers' }
+      ]);
     });
   });
 

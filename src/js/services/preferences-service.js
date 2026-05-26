@@ -15,7 +15,8 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
 
     static WEATHER_REFRESH_MINUTES = globalThis.WEATHER_ALERT_REFRESH_MINUTES_OPTIONS;
 
-    static PRACTICE_AGE_GROUPS = Object.freeze([
+    static PRACTICE_GROUPS = Object.freeze([
+      Object.freeze({ key: 'first-splash', label: 'First Splash', publishedLabels: Object.freeze(['first splash', 'first splash (new swimmers)']) }),
       Object.freeze({ key: '8-under', label: '8 and under', minimumAge: 0, maximumAge: 8 }),
       Object.freeze({ key: '9-10', label: '9-10', minimumAge: 9, maximumAge: 10 }),
       Object.freeze({ key: '11-12', label: '11-12', minimumAge: 11, maximumAge: 12 }),
@@ -59,7 +60,7 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
       favoritePoolExpanded: true,
       poolScheduleLayout: 'list',
       poolFeatureFilters: Object.freeze([]),
-      practiceAgeGroups: Object.freeze(['8-under', '9-10', '11-12', '13-14', '15-18']),
+      practiceGroups: Object.freeze(['first-splash', '8-under', '9-10', '11-12', '13-14', '15-18']),
       locationAwarenessEnabled: false,
       weatherRefreshMinutes: globalThis.WEATHER_ALERT_DEFAULT_REFRESH_MINUTES
     });
@@ -129,7 +130,7 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
         ? preferences.poolScheduleLayout
         : 'list';
       const poolFeatureFilters = PreferencesService.normalizeFeatureFilters(preferences.poolFeatureFilters);
-      const practiceAgeGroups = PreferencesService.normalizePracticeAgeGroups(preferences.practiceAgeGroups);
+      const practiceGroups = PreferencesService.normalizePracticeGroups(preferences.practiceGroups, preferences.practiceAgeGroups);
       const locationAwarenessEnabled = preferences.locationAwarenessEnabled === true;
 
       const requestedWeatherRefreshMinutes = Number(preferences.weatherRefreshMinutes);
@@ -137,7 +138,7 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
         ? requestedWeatherRefreshMinutes
         : PreferencesService.DEFAULT_PREFERENCES.weatherRefreshMinutes;
 
-      return { theme, favoriteTeamId, favoritePoolName, favoriteTeamExpanded, favoritePoolExpanded, poolScheduleLayout, poolFeatureFilters, practiceAgeGroups, locationAwarenessEnabled, weatherRefreshMinutes };
+      return { theme, favoriteTeamId, favoritePoolName, favoriteTeamExpanded, favoritePoolExpanded, poolScheduleLayout, poolFeatureFilters, practiceGroups, locationAwarenessEnabled, weatherRefreshMinutes };
     }
 
     /**
@@ -156,31 +157,44 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
     }
 
     /**
-     * Keep selected age-group keys ordered, and default older settings to all groups.
-     * @param {Array|undefined} ageGroups - Raw selected age-group keys
-     * @returns {Array} Ordered valid age-group keys
+     * Keep selected practice-group keys ordered and preserve First Splash for age-only saved settings.
+     * @param {Array|undefined} practiceGroups - Raw selected practice-group keys
+     * @param {Array|undefined} legacyAgeGroups - Previously stored age-only group keys
+     * @returns {Array} Ordered valid practice-group keys
      */
-    static normalizePracticeAgeGroups(ageGroups) {
-      const allAgeGroups = PreferencesService.PRACTICE_AGE_GROUPS.map(ageGroup => ageGroup.key);
-      if (typeof ageGroups === 'undefined' || !Array.isArray(ageGroups)) return allAgeGroups;
+    static normalizePracticeGroups(practiceGroups, legacyAgeGroups) {
+      const allPracticeGroups = PreferencesService.PRACTICE_GROUPS.map(group => group.key);
+      if (Array.isArray(practiceGroups)) {
+        return allPracticeGroups.filter(group => practiceGroups.includes(group));
+      }
 
-      return allAgeGroups.filter(ageGroup => ageGroups.includes(ageGroup));
+      if (!Array.isArray(legacyAgeGroups)) return allPracticeGroups;
+
+      return allPracticeGroups.filter(group => group === 'first-splash' || legacyAgeGroups.includes(group));
     }
 
     /**
-     * Keep practice sessions that apply to at least one selected age group.
-     * Skill-based sessions without a published age range remain visible.
+     * Keep practice sessions that apply to at least one selected practice group.
+     * Unmodelled sessions without a published age range remain visible.
      * @param {Array} sessions - Published practice sessions
-     * @param {Array|undefined} selectedAgeGroups - Selected age-group keys
+     * @param {Array|undefined} selectedPracticeGroups - Selected practice-group keys
      * @returns {Array} Sessions relevant to the selection
      */
-    static filterPracticeSessions(sessions, selectedAgeGroups) {
+    static filterPracticeSessions(sessions, selectedPracticeGroups) {
       if (!Array.isArray(sessions)) return [];
 
-      const selectedKeys = PreferencesService.normalizePracticeAgeGroups(selectedAgeGroups);
-      const selectedRanges = PreferencesService.PRACTICE_AGE_GROUPS.filter(ageGroup => selectedKeys.includes(ageGroup.key));
+      const selectedKeys = PreferencesService.normalizePracticeGroups(selectedPracticeGroups);
+      const selectedRanges = PreferencesService.PRACTICE_GROUPS.filter(group => (
+        selectedKeys.includes(group.key) && typeof group.minimumAge === 'number'
+      ));
 
       return sessions.filter(session => {
+        const normalizedLabel = typeof session?.group === 'string' ? session.group.trim().toLowerCase() : '';
+        const namedGroup = PreferencesService.PRACTICE_GROUPS.find(group => (
+          Array.isArray(group.publishedLabels) && group.publishedLabels.includes(normalizedLabel)
+        ));
+        if (namedGroup) return selectedKeys.includes(namedGroup.key);
+
         const sessionRange = PreferencesService.getPracticeSessionAgeRange(session && session.group);
         if (!sessionRange) return true;
 

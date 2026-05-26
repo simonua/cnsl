@@ -65,8 +65,8 @@
     if (selectedScheduleLayout) selectedScheduleLayout.checked = true;
     const selectedWeatherRefresh = form.querySelector(`input[name="weatherRefreshMinutes"][value="${preferences.weatherRefreshMinutes}"]`);
     if (selectedWeatherRefresh) selectedWeatherRefresh.checked = true;
-    form.querySelectorAll('input[name="practiceAgeGroups"]').forEach(ageGroup => {
-      ageGroup.checked = preferences.practiceAgeGroups.includes(ageGroup.value);
+    form.querySelectorAll('input[name="practiceGroups"]').forEach(practiceGroup => {
+      practiceGroup.checked = preferences.practiceGroups.includes(practiceGroup.value);
     });
     form.elements.favoriteTeam.value = preferences.favoriteTeamId;
     form.elements.favoritePool.value = preferences.favoritePoolName;
@@ -182,7 +182,7 @@
         favoritePoolExpanded: existing.favoritePoolExpanded,
         poolScheduleLayout: poolScheduleLayout ? poolScheduleLayout.value : 'list',
         poolFeatureFilters: existing.poolFeatureFilters,
-        practiceAgeGroups: Array.from(form.querySelectorAll('input[name="practiceAgeGroups"]:checked'), ageGroup => ageGroup.value),
+        practiceGroups: Array.from(form.querySelectorAll('input[name="practiceGroups"]:checked'), practiceGroup => practiceGroup.value),
         locationAwarenessEnabled: form.elements.locationAwarenessEnabled.checked,
         weatherRefreshMinutes: weatherRefreshMinutes ? Number(weatherRefreshMinutes.value) : existing.weatherRefreshMinutes
       });

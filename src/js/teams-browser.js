@@ -70,7 +70,7 @@ function getEnhancedPoolLink(location, _fallbackAddress) {
 }
 
 function getVisiblePracticeSessions(sessions) {
-  return PreferencesService.filterPracticeSessions(sessions, PreferencesService.get().practiceAgeGroups);
+  return PreferencesService.filterPracticeSessions(sessions, PreferencesService.get().practiceGroups);
 }
 
 /**

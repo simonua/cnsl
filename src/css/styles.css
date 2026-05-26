@@ -307,9 +307,9 @@ body {
 
 .release-notice__inner {
   align-items: center;
-  display: flex;
+  display: grid;
   gap: 1rem;
-  justify-content: space-between;
+  grid-template-columns: 2.75rem minmax(0, 1fr) 2.75rem;
   margin: 0 auto;
   max-width: 1200px;
   min-height: 3.25rem;
@@ -317,9 +317,16 @@ body {
 }
 
 .release-notice__message {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
   font-size: 0.95rem;
+  gap: 0.25rem 0.75rem;
+  grid-column: 2;
+  justify-content: center;
   line-height: 1.45;
   margin: 0;
+  text-align: center;
 }
 
 .release-notice__message strong {
@@ -343,6 +350,7 @@ button.release-notice__close {
   display: inline-flex;
   flex: 0 0 2.75rem;
   font-size: 1.6rem;
+  grid-column: 3;
   height: 2.75rem;
   justify-content: center;
   line-height: 1;
@@ -899,36 +907,59 @@ main h1 {
   margin: 0;
 }
 
-.favorite-week__toggle {
+button.favorite-week__toggle {
   align-items: center;
   background: transparent;
   border: 0;
+  border-radius: var(--border-radius);
+  box-shadow: none;
   color: inherit;
   cursor: pointer;
   display: inline-flex;
   font: inherit;
   gap: 0.625rem;
+  justify-content: flex-start;
+  min-width: 0;
+  overflow: visible;
   padding: 0;
+  position: static;
   text-align: left;
 }
 
-.favorite-week__toggle::before {
+button.favorite-week__toggle::before {
+  background: transparent;
   border-block-end: 2px solid currentColor;
   border-inline-end: 2px solid currentColor;
   content: '';
   display: inline-block;
   flex-shrink: 0;
   height: 0.5rem;
+  left: auto;
+  position: static;
+  top: auto;
   transform: rotate(45deg);
   transition: transform var(--transition);
   width: 0.5rem;
 }
 
-.favorite-week__toggle[aria-expanded="false"]::before {
+button.favorite-week__toggle[aria-expanded="false"]::before {
   transform: rotate(-45deg);
 }
 
-.favorite-week__toggle:focus-visible {
+button.favorite-week__toggle:hover::before {
+  left: auto;
+}
+
+button.favorite-week__toggle:hover,
+button.favorite-week__toggle:focus,
+button.favorite-week__toggle:active {
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  transform: none;
+}
+
+button.favorite-week__toggle:focus-visible {
   border-radius: var(--border-radius);
   outline: 2px solid var(--primary-color);
   outline-offset: 0.25rem;
@@ -4090,8 +4121,21 @@ button.settings-dialog__close {
   height: 2.75rem;
   justify-content: center;
   line-height: 1;
+  min-width: 2.25rem;
+  overflow: visible;
   padding: 0;
-  width: 2.75rem;
+  position: relative;
+  width: 2.25rem;
+}
+
+button.settings-dialog__close::before {
+  background: transparent;
+  content: '';
+  height: auto;
+  inset: 0 -0.25rem;
+  position: absolute;
+  transition: none;
+  width: auto;
 }
 
 button.settings-dialog__close:hover,

@@ -421,9 +421,9 @@ test('team directory displays verified regular practices from public team schedu
   await expect(sundevils.getByRole('link', { name: 'Team Calendar' })).toHaveAttribute('href', /\/page\/calendar$/);
 });
 
-test('team directory filters regular practice times to selected age-group interests', async ({ page }) => {
+test('team directory filters regular practice times to selected practice groups', async ({ page }) => {
   await page.addInitScript(() => {
-    localStorage.setItem('cnsl_preferences', JSON.stringify({ practiceAgeGroups: ['9-10'] }));
+    localStorage.setItem('cnsl_preferences', JSON.stringify({ practiceGroups: ['9-10'] }));
   });
   await page.goto('/teams.html');
   await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
@@ -483,16 +483,16 @@ test('home page shows the next practices and swim event for a selected favorite 
   await expect(page.locator('#favoriteWeekContent')).toBeVisible();
 });
 
-test('shared team agenda filters age-labelled practice times by selected interest', async ({ page }) => {
+test('shared team agenda filters published practice times by selected group', async ({ page }) => {
   await page.clock.setFixedTime(new Date('2026-05-26T12:00:00'));
   await page.addInitScript(() => {
-    localStorage.setItem('cnsl_preferences', JSON.stringify({ favoriteTeamId: 'pls', practiceAgeGroups: ['8-under'] }));
+    localStorage.setItem('cnsl_preferences', JSON.stringify({ favoriteTeamId: 'pls', practiceGroups: ['8-under'] }));
   });
   await page.goto('/index.html');
 
   const agenda = page.locator('#favoriteWeek');
   await expect(agenda).toContainText('8 and under: 5:30 - 6:00pm');
-  await expect(agenda).toContainText('First Splash: 5:00 - 5:30pm');
+  await expect(agenda).not.toContainText('First Splash: 5:00 - 5:30pm');
   await expect(agenda).not.toContainText('9 - 12: 6:00 - 6:30pm');
   await expect(agenda).not.toContainText('13 and over: 6:30 - 7:00pm');
 });
@@ -783,6 +783,10 @@ test('settings dialog is right-aligned on mobile and centered on desktop', async
 
   expect(Math.abs(bounds.x + bounds.width - mobileViewport.width)).toBeLessThanOrEqual(1);
   expect(Math.abs(bounds.y + (bounds.height / 2) - (mobileViewport.height / 2))).toBeLessThanOrEqual(1);
+  const closeButtonBounds = await page.getByRole('button', { name: 'Close settings' }).boundingBox();
+  expect(closeButtonBounds.width).toBeLessThan(closeButtonBounds.height);
+  await page.mouse.click(closeButtonBounds.x - 2, closeButtonBounds.y + (closeButtonBounds.height / 2));
+  await expect(dialog).not.toBeVisible();
 
   const desktopViewport = { width: 1280, height: 800 };
   await page.setViewportSize(desktopViewport);
@@ -800,6 +804,8 @@ test('settings persist choices locally and announce clearing saved settings', as
   });
   await page.goto('/settings.html');
   await expect(page.locator('#favoritePool')).toBeEnabled();
+  await expect(page.getByRole('group', { name: 'Practice groups' })).toBeVisible();
+  await expect(page.getByLabel('First Splash')).toBeChecked();
   await expect(page.getByLabel('8 and under')).toBeChecked();
   await expect(page.getByLabel('9-10')).toBeChecked();
 
@@ -807,11 +813,12 @@ test('settings persist choices locally and announce clearing saved settings', as
   await page.getByLabel('Weekly calendar').check();
   await page.getByLabel('Use my current location to estimate distances to pools').check();
   await page.getByLabel('10 min').check();
+  await page.getByLabel('First Splash').uncheck();
   await page.getByLabel('8 and under').uncheck();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).theme)).toBe('dark');
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).weatherRefreshMinutes)).toBe(10);
-  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).practiceAgeGroups)).toEqual(['9-10', '11-12', '13-14', '15-18']);
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).practiceGroups)).toEqual(['9-10', '11-12', '13-14', '15-18']);
   await expect(page.getByLabel('Share anonymous page usage through Google Analytics')).toHaveCount(0);
   await expect.poll(() => page.evaluate(() => Object.hasOwn(JSON.parse(localStorage.getItem('cnsl_preferences')), 'analyticsEnabled'))).toBe(false);
   await expect(page.locator('#cnslAnalyticsScript')).toHaveCount(0);
@@ -847,6 +854,7 @@ test('settings persist choices locally and announce clearing saved settings', as
 
   await page.getByRole('button', { name: 'Clear saved settings' }).click();
   await expect(page.locator('#settingsStatus')).toHaveText('Saved settings removed from this device.');
+  await expect(page.getByLabel('First Splash')).toBeChecked();
   await expect(page.getByLabel('8 and under')).toBeChecked();
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
     ['event', 'ca_setting_change', { setting_name: 'theme' }],
