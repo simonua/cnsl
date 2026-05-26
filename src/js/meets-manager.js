@@ -6,6 +6,7 @@
 if (typeof window === 'undefined' || !window.MeetsManager) {
   class MeetsManager {
   constructor() {
+    /** @type {Map<string, MeetRecord>} */
     this.meets = new Map();
     this.lastUpdated = null;
     this.dataLoaded = false;
@@ -13,7 +14,7 @@ if (typeof window === 'undefined' || !window.MeetsManager) {
 
   /**
    * Load meets data from JSON
-   * @param {Object} meetsData - Raw meets data from JSON
+    * @param {MeetsDocument} meetsData - Published annual meets document
    */
   loadData(meetsData) {
     this.meets.clear();
@@ -47,7 +48,7 @@ if (typeof window === 'undefined' || !window.MeetsManager) {
 
   /**
    * Get all meets
-   * @returns {Array} - Array of all meet objects
+    * @returns {MeetRecord[]} - Array of all meet objects
    */
   getAllMeets() {
     return Array.from(this.meets.values());
@@ -64,7 +65,7 @@ if (typeof window === 'undefined' || !window.MeetsManager) {
   /**
    * Get meets by date
    * @param {string} date - Date in YYYY-MM-DD format
-   * @returns {Array} - Array of meets on specified date
+    * @returns {MeetRecord[]} - Array of meets on specified date
    */
   getMeetsByDate(date) {
     return this.getAllMeets().filter(meet => meet.date === date);
@@ -73,7 +74,7 @@ if (typeof window === 'undefined' || !window.MeetsManager) {
   /**
    * Get meets by pool
    * @param {string} poolName - Pool name
-   * @returns {Array} - Array of meets at specified pool
+    * @returns {MeetRecord[]} - Array of meets at specified pool
    */
   getMeetsByPool(poolName) {
     return this.getAllMeets().filter(meet => 
@@ -84,7 +85,7 @@ if (typeof window === 'undefined' || !window.MeetsManager) {
   /**
    * Get home meets for a pool
    * @param {string} poolName - Pool name
-   * @returns {Array} - Array of home meets for pool
+    * @returns {MeetRecord[]} - Array of home meets for pool
    */
   getHomeMeetsByPool(poolName) {
     return this.getAllMeets().filter(meet => meet.homePool === poolName);
@@ -93,7 +94,7 @@ if (typeof window === 'undefined' || !window.MeetsManager) {
   /**
    * Get away meets for a pool
    * @param {string} poolName - Pool name
-   * @returns {Array} - Array of away meets for pool
+    * @returns {MeetRecord[]} - Array of away meets for pool
    */
   getAwayMeetsByPool(poolName) {
     return this.getAllMeets().filter(meet => meet.awayPool === poolName);
@@ -102,7 +103,7 @@ if (typeof window === 'undefined' || !window.MeetsManager) {
   /**
    * Get meets by team
    * @param {string} teamName - Team name
-   * @returns {Array} - Array of meets involving specified team
+    * @returns {MeetRecord[]} - Array of meets involving specified team
    */
   getMeetsByTeam(teamName) {
     return this.getAllMeets().filter(meet => 
@@ -113,7 +114,7 @@ if (typeof window === 'undefined' || !window.MeetsManager) {
   /**
    * Get upcoming meets
    * @param {number} days - Number of days ahead to look (default 30)
-   * @returns {Array} - Array of upcoming meets
+    * @returns {MeetRecord[]} - Array of upcoming meets
    */
   getUpcomingMeets(days = 30) {
     const today = new Date();
@@ -128,7 +129,7 @@ if (typeof window === 'undefined' || !window.MeetsManager) {
   /**
    * Get past meets
    * @param {number} days - Number of days back to look (default 30)
-   * @returns {Array} - Array of past meets
+    * @returns {MeetRecord[]} - Array of past meets
    */
   getPastMeets(days = 30) {
     const today = new Date();
@@ -142,7 +143,7 @@ if (typeof window === 'undefined' || !window.MeetsManager) {
 
   /**
    * Get today's meets
-   * @returns {Array} - Array of today's meets
+    * @returns {MeetRecord[]} - Array of today's meets
    */
   getTodaysMeets() {
     const TimeUtilsRef = this._getTimeUtils();
@@ -156,7 +157,7 @@ if (typeof window === 'undefined' || !window.MeetsManager) {
 
   /**
    * Get this week's meets
-   * @returns {Array} - Array of this week's meets
+    * @returns {MeetRecord[]} - Array of this week's meets
    */
   getThisWeeksMeets() {
     const today = new Date();
@@ -172,7 +173,7 @@ if (typeof window === 'undefined' || !window.MeetsManager) {
   /**
    * Search meets by term
    * @param {string} searchTerm - Term to search for
-   * @returns {Array} - Array of meets matching search term
+    * @returns {MeetRecord[]} - Array of meets matching search term
    */
   searchMeets(searchTerm) {
     if (!searchTerm || searchTerm.trim() === '') {
@@ -248,7 +249,7 @@ if (typeof window === 'undefined' || !window.MeetsManager) {
   /**
    * Get meet details
    * @param {string} meetKey - Meet key (date_homePool_awayPool)
-   * @returns {Object|null} - Meet details or null
+    * @returns {MeetRecord|null} - Meet details or null
    */
   getMeetDetails(meetKey) {
     return this.meets.get(meetKey) || null;
@@ -259,7 +260,7 @@ if (typeof window === 'undefined' || !window.MeetsManager) {
    * @param {string} date - Date
    * @param {string} homePool - Home pool name
    * @param {string} awayPool - Away pool name
-   * @returns {Object|null} - Meet details or null
+    * @returns {MeetRecord|null} - Meet details or null
    */
   getMeetByDetails(date, homePool, awayPool) {
     const meetKey = `${date}_${homePool}_${awayPool}`;
@@ -281,7 +282,7 @@ if (typeof window === 'undefined' || !window.MeetsManager) {
    * Get conflicts for a pool on a date
    * @param {string} poolName - Pool name
    * @param {string} date - Date to check
-   * @returns {Array} - Array of conflicting meets
+    * @returns {MeetRecord[]} - Array of conflicting meets
    */
   getPoolConflicts(poolName, date) {
     return this.getMeetsByDate(date).filter(meet => 
@@ -320,7 +321,7 @@ if (typeof window === 'undefined' || !window.MeetsManager) {
 
   /**
    * Add or update a meet
-   * @param {Object} meetData - Meet data object
+    * @param {MeetRecord} meetData - Meet data object
    */
   addOrUpdateMeet(meetData) {
     if (meetData && meetData.date && meetData.homePool && meetData.awayPool) {

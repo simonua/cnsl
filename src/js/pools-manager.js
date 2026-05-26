@@ -14,6 +14,7 @@ if (typeof window === 'undefined') {
 
   class PoolsManager {
   constructor() {
+    /** @type {Map<string, Pool>} */
     this.pools = new Map();
     this.lastUpdated = null;
     this.dataLoaded = false;
@@ -21,7 +22,7 @@ if (typeof window === 'undefined') {
 
   /**
    * Load pools data from JSON
-   * @param {Object} poolsData - Raw pools data from JSON
+    * @param {PoolsDocument} poolsData - Published annual pools document
    */
   loadData(poolsData) {
     this.pools.clear();
@@ -48,7 +49,7 @@ if (typeof window === 'undefined') {
 
   /**
    * Get all pools
-   * @returns {Array} - Array of all Pool objects
+    * @returns {Pool[]} - Array of all Pool objects
    */
   getAllPools() {
     return Array.from(this.pools.values());
@@ -56,7 +57,7 @@ if (typeof window === 'undefined') {
 
   /**
    * Get pool names
-   * @returns {Array} - Array of pool names
+    * @returns {string[]} - Array of pool names
    */
   getPoolNames() {
     return Array.from(this.pools.keys());
@@ -72,7 +73,7 @@ if (typeof window === 'undefined') {
 
   /**
    * Get open pools
-   * @returns {Array} - Array of currently open pools
+    * @returns {Pool[]} - Array of currently open pools
    */
   getOpenPools() {
     return this.getAllPools().filter(pool => pool.isOpenNow());
@@ -80,7 +81,7 @@ if (typeof window === 'undefined') {
 
   /**
    * Get closed pools
-   * @returns {Array} - Array of currently closed pools
+    * @returns {Pool[]} - Array of currently closed pools
    */
   getClosedPools() {
     return this.getAllPools().filter(pool => !pool.isOpenNow());
@@ -89,7 +90,7 @@ if (typeof window === 'undefined') {
   /**
    * Get pools by status
    * @param {PoolStatus} targetStatus - Status to filter by
-   * @returns {Array} - Array of pools with specified status
+    * @returns {Pool[]} - Array of pools with specified status
    */
   getPoolsByStatus(targetStatus) {
     return this.getAllPools().filter(pool => {
@@ -124,8 +125,8 @@ if (typeof window === 'undefined') {
 
   /**
    * Filter pools by features
-   * @param {Array} features - Array of features to filter by
-   * @returns {Array} - Array of pools with specified features
+    * @param {string[]} features - Array of features to filter by
+    * @returns {Pool[]} - Array of pools with specified features
    */
   filterByFeatures(features) {
     if (!features || features.length === 0) {
@@ -139,8 +140,8 @@ if (typeof window === 'undefined') {
 
   /**
    * Filter pools by amenities
-   * @param {Array} amenities - Array of amenities to filter by
-   * @returns {Array} - Array of pools with specified amenities
+    * @param {string[]} amenities - Array of amenities to filter by
+    * @returns {Pool[]} - Array of pools with specified amenities
    */
   filterByAmenities(amenities) {
     if (!amenities || amenities.length === 0) {
@@ -154,7 +155,7 @@ if (typeof window === 'undefined') {
 
   /**
    * Get pools with diving boards
-   * @returns {Array} - Array of pools with diving boards
+    * @returns {Pool[]} - Array of pools with diving boards
    */
   getPoolsWithDivingBoards() {
     return this.getAllPools().filter(pool => pool.divingBoard);
@@ -162,7 +163,7 @@ if (typeof window === 'undefined') {
 
   /**
    * Get pools with baby pools
-   * @returns {Array} - Array of pools with baby pools
+    * @returns {Pool[]} - Array of pools with baby pools
    */
   getPoolsWithBabyPools() {
     return this.getAllPools().filter(pool => pool.babyPool);
@@ -170,8 +171,8 @@ if (typeof window === 'undefined') {
 
   /**
    * Get pools sorted by distance (placeholder for future GPS implementation)
-   * @param {Object} userLocation - User's lat/lng coordinates
-   * @returns {Array} - Array of pools sorted by distance
+    * @param {{lat: number, lng: number}} userLocation - User's lat/lng coordinates
+    * @returns {Pool[]} - Array of pools sorted by distance
    */
   getPoolsByDistance(_userLocation) {
     // Placeholder implementation - would need actual coordinates for pools
@@ -235,7 +236,7 @@ if (typeof window === 'undefined') {
 
   /**
    * Get all unique features across all pools
-   * @returns {Array} - Array of unique features
+    * @returns {string[]} - Array of unique features
    */
   getAllFeatures() {
     const features = new Set();
@@ -247,7 +248,7 @@ if (typeof window === 'undefined') {
 
   /**
    * Get all unique amenities across all pools
-   * @returns {Array} - Array of unique amenities
+    * @returns {string[]} - Array of unique amenities
    */
   getAllAmenities() {
     const amenities = new Set();

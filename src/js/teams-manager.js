@@ -6,6 +6,7 @@
 if (typeof window === 'undefined' || !window.TeamsManager) {
   class TeamsManager {
   constructor() {
+    /** @type {Map<string, TeamRecord>} */
     this.teams = new Map();
     this.lastUpdated = null;
     this.dataLoaded = false;
@@ -13,7 +14,7 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
 
   /**
    * Load teams data from JSON
-   * @param {Object} teamsData - Raw teams data from JSON
+    * @param {TeamsDocument} teamsData - Published annual teams document
    */
   loadData(teamsData) {
     this.teams.clear();
@@ -31,7 +32,7 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
   /**
    * Get a specific team by name
    * @param {string} teamName - Team name
-   * @returns {Object|null} - Team object or null if not found
+    * @returns {TeamRecord|null} - Team object or null if not found
    */
   getTeam(teamName) {
     return this.teams.get(teamName) || null;
@@ -39,7 +40,7 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
 
   /**
    * Get all teams
-   * @returns {Array} - Array of all team objects
+    * @returns {TeamRecord[]} - Array of all team objects
    */
   getAllTeams() {
     return Array.from(this.teams.values());
@@ -47,7 +48,7 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
 
   /**
    * Get team names
-   * @returns {Array} - Array of team names
+    * @returns {string[]} - Array of team names
    */
   getTeamNames() {
     return Array.from(this.teams.keys());
@@ -64,7 +65,7 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
   /**
    * Search teams by term
    * @param {string} searchTerm - Term to search for
-   * @returns {Array} - Array of teams matching search term
+    * @returns {TeamRecord[]} - Array of teams matching search term
    */
   searchTeams(searchTerm) {
     if (!searchTerm || searchTerm.trim() === '') {
@@ -91,7 +92,7 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
   /**
    * Get teams by pool
    * @param {string} poolName - Pool name
-   * @returns {Array} - Array of teams associated with pool
+    * @returns {TeamRecord[]} - Array of teams associated with pool
    */
   getTeamsByPool(poolName) {
     return this.getAllTeams().filter(team => (
@@ -104,7 +105,7 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
   /**
    * Get teams by division
    * @param {string} division - Division name
-   * @returns {Array} - Array of teams in division
+    * @returns {TeamRecord[]} - Array of teams in division
    */
   getTeamsByDivision(division) {
     return this.getAllTeams().filter(team => team.division === division);
@@ -113,7 +114,7 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
   /**
    * Get teams by coach
    * @param {string} coachName - Coach name
-   * @returns {Array} - Array of teams coached by specified coach
+    * @returns {TeamRecord[]} - Array of teams coached by specified coach
    */
   getTeamsByCoach(coachName) {
     const term = coachName.toLowerCase();
@@ -125,8 +126,8 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
 
   /**
    * Get publicly published coaches for a team.
-   * @param {Object} team - Team object
-   * @returns {Array} - Published coach records
+    * @param {TeamRecord} team - Team object
+    * @returns {StaffMemberRecord[]} - Published coach records
    */
   getTeamCoaches(team) {
     return team.staff && Array.isArray(team.staff.coaches) ? team.staff.coaches : [];
@@ -134,8 +135,8 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
 
   /**
    * Get publicly published managers for a team.
-   * @param {Object} team - Team object
-   * @returns {Array} - Published manager records
+    * @param {TeamRecord} team - Team object
+    * @returns {StaffMemberRecord[]} - Published manager records
    */
   getTeamManagers(team) {
     return team.staff && Array.isArray(team.staff.managers) ? team.staff.managers : [];
@@ -143,8 +144,8 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
 
   /**
    * Get publicly published shared staff contacts for a team.
-   * @param {Object} team - Team object
-   * @returns {Array} - Published contact records
+    * @param {TeamRecord} team - Team object
+    * @returns {StaffContactRecord[]} - Published contact records
    */
   getTeamContacts(team) {
     return team.staff && Array.isArray(team.staff.contacts) ? team.staff.contacts : [];
@@ -152,7 +153,7 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
 
   /**
    * Get all divisions
-   * @returns {Array} - Array of unique divisions
+    * @returns {string[]} - Array of unique divisions
    */
   getAllDivisions() {
     const divisions = new Set();
@@ -166,7 +167,7 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
 
   /**
    * Get all coaches
-   * @returns {Array} - Array of unique coaches
+    * @returns {string[]} - Array of unique coaches
    */
   getAllCoaches() {
     const coaches = new Set();
@@ -181,7 +182,7 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
 
   /**
    * Get all publicly published managers.
-   * @returns {Array} - Array of unique manager names
+    * @returns {string[]} - Array of unique manager names
    */
   getAllManagers() {
     const managers = new Set();
@@ -303,7 +304,7 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
 
   /**
    * Add or update a team
-   * @param {Object} teamData - Team data object
+    * @param {TeamRecord} teamData - Team data object
    */
   addOrUpdateTeam(teamData) {
     if (teamData && teamData.name) {

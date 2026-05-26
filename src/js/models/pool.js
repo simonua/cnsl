@@ -12,6 +12,9 @@ if (typeof window === 'undefined') {
 }
 
   class Pool {
+  /**
+   * @param {PoolRecord} poolData - Published pool record or a supported legacy equivalent
+   */
   constructor(poolData) {
     this.id = poolData.id || '';
     this.name = poolData.name || '';
@@ -105,7 +108,7 @@ if (typeof window === 'undefined') {
   /**
    * Normalize current active schedule from date-based schedule data
    * @private
-   * @param {Array} schedules - Array of schedule objects with date ranges
+    * @param {PoolScheduleRecord[]} schedules - Schedule records with date ranges
    * @returns {Object} - Normalized schedule format for current date
    */
   _normalizeCurrentSchedule(schedules) {

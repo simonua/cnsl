@@ -4,23 +4,30 @@
 
 // Prevent multiple declarations
 if (typeof window === 'undefined' || !window.DataManager) {
+  /** @type {ReadonlyArray<AnnualDataDomain>} */
   const DATA_DOMAINS = Object.freeze(['pools', 'teams', 'meets']);
 
   class DataManager {
   constructor() {
+    /** @type {PoolsManager|null} */
     this.poolsManager = null;
+    /** @type {TeamsManager|null} */
     this.teamsManager = null;
+    /** @type {MeetsManager|null} */
     this.meetsManager = null;
     this.initialized = false;
+    /** @type {Map<AnnualDataDomain, Promise<void>>} */
     this.loadingPromises = new Map();
+    /** @type {Set<AnnualDataDomain>} */
     this.loadedDomains = new Set();
+    /** @type {SeasonInfo|null} */
     this.seasonInfo = null;
   }
 
   /**
    * Initialize only the annual data required by a page or feature.
-   * @param {Array<string>} requiredDomains - Annual data domains needed by the caller
-   * @returns {Promise} - Promise that resolves when all data is loaded
+    * @param {AnnualDataDomain[]} requiredDomains - Annual data domains needed by the caller
+    * @returns {Promise<void>} - Promise that resolves when all data is loaded
    */
   async initialize(requiredDomains = DATA_DOMAINS) {
     const domains = [...new Set(requiredDomains)];
@@ -36,8 +43,8 @@ if (typeof window === 'undefined' || !window.DataManager) {
   /**
    * Load one annual data domain and share its pending request between consumers.
    * @private
-   * @param {string} domain - Annual data domain to load
-   * @returns {Promise} - Promise that resolves when all data is loaded
+    * @param {AnnualDataDomain} domain - Annual data domain to load
+    * @returns {Promise<void>} - Promise that resolves when all data is loaded
    */
   async _loadDomain(domain) {
     if (this.loadedDomains.has(domain)) return;
@@ -66,8 +73,8 @@ if (typeof window === 'undefined' || !window.DataManager) {
   /**
    * Fetch the configured document for a domain.
    * @private
-   * @param {string} domain - Annual data domain to fetch
-   * @returns {Promise<Object>} - Raw data object
+    * @param {AnnualDataDomain} domain - Annual data domain to fetch
+    * @returns {Promise<PoolsDocument|TeamsDocument|MeetsDocument>} - Published annual document
    */
   _fetchDomain(domain) {
     const pathGetters = {
@@ -81,8 +88,8 @@ if (typeof window === 'undefined' || !window.DataManager) {
   /**
    * Reject structurally unusable published data before a page reports success.
    * @private
-   * @param {string} domain - Annual data domain being validated
-   * @param {Object} data - Parsed annual data document
+    * @param {AnnualDataDomain} domain - Annual data domain being validated
+    * @param {PoolsDocument|TeamsDocument|MeetsDocument} data - Parsed annual data document
    */
   _validateDomainData(domain, data) {
     const hasArray = (key) => data && Array.isArray(data[key]);
@@ -97,8 +104,8 @@ if (typeof window === 'undefined' || !window.DataManager) {
   /**
    * Get or create the manager for a loaded data domain.
    * @private
-   * @param {string} domain - Data domain manager to retrieve
-   * @returns {Object} - Domain manager instance
+    * @param {AnnualDataDomain} domain - Data domain manager to retrieve
+    * @returns {PoolsManager|TeamsManager|MeetsManager} - Domain manager instance
    */
   _getManager(domain) {
     if (domain === 'pools') {
@@ -117,7 +124,8 @@ if (typeof window === 'undefined' || !window.DataManager) {
    * Load JSON file
    * @private
    * @param {string} filePath - Path to JSON file
-   * @returns {Promise} - Promise that resolves with JSON data
+    * @template T
+    * @returns {Promise<T>} - Promise that resolves with JSON data
    */
   async _loadJsonFile(filePath) {
     try {
@@ -158,7 +166,7 @@ if (typeof window === 'undefined' || !window.DataManager) {
 
   /**
    * Get active pool season metadata already loaded with the directory data.
-   * @returns {Object|null} - Public season summary metadata or null until loaded
+    * @returns {SeasonInfo|null} - Public season summary metadata or null until loaded
    */
   getSeasonInfo() {
     return this.seasonInfo ? { ...this.seasonInfo } : null;
@@ -191,7 +199,7 @@ if (typeof window === 'undefined' || !window.DataManager) {
   /**
    * Get a specific team by name
    * @param {string} teamName - Team name
-   * @returns {Object|null} - Team object or null
+    * @returns {TeamRecord|null} - Team object or null
    */
   getTeam(teamName) {
     return this.getTeams().getTeam(teamName);
