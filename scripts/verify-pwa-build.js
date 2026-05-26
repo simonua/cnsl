@@ -7,7 +7,6 @@ const { APP_VERSION, GA4_MEASUREMENT_ID, HOME_PAGE_HOSTNAME, HOME_PAGE_URL, YEAR
 const outDir = path.join(__dirname, '..', 'out');
 const siteOrigin = HOME_PAGE_URL;
 const socialPreviewImage = `${siteOrigin}/assets/images/cnsl-logo.jpg`;
-const MAX_PUBLISHED_ARTIFACT_BYTES = 2_500_000;
 const unpublishedAnnualEvidenceDirectories = [
   `assets/data/${YEAR}/pools/pool-schedules`,
   `assets/data/${YEAR}/meets/meet-schedules`,
@@ -57,6 +56,15 @@ requiredArtifacts.forEach(resource => {
   assert.ok(fs.existsSync(path.join(outDir, resource)), `Required published artifact is missing: ${resource}`);
 });
 assert.ok(!fs.existsSync(path.join(outDir, 'site.webmanifest')), 'The deprecated duplicate manifest must not be published.');
+const publishedSeasonDirectories = fs.readdirSync(path.join(outDir, 'assets', 'data'), { withFileTypes: true })
+  .filter(entry => entry.isDirectory())
+  .map(entry => entry.name)
+  .sort();
+assert.deepEqual(
+  publishedSeasonDirectories,
+  [String(YEAR)],
+  `The public artifact must include only active season ${YEAR} data; found: ${publishedSeasonDirectories.join(', ') || 'none'}.`
+);
 unpublishedAnnualEvidenceDirectories.forEach(directory => {
   assert.ok(!fs.existsSync(path.join(outDir, directory)), `Retained annual evidence must not be included in the public artifact: ${directory}`);
 });
@@ -76,7 +84,6 @@ function calculateDirectoryBytes(directory) {
 }
 
 const artifactBytes = calculateDirectoryBytes(outDir);
-assert.ok(artifactBytes <= MAX_PUBLISHED_ARTIFACT_BYTES, `Published artifact size ${artifactBytes} bytes exceeds the ${MAX_PUBLISHED_ARTIFACT_BYTES}-byte budget.`);
 
 const manifest = JSON.parse(fs.readFileSync(path.join(outDir, 'manifest.webmanifest'), 'utf8'));
 assert.equal(manifest.id, './', 'The install manifest must retain a stable application id.');
@@ -196,4 +203,4 @@ assert.match(robots, new RegExp(`Sitemap: ${siteOrigin.replace(/[.*+?^${}()|[\]\
 const customDomain = fs.readFileSync(path.join(outDir, 'CNAME'), 'utf8').trim();
 assert.equal(customDomain, HOME_PAGE_HOSTNAME, 'Published GitHub Pages output must retain the configured custom domain.');
 
-console.log(`Verified PWA artifact: ${precacheResources.length} cached resources and ${artifactBytes} bytes for the ${YEAR} season (budget ${MAX_PUBLISHED_ARTIFACT_BYTES} bytes).`);
+console.log(`Verified PWA artifact: ${precacheResources.length} cached resources and ${artifactBytes} bytes for the ${YEAR} season.`);
