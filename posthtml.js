@@ -209,8 +209,8 @@ copyDir('./src/css', path.join(outDir, 'css'));
 console.log(`⚙️ [${timestamp()}] Copying JS directory...`);
 copyDir('./src/js', path.join(outDir, 'js'));
 
-// Copy required publishing artifacts, including GitHub Pages custom-domain ownership.
-const requiredRootStaticFiles = ['browserconfig.xml', 'CNAME', 'LICENSE', 'manifest.webmanifest', 'robots.txt', 'sitemap.xml'];
+// Copy required publishing artifacts, including search and GitHub Pages domain ownership.
+const requiredRootStaticFiles = ['BingSiteAuth.xml', 'browserconfig.xml', 'CNAME', 'google3dd9d57115818ebb.html', 'LICENSE', 'manifest.webmanifest', 'robots.txt', 'sitemap.xml'];
 requiredRootStaticFiles.forEach(file => {
   if (!fs.existsSync(file)) {
     throw new Error(`Required static file not found: ${file}`);

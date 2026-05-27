@@ -32,7 +32,7 @@ Run `.\start.ps1` (Windows) or `./start.sh` (macOS/Linux) for an interactive men
 1. `rimraf out` — Clean output directory
 2. `node posthtml.js` — Custom build script that:
    - Copies `src/assets/`, `src/css/`, `src/js/` to `out/`
-   - Copies required root static files (`manifest.webmanifest`, `browserconfig.xml`, `robots.txt`, `sitemap.xml`, and `LICENSE`) and copies optional `CNAME` only when configured
+   - Copies required root static files (`manifest.webmanifest`, `browserconfig.xml`, `BingSiteAuth.xml`, `google3dd9d57115818ebb.html`, `robots.txt`, `sitemap.xml`, `LICENSE`, and `CNAME`)
    - Generates a precache inventory from the delivered artifact and updates `service-worker.js` with a build cache version
    - Processes HTML with PostHTML (extend + include plugins)
    - Publishes only `data/<YEAR>/` for the configured active season; all other annual data folders are excluded

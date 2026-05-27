@@ -13,7 +13,9 @@ const unpublishedAnnualEvidenceDirectories = [
   `assets/data/${YEAR}/teams/team-schedules`
 ];
 const requiredArtifacts = [
+  'BingSiteAuth.xml',
   'CNAME',
+  'google3dd9d57115818ebb.html',
   'index.html',
   'offline.html',
   'pools.html',
