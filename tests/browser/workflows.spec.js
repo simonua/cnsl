@@ -255,11 +255,11 @@ test('release updates are announced once after a stable version is acknowledged'
   await page.setViewportSize(MOBILE_VIEWPORT);
   await page.goto('/index.html');
   const currentVersion = await page.evaluate(() => globalThis.APP_VERSION);
-  const releaseSeries = currentVersion.split('.').slice(0, 2).join('\\.');
+  const releaseSeries = currentVersion.split('.').slice(0, 2).join('.');
 
   const notice = page.locator('#releaseNotice');
   await expect(notice).toBeVisible();
-  await expect(notice).toContainText(`App updated to V${currentVersion}.`);
+  await expect(notice).toContainText(`App updated to V${releaseSeries}.`);
   const closeBox = await page.getByRole('button', { name: 'Dismiss application update' }).boundingBox();
   const menuBox = await page.getByRole('button', { name: 'Open navigation menu' }).boundingBox();
   expect(closeBox.width).toBe(menuBox.width);
@@ -277,7 +277,7 @@ test('release updates are announced once after a stable version is acknowledged'
   await expect(page.locator('#releaseNotice')).toBeVisible();
   await page.locator('#releaseNoticeLink').click();
   await expect(page).toHaveURL(/\/whats-new\.html$/);
-  await expect(page.getByRole('heading', { name: new RegExp(`^Version ${releaseSeries}\\.\\d+ - `) }).first()).toBeVisible();
+  await expect(page.getByRole('heading', { name: new RegExp(`^Version ${releaseSeries.replace('.', '\\.')}\\.\\d+ - `) }).first()).toBeVisible();
   await expect(page.locator('#releaseNotice')).toBeHidden();
   await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_current_version'))).toBe(currentVersion);
 });

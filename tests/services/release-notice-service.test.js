@@ -13,19 +13,29 @@ describe('ReleaseNoticeService', () => {
     });
   });
 
+  describe('getAnnouncementVersion', () => {
+    it('should show only the major and minor version for a stable release', () => {
+      assert.equal(ReleaseNoticeService.getAnnouncementVersion('2.1.7'), '2.1');
+      assert.equal(ReleaseNoticeService.getAnnouncementVersion('2.2.0-beta.1'), null);
+    });
+  });
+
   describe('shouldShow', () => {
     it('should show the notice when no version has been acknowledged yet', () => {
       assert.equal(ReleaseNoticeService.shouldShow('2.1.0', null), true);
     });
 
-    it('should show the notice for newer major, minor, and patch stable releases', () => {
+    it('should show the notice for newer major and minor stable releases', () => {
       assert.equal(ReleaseNoticeService.shouldShow('3.0.0', '2.9.9'), true);
       assert.equal(ReleaseNoticeService.shouldShow('2.1.0', '2.0.9'), true);
-      assert.equal(ReleaseNoticeService.shouldShow('2.1.1', '2.1.0'), true);
     });
 
-    it('should not show the notice for an acknowledged or older stable release', () => {
+    it('should not show the notice for an acknowledged series or a patch within that series', () => {
       assert.equal(ReleaseNoticeService.shouldShow('2.1.0', '2.1.0'), false);
+      assert.equal(ReleaseNoticeService.shouldShow('2.1.1', '2.1.0'), false);
+    });
+
+    it('should not show the notice for an older stable release', () => {
       assert.equal(ReleaseNoticeService.shouldShow('2.1.0', '2.2.0'), false);
     });
 

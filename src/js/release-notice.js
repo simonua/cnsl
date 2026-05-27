@@ -20,7 +20,7 @@
     const acknowledgedVersion = window.ReleaseNoticeService.readAcknowledgedVersion(storage, window.APP_VERSION_STORAGE_KEY);
     if (!window.ReleaseNoticeService.shouldShow(window.APP_VERSION, acknowledgedVersion)) return;
 
-    version.textContent = window.APP_VERSION;
+    version.textContent = window.ReleaseNoticeService.getAnnouncementVersion(window.APP_VERSION);
     notice.hidden = false;
 
     function acknowledgeRelease() {

@@ -13,12 +13,17 @@ if (typeof window === 'undefined' || !window.ReleaseNoticeService) {
       return parts.every(part => Number.isSafeInteger(part)) ? parts : null;
     }
 
-    static compareStableVersions(firstVersion, secondVersion) {
+    static getAnnouncementVersion(version) {
+      const parts = ReleaseNoticeService.getStableVersionParts(version);
+      return parts ? parts.slice(0, 2).join('.') : null;
+    }
+
+    static compareStableVersions(firstVersion, secondVersion, partCount = 3) {
       const firstParts = ReleaseNoticeService.getStableVersionParts(firstVersion);
       const secondParts = ReleaseNoticeService.getStableVersionParts(secondVersion);
       if (!firstParts || !secondParts) return null;
 
-      for (let index = 0; index < firstParts.length; index += 1) {
+      for (let index = 0; index < partCount; index += 1) {
         if (firstParts[index] !== secondParts[index]) {
           return firstParts[index] > secondParts[index] ? 1 : -1;
         }
@@ -29,7 +34,7 @@ if (typeof window === 'undefined' || !window.ReleaseNoticeService) {
     static shouldShow(currentVersion, acknowledgedVersion) {
       if (!ReleaseNoticeService.getStableVersionParts(currentVersion)) return false;
       if (!ReleaseNoticeService.getStableVersionParts(acknowledgedVersion)) return true;
-      return ReleaseNoticeService.compareStableVersions(currentVersion, acknowledgedVersion) > 0;
+      return ReleaseNoticeService.compareStableVersions(currentVersion, acknowledgedVersion, 2) > 0;
     }
 
     static readAcknowledgedVersion(storage, storageKey) {
