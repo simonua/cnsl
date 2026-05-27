@@ -8,9 +8,14 @@ function assertValidSeason(season) {
   }
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function isAllowedEvidencePath(documentPath, season) {
   assertValidSeason(season);
-  return new RegExp(`^src/assets/data/${season}/(pools/pool-schedules|meets/meet-schedules|teams/team-schedules)/[^/]+\\.pdf$`).test(documentPath);
+  const safeSeason = escapeRegExp(season);
+  return new RegExp(`^src/assets/data/${safeSeason}/(pools/pool-schedules|meets/meet-schedules|teams/team-schedules)/[^/]+\\.pdf$`).test(documentPath);
 }
 
 function findUnexpectedChanges(documentPaths, season) {
