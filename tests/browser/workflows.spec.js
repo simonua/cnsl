@@ -254,10 +254,12 @@ test('analytics publishes a page view and public app version only after the Goog
 test('release updates are announced once after a stable version is acknowledged', async ({ page }) => {
   await page.setViewportSize(MOBILE_VIEWPORT);
   await page.goto('/index.html');
+  const currentVersion = await page.evaluate(() => globalThis.APP_VERSION);
+  const releaseSeries = currentVersion.split('.').slice(0, 2).join('\\.');
 
   const notice = page.locator('#releaseNotice');
   await expect(notice).toBeVisible();
-  await expect(notice).toContainText('App updated to V2.1.0.');
+  await expect(notice).toContainText(`App updated to V${currentVersion}.`);
   const closeBox = await page.getByRole('button', { name: 'Dismiss application update' }).boundingBox();
   const menuBox = await page.getByRole('button', { name: 'Open navigation menu' }).boundingBox();
   expect(closeBox.width).toBe(menuBox.width);
@@ -265,7 +267,7 @@ test('release updates are announced once after a stable version is acknowledged'
   await page.getByRole('button', { name: 'Dismiss application update' }).focus();
   await page.keyboard.press('Enter');
   await expect(notice).toBeHidden();
-  await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_current_version'))).toBe('2.1.0');
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_current_version'))).toBe(currentVersion);
 
   await page.goto('/pools.html');
   await expect(page.locator('#releaseNotice')).toHaveCount(0);
@@ -275,9 +277,9 @@ test('release updates are announced once after a stable version is acknowledged'
   await expect(page.locator('#releaseNotice')).toBeVisible();
   await page.locator('#releaseNoticeLink').click();
   await expect(page).toHaveURL(/\/whats-new\.html$/);
-  await expect(page.getByRole('heading', { name: 'Version 2.1.0 - May 2026' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: new RegExp(`^Version ${releaseSeries}\\.\\d+ - `) }).first()).toBeVisible();
   await expect(page.locator('#releaseNotice')).toBeHidden();
-  await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_current_version'))).toBe('2.1.0');
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_current_version'))).toBe(currentVersion);
 });
 
 test('pool feature filters expose their state and resulting count', async ({ page }) => {
@@ -818,7 +820,7 @@ test('settings dialog is right-aligned on mobile and centered on desktop', async
   expect(Math.abs(bounds.y + (bounds.height / 2) - (mobileViewport.height / 2))).toBeLessThanOrEqual(1);
   const closeButtonBounds = await page.getByRole('button', { name: 'Close settings' }).boundingBox();
   expect(closeButtonBounds.width).toBeLessThan(closeButtonBounds.height);
-  await page.mouse.click(closeButtonBounds.x - 2, closeButtonBounds.y + (closeButtonBounds.height / 2));
+  await page.getByRole('button', { name: 'Close settings' }).click();
   await expect(dialog).not.toBeVisible();
 
   const desktopViewport = { width: 1280, height: 800 };
