@@ -196,16 +196,17 @@
       status.textContent = '';
     });
 
-    document.getElementById('clearSettings').addEventListener('click', () => {
-      if (!window.confirm('Clear all saved settings from this device?')) return;
+    document.getElementById('clearSettings').addEventListener('click', async () => {
+      if (!window.confirm('Clear all app data from this device?')) return;
 
       const existing = PreferencesService.get();
-      PreferencesService.clear();
+      await window.AppStorageService.clearAppData();
       const cleared = PreferencesService.get();
       trackClearedSettings(existing, cleared, publishedPoolNames, publishedTeamIds);
       applyFormValues(form, cleared);
       window.applyPreferenceTheme(cleared);
       preferencesChanged = preferencesChanged || JSON.stringify(existing) !== JSON.stringify(cleared);
+      status.textContent = 'All app data cleared from this device.';
     });
 
     closeButton.addEventListener('click', () => dialog.close());

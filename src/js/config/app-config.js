@@ -46,6 +46,15 @@
   const SETTINGS_NOTICE_DISMISSED_STORAGE_KEY = 'cnsl_settings_notice_dismissed';
   const WEATHER_ALERT_STATUS_STORAGE_KEY = 'cnsl_weather_alert_status';
   const WEATHER_ALERT_DISCLOSURE_STORAGE_KEY = 'cnsl_weather_alert_expanded';
+  const APP_LOCAL_STORAGE_KEYS = Object.freeze([
+    PREFERENCES_STORAGE_KEY,
+    APP_VERSION_STORAGE_KEY,
+    SETTINGS_NOTICE_DISMISSED_STORAGE_KEY
+  ]);
+  const APP_SESSION_STORAGE_KEYS = Object.freeze([
+    WEATHER_ALERT_STATUS_STORAGE_KEY,
+    WEATHER_ALERT_DISCLOSURE_STORAGE_KEY
+  ]);
 
   // Offline caching and local development runtime behavior.
   const PWA_CACHE_PREFIX = 'cnsl-static-';
@@ -54,6 +63,8 @@
 
   const RUNTIME_CONFIG = Object.freeze({
     APP_TIMEZONE,
+    APP_LOCAL_STORAGE_KEYS,
+    APP_SESSION_STORAGE_KEYS,
     APP_VERSION,
     APP_VERSION_STORAGE_KEY,
     GA4_MEASUREMENT_ID,

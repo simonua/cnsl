@@ -853,6 +853,11 @@ test('[WF-SETTINGS-001] settings dialog is right-aligned on mobile and centered 
   expect(Math.abs(bounds.y + (bounds.height / 2) - (mobileViewport.height / 2))).toBeLessThanOrEqual(1);
   const closeButtonBounds = await page.getByRole('button', { name: 'Close settings' }).boundingBox();
   expect(closeButtonBounds.width).toBeLessThan(closeButtonBounds.height);
+  let clearButtonBounds = await page.getByRole('button', { name: 'Clear all app data' }).boundingBox();
+  let clearActionsBounds = await page.locator('.settings-actions').boundingBox();
+  expect(Math.abs(clearButtonBounds.x + (clearButtonBounds.width / 2) - (clearActionsBounds.x + (clearActionsBounds.width / 2)))).toBeLessThanOrEqual(1);
+  const practiceBounds = await page.locator('.settings-checkbox-list .settings-checkbox').evaluateAll(options => options.map(option => option.getBoundingClientRect().x));
+  expect(new Set(practiceBounds.map(position => Math.round(position))).size).toBe(2);
   await page.getByRole('button', { name: 'Close settings' }).click();
   await expect(dialog).not.toBeVisible();
 
@@ -863,9 +868,12 @@ test('[WF-SETTINGS-001] settings dialog is right-aligned on mobile and centered 
 
   expect(Math.abs(bounds.x + (bounds.width / 2) - (desktopViewport.width / 2))).toBeLessThanOrEqual(1);
   expect(Math.abs(bounds.y + (bounds.height / 2) - (desktopViewport.height / 2))).toBeLessThanOrEqual(1);
+  clearButtonBounds = await page.getByRole('button', { name: 'Clear all app data' }).boundingBox();
+  clearActionsBounds = await page.locator('.settings-actions').boundingBox();
+  expect(Math.abs(clearButtonBounds.x + (clearButtonBounds.width / 2) - (clearActionsBounds.x + (clearActionsBounds.width / 2)))).toBeLessThanOrEqual(1);
 });
 
-test('[WF-SETTINGS-002] settings persist choices locally and confirm before clearing saved settings', async ({ page }) => {
+test('[WF-SETTINGS-002] settings persist choices locally and confirm before clearing all app data', async ({ page }) => {
   await initializeAnalyticsRecorder(page);
   await page.goto('/settings.html');
   await expect(page.locator('#favoritePool')).toBeEnabled();
@@ -919,23 +927,53 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
 
   const dismissedClearPrompt = page.waitForEvent('dialog').then(async dialog => {
     expect(dialog.type()).toBe('confirm');
-    expect(dialog.message()).toBe('Clear all saved settings from this device?');
+    expect(dialog.message()).toBe('Clear all app data from this device?');
     await dialog.dismiss();
   });
-  await page.getByRole('button', { name: 'Clear saved settings' }).click();
+  await page.getByRole('button', { name: 'Clear all app data' }).click();
   await dismissedClearPrompt;
   await expect(page.getByLabel('Dark')).toBeChecked();
   await expect(page.getByLabel('First Splash')).not.toBeChecked();
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toHaveLength(7);
 
+  await page.evaluate(async () => {
+    localStorage.setItem('cnsl_current_version', 'saved');
+    localStorage.setItem('cnsl_settings_notice_dismissed', 'true');
+    localStorage.setItem('unrelated_local_key', 'saved');
+    sessionStorage.setItem('cnsl_weather_alert_status', 'saved');
+    sessionStorage.setItem('cnsl_weather_alert_expanded', 'false');
+    sessionStorage.setItem('unrelated_session_key', 'saved');
+    await globalThis.caches.open('cnsl-static-test-reset');
+    await globalThis.caches.open('unrelated-cache');
+  });
   const acceptedClearPrompt = page.waitForEvent('dialog').then(async dialog => {
     expect(dialog.type()).toBe('confirm');
-    expect(dialog.message()).toBe('Clear all saved settings from this device?');
+    expect(dialog.message()).toBe('Clear all app data from this device?');
     await dialog.accept();
   });
-  await page.getByRole('button', { name: 'Clear saved settings' }).click();
+  await page.getByRole('button', { name: 'Clear all app data' }).click();
   await acceptedClearPrompt;
-  await expect(page.locator('#settingsStatus')).toBeEmpty();
+  await expect(page.locator('#settingsStatus')).toHaveText('All app data cleared from this device.');
+  await expect.poll(() => page.locator('#settingsStatus').evaluate(status => globalThis.getComputedStyle(status).textAlign)).toBe('center');
+  await expect.poll(() => page.evaluate(async () => ({
+    preferences: localStorage.getItem('cnsl_preferences'),
+    currentVersion: localStorage.getItem('cnsl_current_version'),
+    settingsNotice: localStorage.getItem('cnsl_settings_notice_dismissed'),
+    unrelatedLocal: localStorage.getItem('unrelated_local_key'),
+    weatherStatus: sessionStorage.getItem('cnsl_weather_alert_status'),
+    weatherDisclosure: sessionStorage.getItem('cnsl_weather_alert_expanded'),
+    unrelatedSession: sessionStorage.getItem('unrelated_session_key'),
+    caches: await globalThis.caches.keys()
+  }))).toMatchObject({
+    preferences: null,
+    currentVersion: null,
+    settingsNotice: null,
+    unrelatedLocal: 'saved',
+    weatherStatus: null,
+    weatherDisclosure: null,
+    unrelatedSession: 'saved',
+    caches: expect.not.arrayContaining(['cnsl-static-test-reset'])
+  });
   await expect(page.getByLabel('First Splash')).toBeChecked();
   await expect(page.getByLabel('8 and under')).toBeChecked();
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
