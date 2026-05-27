@@ -53,7 +53,8 @@
       return meetDate >= firstDate && (!hasMatchup || globalThis.PreferencesService.meetIncludesFavoriteTeam(meet, team));
     }).map(meet => ({
       date: startOfDay(`${meet.date}T12:00:00`),
-      label: `Next swim event: ${meet.name || 'Meet'}`,
+      label: 'Next swim event:',
+      name: meet.name || 'Meet',
       location: getMeetLocation(meet, team),
       sessions: [],
       teams: meet.visiting_team || meet.awayTeam ? `${meet.visiting_team || meet.awayTeam} at ${meet.home_team || meet.homeTeam}` : '',
@@ -80,6 +81,12 @@
       : `Showing ${events.length} next published practice or swim event entries.`;
   }
 
+  function renderEventName(event) {
+    if (event.type !== 'meet') return '';
+
+    return `<strong class="favorite-week__event-name">${globalThis.HtmlSafety.escapeHtml(event.name || 'Meet')}</strong>`;
+  }
+
   function renderEvents(events, dayHeadingLevel = 3) {
     const headingTag = dayHeadingLevel === 4 ? 'h4' : 'h3';
     const days = new Map();
@@ -94,8 +101,9 @@
         <${headingTag}>${globalThis.HtmlSafety.escapeHtml(formatDay(day.date))}</${headingTag}>
         <ul class="favorite-week__events">${day.events.map(event => `
           <li>
-            <div class="favorite-week__event-heading${event.sessions.length > 0 ? ' favorite-week__event-heading--practice' : ''}">
+            <div class="favorite-week__event-heading">
               <strong>${globalThis.HtmlSafety.escapeHtml(event.label)}</strong>
+              ${renderEventName(event)}
               <span class="favorite-week__location">${globalThis.generateLinkedPoolMentions(event.location)}</span>
             </div>
             ${event.teams ? `<span>${globalThis.HtmlSafety.escapeHtml(event.teams)}</span>` : ''}

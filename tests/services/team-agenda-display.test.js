@@ -58,8 +58,22 @@ describe('TeamAgendaDisplay', () => {
       }]);
 
       assert.match(html, /class="sessions"/);
-      assert.match(html, /class="favorite-week__event-heading favorite-week__event-heading--practice">[\s\S]*class="favorite-week__location">Swansfield Pool<\/span>/);
+      assert.match(html, /class="favorite-week__event-heading">[\s\S]*class="favorite-week__location">Swansfield Pool<\/span>/);
       assert.match(html, /class="session-time">8:00 - 8:45am<\/span>[\s\S]*class="session-group">13 and over<\/span>/);
+    });
+
+    it('renders a swim event name below its label', () => {
+      const html = TeamAgendaDisplay.renderEvents([{
+        date: new Date(2026, 5, 6),
+        label: 'Next swim event:',
+        name: 'Time Trials for returning/experienced swimmers',
+        location: 'Kendall Ridge Pool',
+        sessions: [],
+        teams: '',
+        type: 'meet'
+      }]);
+
+      assert.match(html, /<strong>Next swim event:<\/strong>[\s\S]*<strong class="favorite-week__event-name">Time Trials for returning\/experienced swimmers<\/strong>/);
     });
   });
 
@@ -72,8 +86,11 @@ describe('TeamAgendaDisplay', () => {
       };
       const phelpsLuck = activeTeamsData.teams.find(team => team.id === 'pls');
       const pointersRun = activeTeamsData.teams.find(team => team.id === 'prp');
+      const phelpsLuckEvent = TeamAgendaDisplay.getUpcomingEvents(phelpsLuck, [meet], new Date('2026-05-26'))[0];
 
-      assert.equal(TeamAgendaDisplay.getUpcomingEvents(phelpsLuck, [meet], new Date('2026-05-26'))[0].location, 'Phelps Luck Pool');
+      assert.equal(phelpsLuckEvent.label, 'Next swim event:');
+      assert.equal(phelpsLuckEvent.name, 'Time Trials for returning/experienced swimmers');
+      assert.equal(phelpsLuckEvent.location, 'Phelps Luck Pool');
       assert.equal(TeamAgendaDisplay.getUpcomingEvents(pointersRun, [meet], new Date('2026-05-26'))[0].location, 'Jeffers Hill Pool');
       assert.equal(TeamAgendaDisplay.getUpcomingEvents(phelpsLuck, [{ ...meet, name: 'Future Delegated Event' }], new Date('2026-05-26'))[0].location, meet.location);
     });
