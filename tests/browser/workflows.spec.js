@@ -304,7 +304,7 @@ test('[WF-POOLS-001] pool feature filters expose their state and resulting count
   expect(new Set(chipColors).size).toBe(3);
   await page.locator('input[name="poolFeature"]').first().check();
 
-  await expect(page.locator('#poolFilterSummary')).toHaveText(/Showing \d+ of 23 pools/);
+  await expect(page.locator('#poolFilterSummary')).toHaveText(/\d+ \/ 23 pools/);
   await expect(page.locator('#poolFeatureFilterCount')).toHaveText('1 selected');
 
   await page.locator('#clearPoolFeatureFilters').click();
@@ -357,10 +357,10 @@ test('[WF-POOLS-002] pool availability filters show pools open now or for the ne
   await page.locator('#togglePoolFeatureFilters').click();
 
   await page.selectOption('#poolAvailabilityFilter', 'open-now');
-  await expect(page.locator('#poolFilterSummary')).toHaveText('Showing 23 of 23 pools');
+  await expect(page.locator('#poolFilterSummary')).toHaveText('23 / 23 pools');
 
   await page.selectOption('#poolAvailabilityFilter', 'open-next-two-hours');
-  await expect(page.locator('#poolFilterSummary')).toHaveText('Showing 1 of 23 pools');
+  await expect(page.locator('#poolFilterSummary')).toHaveText('1 / 23 pools');
   await expect(page.locator('#poolList .pool-card')).toHaveCount(1);
   await expect(page.locator('#poolFeatureFilterCount')).toHaveText('1 selected');
 

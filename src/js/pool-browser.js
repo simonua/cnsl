@@ -648,7 +648,7 @@ function updatePoolFilterSummary(matchingCount, totalCount, filterCount) {
   const selectionCount = document.getElementById('poolFeatureFilterCount');
   if (summary) {
     summary.textContent = filterCount > 0
-      ? `Showing ${matchingCount} of ${totalCount} pools`
+      ? `${matchingCount} / ${totalCount} pools`
       : `${totalCount} pools`;
   }
   if (clearButton) clearButton.hidden = filterCount === 0;
