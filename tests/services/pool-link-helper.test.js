@@ -90,7 +90,12 @@ describe('pool-link-helper', () => {
   describe('generateGoogleMapsLink', () => {
     it('does not render executable map destinations', () => {
       const link = generateGoogleMapsLink({ location: { googleMapsUrl: 'javascript:alert(1)' } }, 'Pool');
-      assert.ok(link.includes('https://www.google.com/maps/search/'));
+      const hrefMatch = link.match(/href="([^"]+)"/);
+      assert.ok(hrefMatch, 'Expected generated link to contain an href attribute');
+      const parsedUrl = new URL(hrefMatch[1]);
+      assert.equal(parsedUrl.protocol, 'https:');
+      assert.equal(parsedUrl.host, 'www.google.com');
+      assert.ok(parsedUrl.pathname.startsWith('/maps/search/'));
       assert.ok(!link.includes('javascript:'));
     });
   });
