@@ -1,6 +1,6 @@
 {
   "season": 2026,
-  "acceptedOn": "2026-05-26",
+  "acceptedOn": "2026-05-27",
   "pages": [
     {
       "domains": [
@@ -264,7 +264,7 @@
         "teams"
       ],
       "label": "CHS Swim Sundevils practice schedule page",
-      "sha256": "00e089fa891ca93660244e02ee99c745085c42b4c59f9ac045633abd87090472",
+      "sha256": "1eead4753fd9ac1b93b49d557b3b7e07e9440d97bc81a59ea0cdac01039b398f",
       "url": "https://www.gomotionapp.com/team/reccnslcfhss/page/team-information/practice-schedule"
     },
     {
@@ -272,7 +272,7 @@
         "teams"
       ],
       "label": "Dorsey Search Dolphins home page",
-      "sha256": "3266810ba510610ebac6edc3d11102d1ed355da51f4b69becb146da663ee644c",
+      "sha256": "8b9a010acc26776a542f8611d30c231c494aecde6c2393488960b13d84c44094",
       "url": "https://www.gomotionapp.com/team/reccnsldsd/page/home"
     },
     {
@@ -280,7 +280,7 @@
         "teams"
       ],
       "label": "Dorsey Search Dolphins practice schedule page",
-      "sha256": "943d35a2228a9e8fecb06fb686b077c358984e84bb51c76da510efd09d0f986a",
+      "sha256": "a6fb52cbadddcd9aa4aabf90c86cfa9457076a90a03309444e2710a61083d190",
       "url": "https://www.gomotionapp.com/team/reccnsldsd/page/practice-schedule"
     },
     {
@@ -288,7 +288,7 @@
         "teams"
       ],
       "label": "Dorsey Search Dolphins staff page",
-      "sha256": "47925a28af01bd311f3f7d268e6a4254782f3a6b7e6541c96a6c77bf2934b894",
+      "sha256": "974a832fb663c6b7b885070967274cf5220ace8dba11ec6a5d6373283d6457f8",
       "url": "https://www.gomotionapp.com/team/reccnsldsd/page/system/coaches"
     },
     {
@@ -304,7 +304,7 @@
         "teams"
       ],
       "label": "Harper's Choice Challenge home page",
-      "sha256": "6e015cc25a1e1512a9ab42efd102b915941a15335a22887687de1b24756094ee",
+      "sha256": "d758a98a74a3f1db8b6eb0fd8da9a601bf80efde2e4681b6501ccefdfa9e7b81",
       "url": "https://www.gomotionapp.com/team/reccnslhcc/page/home"
     },
     {
@@ -320,7 +320,7 @@
         "teams"
       ],
       "label": "Harper's Choice Challenge practice schedule page",
-      "sha256": "bd64235cc3ae09fd7e78e2331bedff8168d6fe82969d2e555fd66135e6b5be17",
+      "sha256": "c4c2a5a367428b8417e166f5b0e7787d2a2ed9b223c1eb6e2909aaea4936367d",
       "url": "https://www.gomotionapp.com/team/reccnslhcc/page/team-information/practice-schedule"
     },
     {
@@ -408,7 +408,7 @@
         "teams"
       ],
       "label": "Owen Brown Barracudas practice schedule page",
-      "sha256": "d8152a773005e1dd782bf27ae7913bcc01a0f7392a17aaeb7eac083badb3ded1",
+      "sha256": "f3ce192ccabd743a86433bd54a71002baefd3e985283ca40f8aaec839af5980b",
       "url": "https://www.gomotionapp.com/team/reccnslobb/page/practice-schedule1"
     },
     {
@@ -488,7 +488,7 @@
         "teams"
       ],
       "label": "Pointers Run Piranhas home page",
-      "sha256": "d9f2e1a0cbfc3ec12218fc9cbc5230879b4ad4bd06c5a4d0f808382a90c216fb",
+      "sha256": "296f9cd4c6260616524ee30abd4556f13b5b2bd39182eb33a5a5df6e7cd4c845",
       "url": "https://www.gomotionapp.com/team/reccnslprp/page/home"
     },
     {
@@ -512,7 +512,7 @@
         "teams"
       ],
       "label": "Pheasant Ridge Rapids home page",
-      "sha256": "08b9180e79c417b5762528e861ed4d42a600d46a74ddc0312c541036153dcae7",
+      "sha256": "59d6de755010a17d05e016a7cc4ace7abf789afb2245de168980fd94dd07e885",
       "url": "https://www.gomotionapp.com/team/reccnslprr/page/home"
     },
     {
@@ -528,7 +528,7 @@
         "teams"
       ],
       "label": "Thunder Hill Lightning calendar page",
-      "sha256": "77168d489e21fd31ab850bd825cfdb3973ea1fa64df4f2c474c5ceb73487d249",
+      "sha256": "d21c9518905c1cc067cd40431d7705b74e4159635ab3291bb98ea9833a2fb90f",
       "url": "https://www.gomotionapp.com/team/reccnslthl/page/calendar"
     },
     {
@@ -536,7 +536,7 @@
         "teams"
       ],
       "label": "Thunder Hill Lightning home page",
-      "sha256": "26510b79fa50082fd3c4d600c9cdf4e569ee6f4f26e5d1cf4b1721c70d0b0d2f",
+      "sha256": "f301f841c77b009e5bbe6013cf88fe727c7915c29f0d19d9eac3295aa28c00d0",
       "url": "https://www.gomotionapp.com/team/reccnslthl/page/home"
     },
     {
@@ -544,7 +544,7 @@
         "teams"
       ],
       "label": "Thunder Hill Lightning staff page",
-      "sha256": "5ed9b1c2ed61dfc38e72633a6f4b8cdb29240bfa63c7e574d5958c84f7995899",
+      "sha256": "b983e5fd93d6699cbd08847220f2aaac6d80506fb49b185c442e0876d9a87728",
       "url": "https://www.gomotionapp.com/team/reccnslthl/page/system/coaches"
     },
     {
