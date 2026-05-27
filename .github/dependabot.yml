@@ -1,5 +1,15 @@
 version: 2
 updates:
+  # The npm ecosystem covers package.json and the pnpm lockfile.
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      node-packages:
+        patterns:
+          - "*"
+
   # Actions are pinned to SHAs with release comments so updates stay immutable.
   - package-ecosystem: github-actions
     directory: "/"
