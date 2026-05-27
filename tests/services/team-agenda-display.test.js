@@ -47,6 +47,20 @@ describe('TeamAgendaDisplay', () => {
       assert.match(html, /Wednesday, June 17/);
       assert.doesNotMatch(html, /Wednesday, Jun 17/);
     });
+
+    it('renders practice sessions using time-first schedule rows', () => {
+      const html = TeamAgendaDisplay.renderEvents([{
+        date: new Date(2026, 5, 17),
+        label: 'Next morning practice',
+        location: 'Swansfield Pool',
+        sessions: [{ time: '8:00 - 8:45am', group: '13 and over' }],
+        teams: ''
+      }]);
+
+      assert.match(html, /class="sessions"/);
+      assert.match(html, /class="favorite-week__event-heading favorite-week__event-heading--practice">[\s\S]*class="favorite-week__location">Swansfield Pool<\/span>/);
+      assert.match(html, /class="session-time">8:00 - 8:45am<\/span>[\s\S]*class="session-group">13 and over<\/span>/);
+    });
   });
 
   describe('getUpcomingEvents', () => {

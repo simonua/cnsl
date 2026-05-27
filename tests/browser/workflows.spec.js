@@ -259,7 +259,7 @@ test('release updates are announced once after a stable version is acknowledged'
 
   const notice = page.locator('#releaseNotice');
   await expect(notice).toBeVisible();
-  await expect(notice).toContainText(`App updated to V${releaseSeries}.`);
+  await expect(notice).toContainText(`App updated to V${releaseSeries}`);
   const closeBox = await page.getByRole('button', { name: 'Dismiss application update' }).boundingBox();
   const menuBox = await page.getByRole('button', { name: 'Open navigation menu' }).boundingBox();
   expect(closeBox.width).toBe(menuBox.width);
@@ -508,7 +508,7 @@ test('home page shows the next practices and swim event for a selected favorite 
   await expect(agenda.getByRole('link', { name: 'Phelps Luck Pool' }).first()).toHaveAttribute('href', 'pools.html?pool=plp');
   await expect(agenda).not.toContainText("Each Team's Home Pool");
   await expect(agenda).not.toContainText('Jeffers Hill Pool');
-  await expect(agenda).toContainText('First Splash: 5:00 - 5:30pm');
+  await expect(agenda).toContainText('5:00 - 5:30pm First Splash');
 
   const toggle = page.locator('#favoriteWeekToggle');
   await toggle.press('Enter');

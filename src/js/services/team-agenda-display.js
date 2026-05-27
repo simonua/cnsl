@@ -94,10 +94,17 @@
         <${headingTag}>${globalThis.HtmlSafety.escapeHtml(formatDay(day.date))}</${headingTag}>
         <ul class="favorite-week__events">${day.events.map(event => `
           <li>
-            <strong>${globalThis.HtmlSafety.escapeHtml(event.label)}</strong>
+            <div class="favorite-week__event-heading${event.sessions.length > 0 ? ' favorite-week__event-heading--practice' : ''}">
+              <strong>${globalThis.HtmlSafety.escapeHtml(event.label)}</strong>
+              <span class="favorite-week__location">${globalThis.generateLinkedPoolMentions(event.location)}</span>
+            </div>
             ${event.teams ? `<span>${globalThis.HtmlSafety.escapeHtml(event.teams)}</span>` : ''}
-            ${event.sessions.map(session => `<span>${globalThis.HtmlSafety.escapeHtml(session.group)}: ${globalThis.HtmlSafety.escapeHtml(session.time)}</span>`).join('')}
-            <span>${globalThis.generateLinkedPoolMentions(event.location)}</span>
+            ${event.sessions.length > 0 ? `<div class="sessions">${event.sessions.map(session => `
+              <div class="session-item">
+                <span class="session-time">${globalThis.HtmlSafety.escapeHtml(session.time)}</span>
+                <span class="session-group">${globalThis.HtmlSafety.escapeHtml(session.group)}</span>
+              </div>
+            `).join('')}</div>` : ''}
           </li>
         `).join('')}</ul>
       </li>
