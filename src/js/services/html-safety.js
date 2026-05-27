@@ -30,7 +30,7 @@ if (typeof window === 'undefined' || !window.HtmlSafety) {
     static safeMailtoUrl(value) {
       const email = String(value || '').trim();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return '';
-      return `mailto:${encodeURIComponent(email).replace('%40', '@')}`;
+      return `mailto:${encodeURIComponent(email).replace(/%40/g, '@')}`;
     }
 
     static safeTelephoneUrl(value) {
