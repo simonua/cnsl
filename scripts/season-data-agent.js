@@ -16,8 +16,8 @@ function sha256(content) {
 function normalizeHtml(content) {
   const visibleText = content
     .replace(/<!--[\s\S]*?-->/g, ' ')
-    .replace(/<script\b[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style\b[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<script\b[\s\S]*?<\/script\b[^>]*>/gi, ' ')
+    .replace(/<style\b[\s\S]*?<\/style\b[^>]*>/gi, ' ')
     .replace(/<[^>]*>/g, ' ')
     .replace(/&nbsp;|&#160;/gi, ' ')
     .replace(/&quot;/gi, '"')
