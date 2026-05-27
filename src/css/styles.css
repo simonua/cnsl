@@ -352,7 +352,7 @@ body {
   display: none;
 }
 
-.release-notice {
+.home-banner {
   background-color: var(--white);
   border-bottom: 1px solid var(--border-color);
   box-shadow: var(--shadow);
@@ -360,11 +360,11 @@ body {
   width: 100%;
 }
 
-.release-notice[hidden] {
+.home-banner[hidden] {
   display: none;
 }
 
-.release-notice__inner {
+.home-banner__inner {
   align-items: center;
   display: grid;
   gap: 1rem;
@@ -375,7 +375,7 @@ body {
   padding: 0.6rem 1rem;
 }
 
-.release-notice__message {
+.home-banner__message {
   align-items: baseline;
   display: flex;
   flex-wrap: wrap;
@@ -388,21 +388,21 @@ body {
   text-align: center;
 }
 
-.release-notice__message strong {
+.home-banner__message strong {
   color: var(--primary-text-color);
 }
 
-.release-notice__separator {
+.home-banner__separator {
   color: var(--text-muted);
 }
 
-.release-notice__message a,
-.release-notice__message a:visited {
+.home-banner__message a,
+.home-banner__message a:visited {
   color: var(--primary-color);
   font-weight: 600;
 }
 
-button.release-notice__close {
+button.home-banner__close {
   align-items: center;
   background: transparent;
   border: 1px solid transparent;
@@ -422,8 +422,8 @@ button.release-notice__close {
   width: 2.75rem;
 }
 
-button.release-notice__close:hover,
-button.release-notice__close:focus {
+button.home-banner__close:hover,
+button.home-banner__close:focus {
   background-color: var(--light-bg);
   border-color: var(--border-color);
   box-shadow: none;
@@ -432,25 +432,25 @@ button.release-notice__close:focus {
 }
 
 @media (max-width: 48rem) {
-  .release-notice__inner {
+  .home-banner__inner {
     align-items: center;
     gap: 0.5rem;
     min-height: 2.75rem;
     padding: 0.35rem 1rem;
   }
 
-  .release-notice__message {
+  .home-banner__message {
     font-size: 0.9rem;
     line-height: 1.35;
   }
 }
 
 @media (max-width: 24.3125rem) {
-  .release-notice__message {
+  .home-banner__message {
     column-gap: 0.75rem;
   }
 
-  .release-notice__separator {
+  .home-banner__separator {
     display: none;
   }
 }

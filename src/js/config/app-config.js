@@ -43,6 +43,7 @@
   // Device-local preference and presentation state keys.
   const PREFERENCES_STORAGE_KEY = 'cnsl_preferences';
   const APP_VERSION_STORAGE_KEY = 'cnsl_current_version';
+  const SETTINGS_NOTICE_DISMISSED_STORAGE_KEY = 'cnsl_settings_notice_dismissed';
   const WEATHER_ALERT_STATUS_STORAGE_KEY = 'cnsl_weather_alert_status';
   const WEATHER_ALERT_DISCLOSURE_STORAGE_KEY = 'cnsl_weather_alert_expanded';
 
@@ -63,6 +64,7 @@
     LOCAL_DEVELOPMENT_PORT,
     PREFERENCES_STORAGE_KEY,
     PWA_CACHE_PREFIX,
+    SETTINGS_NOTICE_DISMISSED_STORAGE_KEY,
     WEATHER_ALERT_DEFAULT_REFRESH_MINUTES,
     WEATHER_ALERT_DISCLOSURE_STORAGE_KEY,
     WEATHER_ALERT_FORECAST_WINDOW_HOURS,

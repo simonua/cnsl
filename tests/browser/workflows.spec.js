@@ -285,6 +285,33 @@ test('[WF-RELEASE-001] release updates are announced once after a stable version
   await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_current_version'))).toBe(currentVersion);
 });
 
+test('[WF-SETTINGS-003] home page settings reminder is dismissed permanently by link or close button', async ({ page }) => {
+  await page.goto('/index.html');
+
+  const notice = page.locator('#settingsNotice');
+  await expect(notice).toBeVisible();
+  await expect(notice).toContainText('First time here? Set your preferences in Settings!');
+  await page.locator('#settingsNoticeLink').click();
+  await expect(page.locator('#settingsDialog')).toBeVisible();
+  await expect(notice).toBeHidden();
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_settings_notice_dismissed'))).toBe('true');
+
+  await page.getByRole('button', { name: 'Close settings' }).click();
+  await page.goto('/index.html');
+  await expect(notice).toBeHidden();
+
+  await page.evaluate(() => localStorage.removeItem('cnsl_settings_notice_dismissed'));
+  await page.reload();
+  await expect(notice).toBeVisible();
+  await page.getByRole('button', { name: 'Dismiss settings reminder' }).focus();
+  await page.keyboard.press('Enter');
+  await expect(notice).toBeHidden();
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_settings_notice_dismissed'))).toBe('true');
+
+  await page.goto('/pools.html');
+  await expect(page.locator('#settingsNotice')).toHaveCount(0);
+});
+
 test('[WF-POOLS-001] pool feature filters expose their state and resulting count', async ({ page }) => {
   await initializeAnalyticsRecorder(page);
   await page.goto('/pools.html');
