@@ -15,6 +15,7 @@ const publishedPagePaths = [
 
 const directoryScenarios = [
   {
+    reference: 'POOLS',
     path: '/pools.html',
     list: '#poolList',
     status: '#poolListStatus',
@@ -25,6 +26,7 @@ const directoryScenarios = [
     toggle: '.pool-header__toggle'
   },
   {
+    reference: 'TEAMS',
     path: '/teams.html',
     list: '#teamList',
     status: '#teamListStatus',
@@ -35,6 +37,7 @@ const directoryScenarios = [
     toggle: '.team-header__toggle'
   },
   {
+    reference: 'MEETS',
     path: '/meets.html',
     list: '#meetList',
     status: '#meetListStatus',
@@ -50,7 +53,7 @@ test.beforeEach(async ({ page }) => {
   await prepareStableWeatherResponses(page);
 });
 
-test('navigation contains keyboard focus and restores it when dismissed', async ({ page }) => {
+test('[WF-NAV-001] navigation contains keyboard focus and restores it when dismissed', async ({ page }) => {
   await page.setViewportSize(MOBILE_VIEWPORT);
   await page.goto('/pools.html');
   await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
@@ -75,7 +78,7 @@ test('navigation contains keyboard focus and restores it when dismissed', async 
 });
 
 for (const scenario of directoryScenarios) {
-  test(`${scenario.path} announces completed directory loading`, async ({ page }) => {
+  test(`[WF-DATA-001-${scenario.reference}] ${scenario.path} announces completed directory loading`, async ({ page }) => {
     await page.goto(scenario.path);
     await expect(page.locator(scenario.status)).toHaveText(scenario.announcement);
     await expect(page.locator(scenario.list)).toHaveAttribute('aria-busy', 'false');
@@ -83,7 +86,7 @@ for (const scenario of directoryScenarios) {
 }
 
 for (const scenario of directoryScenarios) {
-  test(`${scenario.path} requests only the annual data required for its workflow`, async ({ page }) => {
+  test(`[WF-DATA-002-${scenario.reference}] ${scenario.path} requests only the annual data required for its workflow`, async ({ page }) => {
     const requestedDomains = [];
     page.on('request', request => {
       const match = request.url().match(/\/assets\/data\/2026\/(pools|teams|meets)\/\1\.json/);
@@ -96,7 +99,7 @@ for (const scenario of directoryScenarios) {
   });
 }
 
-test('pool load failures are announced and do not leave the directory busy', async ({ page }) => {
+test('[WF-DATA-003] pool load failures are announced and do not leave the directory busy', async ({ page }) => {
   await page.route('**/assets/data/2026/pools/pools.json*', route => route.fulfill({ status: 503, body: '{}' }));
   await page.goto('/pools.html');
 
@@ -105,7 +108,7 @@ test('pool load failures are announced and do not leave the directory busy', asy
   await expect(page.locator('#seasonInfo')).toBeHidden();
 });
 
-test('malformed published pool responses are announced as unavailable', async ({ page }) => {
+test('[WF-DATA-004] malformed published pool responses are announced as unavailable', async ({ page }) => {
   await page.route('**/assets/data/2026/pools/pools.json*', route => route.fulfill({ json: {} }));
   await page.goto('/pools.html');
 
@@ -113,7 +116,7 @@ test('malformed published pool responses are announced as unavailable', async ({
   await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 });
 
-test('season summary and sharing actions appear only on the home page', async ({ page }) => {
+test('[WF-HOME-001] season summary and sharing actions appear only on the home page', async ({ page }) => {
   await initializeAnalyticsRecorder(page);
   await page.goto('/');
 
@@ -177,7 +180,7 @@ test('season summary and sharing actions appear only on the home page', async ({
   await expect.poll(() => page.locator('#poolList, #seasonInfo').evaluateAll(elements => elements.map(element => element.id))).toEqual(['poolList', 'seasonInfo']);
 });
 
-test('analytics publishes a page view and public app version only after the Google tag script loads', async ({ page }) => {
+test('[WF-ANALYTICS-001] analytics publishes a page view and public app version only after the Google tag script loads', async ({ page }) => {
   let releaseTagScript;
   let reportTagScriptRequest;
   const tagScriptRequested = new Promise(resolve => {
@@ -251,7 +254,7 @@ test('analytics publishes a page view and public app version only after the Goog
   await page.unrouteAll({ behavior: 'ignoreErrors' });
 });
 
-test('release updates are announced once after a stable version is acknowledged', async ({ page }) => {
+test('[WF-RELEASE-001] release updates are announced once after a stable version is acknowledged', async ({ page }) => {
   await page.setViewportSize(MOBILE_VIEWPORT);
   await page.goto('/index.html');
   const currentVersion = await page.evaluate(() => globalThis.APP_VERSION);
@@ -282,7 +285,7 @@ test('release updates are announced once after a stable version is acknowledged'
   await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_current_version'))).toBe(currentVersion);
 });
 
-test('pool feature filters expose their state and resulting count', async ({ page }) => {
+test('[WF-POOLS-001] pool feature filters expose their state and resulting count', async ({ page }) => {
   await initializeAnalyticsRecorder(page);
   await page.goto('/pools.html');
   await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
@@ -325,7 +328,7 @@ test('pool feature filters expose their state and resulting count', async ({ pag
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).poolFeatureFilters)).toEqual([]);
 });
 
-test('pool availability filters show pools open now or for the next two hours', async ({ page }) => {
+test('[WF-POOLS-002] pool availability filters show pools open now or for the next two hours', async ({ page }) => {
   await page.route('**/assets/data/2026/pools/pools.json*', async route => {
     const response = await route.fetch();
     const poolData = await response.json();
@@ -366,7 +369,7 @@ test('pool availability filters show pools open now or for the next two hours', 
   await expect(page.locator('#poolFilterSummary')).toHaveText('23 pools');
 });
 
-test('pool tile features are ordered by category then alphabetically', async ({ page }) => {
+test('[WF-POOLS-003] pool tile features are ordered by category then alphabetically', async ({ page }) => {
   await page.route('**/assets/data/2026/pools/pools.json*', async route => {
     const response = await route.fetch();
     const poolData = await response.json();
@@ -393,7 +396,7 @@ test('pool tile features are ordered by category then alphabetically', async ({ 
   ]);
 });
 
-test('collapsed favorite pool stays collapsed after filters redraw the directory', async ({ page }) => {
+test('[WF-POOLS-004] collapsed favorite pool stays collapsed after filters redraw the directory', async ({ page }) => {
   await initializeAnalyticsRecorder(page);
   await page.goto('/pools.html');
   await page.evaluate(() => {
@@ -420,7 +423,7 @@ test('collapsed favorite pool stays collapsed after filters redraw the directory
   await expect(page.locator('.favorite-card .pool-header__toggle')).toHaveAttribute('aria-expanded', 'false');
 });
 
-test('collapsed favorite team stays collapsed after returning to the directory', async ({ page }) => {
+test('[WF-TEAMS-001] collapsed favorite team stays collapsed after returning to the directory', async ({ page }) => {
   await initializeAnalyticsRecorder(page);
   await page.goto('/teams.html');
   await page.evaluate(() => {
@@ -441,7 +444,7 @@ test('collapsed favorite team stays collapsed after returning to the directory',
   await expect(page.locator('.favorite-card .team-header__toggle')).toHaveAttribute('aria-expanded', 'false');
 });
 
-test('team directory displays verified regular practices from public team schedules', async ({ page }) => {
+test('[WF-TEAMS-002] team directory displays verified regular practices from public team schedules', async ({ page }) => {
   await setAgendaReferenceTime(page);
   await page.goto('/teams.html');
   await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
@@ -455,7 +458,7 @@ test('team directory displays verified regular practices from public team schedu
   await expect(sundevils.getByRole('link', { name: 'Team Calendar' })).toHaveAttribute('href', /\/page\/calendar$/);
 });
 
-test('team directory filters regular practice times to selected practice groups', async ({ page }) => {
+test('[WF-TEAMS-003] team directory filters regular practice times to selected practice groups', async ({ page }) => {
   await seedPreferences(page, { practiceGroups: ['9-10'] });
   await page.goto('/teams.html');
   await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
@@ -470,7 +473,7 @@ test('team directory filters regular practice times to selected practice groups'
   await expect(schedule).not.toContainText('5:45 - 6:30pm');
 });
 
-test('team directory shows the same next practices and swim event agenda as home', async ({ page }) => {
+test('[WF-AGENDA-001] team directory shows the same next practices and swim event agenda as home', async ({ page }) => {
   await setAgendaReferenceTime(page);
   await page.goto('/teams.html');
   await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
@@ -487,7 +490,7 @@ test('team directory shows the same next practices and swim event agenda as home
   await expect(agenda).not.toContainText('Jeffers Hill Pool');
 });
 
-test('home page shows the next practices and swim event for a selected favorite team', async ({ page }) => {
+test('[WF-AGENDA-002] home page shows the next practices and swim event for a selected favorite team', async ({ page }) => {
   await setAgendaReferenceTime(page);
   await seedPreferences(page, { favoriteTeamId: 'pls' });
   await page.goto('/index.html');
@@ -520,7 +523,7 @@ test('home page shows the next practices and swim event for a selected favorite 
   await expect(teamDetailsLink).toBeVisible();
 });
 
-test('home page keeps its three-link rows intact on narrow phones', async ({ page }) => {
+test('[WF-HOME-002] home page keeps its three-link rows intact on narrow phones', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 900 });
   await page.goto('/index.html');
 
@@ -532,19 +535,22 @@ test('home page keeps its three-link rows intact on narrow phones', async ({ pag
   await expect.poll(() => hasSingleRow('.share-site__links .share-site__link')).toBe(true);
 });
 
-test('shared team agenda filters published practice times by selected group', async ({ page }) => {
+test('[WF-AGENDA-003] shared team agenda filters published practice times by selected group', async ({ page }) => {
   await setAgendaReferenceTime(page);
   await seedPreferences(page, { favoriteTeamId: 'pls', practiceGroups: ['8-under'] });
   await page.goto('/index.html');
 
   const agenda = page.locator('#favoriteWeek');
-  await expect(agenda).toContainText('8 and under: 5:30 - 6:00pm');
-  await expect(agenda).not.toContainText('First Splash: 5:00 - 5:30pm');
-  await expect(agenda).not.toContainText('9 - 12: 6:00 - 6:30pm');
-  await expect(agenda).not.toContainText('13 and over: 6:30 - 7:00pm');
+  await expect(agenda.locator('.session-item')).toHaveText([
+    /5:30 - 6:00pm\s+8 and under/,
+    /8:00 - 8:30am\s+8 and under/
+  ]);
+  await expect(agenda).not.toContainText('First Splash');
+  await expect(agenda).not.toContainText('9 - 12');
+  await expect(agenda).not.toContainText('13 and over');
 });
 
-test('home page loads agenda dependencies only after a favorite team is selected', async ({ page }) => {
+test('[WF-AGENDA-004] home page loads agenda dependencies only after a favorite team is selected', async ({ page }) => {
   await setAgendaReferenceTime(page);
   await page.goto('/index.html');
 
@@ -561,7 +567,7 @@ test('home page loads agenda dependencies only after a favorite team is selected
   await expect(page.locator('#favoriteWeek')).toContainText('Phelps Luck Pool');
 });
 
-test('location distances use outlined pills and can sort nearest pools first', async ({ page }) => {
+test('[WF-POOLS-005] location distances use outlined pills and can sort nearest pools first', async ({ page }) => {
   await page.context().grantPermissions(['geolocation']);
   await page.context().setGeolocation({ latitude: 39.2105, longitude: -76.8721 });
   await seedPreferences(page, { locationAwarenessEnabled: true });
@@ -586,7 +592,7 @@ test('location distances use outlined pills and can sort nearest pools first', a
   expect(distances).toEqual([...distances].sort((first, second) => first - second));
 });
 
-test('directory disclosures work without rendered inline event handlers', async ({ page }) => {
+test('[WF-DIR-001] directory disclosures work without rendered inline event handlers', async ({ page }) => {
   await page.goto('/pools.html');
   await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
   const poolToggle = page.locator('.pool-header__toggle').first();
@@ -612,7 +618,7 @@ test('directory disclosures work without rendered inline event handlers', async 
   await expect(page.locator('#meetList [onclick], #meetList [onerror]')).toHaveCount(0);
 });
 
-test('meet pool links reveal the destination below the mobile fixed header', async ({ page }) => {
+test('[WF-MEETS-001] meet pool links reveal the destination below the mobile fixed header', async ({ page }) => {
   await page.setViewportSize(MOBILE_VIEWPORT);
   await page.context().grantPermissions(['geolocation']);
   await page.context().setGeolocation({ latitude: 39.2105, longitude: -76.8721 });
@@ -651,7 +657,7 @@ test('meet pool links reveal the destination below the mobile fixed header', asy
   })).toBe(true);
 });
 
-test('favorite team matchups appear first on every meet day they compete', async ({ page }) => {
+test('[WF-MEETS-002] favorite team matchups appear first on every meet day they compete', async ({ page }) => {
   await seedPreferences(page, { favoriteTeamId: 'cfhss' });
   await page.goto('/meets.html');
   await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
@@ -665,7 +671,7 @@ test('favorite team matchups appear first on every meet day they compete', async
 });
 
 for (const scenario of directoryScenarios) {
-  test(`${scenario.path} directory tiles point, stay still, and expand from their surface`, async ({ page }) => {
+  test(`[WF-DIR-002-${scenario.reference}] ${scenario.path} directory tiles point, stay still, and expand from their surface`, async ({ page }) => {
     await page.goto(scenario.path);
     await expect(page.locator(scenario.status)).toContainText('loaded.');
 
@@ -685,7 +691,7 @@ for (const scenario of directoryScenarios) {
   });
 }
 
-test('pool directory encodes text and rejects unsafe published destinations', async ({ page }) => {
+test('[WF-SECURITY-001] pool directory encodes text and rejects unsafe published destinations', async ({ page }) => {
   await page.route('**/assets/data/2026/pools/pools.json*', async route => {
     const response = await route.fetch();
     const poolData = await response.json();
@@ -703,7 +709,7 @@ test('pool directory encodes text and rejects unsafe published destinations', as
   await expect(page.locator('.phone-link').filter({ hasText: 'onclick=alert' })).toHaveCount(0);
 });
 
-test('desktop expanded pool details group contact links and fit the weekly calendar', async ({ page }) => {
+test('[WF-POOLS-006] desktop expanded pool details group contact links and fit the weekly calendar', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await seedPreferences(page, {
     favoritePoolName: 'Bryant Woods',
@@ -757,7 +763,7 @@ test('desktop expanded pool details group contact links and fit the weekly calen
   expect(layout.addressToHoursGap).toBe(layout.hoursToFeaturesGap);
 });
 
-test('mobile calendar schedules reveal today when a pool is expanded', async ({ page }) => {
+test('[WF-POOLS-007] mobile calendar schedules reveal today when a pool is expanded', async ({ page }) => {
   await page.setViewportSize({ ...MOBILE_VIEWPORT, height: 900 });
   await page.clock.setFixedTime(new Date('2026-06-24T12:00:00-04:00'));
   await seedPreferences(page, { poolScheduleLayout: 'calendar' });
@@ -785,7 +791,7 @@ test('mobile calendar schedules reveal today when a pool is expanded', async ({ 
   })).toBe(true);
 });
 
-test('desktop site header remains visible while the pool directory scrolls', async ({ page }) => {
+test('[WF-POOLS-008] desktop site header remains visible while the pool directory scrolls', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto('/pools.html');
   await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
@@ -808,7 +814,7 @@ test('desktop site header remains visible while the pool directory scrolls', asy
   expect(headerTop).toBe(0);
 });
 
-test('settings dialog is right-aligned on mobile and centered on desktop', async ({ page }) => {
+test('[WF-SETTINGS-001] settings dialog is right-aligned on mobile and centered on desktop', async ({ page }) => {
   const mobileViewport = MOBILE_VIEWPORT;
   await page.setViewportSize(mobileViewport);
   await page.goto('/settings.html');
@@ -832,7 +838,7 @@ test('settings dialog is right-aligned on mobile and centered on desktop', async
   expect(Math.abs(bounds.y + (bounds.height / 2) - (desktopViewport.height / 2))).toBeLessThanOrEqual(1);
 });
 
-test('settings persist choices locally and confirm before clearing saved settings', async ({ page }) => {
+test('[WF-SETTINGS-002] settings persist choices locally and confirm before clearing saved settings', async ({ page }) => {
   await initializeAnalyticsRecorder(page);
   await page.goto('/settings.html');
   await expect(page.locator('#favoritePool')).toBeEnabled();
@@ -921,7 +927,7 @@ test('settings persist choices locally and confirm before clearing saved setting
   ]);
 });
 
-test('desktop weather safety alerts restore collapsed details on every page', async ({ page }) => {
+test('[WF-WEATHER-001] desktop weather safety alerts restore collapsed details on every page', async ({ page }) => {
   await prepareVisibleWeatherAlert(page);
   await page.addInitScript(() => {
     sessionStorage.setItem('cnsl_weather_alert_expanded', 'false');
@@ -961,7 +967,7 @@ test('desktop weather safety alerts restore collapsed details on every page', as
   await expect.poll(() => page.evaluate(() => sessionStorage.getItem('cnsl_weather_alert_expanded'))).toBe('true');
 });
 
-test('mobile weather safety alert keeps navigation visible and collapses with a stable arrow control', async ({ page }) => {
+test('[WF-WEATHER-002] mobile weather safety alert keeps navigation visible and collapses with a stable arrow control', async ({ page }) => {
   await page.setViewportSize(MOBILE_VIEWPORT);
   await prepareVisibleWeatherAlert(page);
   await page.goto('/index.html');
@@ -1043,7 +1049,7 @@ test('mobile weather safety alert keeps navigation visible and collapses with a 
   await expect.poll(() => page.evaluate(() => sessionStorage.getItem('cnsl_weather_alert_expanded'))).toBe('true');
 });
 
-test('turning weather safety alerts off hides an active banner immediately', async ({ page }) => {
+test('[WF-WEATHER-003] turning weather safety alerts off hides an active banner immediately', async ({ page }) => {
   await prepareVisibleWeatherAlert(page);
   await page.goto('/settings.html');
   await expect(page.locator('#weatherAlert')).toBeVisible();

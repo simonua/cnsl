@@ -9,16 +9,16 @@ const {
 } = require('./browser-test-helpers');
 
 const pageScenarios = [
-  { name: 'home', path: '/index.html' },
-  { name: 'pools', path: '/pools.html', readySelector: '#poolListStatus', readyText: /Pool directory loaded/ },
-  { name: 'teams', path: '/teams.html', readySelector: '#teamListStatus', readyText: /Team directory loaded/ },
-  { name: 'meets', path: '/meets.html', readySelector: '#meetListStatus', readyText: /Meet schedule loaded/ },
-  { name: 'settings', path: '/settings.html', readySelector: '#favoritePool:not([disabled])' },
-  { name: 'resources', path: '/swim-meet-resources.html' },
-  { name: 'whats new', path: '/whats-new.html' },
-  { name: 'about', path: '/about.html' },
-  { name: 'faq', path: '/faq.html' },
-  { name: 'offline', path: '/offline.html' }
+  { reference: 'HOME', name: 'home', path: '/index.html' },
+  { reference: 'POOLS', name: 'pools', path: '/pools.html', readySelector: '#poolListStatus', readyText: /Pool directory loaded/ },
+  { reference: 'TEAMS', name: 'teams', path: '/teams.html', readySelector: '#teamListStatus', readyText: /Team directory loaded/ },
+  { reference: 'MEETS', name: 'meets', path: '/meets.html', readySelector: '#meetListStatus', readyText: /Meet schedule loaded/ },
+  { reference: 'SETTINGS', name: 'settings', path: '/settings.html', readySelector: '#favoritePool:not([disabled])' },
+  { reference: 'RESOURCES', name: 'resources', path: '/swim-meet-resources.html' },
+  { reference: 'WHATS-NEW', name: 'whats new', path: '/whats-new.html' },
+  { reference: 'ABOUT', name: 'about', path: '/about.html' },
+  { reference: 'FAQ', name: 'faq', path: '/faq.html' },
+  { reference: 'OFFLINE', name: 'offline', path: '/offline.html' }
 ];
 
 async function loadScenario(page, scenario, theme) {
@@ -35,7 +35,7 @@ async function loadScenario(page, scenario, theme) {
 for (const theme of ['light', 'dark']) {
   test.describe(`${theme} theme accessibility`, () => {
     for (const scenario of pageScenarios) {
-      test(`${scenario.name} has no WCAG A or AA automated violations`, async ({ page }) => {
+      test(`[AX-PAGE-001-${scenario.reference}-${theme.toUpperCase()}] ${scenario.name} has no WCAG A or AA automated violations`, async ({ page }) => {
         await loadScenario(page, scenario, theme);
 
         if (scenario.name === 'pools') {
@@ -69,7 +69,7 @@ for (const theme of ['light', 'dark']) {
 }
 
 for (const theme of ['light', 'dark']) {
-  test(`favorite-team agenda has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
+  test(`[AX-AGENDA-001-${theme.toUpperCase()}] favorite-team agenda has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
     await setAgendaReferenceTime(page);
     await prepareStableWeatherResponses(page);
     await seedPreferences(page, { theme, favoriteTeamId: 'pls' });
@@ -90,7 +90,7 @@ for (const theme of ['light', 'dark']) {
     expect(violations).toEqual([]);
   });
 
-  test(`expanded detailed-practice schedule has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
+  test(`[AX-TEAMS-001-${theme.toUpperCase()}] expanded detailed-practice schedule has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
     await loadScenario(page, pageScenarios.find(scenario => scenario.name === 'teams'), theme);
     const teamToggle = page.locator('.team-card[data-team-id="cfhss"] .team-header__toggle');
     if (await teamToggle.getAttribute('aria-expanded') !== 'true') await teamToggle.click();
@@ -110,7 +110,7 @@ for (const theme of ['light', 'dark']) {
   });
 }
 
-test('location-aware pool sorting has no WCAG A or AA automated violations', async ({ page }) => {
+test('[AX-POOLS-001] location-aware pool sorting has no WCAG A or AA automated violations', async ({ page }) => {
   await prepareStableWeatherResponses(page);
   await page.context().grantPermissions(['geolocation']);
   await page.context().setGeolocation({ latitude: 39.2105, longitude: -76.8721 });
@@ -133,7 +133,7 @@ test('location-aware pool sorting has no WCAG A or AA automated violations', asy
 });
 
 for (const theme of ['light', 'dark']) {
-  test(`visible weather safety alert has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
+  test(`[AX-WEATHER-001-${theme.toUpperCase()}] visible weather safety alert has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await prepareStableWeatherResponses(page);
     await prepareVisibleWeatherAlert(page);
@@ -168,7 +168,7 @@ for (const theme of ['light', 'dark']) {
 }
 
 for (const theme of ['light', 'dark']) {
-  test(`open mobile navigation has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
+  test(`[AX-NAV-001-${theme.toUpperCase()}] open mobile navigation has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await loadScenario(page, pageScenarios.find(scenario => scenario.name === 'home'), theme);
     await page.getByRole('button', { name: 'Open navigation menu' }).click();
@@ -186,7 +186,7 @@ for (const theme of ['light', 'dark']) {
     expect(violations).toEqual([]);
   });
 
-  test(`expanded iOS install guidance has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
+  test(`[AX-INSTALL-001-${theme.toUpperCase()}] expanded iOS install guidance has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await page.addInitScript(() => {
       Object.defineProperty(globalThis.navigator, 'userAgent', {
@@ -210,7 +210,7 @@ for (const theme of ['light', 'dark']) {
     expect(violations).toEqual([]);
   });
 
-  test(`expanded Android install action has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
+  test(`[AX-INSTALL-002-${theme.toUpperCase()}] expanded Android install action has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await page.addInitScript(() => {
       Object.defineProperty(globalThis.navigator, 'userAgent', {

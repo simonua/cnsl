@@ -52,6 +52,8 @@ describe('MyClass', () => {
 
 - Keep `*.test.js` tests DOM-free (services, models, types, managers).
 - Use `tests/browser/*.spec.js` only for delivered page behavior that needs a real browser, including focus, semantic state, and automated accessibility inspection.
+- Prefix browser workflow titles with a stable reference ID in the form `[WF-<AREA>-NNN]`, such as `[WF-AGENDA-003]`; prefix browser accessibility titles with `[AX-<AREA>-NNN]`. Parameterized route or theme variants append an uppercase suffix, such as `[AX-PAGE-001-HOME-LIGHT]`.
+- Keep an existing browser-test reference ID when wording or assertions change. Allocate the next unused number within that behavior area for new coverage so CI failures and review notes can cite a durable handle.
 - Each unit test file covers one source module; each browser spec covers one cohesive user workflow or verification category.
 - Use `describe` blocks to group by class/function, nested `describe` for methods.
 - Use descriptive `it` strings: "should return X when given Y".
