@@ -969,6 +969,10 @@ main h1 {
   justify-content: space-between;
 }
 
+#favoriteWeek .favorite-week__heading {
+  justify-content: center;
+}
+
 .favorite-week__heading h2,
 .favorite-week__heading h3 {
   color: var(--primary-text-color);
@@ -1006,11 +1010,30 @@ button.favorite-week__toggle {
   text-align: left;
 }
 
+#favoriteWeek button.favorite-week__toggle {
+  justify-content: center;
+  text-align: center;
+}
+
 .favorite-week__toggle-icon {
   align-items: center;
   display: inline-flex;
+  flex: 0 0 1rem;
+  font-size: 0;
+  height: 1rem;
   justify-content: center;
   line-height: 1;
+  position: relative;
+  width: 1rem;
+}
+
+.favorite-week__toggle-icon::before {
+  border-bottom: 0.55rem solid currentColor;
+  border-left: 0.35rem solid transparent;
+  border-right: 0.35rem solid transparent;
+  content: '';
+  height: 0;
+  width: 0;
 }
 
 button.favorite-week__toggle[aria-expanded="false"] .favorite-week__toggle-icon {
@@ -3918,6 +3941,10 @@ button.pool-filter__clear:focus-visible {
 }
 
 /* Device preferences and favorites */
+html:has(.settings-dialog[open]) {
+  overflow: hidden;
+}
+
 .settings-launch {
   display: flex;
   justify-content: center;
