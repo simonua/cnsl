@@ -243,6 +243,7 @@
 }
 
 html {
+  -webkit-tap-highlight-color: transparent;
   font-size: 16px;
   height: 100%;
   scroll-behavior: smooth;
