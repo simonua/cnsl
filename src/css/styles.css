@@ -975,6 +975,12 @@ main h1 {
   padding: 1.25rem 0;
 }
 
+#favoriteWeek {
+  margin-inline: auto;
+  max-width: 38rem;
+  position: relative;
+}
+
 .favorite-week__heading {
   align-items: baseline;
   display: flex;
@@ -1027,6 +1033,10 @@ button.favorite-week__toggle {
 #favoriteWeek button.favorite-week__toggle {
   justify-content: center;
   text-align: center;
+}
+
+#favoriteWeek .favorite-week__directory-link {
+  margin-inline: auto;
 }
 
 .favorite-week__toggle-icon {
@@ -1132,10 +1142,22 @@ button.favorite-week__toggle:focus-visible {
   margin: 0 0 0.5rem;
 }
 
+#favoriteWeek .favorite-week__day h3,
+#favoriteWeek .favorite-week__day h4 {
+  margin-inline: auto;
+  max-width: 30rem;
+}
+
 .favorite-week__events {
   display: grid;
   gap: 0.625rem;
   padding-inline-start: 0.75rem;
+}
+
+#favoriteWeek .favorite-week__events {
+  margin-inline: auto;
+  max-width: 30rem;
+  padding-inline-start: 0;
 }
 
 .favorite-week__events li {
@@ -1173,12 +1195,6 @@ button.favorite-week__toggle:focus-visible {
 }
 
 @media (min-width: 48.0625rem) {
-  #favoriteWeek {
-    margin-inline: auto;
-    max-width: 38rem;
-    position: relative;
-  }
-
   #favoriteWeek .favorite-week__directory-link {
     inset-block-start: 1.1rem;
     inset-inline-end: 0;
