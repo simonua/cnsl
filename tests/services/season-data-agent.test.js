@@ -40,6 +40,15 @@ describe('season data agent', () => {
         normalizePageContent(changedLink, 'outdoor-pool-schedules')
       );
     });
+
+    it('should ignore pool page chrome while watching modeled facility evidence', () => {
+      const first = '<header>Campaign A</header><main>Be sure to always check the Pool Status page. Pool has shade. Located at: 1 Main St. Amenities: Wi-fi. View Pool Schedule. Contact Us: Desk: 410-555-0100</main><footer>Copyright 2025</footer>';
+      const second = '<header>Campaign B</header><main>Be sure to always check the Pool Status page. Pool has shade. Located at: 1 Main St. Amenities: Wi-fi. View Pool Schedule. Contact Us: Desk: 410-555-0100</main><footer>Copyright 2026</footer>';
+      const changedAmenity = '<main>Be sure to always check the Pool Status page. Pool has shade. Located at: 1 Main St. Amenities: Wi-fi and slide. View Pool Schedule. Contact Us: Desk: 410-555-0100</main><footer>Copyright 2026</footer>';
+
+      assert.strictEqual(normalizePageContent(first, 'pool-facility'), normalizePageContent(second, 'pool-facility'));
+      assert.notStrictEqual(normalizePageContent(first, 'pool-facility'), normalizePageContent(changedAmenity, 'pool-facility'));
+    });
   });
 
   describe('parseReadmePdfSources', () => {
@@ -76,13 +85,14 @@ describe('season data agent', () => {
           caPoolGuideUrl: 'https://pools.test/guide',
           pools: [{
             caUrl: 'https://pools.test/bryant',
+            id: 'bwp',
             name: 'Bryant Woods',
             scheduleUrl: 'https://pools.test/Bryant_Woods.pdf'
           }]
         },
         teamsData: {
           teams: [{
-            calendarUrl: 'https://team.test/calendar',
+            id: 'lrm',
             name: 'Marlins',
             practice: { url: 'https://team.test/practices' },
             staff: { sourceUrl: 'https://team.test/staff' },
@@ -96,8 +106,13 @@ describe('season data agent', () => {
       assert.ok(sources.documents.some((source) => source.domain === 'meets'));
       assert.ok(sources.documents.some((source) => source.domain === 'teams'));
       assert.ok(sources.pages.some((source) => source.url === 'https://pools.test/bryant'));
+      assert.strictEqual(sources.pages.find((source) => source.url === 'https://pools.test/bryant').fingerprint, 'pool-facility');
       assert.ok(sources.pages.some((source) => source.url === 'https://team.test/practices'));
-      assert.ok(sources.pages.some((source) => source.url === 'https://team.test/calendar'));
+      assert.ok(!sources.pages.some((source) => source.url === 'https://team.test/home'));
+      assert.deepStrictEqual(
+        sources.pages.find((source) => source.url === 'https://team.test/practices').sourceIds,
+        ['team:lrm:practice']
+      );
       assert.deepStrictEqual(
         sources.pages.find((source) => source.url === 'https://league.test/home').domains,
         ['meets', 'teams']
@@ -140,17 +155,19 @@ describe('season data agent', () => {
       assert.match(report, /pools\/pools\.json/);
       assert.match(report, /meets\/meets\.json/);
       assert.match(report, /teams\/teams\.json/);
+      assert.match(report, /coach and manager details and changed recorded practice schedules/);
       assert.match(report, /OFFICIAL_SOURCE_CHECKED_ON/);
       assert.match(report, /pnpm run validate:data/);
     });
   });
 
   describe('monitorSources', () => {
-    it('should ignore a webpage difference that is not repeated on confirmation', async () => {
+    it('should ignore transient content differences and a relocated URL with unchanged data', async () => {
       const root = await fs.mkdtemp(path.join(os.tmpdir(), 'cnsl-source-monitor-'));
       const dataRoot = path.join(root, 'src', 'assets', 'data', '2026');
       const baselineContent = '<main>Accepted page text</main>';
       const noisyUrl = 'https://pools.test/facility';
+      const relocatedStaffUrl = 'https://team.test/staff-current';
       const pageUrls = [
         noisyUrl,
         'https://pools.test/guide',
@@ -180,7 +197,7 @@ describe('season data agent', () => {
         })),
         fs.writeFile(path.join(dataRoot, 'meets', 'meets.json'), JSON.stringify({ url: 'https://league.test/meet.pdf' })),
         fs.writeFile(path.join(dataRoot, 'teams', 'teams.json'), JSON.stringify({
-          teams: [{ name: 'Team', staff: { sourceUrl: 'https://team.test/staff' }, url: 'https://team.test/home' }]
+          teams: [{ id: 'team', name: 'Team', staff: { sourceUrl: relocatedStaffUrl }, url: 'https://team.test/home' }]
         })),
         fs.writeFile(path.join(dataRoot, 'pools', 'pool-schedules', 'pool.pdf'), pdfContent),
         fs.writeFile(path.join(dataRoot, 'meets', 'meet-schedules', 'meet.pdf'), pdfContent),
@@ -188,7 +205,14 @@ describe('season data agent', () => {
         fs.writeFile(path.join(root, '.github', 'automation', 'season-data-monitor', 'source-state.json'), JSON.stringify({
           acceptedOn: '2026-05-24',
           season: 2026,
-          pages: pageUrls.map((url) => ({ domains: ['pools'], label: 'Source', sha256: sha256(normalizeHtml(baselineContent)), url }))
+          pages: pageUrls.map((url) => ({
+            domains: url.startsWith('https://team.test') ? ['teams'] : ['pools'],
+            label: url === 'https://team.test/staff'
+              ? 'Team staff page'
+              : (url === 'https://team.test/home' ? 'Team home page' : 'Source'),
+            sha256: sha256(normalizeHtml(baselineContent)),
+            url
+          }))
         }))
       ]);
 
@@ -207,6 +231,25 @@ describe('season data agent', () => {
         const result = await monitorSources({ fetchImplementation, repositoryRoot: root, today: '2026-06-01' });
         assert.strictEqual(result.changed, false);
         assert.strictEqual(noisyRequestCount, 2);
+
+        const changedStaffFetchImplementation = async (url) => {
+          let content = Buffer.from(baselineContent);
+          if (url.endsWith('.pdf')) {
+            content = pdfContent;
+          } else if (url === relocatedStaffUrl) {
+            content = Buffer.from('<main>Updated published coach listing</main>');
+          }
+          return { ok: true, arrayBuffer: async () => content };
+        };
+        const changedResult = await monitorSources({
+          fetchImplementation: changedStaffFetchImplementation,
+          repositoryRoot: root,
+          today: '2026-06-01'
+        });
+
+        assert.strictEqual(changedResult.changed, true);
+        assert.deepStrictEqual(changedResult.changes.map((change) => change.kind), ['Published data page content changed']);
+        assert.strictEqual(changedResult.changes[0].url, relocatedStaffUrl);
       } finally {
         await fs.rm(root, { force: true, recursive: true });
       }

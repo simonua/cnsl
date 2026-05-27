@@ -30,6 +30,13 @@ function normalizeHtml(content) {
 }
 
 function normalizePageContent(content, fingerprint = 'visible-text') {
+  if (fingerprint === 'pool-facility') {
+    const visibleText = normalizeHtml(content);
+    const start = visibleText.indexOf('Be sure to always check the Pool Status page');
+    const end = visibleText.indexOf('Copyright', start);
+    return start >= 0 && end > start ? visibleText.slice(start, end).trim() : visibleText;
+  }
+
   if (fingerprint !== 'outdoor-pool-schedules') {
     return normalizeHtml(content);
   }
@@ -81,7 +88,7 @@ function addDocument(documentMap, document) {
   }
 }
 
-function addPage(pageMap, url, label, domain, fingerprint = 'visible-text') {
+function addPage(pageMap, sourceId, url, label, domain, fingerprint = 'visible-text') {
   if (!url) {
     return;
   }
@@ -92,10 +99,14 @@ function addPage(pageMap, url, label, domain, fingerprint = 'visible-text') {
       existing.domains.push(domain);
       existing.domains.sort();
     }
+    if (!existing.sourceIds.includes(sourceId)) {
+      existing.sourceIds.push(sourceId);
+      existing.sourceIds.sort();
+    }
     return;
   }
 
-  pageMap.set(url, { domains: [domain], fingerprint, label, url });
+  pageMap.set(url, { domains: [domain], fingerprint, label, sourceIds: [sourceId], url });
 }
 
 function collectSources({ annualReadme, meetsData, poolsData, teamsData }) {
@@ -105,6 +116,7 @@ function collectSources({ annualReadme, meetsData, poolsData, teamsData }) {
   parseReadmePdfSources(annualReadme).forEach((document) => addDocument(documentMap, document));
 
   poolsData.pools.forEach((pool) => {
+    const poolSourceId = pool.id || pool.name;
     const filename = decodeURIComponent(path.posix.basename(new URL(pool.scheduleUrl).pathname));
     addDocument(documentMap, {
       domain: 'pools',
@@ -112,11 +124,11 @@ function collectSources({ annualReadme, meetsData, poolsData, teamsData }) {
       localPath: `pools/pool-schedules/${filename}`,
       url: pool.scheduleUrl
     });
-    addPage(pageMap, pool.caUrl, `${pool.name} facility page`, 'pools');
+    addPage(pageMap, `pool:${poolSourceId}:facility`, pool.caUrl, `${pool.name} facility page`, 'pools', 'pool-facility');
   });
 
-  addPage(pageMap, poolsData.caPoolGuideUrl, 'Columbia Association pool schedule page', 'pools', 'outdoor-pool-schedules');
-  addPage(pageMap, poolsData.caPoolDirectoryUrl, 'Columbia Association pool directory', 'pools');
+  addPage(pageMap, 'pools:outdoor-schedule-index', poolsData.caPoolGuideUrl, 'Columbia Association pool schedule page', 'pools', 'outdoor-pool-schedules');
+  addPage(pageMap, 'pools:directory', poolsData.caPoolDirectoryUrl, 'Columbia Association pool directory', 'pools');
 
   const meetFilename = decodeURIComponent(path.posix.basename(new URL(meetsData.url).pathname));
   addDocument(documentMap, {
@@ -127,22 +139,19 @@ function collectSources({ annualReadme, meetsData, poolsData, teamsData }) {
   });
 
   teamsData.teams.forEach((team) => {
-    addPage(pageMap, team.url, `${team.name} home page`, 'teams');
+    const teamSourceId = team.id || team.name;
     if (team.staff && team.staff.sourceUrl) {
-      addPage(pageMap, team.staff.sourceUrl, `${team.name} staff page`, 'teams');
+      addPage(pageMap, `team:${teamSourceId}:staff`, team.staff.sourceUrl, `${team.name} staff page`, 'teams');
     }
     if (team.practice && team.practice.url) {
-      addPage(pageMap, team.practice.url, `${team.name} practice schedule page`, 'teams');
-    }
-    if (team.calendarUrl) {
-      addPage(pageMap, team.calendarUrl, `${team.name} calendar page`, 'teams');
+      addPage(pageMap, `team:${teamSourceId}:practice`, team.practice.url, `${team.name} practice schedule page`, 'teams');
     }
   });
 
   const leagueHomeMatch = annualReadme.match(/\[CNSL home page\]\((https?:\/\/[^)]+)\)/i);
   if (leagueHomeMatch) {
-    addPage(pageMap, leagueHomeMatch[1], 'CNSL publication page', 'meets');
-    addPage(pageMap, leagueHomeMatch[1], 'CNSL publication page', 'teams');
+    addPage(pageMap, 'league:publication', leagueHomeMatch[1], 'CNSL publication page', 'meets');
+    addPage(pageMap, 'league:publication', leagueHomeMatch[1], 'CNSL publication page', 'teams');
   }
 
   return {
@@ -224,10 +233,12 @@ function createState(season, observations, acceptedOn) {
   return {
     season,
     acceptedOn,
-    pages: observations.map(({ domains, label, sha256: checksum, url }) => ({
+    pages: observations.map(({ domains, fingerprint, label, sha256: checksum, sourceIds, url }) => ({
       domains,
+      fingerprint,
       label,
       sha256: checksum,
+      sourceIds,
       url
     }))
   };
@@ -245,7 +256,7 @@ function formatReport({ changes, checkedOn, season }) {
   const guidance = {
     meets: `- [ ] Review the official meet schedule evidence and update \`src/assets/data/${season}/meets/meets.json\` if dates, locations, or matchups changed.`,
     pools: `- [ ] Review pool schedules, directory entries, and facility amenities; update \`src/assets/data/${season}/pools/pools.json\` if published values changed.`,
-    teams: `- [ ] Review practice assignments and public team, staff, practice-schedule, and calendar pages; update \`src/assets/data/${season}/teams/teams.json\` if supported fields changed.`
+    teams: `- [ ] Review published coach and manager details and changed recorded practice schedules; update \`src/assets/data/${season}/teams/teams.json\` only when supported data changed.`
   };
 
   return [
@@ -253,7 +264,7 @@ function formatReport({ changes, checkedOn, season }) {
     '',
     `Checked official public sources for active season \`${season}\` on ${checkedOn}.`,
     '',
-    'This pull request records changed official evidence. Source documents are refreshed automatically; JSON remains subject to review and transcription against the repository schemas.',
+    'This pull request records changed official evidence, not a relocated source URL. Public pages are compared by the data role they supply, and JSON remains subject to review and transcription against the repository schemas.',
     '',
     '## Detected Changes',
     '',
@@ -270,6 +281,21 @@ function formatReport({ changes, checkedOn, season }) {
     'The nightly monitor pauses while this pull request is open so reviewer changes on this branch are not replaced by automation.',
     ''
   ].join('\n');
+}
+
+function findPreviousPage(observation, statePages) {
+  const sourceIdMatch = statePages.find((page) => {
+    return Array.isArray(page.sourceIds)
+      && observation.sourceIds.some((sourceId) => page.sourceIds.includes(sourceId));
+  });
+
+  return sourceIdMatch
+    || statePages.find((page) => page.url === observation.url)
+    || statePages.find((page) => page.label === observation.label);
+}
+
+function isRetiredTeamNavigationPage(page) {
+  return page.domains.includes('teams') && /\b(?:home|calendar) page$/.test(page.label);
 }
 
 async function writeJson(filePath, value) {
@@ -358,9 +384,11 @@ async function monitorSources({
     return { changed: false, initialized: true, pages: pageObservations.length, season, today };
   }
 
-  const previousPages = new Map(state.pages.map((page) => [page.url, page]));
+  const previousPageMatches = new Map(pageObservations.map((observation) => {
+    return [observation, findPreviousPage(observation, state.pages)];
+  }));
   const pageCandidates = pageObservations.filter((observation) => {
-    const previous = previousPages.get(observation.url);
+    const previous = previousPageMatches.get(observation);
     return !previous || previous.sha256 !== observation.sha256;
   });
   const pageConfirmations = await mapWithLimit(pageCandidates, FETCH_CONCURRENCY, observePage);
@@ -375,12 +403,12 @@ async function monitorSources({
     .filter((observation) => !unstablePageUrls.has(observation.url))
     .map((observation) => ({
       ...observation,
-      kind: previousPages.has(observation.url) ? 'Public page content changed' : 'New monitored page source'
+      kind: previousPageMatches.get(observation) ? 'Published data page content changed' : 'New monitored data page recorded'
     }));
-  const currentPageUrls = new Set(pageObservations.map((observation) => observation.url));
+  const matchedPreviousPages = new Set([...previousPageMatches.values()].filter(Boolean));
   state.pages
-    .filter((page) => !currentPageUrls.has(page.url))
-    .forEach((page) => pageChanges.push({ ...page, kind: 'Page source no longer referenced' }));
+    .filter((page) => !matchedPreviousPages.has(page) && !isRetiredTeamNavigationPage(page))
+    .forEach((page) => pageChanges.push({ ...page, kind: 'Monitored data page no longer referenced' }));
 
   const changes = [...documentChanges, ...pageChanges];
   if (apply && changes.length > 0) {
@@ -390,8 +418,8 @@ async function monitorSources({
     }));
     if (pageChanges.length > 0) {
       const acceptedPageObservations = pageObservations
-        .filter((observation) => !unstablePageUrls.has(observation.url) || previousPages.has(observation.url))
-        .map((observation) => unstablePageUrls.has(observation.url) ? previousPages.get(observation.url) : observation);
+        .filter((observation) => !unstablePageUrls.has(observation.url) || previousPageMatches.get(observation))
+        .map((observation) => unstablePageUrls.has(observation.url) ? previousPageMatches.get(observation) : observation);
       await writeJson(statePath, createState(season, acceptedPageObservations, today));
     }
     await fs.mkdir(path.dirname(reportPath), { recursive: true });

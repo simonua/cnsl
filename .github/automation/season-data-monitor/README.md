@@ -6,13 +6,13 @@ The nightly monitor checks public sources that support the active `YEAR` data se
 
 - Pools: each retained pool schedule PDF, the Columbia Association schedule and directory pages, and each pool facility page supplying features.
 - Meets: the retained official meet-schedule PDF and the CNSL publication page.
-- Teams: retained practice and assignment PDFs, each public team, staff, and recorded practice-schedule page, and the CNSL publication page.
+- Teams: retained practice and assignment PDFs, each public staff and recorded practice-schedule page, and the CNSL publication page. Team home pages and event calendars are destinations offered by the app, not transcribed team-data evidence, and are not fingerprinted unless a recorded practice source is hosted on the home page.
 
-Stored PDFs are compared byte-for-byte against the public document and replaced on an update branch when they change. Web pages are reduced to relevant visible text and compared against fingerprints in `source-state.json`, which avoids routine script or styling changes causing review traffic. The Columbia Association schedule index is limited to its outdoor-pool schedule section and destination links so changes to indoor schedules or promotional page chrome are ignored. A differing page fingerprint must be reproduced by a second request in the same run before it opens a pull request.
+Stored PDFs are compared byte-for-byte against the public document and replaced on an update branch when they change. Web pages are tracked by stable data roles, such as a team's staff page or practice-schedule page, and reduced to relevant visible text for fingerprints in `source-state.json`. A GoMotion page URL relocation with unchanged published data does not open a pull request; changed staff or recorded practice-schedule evidence does. Individual Columbia Association pool pages are limited to the facility evidence section that supplies modeled description, location, amenities, schedule link, and contact data; the schedule index is limited to its outdoor-pool schedule section and destination links. This avoids review traffic from promotional or sitewide page chrome. A differing page fingerprint must be reproduced by a second request in the same run before it opens a pull request.
 
 ## Review Boundary
 
-Official source documents and changed-page fingerprints can be updated deterministically. The monitor intentionally does not infer schedules, assignments, amenities, or staff records from changed documents and silently write application JSON. Its pull request includes a domain-specific checklist so a reviewer can update the active JSON and annual source manifest from the new official evidence before merging.
+Official source documents and changed-page fingerprints can be updated deterministically. The monitor intentionally does not infer schedules, assignments, amenities, or staff records from changed documents and silently write application JSON. For team findings, its pull request asks a reviewer to check published coach and manager details and changed recorded practice content, then update `teams/teams.json` only when the evidence supports a data change.
 
 Only one automation PR is opened at a time. While it is pending, nightly checks pause so reviewer changes to that branch are retained.
 

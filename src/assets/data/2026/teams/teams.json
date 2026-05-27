@@ -120,11 +120,47 @@
       "timeTrialsPool": "Dorsey Hall",
       "practicePools": ["Dorsey Hall", "Phelps Luck", "Running Brook", "Thunder Hill"],
       "practice": {
-        "url": "https://www.gomotionapp.com/team/reccnsldsd/page/practice-schedule"
+        "url": "https://www.gomotionapp.com/team/reccnsldsd/page/practice-schedule",
+        "preseason": [
+          {
+            "period": "May 26 - June 18",
+            "days": "Monday - Friday",
+            "location": "Running Brook Pool",
+            "sessions": [
+              { "time": "5:00 - 5:30pm", "group": "8 & Under" },
+              { "time": "5:30 - 6:15pm", "group": "9-12" },
+              { "time": "6:15 - 7:00pm", "group": "13 & Up" }
+            ]
+          }
+        ],
+        "regular": {
+          "season": "June 23 - July 24",
+          "morning": [
+            { "days": "Tuesday - Friday", "location": "Dorsey Hall Pool", "sessions": [
+              { "time": "8:00 - 8:30am", "group": "8 & Under" },
+              { "time": "8:30 - 9:15am", "group": "9-12" },
+              { "time": "9:15 - 10:00am", "group": "13 & Up" }
+            ] }
+          ],
+          "evening": [
+            { "day": "Tuesday", "location": "Thunder Hill Pool", "sessions": [
+              { "time": "6:30 - 7:15pm", "group": "10 & Under" },
+              { "time": "7:15 - 8:00pm", "group": "11 & Older" }
+            ] },
+            { "day": "Wednesday", "location": "Phelps Luck Pool", "sessions": [
+              { "time": "5:00 - 5:45pm", "group": "10 & Under" },
+              { "time": "5:45 - 6:30pm", "group": "11 & Older" }
+            ] },
+            { "day": "Thursday", "location": "Running Brook Pool", "sessions": [
+              { "time": "5:00 - 5:45pm", "group": "10 & Under" },
+              { "time": "5:45 - 6:30pm", "group": "11 & Older" }
+            ] }
+          ]
+        }
       },
       "staff": {
         "sourceUrl": "https://www.gomotionapp.com/team/reccnsldsd/page/system/coaches",
-        "verifiedOn": "2026-05-24",
+        "verifiedOn": "2026-05-27",
         "coaches": [
           { "name": "Nicholas Shidle", "role": "2024 Coach", "email": "shidlefamily@gmail.com" }
         ],
@@ -144,7 +180,19 @@
       "timeTrialsPool": "Longfellow",
       "practicePools": ["Longfellow", "Faulkner Ridge", "Swansfield"],
       "practice": {
-        "url": "https://www.gomotionapp.com/team/reccnslhcc/page/team-information/practice-schedule"
+        "url": "https://www.gomotionapp.com/team/reccnslhcc/page/team-information/practice-schedule",
+        "preseason": [
+          {
+            "period": "May 26 - May 29",
+            "days": "Tuesday - Friday",
+            "location": "Longfellow Pool",
+            "sessions": [
+              { "time": "5:00 - 5:30pm", "group": "New Swimmers (all ages)" },
+              { "time": "5:30 - 6:15pm", "group": "Returning Swimmers 10 & Under" },
+              { "time": "6:15 - 7:00pm", "group": "Returning Swimmers 11 & Up" }
+            ]
+          }
+        ]
       },
       "staff": {
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslhcc/page/system/coaches",
@@ -388,7 +436,54 @@
       "timeTrialsPool": "Dasher Green",
       "practicePools": ["Dasher Green", "Hopewell", "Talbott Springs"],
       "practice": {
-        "url": "https://www.gomotionapp.com/team/reccnslobb/page/practice-schedule1"
+        "url": "https://www.gomotionapp.com/team/reccnslobb/page/practice-schedule1",
+        "preseason": [
+          {
+            "period": "May 26 - May 29",
+            "days": "Tuesday - Friday",
+            "location": "Dasher Green Pool",
+            "sessions": [
+              { "time": "5:00 - 5:30pm", "group": "New Swimmers" },
+              { "time": "5:30 - 6:00pm", "group": "8 & Younger" },
+              { "time": "6:00 - 6:30pm", "group": "9-12" },
+              { "time": "6:30 - 7:00pm", "group": "13 & Older" }
+            ]
+          },
+          {
+            "period": "June 1 - June 18",
+            "days": "Monday - Friday",
+            "location": "Dasher Green Pool",
+            "sessions": [
+              { "time": "5:00 - 5:30pm", "group": "8 & Younger" },
+              { "time": "5:30 - 6:15pm", "group": "9-12" },
+              { "time": "6:15 - 7:00pm", "group": "13 & Older" }
+            ]
+          }
+        ],
+        "regular": {
+          "season": "June 19 - July 24",
+          "morning": [
+            { "days": "Tuesday - Friday", "location": "Dasher Green Pool", "sessions": [
+              { "time": "8:00 - 8:45am", "group": "13 & Older" },
+              { "time": "8:45 - 9:30am", "group": "9-12" },
+              { "time": "9:30 - 10:00am", "group": "8 & Under" }
+            ] }
+          ],
+          "evening": [
+            { "day": "Monday", "location": "Talbott Springs Pool", "sessions": [
+              { "time": "6:00 - 6:45pm", "group": "10 & Under" },
+              { "time": "6:45 - 7:30pm", "group": "11 & Older" }
+            ] },
+            { "day": "Tuesday", "location": "Dasher Green Pool", "sessions": [
+              { "time": "5:00 - 5:45pm", "group": "10 & Under" },
+              { "time": "5:45 - 6:30pm", "group": "11 & Older" }
+            ] },
+            { "day": "Wednesday", "location": "Hopewell Pool", "sessions": [
+              { "time": "5:00 - 5:45pm", "group": "10 & Under" },
+              { "time": "5:45 - 6:30pm", "group": "11 & Older" }
+            ] }
+          ]
+        }
       },
       "staff": {
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslobb/page/system/coaches",
@@ -619,7 +714,7 @@
       "practicePools": ["Thunder Hill", "Locust Park", "Talbott Springs"],
       "staff": {
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslthl/page/system/coaches",
-        "verifiedOn": "2026-05-24",
+        "verifiedOn": "2026-05-27",
         "coaches": [
           { "name": "Nick Scheid", "role": "Head Coach", "email": "nicholas.scheid@columbiaassociation.org" },
           { "name": "Roman Kowalczyk", "role": "Assistant Coach", "email": "roman.kowalczyk@columbiaassociation.org" },
