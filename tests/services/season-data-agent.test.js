@@ -206,7 +206,7 @@ describe('season data agent', () => {
           acceptedOn: '2026-05-24',
           season: 2026,
           pages: pageUrls.map((url) => ({
-            domains: url.startsWith('https://team.test') ? ['teams'] : ['pools'],
+            domains: new URL(url).hostname === 'team.test' ? ['teams'] : ['pools'],
             label: url === 'https://team.test/staff'
               ? 'Team staff page'
               : (url === 'https://team.test/home' ? 'Team home page' : 'Source'),
