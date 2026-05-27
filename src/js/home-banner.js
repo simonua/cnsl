@@ -2,13 +2,18 @@
   'use strict';
 
   class HomeBanner {
-    constructor({ noticeId, linkId, closeButtonId, shouldShow, acknowledge, prepare }) {
+    constructor({ noticeId, linkId, closeButtonId, bannerName, shouldShow, acknowledge, prepare }) {
       this.noticeId = noticeId;
       this.linkId = linkId;
       this.closeButtonId = closeButtonId;
+      this.bannerName = bannerName;
       this.shouldShow = shouldShow;
       this.acknowledge = acknowledge;
       this.prepare = prepare;
+    }
+
+    trackInteraction(action) {
+      if (window.cnslAnalytics) window.cnslAnalytics.trackBannerInteraction(this.bannerName, action);
     }
 
     show() {
@@ -19,14 +24,21 @@
 
       if (this.prepare) this.prepare();
       notice.hidden = false;
+      this.trackInteraction('view');
 
       const acknowledgeAndHide = () => {
         this.acknowledge();
         notice.hidden = true;
       };
 
-      link.addEventListener('click', acknowledgeAndHide);
-      closeButton.addEventListener('click', acknowledgeAndHide);
+      link.addEventListener('click', () => {
+        this.trackInteraction('open');
+        acknowledgeAndHide();
+      });
+      closeButton.addEventListener('click', () => {
+        this.trackInteraction('dismiss');
+        acknowledgeAndHide();
+      });
     }
   }
 
@@ -41,11 +53,13 @@
   function showHomeBanners() {
     const storage = getLocalStorage();
     const releaseVersion = document.getElementById('releaseNoticeVersion');
+    const bannerNames = window.cnslAnalytics && window.cnslAnalytics.bannerNames;
     const banners = [
       new HomeBanner({
         noticeId: 'releaseNotice',
         linkId: 'releaseNoticeLink',
         closeButtonId: 'closeReleaseNotice',
+        bannerName: bannerNames && bannerNames.RELEASE_NOTICE,
         shouldShow: () => Boolean(releaseVersion && window.ReleaseNoticeService)
           && window.ReleaseNoticeService.shouldShow(
             window.APP_VERSION,
@@ -60,6 +74,7 @@
         noticeId: 'settingsNotice',
         linkId: 'settingsNoticeLink',
         closeButtonId: 'closeSettingsNotice',
+        bannerName: bannerNames && bannerNames.SETTINGS_NOTICE,
         shouldShow: () => Boolean(window.SettingsNoticeService)
           && window.SettingsNoticeService.shouldShow(storage, window.SETTINGS_NOTICE_DISMISSED_STORAGE_KEY),
         acknowledge: () => window.SettingsNoticeService.dismiss(storage, window.SETTINGS_NOTICE_DISMISSED_STORAGE_KEY)

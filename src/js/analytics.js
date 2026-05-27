@@ -6,11 +6,28 @@
     pool_schedule_layout: new Set(['list', 'calendar']),
     location_awareness: new Set(['enabled', 'disabled']),
     weather_refresh_minutes: new Set(['0', '5', '10']),
+    practice_groups: new Set(['changed']),
     favorite_pool_expanded: new Set(['expanded', 'collapsed']),
     favorite_team_expanded: new Set(['expanded', 'collapsed'])
   });
   const PUBLISHED_SETTING_NAMES = new Set(['favorite_pool', 'favorite_team', 'pool_feature_filters']);
+  const BANNER_NAMES = Object.freeze({
+    RELEASE_NOTICE: 'release_notice',
+    SETTINGS_NOTICE: 'settings_notice'
+  });
+  const ALLOWED_BANNER_NAMES = new Set(Object.values(BANNER_NAMES));
+  const BANNER_ACTIONS = new Set(['view', 'open', 'dismiss']);
   const EXTERNAL_LINK_PROTOCOLS = new Set(['http:', 'https:', 'mailto:', 'sms:', 'tel:']);
+  const EXTERNAL_LINK_CONTEXTS = Object.freeze([
+    { selector: '.share-site__links', context: 'share' },
+    { selector: '.share-site__feedback', context: 'feedback' },
+    { selector: '.weather-alert__link', context: 'weather_status' },
+    { selector: '.pool-card', context: 'pool_details' },
+    { selector: '.team-card', context: 'team_details' },
+    { selector: '.meet-date-card', context: 'meet_details' },
+    { selector: '.directory-link, .cnsl-link-btn, .faq-list', context: 'official_information' },
+    { selector: '.footer', context: 'project_information' }
+  ]);
 
   function getMeasuredPageParameters() {
     return {
@@ -47,6 +64,20 @@
     });
   }
 
+  function trackBannerInteraction(bannerName, action) {
+    if (!ALLOWED_BANNER_NAMES.has(bannerName) || !BANNER_ACTIONS.has(action)) return;
+
+    publishEvent('ca_banner_interaction', {
+      banner_name: bannerName,
+      banner_action: action
+    });
+  }
+
+  function getExternalLinkContext(link) {
+    const matchedContext = EXTERNAL_LINK_CONTEXTS.find(entry => link.closest(entry.selector));
+    return matchedContext ? matchedContext.context : 'other';
+  }
+
   function isExternalLink(link) {
     const href = link.getAttribute('href');
     if (!href) return false;
@@ -74,7 +105,11 @@
           item_id: 'home_page'
         });
       }
-      if (clickedLink && isExternalLink(clickedLink)) publishEvent('ca_external_link');
+      if (clickedLink && isExternalLink(clickedLink)) {
+        publishEvent('ca_external_link', {
+          link_context: getExternalLinkContext(clickedLink)
+        });
+      }
     });
   }
 
@@ -84,8 +119,10 @@
   }
 
   window.cnslAnalytics = Object.freeze({
+    bannerNames: BANNER_NAMES,
     trackFixedSettingChange,
-    trackPublishedSettingChange
+    trackPublishedSettingChange,
+    trackBannerInteraction
   });
 
   initializeClickTracking();

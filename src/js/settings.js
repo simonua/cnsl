@@ -92,6 +92,8 @@
       trackFixedSettingChange('location_awareness', saved.locationAwarenessEnabled ? 'enabled' : 'disabled');
     } else if (changedField.name === 'weatherRefreshMinutes' && saved.weatherRefreshMinutes !== existing.weatherRefreshMinutes) {
       trackFixedSettingChange('weather_refresh_minutes', saved.weatherRefreshMinutes);
+    } else if (changedField.name === 'practiceGroups' && saved.practiceGroups.join('|') !== existing.practiceGroups.join('|')) {
+      trackFixedSettingChange('practice_groups', 'changed');
     } else if (changedField.name === 'favoritePool' && saved.favoritePoolName !== existing.favoritePoolName) {
       trackPublishedSettingChange('favorite_pool', saved.favoritePoolName, publishedPoolNames);
     } else if (changedField.name === 'favoriteTeam' && saved.favoriteTeamId !== existing.favoriteTeamId) {
@@ -104,6 +106,7 @@
     if (existing.poolScheduleLayout !== cleared.poolScheduleLayout) trackFixedSettingChange('pool_schedule_layout', cleared.poolScheduleLayout);
     if (existing.locationAwarenessEnabled !== cleared.locationAwarenessEnabled) trackFixedSettingChange('location_awareness', 'disabled');
     if (existing.weatherRefreshMinutes !== cleared.weatherRefreshMinutes) trackFixedSettingChange('weather_refresh_minutes', cleared.weatherRefreshMinutes);
+    if (existing.practiceGroups.join('|') !== cleared.practiceGroups.join('|')) trackFixedSettingChange('practice_groups', 'changed');
     if (existing.favoritePoolExpanded !== cleared.favoritePoolExpanded) trackFixedSettingChange('favorite_pool_expanded', 'expanded');
     if (existing.favoriteTeamExpanded !== cleared.favoriteTeamExpanded) trackFixedSettingChange('favorite_team_expanded', 'expanded');
     if (existing.poolFeatureFilters.length !== cleared.poolFeatureFilters.length && window.cnslAnalytics) {

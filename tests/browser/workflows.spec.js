@@ -142,20 +142,20 @@ test('[WF-HOME-001] season summary and sharing actions appear only on the home p
       icon.dispatchEvent(new globalThis.MouseEvent('click', { bubbles: true, cancelable: true }));
     });
   }
-  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_share' || eventArguments[1] === 'ca_external_link'))).toEqual([
     ['event', 'ca_share', { method: 'text', content_type: 'website', item_id: 'home_page' }],
-    ['event', 'ca_external_link', {}],
+    ['event', 'ca_external_link', { link_context: 'share' }],
     ['event', 'ca_share', { method: 'email', content_type: 'website', item_id: 'home_page' }],
-    ['event', 'ca_external_link', {}],
+    ['event', 'ca_external_link', { link_context: 'share' }],
     ['event', 'ca_share', { method: 'facebook', content_type: 'website', item_id: 'home_page' }],
-    ['event', 'ca_external_link', {}]
+    ['event', 'ca_external_link', { link_context: 'share' }]
   ]);
 
   await page.locator('a.directory-link').evaluate(link => {
     link.addEventListener('click', event => event.preventDefault(), { once: true });
     link.dispatchEvent(new globalThis.MouseEvent('click', { bubbles: true, cancelable: true }));
   });
-  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.at(-1))).toEqual(['event', 'ca_external_link', {}]);
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.at(-1))).toEqual(['event', 'ca_external_link', { link_context: 'official_information' }]);
 
   await page.setViewportSize(MOBILE_VIEWPORT);
   const compactLinkLayout = await page.locator('.quick-link-card').evaluateAll(cards => cards.map(card => {
@@ -255,6 +255,7 @@ test('[WF-ANALYTICS-001] analytics publishes a page view and public app version 
 });
 
 test('[WF-RELEASE-001] release updates are announced once after a stable version is acknowledged', async ({ page }) => {
+  await initializeAnalyticsRecorder(page);
   await page.setViewportSize(MOBILE_VIEWPORT);
   await page.goto('/index.html');
   const currentVersion = await page.evaluate(() => globalThis.APP_VERSION);
@@ -271,6 +272,10 @@ test('[WF-RELEASE-001] release updates are announced once after a stable version
   await page.keyboard.press('Enter');
   await expect(notice).toBeHidden();
   await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_current_version'))).toBe(currentVersion);
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_banner_interaction' && eventArguments[2].banner_name === 'release_notice'))).toEqual([
+    ['event', 'ca_banner_interaction', { banner_name: 'release_notice', banner_action: 'view' }],
+    ['event', 'ca_banner_interaction', { banner_name: 'release_notice', banner_action: 'dismiss' }]
+  ]);
 
   await page.goto('/pools.html');
   await expect(page.locator('#releaseNotice')).toHaveCount(0);
@@ -283,9 +288,16 @@ test('[WF-RELEASE-001] release updates are announced once after a stable version
   await expect(page.getByRole('heading', { name: new RegExp(`^Version ${releaseSeries.replace('.', '\\.')}\\.\\d+ - `) }).first()).toBeVisible();
   await expect(page.locator('#releaseNotice')).toBeHidden();
   await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_current_version'))).toBe(currentVersion);
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_banner_interaction' && eventArguments[2].banner_name === 'release_notice'))).toEqual([
+    ['event', 'ca_banner_interaction', { banner_name: 'release_notice', banner_action: 'view' }],
+    ['event', 'ca_banner_interaction', { banner_name: 'release_notice', banner_action: 'dismiss' }],
+    ['event', 'ca_banner_interaction', { banner_name: 'release_notice', banner_action: 'view' }],
+    ['event', 'ca_banner_interaction', { banner_name: 'release_notice', banner_action: 'open' }]
+  ]);
 });
 
 test('[WF-SETTINGS-003] home page settings reminder is dismissed permanently by link or close button', async ({ page }) => {
+  await initializeAnalyticsRecorder(page);
   await page.goto('/index.html');
 
   const notice = page.locator('#settingsNotice');
@@ -307,6 +319,12 @@ test('[WF-SETTINGS-003] home page settings reminder is dismissed permanently by 
   await page.keyboard.press('Enter');
   await expect(notice).toBeHidden();
   await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_settings_notice_dismissed'))).toBe('true');
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_banner_interaction' && eventArguments[2].banner_name === 'settings_notice'))).toEqual([
+    ['event', 'ca_banner_interaction', { banner_name: 'settings_notice', banner_action: 'view' }],
+    ['event', 'ca_banner_interaction', { banner_name: 'settings_notice', banner_action: 'open' }],
+    ['event', 'ca_banner_interaction', { banner_name: 'settings_notice', banner_action: 'view' }],
+    ['event', 'ca_banner_interaction', { banner_name: 'settings_notice', banner_action: 'dismiss' }]
+  ]);
 
   await page.goto('/pools.html');
   await expect(page.locator('#settingsNotice')).toHaveCount(0);
@@ -899,7 +917,9 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
     ['event', 'ca_setting_change', { setting_name: 'theme' }],
     ['event', 'ca_setting_change', { setting_name: 'pool_schedule_layout' }],
     ['event', 'ca_setting_change', { setting_name: 'location_awareness' }],
-    ['event', 'ca_setting_change', { setting_name: 'weather_refresh_minutes' }]
+    ['event', 'ca_setting_change', { setting_name: 'weather_refresh_minutes' }],
+    ['event', 'ca_setting_change', { setting_name: 'practice_groups' }],
+    ['event', 'ca_setting_change', { setting_name: 'practice_groups' }]
   ]);
 
   await page.locator('#favoritePool').selectOption({ label: 'Bryant Woods' });
@@ -910,6 +930,8 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
     ['event', 'ca_setting_change', { setting_name: 'pool_schedule_layout' }],
     ['event', 'ca_setting_change', { setting_name: 'location_awareness' }],
     ['event', 'ca_setting_change', { setting_name: 'weather_refresh_minutes' }],
+    ['event', 'ca_setting_change', { setting_name: 'practice_groups' }],
+    ['event', 'ca_setting_change', { setting_name: 'practice_groups' }],
     ['event', 'ca_setting_change', { setting_name: 'favorite_pool' }],
     ['event', 'ca_setting_change', { setting_name: 'favorite_team' }],
     ['event', 'ca_setting_change', { setting_name: 'favorite_pool' }]
@@ -923,7 +945,7 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
     select.value = untrustedOption.value;
     select.dispatchEvent(new select.ownerDocument.defaultView.Event('change', { bubbles: true }));
   });
-  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toHaveLength(7);
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toHaveLength(9);
 
   const dismissedClearPrompt = page.waitForEvent('dialog').then(async dialog => {
     expect(dialog.type()).toBe('confirm');
@@ -934,7 +956,7 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
   await dismissedClearPrompt;
   await expect(page.getByLabel('Dark')).toBeChecked();
   await expect(page.getByLabel('First Splash')).not.toBeChecked();
-  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toHaveLength(7);
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toHaveLength(9);
 
   await page.evaluate(async () => {
     localStorage.setItem('cnsl_current_version', 'saved');
@@ -981,6 +1003,8 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
     ['event', 'ca_setting_change', { setting_name: 'pool_schedule_layout' }],
     ['event', 'ca_setting_change', { setting_name: 'location_awareness' }],
     ['event', 'ca_setting_change', { setting_name: 'weather_refresh_minutes' }],
+    ['event', 'ca_setting_change', { setting_name: 'practice_groups' }],
+    ['event', 'ca_setting_change', { setting_name: 'practice_groups' }],
     ['event', 'ca_setting_change', { setting_name: 'favorite_pool' }],
     ['event', 'ca_setting_change', { setting_name: 'favorite_team' }],
     ['event', 'ca_setting_change', { setting_name: 'favorite_pool' }],
@@ -988,6 +1012,7 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
     ['event', 'ca_setting_change', { setting_name: 'pool_schedule_layout' }],
     ['event', 'ca_setting_change', { setting_name: 'location_awareness' }],
     ['event', 'ca_setting_change', { setting_name: 'weather_refresh_minutes' }],
+    ['event', 'ca_setting_change', { setting_name: 'practice_groups' }],
     ['event', 'ca_setting_change', { setting_name: 'favorite_team' }]
   ]);
 });
