@@ -1,5 +1,6 @@
 // Global data manager instance for meets browser
 let meetsBrowserDataManager = null;
+let meetsPoolLocationIndex = new Map();
 const MeetsBrowserSafety = HtmlSafety;
 
 
@@ -14,6 +15,7 @@ async function initializeMeetsBrowser() {
   if (!meetsBrowserDataManager) {
     meetsBrowserDataManager = getDataManager();
     await meetsBrowserDataManager.initialize(['pools', 'teams', 'meets']);
+    meetsPoolLocationIndex = globalThis.createPoolLocationIndex(meetsBrowserDataManager.getPools().getAllPools());
   }
 }
 
@@ -158,11 +160,11 @@ async function renderMeets(meets) {
           locationLink = generateEnhancedPoolLink(location, meetsBrowserDataManager, {
             preferPoolsPage: true,
             showBothLinks: false
-          });
+          }, meetsPoolLocationIndex);
           
           // Add maps link for the maps icon
           if (typeof getPoolDataFromLocation === 'function') {
-            const poolData = getPoolDataFromLocation(location, meetsBrowserDataManager);
+            const poolData = getPoolDataFromLocation(location, meetsBrowserDataManager, meetsPoolLocationIndex);
             const safeMapsUrl = poolData && poolData.location
               ? MeetsBrowserSafety.safeHttpUrl(poolData.location.googleMapsUrl)
               : '';

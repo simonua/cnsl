@@ -1,5 +1,6 @@
 // Global data manager instance for teams browser
 let teamsBrowserDataManager = null;
+let teamsPoolLocationIndex = new Map();
 const TeamsBrowserSafety = HtmlSafety;
 const AVAILABLE_TEAM_LOGOS = new Set([
   'ccc', 'cfhss', 'dsd', 'hcc', 'hd', 'kcw', 'lrm', 'obb', 'omts', 'pls', 'prp', 'prr', 'thl', 'wlw'
@@ -17,6 +18,7 @@ async function initializeTeamsBrowser() {
   if (!teamsBrowserDataManager) {
     teamsBrowserDataManager = getDataManager();
     await teamsBrowserDataManager.initialize(['pools', 'teams', 'meets']);
+    teamsPoolLocationIndex = globalThis.createPoolLocationIndex(teamsBrowserDataManager.getPools().getAllPools());
   }
 }
 
@@ -41,7 +43,7 @@ function findPoolByName(poolName) {
   if (!poolName || !teamsBrowserDataManager) return null;
   
   // Use the pool link helper to get pool data
-  return getPoolDataFromLocation(poolName, teamsBrowserDataManager);
+  return getPoolDataFromLocation(poolName, teamsBrowserDataManager, teamsPoolLocationIndex);
 }
 
 /**
@@ -57,7 +59,7 @@ function getEnhancedPoolLink(location, _fallbackAddress) {
   return generateEnhancedPoolLink(location, teamsBrowserDataManager, {
     preferPoolsPage: true,
     showBothLinks: false
-  });
+  }, teamsPoolLocationIndex);
 }
 
 function getVisiblePracticeSessions(sessions) {
@@ -356,7 +358,7 @@ function renderTeams(teams) {
           <h3 id="${agendaTitleId}">Upcoming events</h3>
         </div>
         ${upcomingEvents.length === 0 ? `<p class="favorite-week__status">${TeamsBrowserSafety.escapeHtml(globalThis.TeamAgendaDisplay.getStatus(upcomingEvents))}</p>` : ''}
-        ${globalThis.TeamAgendaDisplay.renderEvents(upcomingEvents, 4)}
+        ${globalThis.TeamAgendaDisplay.renderEvents(upcomingEvents, 4, teamsPoolLocationIndex)}
       </section>
     `;
     

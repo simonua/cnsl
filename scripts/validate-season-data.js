@@ -131,6 +131,14 @@ function collectIntegrityErrors({ meetsData, poolsData, season, teamsData }) {
     TeamScheduleService.getValidationErrors(team.practice, season).forEach((error) => {
       errors.push(`${team.name} practice ${error}`);
     });
+    TeamScheduleService.getPracticePatterns(team.practice, season).forEach((practicePattern) => {
+      const poolName = TeamScheduleService.normalizePoolName(practicePattern.location);
+      if (!poolNames.has(poolName)) {
+        errors.push(`${team.name} detailed practice references unknown pool location: ${practicePattern.location}.`);
+      } else if (!team.practicePools.includes(poolName)) {
+        errors.push(`${team.name} detailed practice location is missing from practicePools: ${poolName}.`);
+      }
+    });
     [...team.homePools, ...team.practicePools, team.timeTrialsPool].filter(Boolean).forEach((poolName) => {
       if (!poolNames.has(poolName)) {
         errors.push(`${team.name} references unknown pool: ${poolName}.`);

@@ -144,6 +144,18 @@ describe('PoolScheduleDisplay', () => {
       assert.doesNotMatch(plain, /schedule-activity--event/);
     });
 
+    it('identifies resolved CNSL practice teams and escapes their names', () => {
+      const day = { isCurrentDay: false };
+      const slot = { startTime: '5:00PM', endTime: '6:30PM', activities: ['CNSL Practice Only'], notes: '' };
+      const named = PoolScheduleDisplay.renderSlot({ ...slot, practiceTeamNames: ['Long Reach <Marlins>', 'Second Team'] }, day, options, false);
+      const unnamed = PoolScheduleDisplay.renderSlot(slot, day, options, false);
+
+      assert.match(named, /CNSL Practice Only \(Long Reach &lt;Marlins&gt;, Second Team\)/);
+      assert.doesNotMatch(named, /<Marlins>/);
+      assert.match(unnamed, />CNSL Practice Only</);
+      assert.doesNotMatch(unnamed, /CNSL Practice Only \(/);
+    });
+
     it('installs the display service as a browser script global', () => {
       const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'pool-schedule-display.js');
       const source = fs.readFileSync(sourcePath, 'utf8');

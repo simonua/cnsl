@@ -6,6 +6,7 @@ globalThis.HtmlSafety = {
   escapeHtml: value => String(value)
 };
 globalThis.generateLinkedPoolMentions = location => String(location);
+globalThis.createPoolLocationIndex = pools => pools;
 globalThis.PreferencesService = {
   get: () => ({ practiceGroups: [] }),
   filterPracticeSessions: sessions => sessions,
@@ -22,6 +23,7 @@ const { TeamAgendaDisplay } = globalThis;
 after(() => {
   delete globalThis.HtmlSafety;
   delete globalThis.generateLinkedPoolMentions;
+  delete globalThis.createPoolLocationIndex;
   delete globalThis.PreferencesService;
   delete globalThis.TeamScheduleService;
   delete globalThis.TeamAgendaDisplay;

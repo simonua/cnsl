@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const TimeUtils = require('../../src/js/services/time-utils');
 
 globalThis.YEAR = 2026;
 const { TeamScheduleService } = require('../../src/js/services/team-schedule-service');
@@ -109,6 +110,37 @@ describe('TeamScheduleService', () => {
       assert.equal(regularWeek.length, 5);
       assert.equal(regularWeek[0].location, "Clary's Forest Pool");
       assert.equal(regularWeek[1].label, 'Morning Practice');
+    });
+  });
+
+  describe('getDetailedPracticeTeamNames', () => {
+    const teams = [{
+      name: 'Morning Team',
+      practice: { regular: { season: 'June 19 - July 24', morning: [{ days: 'Tuesday', location: 'Shared Pool', sessions: [{ time: '8:00 - 10:00am' }] }] } }
+    }, {
+      name: 'Evening Team',
+      practice: { regular: { season: 'June 19 - July 24', evening: [{ day: 'Tuesday', location: 'Shared Pool', sessions: [{ time: '5:00 - 6:30pm' }] }] } }
+    }, {
+      name: 'Second Evening Team',
+      practice: { regular: { season: 'June 19 - July 24', evening: [{ day: 'Tuesday', location: 'Shared Pool', sessions: [{ time: '6:00 - 7:00pm' }] }] } }
+    }];
+
+    it('matches detailed practices by date, normalized pool location, and overlapping session time', () => {
+      const slot = { startTime: '5:00pm', endTime: '8:00pm' };
+      assert.deepEqual(
+        TeamScheduleService.getDetailedPracticeTeamNames(teams, 'Shared', new Date('2026-06-23T12:00:00'), slot, TimeUtils),
+        ['Evening Team', 'Second Evening Team']
+      );
+      assert.deepEqual(
+        TeamScheduleService.getDetailedPracticeTeamNames(teams, 'Shared', new Date('2026-06-24T12:00:00'), slot, TimeUtils),
+        []
+      );
+    });
+
+    it('parses inherited meridiem session ranges and rejects invalid or reversed ranges', () => {
+      assert.deepEqual(TeamScheduleService.getTimeRange('5:00 - 6:30pm', TimeUtils), { start: 1020, end: 1110 });
+      assert.equal(TeamScheduleService.getTimeRange('bad', TimeUtils), null);
+      assert.equal(TeamScheduleService.getTimeRange('8:00pm - 7:00pm', TimeUtils), null);
     });
   });
 

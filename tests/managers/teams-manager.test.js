@@ -113,6 +113,25 @@ describe('TeamsManager', () => {
       assert.ok(teams.length > 0);
       assert.equal(teams[0].homePools[0], 'Bryant Woods');
     });
+
+    it('finds only teams explicitly listing a pool as a practice location', () => {
+      const data = createSampleTeamsData();
+      data.teams[1].homePools.push('Running Brook');
+      manager.loadData(data);
+
+      assert.deepEqual(manager.getPracticeTeamsByPool('Running Brook').map(team => team.name), ['Bryant Woods Barracudas']);
+    });
+
+    it('keeps the practice-pool index synchronized through mutations', () => {
+      manager.addOrUpdateTeam({ name: 'First Team', practicePools: ['Known Pool'] });
+      manager.addOrUpdateTeam({ name: 'Second Team', practicePools: ['Known Pool'] });
+      assert.deepEqual(manager.getPracticeTeamsByPool('Known Pool').map(team => team.name), ['First Team', 'Second Team']);
+
+      manager.removeTeam('First Team');
+      assert.deepEqual(manager.getPracticeTeamsByPool('Known Pool').map(team => team.name), ['Second Team']);
+      manager.clearData();
+      assert.deepEqual(manager.getPracticeTeamsByPool('Known Pool'), []);
+    });
   });
 
   describe('public staff', () => {

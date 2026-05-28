@@ -13,95 +13,29 @@ const PoolLinkSafety = typeof module !== 'undefined' && module.exports
   ? require('./html-safety.js')
   : HtmlSafety;
 
-// ------------------------------
-//    POOL MAPPING AND LINKING UTILITIES
-// ------------------------------
-
-/**
- * Map pool location names to pool IDs
- * This helps translate meet location names to the actual pool IDs used in pools.json
- */
-const POOL_LOCATION_TO_ID_MAP = {
-  // Direct name matches
-  'Bryant Woods': 'bwp',
-  'Bryant Woods Pool': 'bwp',
-  'Clarys Forest': 'cfp', 
-  'Clarys Forest Pool': 'cfp',
-  'Clary\'s Forest': 'cfp',
-  'Clary\'s Forest Pool': 'cfp',
-  'Clemens Crossing': 'ccp',
-  'Clemens Crossing Pool': 'ccp',
-  'Dasher Green': 'dgp',
-  'Dasher Green Pool': 'dgp',
-  'Dickinson Pool': 'dip',
-  'Dorsey Hall': 'dhp',
-  'Dorsey Hall Pool': 'dhp',
-  'Faulkner Ridge': 'frp',
-  'Faulkner Ridge Pool': 'frp',
-  'Hawthorn': 'hcp',
-  'Hawthorn Pool': 'hcp',
-  'Hobbits Glen': 'hgp',
-  'Hobbits Glen Pool': 'hgp',
-  'Hobbit\'s Glen': 'hgp',
-  'Hobbit\'s Glen Pool': 'hgp',
-  'Hopewell': 'hop',
-  'Hopewell Pool': 'hop',
-  'Huntington': 'hup',
-  'Huntington Pool': 'hup',
-  'Jeffers Hill': 'jhp',
-  'Jeffers Hill Pool': 'jhp',
-  'Kendall Ridge': 'krp',
-  'Kendall Ridge Pool': 'krp',
-  'Locust Park': 'lpp',
-  'Locust Park Pool': 'lpp',
-  'Longfellow': 'lop',
-  'Longfellow Pool': 'lop',
-  'Macgill\'s Common': 'mcp',
-  'Macgill\'s Common Pool': 'mcp',
-  'Macgills Common': 'mcp',
-  'Macgills Common Pool': 'mcp',
-  'Phelps Luck': 'plp',
-  'Phelps Luck Pool': 'plp',
-  'River Hill': 'rhp',
-  'River Hill Pool': 'rhp',
-  'Running Brook': 'rbp',
-  'Running Brook Pool': 'rbp',
-  'Stevens Forest': 'sfp',
-  'Stevens Forest Pool': 'sfp',
-  'Swansfield': 'swp',
-  'Swansfield Pool': 'swp',
-  'Talbott Springs': 'tsp',
-  'Talbott Springs Pool': 'tsp',
-  'Thunder Hill': 'thp',
-  'Thunder Hill Pool': 'thp'
-};
+function createPoolLocationIndex(pools = []) {
+  const poolLocations = new Map();
+  pools.forEach(pool => {
+    const poolName = typeof pool.getName === 'function' ? pool.getName() : pool.name;
+    if (!poolName || !pool.id) return;
+    poolLocations.set(poolName.toLowerCase(), pool.id);
+    poolLocations.set(`${poolName} Pool`.toLowerCase(), pool.id);
+  });
+  return poolLocations;
+}
 
 /**
  * Find pool ID from location name
  * @param {string} locationName - The location name from meets data
  * @returns {string|null} - Pool ID or null if not found
  */
-function getPoolIdFromLocation(locationName) {
+function getPoolIdFromLocation(locationName, poolsOrIndex = []) {
   if (!locationName) return null;
-  
-  // Try direct lookup first
-  const directMatch = POOL_LOCATION_TO_ID_MAP[locationName];
-  if (directMatch) return directMatch;
-  
-  // Try case-insensitive lookup
-  const lowerLocation = locationName.toLowerCase();
-  for (const [key, value] of Object.entries(POOL_LOCATION_TO_ID_MAP)) {
-    if (key.toLowerCase() === lowerLocation) {
-      return value;
-    }
-  }
-  
-  // Try partial matching (removing "Pool" suffix)
-  const simplifiedName = locationName.replace(/\s+Pool\s*$/i, '').trim();
-  const simplifiedMatch = POOL_LOCATION_TO_ID_MAP[simplifiedName];
-  if (simplifiedMatch) return simplifiedMatch;
-  
-  return null;
+
+  const poolLocations = poolsOrIndex instanceof Map ? poolsOrIndex : createPoolLocationIndex(poolsOrIndex);
+  const normalizedLocation = String(locationName).trim().toLowerCase();
+  const withoutPoolSuffix = normalizedLocation.replace(/\s+pool\s*$/i, '').trim();
+  return poolLocations.get(normalizedLocation) || poolLocations.get(withoutPoolSuffix) || null;
 }
 
 /**
@@ -110,15 +44,14 @@ function getPoolIdFromLocation(locationName) {
  * @param {Object} dataManager - The data manager instance
  * @returns {Object|null} - Pool object or null if not found
  */
-function getPoolDataFromLocation(locationName, dataManager) {
+function getPoolDataFromLocation(locationName, dataManager, poolsOrIndex = null) {
   if (!locationName || !dataManager) return null;
-  
-  const poolId = getPoolIdFromLocation(locationName);
-  if (!poolId) return null;
   
   try {
     const poolsManager = dataManager.getPools();
-    const pool = poolsManager.getAllPools().find(p => p.id === poolId);
+    const pools = poolsManager.getAllPools();
+    const poolId = getPoolIdFromLocation(locationName, poolsOrIndex || pools);
+    const pool = poolId ? pools.find(p => p.id === poolId) : null;
     return pool ? pool.toJSON() : null;
   } catch (error) {
     console.warn('Error getting pool data:', error);
@@ -144,11 +77,13 @@ function generatePoolsPageLink(poolId, displayText) {
  * @param {string} locationText - Location text that may contain pool names
  * @returns {string} - Safe HTML containing deep links for known pools
  */
-function generateLinkedPoolMentions(locationText) {
+function generateLinkedPoolMentions(locationText, poolsOrIndex = []) {
   if (!locationText) return '';
 
   const text = String(locationText);
-  const escapedPoolNames = Object.keys(POOL_LOCATION_TO_ID_MAP)
+  const poolLocations = poolsOrIndex instanceof Map ? poolsOrIndex : createPoolLocationIndex(poolsOrIndex);
+  if (poolLocations.size === 0) return PoolLinkSafety.escapeHtml(text);
+  const escapedPoolNames = [...poolLocations.keys()]
     .sort((first, second) => second.length - first.length)
     .map(poolName => poolName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
   const poolNamePattern = new RegExp(escapedPoolNames.join('|'), 'gi');
@@ -157,7 +92,7 @@ function generateLinkedPoolMentions(locationText) {
 
   for (const match of text.matchAll(poolNamePattern)) {
     html += PoolLinkSafety.escapeHtml(text.slice(lastIndex, match.index));
-    html += generatePoolsPageLink(getPoolIdFromLocation(match[0]), match[0]);
+    html += generatePoolsPageLink(getPoolIdFromLocation(match[0], poolLocations), match[0]);
     lastIndex = match.index + match[0].length;
   }
 
@@ -215,7 +150,7 @@ function generateGoogleMapsLink(poolData, displayText) {
  * @param {boolean} options.showBothLinks - Whether to show both pools.html and maps links
  * @returns {string} - HTML link(s) for the pool
  */
-function generateEnhancedPoolLink(locationName, dataManager, options = {}) {
+function generateEnhancedPoolLink(locationName, dataManager, options = {}, poolsOrIndex = null) {
   const {
     preferPoolsPage = true,
     showBothLinks = false
@@ -223,8 +158,9 @@ function generateEnhancedPoolLink(locationName, dataManager, options = {}) {
   
   if (!locationName) return '';
   
-  const poolData = getPoolDataFromLocation(locationName, dataManager);
-  const poolId = getPoolIdFromLocation(locationName);
+  const poolData = getPoolDataFromLocation(locationName, dataManager, poolsOrIndex);
+  const pools = dataManager && dataManager.getPools ? dataManager.getPools().getAllPools() : [];
+  const poolId = getPoolIdFromLocation(locationName, poolsOrIndex || pools);
   
   if (poolData && poolId) {
     const poolsLink = generatePoolsPageLink(poolId, locationName);
@@ -256,7 +192,7 @@ function generateEnhancedPoolLink(locationName, dataManager, options = {}) {
 // Export for Node.js compatibility
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
-    POOL_LOCATION_TO_ID_MAP,
+    createPoolLocationIndex,
     getPoolIdFromLocation,
     getPoolDataFromLocation,
     generatePoolsPageLink,
@@ -269,6 +205,7 @@ if (typeof module !== 'undefined' && module.exports) {
 // Make functions available globally
 if (typeof window !== 'undefined') {
   window.getPoolIdFromLocation = getPoolIdFromLocation;
+  window.createPoolLocationIndex = createPoolLocationIndex;
   window.getPoolDataFromLocation = getPoolDataFromLocation;
   window.generatePoolsPageLink = generatePoolsPageLink;
   window.generateLinkedPoolMentions = generateLinkedPoolMentions;

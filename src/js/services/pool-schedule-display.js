@@ -158,7 +158,7 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
      */
     static renderSlot(slot, day, options, useActivityColors) {
       const timeUtils = options.timeUtils;
-      const activityText = timeUtils.formatActivityTypes(slot.activities);
+      const activityText = PoolScheduleDisplay.formatActivityText(slot.activities, slot.practiceTeamNames, timeUtils);
       const category = PoolScheduleDisplay.getActivityCategory(activityText, slot);
       const activityClass = useActivityColors ? ` schedule-activity schedule-activity--${category}` : '';
       const overrideClass = slot.isOverride ? ' override-slot' : '';
@@ -174,6 +174,21 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
         : '';
 
       return `<div class="time-slot${activityClass}${overrideClass}">${timeHtml}${activityHtml}${notesHtml}</div>`;
+    }
+
+    /**
+     * Add practicing team names already resolved from published schedule details.
+     * @param {Array} activities - Published activity labels
+     * @param {string[]} practiceTeamNames - Team names resolved from published schedule details
+     * @param {Object} timeUtils - Existing published activity formatter
+     * @returns {string} Formatted activity text
+     */
+    static formatActivityText(activities, practiceTeamNames = [], timeUtils) {
+      const names = Array.isArray(practiceTeamNames) ? practiceTeamNames.filter(name => typeof name === 'string' && name.trim()) : [];
+      const displayedActivities = names.length > 0 && Array.isArray(activities)
+        ? activities.map(activity => activity === 'CNSL Practice Only' ? `${activity} (${names.join(', ')})` : activity)
+        : activities;
+      return timeUtils.formatActivityTypes(displayedActivities);
     }
 
     /**

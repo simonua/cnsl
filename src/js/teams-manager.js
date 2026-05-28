@@ -13,6 +13,8 @@ if (typeof window === 'undefined') {
   constructor() {
     /** @type {Map<string, Team>} */
     this.teams = new Map();
+    /** @type {Map<string, Team[]>} */
+    this.practiceTeamsByPool = new Map();
     this.lastUpdated = null;
     this.dataLoaded = false;
   }
@@ -23,12 +25,14 @@ if (typeof window === 'undefined') {
    */
   loadData(teamsData) {
     this.teams.clear();
+    this.practiceTeamsByPool.clear();
     
     if (teamsData && teamsData.teams) {
       teamsData.teams.forEach(teamData => {
         const team = new Team(teamData);
         this.teams.set(team.name, team);
       });
+      this.rebuildPracticePoolIndex();
       
       this.lastUpdated = teamsData.lastUpdated || new Date().toISOString();
       this.dataLoaded = true;
@@ -88,6 +92,26 @@ if (typeof window === 'undefined') {
    */
   getTeamsByPool(poolName) {
     return this.getAllTeams().filter(team => team.includesPool(poolName));
+  }
+
+  /**
+   * Get teams that explicitly publish a pool as a practice location.
+   * @param {string} poolName - Pool name
+   * @returns {Team[]} - Teams practicing at the pool
+   */
+  getPracticeTeamsByPool(poolName) {
+    return [...(this.practiceTeamsByPool.get(poolName) || [])];
+  }
+
+  rebuildPracticePoolIndex() {
+    this.practiceTeamsByPool.clear();
+    this.getAllTeams().forEach(team => {
+      team.getPracticePools().forEach(poolName => {
+        const teams = this.practiceTeamsByPool.get(poolName) || [];
+        teams.push(team);
+        this.practiceTeamsByPool.set(poolName, teams);
+      });
+    });
   }
 
   /**
@@ -270,6 +294,7 @@ if (typeof window === 'undefined') {
    */
   clearData() {
     this.teams.clear();
+    this.practiceTeamsByPool.clear();
     this.lastUpdated = null;
     this.dataLoaded = false;
   }
@@ -282,6 +307,7 @@ if (typeof window === 'undefined') {
     if (teamData && teamData.name) {
       const team = teamData instanceof Team ? teamData : new Team(teamData);
       this.teams.set(team.name, team);
+      this.rebuildPracticePoolIndex();
     }
   }
 
@@ -291,7 +317,9 @@ if (typeof window === 'undefined') {
    * @returns {boolean} - True if team was removed
    */
   removeTeam(teamName) {
-    return this.teams.delete(teamName);
+    const removed = this.teams.delete(teamName);
+    if (removed) this.rebuildPracticePoolIndex();
+    return removed;
   }
 
   /**

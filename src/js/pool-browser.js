@@ -115,6 +115,11 @@ async function initializePoolBrowser() {
   if (!poolBrowserDataManager) {
     poolBrowserDataManager = getDataManager();
     await poolBrowserDataManager.initialize(['pools']);
+    try {
+      await poolBrowserDataManager.initialize(['teams']);
+    } catch (error) {
+      console.warn('[Pool Browser] Team practice labels are unavailable:', error);
+    }
   }
 }
 
@@ -350,6 +355,19 @@ function formatPoolHours(pool) {
              ${dateRange ? `min="${dateRange.startDate.toISOString().split('T')[0]}" max="${dateRange.endDate.toISOString().split('T')[0]}"` : ''}>
     </div>`;
 
+  const practiceTeams = poolBrowserDataManager.getTeams().getPracticeTeamsByPool(poolObj.name);
+  weekSchedule = weekSchedule.map((scheduleDay, index) => {
+    const scheduleDate = new Date(weekStart);
+    scheduleDate.setDate(weekStart.getDate() + index);
+    return {
+      ...scheduleDay,
+      timeSlots: (scheduleDay.timeSlots || []).map(slot => {
+        if (!Array.isArray(slot.activities) || !slot.activities.includes('CNSL Practice Only')) return slot;
+        const detailedNames = globalThis.TeamScheduleService.getDetailedPracticeTeamNames(practiceTeams, poolObj.name, scheduleDate, slot, timeUtils);
+        return { ...slot, practiceTeamNames: detailedNames };
+      })
+    };
+  });
   const preferences = PreferencesService.get();
   const today = new Date(`${easternTimeInfo.date}T12:00:00`);
   const hoursDisplay = PoolScheduleDisplay.render(weekSchedule, {

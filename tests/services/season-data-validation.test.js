@@ -125,6 +125,40 @@ describe('season data validation', () => {
       assert.ok(errors.includes('Known Team practice preseason entry 1 date range cannot be rendered: May 29 - May 26.'));
       assert.ok(errors.includes('Known Team practice preseason entry 1 weekdays cannot be rendered: Business days.'));
     });
+
+    it('should reject detailed practice locations outside the declared pool relationships', () => {
+      const errors = collectIntegrityErrors({
+        season: 2026,
+        poolsData: {
+          caPoolDirectoryUrl: 'https://pools.test/directory',
+          caPoolGuideUrl: 'https://pools.test/guide',
+          seasonStartDate: '2026-05-23',
+          seasonEndDate: '2026-09-07',
+          pools: [{
+            id: 'known', name: 'Known Pool', caUrl: 'https://pools.test/known',
+            scheduleUrl: 'https://pools.test/Known_Pool.pdf',
+            location: { googleMapsUrl: 'https://maps.google.com/known' }, schedules: []
+          }]
+        },
+        teamsData: {
+          teams: [{
+            id: 'missing-declaration', name: 'Missing Declaration', keywords: ['missing'],
+            url: 'https://teams.test/missing', homePools: ['Known Pool'], practicePools: [],
+            staff: { sourceUrl: 'https://teams.test/staff' },
+            practice: { preseason: [{ period: 'May 25 - May 29', days: 'Monday', location: 'Known Pool Pool', sessions: [{ group: 'All', time: '5:00 - 6:00pm' }] }] }
+          }, {
+            id: 'unknown-location', name: 'Unknown Location', keywords: ['unknown'],
+            url: 'https://teams.test/unknown', homePools: ['Known Pool'], practicePools: ['Known Pool'],
+            staff: { sourceUrl: 'https://teams.test/staff' },
+            practice: { preseason: [{ period: 'May 25 - May 29', days: 'Monday', location: 'Absent Pool Pool', sessions: [{ group: 'All', time: '5:00 - 6:00pm' }] }] }
+          }]
+        },
+        meetsData: { url: 'https://league.test/meets.pdf', regular_meets: [], special_meets: [] }
+      });
+
+      assert.ok(errors.includes('Missing Declaration detailed practice location is missing from practicePools: Known Pool.'));
+      assert.ok(errors.includes('Unknown Location detailed practice references unknown pool location: Absent Pool Pool.'));
+    });
   });
 
   describe('validateActiveSeason', () => {

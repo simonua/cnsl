@@ -94,6 +94,8 @@ When monitor findings lead to accepted active-season data changes, record the ac
 
 ### Active Data Validation Gate
 
-Run `pnpm run validate:data` after transcribing or correcting active annual data. The command validates the active `YEAR` JSON documents against their sibling draft-07 schemas with date, URI, and email formats enabled, and checks identifiers, seasonal date ranges, HTTPS source links, team-to-pool and meet-location references, and locally retained official PDF files. It reads local accepted evidence only and does not fetch or rewrite official sources.
+Run `pnpm run validate:data` after transcribing or correcting active annual data. The command validates the active `YEAR` JSON documents against their sibling draft-07 schemas with date, URI, and email formats enabled, and checks identifiers, seasonal date ranges, HTTPS source links, team-to-pool and meet-location references, detailed practice locations against each team's declared practice pools, and locally retained official PDF files. It reads local accepted evidence only and does not fetch or rewrite official sources.
+
+The application derives cross-domain relationships from the authoritative pools, teams, and meets documents at runtime. It does not maintain a second generated relationship JSON file: team and meet schedule publications can be incomplete or disagree on individual time periods, so visible cross-references are shown only when published records overlap. Runtime managers index repeated relationship lookups after loading; `pnpm run validate:data` is the publication gate that prevents dangling declared relationships when any annual JSON changes.
 
 The GitHub Pages deployment workflow runs this command before building and uploading the site artifact, so structurally invalid or internally inconsistent active-season data cannot be published without correction.

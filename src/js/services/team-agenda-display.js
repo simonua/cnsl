@@ -103,13 +103,14 @@
     return `<strong class="favorite-week__event-label">${icon}${globalThis.HtmlSafety.escapeHtml(event.label)}</strong>`;
   }
 
-  function renderLocation(location) {
+  function renderLocation(location, poolLocationIndex) {
     const displayLocation = String(location || '').replace(/\s+Pool\s*$/i, '');
-    return `<span class="favorite-week__pool-icon" aria-hidden="true">${POOL_ICON}</span>${globalThis.generateLinkedPoolMentions(displayLocation)}`;
+    return `<span class="favorite-week__pool-icon" aria-hidden="true">${POOL_ICON}</span>${globalThis.generateLinkedPoolMentions(displayLocation, poolLocationIndex)}`;
   }
 
-  function renderEvents(events, dayHeadingLevel = 3) {
+  function renderEvents(events, dayHeadingLevel = 3, poolsOrIndex = []) {
     const headingTag = dayHeadingLevel === 4 ? 'h4' : 'h3';
+    const poolLocationIndex = poolsOrIndex instanceof Map ? poolsOrIndex : globalThis.createPoolLocationIndex(poolsOrIndex);
     const days = new Map();
     events.forEach(event => {
       const key = event.date.toDateString();
@@ -125,7 +126,7 @@
             <div class="favorite-week__event-heading">
               ${renderEventLabel(event)}
               ${renderEventName(event)}
-              <span class="favorite-week__location">${renderLocation(event.location)}</span>
+              <span class="favorite-week__location">${renderLocation(event.location, poolLocationIndex)}</span>
             </div>
             ${event.teams ? `<span>${globalThis.HtmlSafety.escapeHtml(event.teams)}</span>` : ''}
             ${event.sessions.length > 0 ? `<div class="sessions">${event.sessions.map(session => `

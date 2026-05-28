@@ -21,7 +21,7 @@ const directoryScenarios = [
     status: '#poolListStatus',
     announcement: /Pool directory loaded\. 23 pools available\./,
     readyText: /Pool directory loaded\./,
-    domains: ['pools'],
+    domains: ['pools', 'teams'],
     surface: '.pool-card.collapsed',
     toggle: '.pool-header__toggle'
   },
@@ -618,10 +618,12 @@ test('[WF-AGENDA-002] home page shows the next practices and swim event for a se
 
   const agenda = page.locator('#favoriteWeek');
   await teamRequestStarted;
-  await expect(agenda).toBeVisible();
+  await expect(agenda).toBeHidden();
   await expect(page.locator('#shareSite')).toBeHidden();
   await expect(page.locator('html')).toHaveClass(/has-saved-favorite-team/);
-  await expect(page.locator('#favoriteWeekStatus')).toHaveText("Loading your team's schedule.");
+  await expect(page.locator('#favoriteWeekTitle')).toBeEmpty();
+  await expect(page.locator('#favoriteWeekStatus')).toBeHidden();
+  await expect(agenda).not.toContainText("Your team's upcoming events");
   resolveTeamRequest();
   await expect(agenda).toBeVisible();
   await expect(agenda.getByRole('heading', { name: /Upcoming Snappers events/ })).toBeVisible();
@@ -698,7 +700,7 @@ test('[WF-AGENDA-004] home page loads agenda dependencies only after a favorite 
   });
 
   await expect(page.locator('#favoriteWeek')).toBeVisible();
-  await expect(page.locator('script[data-home-schedule-dependency]')).toHaveCount(10);
+  await expect(page.locator('script[data-home-schedule-dependency]')).toHaveCount(15);
   await expect(page.locator('#favoriteWeek')).toContainText('Phelps Luck');
   await expect(page.locator('#favoriteWeek')).not.toContainText('Phelps Luck Pool');
 });
@@ -716,7 +718,7 @@ test('[WF-AGENDA-005] changing to an unavailable favorite does not display the p
   });
 
   await expect(page.locator('#favoriteWeek')).toBeVisible();
-  await expect(page.locator('#favoriteWeekTitle')).toHaveText("Your team's upcoming events");
+  await expect(page.locator('#favoriteWeekTitle')).toHaveText('Favorite team unavailable');
   await expect(page.locator('#favoriteWeekStatus')).toHaveText('Your saved favorite team is no longer listed for this season.');
   await expect(page.locator('#favoriteWeek')).not.toContainText('Upcoming Snappers events');
 });
@@ -1275,4 +1277,45 @@ test('[WF-WEATHER-003] turning weather safety alerts off hides an active banner 
 
   await page.goto('/index.html');
   await expect(page.locator('#weatherAlert')).toBeHidden();
+});
+
+test('[WF-POOLS-009] practice-only schedules identify teams from detailed schedule overlap where available', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-06-25T12:00:00-04:00'));
+  await page.goto('/pools.html');
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+
+  const jeffersHill = page.locator('.pool-card').filter({ hasText: 'Jeffers Hill' });
+  await jeffersHill.locator('.pool-header__toggle').click();
+  await expect(jeffersHill).toContainText('CNSL Practice Only (Long Reach Marlins)');
+
+  const hawthorn = page.locator('.pool-card').filter({ hasText: 'Hawthorn' });
+  await hawthorn.locator('.pool-header__toggle').click();
+  await expect(hawthorn).toContainText('CNSL Practice Only (CHS Swim Sundevils)');
+
+  const hopewell = page.locator('.pool-card').filter({ hasText: 'Hopewell' });
+  await hopewell.locator('.pool-header__toggle').click();
+  await expect(hopewell).toContainText('CNSL Practice Only (Huntington Dolphins, Owen Brown Barracudas)');
+
+  const faulknerRidge = page.locator('.pool-card').filter({ hasText: 'Faulkner Ridge' });
+  await faulknerRidge.locator('.pool-header__toggle').click();
+  await expect(faulknerRidge).toContainText('CNSL Practice Only');
+  await expect(faulknerRidge).not.toContainText('CNSL Practice Only (');
+});
+
+test('[WF-POOLS-010] practice-only schedules do not infer a team from pool association alone', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-06-25T12:00:00-04:00'));
+  await page.route('**/assets/data/2026/teams/teams.json*', async route => {
+    const response = await route.fetch();
+    const data = await response.json();
+    const longReach = data.teams.find(team => team.id === 'lrm');
+    delete longReach.practice;
+    await route.fulfill({ response, json: data });
+  });
+  await page.goto('/pools.html');
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+
+  const jeffersHill = page.locator('.pool-card').filter({ hasText: 'Jeffers Hill' });
+  await jeffersHill.locator('.pool-header__toggle').click();
+  await expect(jeffersHill).toContainText('CNSL Practice Only');
+  await expect(jeffersHill).not.toContainText('CNSL Practice Only (');
 });

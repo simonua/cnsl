@@ -85,12 +85,12 @@ if (typeof window === 'undefined' || !window.TeamScheduleService) {
       return null;
     }
 
-    static getPracticePatterns(practice) {
+    static getPracticePatterns(practice, year = globalThis.YEAR) {
       if (!practice) return [];
 
       const patterns = [];
       (practice.preseason || []).forEach(period => {
-        const dateRange = TeamScheduleService.parseSeasonRange(period.period);
+        const dateRange = TeamScheduleService.parseSeasonRange(period.period, year);
         if (!dateRange) return;
         patterns.push({
           ...dateRange,
@@ -102,7 +102,7 @@ if (typeof window === 'undefined' || !window.TeamScheduleService) {
       });
 
       if (!practice.regular) return patterns;
-      const regularRange = TeamScheduleService.parseSeasonRange(practice.regular.season);
+      const regularRange = TeamScheduleService.parseSeasonRange(practice.regular.season, year);
       if (!regularRange) return patterns;
       (practice.regular.morning || []).forEach(morning => patterns.push({
         ...regularRange,
@@ -144,6 +144,43 @@ if (typeof window === 'undefined' || !window.TeamScheduleService) {
       }
 
       return results;
+    }
+
+    static getDetailedPracticeTeamNames(teams, poolName, date, slot, timeUtils) {
+      if (!Array.isArray(teams) || typeof poolName !== 'string' || !(date instanceof Date) || !slot || !timeUtils) return [];
+
+      const slotRange = TeamScheduleService.getTimeRange(`${slot.startTime} - ${slot.endTime}`, timeUtils);
+      if (!slotRange) return [];
+      const normalizedPoolName = TeamScheduleService.normalizePoolName(poolName);
+
+      return teams.filter(team => TeamScheduleService.getUpcomingPractices(team.practice, date, 1).some(practice => {
+        if (TeamScheduleService.normalizePoolName(practice.location) !== normalizedPoolName) return false;
+        return practice.sessions.some(session => {
+          const sessionRange = TeamScheduleService.getTimeRange(session.time, timeUtils);
+          return sessionRange && sessionRange.start < slotRange.end && sessionRange.end > slotRange.start;
+        });
+      })).map(team => team.name);
+    }
+
+    static normalizePoolName(poolName) {
+      return String(poolName || '').replace(/\s+Pool\s*$/i, '').trim();
+    }
+
+    static getTimeRange(timeRange, timeUtils) {
+      if (typeof timeRange !== 'string' || !timeUtils || typeof timeUtils.timeStringToMinutes !== 'function') return null;
+
+      const parts = timeRange.split(/\s+-\s+/);
+      if (parts.length !== 2) return null;
+      const endingPeriod = parts[1].match(/(am|pm)$/i);
+      if (!endingPeriod) return null;
+      const startTime = /(am|pm)$/i.test(parts[0]) ? parts[0] : `${parts[0]}${endingPeriod[1]}`;
+      try {
+        const start = timeUtils.timeStringToMinutes(startTime);
+        const end = timeUtils.timeStringToMinutes(parts[1]);
+        return start < end ? { start, end } : null;
+      } catch {
+        return null;
+      }
     }
   }
 

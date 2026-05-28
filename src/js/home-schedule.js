@@ -5,6 +5,11 @@
   const AGENDA_DEPENDENCIES = [
     'js/services/html-safety.js',
     'js/services/pool-link-helper.js',
+    'js/services/time-utils.js',
+    'js/types/pool-enums.js',
+    'js/pool-schedule.js',
+    'js/models/pool.js',
+    'js/pools-manager.js',
     'js/models/team.js',
     'js/teams-manager.js',
     'js/models/meet.js',
@@ -46,52 +51,54 @@
     const favoriteTeamId = PreferencesService.get().favoriteTeamId;
     if (!section || !title || !status || !schedule) return;
     document.documentElement.classList.toggle('has-saved-favorite-team', Boolean(favoriteTeamId));
+    section.hidden = true;
+    title.textContent = '';
+    status.hidden = true;
+    status.textContent = '';
+    schedule.replaceChildren();
     if (shareSite) shareSite.hidden = true;
 
     if (!favoriteTeamId) {
-      section.hidden = true;
-      schedule.replaceChildren();
       if (shareSite) shareSite.hidden = false;
       return;
     }
 
-    section.hidden = false;
-    title.textContent = 'Your team\'s upcoming events';
-    status.hidden = false;
-    status.textContent = 'Loading your team\'s schedule.';
-    schedule.replaceChildren();
     try {
       await loadAgendaDependencies();
       if (PreferencesService.get().favoriteTeamId !== favoriteTeamId) return;
 
       const dataManager = getDataManager();
-      await dataManager.initialize(['teams', 'meets']);
+      await dataManager.initialize(['pools', 'teams', 'meets']);
       if (PreferencesService.get().favoriteTeamId !== favoriteTeamId) return;
 
       const team = PreferencesService.findFavoriteTeam(dataManager.getTeams().getAllTeams(), favoriteTeamId);
       if (!team) {
-        section.hidden = false;
+        title.textContent = 'Favorite team unavailable';
+        status.hidden = false;
         status.textContent = 'Your saved favorite team is no longer listed for this season.';
+        section.hidden = false;
         return;
       }
 
       const events = globalThis.TeamAgendaDisplay.getUpcomingEvents(team, dataManager.getMeets().getAllMeets());
       title.textContent = `Upcoming ${team.shortName || team.name} events`;
-      section.hidden = false;
       if (events.length === 0) {
+        status.hidden = false;
         status.textContent = globalThis.TeamAgendaDisplay.getStatus(events);
+        section.hidden = false;
         return;
       }
 
-      status.textContent = '';
-      status.hidden = true;
-      schedule.innerHTML = globalThis.TeamAgendaDisplay.renderEvents(events);
+      schedule.innerHTML = globalThis.TeamAgendaDisplay.renderEvents(events, 3, dataManager.getPools().getAllPools());
+      section.hidden = false;
     } catch (error) {
       console.error('Failed to load favorite team schedule:', error);
       if (PreferencesService.get().favoriteTeamId !== favoriteTeamId) return;
 
-      section.hidden = false;
+      title.textContent = 'Favorite team schedule unavailable';
+      status.hidden = false;
       status.textContent = 'Your team schedule is currently unavailable. Please try again later.';
+      section.hidden = false;
     } finally {
       if (shareSite && PreferencesService.get().favoriteTeamId === favoriteTeamId) {
         shareSite.hidden = false;
