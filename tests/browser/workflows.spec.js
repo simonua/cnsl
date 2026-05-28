@@ -581,9 +581,21 @@ test('[WF-AGENDA-001] team directory shows the same next practices and swim even
 test('[WF-AGENDA-002] home page shows the next practices and swim event for a selected favorite team', async ({ page }) => {
   await setAgendaReferenceTime(page);
   await seedPreferences(page, { favoriteTeamId: 'pls' });
+  let resolveTeamRequest;
+  let confirmTeamRequest;
+  const teamRequestAllowed = new Promise(resolve => { resolveTeamRequest = resolve; });
+  const teamRequestStarted = new Promise(resolve => { confirmTeamRequest = resolve; });
+  await page.route('**/assets/data/2026/teams/teams.json*', async route => {
+    confirmTeamRequest();
+    await teamRequestAllowed;
+    await route.continue();
+  });
   await page.goto('/index.html');
 
   const agenda = page.locator('#favoriteWeek');
+  await teamRequestStarted;
+  await expect(agenda).toBeHidden();
+  resolveTeamRequest();
   await expect(agenda).toBeVisible();
   await expect(agenda.getByRole('heading', { name: /Upcoming Snappers events/ })).toBeVisible();
   await expect(agenda.locator('.favorite-badge')).toHaveCount(0);
@@ -655,6 +667,24 @@ test('[WF-AGENDA-004] home page loads agenda dependencies only after a favorite 
   await expect(page.locator('script[data-home-schedule-dependency]')).toHaveCount(8);
   await expect(page.locator('#favoriteWeek')).toContainText('Phelps Luck');
   await expect(page.locator('#favoriteWeek')).not.toContainText('Phelps Luck Pool');
+});
+
+test('[WF-AGENDA-005] changing to an unavailable favorite does not display the prior team heading', async ({ page }) => {
+  await setAgendaReferenceTime(page);
+  await seedPreferences(page, { favoriteTeamId: 'pls' });
+  await page.goto('/index.html');
+
+  await expect(page.locator('#favoriteWeekTitle')).toHaveText('Upcoming Snappers events');
+
+  await page.evaluate(() => {
+    localStorage.setItem('cnsl_preferences', JSON.stringify({ favoriteTeamId: 'former-team' }));
+    globalThis.dispatchEvent(new globalThis.Event('cnsl:preferences-changed'));
+  });
+
+  await expect(page.locator('#favoriteWeek')).toBeVisible();
+  await expect(page.locator('#favoriteWeekTitle')).toHaveText("Your team's upcoming events");
+  await expect(page.locator('#favoriteWeekStatus')).toHaveText('Your saved favorite team is no longer listed for this season.');
+  await expect(page.locator('#favoriteWeek')).not.toContainText('Upcoming Snappers events');
 });
 
 test('[WF-POOLS-005] location distances use outlined pills and can sort nearest pools first', async ({ page }) => {

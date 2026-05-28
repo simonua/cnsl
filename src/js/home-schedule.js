@@ -37,10 +37,11 @@
 
   async function renderFavoriteWeek() {
     const section = document.getElementById('favoriteWeek');
+    const title = document.getElementById('favoriteWeekTitle');
     const status = document.getElementById('favoriteWeekStatus');
     const schedule = document.getElementById('favoriteWeekSchedule');
     const favoriteTeamId = PreferencesService.get().favoriteTeamId;
-    if (!section || !status || !schedule) return;
+    if (!section || !title || !status || !schedule) return;
 
     if (!favoriteTeamId) {
       section.hidden = true;
@@ -48,7 +49,8 @@
       return;
     }
 
-    section.hidden = false;
+    section.hidden = true;
+    title.textContent = 'Your team\'s upcoming events';
     status.hidden = false;
     status.textContent = 'Loading your team\'s schedule.';
     schedule.replaceChildren();
@@ -58,14 +60,18 @@
 
       const dataManager = getDataManager();
       await dataManager.initialize(['teams', 'meets']);
+      if (PreferencesService.get().favoriteTeamId !== favoriteTeamId) return;
+
       const team = PreferencesService.findFavoriteTeam(dataManager.getTeams().getAllTeams(), favoriteTeamId);
       if (!team) {
+        section.hidden = false;
         status.textContent = 'Your saved favorite team is no longer listed for this season.';
         return;
       }
 
       const events = globalThis.TeamAgendaDisplay.getUpcomingEvents(team, dataManager.getMeets().getAllMeets());
-      document.getElementById('favoriteWeekTitle').textContent = `Upcoming ${team.shortName || team.name} events`;
+      title.textContent = `Upcoming ${team.shortName || team.name} events`;
+      section.hidden = false;
       if (events.length === 0) {
         status.textContent = globalThis.TeamAgendaDisplay.getStatus(events);
         return;
@@ -76,6 +82,9 @@
       schedule.innerHTML = globalThis.TeamAgendaDisplay.renderEvents(events);
     } catch (error) {
       console.error('Failed to load favorite team schedule:', error);
+      if (PreferencesService.get().favoriteTeamId !== favoriteTeamId) return;
+
+      section.hidden = false;
       status.textContent = 'Your team schedule is currently unavailable. Please try again later.';
     }
   }
