@@ -37,6 +37,13 @@ function normalizePageContent(content, fingerprint = 'visible-text') {
     return start >= 0 && end > start ? visibleText.slice(start, end).trim() : visibleText;
   }
 
+  if (fingerprint === 'publication-links') {
+    const documentLinks = [...content.matchAll(/\bhref\s*=\s*["']([^"']+\.pdf(?:[?#][^"']*)?)["']/gi)]
+      .map((match) => match[1].trim())
+      .sort();
+    return `${normalizeHtml(content)} ${[...new Set(documentLinks)].join(' ')}`.trim();
+  }
+
   if (fingerprint !== 'outdoor-pool-schedules') {
     return normalizeHtml(content);
   }
@@ -150,8 +157,8 @@ function collectSources({ annualReadme, meetsData, poolsData, teamsData }) {
 
   const leagueHomeMatch = annualReadme.match(/\[CNSL home page\]\((https?:\/\/[^)]+)\)/i);
   if (leagueHomeMatch) {
-    addPage(pageMap, 'league:publication', leagueHomeMatch[1], 'CNSL publication page', 'meets');
-    addPage(pageMap, 'league:publication', leagueHomeMatch[1], 'CNSL publication page', 'teams');
+    addPage(pageMap, 'league:publication', leagueHomeMatch[1], 'CNSL publication page', 'meets', 'publication-links');
+    addPage(pageMap, 'league:publication', leagueHomeMatch[1], 'CNSL publication page', 'teams', 'publication-links');
   }
 
   return {
@@ -244,7 +251,15 @@ function createState(season, observations, acceptedOn) {
   };
 }
 
-function formatReport({ changes, checkedOn, season }) {
+function createCandidateKey(changes) {
+  const evidence = changes
+    .map((change) => [change.domain || (change.domains || []).join(','), change.kind, change.url, change.remoteSha256 || change.sha256 || 'removed'].join('|'))
+    .sort()
+    .join('\n');
+  return sha256(evidence).slice(0, 16);
+}
+
+function formatReport({ candidateKey, changes, checkedOn, season }) {
   const affectedDomains = [...new Set(changes.flatMap((change) => change.domains || [change.domain]))].sort();
   const rows = changes.map((change) => {
     const domains = (change.domains || [change.domain]).join(', ');
@@ -260,25 +275,26 @@ function formatReport({ changes, checkedOn, season }) {
   };
 
   return [
-    '# Seasonal Source Update Detected',
+    '# Candidate Seasonal Data Change Detected',
     '',
     `Checked official public sources for active season \`${season}\` on ${checkedOn}.`,
+    `Candidate key: \`${candidateKey}\``,
     '',
-    'This pull request records changed official evidence, not a relocated source URL. Public pages are compared by the data role they supply, and JSON remains subject to review and transcription against the repository schemas.',
+    'The monitoring evidence changed. Review the official source against the modeled annual JSON fields before creating a pull request. Do not create a pull request when the observed source difference does not change application data or a retained official document.',
     '',
     '## Detected Changes',
     '',
-    '| Domain | Source | Change | Evidence in this PR |',
+    '| Domain | Source | Change | Evidence target |',
     '| --- | --- | --- | --- |',
     ...rows,
     '',
-    '## Data Review Checklist',
+    '## Review Checklist',
     '',
     ...affectedDomains.map((domain) => guidance[domain]),
     `- [ ] After accepting reviewed application data, update \`OFFICIAL_SOURCE_CHECKED_ON\` in \`src/js/config/app-config.js\` and record the same accepted source-check date in \`src/assets/data/${season}/README.md\` so the FAQ reports data currency.`,
     '- [ ] Run `pnpm run validate:data`, `pnpm test`, `pnpm run lint`, and `pnpm run build` after completing any transcription.',
     '',
-    'The nightly monitor pauses while this pull request is open so reviewer changes on this branch are not replaced by automation.',
+    'A reviewer should open a pull request only when the harvested document or represented application data requires an update.',
     ''
   ].join('\n');
 }
@@ -308,6 +324,7 @@ async function monitorSources({
   fetchImplementation = fetch,
   initialize = false,
   repositoryRoot = REPOSITORY_ROOT,
+  report = false,
   seasonOnly = false,
   today = new Date().toISOString().slice(0, 10)
 } = {}) {
@@ -343,7 +360,22 @@ async function monitorSources({
   const pageObservations = await mapWithLimit(sources.pages, FETCH_CONCURRENCY, observePage);
   const documentObservations = await mapWithLimit(sources.documents, FETCH_CONCURRENCY, async (source) => {
     const localFile = safeDataPath(dataRoot, source.localPath);
-    const remoteContent = await request(source.url, fetchImplementation);
+    let remoteContent;
+    try {
+      remoteContent = await request(source.url, fetchImplementation);
+    } catch {
+      try {
+        remoteContent = await request(source.url, fetchImplementation);
+      } catch (confirmedError) {
+        return {
+          ...source,
+          changed: true,
+          error: confirmedError.message,
+          localFile,
+          unavailable: true
+        };
+      }
+    }
     if (remoteContent.subarray(0, 5).toString('ascii') !== '%PDF-') {
       throw new Error(`Official PDF source returned non-PDF content: ${source.url}`);
     }
@@ -361,13 +393,17 @@ async function monitorSources({
       ...source,
       changed: !existingContent || sha256(existingContent) !== sha256(remoteContent),
       localFile,
+      remoteSha256: sha256(remoteContent),
       remoteContent
     };
   });
 
   const documentChanges = documentObservations
     .filter((observation) => observation.changed)
-    .map((observation) => ({ ...observation, kind: 'Official document content changed' }));
+    .map((observation) => ({
+      ...observation,
+      kind: observation.unavailable ? 'Official document link unavailable or relocated' : 'Official document content changed'
+    }));
 
   if (initialize) {
     if (documentChanges.length > 0) {
@@ -411,22 +447,22 @@ async function monitorSources({
     .forEach((page) => pageChanges.push({ ...page, kind: 'Monitored data page no longer referenced' }));
 
   const changes = [...documentChanges, ...pageChanges];
-  if (apply && changes.length > 0) {
-    await Promise.all(documentChanges.map(async (change) => {
+  if (pageChanges.length > 0) {
+    console.log(`Observed ${pageChanges.length} changed public page fingerprint(s) requiring represented-data review.`);
+  }
+  if (apply && documentChanges.length > 0) {
+    await Promise.all(documentChanges.filter((change) => !change.unavailable).map(async (change) => {
       await fs.mkdir(path.dirname(change.localFile), { recursive: true });
       await fs.writeFile(change.localFile, change.remoteContent);
     }));
-    if (pageChanges.length > 0) {
-      const acceptedPageObservations = pageObservations
-        .filter((observation) => !unstablePageUrls.has(observation.url) || previousPageMatches.get(observation))
-        .map((observation) => unstablePageUrls.has(observation.url) ? previousPageMatches.get(observation) : observation);
-      await writeJson(statePath, createState(season, acceptedPageObservations, today));
-    }
+  }
+  const candidateKey = changes.length > 0 ? createCandidateKey(changes) : '';
+  if ((apply || report) && changes.length > 0) {
     await fs.mkdir(path.dirname(reportPath), { recursive: true });
-    await fs.writeFile(reportPath, formatReport({ changes, checkedOn: today, season }));
+    await fs.writeFile(reportPath, formatReport({ candidateKey, changes, checkedOn: today, season }));
   }
 
-  return { changed: changes.length > 0, changes, season, today };
+  return { candidateKey, changed: changes.length > 0, changes, documentChanges, pageChanges, season, today };
 }
 
 function parseArguments(argumentsList) {
@@ -435,6 +471,8 @@ function parseArguments(argumentsList) {
     const argument = argumentsList[index];
     if (argument === '--update') {
       options.apply = true;
+    } else if (argument === '--report') {
+      options.report = true;
     } else if (argument === '--initialize') {
       options.initialize = true;
     } else if (argument === '--season-only') {
@@ -455,6 +493,8 @@ async function writeActionOutputs(result) {
   }
   const output = [
     `changed=${result.changed ? 'true' : 'false'}`,
+    `candidate_changed=${result.changed ? 'true' : 'false'}`,
+    `candidate_key=${result.candidateKey || ''}`,
     `season=${result.season}`,
     `skipped=${result.skipped ? 'true' : 'false'}`
   ].join('\n');
@@ -471,12 +511,12 @@ async function main() {
   } else if (result.skipped) {
     console.log(`The ${result.season} season is not active on ${result.today}; no public sources were checked.`);
   } else if (result.changed) {
-    console.log(`Detected ${result.changes.length} changed official source(s) for the ${result.season} season.`);
+    console.log(`Detected ${result.changes.length} candidate source difference(s) for represented-data review in the ${result.season} season.`);
     result.changes.forEach((change) => {
       console.log(`- ${change.kind}: ${change.url}`);
     });
   } else {
-    console.log(`No official source changes detected for the ${result.season} season.`);
+    console.log(`No candidate source differences detected for the ${result.season} season.`);
   }
 }
 
@@ -489,6 +529,7 @@ if (require.main === module) {
 
 module.exports = {
   collectSources,
+  createCandidateKey,
   formatReport,
   isDateWithinSeason,
   monitorSources,

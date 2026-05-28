@@ -12,6 +12,6 @@ This directory keeps GitHub configuration organized by purpose:
 ## Scheduled Automation
 
 - [`automation/refactoring-audit/`](automation/refactoring-audit/README.md) supports the scheduled Copilot refactoring assessment driven by the `refactoring-auditor` custom agent.
-- [`automation/season-data-monitor/`](automation/season-data-monitor/README.md) supports nightly checks of official seasonal data sources and stores its reviewed fingerprint baseline.
+- [`automation/season-data-monitor/`](automation/season-data-monitor/README.md) supports nightly checks of official seasonal data sources, deduplicated Copilot data-review delegation, and its reviewed fingerprint baseline.
 
 Keeping workflow assets under `automation/` prevents their names from being confused with custom agent profiles, which must live under `agents/` for discovery.

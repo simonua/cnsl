@@ -6,6 +6,7 @@ const path = require('node:path');
 
 const {
   collectSources,
+  createCandidateKey,
   formatReport,
   isDateWithinSeason,
   monitorSources,
@@ -48,6 +49,16 @@ describe('season data agent', () => {
 
       assert.strictEqual(normalizePageContent(first, 'pool-facility'), normalizePageContent(second, 'pool-facility'));
       assert.notStrictEqual(normalizePageContent(first, 'pool-facility'), normalizePageContent(changedAmenity, 'pool-facility'));
+    });
+
+    it('should detect a relocated official PDF link on a publication page', () => {
+      const first = '<main>Meet schedule <a href="/files/meet-v1.pdf">Download</a></main>';
+      const second = '<main>Meet schedule <a href="/files/meet-v2.pdf">Download</a></main>';
+
+      assert.notStrictEqual(
+        normalizePageContent(first, 'publication-links'),
+        normalizePageContent(second, 'publication-links')
+      );
     });
   });
 
@@ -117,6 +128,7 @@ describe('season data agent', () => {
         sources.pages.find((source) => source.url === 'https://league.test/home').domains,
         ['meets', 'teams']
       );
+      assert.strictEqual(sources.pages.find((source) => source.url === 'https://league.test/home').fingerprint, 'publication-links');
     });
   });
 
@@ -133,6 +145,7 @@ describe('season data agent', () => {
   describe('formatReport', () => {
     it('should request review of each affected domain', () => {
       const report = formatReport({
+        candidateKey: '0123456789abcdef',
         checkedOn: '2026-06-01',
         season: 2026,
         changes: [
@@ -144,10 +157,18 @@ describe('season data agent', () => {
             url: 'https://pools.test/pool.pdf'
           },
           {
-            domains: ['meets', 'teams'],
-            kind: 'Public page content changed',
-            label: 'League',
-            url: 'https://league.test'
+            domain: 'meets',
+            kind: 'Official document content changed',
+            label: 'Meet schedule',
+            localPath: 'meets/meet-schedules/meet.pdf',
+            url: 'https://league.test/meet.pdf'
+          },
+          {
+            domain: 'teams',
+            kind: 'Official document content changed',
+            label: 'Practice schedule',
+            localPath: 'teams/team-schedules/practice.pdf',
+            url: 'https://league.test/practice.pdf'
           }
         ]
       });
@@ -158,11 +179,24 @@ describe('season data agent', () => {
       assert.match(report, /coach and manager details and changed recorded practice schedules/);
       assert.match(report, /OFFICIAL_SOURCE_CHECKED_ON/);
       assert.match(report, /pnpm run validate:data/);
+      assert.match(report, /Candidate key: `0123456789abcdef`/);
+    });
+  });
+
+  describe('createCandidateKey', () => {
+    it('should identify the same evidence independent of discovery order', () => {
+      const pageChange = { domains: ['teams'], kind: 'Published data page content changed', sha256: 'page-hash', url: 'https://team.test/staff' };
+      const documentChange = { domain: 'meets', kind: 'Official document content changed', remoteSha256: 'pdf-hash', url: 'https://league.test/meet.pdf' };
+
+      assert.strictEqual(
+        createCandidateKey([pageChange, documentChange]),
+        createCandidateKey([documentChange, pageChange])
+      );
     });
   });
 
   describe('monitorSources', () => {
-    it('should ignore transient content differences and a relocated URL with unchanged data', async () => {
+    it('should report confirmed page or retained-document differences for represented-data review', async () => {
       const root = await fs.mkdtemp(path.join(os.tmpdir(), 'cnsl-source-monitor-'));
       const dataRoot = path.join(root, 'src', 'assets', 'data', '2026');
       const baselineContent = '<main>Accepted page text</main>';
@@ -242,6 +276,7 @@ describe('season data agent', () => {
           return { ok: true, arrayBuffer: async () => content };
         };
         const changedResult = await monitorSources({
+          report: true,
           fetchImplementation: changedStaffFetchImplementation,
           repositoryRoot: root,
           today: '2026-06-01'
@@ -249,7 +284,44 @@ describe('season data agent', () => {
 
         assert.strictEqual(changedResult.changed, true);
         assert.deepStrictEqual(changedResult.changes.map((change) => change.kind), ['Published data page content changed']);
-        assert.strictEqual(changedResult.changes[0].url, relocatedStaffUrl);
+        assert.deepStrictEqual(changedResult.pageChanges.map((change) => change.kind), ['Published data page content changed']);
+        assert.strictEqual(changedResult.pageChanges[0].url, relocatedStaffUrl);
+        assert.match(changedResult.candidateKey, /^[0-9a-f]{16}$/);
+        assert.match(
+          await fs.readFile(path.join(root, '.github', 'automation', 'season-data-monitor', 'update-report.md'), 'utf8'),
+          /Review the official source against the modeled annual JSON fields/
+        );
+
+        const unavailableDocumentResult = await monitorSources({
+          fetchImplementation: async (url) => {
+            if (url === 'https://league.test/meet.pdf') {
+              return { ok: false, status: 404, arrayBuffer: async () => Buffer.alloc(0) };
+            }
+            const content = url.endsWith('.pdf') ? pdfContent : Buffer.from(baselineContent);
+            return { ok: true, arrayBuffer: async () => content };
+          },
+          repositoryRoot: root,
+          today: '2026-06-01'
+        });
+
+        assert.strictEqual(unavailableDocumentResult.changed, true);
+        assert.ok(unavailableDocumentResult.changes.some((change) => change.kind === 'Official document link unavailable or relocated'));
+
+        const changedPdfContent = Buffer.from('%PDF-updated-schedule');
+        const changedDocumentFetchImplementation = async (url) => {
+          const content = url === 'https://league.test/practice.pdf' ? changedPdfContent : (url.endsWith('.pdf') ? pdfContent : Buffer.from(baselineContent));
+          return { ok: true, arrayBuffer: async () => content };
+        };
+        const changedDocumentResult = await monitorSources({
+          apply: true,
+          fetchImplementation: changedDocumentFetchImplementation,
+          repositoryRoot: root,
+          today: '2026-06-01'
+        });
+
+        assert.strictEqual(changedDocumentResult.changed, true);
+        assert.deepStrictEqual(changedDocumentResult.changes.map((change) => change.kind), ['Official document content changed']);
+        assert.deepStrictEqual(await fs.readFile(path.join(dataRoot, 'teams', 'team-schedules', 'practice.pdf')), changedPdfContent);
       } finally {
         await fs.rm(root, { force: true, recursive: true });
       }

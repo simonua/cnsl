@@ -8,25 +8,25 @@ The nightly monitor checks public sources that support the active `YEAR` data se
 - Meets: the retained official meet-schedule PDF and the CNSL publication page.
 - Teams: retained practice and assignment PDFs, each public staff and recorded practice-schedule page, and the CNSL publication page. Team home pages and event calendars are destinations offered by the app, not transcribed team-data evidence, and are not fingerprinted unless a recorded practice source is hosted on the home page.
 
-Stored PDFs are compared byte-for-byte against the public document and replaced on an update branch when they change. Web pages are tracked by stable data roles, such as a team's staff page or practice-schedule page, and reduced to relevant visible text for fingerprints in `source-state.json`. A GoMotion page URL relocation with unchanged published data does not open a pull request; changed staff or recorded practice-schedule evidence does. Individual Columbia Association pool pages are limited to the facility evidence section that supplies modeled description, location, amenities, schedule link, and contact data; the schedule index is limited to its outdoor-pool schedule section and destination links. This avoids review traffic from promotional or sitewide page chrome. A differing page fingerprint must be reproduced by a second request in the same run before it opens a pull request.
+Stored PDFs are compared byte-for-byte against the public document. A changed PDF or a repeatedly unavailable monitored PDF link becomes a candidate for modeled-data review. Web pages are tracked by stable data roles, such as a team's staff page or practice-schedule page, and reduced to relevant content fingerprints in `source-state.json`; publication and schedule-index fingerprints include official PDF destinations so relocated source links can be reviewed. Individual Columbia Association pool pages remain limited to the facility evidence section, and the schedule index remains limited to its outdoor-pool schedule section and destination links.
 
 ## Review Boundary
 
-Official source documents and changed-page fingerprints can be updated deterministically. The monitor intentionally does not infer schedules, assignments, amenities, or staff records from changed documents and silently write application JSON. For team findings, its pull request asks a reviewer to check published coach and manager details and changed recorded practice content, then update `teams/teams.json` only when the evidence supports a data change.
+The workflow does not create an evidence-only pull request. Instead, each confirmed candidate difference receives a stable key and is assigned once to the `season-data-reviewer` Copilot agent. That reviewer reads the official evidence and active annual JSON, then opens a pull request only when a represented application value or visitor-used official source link needs updating. A material-data pull request updates the affected JSON together with supporting retained PDFs where applicable, accepted source-check metadata, and the reviewed fingerprint baseline. Presentation-only page edits, equivalent link relocations that do not affect an application destination, and PDF binary/metadata-only changes result in no repository edit and no pull request.
 
-Only one automation PR is opened at a time. While it is pending, nightly checks pause so reviewer changes to that branch are retained.
+Only one open seasonal review issue is delegated at a time. A candidate key already recorded in an open or closed issue is not re-delegated on later nightly runs, avoiding repeated review traffic for an unchanged non-material observation.
 
 ## Operation
 
 `.github/workflows/season-data-monitor.yml` runs nightly at 05:17 UTC and passes `--season-only`; the monitor uses `seasonStartDate` and `seasonEndDate` from active pool data. A manual workflow dispatch can opt into checking outside that date range.
 
-The workflow uses the `CNSL_Data_Updater_PR_Token` repository secret to push the dedicated `automation/season-source-updates` branch and create review pull requests. Keep that token narrowly scoped to repository contents and pull-request creation; the built-in workflow token remains `contents: read` only for checkout.
+The workflow uses the `COPILOT_AGENT_TOKEN` repository secret to create an issue assigned to the `season-data-reviewer` custom Copilot agent when a previously unseen candidate is confirmed. Keep that token narrowly scoped to the issue assignment capability required by Copilot; the built-in workflow token remains `contents: read` only for checkout.
 
-Before creating a pull request, the workflow runs `scripts/validate-season-monitor-boundary.js` against every annual-data path changed by automation. Only retained official PDF evidence paths for the active season are permitted; JSON, schemas, READMEs, and cross-season files must remain reviewer-authored changes.
+The reviewer is constrained to active-season annual data, retained official evidence, accepted-source metadata, and the monitor baseline. It runs `pnpm run validate:data`, `pnpm test`, `pnpm run lint`, and `pnpm run build` before opening a material-data pull request.
 
 ## Rollover
 
-After a reviewed annual rollover changes `YEAR`, establish page fingerprints for that newly accepted data set:
+After a reviewed annual rollover changes `YEAR`, establish diagnostic page fingerprints for that newly accepted data set:
 
 ```bash
 node scripts/season-data-agent.js --initialize
@@ -40,4 +40,4 @@ For a local source check that does not write files, run:
 node scripts/season-data-agent.js
 ```
 
-The command reports detected source changes without writing evidence files.
+The command reports candidate document or webpage observations without writing evidence files. Use `--report` when generating the ignored, ephemeral candidate report consumed by the scheduled review delegation; it is not a pull-request artifact.

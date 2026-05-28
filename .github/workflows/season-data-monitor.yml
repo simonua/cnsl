@@ -16,7 +16,7 @@ permissions:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
-  UPDATE_BRANCH: automation/season-source-updates
+  REVIEW_TITLE_PREFIX: Seasonal application data review
 
 jobs:
   monitor:
@@ -32,16 +32,26 @@ jobs:
         with:
           node-version: 24
 
-      - name: Check for a pending source update pull request
-        id: pending
+      - name: Confirm Copilot assignment token is configured
         env:
-          GH_TOKEN: ${{ secrets.CNSL_Data_Updater_PR_Token }}
+          GH_TOKEN: ${{ secrets.COPILOT_AGENT_TOKEN }}
         shell: bash
         run: |
-          pr_number="$(gh pr list --state open --base main --head "$UPDATE_BRANCH" --json number --jq '.[0].number')"
-          if [[ -n "$pr_number" ]]; then
+          if [[ -z "$GH_TOKEN" ]]; then
+            echo "Repository secret COPILOT_AGENT_TOKEN is required to assign seasonal data reviews to Copilot cloud agent." >&2
+            exit 1
+          fi
+
+      - name: Check for a pending seasonal data review
+        id: pending
+        env:
+          GH_TOKEN: ${{ secrets.COPILOT_AGENT_TOKEN }}
+        shell: bash
+        run: |
+          review_url="$(gh issue list --state open --search "${REVIEW_TITLE_PREFIX} in:title" --json url --jq '.[0].url')"
+          if [[ -n "$review_url" ]]; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
-            echo "A seasonal source update pull request (#${pr_number}) is already awaiting review." >> "$GITHUB_STEP_SUMMARY"
+            echo "A seasonal application-data review is already underway: ${review_url}" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
@@ -53,36 +63,63 @@ jobs:
           RUN_OUTSIDE_SEASON: ${{ inputs.run_outside_season }}
         shell: bash
         run: |
-          arguments=(--update --season-only)
+          arguments=(--report --season-only)
           if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" && "$RUN_OUTSIDE_SEASON" == "true" ]]; then
-            arguments=(--update)
+            arguments=(--report)
           fi
           node scripts/season-data-agent.js "${arguments[@]}"
 
-      - name: Open source update pull request
-        if: steps.source_monitor.outputs.changed == 'true'
+      - name: Check whether the exact candidate was already reviewed
+        id: duplicate
+        if: steps.source_monitor.outputs.candidate_changed == 'true'
         env:
-          GH_TOKEN: ${{ secrets.CNSL_Data_Updater_PR_Token }}
-          SEASON: ${{ steps.source_monitor.outputs.season }}
+          GH_TOKEN: ${{ secrets.COPILOT_AGENT_TOKEN }}
+          CANDIDATE_KEY: ${{ steps.source_monitor.outputs.candidate_key }}
         shell: bash
         run: |
-          if [[ ! "$SEASON" =~ ^[0-9]{4}$ ]]; then
-            echo "Invalid season output: $SEASON" >&2
+          if [[ ! "$CANDIDATE_KEY" =~ ^[0-9a-f]{16}$ ]]; then
+            echo "Invalid candidate key: $CANDIDATE_KEY" >&2
             exit 1
           fi
+          existing_url="$(gh issue list --state all --search "${CANDIDATE_KEY} in:title" --json url --jq '.[0].url')"
+          if [[ -n "$existing_url" ]]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "This exact candidate source difference was already sent for review: ${existing_url}" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
 
-          { git diff --name-only -- "src/assets/data/$SEASON"; git ls-files --others --exclude-standard -- "src/assets/data/$SEASON"; } \
-            | sort -u \
-            | node scripts/validate-season-monitor-boundary.js "$SEASON"
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git switch -c "$UPDATE_BRANCH"
-          git add -- .github/automation/season-data-monitor/source-state.json .github/automation/season-data-monitor/update-report.md "src/assets/data/$SEASON"
-          git commit -m "Update ${SEASON} official seasonal source material"
-          git push --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/$UPDATE_BRANCH"
-          gh pr create \
-            --base main \
-            --head "$UPDATE_BRANCH" \
-            --title "Review ${SEASON} official seasonal source updates" \
-            --body-file .github/automation/season-data-monitor/update-report.md
+      - name: Delegate represented-data review to Copilot
+        if: steps.source_monitor.outputs.candidate_changed == 'true' && steps.duplicate.outputs.exists != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.COPILOT_AGENT_TOKEN }}
+          CANDIDATE_KEY: ${{ steps.source_monitor.outputs.candidate_key }}
+        shell: bash
+        run: |
+          review_date="$(date -u +%Y-%m-%d)"
+          request_file="$RUNNER_TEMP/season-data-review-request.md"
+          cat .github/automation/season-data-monitor/review-request.md .github/automation/season-data-monitor/update-report.md > "$request_file"
+          request_json="$(jq -n \
+            --arg title "${REVIEW_TITLE_PREFIX} [${CANDIDATE_KEY}] - ${review_date}" \
+            --arg repo "$GITHUB_REPOSITORY" \
+            --rawfile body "$request_file" \
+            '{
+              title: $title,
+              body: $body,
+              assignees: ["copilot-swe-agent[bot]"],
+              agent_assignment: {
+                target_repo: $repo,
+                base_branch: "main",
+                custom_instructions: "Follow the season-data-reviewer profile. Open a pull request only for a supported material annual-data or retained-document update.",
+                custom_agent: "season-data-reviewer",
+                model: ""
+              }
+            }')"
+          issue_url="$(gh api \
+            --method POST \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "/repos/${GITHUB_REPOSITORY}/issues" \
+            --input - \
+            --jq '.html_url' <<< "$request_json")"
+          echo "Delegated candidate seasonal data review to Copilot: ${issue_url}" >> "$GITHUB_STEP_SUMMARY"
