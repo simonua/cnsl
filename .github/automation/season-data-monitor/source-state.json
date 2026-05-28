@@ -1,6 +1,6 @@
 {
   "season": 2026,
-  "acceptedOn": "2026-05-27",
+  "acceptedOn": "2026-05-28",
   "pages": [
     {
       "domains": [
@@ -20,7 +20,7 @@
       ],
       "fingerprint": "pool-facility",
       "label": "Clary's Forest facility page",
-      "sha256": "1f584fe1e88e0833ddc018708bab85cadce2cce2a8409ef8337eab127ac5c190",
+      "sha256": "410ade67ef6c76f65b35e8866f447e65d33564b2db74ab12af2400e792bc0797",
       "sourceIds": [
         "pool:cfp:facility"
       ],
@@ -68,7 +68,7 @@
       ],
       "fingerprint": "pool-facility",
       "label": "Dorsey Hall facility page",
-      "sha256": "5136c96841e48f186156e37186068fd0c8f455da259eb4e273385d5bd087725a",
+      "sha256": "693e7f37009518f65dcbf33e2760120a124503bed64851612f6d3cfc1b93e6f6",
       "sourceIds": [
         "pool:dhp:facility"
       ],
@@ -248,7 +248,7 @@
       ],
       "fingerprint": "pool-facility",
       "label": "Swansfield facility page",
-      "sha256": "4a8ed0ed3b41fa6a0b25b254b566a8ab48309f817b3b12899849ba8953759644",
+      "sha256": "f1d4ad58d6b9b69390232bd1a1f3984b00f0e25e4ffc1508456cdbd7908e6333",
       "sourceIds": [
         "pool:swp:facility"
       ],
@@ -272,7 +272,7 @@
       ],
       "fingerprint": "pool-facility",
       "label": "Thunder Hill facility page",
-      "sha256": "d68372498ce3775f80272be31d41b00a7d69346da5cf1c6c5b2cf5546871b100",
+      "sha256": "e3be5de21c40f7fe5f861b495f99a3977731cde8cdf199a9389cce2785d76695",
       "sourceIds": [
         "pool:thp:facility"
       ],
@@ -284,7 +284,7 @@
       ],
       "fingerprint": "outdoor-pool-schedules",
       "label": "Columbia Association pool schedule page",
-      "sha256": "275e0592b86be3980b3950d864143752311742403f36b5dd91ec3e2463c43c50",
+      "sha256": "7099673b5c9ffb5c70d73446ec3aa8d3bd160dd296e4aae8a1331dc774a0080f",
       "sourceIds": [
         "pools:outdoor-schedule-index"
       ],
@@ -321,7 +321,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Clemens Crossing Cyclones staff page",
-      "sha256": "46af3bd6033b74f1709b8fa0bf4255ebce885233330da37d75ab67357ef27729",
+      "sha256": "1787931c26714e774a87fe1e6bf8cd3856b5f599042e76d5306201a54ac19cb7",
       "sourceIds": [
         "team:ccc:staff"
       ],
@@ -441,7 +441,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Long Reach Marlins practice schedule page",
-      "sha256": "45ac85d74b040414c2eeab48d88b8b1f6f3884211bb2d5c92a84a94a5c6a50c6",
+      "sha256": "64cbc5f54db3cb56790123ec24805bd27504ce0529b0e1e8b4769109a4cfa4e8",
       "sourceIds": [
         "team:lrm:practice"
       ],
