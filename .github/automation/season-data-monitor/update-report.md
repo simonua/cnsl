@@ -1,6 +1,6 @@
 # Seasonal Source Update Detected
 
-Checked official public sources for active season `2026` on 2026-05-27.
+Checked official public sources for active season `2026` on 2026-05-28.
 
 This pull request records changed official evidence, not a relocated source URL. Public pages are compared by the data role they supply, and JSON remains subject to review and transcription against the repository schemas.
 
@@ -8,14 +8,13 @@ This pull request records changed official evidence, not a relocated source URL.
 
 | Domain | Source | Change | Evidence in this PR |
 | --- | --- | --- | --- |
+| pools | [Clary's Forest facility page](https://columbiaassociation.org/sports-recreation/pools/pool-locations/clarys-forest-cf-pool/) | Published data page content changed | `.github/automation/season-data-monitor/source-state.json` |
 | pools | [Dorsey Hall facility page](https://columbiaassociation.org/sports-recreation/pools/pool-locations/dorsey-hall-dh-pool/) | Published data page content changed | `.github/automation/season-data-monitor/source-state.json` |
+| pools | [Swansfield facility page](https://columbiaassociation.org/sports-recreation/pools/pool-locations/swansfield-mini-water-park-sw/) | Published data page content changed | `.github/automation/season-data-monitor/source-state.json` |
 | pools | [Thunder Hill facility page](https://columbiaassociation.org/sports-recreation/pools/pool-locations/thunder-hill-th-pool/) | Published data page content changed | `.github/automation/season-data-monitor/source-state.json` |
-| teams | [CHS Swim Sundevils practice schedule page](https://www.gomotionapp.com/team/reccnslcfhss/page/team-information/practice-schedule) | Published data page content changed | `.github/automation/season-data-monitor/source-state.json` |
-| teams | [Dorsey Search Dolphins practice schedule page](https://www.gomotionapp.com/team/reccnsldsd/page/practice-schedule) | Published data page content changed | `.github/automation/season-data-monitor/source-state.json` |
-| teams | [Dorsey Search Dolphins staff page](https://www.gomotionapp.com/team/reccnsldsd/page/system/coaches) | Published data page content changed | `.github/automation/season-data-monitor/source-state.json` |
-| teams | [Harper's Choice Challenge practice schedule page](https://www.gomotionapp.com/team/reccnslhcc/page/team-information/practice-schedule) | Published data page content changed | `.github/automation/season-data-monitor/source-state.json` |
-| teams | [Owen Brown Barracudas practice schedule page](https://www.gomotionapp.com/team/reccnslobb/page/practice-schedule1) | Published data page content changed | `.github/automation/season-data-monitor/source-state.json` |
-| teams | [Thunder Hill Lightning staff page](https://www.gomotionapp.com/team/reccnslthl/page/system/coaches) | Published data page content changed | `.github/automation/season-data-monitor/source-state.json` |
+| pools | [Columbia Association pool schedule page](https://columbiaassociation.org/sports-recreation/pools/pool-schedules/) | Published data page content changed | `.github/automation/season-data-monitor/source-state.json` |
+| teams | [Clemens Crossing Cyclones staff page](https://www.gomotionapp.com/team/reccnslccc/page/system/coaches) | Published data page content changed | `.github/automation/season-data-monitor/source-state.json` |
+| teams | [Long Reach Marlins practice schedule page](https://www.gomotionapp.com/team/reccnsllrm/page/practice-schedule) | Published data page content changed | `.github/automation/season-data-monitor/source-state.json` |
 
 ## Data Review Checklist
 
