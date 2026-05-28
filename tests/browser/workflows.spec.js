@@ -203,6 +203,11 @@ test('[WF-ANALYTICS-001] analytics publishes a page view and public app version 
     await route.fulfill({ response });
   });
 
+  await page.addInitScript(() => {
+    localStorage.setItem('cnsl_current_version', '9999.0.0');
+    localStorage.setItem('cnsl_settings_notice_dismissed', 'true');
+  });
+
   await page.goto('https://pools.longreachmarlins.org/index.html', { waitUntil: 'domcontentloaded' });
   await tagScriptRequested;
   const measurementId = await page.evaluate(() => globalThis.GA4_MEASUREMENT_ID);

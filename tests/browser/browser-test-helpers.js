@@ -46,8 +46,13 @@ async function seedPreferences(page, preferences) {
 
 async function initializeAnalyticsRecorder(page) {
   await page.addInitScript(() => {
-    globalThis.recordedAnalyticsEvents = [];
-    globalThis.gtag = (...eventArguments) => globalThis.recordedAnalyticsEvents.push(eventArguments);
+    const analyticsEventsKey = 'playwright_recorded_analytics_events';
+    const savedEvents = JSON.parse(sessionStorage.getItem(analyticsEventsKey) || '[]');
+    globalThis.recordedAnalyticsEvents = Array.isArray(savedEvents) ? savedEvents : [];
+    globalThis.gtag = (...eventArguments) => {
+      globalThis.recordedAnalyticsEvents.push(eventArguments);
+      sessionStorage.setItem(analyticsEventsKey, JSON.stringify(globalThis.recordedAnalyticsEvents));
+    };
   });
 }
 
