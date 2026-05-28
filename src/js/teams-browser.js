@@ -45,15 +45,6 @@ function findPoolByName(poolName) {
 }
 
 /**
- * Get the published regular-season practice schedule.
- * @param {Object} practice - Practice object from team data
- * @returns {Object|null} - Current active practice schedule or null
- */
-function getCurrentPracticeSchedule(practice) {
-  return practice && practice.regular ? practice.regular : null;
-}
-
-/**
  * Get enhanced pool link using new pool link helper
  * @param {string} location - Pool location name
  * @param {string} fallbackAddress - Fallback address if pool not found (unused now)
@@ -73,83 +64,105 @@ function getVisiblePracticeSessions(sessions) {
   return PreferencesService.filterPracticeSessions(sessions, PreferencesService.get().practiceGroups);
 }
 
-/**
- * Format the published regular practice schedule.
- * @param {Object} practice - Practice object from team data
- * @returns {string} - HTML string for current practice schedule
- */
-function formatCurrentPracticeSchedule(practice) {
-  const currentSchedule = getCurrentPracticeSchedule(practice);
-  if (!currentSchedule) return '';
-  const morningPractices = Array.isArray(currentSchedule.morning) ? currentSchedule.morning.map(morning => ({
+function formatPracticeSessions(sessions) {
+  return `<div class="sessions">${sessions.map(session => `
+    <div class="session-item">
+      <span class="session-time">${TeamsBrowserSafety.escapeHtml(session.time)}</span>
+      <span class="session-group">${TeamsBrowserSafety.escapeHtml(session.group)}</span>
+    </div>
+  `).join('')}</div>`;
+}
+
+function formatPracticePhase(title, dateRange, content, isCurrent) {
+  const currentClass = isCurrent ? ' practice-schedule__phase--current' : '';
+  const currentBadge = isCurrent ? '<span class="practice-schedule__badge">Current schedule</span>' : '';
+  return `
+    <details class="practice-schedule__phase${currentClass}">
+      <summary class="practice-schedule__summary">
+        <span class="practice-schedule__title">${title}</span>
+        <span class="practice-schedule__dates">${TeamsBrowserSafety.escapeHtml(dateRange)}</span>
+        ${currentBadge}
+        <span class="practice-schedule__toggle-icon" aria-hidden="true">&#9650;</span>
+      </summary>
+      <div class="practice-schedule__body">${content}</div>
+    </details>
+  `;
+}
+
+function formatPreseasonPracticeSchedule(practice, isCurrent) {
+  const periods = Array.isArray(practice && practice.preseason) ? practice.preseason.map(period => ({
+    ...period,
+    sessions: getVisiblePracticeSessions(period.sessions)
+  })).filter(period => period.sessions.length > 0) : [];
+  if (periods.length === 0) return '';
+
+  const content = periods.map(period => `
+    <div class="practice-period">
+      <strong>${TeamsBrowserSafety.escapeHtml(period.period)}</strong>
+      <div class="practice-details">
+        <div><strong>Days:</strong> ${TeamsBrowserSafety.escapeHtml(period.days)}</div>
+        <div><strong>Location:</strong> ${getEnhancedPoolLink(period.location, period.address)}</div>
+        ${formatPracticeSessions(period.sessions)}
+      </div>
+    </div>
+  `).join('');
+  const dateRange = `${periods[0].period.split(' - ')[0]} - ${periods[periods.length - 1].period.split(' - ')[1]}`;
+  return formatPracticePhase('Pre-season practices', dateRange, content, isCurrent);
+}
+
+function formatInSeasonPracticeSchedule(practice, isCurrent) {
+  const inSeasonSchedule = practice && practice.regular;
+  if (!inSeasonSchedule) return '';
+  const morningPractices = Array.isArray(inSeasonSchedule.morning) ? inSeasonSchedule.morning.map(morning => ({
     ...morning,
     sessions: getVisiblePracticeSessions(morning.sessions)
   })).filter(morning => morning.sessions.length > 0) : [];
-  const eveningPractices = Array.isArray(currentSchedule.evening) ? currentSchedule.evening.map(evening => ({
+  const eveningPractices = Array.isArray(inSeasonSchedule.evening) ? inSeasonSchedule.evening.map(evening => ({
     ...evening,
     sessions: getVisiblePracticeSessions(evening.sessions)
   })).filter(evening => evening.sessions.length > 0) : [];
   if (morningPractices.length === 0 && eveningPractices.length === 0) return '';
-  
-  let html = '<div class="practice-schedule">';
-  html += '<h3>Regular Practice Schedule</h3>';
-  
-  // Add season info
-  if (currentSchedule.season) {
-    html += `<div class="season-info"><strong>Season:</strong> ${TeamsBrowserSafety.escapeHtml(currentSchedule.season)}</div>`;
-  }
-  
-  // Morning practices
+
+  let content = '';
   if (morningPractices.length > 0) {
     morningPractices.forEach(morning => {
-      html += '<div class="practice-period">';
-      html += '<strong>Morning Practice:</strong>';
-      html += `<div class="practice-details">`;
-      html += `<div><strong>Days:</strong> ${TeamsBrowserSafety.escapeHtml(morning.days)}</div>`;
+      content += '<div class="practice-period">';
+      content += '<strong>Morning Practice:</strong>';
+      content += '<div class="practice-details">';
+      content += `<div><strong>Days:</strong> ${TeamsBrowserSafety.escapeHtml(morning.days)}</div>`;
       if (morning.location) {
         const poolLink = getEnhancedPoolLink(morning.location, morning.address);
-        html += `<div><strong>Location:</strong> ${poolLink}</div>`;
+        content += `<div><strong>Location:</strong> ${poolLink}</div>`;
       }
-      if (morning.sessions.length > 0) {
-        html += '<div class="sessions">';
-        morning.sessions.forEach(session => {
-          html += `<div class="session-item">`;
-          html += `<span class="session-time">${TeamsBrowserSafety.escapeHtml(session.time)}</span>`;
-          html += `<span class="session-group">${TeamsBrowserSafety.escapeHtml(session.group)}</span>`;
-          html += `</div>`;
-        });
-        html += '</div>';
-      }
-      html += '</div></div>';
+      content += formatPracticeSessions(morning.sessions);
+      content += '</div></div>';
     });
   }
-  
-  // Evening practices
+
   if (eveningPractices.length > 0) {
     eveningPractices.forEach(evening => {
-      html += '<div class="practice-period">';
-      html += `<strong>${TeamsBrowserSafety.escapeHtml(evening.day)} Evening Practice:</strong>`;
-      html += `<div class="practice-details">`;
+      content += '<div class="practice-period">';
+      content += `<strong>${TeamsBrowserSafety.escapeHtml(evening.day)} Evening Practice:</strong>`;
+      content += '<div class="practice-details">';
       if (evening.location) {
         const poolLink = getEnhancedPoolLink(evening.location, evening.address);
-        html += `<div><strong>Location:</strong> ${poolLink}</div>`;
+        content += `<div><strong>Location:</strong> ${poolLink}</div>`;
       }
-      if (evening.sessions.length > 0) {
-        html += '<div class="sessions">';
-        evening.sessions.forEach(session => {
-          html += `<div class="session-item">`;
-          html += `<span class="session-time">${TeamsBrowserSafety.escapeHtml(session.time)}</span>`;
-          html += `<span class="session-group">${TeamsBrowserSafety.escapeHtml(session.group)}</span>`;
-          html += `</div>`;
-        });
-        html += '</div>';
-      }
-      html += '</div></div>';
+      content += formatPracticeSessions(evening.sessions);
+      content += '</div></div>';
     });
   }
-  
-  html += '</div>';
-  return html;
+
+  return formatPracticePhase('In-season practices', inSeasonSchedule.season, content, isCurrent);
+}
+
+function formatPracticeSchedules(practice) {
+  const currentPhase = globalThis.TeamScheduleService.getCurrentPracticePhase(practice);
+  const preSeasonHtml = formatPreseasonPracticeSchedule(practice, currentPhase === 'preseason');
+  const inSeasonHtml = formatInSeasonPracticeSchedule(practice, currentPhase === 'regular');
+  if (!preSeasonHtml && !inSeasonHtml) return '';
+
+  return `<section class="practice-schedule" aria-label="Practice schedules"><h3>Practice schedules</h3>${preSeasonHtml}${inSeasonHtml}</section>`;
 }
 
 /**
@@ -246,8 +259,6 @@ function formatTeamStaff(staff) {
     `).join('')}</ul>`;
   };
 
-  const safeSourceUrl = TeamsBrowserSafety.safeHttpUrl(staff.sourceUrl);
-
   return `
     <section class="team-staff" aria-label="Publicly listed team staff">
       <h3>Coaches &amp; Managers</h3>
@@ -260,7 +271,6 @@ function formatTeamStaff(staff) {
         </div>
       </div>
       ${staff.note ? `<p class="team-staff__note">${TeamsBrowserSafety.escapeHtml(staff.note)}</p>` : ''}
-      ${safeSourceUrl ? `<a class="team-staff__source" href="${safeSourceUrl}" target="_blank" rel="noopener">View CNSL team staff info</a>` : ''}
     </section>
   `;
 }
@@ -311,6 +321,7 @@ function renderTeams(teams) {
   const html = sortedTeams.map(team => {
     const teamName = team.name || 'Unknown Team';
     const safeTeamName = TeamsBrowserSafety.escapeHtml(teamName);
+    const safeShortName = TeamsBrowserSafety.escapeHtml(team.shortName || teamName);
     const teamId = String(team.id || '');
     const safeTeamId = TeamsBrowserSafety.escapeHtml(teamId);
     const detailsId = `team-details-${String(teamId || teamName).replace(/[^a-zA-Z0-9_-]/g, '-')}`;
@@ -318,6 +329,7 @@ function renderTeams(teams) {
     const practiceUrl = TeamsBrowserSafety.safeHttpUrl(team.practice && team.practice.url);
     const calendarUrl = TeamsBrowserSafety.safeHttpUrl(team.calendarUrl);
     const resultsUrl = TeamsBrowserSafety.safeHttpUrl(team.resultsUrl);
+    const merchandiseUrl = TeamsBrowserSafety.safeHttpUrl(team.merchandiseUrl);
     const isFavorite = teamId === favoriteTeamId;
     const isExpanded = isFavorite && favoriteTeamExpanded;
     const homePools = Array.isArray(team.homePools) ? team.homePools : [];
@@ -332,16 +344,15 @@ function renderTeams(teams) {
     const upcomingEvents = globalThis.TeamAgendaDisplay.getUpcomingEvents(team, teamsBrowserDataManager.getMeets().getAllMeets());
     const agendaTitleId = `team-agenda-title-${String(teamId || teamName).replace(/[^a-zA-Z0-9_-]/g, '-')}`;
     
-    // Format current practice schedule (no preseason)
-    const practiceScheduleHtml = formatCurrentPracticeSchedule(team.practice);
+    const practiceScheduleHtml = formatPracticeSchedules(team.practice);
     const staffHtml = formatTeamStaff(team.staff);
     
     const upcomingEventsHtml = `
       <section class="favorite-week" aria-labelledby="${agendaTitleId}">
         <div class="favorite-week__heading">
-          <h3 id="${agendaTitleId}">${TeamsBrowserSafety.escapeHtml(globalThis.TeamAgendaDisplay.getTitle(teamName))}</h3>
+          <h3 id="${agendaTitleId}">Upcoming events</h3>
         </div>
-        <p class="favorite-week__status">${TeamsBrowserSafety.escapeHtml(globalThis.TeamAgendaDisplay.getStatus(upcomingEvents))}</p>
+        ${upcomingEvents.length === 0 ? `<p class="favorite-week__status">${TeamsBrowserSafety.escapeHtml(globalThis.TeamAgendaDisplay.getStatus(upcomingEvents))}</p>` : ''}
         ${globalThis.TeamAgendaDisplay.renderEvents(upcomingEvents, 4)}
       </section>
     `;
@@ -371,13 +382,20 @@ function renderTeams(teams) {
             <h2><button type="button" class="team-header__toggle" aria-expanded="${String(isExpanded)}" aria-controls="${detailsId}">${safeTeamName}${isFavorite ? ' <span class="favorite-badge">Favorite team</span>' : ''}</button></h2>
           </div>
         </div>
-        
+
         <div class="team-details" id="${detailsId}"${isExpanded ? '' : ' hidden'}>
+          ${merchandiseUrl ? `
+            <a href="${merchandiseUrl}" target="_blank" rel="noopener noreferrer" class="team-merchandise">
+              <span class="team-merchandise__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 4 6 5.5 3.5 9 6 10.5V20h12v-9.5L20.5 9 18 5.5 15 4a3 3 0 0 1-6 0Z"></path><path d="M12 10.25v4.5"></path><path d="M9.75 12.5h4.5"></path></svg></span>
+              <span>Get Your Official ${safeShortName} Gear!<span class="visually-hidden"> (opens in new tab)</span></span>
+            </a>
+          ` : ''}
+
           ${upcomingEventsHtml}
           
           ${homePool ? `
             <div class="detail-item">
-              <strong>🏠 Home Pool:</strong> ${poolData ? 
+              <strong><span class="detail-item__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M2 7c1.5 0 2.25 1.5 3.75 1.5S8 7 9.5 7s2.25 1.5 3.75 1.5S15.5 7 17 7s2.25 1.5 3.75 1.5S23 7 23 7"></path><path d="M2 12c1.5 0 2.25 1.5 3.75 1.5S8 12 9.5 12s2.25 1.5 3.75 1.5S15.5 12 17 12s2.25 1.5 3.75 1.5S23 12 23 12"></path><path d="M2 17c1.5 0 2.25 1.5 3.75 1.5S8 17 9.5 17s2.25 1.5 3.75 1.5S15.5 17 17 17s2.25 1.5 3.75 1.5S23 17 23 17"></path></svg></span> Home Pool:</strong> ${poolData ? 
                 getEnhancedPoolLink(homePool, fallbackAddress) : 
                 TeamsBrowserSafety.escapeHtml(homePool)
               }
@@ -386,24 +404,18 @@ function renderTeams(teams) {
 
           ${staffHtml}
 
-          ${teamUrl ? `
+          ${practiceScheduleHtml}
+
+          ${teamUrl || calendarUrl || practiceUrl ? `
             <div class="team-actions team-actions--website">
-              <a href="${teamUrl}" target="_blank" rel="noopener" class="btn">🌐 Team Website</a>
+              ${teamUrl ? `<a href="${teamUrl}" target="_blank" rel="noopener" class="btn">🌐 Team Website</a>` : ''}
+              ${calendarUrl ? `<a href="${calendarUrl}" target="_blank" rel="noopener" class="btn">📅 Team Calendar</a>` : ''}
+              ${practiceUrl ? `<a href="${practiceUrl}" target="_blank" rel="noopener" class="btn">📅 Practice Schedule</a>` : ''}
             </div>
           ` : ''}
           
-          ${practiceScheduleHtml}
-          
-          ${practiceUrl || calendarUrl || resultsUrl ? `
+          ${resultsUrl ? `
             <div class="team-actions">
-              ${practiceUrl ? 
-                `<a href="${practiceUrl}" target="_blank" rel="noopener" class="btn">📅 Practice Schedule</a>` : 
-                ''
-              }
-              ${calendarUrl ?
-                `<a href="${calendarUrl}" target="_blank" rel="noopener" class="btn">📅 Team Calendar</a>` :
-                ''
-              }
               ${resultsUrl ? 
                 `<a href="${resultsUrl}" target="_blank" rel="noopener" class="btn">🏆 Swim Meet Results</a>` : 
                 ''
@@ -513,6 +525,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       toggleTeamCard(toggleButton);
       return;
     }
+
+    if (event.target.closest('a')) return;
 
     const cardSurface = event.target.closest('.team-card.collapsed, .team-header');
     if (!cardSurface) return;

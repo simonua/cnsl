@@ -67,4 +67,28 @@ describe('TeamScheduleService', () => {
       assert.equal(regularWeek[1].label, 'Morning Practice');
     });
   });
+
+  describe('getCurrentPracticePhase', () => {
+    const practice = {
+      preseason: [
+        { period: 'May 26 - May 29' },
+        { period: 'June 15 - June 18' }
+      ],
+      regular: { season: 'June 19 - July 24' }
+    };
+
+    it('should highlight pre-season before and through its final published period', () => {
+      assert.equal(TeamScheduleService.getCurrentPracticePhase(practice, new Date('2026-05-20T12:00:00')), 'preseason');
+      assert.equal(TeamScheduleService.getCurrentPracticePhase(practice, new Date('2026-06-18T12:00:00')), 'preseason');
+    });
+
+    it('should highlight in-season practices after pre-season until the season ends', () => {
+      assert.equal(TeamScheduleService.getCurrentPracticePhase(practice, new Date('2026-06-19T12:00:00')), 'regular');
+      assert.equal(TeamScheduleService.getCurrentPracticePhase(practice, new Date('2026-07-24T12:00:00')), 'regular');
+    });
+
+    it('should not highlight either practice phase after in-season practices end', () => {
+      assert.equal(TeamScheduleService.getCurrentPracticePhase(practice, new Date('2026-07-25T12:00:00')), null);
+    });
+  });
 });

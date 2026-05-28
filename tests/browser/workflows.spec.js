@@ -144,18 +144,18 @@ test('[WF-HOME-001] season summary and sharing actions appear only on the home p
   }
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_share' || eventArguments[1] === 'ca_external_link'))).toEqual([
     ['event', 'ca_share', { method: 'text', content_type: 'website', item_id: 'home_page' }],
-    ['event', 'ca_external_link', { link_context: 'share' }],
+    ['event', 'ca_external_link', { link_context: 'share', link_purpose: 'general' }],
     ['event', 'ca_share', { method: 'email', content_type: 'website', item_id: 'home_page' }],
-    ['event', 'ca_external_link', { link_context: 'share' }],
+    ['event', 'ca_external_link', { link_context: 'share', link_purpose: 'general' }],
     ['event', 'ca_share', { method: 'facebook', content_type: 'website', item_id: 'home_page' }],
-    ['event', 'ca_external_link', { link_context: 'share' }]
+    ['event', 'ca_external_link', { link_context: 'share', link_purpose: 'general' }]
   ]);
 
   await page.locator('a.directory-link').evaluate(link => {
     link.addEventListener('click', event => event.preventDefault(), { once: true });
     link.dispatchEvent(new globalThis.MouseEvent('click', { bubbles: true, cancelable: true }));
   });
-  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.at(-1))).toEqual(['event', 'ca_external_link', { link_context: 'official_information' }]);
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.at(-1))).toEqual(['event', 'ca_external_link', { link_context: 'official_information', link_purpose: 'general' }]);
 
   await page.setViewportSize(MOBILE_VIEWPORT);
   const compactLinkLayout = await page.locator('.quick-link-card').evaluateAll(cards => cards.map(card => {
@@ -489,18 +489,32 @@ test('[WF-TEAMS-001] collapsed favorite team stays collapsed after returning to 
   await expect(page.locator('.favorite-card .team-header__toggle')).toHaveAttribute('aria-expanded', 'false');
 });
 
-test('[WF-TEAMS-002] team directory displays verified regular practices from public team schedules', async ({ page }) => {
+test('[WF-TEAMS-002] team directory displays collapsed pre-season and in-season public practice schedules', async ({ page }) => {
   await setAgendaReferenceTime(page);
   await page.goto('/teams.html');
   await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
 
   const sundevils = page.locator('.team-card[data-team-id="cfhss"]');
   await sundevils.locator('.team-header__toggle').click();
-  await expect(sundevils.locator('.practice-schedule')).toContainText('Regular Practice Schedule');
-  await expect(sundevils.locator('.practice-schedule')).toContainText('Swansfield Pool');
-  await expect(sundevils.locator('.practice-schedule')).toContainText('8:00 - 8:30am');
-  await expect(sundevils.getByRole('link', { name: 'Practice Schedule' })).toHaveAttribute('href', /practice-schedule/);
-  await expect(sundevils.getByRole('link', { name: 'Team Calendar' })).toHaveAttribute('href', /\/page\/calendar$/);
+  const preSeason = sundevils.locator('.practice-schedule__phase').filter({ hasText: 'Pre-season practices' });
+  const inSeason = sundevils.locator('.practice-schedule__phase').filter({ hasText: 'In-season practices' });
+  await expect(preSeason).toHaveCount(1);
+  await expect(inSeason).toHaveCount(1);
+  await expect(preSeason).not.toHaveAttribute('open', '');
+  await expect(inSeason).not.toHaveAttribute('open', '');
+  await expect(preSeason).toHaveClass(/practice-schedule__phase--current/);
+  await expect(preSeason.locator('.practice-schedule__badge')).toHaveText('Current schedule');
+  await expect(inSeason).not.toHaveClass(/practice-schedule__phase--current/);
+  await inSeason.locator('summary').click();
+  await expect(inSeason.locator('.practice-schedule__body')).toBeVisible();
+  await expect(inSeason).toContainText('Swansfield Pool');
+  await expect(inSeason).toContainText('8:00 - 8:30am');
+  const primaryActions = sundevils.locator('.team-actions--website');
+  await expect(sundevils.locator('.practice-schedule ~ .team-actions--website')).toHaveCount(1);
+  await expect(primaryActions.locator('a')).toHaveText(['🌐 Team Website', '📅 Team Calendar', '📅 Practice Schedule']);
+  await expect(primaryActions.getByRole('link', { name: 'Team Website' })).toBeVisible();
+  await expect(primaryActions.getByRole('link', { name: 'Team Calendar' })).toHaveAttribute('href', /\/page\/calendar$/);
+  await expect(primaryActions.getByRole('link', { name: 'Practice Schedule' })).toHaveAttribute('href', /practice-schedule/);
 });
 
 test('[WF-TEAMS-003] team directory filters regular practice times to selected practice groups', async ({ page }) => {
@@ -510,12 +524,40 @@ test('[WF-TEAMS-003] team directory filters regular practice times to selected p
 
   const sundevils = page.locator('.team-card[data-team-id="cfhss"]');
   await sundevils.locator('.team-header__toggle').click();
-  const schedule = sundevils.locator('.practice-schedule');
+  const schedule = sundevils.locator('.practice-schedule__phase').filter({ hasText: 'In-season practices' });
+  await schedule.locator('summary').click();
   await expect(schedule).toContainText('8:30 - 9:15am');
   await expect(schedule).toContainText('5:00 - 5:45pm');
   await expect(schedule).not.toContainText('8:00 - 8:30am');
   await expect(schedule).not.toContainText('9:15 - 10:00am');
   await expect(schedule).not.toContainText('5:45 - 6:30pm');
+});
+
+test('[WF-TEAMS-004] merchandise action appears only for a team with a published store link', async ({ page }) => {
+  await initializeAnalyticsRecorder(page);
+  await page.goto('/teams.html');
+  await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
+
+  const marlins = page.locator('.team-card[data-team-id="lrm"]');
+  const merchandiseLink = marlins.getByRole('link', { name: 'Get Your Official Marlins Gear! (opens in new tab)' });
+  await expect(merchandiseLink).toBeHidden();
+  await marlins.locator('.team-header__toggle').click();
+  await expect(merchandiseLink).toBeVisible();
+  await expect(merchandiseLink)
+    .toHaveAttribute('href', 'https://2026-long-marlins-swimpreseason.spiritsale.com/');
+  await expect(marlins.getByRole('link', { name: 'Team Calendar' }))
+    .toHaveAttribute('href', 'https://www.gomotionapp.com/team/reccnsllrm/page/events');
+  await marlins.locator('.team-merchandise').evaluate(link => {
+    link.addEventListener('click', event => event.preventDefault(), { once: true });
+    link.click();
+  });
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.at(-1))).toEqual([
+    'event', 'ca_external_link', { link_context: 'team_details', link_purpose: 'merchandise' }
+  ]);
+  await expect(marlins.locator('.team-header__toggle')).toHaveAttribute('aria-expanded', 'true');
+
+  const sundevils = page.locator('.team-card[data-team-id="cfhss"]');
+  await expect(sundevils.locator('.team-merchandise')).toHaveCount(0);
 });
 
 test('[WF-AGENDA-001] team directory shows the same next practices and swim event agenda as home', async ({ page }) => {
@@ -526,7 +568,8 @@ test('[WF-AGENDA-001] team directory shows the same next practices and swim even
   const snappers = page.locator('.team-card[data-team-id="pls"]');
   await snappers.locator('.team-header__toggle').click();
   const agenda = snappers.locator('.favorite-week');
-  await expect(agenda.getByRole('heading', { name: /Phelps Luck Snappers: Upcoming events/ })).toBeVisible();
+  await expect(agenda.getByRole('heading', { name: 'Upcoming events' })).toBeVisible();
+  await expect(agenda.locator('.favorite-week__status')).toHaveCount(0);
   await expect(agenda.locator('.favorite-week__events li')).toHaveCount(3);
   await expect(agenda).toContainText('Next morning practice');
   await expect(agenda).toContainText('Next evening practice');
@@ -552,8 +595,9 @@ test('[WF-AGENDA-002] home page shows the next practices and swim event for a se
   await expect(agenda).toContainText('Next morning practice');
   await expect(agenda).toContainText('Next evening practice');
   await expect(agenda).toContainText('Next swim event: Time Trials for returning/experienced swimmers');
-  await expect(agenda).toContainText('Phelps Luck Pool');
-  await expect(agenda.getByRole('link', { name: 'Phelps Luck Pool' }).first()).toHaveAttribute('href', 'pools.html?pool=plp');
+  await expect(agenda).toContainText('Phelps Luck');
+  await expect(agenda).not.toContainText('Phelps Luck Pool');
+  await expect(agenda.getByRole('link', { name: 'Phelps Luck' }).first()).toHaveAttribute('href', 'pools.html?pool=plp');
   await expect(agenda).not.toContainText("Each Team's Home Pool");
   await expect(agenda).not.toContainText('Jeffers Hill Pool');
   await expect(agenda).toContainText('5:00 - 5:30pm First Splash');
@@ -609,7 +653,8 @@ test('[WF-AGENDA-004] home page loads agenda dependencies only after a favorite 
 
   await expect(page.locator('#favoriteWeek')).toBeVisible();
   await expect(page.locator('script[data-home-schedule-dependency]')).toHaveCount(8);
-  await expect(page.locator('#favoriteWeek')).toContainText('Phelps Luck Pool');
+  await expect(page.locator('#favoriteWeek')).toContainText('Phelps Luck');
+  await expect(page.locator('#favoriteWeek')).not.toContainText('Phelps Luck Pool');
 });
 
 test('[WF-POOLS-005] location distances use outlined pills and can sort nearest pools first', async ({ page }) => {
@@ -752,6 +797,22 @@ test('[WF-SECURITY-001] pool directory encodes text and rejects unsafe published
   await expect(page.locator('[data-injected="true"]')).toHaveCount(0);
   await expect(page.locator('a[href^="javascript:"]')).toHaveCount(0);
   await expect(page.locator('.phone-link').filter({ hasText: 'onclick=alert' })).toHaveCount(0);
+});
+
+test('[WF-SECURITY-002] team directory rejects an unsafe published merchandise destination', async ({ page }) => {
+  await page.route('**/assets/data/2026/teams/teams.json*', async route => {
+    const response = await route.fetch();
+    const teamData = await response.json();
+    const marlins = teamData.teams.find(team => team.id === 'lrm');
+    marlins.merchandiseUrl = 'javascript:alert(1)';
+    await route.fulfill({ response, json: teamData });
+  });
+
+  await page.goto('/teams.html');
+  await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
+  const marlins = page.locator('.team-card[data-team-id="lrm"]');
+  await expect(marlins.locator('.team-merchandise')).toHaveCount(0);
+  await expect(page.locator('a[href^="javascript:"]')).toHaveCount(0);
 });
 
 test('[WF-POOLS-006] desktop expanded pool details group contact links and fit the weekly calendar', async ({ page }) => {

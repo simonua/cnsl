@@ -40,6 +40,19 @@
   --weather-alert-action: #f0c34e;
   --weather-alert-action-hover: #e3b43c;
   --weather-alert-action-text: #392b00;
+  /* Water blue: actions; lagoon teal: current; amber: caution/favorite; coral: promotion; red: error. */
+  --current-bg: #e6f6f3;
+  --current-border: #168577;
+  --current-text: #09564e;
+  --current-badge-bg: #0f766e;
+  --current-badge-text: #ffffff;
+  --current-shadow: rgba(15, 118, 110, 0.28);
+  --promotion-bg: #df6b15;
+  --promotion-bg-hover: #cf5700;
+  --promotion-text: #ffffff;
+  --merchandise-bg: var(--promotion-bg);
+  --merchandise-bg-hover: var(--promotion-bg-hover);
+  --merchandise-text: var(--promotion-text);
   --weather-info-bg: rgba(255, 255, 255, 0.8);
   --warning-soft-bg: rgba(255, 193, 7, 0.15);
   --warning-soft-bg-muted: rgba(255, 193, 7, 0.1);
@@ -121,6 +134,18 @@
   --weather-alert-action: #f1c64b;
   --weather-alert-action-hover: #ffd76b;
   --weather-alert-action-text: #392b00;
+  --current-bg: #123633;
+  --current-border: #46bbae;
+  --current-text: #b5ece4;
+  --current-badge-bg: #53c6b8;
+  --current-badge-text: #082c29;
+  --current-shadow: rgba(83, 198, 184, 0.35);
+  --promotion-bg: #df6b15;
+  --promotion-bg-hover: #cf5700;
+  --promotion-text: #ffffff;
+  --merchandise-bg: var(--promotion-bg);
+  --merchandise-bg-hover: var(--promotion-bg-hover);
+  --merchandise-text: var(--promotion-text);
   --weather-info-bg: #162d3d;
   --warning-soft-bg: rgba(241, 198, 75, 0.16);
   --warning-soft-bg-muted: rgba(241, 198, 75, 0.1);
@@ -198,6 +223,18 @@
     --weather-alert-action: #f1c64b;
     --weather-alert-action-hover: #ffd76b;
     --weather-alert-action-text: #392b00;
+    --current-bg: #123633;
+    --current-border: #46bbae;
+    --current-text: #b5ece4;
+    --current-badge-bg: #53c6b8;
+    --current-badge-text: #082c29;
+    --current-shadow: rgba(83, 198, 184, 0.35);
+    --promotion-bg: #df6b15;
+    --promotion-bg-hover: #cf5700;
+    --promotion-text: #ffffff;
+    --merchandise-bg: var(--promotion-bg);
+    --merchandise-bg-hover: var(--promotion-bg-hover);
+    --merchandise-text: var(--promotion-text);
     --weather-info-bg: #162d3d;
     --warning-soft-bg: rgba(241, 198, 75, 0.16);
     --warning-soft-bg-muted: rgba(241, 198, 75, 0.1);
@@ -1184,15 +1221,55 @@ button.favorite-week__toggle:focus-visible {
   min-width: 0;
 }
 
+.favorite-week__event-label {
+  align-items: flex-start;
+  display: inline-flex;
+  gap: 0.45rem;
+}
+
+.favorite-week__event-icon {
+  display: inline-flex;
+  flex: 0 0 1.2rem;
+  font-size: 1.05rem;
+  justify-content: center;
+  line-height: 1;
+  margin-top: 0.18rem;
+  width: 1.2rem;
+}
+
 .favorite-week__event-name {
   grid-column: 1 / -1;
   grid-row: 2;
+  padding-left: 1.65rem;
 }
 
 .favorite-week__location {
+  align-items: flex-start;
+  align-self: start;
+  display: inline-flex;
+  gap: 0.3rem;
   grid-column: 2;
   grid-row: 1;
   text-align: right;
+}
+
+.favorite-week__pool-icon {
+  color: var(--primary-color);
+  display: inline-flex;
+  flex: 0 0 1rem;
+  height: 1rem;
+  margin-top: 0.2rem;
+  width: 1rem;
+}
+
+.favorite-week__pool-icon svg {
+  fill: none;
+  height: 100%;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.75;
+  width: 100%;
 }
 
 @media (min-width: 48.0625rem) {
@@ -1298,6 +1375,7 @@ input::placeholder {
 
 /* Buttons */
 .btn,
+.btn:visited,
 .install-app__button {
   padding: 0.875rem 1.5rem;
   font-size: 1.1rem;
@@ -1337,16 +1415,20 @@ input::placeholder {
 
 .btn:hover,
 .btn:focus,
+.btn:visited:hover,
+.btn:visited:focus,
 .install-app__button:hover,
 .install-app__button:focus {
   transform: translateY(-3px);
   box-shadow: var(--shadow-hover);
   background: linear-gradient(135deg, var(--accent-dark), var(--accent-deep));
+  color: var(--accent-text);
   text-decoration: none;
 }
 
 .btn:active,
 .install-app__button:active {
+  color: var(--accent-text);
   transform: translateY(-1px);
 }
 
@@ -1514,6 +1596,21 @@ nav a:focus {
 .detail-item strong {
   color: var(--text-dark);
   font-weight: 600;
+}
+
+.team-details .favorite-week {
+  border-top: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0.5rem;
+}
+
+.team-details .favorite-week + .detail-item {
+  padding-top: 0;
+}
+
+.team-details .team-merchandise {
+  margin-bottom: 0;
 }
 
 .meet-time-row {
@@ -2752,12 +2849,12 @@ button.pool-filter__clear:focus-visible {
 
 /* Current day highlighting */
 .day-schedule.current-day strong {
-  background: linear-gradient(135deg, var(--accent-bg), var(--accent-dark));
-  color: var(--accent-text);
+  background: var(--current-badge-bg);
+  color: var(--current-badge-text);
   padding: 0.3rem 0.6rem;
   border-radius: 6px;
   font-weight: 700;
-  box-shadow: 0 2px 8px var(--primary-soft-shadow);
+  box-shadow: 0 2px 8px var(--current-shadow);
   transform: scale(1.02);
   position: relative;
 }
@@ -2768,10 +2865,10 @@ button.pool-filter__clear:focus-visible {
 }
 
 .day-schedule.current-day {
-  background: var(--primary-soft-bg);
+  background: var(--current-bg);
   padding: 0.5rem;
   border-radius: 8px;
-  border-left: 4px solid var(--primary-color);
+  border-left: 4px solid var(--current-border);
   margin: 0.75rem 0;
 }
 
@@ -2781,7 +2878,7 @@ button.pool-filter__clear:focus-visible {
 }
 
 .pool-schedule-list .day-schedule.is-today .day-schedule__heading {
-  color: var(--primary-color);
+  color: var(--current-text);
   font-weight: 700;
 }
 
@@ -2809,8 +2906,8 @@ button.pool-filter__clear:focus-visible {
 }
 
 .schedule-calendar__day.is-today {
-  background-color: color-mix(in srgb, var(--primary-color) 6%, var(--white));
-  border: 2px solid var(--primary-color);
+  background-color: var(--current-bg);
+  border: 2px solid var(--current-border);
   flex: 1.7 1 12rem;
   min-width: 12rem;
 }
@@ -2835,9 +2932,9 @@ button.pool-filter__clear:focus-visible {
 }
 
 .schedule-calendar__today {
-  background-color: var(--accent-bg);
+  background-color: var(--current-badge-bg);
   border-radius: 0.25rem;
-  color: var(--accent-text);
+  color: var(--current-badge-text);
   font-size: 0.75rem;
   font-weight: 600;
   margin-left: auto;
@@ -3467,12 +3564,92 @@ button.pool-filter__clear:focus-visible {
 .team-logo-img--thl { background-position: 0 -186px; }
 .team-logo-img--wlw { background-position: -62px -186px; }
 
+.team-merchandise,
+.team-merchandise:visited {
+  align-items: center;
+  background: var(--merchandise-bg);
+  border: 1px solid var(--merchandise-bg-hover);
+  border-radius: var(--border-radius);
+  box-sizing: border-box;
+  color: var(--merchandise-text);
+  display: inline-flex;
+  font-size: 1.2rem;
+  font-weight: 700;
+  gap: 0.75rem;
+  justify-content: flex-start;
+  max-width: 100%;
+  min-height: 3.25rem;
+  margin: 0 auto 0.75rem;
+  padding: 0.75rem 1rem;
+  box-shadow: var(--shadow);
+  text-decoration: none;
+  transition: var(--transition);
+  width: fit-content;
+}
+
+.team-merchandise:hover,
+.team-merchandise:focus-visible {
+  background: var(--merchandise-bg-hover);
+  box-shadow: var(--shadow-hover);
+  color: var(--merchandise-text);
+  text-decoration: none;
+  transform: translateY(-2px);
+}
+
+.team-merchandise:focus-visible {
+  outline: 3px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.team-merchandise > span:not(.team-merchandise__icon) {
+  text-align: center;
+}
+
+.team-merchandise__icon {
+  align-items: center;
+  background: var(--merchandise-text);
+  border-radius: 50%;
+  color: var(--merchandise-bg);
+  display: inline-flex;
+  flex: 0 0 1.8rem;
+  height: 1.8rem;
+  justify-content: center;
+  line-height: 1;
+  width: 1.8rem;
+}
+
+.team-merchandise__icon svg {
+  fill: none;
+  height: 1.2rem;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.75;
+  width: 1.2rem;
+}
+
+.detail-item__icon {
+  color: var(--primary-color);
+  display: inline-flex;
+  margin-right: 0.2rem;
+  vertical-align: -0.2rem;
+}
+
+.detail-item__icon svg {
+  fill: none;
+  height: 1.15rem;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.75;
+  width: 1.15rem;
+}
+
 .practice-schedule {
   background-color: var(--light-bg);
   padding: 1rem;
   border-radius: var(--border-radius);
   margin: 0.75rem 0;
-  border-left: 3px solid var(--info-color);
 }
 
 .practice-schedule h3 {
@@ -3480,6 +3657,118 @@ button.pool-filter__clear:focus-visible {
   margin-bottom: 0.75rem;
   font-weight: 600;
   font-size: 1rem;
+}
+
+.practice-schedule__phase {
+  background: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+}
+
+.practice-schedule__phase:last-child {
+  margin-bottom: 0;
+}
+
+.practice-schedule__phase--current {
+  background: var(--current-bg);
+  border-color: var(--current-border);
+  box-shadow: inset 0.25rem 0 0 var(--current-border);
+}
+
+.practice-schedule__summary {
+  align-items: center;
+  cursor: pointer;
+  display: grid;
+  gap: 0.45rem 0.65rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  list-style: none;
+  min-height: 3rem;
+  padding: 0.7rem 0.8rem;
+}
+
+.practice-schedule__summary::-webkit-details-marker {
+  display: none;
+}
+
+.practice-schedule__summary:hover,
+.practice-schedule__summary:focus-visible {
+  background: var(--primary-soft-bg-strong);
+}
+
+.practice-schedule__phase--current .practice-schedule__summary:hover,
+.practice-schedule__phase--current .practice-schedule__summary:focus-visible {
+  background: var(--current-bg);
+  box-shadow: inset 0 0 0 1px var(--current-border);
+}
+
+.practice-schedule__title {
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+.practice-schedule__dates {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  grid-column: 1;
+  grid-row: 2;
+  white-space: nowrap;
+}
+
+.practice-schedule__phase--current .practice-schedule__title,
+.practice-schedule__phase--current .practice-schedule__dates {
+  color: var(--current-text);
+}
+
+.practice-schedule__badge {
+  background: var(--current-badge-bg);
+  border-radius: 999rem;
+  color: var(--current-badge-text);
+  font-size: 0.75rem;
+  font-weight: 700;
+  grid-column: 1;
+  grid-row: 3;
+  padding: 0.2rem 0.5rem;
+  width: max-content;
+}
+
+.practice-schedule__toggle-icon {
+  align-self: center;
+  color: var(--primary-text-color);
+  font-size: 0.75rem;
+  grid-column: 2;
+  grid-row: 1 / span 3;
+}
+
+.practice-schedule__phase:not([open]) .practice-schedule__toggle-icon {
+  transform: rotate(180deg);
+}
+
+.practice-schedule__body {
+  border-top: 1px solid var(--border-color);
+  padding: 0.8rem;
+}
+
+@media (min-width: 37.5rem) {
+  .practice-schedule__summary {
+    grid-template-columns: 10.25rem minmax(0, 1fr) auto;
+  }
+
+  .practice-schedule__dates {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .practice-schedule__badge {
+    grid-column: 1 / 3;
+    grid-row: 2;
+  }
+
+  .practice-schedule__toggle-icon {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
 }
 
 .team-staff {
@@ -3577,12 +3866,6 @@ button.pool-filter__clear:focus-visible {
 .team-staff__note {
   margin: 0.75rem 0 0;
   font-style: italic;
-}
-
-.team-staff__source {
-  display: inline-block;
-  margin-top: 0.75rem;
-  font-size: 0.85rem;
 }
 
 .practice-period {

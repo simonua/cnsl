@@ -58,7 +58,7 @@ describe('TeamAgendaDisplay', () => {
       }]);
 
       assert.match(html, /class="sessions"/);
-      assert.match(html, /class="favorite-week__event-heading">[\s\S]*class="favorite-week__location">Swansfield Pool<\/span>/);
+      assert.match(html, /class="favorite-week__event-heading">[\s\S]*class="favorite-week__location">[\s\S]*class="favorite-week__pool-icon" aria-hidden="true">[\s\S]*Swansfield<\/span>/);
       assert.match(html, /class="session-time">8:00 - 8:45am<\/span>[\s\S]*class="session-group">13 and over<\/span>/);
     });
 
@@ -73,7 +73,27 @@ describe('TeamAgendaDisplay', () => {
         type: 'meet'
       }]);
 
-      assert.match(html, /<strong>Next swim event:<\/strong>[\s\S]*<strong class="favorite-week__event-name">Time Trials for returning\/experienced swimmers<\/strong>/);
+      assert.match(html, /favorite-week__event-icon--event" aria-hidden="true">🏊<\/span>/);
+      assert.match(html, /<strong class="favorite-week__event-label">[\s\S]*Next swim event:<\/strong>[\s\S]*<strong class="favorite-week__event-name">Time Trials for returning\/experienced swimmers<\/strong>/);
+    });
+
+    it('renders decorative activity glyphs for morning and evening practices', () => {
+      const html = TeamAgendaDisplay.renderEvents([{
+        date: new Date(2026, 5, 17),
+        label: 'Next morning practice',
+        location: 'Swansfield Pool',
+        sessions: [],
+        teams: ''
+      }, {
+        date: new Date(2026, 5, 17),
+        label: 'Next evening practice',
+        location: 'Swansfield Pool',
+        sessions: [],
+        teams: ''
+      }]);
+
+      assert.match(html, /favorite-week__event-icon--morning" aria-hidden="true">☀️<\/span>/);
+      assert.match(html, /favorite-week__event-icon--evening" aria-hidden="true">🌙<\/span>/);
     });
   });
 

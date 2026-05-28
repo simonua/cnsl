@@ -18,6 +18,10 @@
   const ALLOWED_BANNER_NAMES = new Set(Object.values(BANNER_NAMES));
   const BANNER_ACTIONS = new Set(['view', 'open', 'dismiss']);
   const EXTERNAL_LINK_PROTOCOLS = new Set(['http:', 'https:', 'mailto:', 'sms:', 'tel:']);
+  const EXTERNAL_LINK_PURPOSES = Object.freeze({
+    GENERAL: 'general',
+    MERCHANDISE: 'merchandise'
+  });
   const EXTERNAL_LINK_CONTEXTS = Object.freeze([
     { selector: '.share-site__links', context: 'share' },
     { selector: '.share-site__feedback', context: 'feedback' },
@@ -78,6 +82,12 @@
     return matchedContext ? matchedContext.context : 'other';
   }
 
+  function getExternalLinkPurpose(link) {
+    return link.classList.contains('team-merchandise')
+      ? EXTERNAL_LINK_PURPOSES.MERCHANDISE
+      : EXTERNAL_LINK_PURPOSES.GENERAL;
+  }
+
   function isExternalLink(link) {
     const href = link.getAttribute('href');
     if (!href) return false;
@@ -107,7 +117,8 @@
       }
       if (clickedLink && isExternalLink(clickedLink)) {
         publishEvent('ca_external_link', {
-          link_context: getExternalLinkContext(clickedLink)
+          link_context: getExternalLinkContext(clickedLink),
+          link_purpose: getExternalLinkPurpose(clickedLink)
         });
       }
     });

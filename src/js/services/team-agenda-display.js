@@ -3,6 +3,12 @@
  */
 (function initializeTeamAgendaDisplay() {
   const SCHEDULE_LOOKAHEAD_DAYS = 366;
+  const EVENT_LABEL_ICONS = Object.freeze({
+    morning: '☀️',
+    evening: '🌙',
+    event: '🏊'
+  });
+  const POOL_ICON = '<svg viewBox="0 0 24 24"><path d="M2 7c1.5 0 2.25 1.5 3.75 1.5S8 7 9.5 7s2.25 1.5 3.75 1.5S15.5 7 17 7s2.25 1.5 3.75 1.5S23 7 23 7"></path><path d="M2 12c1.5 0 2.25 1.5 3.75 1.5S8 12 9.5 12s2.25 1.5 3.75 1.5S15.5 12 17 12s2.25 1.5 3.75 1.5S23 12 23 12"></path><path d="M2 17c1.5 0 2.25 1.5 3.75 1.5S8 17 9.5 17s2.25 1.5 3.75 1.5S15.5 17 17 17s2.25 1.5 3.75 1.5S23 17 23 17"></path></svg>';
 
   function startOfDay(value) {
     const date = new Date(value);
@@ -87,6 +93,21 @@
     return `<strong class="favorite-week__event-name">${globalThis.HtmlSafety.escapeHtml(event.name || 'Meet')}</strong>`;
   }
 
+  function renderEventLabel(event) {
+    const iconType = event.type === 'meet'
+      ? 'event'
+      : event.label === 'Next morning practice' ? 'morning' : event.label === 'Next evening practice' ? 'evening' : '';
+    const icon = iconType
+      ? `<span class="favorite-week__event-icon favorite-week__event-icon--${iconType}" aria-hidden="true">${EVENT_LABEL_ICONS[iconType]}</span>`
+      : '';
+    return `<strong class="favorite-week__event-label">${icon}${globalThis.HtmlSafety.escapeHtml(event.label)}</strong>`;
+  }
+
+  function renderLocation(location) {
+    const displayLocation = String(location || '').replace(/\s+Pool\s*$/i, '');
+    return `<span class="favorite-week__pool-icon" aria-hidden="true">${POOL_ICON}</span>${globalThis.generateLinkedPoolMentions(displayLocation)}`;
+  }
+
   function renderEvents(events, dayHeadingLevel = 3) {
     const headingTag = dayHeadingLevel === 4 ? 'h4' : 'h3';
     const days = new Map();
@@ -102,9 +123,9 @@
         <ul class="favorite-week__events">${day.events.map(event => `
           <li>
             <div class="favorite-week__event-heading">
-              <strong>${globalThis.HtmlSafety.escapeHtml(event.label)}</strong>
+              ${renderEventLabel(event)}
               ${renderEventName(event)}
-              <span class="favorite-week__location">${globalThis.generateLinkedPoolMentions(event.location)}</span>
+              <span class="favorite-week__location">${renderLocation(event.location)}</span>
             </div>
             ${event.teams ? `<span>${globalThis.HtmlSafety.escapeHtml(event.teams)}</span>` : ''}
             ${event.sessions.length > 0 ? `<div class="sessions">${event.sessions.map(session => `

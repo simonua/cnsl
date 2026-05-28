@@ -67,6 +67,26 @@ if (typeof window === 'undefined' || !window.TeamScheduleService) {
       return errors;
     }
 
+    static getCurrentPracticePhase(practice, referenceDate = new Date()) {
+      if (!practice) return null;
+
+      const today = new Date(referenceDate);
+      today.setHours(0, 0, 0, 0);
+      const preseasonRanges = (practice.preseason || [])
+        .map(period => TeamScheduleService.parseSeasonRange(period.period))
+        .filter(Boolean);
+      const preseasonEndDate = preseasonRanges.reduce((latestDate, range) => (
+        !latestDate || range.endDate > latestDate ? range.endDate : latestDate
+      ), null);
+
+      if (preseasonEndDate && today <= preseasonEndDate) return 'preseason';
+
+      const inSeasonRange = practice.regular && TeamScheduleService.parseSeasonRange(practice.regular.season);
+      if (inSeasonRange && today <= inSeasonRange.endDate) return 'regular';
+
+      return null;
+    }
+
     static getPracticePatterns(practice) {
       if (!practice) return [];
 
