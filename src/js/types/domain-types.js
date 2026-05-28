@@ -105,6 +105,7 @@
  * @property {string} url
  * @property {string} [resultsUrl]
  * @property {string} [calendarUrl]
+ * @property {string} merchandiseUrl
  * @property {string[]} homePools
  * @property {string} timeTrialsPool
  * @property {string[]} practicePools

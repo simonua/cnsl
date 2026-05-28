@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://example.com/teams.schema.json",
-  "version": "V6",
+  "version": "V7",
   "title": "Team Data Schema",
   "description": "Schema for team data containing practice schedules and team information",
   "type": "object",
@@ -49,6 +49,18 @@
         "calendarUrl": {
           "$ref": "#/definitions/NonEmptyString"
         },
+        "merchandiseUrl": {
+          "anyOf": [
+            {
+              "const": ""
+            },
+            {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^https://"
+            }
+          ]
+        },
         "homePools": {
           "type": "array",
           "items": {
@@ -73,7 +85,7 @@
           "$ref": "#/definitions/DetailedPractice"
         }
       },
-      "required": ["id", "name", "shortName", "keywords", "url", "homePools", "timeTrialsPool", "practicePools", "staff"],
+      "required": ["id", "name", "shortName", "keywords", "url", "merchandiseUrl", "homePools", "timeTrialsPool", "practicePools", "staff"],
       "additionalProperties": false
     },
     "TeamStaff": {
