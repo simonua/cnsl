@@ -22,6 +22,7 @@ When the intent is unclear, use Upcoming mode and do not change published versio
 ## Immutable History
 
 - Treat every dated version article in `src/views/whats-new.html` as a published historical record. Never edit, remove, or append bullets to an existing dated entry.
+- If the user explicitly requests a historical release-date header correction, update only the affected heading dates using verified publication dates; do not change the article copy or bullets.
 - Treat the current `APP_VERSION` and its matching dated entry as the prior published release boundary, not as a draft that can be amended.
 - Functionality not yet included in a newly published stable version belongs only in an undated `Upcoming` section above the dated articles.
 
@@ -40,9 +41,11 @@ In Upcoming mode:
 
 In Release mode:
 
-- Add a new dated version article above all earlier dated entries in `src/views/whats-new.html`; do not revise an existing version article.
+- Add a new dated version article above all earlier dated entries in `src/views/whats-new.html`, using a heading in the format `Version X.Y.Z - Month D, YYYY`; do not revise an existing version article unless the explicit historical header-correction exception applies.
 - Promote the released items out of `Upcoming`, leaving any remaining unreleased items there.
 - Update `APP_VERSION` and `APP_LAST_UPDATED_ON` in `src/js/config/app-config.js` for the new stable release.
+- Set `APP_LAST_UPDATED_ON` from the current local date in the configured app timezone (`America/New_York`, US Eastern), not from a UTC date that may already have rolled over.
+- Use that same local publication date, written as `Month D, YYYY`, in the new What's New release heading.
 
 ## What's New Writing Rules
 
