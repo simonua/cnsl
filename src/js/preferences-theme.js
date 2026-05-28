@@ -4,6 +4,7 @@
   function applyPreferenceTheme(preferences) {
     const selectedTheme = preferences && preferences.theme ? preferences.theme : 'system';
     document.documentElement.setAttribute('data-theme', selectedTheme);
+    document.documentElement.classList.toggle('has-saved-favorite-team', Boolean(preferences && preferences.favoriteTeamId));
   }
 
   window.applyPreferenceTheme = applyPreferenceTheme;

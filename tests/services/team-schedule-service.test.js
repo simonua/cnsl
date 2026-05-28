@@ -1,5 +1,8 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
 
 globalThis.YEAR = 2026;
 const { TeamScheduleService } = require('../../src/js/services/team-schedule-service');
@@ -9,6 +12,25 @@ describe('TeamScheduleService', () => {
     it('should expand published weekday ranges and lists', () => {
       assert.deepEqual(TeamScheduleService.parseWeekdays('Tuesday - Friday'), ['Tuesday', 'Wednesday', 'Thursday', 'Friday']);
       assert.deepEqual(TeamScheduleService.parseWeekdays('Monday & Wednesday'), ['Monday', 'Wednesday']);
+    });
+
+    it('returns no weekdays for non-text or unrecognized descriptions', () => {
+      assert.deepEqual(TeamScheduleService.parseWeekdays(null), []);
+      assert.deepEqual(TeamScheduleService.parseWeekdays('Pool closed'), []);
+      assert.deepEqual(TeamScheduleService.parseWeekdays('Monday through Friday'), ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']);
+    });
+  });
+
+  describe('parseSeasonRange', () => {
+    it('accepts valid ranges and rejects absent, malformed, invalid, or reversed ranges', () => {
+      assert.equal(TeamScheduleService.parseSeasonRange(null), null);
+      assert.equal(TeamScheduleService.parseSeasonRange('May 1 - May 2', null), null);
+      assert.equal(TeamScheduleService.parseSeasonRange('May 1'), null);
+      assert.equal(TeamScheduleService.parseSeasonRange('May 1 - May 2', 'not-a-year'), null);
+      assert.equal(TeamScheduleService.parseSeasonRange('May 2 - May 1'), null);
+      const range = TeamScheduleService.parseSeasonRange('May 1 - May 2');
+      assert.equal(range.startDate.getDate(), 1);
+      assert.equal(range.endDate.getDate(), 2);
     });
   });
 
@@ -30,6 +52,28 @@ describe('TeamScheduleService', () => {
         'regular morning entry 1 weekdays cannot be rendered: Weekdays.',
         'regular evening entry 1 weekdays cannot be rendered: Later.'
       ]);
+    });
+
+    it('returns no validation errors for absent or complete practice data', () => {
+      assert.deepEqual(TeamScheduleService.getValidationErrors(null), []);
+      assert.deepEqual(TeamScheduleService.getValidationErrors({
+        preseason: [{ period: 'May 26 - May 29', days: 'Tuesday - Friday' }],
+        regular: { season: 'June 19 - July 24', morning: [{ days: 'Monday' }], evening: [{ day: 'Friday' }] }
+      }), []);
+    });
+  });
+
+  describe('getPracticePatterns', () => {
+    it('skips invalid ranges and supplies empty session collections where omitted', () => {
+      assert.deepEqual(TeamScheduleService.getPracticePatterns(null), []);
+      assert.deepEqual(TeamScheduleService.getPracticePatterns({ preseason: [{ period: 'bad', days: 'Monday' }] }), []);
+      assert.deepEqual(TeamScheduleService.getPracticePatterns({ regular: { season: 'bad', morning: [{ days: 'Monday' }] } }), []);
+      const patterns = TeamScheduleService.getPracticePatterns({
+        preseason: [{ period: 'May 26 - May 29', days: 'Tuesday', location: 'A' }],
+        regular: { season: 'June 19 - July 24', morning: [{ days: 'Monday', location: 'B' }], evening: [{ day: 'Friday', location: 'C' }] }
+      });
+      assert.equal(patterns.length, 3);
+      assert.deepEqual(patterns.map(pattern => pattern.sessions), [[], [], []]);
     });
   });
 
@@ -77,8 +121,9 @@ describe('TeamScheduleService', () => {
       regular: { season: 'June 19 - July 24' }
     };
 
-    it('should highlight pre-season before and through its final published period', () => {
-      assert.equal(TeamScheduleService.getCurrentPracticePhase(practice, new Date('2026-05-20T12:00:00')), 'preseason');
+    it('should highlight pre-season only while inside a published pre-season period', () => {
+      assert.equal(TeamScheduleService.getCurrentPracticePhase(practice, new Date('2026-05-20T12:00:00')), null);
+      assert.equal(TeamScheduleService.getCurrentPracticePhase(practice, new Date('2026-06-01T12:00:00')), null);
       assert.equal(TeamScheduleService.getCurrentPracticePhase(practice, new Date('2026-06-18T12:00:00')), 'preseason');
     });
 
@@ -89,6 +134,27 @@ describe('TeamScheduleService', () => {
 
     it('should not highlight either practice phase after in-season practices end', () => {
       assert.equal(TeamScheduleService.getCurrentPracticePhase(practice, new Date('2026-07-25T12:00:00')), null);
+      assert.equal(TeamScheduleService.getCurrentPracticePhase(null, new Date('2026-07-25T12:00:00')), null);
+      assert.equal(TeamScheduleService.getCurrentPracticePhase({}, new Date('2026-07-25T12:00:00')), null);
+    });
+  });
+
+  describe('isCurrentPracticeRange', () => {
+    it('should identify only the date range containing the reference date', () => {
+      assert.equal(TeamScheduleService.isCurrentPracticeRange('May 26 - May 29', new Date('2026-05-28T12:00:00')), true);
+      assert.equal(TeamScheduleService.isCurrentPracticeRange('June 1 - June 18', new Date('2026-05-28T12:00:00')), false);
+      assert.equal(TeamScheduleService.isCurrentPracticeRange('Invalid', new Date('2026-05-28T12:00:00')), false);
+    });
+  });
+
+  describe('browser registration', () => {
+    it('should install the service as a browser script global', () => {
+      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'team-schedule-service.js');
+      const source = fs.readFileSync(sourcePath, 'utf8');
+      const context = { window: {} };
+      vm.runInNewContext(source, context, { filename: sourcePath });
+
+      assert.equal(typeof context.window.TeamScheduleService, 'function');
     });
   });
 });

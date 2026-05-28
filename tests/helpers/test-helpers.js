@@ -102,27 +102,27 @@ function createSampleMeetsData() {
         id: 'meet-1',
         date: tomorrow.toISOString().split('T')[0],
         time: '6:00PM',
-        homeTeam: 'Bryant Woods Barracudas',
-        awayTeam: 'Kendall Ridge Krakens',
-        location: 'Bryant Woods',
+        home_team: 'Bryant Woods Barracudas',
+        visiting_team: 'Kendall Ridge Krakens',
+        location: 'Bryant Woods Pool',
         type: 'Regular'
       },
       {
         id: 'meet-2',
         date: nextWeek.toISOString().split('T')[0],
         time: '9:00AM',
-        homeTeam: 'Kendall Ridge Krakens',
-        awayTeam: 'Bryant Woods Barracudas',
-        location: 'Kendall Ridge',
+        home_team: 'Kendall Ridge Krakens',
+        visiting_team: 'Bryant Woods Barracudas',
+        location: 'Kendall Ridge Pool',
         type: 'Regular'
       },
       {
         id: 'meet-3',
         date: lastWeek.toISOString().split('T')[0],
         time: '6:00PM',
-        homeTeam: 'Bryant Woods Barracudas',
-        awayTeam: 'Kendall Ridge Krakens',
-        location: 'Bryant Woods',
+        home_team: 'Bryant Woods Barracudas',
+        visiting_team: 'Kendall Ridge Krakens',
+        location: 'Bryant Woods Pool',
         type: 'Regular'
       }
     ]

@@ -32,6 +32,11 @@ describe('TeamAgendaDisplay', () => {
     it('uses the team name with a concise upcoming events label', () => {
       assert.equal(TeamAgendaDisplay.getTitle('Long Reach Marlins'), 'Long Reach Marlins: Upcoming events');
     });
+
+    it('reports whether no published events or several events are present', () => {
+      assert.match(TeamAgendaDisplay.getStatus([]), /No upcoming/);
+      assert.match(TeamAgendaDisplay.getStatus([{}, {}]), /Showing 2/);
+    });
   });
 
   describe('renderEvents', () => {
@@ -95,6 +100,12 @@ describe('TeamAgendaDisplay', () => {
       assert.match(html, /favorite-week__event-icon--morning" aria-hidden="true">☀️<\/span>/);
       assert.match(html, /favorite-week__event-icon--evening" aria-hidden="true">🌙<\/span>/);
     });
+
+    it('uses compact headings and renders team matchups when supplied', () => {
+      const html = TeamAgendaDisplay.renderEvents([{ date: new Date(2026, 5, 17), label: 'Other activity', location: '', sessions: [], teams: 'Visitor at Home', type: 'meet' }], 4);
+      assert.match(html, /<h4>/);
+      assert.match(html, /Visitor at Home/);
+    });
   });
 
   describe('getUpcomingEvents', () => {
@@ -113,6 +124,79 @@ describe('TeamAgendaDisplay', () => {
       assert.equal(phelpsLuckEvent.location, 'Phelps Luck Pool');
       assert.equal(TeamAgendaDisplay.getUpcomingEvents(pointersRun, [meet], new Date('2026-05-26'))[0].location, 'Jeffers Hill Pool');
       assert.equal(TeamAgendaDisplay.getUpcomingEvents(phelpsLuck, [{ ...meet, name: 'Future Delegated Event' }], new Date('2026-05-26'))[0].location, meet.location);
+    });
+
+    it('selects the first qualifying meet after sorting and applies fallback fields', () => {
+      const originalIncludesTeam = globalThis.PreferencesService.meetIncludesFavoriteTeam;
+      globalThis.PreferencesService.meetIncludesFavoriteTeam = meet => meet.homeTeam === 'Marlins';
+      try {
+        const events = TeamAgendaDisplay.getUpcomingEvents({ practice: {}, timeTrialsPool: '' }, [
+          { date: '', name: 'Missing Date' },
+          { date: '2026-06-11', awayTeam: 'Visitors', homeTeam: 'Other', location: 'Away Pool' },
+          { date: '2026-06-10', awayTeam: 'Visitors', homeTeam: 'Marlins', location: 'Home Pool' },
+          { date: '2026-06-09', location: 'Neutral Pool' },
+          { date: '2026-05-01', location: 'Past Pool' }
+        ], new Date('2026-05-26'));
+        assert.equal(events.length, 1);
+        assert.equal(events[0].name, 'Meet');
+        assert.equal(events[0].location, 'Neutral Pool');
+        assert.equal(events[0].teams, '');
+      } finally {
+        globalThis.PreferencesService.meetIncludesFavoriteTeam = originalIncludesTeam;
+      }
+    });
+
+    it('returns no agenda without a team and classifies sessions by their time labels', () => {
+      const originalGetUpcoming = globalThis.TeamScheduleService.getUpcomingPractices;
+      globalThis.TeamScheduleService.getUpcomingPractices = () => [
+        { date: new Date(2026, 5, 1), label: 'Practice', location: 'Pool', sessions: [{ time: '8:00am', group: 'A' }] },
+        { date: new Date(2026, 5, 1), label: 'Practice', location: 'Pool', sessions: [{ time: '5:00pm', group: 'B' }] },
+        { date: new Date(2026, 5, 1), label: 'Practice', location: 'Pool', sessions: [{ time: 'Noon', group: 'C' }] }
+      ];
+      try {
+        assert.deepEqual(TeamAgendaDisplay.getUpcomingEvents(null, []), []);
+        assert.deepEqual(TeamAgendaDisplay.getUpcomingEvents({ practice: {} }, [], new Date(2026, 5, 1)).map(event => event.label), ['Next morning practice', 'Next evening practice']);
+      } finally {
+        globalThis.TeamScheduleService.getUpcomingPractices = originalGetUpcoming;
+      }
+    });
+
+    it('uses published morning and evening practice labels before inspecting sessions', () => {
+      const originalGetUpcoming = globalThis.TeamScheduleService.getUpcomingPractices;
+      globalThis.TeamScheduleService.getUpcomingPractices = () => [
+        { date: new Date(2026, 5, 1), label: 'Morning Practice', location: 'Pool', sessions: [{ time: 'Noon', group: 'A' }] },
+        { date: new Date(2026, 5, 2), label: 'Evening Practice', location: 'Pool', sessions: [{ time: 'Noon', group: 'B' }] }
+      ];
+      try {
+        assert.deepEqual(TeamAgendaDisplay.getUpcomingEvents({ practice: {} }, [], new Date(2026, 5, 1)).map(event => event.label), ['Next morning practice', 'Next evening practice']);
+      } finally {
+        globalThis.TeamScheduleService.getUpcomingPractices = originalGetUpcoming;
+      }
+    });
+
+    it('omits a practice with no morning or evening scheduling signal', () => {
+      const originalGetUpcoming = globalThis.TeamScheduleService.getUpcomingPractices;
+      globalThis.TeamScheduleService.getUpcomingPractices = () => [
+        { date: new Date(2026, 5, 1), label: 'Practice', location: 'Pool', sessions: [{ time: 'Noon', group: 'A' }] }
+      ];
+      try {
+        assert.deepEqual(TeamAgendaDisplay.getUpcomingEvents({ practice: {} }, [], new Date(2026, 5, 1)), []);
+      } finally {
+        globalThis.TeamScheduleService.getUpcomingPractices = originalGetUpcoming;
+      }
+    });
+
+    it('omits practice groups hidden by user preferences and accepts non-array meet input', () => {
+      const originalGetUpcoming = globalThis.TeamScheduleService.getUpcomingPractices;
+      const originalFilterSessions = globalThis.PreferencesService.filterPracticeSessions;
+      globalThis.TeamScheduleService.getUpcomingPractices = () => [{ date: new Date(2026, 5, 1), label: 'Morning Practice', location: 'Pool', sessions: [{ time: '8:00am', group: 'A' }] }];
+      globalThis.PreferencesService.filterPracticeSessions = () => [];
+      try {
+        assert.deepEqual(TeamAgendaDisplay.getUpcomingEvents({ practice: {} }, null, new Date(2026, 5, 1)), []);
+      } finally {
+        globalThis.TeamScheduleService.getUpcomingPractices = originalGetUpcoming;
+        globalThis.PreferencesService.filterPracticeSessions = originalFilterSessions;
+      }
     });
   });
 });

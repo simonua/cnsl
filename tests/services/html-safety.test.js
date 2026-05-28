@@ -1,5 +1,8 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
 const HtmlSafety = require('../../src/js/services/html-safety.js');
 
 describe('HtmlSafety', () => {
@@ -26,6 +29,8 @@ describe('HtmlSafety', () => {
     });
 
     it('rejects executable and malformed destinations', () => {
+      assert.equal(HtmlSafety.safeHttpUrl(''), '');
+      assert.equal(HtmlSafety.safeHttpUrl('http://example.com/path'), 'http://example.com/path');
       assert.equal(HtmlSafety.safeHttpUrl('javascript:alert(1)'), '');
       assert.equal(HtmlSafety.safeHttpUrl('not a URL'), '');
     });
@@ -34,12 +39,25 @@ describe('HtmlSafety', () => {
   describe('contact destinations', () => {
     it('builds safe mail links with readable valid addresses', () => {
       assert.equal(HtmlSafety.safeMailtoUrl('coach@example.org'), 'mailto:coach@example.org');
+      assert.equal(HtmlSafety.safeMailtoUrl(null), '');
       assert.equal(HtmlSafety.safeMailtoUrl('coach@example.org\r\nBcc:bad@example.org'), '');
     });
 
     it('normalizes phone destinations and rejects injected values', () => {
       assert.equal(HtmlSafety.safeTelephoneUrl('(410) 555-0100'), 'tel:4105550100');
+      assert.equal(HtmlSafety.safeTelephoneUrl(null), '');
+      assert.equal(HtmlSafety.safeTelephoneUrl('+'), '');
       assert.equal(HtmlSafety.safeTelephoneUrl('410-555-0100 onclick=bad'), '');
+    });
+  });
+
+  describe('browser registration', () => {
+    it('installs the safety encoder as a browser script global', () => {
+      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'html-safety.js');
+      const source = fs.readFileSync(sourcePath, 'utf8');
+      const context = { window: {} };
+      vm.runInNewContext(source, context, { filename: sourcePath });
+      assert.equal(typeof context.window.HtmlSafety, 'function');
     });
   });
 });

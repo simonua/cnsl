@@ -189,7 +189,7 @@ if (typeof window === 'undefined' || !window.DataManager) {
 
   /**
    * Get a specific pool by name
-   * @param {string} poolName - Pool name (can use PoolNames enum)
+    * @param {string} poolName - Pool name from published annual data
    * @returns {Pool|null} - Pool object or null
    */
   getPool(poolName) {
@@ -203,148 +203,6 @@ if (typeof window === 'undefined' || !window.DataManager) {
    */
   getTeam(teamName) {
     return this.getTeams().getTeam(teamName);
-  }
-
-  /**
-   * Search across all data types
-   * @param {string} searchTerm - Term to search for
-   * @returns {Object} - Search results from all managers
-   */
-  search(searchTerm) {
-    if (!this.initialized) {
-      console.warn('DataManager: Not initialized. Call initialize() first.');
-      return { pools: [], teams: [], meets: [] };
-    }
-
-    return {
-      pools: this.poolsManager.searchPools(searchTerm),
-      teams: this.teamsManager.searchTeams(searchTerm),
-      meets: this.meetsManager.searchMeets(searchTerm)
-    };
-  }
-
-  /**
-   * Get comprehensive statistics
-   * @returns {Object} - Combined statistics from all managers
-   */
-  getStatistics() {
-    if (!this.initialized) {
-      return null;
-    }
-
-    return {
-      pools: this.poolsManager.getStatistics(),
-      teams: this.teamsManager.getStatistics(),
-      meets: this.meetsManager.getStatistics(),
-      lastUpdated: new Date().toISOString()
-    };
-  }
-
-  /**
-   * Get dashboard summary data
-   * @returns {Object} - Summary data for dashboard display
-   */
-  getDashboardSummary() {
-    if (!this.initialized) {
-      return null;
-    }
-
-    const poolsStats = this.poolsManager.getStatistics();
-    const teamsStats = this.teamsManager.getStatistics();
-    const meetsStats = this.meetsManager.getStatistics();
-
-    return {
-      overview: {
-        totalPools: poolsStats.totalPools,
-        openPools: poolsStats.openPools,
-        totalTeams: teamsStats.totalTeams,
-        upcomingMeets: meetsStats.upcomingMeets,
-        todaysMeets: meetsStats.todaysMeets
-      },
-      openPools: this.poolsManager.getOpenPools().map(pool => pool.getSummary()),
-      todaysEvents: this.poolsManager.getPoolsWithTodaysEvents().map(pool => ({
-        poolName: pool.getName(),
-        events: pool.getTodaysEvents()
-      })),
-      upcomingMeets: this.meetsManager.getUpcomingMeets(7), // Next 7 days
-      recentUpdates: {
-        pools: poolsStats.lastUpdated,
-        teams: teamsStats.lastUpdated,
-        meets: meetsStats.lastUpdated
-      }
-    };
-  }
-
-  /**
-   * Get pool schedule with meet conflicts
-   * @param {string} poolName - Pool name
-   * @param {string} date - Date to check
-   * @returns {Object} - Pool schedule with meet information
-   */
-  getPoolScheduleWithMeets(poolName, date) {
-    const pool = this.poolsManager.getPool(poolName);
-    if (!pool) return null;
-
-    const TimeUtilsRef = this._getTimeUtils();
-    if (!TimeUtilsRef) {
-      return null;
-    }
-
-    const dayName = TimeUtilsRef.getDayName(TimeUtilsRef.parseDateOnly(date));
-    const schedule = pool.getTimeSlots(dayName);
-    const meets = this.meetsManager.getPoolConflicts(poolName, date);
-
-    return {
-      poolName,
-      date,
-      dayName,
-      schedule,
-      meets,
-      hasMeets: meets.length > 0
-    };
-  }
-
-  /**
-   * Get team's pool information
-   * @param {string} teamName - Team name
-   * @returns {Object|null} - Team with pool details
-   */
-  getTeamWithPool(teamName) {
-    const team = this.teamsManager.getTeam(teamName);
-    if (!team) return null;
-
-    const pool = team.poolName ? this.poolsManager.getPool(team.poolName) : null;
-
-    return {
-      team,
-      pool: pool ? pool.getDetailedInfo() : null,
-      upcomingMeets: this.meetsManager.getMeetsByTeam(teamName)
-        .filter(meet => new Date(meet.date) >= new Date())
-        .slice(0, 5) // Next 5 meets
-    };
-  }
-
-  /**
-   * Get comprehensive pool information
-   * @param {string} poolName - Pool name
-   * @returns {Object|null} - Complete pool information
-   */
-  getCompletePoolInfo(poolName) {
-    const pool = this.poolsManager.getPool(poolName);
-    if (!pool) return null;
-
-    const teams = this.teamsManager.getTeamsByPool(poolName);
-    const upcomingMeets = this.meetsManager.getHomeMeetsByPool(poolName)
-      .filter(meet => new Date(meet.date) >= new Date())
-      .slice(0, 10); // Next 10 home meets
-
-    return {
-      pool: pool.getDetailedInfo(),
-      teams,
-      upcomingMeets,
-      teamCount: teams.length,
-      meetCount: upcomingMeets.length
-    };
   }
 
   /**
@@ -372,52 +230,6 @@ if (typeof window === 'undefined' || !window.DataManager) {
     return this.initialize(domains);
   }
 
-  /**
-   * Export all data
-   * @returns {Object} - All data from all managers
-   */
-  exportAllData() {
-    if (!this.initialized) {
-      return null;
-    }
-
-    return {
-      pools: this.poolsManager.exportData(),
-      teams: this.teamsManager.exportData(),
-      meets: this.meetsManager.exportData(),
-      statistics: this.getStatistics(),
-      exportedAt: new Date().toISOString()
-    };
-  }
-
-  /**
-   * Get status of data loading
-   * @returns {Object} - Status of each manager
-   */
-  getLoadingStatus() {
-    return {
-      initialized: this.initialized,
-      pools: Boolean(this.poolsManager && this.poolsManager.isDataLoaded()),
-      teams: Boolean(this.teamsManager && this.teamsManager.isDataLoaded()),
-      meets: Boolean(this.meetsManager && this.meetsManager.isDataLoaded())
-    };
-  }
-
-  /**
-   * Get TimeUtils reference safely
-   * @private
-   * @returns {Object|null} - TimeUtils object or null if not available
-   */
-  _getTimeUtils() {
-    if (typeof window !== 'undefined' && window.TimeUtils) {
-      return window.TimeUtils;
-    }
-    if (typeof TimeUtils !== 'undefined') {
-      return TimeUtils;
-    }
-    console.error('TimeUtils is not available in DataManager');
-    return null;
-  }
 }
 
 // Create global instance for backward compatibility

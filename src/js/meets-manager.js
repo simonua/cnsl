@@ -4,9 +4,14 @@
 
 // Prevent multiple declarations
 if (typeof window === 'undefined' || !window.MeetsManager) {
+
+if (typeof window === 'undefined') {
+  if (typeof Meet === 'undefined') { var Meet = require('./models/meet.js'); } // eslint-disable-line no-var
+}
+
   class MeetsManager {
   constructor() {
-    /** @type {Map<string, MeetRecord>} */
+    /** @type {Map<string, Meet>} */
     this.meets = new Map();
     this.lastUpdated = null;
     this.dataLoaded = false;
@@ -18,27 +23,18 @@ if (typeof window === 'undefined' || !window.MeetsManager) {
    */
   loadData(meetsData) {
     this.meets.clear();
-    
-    let meetsList = [];
-    
-    // Handle both old format (meets) and new format (regular_meets + special_meets)
-    if (meetsData && meetsData.meets) {
-      meetsList = meetsData.meets;
-    } else {
-      // Combine regular and special meets
-      if (meetsData && meetsData.regular_meets) {
-        meetsList = [...meetsData.regular_meets];
-      }
-      if (meetsData && meetsData.special_meets) {
-        meetsList = [...meetsList, ...meetsData.special_meets];
-      }
-    }
+    this.lastUpdated = null;
+    this.dataLoaded = false;
+    const meetsList = [
+      ...(meetsData && Array.isArray(meetsData.regular_meets) ? meetsData.regular_meets : []),
+      ...(meetsData && Array.isArray(meetsData.special_meets) ? meetsData.special_meets : [])
+    ];
     
     if (meetsList.length > 0) {
       meetsList.forEach((meetData, index) => {
-        // Create unique key from date, teams, and location
-        const meetKey = `${meetData.date}_${meetData.home_team || meetData.homeTeam || 'special'}_${meetData.visiting_team || meetData.awayTeam || 'meet'}_${index}`;
-        this.meets.set(meetKey, meetData);
+        const meet = new Meet(meetData);
+        const meetKey = `${meet.date}_${meet.home_team || 'special'}_${meet.visiting_team || meet.name || 'meet'}_${index}`;
+        this.meets.set(meetKey, meet);
       });
       
       this.lastUpdated = meetsData.lastUpdated || new Date().toISOString();
@@ -48,7 +44,7 @@ if (typeof window === 'undefined' || !window.MeetsManager) {
 
   /**
    * Get all meets
-    * @returns {MeetRecord[]} - Array of all meet objects
+    * @returns {Meet[]} - Array of all meet objects
    */
   getAllMeets() {
     return Array.from(this.meets.values());
@@ -65,7 +61,7 @@ if (typeof window === 'undefined' || !window.MeetsManager) {
   /**
    * Get meets by date
    * @param {string} date - Date in YYYY-MM-DD format
-    * @returns {MeetRecord[]} - Array of meets on specified date
+    * @returns {Meet[]} - Array of meets on specified date
    */
   getMeetsByDate(date) {
     return this.getAllMeets().filter(meet => meet.date === date);
@@ -74,41 +70,28 @@ if (typeof window === 'undefined' || !window.MeetsManager) {
   /**
    * Get meets by pool
    * @param {string} poolName - Pool name
-    * @returns {MeetRecord[]} - Array of meets at specified pool
+    * @returns {Meet[]} - Array of meets at specified pool
    */
   getMeetsByPool(poolName) {
-    return this.getAllMeets().filter(meet => 
-      meet.homePool === poolName || meet.awayPool === poolName
-    );
+    return this.getAllMeets().filter(meet => meet.occursAtPool(poolName));
   }
 
   /**
    * Get home meets for a pool
    * @param {string} poolName - Pool name
-    * @returns {MeetRecord[]} - Array of home meets for pool
+    * @returns {Meet[]} - Array of home meets for pool
    */
   getHomeMeetsByPool(poolName) {
-    return this.getAllMeets().filter(meet => meet.homePool === poolName);
-  }
-
-  /**
-   * Get away meets for a pool
-   * @param {string} poolName - Pool name
-    * @returns {MeetRecord[]} - Array of away meets for pool
-   */
-  getAwayMeetsByPool(poolName) {
-    return this.getAllMeets().filter(meet => meet.awayPool === poolName);
+    return this.getMeetsByPool(poolName);
   }
 
   /**
    * Get meets by team
    * @param {string} teamName - Team name
-    * @returns {MeetRecord[]} - Array of meets involving specified team
+    * @returns {Meet[]} - Array of meets involving specified team
    */
   getMeetsByTeam(teamName) {
-    return this.getAllMeets().filter(meet => 
-      meet.homeTeam === teamName || meet.awayTeam === teamName
-    );
+    return this.getAllMeets().filter(meet => meet.includesTeam(teamName));
   }
 
   /**
@@ -173,28 +156,14 @@ if (typeof window === 'undefined' || !window.MeetsManager) {
   /**
    * Search meets by term
    * @param {string} searchTerm - Term to search for
-    * @returns {MeetRecord[]} - Array of meets matching search term
+    * @returns {Meet[]} - Array of meets matching search term
    */
   searchMeets(searchTerm) {
     if (!searchTerm || searchTerm.trim() === '') {
       return this.getAllMeets();
     }
 
-    const term = searchTerm.toLowerCase();
-    return this.getAllMeets().filter(meet => {
-      return (
-        (meet.home_team && meet.home_team.toLowerCase().includes(term)) ||
-        (meet.visiting_team && meet.visiting_team.toLowerCase().includes(term)) ||
-        (meet.homeTeam && meet.homeTeam.toLowerCase().includes(term)) ||
-        (meet.awayTeam && meet.awayTeam.toLowerCase().includes(term)) ||
-        (meet.homePool && meet.homePool.toLowerCase().includes(term)) ||
-        (meet.awayPool && meet.awayPool.toLowerCase().includes(term)) ||
-        (meet.location && meet.location.toLowerCase().includes(term)) ||
-        (meet.date && meet.date.includes(term)) ||
-        (meet.time && meet.time.toLowerCase().includes(term)) ||
-        (meet.name && meet.name.toLowerCase().includes(term))
-      );
-    });
+    return this.getAllMeets().filter(meet => meet.matchesSearchTerm(searchTerm));
   }
 
   /**
@@ -210,20 +179,15 @@ if (typeof window === 'undefined' || !window.MeetsManager) {
     // Pool usage statistics
     const poolUsage = {};
     allMeets.forEach(meet => {
-      if (meet.homePool) {
-        poolUsage[meet.homePool] = (poolUsage[meet.homePool] || 0) + 1;
+      if (meet.getLocation()) {
+        poolUsage[meet.getLocation()] = (poolUsage[meet.getLocation()] || 0) + 1;
       }
     });
 
     // Team participation statistics
     const teamParticipation = {};
     allMeets.forEach(meet => {
-      if (meet.homeTeam) {
-        teamParticipation[meet.homeTeam] = (teamParticipation[meet.homeTeam] || 0) + 1;
-      }
-      if (meet.awayTeam) {
-        teamParticipation[meet.awayTeam] = (teamParticipation[meet.awayTeam] || 0) + 1;
-      }
+      meet.getParticipatingTeams().forEach(team => { teamParticipation[team] = (teamParticipation[team] || 0) + 1; });
     });
 
     // Monthly distribution
@@ -247,27 +211,6 @@ if (typeof window === 'undefined' || !window.MeetsManager) {
   }
 
   /**
-   * Get meet details
-   * @param {string} meetKey - Meet key (date_homePool_awayPool)
-    * @returns {MeetRecord|null} - Meet details or null
-   */
-  getMeetDetails(meetKey) {
-    return this.meets.get(meetKey) || null;
-  }
-
-  /**
-   * Get meet by details
-   * @param {string} date - Date
-   * @param {string} homePool - Home pool name
-   * @param {string} awayPool - Away pool name
-    * @returns {MeetRecord|null} - Meet details or null
-   */
-  getMeetByDetails(date, homePool, awayPool) {
-    const meetKey = `${date}_${homePool}_${awayPool}`;
-    return this.getMeetDetails(meetKey);
-  }
-
-  /**
    * Check if pool has meet on specific date
    * @param {string} poolName - Pool name
    * @param {string} date - Date to check
@@ -275,19 +218,17 @@ if (typeof window === 'undefined' || !window.MeetsManager) {
    */
   poolHasMeetOnDate(poolName, date) {
     const meets = this.getMeetsByDate(date);
-    return meets.some(meet => meet.homePool === poolName || meet.awayPool === poolName);
+    return meets.some(meet => meet.occursAtPool(poolName));
   }
 
   /**
    * Get conflicts for a pool on a date
    * @param {string} poolName - Pool name
    * @param {string} date - Date to check
-    * @returns {MeetRecord[]} - Array of conflicting meets
+    * @returns {Meet[]} - Array of conflicting meets
    */
   getPoolConflicts(poolName, date) {
-    return this.getMeetsByDate(date).filter(meet => 
-      meet.homePool === poolName || meet.awayPool === poolName
-    );
+    return this.getMeetsByDate(date).filter(meet => meet.occursAtPool(poolName));
   }
 
   /**
@@ -320,29 +261,6 @@ if (typeof window === 'undefined' || !window.MeetsManager) {
   }
 
   /**
-   * Add or update a meet
-    * @param {MeetRecord} meetData - Meet data object
-   */
-  addOrUpdateMeet(meetData) {
-    if (meetData && meetData.date && meetData.homePool && meetData.awayPool) {
-      const meetKey = `${meetData.date}_${meetData.homePool}_${meetData.awayPool}`;
-      this.meets.set(meetKey, meetData);
-    }
-  }
-
-  /**
-   * Remove a meet
-   * @param {string} date - Date
-   * @param {string} homePool - Home pool
-   * @param {string} awayPool - Away pool
-   * @returns {boolean} - True if meet was removed
-   */
-  removeMeet(date, homePool, awayPool) {
-    const meetKey = `${date}_${homePool}_${awayPool}`;
-    return this.meets.delete(meetKey);
-  }
-
-  /**
    * Get meets summary for display
    * @returns {Array} - Array of meet summaries
    */
@@ -356,10 +274,9 @@ if (typeof window === 'undefined' || !window.MeetsManager) {
       date: meet.date,
       formattedDate: TimeUtilsRef.formatDateForDisplay(new Date(meet.date)),
       time: meet.time || 'TBD',
-      homeTeam: meet.homeTeam || 'TBD',
-      awayTeam: meet.awayTeam || 'TBD',
-      homePool: meet.homePool || 'TBD',
-      awayPool: meet.awayPool || 'TBD',
+      homeTeam: meet.getHomeTeam() || 'TBD',
+      awayTeam: meet.getVisitingTeam() || 'TBD',
+      location: meet.getLocation() || 'TBD',
       isUpcoming: new Date(meet.date) >= new Date(),
       isPast: new Date(meet.date) < new Date(),
       isToday: meet.date === TimeUtilsRef.formatDate(new Date())

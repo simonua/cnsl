@@ -90,15 +90,18 @@ function formatPracticePhase(title, dateRange, content, isCurrent) {
 }
 
 function formatPreseasonPracticeSchedule(practice, isCurrent) {
-  const periods = Array.isArray(practice && practice.preseason) ? practice.preseason.map(period => ({
+  const publishedPeriods = Array.isArray(practice && practice.preseason) ? practice.preseason : [];
+  const currentPeriodIndex = isCurrent ? publishedPeriods.findIndex(period => globalThis.TeamScheduleService.isCurrentPracticeRange(period.period)) : -1;
+  const periods = publishedPeriods.map((period, index) => ({
     ...period,
-    sessions: getVisiblePracticeSessions(period.sessions)
-  })).filter(period => period.sessions.length > 0) : [];
+    sessions: getVisiblePracticeSessions(period.sessions),
+    isCurrent: index === currentPeriodIndex
+  })).filter(period => period.sessions.length > 0);
   if (periods.length === 0) return '';
 
   const content = periods.map(period => `
-    <div class="practice-period">
-      <strong>${TeamsBrowserSafety.escapeHtml(period.period)}</strong>
+    <div class="practice-period${period.isCurrent ? ' practice-period--current' : ''}">
+      <strong>${TeamsBrowserSafety.escapeHtml(period.period)}${period.isCurrent ? '<span class="practice-period__badge">Current period</span>' : ''}</strong>
       <div class="practice-details">
         <div><strong>Days:</strong> ${TeamsBrowserSafety.escapeHtml(period.days)}</div>
         <div><strong>Location:</strong> ${getEnhancedPoolLink(period.location, period.address)}</div>
@@ -442,42 +445,29 @@ function refreshTeamsForPreferences() {
 function handleTeamUrlParameter() {
   const urlParams = new URLSearchParams(window.location.search);
   const teamId = urlParams.get('team');
-  
-  if (teamId) {
-    // Wait a moment for the DOM to be ready, then find and expand the team
-    setTimeout(() => {
-      const escapedTeamId = window.CSS && typeof window.CSS.escape === 'function'
-        ? window.CSS.escape(teamId)
-        : teamId.replace(/[^a-zA-Z0-9_-]/g, '');
-      const teamCard = escapedTeamId ? document.querySelector(`[data-team-id="${escapedTeamId}"]`) : null;
-      if (teamCard) {
-        // Expand the team card
-        teamCard.classList.remove('collapsed');
-        const toggleButton = teamCard.querySelector('.team-header__toggle');
-        const details = teamCard.querySelector('.team-details');
-        if (toggleButton) toggleButton.setAttribute('aria-expanded', 'true');
-        if (details) details.hidden = false;
-        
-        // Add a highlight class for visual emphasis
-        teamCard.classList.add('highlighted');
-        
-        // Scroll to the team card
-        teamCard.scrollIntoView({ 
-          behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
-          block: 'center' 
-        });
-        
-        // Remove highlight after a few seconds
-        setTimeout(() => {
-          teamCard.classList.remove('highlighted');
-        }, 3000);
-      } else {
-        // If team card not found, try again after a short delay
-        // This handles cases where rendering is still in progress
-        setTimeout(() => handleTeamUrlParameter(), 100);
-      }
-    }, 150); // Increased timeout for better reliability
-  }
+  if (!teamId) return;
+
+  const escapedTeamId = window.CSS && typeof window.CSS.escape === 'function'
+    ? window.CSS.escape(teamId)
+    : teamId.replace(/[^a-zA-Z0-9_-]/g, '');
+  const teamCard = escapedTeamId ? document.querySelector(`[data-team-id="${escapedTeamId}"]`) : null;
+  if (!teamCard) return;
+
+  teamCard.classList.remove('collapsed');
+  const toggleButton = teamCard.querySelector('.team-header__toggle');
+  const details = teamCard.querySelector('.team-details');
+  if (toggleButton) toggleButton.setAttribute('aria-expanded', 'true');
+  if (details) details.hidden = false;
+
+  teamCard.classList.add('highlighted');
+  teamCard.scrollIntoView({
+    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+    block: 'center'
+  });
+
+  setTimeout(() => {
+    teamCard.classList.remove('highlighted');
+  }, 3000);
 }
 
 /**

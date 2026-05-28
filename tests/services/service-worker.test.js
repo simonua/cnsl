@@ -5,7 +5,8 @@ const path = require('node:path');
 const vm = require('node:vm');
 const { LOCAL_DEVELOPMENT_HOSTNAMES, LOCAL_DEVELOPMENT_PORT, PWA_CACHE_PREFIX } = require('../../src/js/config/app-config.js');
 
-const workerSource = fs.readFileSync(path.join(__dirname, '..', '..', 'service-worker.js'), 'utf8');
+const workerSourcePath = path.join(__dirname, '..', '..', 'service-worker.js');
+const workerSource = fs.readFileSync(workerSourcePath, 'utf8');
 const coreResources = [
   './',
   'index.html',
@@ -15,10 +16,11 @@ const coreResources = [
   'manifest.webmanifest'
 ];
 
-function createWorkerHarness(precacheResources) {
+function createWorkerHarness(precacheResources, options = {}) {
   const listeners = {};
   const cacheRecords = new Map();
   const deletedCaches = [];
+  const clientMessages = [];
   let skipWaitingCalls = 0;
   let fetchImplementation = async request => new Response(`network:${normalizeUrl(request)}`, { status: 200 });
 
@@ -47,10 +49,10 @@ function createWorkerHarness(precacheResources) {
   };
   const scope = {
     PRECACHE_RESOURCES: precacheResources,
-    location: new URL('https://pools.longreachmarlins.org/service-worker.js'),
+    location: new URL(options.location || 'https://pools.longreachmarlins.org/service-worker.js'),
     clients: {
       claim: async () => undefined,
-      matchAll: async () => []
+      matchAll: async () => [{ postMessage: message => clientMessages.push(message) }]
     },
     addEventListener(type, listener) {
       listeners[type] = listener;
@@ -77,7 +79,9 @@ function createWorkerHarness(precacheResources) {
         return true;
       }
     },
-    importScripts: () => undefined,
+    importScripts: source => {
+      if (options.failPrecacheImport && source.includes('precache-manifest')) throw new Error('No precache inventory');
+    },
     console: {
       log: () => undefined,
       warn: () => undefined,
@@ -85,12 +89,13 @@ function createWorkerHarness(precacheResources) {
     }
   };
 
-  vm.runInNewContext(workerSource, context);
+  vm.runInNewContext(workerSource, context, { filename: workerSourcePath });
 
   async function dispatch(type, request) {
     let resultPromise;
     const event = {
       request,
+      ...(type === 'message' ? request : {}),
       waitUntil(promise) {
         resultPromise = promise;
       },
@@ -104,6 +109,7 @@ function createWorkerHarness(precacheResources) {
 
   return {
     cacheRecords,
+    clientMessages,
     deletedCaches,
     dispatch,
     getSkipWaitingCalls: () => skipWaitingCalls,
@@ -194,5 +200,81 @@ describe('service worker cache strategy', () => {
     await harness.dispatch('activate');
 
     assert.deepEqual(harness.deletedCaches, [`${PWA_CACHE_PREFIX}old`]);
+    assert.equal(harness.clientMessages.length, 1);
+    assert.equal(harness.clientMessages[0].type, 'SW_UPDATED');
+    assert.equal(harness.clientMessages[0].version, 'development');
+  });
+
+  it('should use the minimum shell if the generated precache inventory is unavailable', async () => {
+    const harness = createWorkerHarness(undefined, { failPrecacheImport: true });
+    await harness.dispatch('install');
+    assert.equal(harness.getSkipWaitingCalls(), 1);
+    assert.ok([...harness.cacheRecords.keys()].some(url => url.includes('/offline.html?v=development')));
+  });
+
+  it('should bypass caching for local development requests and report failures safely', async () => {
+    const harness = createWorkerHarness(coreResources, { location: 'http://localhost:9090/service-worker.js' });
+    await harness.dispatch('install');
+    assert.equal(harness.getSkipWaitingCalls(), 1);
+    harness.setFetchImplementation(async () => new Response('fresh', { status: 200 }));
+    const response = await harness.dispatch('fetch', { method: 'GET', headers: {}, mode: 'cors', url: 'http://localhost:9090/index.html' });
+    assert.equal(await response.text(), 'fresh');
+    harness.setFetchImplementation(async () => { throw new Error('Offline'); });
+    const failedResponse = await harness.dispatch('fetch', { method: 'GET', headers: {}, mode: 'cors', url: 'http://localhost:9090/index.html' });
+    assert.equal(failedResponse.status, 500);
+  });
+
+  it('should ignore cross-origin requests and fetch non-GET same-origin requests directly', async () => {
+    const harness = createWorkerHarness(coreResources);
+    assert.equal(await harness.dispatch('fetch', { method: 'GET', mode: 'cors', url: 'https://example.com/file.js' }), undefined);
+    harness.setFetchImplementation(async () => new Response('posted', { status: 200 }));
+    const response = await harness.dispatch('fetch', { method: 'POST', mode: 'cors', url: 'https://pools.longreachmarlins.org/api' });
+    assert.equal(await response.text(), 'posted');
+  });
+
+  it('should update successful navigation and data responses and preserve unsuccessful network responses', async () => {
+    const harness = createWorkerHarness(coreResources);
+    harness.setFetchImplementation(async request => new Response(`fresh:${request.url || request}`, { status: 200 }));
+    const navigation = await harness.dispatch('fetch', { method: 'GET', mode: 'navigate', url: 'https://pools.longreachmarlins.org/new.html' });
+    assert.match(await navigation.text(), /new\.html/);
+    const data = await harness.dispatch('fetch', { method: 'GET', mode: 'cors', url: 'https://pools.longreachmarlins.org/assets/data/2026/pools/pools.json' });
+    assert.match(await data.text(), /pools\.json/);
+    harness.setFetchImplementation(async () => new Response('not found', { status: 404 }));
+    const missing = await harness.dispatch('fetch', { method: 'GET', mode: 'navigate', url: 'https://pools.longreachmarlins.org/missing.html' });
+    assert.equal(missing.status, 404);
+    const missingData = await harness.dispatch('fetch', { method: 'GET', mode: 'cors', url: 'https://pools.longreachmarlins.org/assets/data/2026/pools/missing.json' });
+    assert.equal(missingData.status, 404);
+  });
+
+  it('should return an offline JSON response when data is unavailable from both network and cache', async () => {
+    const harness = createWorkerHarness(coreResources);
+    harness.setFetchImplementation(async () => { throw new Error('Offline'); });
+    const response = await harness.dispatch('fetch', { method: 'GET', mode: 'cors', url: 'https://pools.longreachmarlins.org/assets/data/2026/pools/missing.json' });
+    assert.equal(response.status, 503);
+    assert.deepEqual(await response.json(), { error: 'Data unavailable while offline.' });
+  });
+
+  it('should use cached static resources and return a clear offline response when a static fetch fails', async () => {
+    const resourcePath = 'js/navigation.js';
+    const harness = createWorkerHarness([...coreResources, resourcePath]);
+    await harness.dispatch('install');
+    const cached = await harness.dispatch('fetch', { method: 'GET', mode: 'cors', url: `https://pools.longreachmarlins.org/${resourcePath}` });
+    assert.match(await cached.text(), /navigation\.js\?v=development/);
+    harness.setFetchImplementation(async () => { throw new Error('Offline'); });
+    const unavailable = await harness.dispatch('fetch', { method: 'GET', mode: 'cors', url: 'https://pools.longreachmarlins.org/new-resource.js' });
+    assert.equal(unavailable.status, 503);
+  });
+
+  it('should cache basic static network responses and accept skip-waiting messages', async () => {
+    const harness = createWorkerHarness(coreResources);
+    harness.setFetchImplementation(async request => {
+      const response = new Response(`network:${request.url}`, { status: 200 });
+      Object.defineProperty(response, 'type', { value: 'basic' });
+      return response;
+    });
+    const response = await harness.dispatch('fetch', { method: 'GET', mode: 'cors', url: 'https://pools.longreachmarlins.org/new-resource.js' });
+    assert.match(await response.text(), /new-resource\.js/);
+    await harness.dispatch('message', { data: { type: 'SKIP_WAITING' } });
+    assert.equal(harness.getSkipWaitingCalls(), 1);
   });
 });

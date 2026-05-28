@@ -188,8 +188,7 @@ async function renderMeets(meets) {
         `;
       }
 
-      // Handle special meets (Time Trials, Championships) differently
-      const isSpecialMeet = !meet.visiting_team && !meet.home_team && !meet.awayTeam && !meet.homeTeam;
+      const isSpecialMeet = meet.isSpecialMeet();
       const isFavoriteMeet = PreferencesService.meetIncludesFavoriteTeam(meet, favoriteTeam);
       
       let meetContent;
@@ -218,9 +217,9 @@ async function renderMeets(meets) {
             <div class="meet-info">
               ${isFavoriteMeet ? '<span class="favorite-meet__label">Favorite team meet</span>' : ''}
               <div class="meet-teams">
-                ${formatTeamLabel(meet.home_team || meet.homeTeam, 'home-team')}
+                ${formatTeamLabel(meet.getHomeTeam(), 'home-team')}
                 <span class="vs">vs.</span>
-                ${formatTeamLabel(meet.visiting_team || meet.awayTeam, 'visiting-team')}
+                ${formatTeamLabel(meet.getVisitingTeam(), 'visiting-team')}
               </div>
               <div class="meet-location-time">
                 <div class="meet-location-row">

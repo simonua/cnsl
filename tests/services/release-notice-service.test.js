@@ -1,5 +1,8 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
 const { createLocalStorageMock } = require('../helpers/test-helpers.js');
 const ReleaseNoticeService = require('../../src/js/services/release-notice-service.js');
 
@@ -45,6 +48,15 @@ describe('ReleaseNoticeService', () => {
     });
   });
 
+  describe('compareStableVersions', () => {
+    it('compares stable versions and rejects invalid operands', () => {
+      assert.equal(ReleaseNoticeService.compareStableVersions('2.2.0', '2.1.9'), 1);
+      assert.equal(ReleaseNoticeService.compareStableVersions('2.1.0', '2.2.0'), -1);
+      assert.equal(ReleaseNoticeService.compareStableVersions('2.1.1', '2.1.1'), 0);
+      assert.equal(ReleaseNoticeService.compareStableVersions('beta', '2.1.0'), null);
+    });
+  });
+
   describe('acknowledge', () => {
     it('should store the stable release acknowledged on this device', () => {
       const storage = createLocalStorageMock();
@@ -70,6 +82,16 @@ describe('ReleaseNoticeService', () => {
       assert.equal(ReleaseNoticeService.readAcknowledgedVersion(null, 'cnsl_current_version'), null);
       assert.equal(ReleaseNoticeService.acknowledge(unavailableStorage, 'cnsl_current_version', '2.1.0'), false);
       assert.equal(ReleaseNoticeService.acknowledge(unavailableStorage, '', '2.1.0'), false);
+    });
+  });
+
+  describe('browser registration', () => {
+    it('installs release notice logic as a browser script global', () => {
+      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'release-notice-service.js');
+      const source = fs.readFileSync(sourcePath, 'utf8');
+      const context = { window: {} };
+      vm.runInNewContext(source, context, { filename: sourcePath });
+      assert.equal(typeof context.window.ReleaseNoticeService, 'function');
     });
   });
 });

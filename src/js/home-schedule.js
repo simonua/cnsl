@@ -5,7 +5,9 @@
   const AGENDA_DEPENDENCIES = [
     'js/services/html-safety.js',
     'js/services/pool-link-helper.js',
+    'js/models/team.js',
     'js/teams-manager.js',
+    'js/models/meet.js',
     'js/meets-manager.js',
     'js/services/file-helper.js',
     'js/services/data-manager.js',
@@ -40,16 +42,20 @@
     const title = document.getElementById('favoriteWeekTitle');
     const status = document.getElementById('favoriteWeekStatus');
     const schedule = document.getElementById('favoriteWeekSchedule');
+    const shareSite = document.getElementById('shareSite');
     const favoriteTeamId = PreferencesService.get().favoriteTeamId;
     if (!section || !title || !status || !schedule) return;
+    document.documentElement.classList.toggle('has-saved-favorite-team', Boolean(favoriteTeamId));
+    if (shareSite) shareSite.hidden = true;
 
     if (!favoriteTeamId) {
       section.hidden = true;
       schedule.replaceChildren();
+      if (shareSite) shareSite.hidden = false;
       return;
     }
 
-    section.hidden = true;
+    section.hidden = false;
     title.textContent = 'Your team\'s upcoming events';
     status.hidden = false;
     status.textContent = 'Loading your team\'s schedule.';
@@ -86,6 +92,10 @@
 
       section.hidden = false;
       status.textContent = 'Your team schedule is currently unavailable. Please try again later.';
+    } finally {
+      if (shareSite && PreferencesService.get().favoriteTeamId === favoriteTeamId) {
+        shareSite.hidden = false;
+      }
     }
   }
 

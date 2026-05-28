@@ -13,7 +13,7 @@ CNSL (Columbia Neighborhood Swim League) is a PWA for pool directories, team sch
 - **Dev server**: `pnpm start` runs concurrent watch + BrowserSync on port 9090.
 - **Source structure**:
   - `src/views/` — HTML pages and PostHTML components/layouts
-  - `src/js/` — JavaScript (jQuery-based, no bundler)
+  - `src/js/` — JavaScript (native DOM APIs, no bundler)
   - `src/css/` — Stylesheets
   - `src/assets/data/<YEAR>/<domain>/` — annual JSON, schemas, and official schedule PDFs for pools, teams, and meets
   - `src/assets/` — Images, favicons, swim meet resources
@@ -30,7 +30,7 @@ CNSL (Columbia Neighborhood Swim League) is a PWA for pool directories, team sch
 - **Keep browser verification serialized.** When the nightly browser-verification workflow runs Playwright, invoke `pnpm run test:browser:nightly`; the Playwright configuration waits for any existing test run in the same workspace to complete before starting another.
 - **Scale local verification to affected behavior.** During iteration, run the narrowest check that exercises the changed module or workflow. Reserve complete unit and browser suites for cross-cutting behavior, release verification, or evidence that a focused change has wider impact; required CI and release gates remain unchanged.
 - **Drive behavior from semantic data, never presentation.** Business rules, state transitions, filtering, accessibility state, analytics decisions, and interaction behavior must be derived from domain data, typed/status values, or explicit semantic properties. Do not branch on CSS class names, colors, icons, visible labels, tooltip copy, or other rendering choices. Map semantic state to presentation only at the rendering boundary, and add regression coverage when this separation changes behavior.
-- **Use jQuery selectors** over vanilla DOM APIs in JavaScript.
+- **Use native DOM APIs** consistently with existing route controllers; do not add a DOM library for new behavior without an explicit architecture decision.
 - **No minified libraries** — use full versions for now.
 - **Document meaningful features in What's New without rewriting history.** Any meaningful visitor-facing feature addition must include a corresponding update to `src/views/whats-new.html` in the same change. Dated release entries are immutable historical records and must not be edited or removed. Until functionality is included in a newly published version, document it only in the undated `Upcoming` section.
 - **Delegate significant feature versioning.** When implementing or completing a significant visitor-facing change, invoke the `version-update` custom agent as a subagent to review the current diff and maintain the `Upcoming` note or prepare an explicitly requested new release. Do not bump `APP_VERSION` or create a dated release entry unless release publication is explicitly requested.

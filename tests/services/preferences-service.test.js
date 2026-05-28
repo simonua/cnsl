@@ -1,5 +1,8 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
 const { createLocalStorageMock } = require('../helpers/test-helpers.js');
 const PreferencesService = require('../../src/js/services/preferences-service.js');
 
@@ -73,6 +76,28 @@ describe('PreferencesService', () => {
       assert.equal(storage.getItem(PreferencesService.STORAGE_KEY), null);
       assert.deepEqual(PreferencesService.get(storage), PreferencesService.DEFAULT_PREFERENCES);
     });
+
+    it('fails safely with absent or restricted device storage', () => {
+      const restrictedStorage = { setItem: () => { throw new Error('blocked'); }, removeItem: () => { throw new Error('blocked'); } };
+      assert.deepEqual(PreferencesService.get(null), { ...PreferencesService.DEFAULT_PREFERENCES });
+      assert.deepEqual(PreferencesService.save({ theme: 'dark' }, restrictedStorage).theme, 'dark');
+      assert.doesNotThrow(() => PreferencesService.clear(null));
+      assert.doesNotThrow(() => PreferencesService.clear(restrictedStorage));
+      assert.equal(PreferencesService.getStorage(), null);
+      assert.equal(PreferencesService.save({ theme: 'light' }, null).theme, 'light');
+    });
+
+    it('discovers browser local storage when it is available', () => {
+      const storage = createLocalStorageMock();
+      globalThis.localStorage = storage;
+      try {
+        assert.equal(PreferencesService.getStorage(), storage);
+        assert.equal(PreferencesService.save({ theme: 'dark' }).theme, 'dark');
+        PreferencesService.clear();
+      } finally {
+        delete globalThis.localStorage;
+      }
+    });
   });
 
   describe('sortWithFavorite', () => {
@@ -105,6 +130,8 @@ describe('PreferencesService', () => {
       assert.deepEqual(PreferencesService.getPoolFeatures(pools), [
         'beach entry', 'pool lift', 'shade', 'slide', 'wading'
       ]);
+      assert.deepEqual(PreferencesService.getPoolFeatures(null), []);
+      assert.deepEqual(PreferencesService.getPoolFeatures([{ features: null }]), []);
     });
 
     it('groups available features by visitor need and retains new published features', () => {
@@ -117,6 +144,9 @@ describe('PreferencesService', () => {
         { key: 'recreation', label: 'Sports & recreation', features: ['baseball'] },
         { key: 'amenities', label: 'Amenities', features: ['wifi'] },
         { key: 'additional', label: 'Additional features', features: ['new amenity'] }
+      ]);
+      assert.deepEqual(PreferencesService.groupPoolFeatures(['pool lift']), [
+        { key: 'accessibility', label: 'Accessibility & inclusion', features: ['pool lift'] }
       ]);
     });
 
@@ -135,6 +165,8 @@ describe('PreferencesService', () => {
         ['Hopewell']
       );
       assert.deepEqual(PreferencesService.filterPoolsByFeatures(pools, []), pools);
+      assert.deepEqual(PreferencesService.filterPoolsByFeatures(null, ['slide']), []);
+      assert.deepEqual(PreferencesService.filterPoolsByFeatures([{ name: 'No Features' }], ['slide']), []);
     });
   });
 
@@ -185,6 +217,16 @@ describe('PreferencesService', () => {
         { group: 'New Swimmers' }
       ]);
     });
+
+    it('parses age ranges and fails safely for invalid session collections', () => {
+      assert.deepEqual(PreferencesService.getPracticeSessionAgeRange('8 and younger'), { minimumAge: 0, maximumAge: 8 });
+      assert.deepEqual(PreferencesService.getPracticeSessionAgeRange('13 and older'), { minimumAge: 13, maximumAge: 18 });
+      assert.equal(PreferencesService.getPracticeSessionAgeRange('14 - 10'), null);
+      assert.deepEqual(PreferencesService.getPracticeSessionAgeRange('9 - 10'), { minimumAge: 9, maximumAge: 10 });
+      assert.equal(PreferencesService.getPracticeSessionAgeRange('Swimmer'), null);
+      assert.equal(PreferencesService.getPracticeSessionAgeRange(null), null);
+      assert.deepEqual(PreferencesService.filterPracticeSessions(null, []), []);
+    });
   });
 
   describe('favorite meet matching', () => {
@@ -197,6 +239,7 @@ describe('PreferencesService', () => {
     it('finds the favorite team by its stable id', () => {
       assert.equal(PreferencesService.findFavoriteTeam([favoriteTeam], 'cfhss'), favoriteTeam);
       assert.equal(PreferencesService.findFavoriteTeam([favoriteTeam], 'missing'), null);
+      assert.equal(PreferencesService.findFavoriteTeam(null, 'cfhss'), null);
     });
 
     it('matches league schedule aliases in snake-case meet fields', () => {
@@ -208,6 +251,8 @@ describe('PreferencesService', () => {
       assert.equal(PreferencesService.meetIncludesFavoriteTeam({ homeTeam: 'CHS Swim Sundevils' }, favoriteTeam), true);
       assert.equal(PreferencesService.meetIncludesFavoriteTeam({ home_team: 'Long Reach', visiting_team: 'Wilde Lake' }, favoriteTeam), false);
       assert.equal(PreferencesService.meetIncludesFavoriteTeam({ name: 'Time Trials' }, favoriteTeam), false);
+      assert.equal(PreferencesService.meetIncludesFavoriteTeam({ homeTeam: 'Sundevils' }, { name: 'CHS Swim Sundevils', keywords: [null, 'sd'] }), true);
+      assert.equal(PreferencesService.meetIncludesFavoriteTeam({}, null), false);
     });
 
     it('hoists the favorite matchup while preserving the remaining meet order', () => {
@@ -219,6 +264,24 @@ describe('PreferencesService', () => {
 
       assert.deepEqual(PreferencesService.sortMeetsWithFavorite(meets, favoriteTeam), [meets[1], meets[0], meets[2]]);
       assert.deepEqual(PreferencesService.sortMeetsWithFavorite(meets, null), meets);
+      assert.deepEqual(PreferencesService.sortMeetsWithFavorite(null, favoriteTeam), []);
+      assert.deepEqual(PreferencesService.sortMeetsWithFavorite([meets[1], { home_team: 'Swansfield' }], favoriteTeam).length, 2);
+    });
+
+    it('rejects missing label inputs before alias matching', () => {
+      assert.equal(PreferencesService.teamMatchesLabel(null, 'team'), false);
+      assert.equal(PreferencesService.teamMatchesLabel(favoriteTeam, null), false);
+      assert.equal(PreferencesService.meetIncludesFavoriteTeam(null, favoriteTeam), false);
+    });
+  });
+
+  describe('browser registration', () => {
+    it('installs preferences as a browser script global', () => {
+      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'preferences-service.js');
+      const source = fs.readFileSync(sourcePath, 'utf8');
+      const context = { window: {}, globalThis: { PREFERENCES_STORAGE_KEY: 'prefs', WEATHER_ALERT_REFRESH_MINUTES_OPTIONS: [0, 5], WEATHER_ALERT_DEFAULT_REFRESH_MINUTES: 5 } };
+      vm.runInNewContext(source, context, { filename: sourcePath });
+      assert.equal(typeof context.window.PreferencesService, 'function');
     });
   });
 });

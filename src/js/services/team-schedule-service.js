@@ -67,22 +67,20 @@ if (typeof window === 'undefined' || !window.TeamScheduleService) {
       return errors;
     }
 
-    static getCurrentPracticePhase(practice, referenceDate = new Date()) {
-      if (!practice) return null;
+    static isCurrentPracticeRange(range, referenceDate = new Date()) {
+      const practiceRange = TeamScheduleService.parseSeasonRange(range);
+      if (!practiceRange) return false;
 
       const today = new Date(referenceDate);
       today.setHours(0, 0, 0, 0);
-      const preseasonRanges = (practice.preseason || [])
-        .map(period => TeamScheduleService.parseSeasonRange(period.period))
-        .filter(Boolean);
-      const preseasonEndDate = preseasonRanges.reduce((latestDate, range) => (
-        !latestDate || range.endDate > latestDate ? range.endDate : latestDate
-      ), null);
+      return today >= practiceRange.startDate && today <= practiceRange.endDate;
+    }
 
-      if (preseasonEndDate && today <= preseasonEndDate) return 'preseason';
+    static getCurrentPracticePhase(practice, referenceDate = new Date()) {
+      if (!practice) return null;
 
-      const inSeasonRange = practice.regular && TeamScheduleService.parseSeasonRange(practice.regular.season);
-      if (inSeasonRange && today <= inSeasonRange.endDate) return 'regular';
+      if ((practice.preseason || []).some(period => TeamScheduleService.isCurrentPracticeRange(period.period, referenceDate))) return 'preseason';
+      if (practice.regular && TeamScheduleService.isCurrentPracticeRange(practice.regular.season, referenceDate)) return 'regular';
 
       return null;
     }

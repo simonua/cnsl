@@ -1,5 +1,8 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
 const { createLocalStorageMock } = require('../helpers/test-helpers.js');
 const SettingsNoticeService = require('../../src/js/services/settings-notice-service.js');
 
@@ -36,6 +39,16 @@ describe('SettingsNoticeService', () => {
       assert.equal(SettingsNoticeService.dismiss(unavailableStorage, 'cnsl_settings_notice_dismissed'), false);
       assert.equal(SettingsNoticeService.dismiss(null, 'cnsl_settings_notice_dismissed'), false);
       assert.equal(SettingsNoticeService.dismiss(unavailableStorage, ''), false);
+    });
+  });
+
+  describe('browser registration', () => {
+    it('installs settings notice logic as a browser script global', () => {
+      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'settings-notice-service.js');
+      const source = fs.readFileSync(sourcePath, 'utf8');
+      const context = { window: {} };
+      vm.runInNewContext(source, context, { filename: sourcePath });
+      assert.equal(typeof context.window.SettingsNoticeService, 'function');
     });
   });
 });

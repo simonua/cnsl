@@ -509,6 +509,13 @@ test('[WF-TEAMS-002] team directory displays collapsed pre-season and in-season 
   await expect(inSeason).not.toHaveAttribute('open', '');
   await expect(preSeason).toHaveClass(/practice-schedule__phase--current/);
   await expect(preSeason.locator('.practice-schedule__badge')).toHaveText('Current schedule');
+  await preSeason.locator('summary').click();
+  await expect(preSeason.locator('.practice-period--current')).toHaveCount(1);
+  await expect(preSeason.locator('.practice-period--current')).toContainText('May 26 - May 29');
+  await expect(preSeason.locator('.practice-period__badge')).toHaveText('Current period');
+  const practicePanelWidth = await sundevils.locator('.practice-schedule').evaluate(element => element.getBoundingClientRect().width);
+  const teamCardWidth = await sundevils.evaluate(element => element.getBoundingClientRect().width);
+  expect(practicePanelWidth).toBeLessThan(teamCardWidth);
   await expect(inSeason).not.toHaveClass(/practice-schedule__phase--current/);
   await inSeason.locator('summary').click();
   await expect(inSeason.locator('.practice-schedule__body')).toBeVisible();
@@ -565,6 +572,18 @@ test('[WF-TEAMS-004] merchandise action appears only for a team with a published
   await expect(sundevils.locator('.team-merchandise')).toHaveCount(0);
 });
 
+test('[WF-TEAMS-005] unknown team deep links leave the loaded directory stable', async ({ page }) => {
+  await page.goto('/teams.html?team=not-a-published-team%22%5D');
+  await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
+  const teamCards = page.locator('.team-card');
+  const renderedTeamCount = await teamCards.count();
+  expect(renderedTeamCount).toBeGreaterThan(0);
+  await expect(page.locator('.team-card.highlighted')).toHaveCount(0);
+  await page.waitForTimeout(300);
+  await expect(teamCards).toHaveCount(renderedTeamCount);
+  await expect(page.locator('.team-card.highlighted')).toHaveCount(0);
+});
+
 test('[WF-AGENDA-001] team directory shows the same next practices and swim event agenda as home', async ({ page }) => {
   await setAgendaReferenceTime(page);
   await page.goto('/teams.html');
@@ -599,7 +618,10 @@ test('[WF-AGENDA-002] home page shows the next practices and swim event for a se
 
   const agenda = page.locator('#favoriteWeek');
   await teamRequestStarted;
-  await expect(agenda).toBeHidden();
+  await expect(agenda).toBeVisible();
+  await expect(page.locator('#shareSite')).toBeHidden();
+  await expect(page.locator('html')).toHaveClass(/has-saved-favorite-team/);
+  await expect(page.locator('#favoriteWeekStatus')).toHaveText("Loading your team's schedule.");
   resolveTeamRequest();
   await expect(agenda).toBeVisible();
   await expect(agenda.getByRole('heading', { name: /Upcoming Snappers events/ })).toBeVisible();
@@ -618,6 +640,12 @@ test('[WF-AGENDA-002] home page shows the next practices and swim event for a se
   await expect(agenda).not.toContainText("Each Team's Home Pool");
   await expect(agenda).not.toContainText('Jeffers Hill Pool');
   await expect(agenda).toContainText('5:00 - 5:30pm First Splash');
+  await expect(page.locator('#shareSite')).toBeVisible();
+  await expect.poll(() => page.evaluate(() => {
+    const agendaBottom = globalThis.document.getElementById('favoriteWeek').getBoundingClientRect().bottom;
+    const shareTop = globalThis.document.getElementById('shareSite').getBoundingClientRect().top;
+    return shareTop >= agendaBottom;
+  })).toBe(true);
 
   const toggle = page.locator('#favoriteWeekToggle');
   await toggle.press('Enter');
@@ -661,6 +689,7 @@ test('[WF-AGENDA-004] home page loads agenda dependencies only after a favorite 
   await page.goto('/index.html');
 
   await expect(page.locator('#favoriteWeek')).toBeHidden();
+  await expect(page.locator('#shareSite')).toBeVisible();
   await expect(page.locator('script[data-home-schedule-dependency]')).toHaveCount(0);
 
   await page.evaluate(() => {
@@ -669,7 +698,7 @@ test('[WF-AGENDA-004] home page loads agenda dependencies only after a favorite 
   });
 
   await expect(page.locator('#favoriteWeek')).toBeVisible();
-  await expect(page.locator('script[data-home-schedule-dependency]')).toHaveCount(8);
+  await expect(page.locator('script[data-home-schedule-dependency]')).toHaveCount(10);
   await expect(page.locator('#favoriteWeek')).toContainText('Phelps Luck');
   await expect(page.locator('#favoriteWeek')).not.toContainText('Phelps Luck Pool');
 });

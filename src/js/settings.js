@@ -7,6 +7,7 @@
     { source: 'js/pool-schedule.js', ready: () => Boolean(window.PoolSchedule) },
     { source: 'js/models/pool.js', ready: () => Boolean(window.Pool) },
     { source: 'js/pools-manager.js', ready: () => Boolean(window.PoolsManager) },
+    { source: 'js/models/team.js', ready: () => Boolean(window.Team) },
     { source: 'js/teams-manager.js', ready: () => Boolean(window.TeamsManager) },
     { source: 'js/services/file-helper.js', ready: () => Boolean(window.FileHelper) },
     { source: 'js/services/data-manager.js', ready: () => Boolean(window.DataManager) }

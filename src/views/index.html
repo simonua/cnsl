@@ -50,7 +50,7 @@
       </p>
     </div>
     <include src="components/quick-links.html"></include>
-    <section class="favorite-week" id="favoriteWeek" aria-labelledby="favoriteWeekTitle" hidden>
+    <section class="favorite-week" id="favoriteWeek" aria-labelledby="favoriteWeekTitle">
       <div class="favorite-week__heading">
         <h2><button class="favorite-week__toggle" id="favoriteWeekToggle" type="button" aria-expanded="true" aria-controls="favoriteWeekContent"><span id="favoriteWeekTitle">Your team's upcoming events</span><span class="favorite-week__toggle-icon" aria-hidden="true">&#9650;</span></button></h2>
       </div>
@@ -60,7 +60,7 @@
         <div id="favoriteWeekSchedule"></div>
       </div>
     </section>
-    <section class="share-site" aria-labelledby="shareSiteTitle">
+    <section class="share-site" id="shareSite" aria-labelledby="shareSiteTitle" hidden>
       <h2 class="share-site__title" id="shareSiteTitle">Share this site</h2>
       <div class="share-site__links">
         <a class="share-site__link" data-analytics-share-method="text" href="{{ EXTERNAL_LINKS.SMS_SHARE }}">

@@ -1,6 +1,6 @@
 /**
  * File Helper Utility
- * Provides static methods for resolving correct file paths in both development and production environments
+ * Provides static methods for resolving paths in the delivered application layout.
  * 
  * @author Simon Kurtz
  * @version 1.0.0
@@ -19,63 +19,6 @@ if (typeof window === 'undefined' || !window.FileHelper) {
   class FileHelper {
   
   // ------------------------------
-  //    ENVIRONMENT DETECTION
-  // ------------------------------
-
-  /**
-   * Determines if the application is running in development mode
-   * @returns {boolean} True if in development mode
-   */
-  static isDevelopmentMode() {
-    // Check for localhost/127.0.0.1 which is almost always development
-    const hostname = window.location.hostname;
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      // When running the development server (npm start/npm run dev:watch),
-      // files are served from the /out directory with a production-like structure
-      return false; // Consider localhost as production-like structure for paths
-    }
-    
-    // Check if we're running from a built application (out directory)
-    // Built apps should NEVER use src/ paths
-    const pathname = window.location.pathname;
-    if (pathname.includes('/out/') || document.querySelector('base[href*="/out/"]')) {
-      return false; // Built application
-    }
-    
-    // Check if we have any script tags loading from src/ directory
-    // This indicates we're in development with direct src/ file serving
-    const scriptTags = document.querySelectorAll('script[src*="src/js/"]');
-    if (scriptTags.length > 0) {
-      return true; // Development mode with src/ structure
-    }
-    
-    // Check if we have any link tags loading from src/ directory
-    const linkTags = document.querySelectorAll('link[href*="src/css/"]');
-    if (linkTags.length > 0) {
-      return true; // Development mode with src/ structure
-    }
-    
-    // Default to production mode for any other case
-    return false;
-  }
-
-  /**
-   * Determines if the application is running in production mode
-   * @returns {boolean} True if in production mode
-   */
-  static isProductionMode() {
-    return !this.isDevelopmentMode();
-  }
-
-  /**
-   * Gets the current environment type
-   * @returns {string} 'development' or 'production'
-   */
-  static getEnvironment() {
-    return this.isDevelopmentMode() ? 'development' : 'production';
-  }
-
-  // ------------------------------
   //    DATA FILE PATH RESOLUTION
   // ------------------------------
 
@@ -84,11 +27,7 @@ if (typeof window === 'undefined' || !window.FileHelper) {
    * @returns {string} Base path for data files
    */
   static getDataBasePath() {
-    if (this.isDevelopmentMode()) {
-      return 'src/assets/data/';
-    } else {
-      return 'assets/data/';
-    }
+    return 'assets/data/';
   }
 
   /**
@@ -154,11 +93,7 @@ if (typeof window === 'undefined' || !window.FileHelper) {
    * @returns {string} Base path for assets
    */
   static getAssetsBasePath() {
-    if (this.isDevelopmentMode()) {
-      return 'src/assets/';
-    } else {
-      return 'assets/';
-    }
+    return 'assets/';
   }
 
   /**
@@ -212,11 +147,7 @@ if (typeof window === 'undefined' || !window.FileHelper) {
    * @returns {string} Base path for JS files
    */
   static getJsBasePath() {
-    if (this.isDevelopmentMode()) {
-      return 'src/js/';
-    } else {
-      return 'js/';
-    }
+    return 'js/';
   }
 
   /**
@@ -224,11 +155,7 @@ if (typeof window === 'undefined' || !window.FileHelper) {
    * @returns {string} Base path for CSS files
    */
   static getCssBasePath() {
-    if (this.isDevelopmentMode()) {
-      return 'src/css/';
-    } else {
-      return 'css/';
-    }
+    return 'css/';
   }
 
   /**
@@ -254,28 +181,15 @@ if (typeof window === 'undefined' || !window.FileHelper) {
   // ------------------------------
 
   /**
-   * Load a JSON file with proper path resolution
-   * @param {string} filePath - Path to the JSON file (will be resolved based on environment)
+  * Load a JSON file from the delivered application layout.
+  * @param {string} filePath - Path to the JSON file
    * @returns {Promise<Object>} Promise that resolves with JSON data
    */
   static async loadJsonFile(filePath) {
     try {
-      // If the path starts with 'assets/', resolve it properly for the current environment
-      let resolvedPath = filePath;
-      if (filePath.startsWith('assets/data/')) {
-        const filename = filePath.replace('assets/data/', '');
-        resolvedPath = this.getDataFilePath(filename);
-      } else if (filePath.startsWith('assets/')) {
-        // Handle other asset paths
-        if (this.isDevelopmentMode()) {
-          resolvedPath = 'src/' + filePath;
-        }
-        // In production mode, keep the path as-is
-      }
-
-      const response = await fetch(resolvedPath);
+      const response = await fetch(filePath);
       if (!response.ok) {
-        throw new Error(`Failed to load ${resolvedPath}: ${response.status} ${response.statusText}`);
+        throw new Error(`Failed to load ${filePath}: ${response.status} ${response.statusText}`);
       }
       return await response.json();
     } catch (error) {
@@ -294,7 +208,7 @@ if (typeof window === 'undefined' || !window.FileHelper) {
    */
   static getAllPaths() {
     return {
-      environment: this.getEnvironment(),
+      layout: 'delivered',
       basePaths: {
         data: this.getDataBasePath(),
         assets: this.getAssetsBasePath(),

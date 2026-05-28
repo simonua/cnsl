@@ -4,7 +4,6 @@ let userCoords = null;
 let poolBrowserPools = [];
 let poolSortOrder = 'name';
 let poolAvailabilityFilter = 'all';
-const POOL_AVAILABILITY_FILTERS = new Set(['all', 'open-now', 'open-next-two-hours']);
 const PoolBrowserSafety = HtmlSafety;
 
 // Pool-specific week states (poolId -> Date)
@@ -236,8 +235,6 @@ function isPoolOpen(pool) {
   return status.isOpen && status.color === 'green';
 }
 
-
-
 /**
  * Formats pool schedule for display with individual week navigation
  * @param {Object} pool - Pool data object (legacy format)
@@ -253,10 +250,9 @@ function formatPoolHours(pool) {
     return '<div class="pool-hours"><strong>🕒 Hours:</strong> Pool not found</div>';
   }
 
-  // Check if pool has empty schedules (TBD pools)
   if (!poolObj.legacySchedules || poolObj.legacySchedules.length === 0) {
     return `<div class="pool-hours">
-      <strong>🕒 Hours:</strong> 
+      <strong>🕒 Hours:</strong>
       <span class="status-gray status-tooltip">
         Schedule TBD
         <span class="tooltip-text">Schedule not available</span>
@@ -424,54 +420,6 @@ function getUserLocation() {
 }
 
 /**
- * Calculates the distance between two sets of coordinates using the Haversine formula
- * @param {Object} coords1 - First coordinate: {lat, lng}
- * @param {Object} coords2 - Second coordinate: {lat, lng}
- * @returns {number} Distance in miles
- */
-function calculateDistance(coords1, coords2) {
-  const R = 3958.8; // Earth's radius in miles
-  const φ1 = coords1.lat * Math.PI / 180;
-  const φ2 = coords2.lat * Math.PI / 180;
-  const Δφ = (coords2.lat - coords1.lat) * Math.PI / 180;
-  const Δλ = (coords2.lng - coords1.lng) * Math.PI / 180;
-
-  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-            Math.cos(φ1) * Math.cos(φ2) *
-            Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
-
-/**
- * Display a feature label in sentence case.
- * @param {string} feature - Published feature label
- * @returns {string} User-visible label
- */
-function formatPoolFeatureLabel(feature) {
-  const labels = {
-    'ada compliant': 'ADA compliant',
-    shallow: 'Shallow area',
-    splash: 'Splash pad',
-    wading: 'Wading pool',
-    wifi: 'Wi-Fi'
-  };
-  if (labels[feature]) return labels[feature];
-  return feature.charAt(0).toUpperCase() + feature.slice(1);
-}
-
-/**
- * Order feature pills by visitor-facing category, then alphabetically within each category.
- * @param {Array} features - Published feature labels
- * @returns {Array} Ordered normalized feature labels
- */
-function sortPoolFeaturesForDisplay(features) {
-  return PreferencesService.groupPoolFeatures(features).flatMap(group => [...group.features].sort((first, second) => (
-    formatPoolFeatureLabel(first).localeCompare(formatPoolFeatureLabel(second))
-  )));
-}
-
-/**
  * Render available amenity controls and restore device-local selections.
  * @param {Array} pools - Available pool data objects
  */
@@ -511,7 +459,7 @@ function setupPoolFeatureFilters(pools) {
 
       const labelText = document.createElement('span');
       labelText.className = 'pool-filter__label';
-      labelText.textContent = formatPoolFeatureLabel(feature);
+      labelText.textContent = PoolDirectoryService.formatFeatureLabel(feature);
 
       const chip = document.createElement('span');
       chip.append(labelText);
@@ -609,7 +557,7 @@ function setupPoolAvailabilityControl() {
  */
 function handlePoolAvailabilityChange(event) {
   const requestedFilter = event.target.value;
-  poolAvailabilityFilter = POOL_AVAILABILITY_FILTERS.has(requestedFilter) ? requestedFilter : 'all';
+  poolAvailabilityFilter = PoolDirectoryService.isAvailabilityFilter(requestedFilter) ? requestedFilter : 'all';
   renderPools(poolBrowserPools);
   const descriptions = {
     all: 'all pools',
@@ -725,14 +673,7 @@ function renderPools(pools) {
     const secondName = (secondPool && secondPool.name) ? secondPool.name : '';
     return firstName.localeCompare(secondName);
   };
-  const displayPools = filteredPools.map(pool => {
-    if (!userCoords || !pool) return pool;
-    const location = pool.location || pool;
-    const latitude = Number(location.lat);
-    const longitude = Number(location.lng);
-    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return pool;
-    return { ...pool, distance: calculateDistance(userCoords, { lat: latitude, lng: longitude }) };
-  });
+  const displayPools = PoolDirectoryService.addDistances(filteredPools, userCoords);
   const sortedPools = poolSortOrder === 'distance' && userCoords
     ? [...displayPools].sort((firstPool, secondPool) => {
       const firstDistance = Number.isFinite(firstPool.distance) ? firstPool.distance : Number.POSITIVE_INFINITY;
@@ -792,12 +733,12 @@ function renderPools(pools) {
     // Format features for display as horizontal pills
     let featuresHtml;
     if (Array.isArray(features) && features.length > 0) {
-      const sortedFeatures = sortPoolFeaturesForDisplay(features);
+      const sortedFeatures = PoolDirectoryService.sortFeaturesForDisplay(features, PreferencesService.groupPoolFeatures);
       featuresHtml = `
         <div class="pool-features">
           <h3>Features</h3>
           <div class="feature-pills">
-            ${sortedFeatures.map(feature => `<span class="feature-pill feature-pill--${PreferencesService.getPoolFeatureCategory(feature)}">${PoolBrowserSafety.escapeHtml(formatPoolFeatureLabel(feature))}</span>`).join('')}
+            ${sortedFeatures.map(feature => `<span class="feature-pill feature-pill--${PreferencesService.getPoolFeatureCategory(feature)}">${PoolBrowserSafety.escapeHtml(PoolDirectoryService.formatFeatureLabel(feature))}</span>`).join('')}
           </div>
         </div>
       `;

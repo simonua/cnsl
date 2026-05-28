@@ -1,5 +1,8 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
 const PoolSchedule = require('../../src/js/pool-schedule.js');
 const { PoolStatus } = require('../../src/js/types/pool-enums.js');
 
@@ -60,6 +63,8 @@ describe('PoolSchedule', () => {
       assert.equal(schedule.getFormattedHours('Tuesday'), 'Closed');
       assert.equal(schedule.getFormattedHours('Wednesday'), 'Hours unavailable');
       assert.equal(schedule.getFormattedHours('Thursday'), 'No hours available');
+      assert.deepEqual(schedule.getDayHours('Monday'), { open: '9:00AM', close: '5:00PM' });
+      assert.equal(schedule.getDayHours('Thursday'), null);
     });
 
     it('returns open and closed statuses using minute-accurate comparisons', () => {
@@ -90,6 +95,15 @@ describe('PoolSchedule', () => {
       assert.equal(schedule.getStatusAtTime('Monday', new Date(2026, 5, 1, 15, 15)), PoolStatus.CLOSED_TO_PUBLIC);
       assert.equal(schedule.getStatusAtTime('Monday', new Date(2026, 5, 1, 12, 0)), PoolStatus.OPEN);
     });
+
+    it('maps other active restriction types and ignores incomplete ranges', () => {
+      const schedule = new PoolSchedule({ Monday: { open: '9:00AM', close: '5:00PM' } });
+      const time = new Date(2026, 5, 1, 12, 0);
+
+      assert.equal(schedule._getRestrictionStatus([{ type: 'unexpected', start: '11:00AM', end: '1:00PM' }], time), PoolStatus.RESTRICTED);
+      assert.equal(schedule._getRestrictionStatus([{ type: 'practice', start: '1:00PM' }], time), PoolStatus.OPEN);
+      assert.equal(schedule._isTimeInRestriction({}, time), false);
+    });
   });
 
   describe('schedule display helpers', () => {
@@ -110,6 +124,65 @@ describe('PoolSchedule', () => {
       schedule.getStatusAtTime = () => PoolStatus.OPEN;
 
       assert.equal(schedule.isPoolOpen(), true);
+    });
+
+    it('returns a status entry for every day and exposes the current status helper', () => {
+      const originalTimeUtils = globalThis.TimeUtils;
+      globalThis.TimeUtils = {
+        TIMEZONE: 'America/New_York',
+        getDayName: () => 'Monday',
+        formatTime: value => value,
+        formatTimeForComparison: () => 12 * 60,
+        timeStringToMinutes: value => value === '9:00AM' ? 9 * 60 : 17 * 60,
+        parseTimeString: () => 9
+      };
+      try {
+        const schedule = new PoolSchedule({ Monday: { open: '9:00AM', close: '5:00PM' } });
+        assert.equal(schedule.getAllDaysStatus().length, 7);
+        assert.equal(schedule.getCurrentStatus(), PoolStatus.OPEN);
+      } finally {
+        globalThis.TimeUtils = originalTimeUtils;
+      }
+    });
+  });
+
+  describe('browser registration', () => {
+    it('installs PoolSchedule as a browser script global', () => {
+      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'pool-schedule.js');
+      const source = fs.readFileSync(sourcePath, 'utf8');
+      const context = { window: {}, globalThis: { PoolStatus, TimeUtils: {} } };
+      context.globalThis.window = context.window;
+      vm.runInNewContext(source, context, { filename: sourcePath });
+
+      assert.equal(typeof context.window.PoolSchedule, 'function');
+    });
+
+    it('returns safe fallback values when browser dependencies are unavailable', () => {
+      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'pool-schedule.js');
+      const source = fs.readFileSync(sourcePath, 'utf8');
+      const context = { window: {}, console: { error: () => {} } };
+      vm.runInNewContext(source, context, { filename: sourcePath });
+      const schedule = new context.window.PoolSchedule({ Monday: { open: '9:00AM', close: '5:00PM' } });
+
+      assert.equal(schedule.getFormattedHours('Monday'), 'Error loading times');
+      assert.equal(schedule.getStatusAtTime('Monday').status, 'Error');
+      assert.equal(schedule.getCurrentStatus().status, 'Error');
+      assert.equal(schedule.isPoolOpen(), false);
+      assert.equal(schedule.getTimeSlots('Monday').length, 0);
+      assert.equal(schedule._getRestrictionStatus([], new Date()).status, 'Error');
+      assert.equal(schedule._isTimeInRestriction({ start: '1:00PM', end: '2:00PM' }, new Date()), false);
+    });
+
+    it('closes incomplete browser schedules when status exists without time utilities', () => {
+      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'pool-schedule.js');
+      const source = fs.readFileSync(sourcePath, 'utf8');
+      const context = { window: {}, PoolStatus, console: { error: () => {} } };
+      vm.runInNewContext(source, context, { filename: sourcePath });
+      const schedule = new context.window.PoolSchedule({ Monday: { closed: true }, Tuesday: { open: '9:00AM' }, Wednesday: { open: '9:00AM', close: '5:00PM' } });
+      assert.equal(schedule.getStatusAtTime('Missing').status, PoolStatus.CLOSED.status);
+      assert.equal(schedule.getStatusAtTime('Monday').status, PoolStatus.CLOSED.status);
+      assert.equal(schedule.getStatusAtTime('Tuesday').status, PoolStatus.CLOSED.status);
+      assert.equal(schedule.getStatusAtTime('Wednesday').status, PoolStatus.CLOSED.status);
     });
   });
 });

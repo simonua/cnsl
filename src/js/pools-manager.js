@@ -40,7 +40,7 @@ if (typeof window === 'undefined') {
 
   /**
    * Get a specific pool by name
-   * @param {string} poolName - Pool name (can use PoolNames enum)
+    * @param {string} poolName - Pool name from published annual data
    * @returns {Pool|null} - Pool object or null if not found
    */
   getPool(poolName) {

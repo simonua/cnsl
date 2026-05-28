@@ -1,27 +1,12 @@
-const { afterEach, beforeEach, describe, it } = require('node:test');
+const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
 const { CONTACT_EMAIL, EXTERNAL_LINKS, HOME_PAGE_HOSTNAME, HOME_PAGE_URL, YEAR } = require('../../src/js/config/app-config.js');
 const FileHelper = require('../../src/js/services/file-helper.js');
 
 describe('FileHelper', () => {
-  beforeEach(() => {
-    global.window = {
-      location: {
-        hostname: 'cnsl.example.test',
-        pathname: '/pools.html'
-      }
-    };
-    global.document = {
-      querySelector: () => null,
-      querySelectorAll: () => []
-    };
-  });
-
-  afterEach(() => {
-    delete global.window;
-    delete global.document;
-  });
-
   describe('active season configuration', () => {
     it('exposes the immutable 2026 YEAR constant globally', () => {
       const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'YEAR');
@@ -55,16 +40,80 @@ describe('FileHelper', () => {
   });
 
   describe('seasonal data paths', () => {
-    it('should return year and domain scoped JSON paths in production', () => {
+    it('returns year and domain scoped JSON paths in the delivered layout', () => {
       assert.equal(FileHelper.getPoolsDataPath(), 'assets/data/2026/pools/pools.json');
       assert.equal(FileHelper.getTeamsDataPath(), 'assets/data/2026/teams/teams.json');
       assert.equal(FileHelper.getMeetsDataPath(), 'assets/data/2026/meets/meets.json');
     });
 
-    it('should retain year and domain segments in direct source development mode', () => {
-      global.document.querySelectorAll = selector => selector.includes('script[src*="src/js/"]') ? [{}] : [];
+    it('does not need DOM globals to resolve paths', () => {
+      assert.equal(FileHelper.getAssetsBasePath(), 'assets/');
+      assert.equal(FileHelper.getJsBasePath(), 'js/');
+      assert.equal(FileHelper.getCssBasePath(), 'css/');
+    });
 
-      assert.equal(FileHelper.getPoolsDataPath(), 'src/assets/data/2026/pools/pools.json');
+    it('returns all delivered asset and file helper paths', () => {
+      assert.equal(FileHelper.getSeasonDataBasePath('teams'), 'assets/data/2026/teams/');
+      assert.equal(FileHelper.getDataFilePath('reference.json'), 'assets/data/reference.json');
+      assert.equal(FileHelper.getImagesBasePath(), 'assets/images/');
+      assert.equal(FileHelper.getFaviconsBasePath(), 'assets/favicons/');
+      assert.equal(FileHelper.getImagePath('logo.png'), 'assets/images/logo.png');
+      assert.equal(FileHelper.getTeamLogosBasePath(), 'assets/images/logos/');
+      assert.equal(FileHelper.getTeamLogoPath('team.png'), 'assets/images/logos/team.png');
+      assert.equal(FileHelper.getJsPath('navigation.js'), 'js/navigation.js');
+      assert.equal(FileHelper.getCssPath('styles.css'), 'css/styles.css');
+      assert.deepEqual(FileHelper.getAllPaths(), {
+        layout: 'delivered',
+        basePaths: { data: 'assets/data/', assets: 'assets/', images: 'assets/images/', js: 'js/', css: 'css/' },
+        dataFiles: { pools: 'assets/data/2026/pools/pools.json', teams: 'assets/data/2026/teams/teams.json', meets: 'assets/data/2026/meets/meets.json' },
+        assetPaths: { favicons: 'assets/favicons/', teamLogos: 'assets/images/logos/' }
+      });
+    });
+  });
+
+  describe('loadJsonFile', () => {
+    it('returns parsed JSON from the requested delivered path', async () => {
+      const originalFetch = global.fetch;
+      global.fetch = async filePath => ({ ok: true, json: async () => ({ filePath }) });
+      try {
+        assert.deepEqual(await FileHelper.loadJsonFile('assets/data/example.json'), { filePath: 'assets/data/example.json' });
+      } finally {
+        global.fetch = originalFetch;
+      }
+    });
+
+    it('reports and rethrows failed requests', async () => {
+      const originalFetch = global.fetch;
+      const originalConsoleError = console.error;
+      global.fetch = async () => ({ ok: false, status: 404, statusText: 'Missing' });
+      console.error = () => {};
+      try {
+        await assert.rejects(FileHelper.loadJsonFile('assets/data/missing.json'), /404 Missing/);
+      } finally {
+        global.fetch = originalFetch;
+        console.error = originalConsoleError;
+      }
+    });
+  });
+
+  describe('browser registration and missing configuration', () => {
+    it('registers globally and rejects season paths when YEAR is not configured', () => {
+      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'file-helper.js');
+      const source = fs.readFileSync(sourcePath, 'utf8');
+      const context = { window: {}, globalThis: {} };
+      vm.runInNewContext(source, context, { filename: sourcePath });
+
+      assert.equal(typeof context.window.FileHelper, 'function');
+      assert.throws(() => context.window.FileHelper.getSeasonYear(), /YEAR configuration is not loaded/);
+    });
+
+    it('loads application configuration when required directly without YEAR', () => {
+      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'file-helper.js');
+      const source = fs.readFileSync(sourcePath, 'utf8');
+      const context = { module: { exports: {} }, globalThis: {}, require: () => { context.globalThis.YEAR = 2026; } };
+      vm.runInNewContext(source, context, { filename: sourcePath });
+
+      assert.equal(context.module.exports.getSeasonYear(), 2026);
     });
   });
 });

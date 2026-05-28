@@ -13,10 +13,10 @@ CNSL will retain its lightweight PostHTML build with native browser JavaScript l
 | Shared shell behavior | Shared layout scripts: preferences theme, deployed-site analytics, navigation, PWA, weather alert | Every page may load these through the base layout; they must not depend on a route controller. |
 | Annual-data acquisition | `getDataManager()` and its managers | Routes use the singleton; do not issue competing initial annual JSON loads. |
 | DOM-free reusable behavior | `src/js/services/`, `models/`, and `types/` | Keep testable without `window` or `document` where practical; export for Node tests. |
-| Route display and interaction | One `*-browser.js` or `settings.js` entry script per route | Route templates list their dependencies in order, then load only their entry script. |
+| Route display and interaction | One `*-browser.js` or `settings.js` entry script per route | Route templates list first-load dependencies in order, then load only their entry script. Optional dependencies may be loaded after an interaction when browser-tested. |
 | Future/experimental features | Documentation or a separately reviewed implementation | Do not ship placeholder controls or source files in `src/js/`; shipped code is supported code. |
 
-Dependencies remain explicit in each PostHTML route template. A new shared dependency belongs in the base layout only when multiple routes need it on first load; otherwise it belongs beside the route that uses it. Browser coverage must protect any reordering or removal of page scripts.
+Dependencies needed for first display remain explicit in each PostHTML route template. A new shared dependency belongs in the base layout only when multiple routes need it on first load; otherwise it belongs beside the route that uses it. Interaction-driven optional features may fetch their declared dependencies lazily to avoid loading unused annual-data behavior, as the home agenda and settings selection workflows do; browser coverage must protect that boundary and any reordering or removal of page scripts.
 
 ## CSS Ownership
 
@@ -29,6 +29,12 @@ The site retains one delivered `css/styles.css` resource for simple caching and 
 5. Media queries adjacent to the component or route they adapt unless a global responsive rule is genuinely shared.
 
 A later split into source partials is appropriate only if the build intentionally concatenates them into the same delivered artifact and the move makes ownership clearer without changing visual behavior.
+
+## Font Rendering Boundary
+
+CNSL uses local system font stacks only; it does not request authored webfonts or font files. This avoids a fallback-to-webfont replacement step during first render and therefore prevents application-introduced flashes of unstyled or replaced text. The shared `css/styles.css` link remains a normal render-blocking stylesheet in the document head so first visible content receives the delivered typography and layout rules.
+
+Adding a hosted or bundled font, a font preload, `@font-face`, or asynchronous initial stylesheet loading requires a separately reviewed rendering strategy and updated regression coverage before it can ship.
 
 ## Migration Boundary
 

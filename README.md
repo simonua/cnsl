@@ -55,6 +55,7 @@ While a season is active, a nightly source monitor checks the official pool, mee
 ```bash
 pnpm run lint
 pnpm test
+pnpm run test:coverage # Delivered JS coverage; excludes maintenance implementations in scripts/
 pnpm run validate:data
 pnpm run build
 pnpm run verify:pwa

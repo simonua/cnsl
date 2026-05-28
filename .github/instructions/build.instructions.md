@@ -16,6 +16,7 @@ description: "Use when working with the build pipeline, dev server, testing, lin
 | `pnpm start` | Clean, build, watch for changes, and serve with live reload (port 9090) |
 | `pnpm run build` | One-time clean build to `out/` |
 | `pnpm test` | Run all unit tests |
+| `pnpm run test:coverage` | Run unit tests with coverage for delivered application JavaScript (`src/js/**`, `service-worker.js`); omit `scripts/**` maintenance implementations from the report |
 | `node --test tests/<area>/<module>.test.js` | Run one affected unit-test file during iteration |
 | `pnpm run test:browser:nightly` | Run Playwright workflow and WCAG A/AA checks from the conditional nightly workflow only |
 | `pnpm run lint` | Run ESLint on all JS files |
@@ -50,6 +51,7 @@ Run `.\start.ps1` (Windows) or `./start.sh` (macOS/Linux) for an interactive men
 - Tests are in `tests/` using Node.js built-in test runner.
 - Test files follow the pattern `tests/**/*.test.js`.
 - Services and models export via `module.exports` for Node.js test access.
+- `pnpm run test:coverage` still executes tests that import `scripts/**`, but reports only delivered application JavaScript (`src/js/**` and `service-worker.js`) and excludes maintenance/validation implementations.
 - Choose local checks by affected behavior while iterating; do not run the complete test suite for a documentation-only change or an isolated edit already covered by one focused test file.
 - Run `pnpm run lint` whenever executable JavaScript, JavaScript configuration, build scripts, or automation scripts change; combine it with the focused behavior check below when applicable.
 

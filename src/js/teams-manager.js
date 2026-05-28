@@ -4,9 +4,14 @@
 
 // Prevent multiple declarations
 if (typeof window === 'undefined' || !window.TeamsManager) {
+
+if (typeof window === 'undefined') {
+  if (typeof Team === 'undefined') { var Team = require('./models/team.js'); } // eslint-disable-line no-var
+}
+
   class TeamsManager {
   constructor() {
-    /** @type {Map<string, TeamRecord>} */
+    /** @type {Map<string, Team>} */
     this.teams = new Map();
     this.lastUpdated = null;
     this.dataLoaded = false;
@@ -21,7 +26,8 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
     
     if (teamsData && teamsData.teams) {
       teamsData.teams.forEach(teamData => {
-        this.teams.set(teamData.name, teamData);
+        const team = new Team(teamData);
+        this.teams.set(team.name, team);
       });
       
       this.lastUpdated = teamsData.lastUpdated || new Date().toISOString();
@@ -32,7 +38,7 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
   /**
    * Get a specific team by name
    * @param {string} teamName - Team name
-    * @returns {TeamRecord|null} - Team object or null if not found
+    * @returns {Team|null} - Team object or null if not found
    */
   getTeam(teamName) {
     return this.teams.get(teamName) || null;
@@ -40,7 +46,7 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
 
   /**
    * Get all teams
-    * @returns {TeamRecord[]} - Array of all team objects
+    * @returns {Team[]} - Array of all team objects
    */
   getAllTeams() {
     return Array.from(this.teams.values());
@@ -65,47 +71,29 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
   /**
    * Search teams by term
    * @param {string} searchTerm - Term to search for
-    * @returns {TeamRecord[]} - Array of teams matching search term
+    * @returns {Team[]} - Array of teams matching search term
    */
   searchTeams(searchTerm) {
     if (!searchTerm || searchTerm.trim() === '') {
       return this.getAllTeams();
     }
 
-    const term = searchTerm.toLowerCase();
-    return this.getAllTeams().filter(team => {
-      const pools = [...(team.homePools || []), ...(team.practicePools || [])];
-      const staff = [...this.getTeamCoaches(team), ...this.getTeamManagers(team)];
-      const contacts = this.getTeamContacts(team);
-      return (
-        team.name.toLowerCase().includes(term) ||
-        pools.some(pool => pool.toLowerCase().includes(term)) ||
-        staff.some(member => member.name.toLowerCase().includes(term) || (member.email && member.email.toLowerCase().includes(term))) ||
-        contacts.some(contact => contact.email.toLowerCase().includes(term)) ||
-        (team.poolName && team.poolName.toLowerCase().includes(term)) ||
-        (team.coach && team.coach.toLowerCase().includes(term)) ||
-        (team.division && team.division.toLowerCase().includes(term))
-      );
-    });
+    return this.getAllTeams().filter(team => team.matchesSearchTerm(searchTerm));
   }
 
   /**
    * Get teams by pool
    * @param {string} poolName - Pool name
-    * @returns {TeamRecord[]} - Array of teams associated with pool
+    * @returns {Team[]} - Array of teams associated with pool
    */
   getTeamsByPool(poolName) {
-    return this.getAllTeams().filter(team => (
-      (team.homePools && team.homePools.includes(poolName)) ||
-      (team.practicePools && team.practicePools.includes(poolName)) ||
-      team.poolName === poolName
-    ));
+    return this.getAllTeams().filter(team => team.includesPool(poolName));
   }
 
   /**
    * Get teams by division
    * @param {string} division - Division name
-    * @returns {TeamRecord[]} - Array of teams in division
+    * @returns {Team[]} - Array of teams in division
    */
   getTeamsByDivision(division) {
     return this.getAllTeams().filter(team => team.division === division);
@@ -114,41 +102,37 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
   /**
    * Get teams by coach
    * @param {string} coachName - Coach name
-    * @returns {TeamRecord[]} - Array of teams coached by specified coach
+    * @returns {Team[]} - Array of teams coached by specified coach
    */
   getTeamsByCoach(coachName) {
-    const term = coachName.toLowerCase();
-    return this.getAllTeams().filter(team => (
-      this.getTeamCoaches(team).some(coach => coach.name.toLowerCase().includes(term)) ||
-      (team.coach && team.coach.toLowerCase().includes(term))
-    ));
+    return this.getAllTeams().filter(team => team.includesCoach(coachName));
   }
 
   /**
    * Get publicly published coaches for a team.
-    * @param {TeamRecord} team - Team object
+    * @param {Team} team - Team object
     * @returns {StaffMemberRecord[]} - Published coach records
    */
   getTeamCoaches(team) {
-    return team.staff && Array.isArray(team.staff.coaches) ? team.staff.coaches : [];
+    return team.getCoaches();
   }
 
   /**
    * Get publicly published managers for a team.
-    * @param {TeamRecord} team - Team object
+    * @param {Team} team - Team object
     * @returns {StaffMemberRecord[]} - Published manager records
    */
   getTeamManagers(team) {
-    return team.staff && Array.isArray(team.staff.managers) ? team.staff.managers : [];
+    return team.getManagers();
   }
 
   /**
    * Get publicly published shared staff contacts for a team.
-    * @param {TeamRecord} team - Team object
+    * @param {Team} team - Team object
     * @returns {StaffContactRecord[]} - Published contact records
    */
   getTeamContacts(team) {
-    return team.staff && Array.isArray(team.staff.contacts) ? team.staff.contacts : [];
+    return team.getContacts();
   }
 
   /**
@@ -205,7 +189,7 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
     // Pool distribution
     const poolDistribution = {};
     allTeams.forEach(team => {
-      const poolName = (team.homePools && team.homePools[0]) || team.poolName;
+      const poolName = team.getPrimaryPoolName();
       if (poolName) {
         poolDistribution[poolName] = (poolDistribution[poolName] || 0) + 1;
       }
@@ -258,19 +242,7 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
   getTeamContact(teamName) {
     const team = this.getTeam(teamName);
     if (!team) return null;
-    const staffWithEmail = [...this.getTeamCoaches(team), ...this.getTeamManagers(team)].find(member => member.email);
-    const sharedContact = this.getTeamContacts(team)[0];
-
-    return {
-      teamName: team.name,
-      coaches: this.getTeamCoaches(team),
-      managers: this.getTeamManagers(team),
-      contacts: this.getTeamContacts(team),
-      coach: (this.getTeamCoaches(team)[0] && this.getTeamCoaches(team)[0].name) || team.coach || 'Not specified',
-      email: (staffWithEmail && staffWithEmail.email) || (sharedContact && sharedContact.email) || team.email || 'Not available',
-      phone: team.phone || 'Not available',
-      poolName: (team.homePools && team.homePools[0]) || team.poolName || 'Not specified'
-    };
+    return team.getContactInfo();
   }
 
   /**
@@ -308,7 +280,8 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
    */
   addOrUpdateTeam(teamData) {
     if (teamData && teamData.name) {
-      this.teams.set(teamData.name, teamData);
+      const team = teamData instanceof Team ? teamData : new Team(teamData);
+      this.teams.set(team.name, team);
     }
   }
 
@@ -326,21 +299,7 @@ if (typeof window === 'undefined' || !window.TeamsManager) {
    * @returns {Array} - Array of team summaries
    */
   getTeamsSummary() {
-    return this.getAllTeams().map(team => ({
-      name: team.name,
-      poolName: (team.homePools && team.homePools[0]) || team.poolName || 'Not specified',
-      division: team.division || 'Not specified',
-      coaches: this.getTeamCoaches(team),
-      managers: this.getTeamManagers(team),
-      contacts: this.getTeamContacts(team),
-      coach: (this.getTeamCoaches(team)[0] && this.getTeamCoaches(team)[0].name) || team.coach || 'Not specified',
-      memberCount: team.roster ? team.roster.length : 0,
-      hasSchedule: !!(team.schedule && team.schedule.length > 0),
-      contact: {
-        hasEmail: !!team.email || [...this.getTeamCoaches(team), ...this.getTeamManagers(team)].some(member => !!member.email) || this.getTeamContacts(team).length > 0,
-        hasPhone: !!team.phone
-      }
-    }));
+    return this.getAllTeams().map(team => team.getSummary());
   }
 }
 

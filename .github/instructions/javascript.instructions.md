@@ -10,6 +10,7 @@ applyTo: "src/js/**/*.js"
 - Classes and functions become globals. Declare them with `class` or `function` at the top level.
 - Use the singleton pattern for managers: expose a `getXxxManager()` factory that caches the instance.
 - Standardize on `getDataManager()` for DataManager access — never `new DataManager()` directly.
+- Route templates list first-load dependencies explicitly. Optional interaction-driven dependencies may be loaded lazily when the loading boundary and resulting workflow are covered by browser tests.
 
 ## DOM APIs
 
@@ -21,7 +22,7 @@ applyTo: "src/js/**/*.js"
 
 - **Models** (`src/js/models/`): Data classes (e.g., `Pool`). No DOM access.
 - **Services** (`src/js/services/`): Reusable logic (e.g., `TimeUtils`, `CacheService`). No DOM access.
-- **Types** (`src/js/types/`): Enums and constants (e.g., `PoolStatus`, `PoolNames`).
+- **Types** (`src/js/types/`): Immutable runtime state/constants (e.g., `PoolStatus`), not seasonal source vocabularies.
 - **Config** (`src/js/config/`): Configuration values.
 - **Managers** (`src/js/`): Orchestrators that coordinate services and models (e.g., `PoolsManager`).
 - **Browsers** (`src/js/`): UI rendering modules that read from managers and write to the DOM.
@@ -38,6 +39,7 @@ applyTo: "src/js/**/*.js"
 - Keep DOM-free logic in services/models so it can be tested with Node.js.
 - Export via `if (typeof module !== 'undefined') module.exports = { ... }` for Node.js test access.
 - Services and models must not reference `$`, `document`, or `window` directly.
+- Published annual pool/team/meet names and schema enum vocabularies come from annual data and schemas; do not mirror them in JavaScript enums for validation or behavior.
 
 ## Analytics Privacy Boundary
 

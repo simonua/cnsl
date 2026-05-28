@@ -64,6 +64,7 @@ Record occasional browser measurements here or in the release record when UI beh
 | Published artifact size | Generated public `out/` artifact | 1,545,251 bytes observed; active season output only | 2026-05-26 / local clean build and `verify:pwa` |
 | Directory usable/render completion | Pools, Teams, Meets | Pending next HTTPS release review | - |
 | First-view request count and transfer size | Home and Pools | Pending next HTTPS release review | - |
+| Authored webfont / FOUT boundary | All routes | System-font-only source boundary covered by unit test; confirm no font requests in delivered page inspection | 2026-05-28 / local validation |
 
 ## Release Evidence Record
 

@@ -1014,9 +1014,14 @@ main h1 {
 }
 
 #favoriteWeek {
+  display: none;
   margin-inline: auto;
   max-width: 38rem;
   position: relative;
+}
+
+html.has-saved-favorite-team #favoriteWeek:not([hidden]) {
+  display: block;
 }
 
 .favorite-week__heading {
@@ -3662,9 +3667,6 @@ button.pool-filter__clear:focus-visible {
 }
 
 .practice-schedule {
-  background-color: var(--light-bg);
-  padding: 1rem;
-  border-radius: var(--border-radius);
   margin: 0.75rem 0;
 }
 
@@ -3688,8 +3690,11 @@ button.pool-filter__clear:focus-visible {
 }
 
 .practice-schedule__phase--current {
-  background: var(--current-bg);
   border-color: var(--current-border);
+}
+
+.practice-schedule__phase--current > .practice-schedule__summary {
+  background: var(--current-bg);
   box-shadow: inset 0.25rem 0 0 var(--current-border);
 }
 
@@ -3784,6 +3789,12 @@ button.pool-filter__clear:focus-visible {
   .practice-schedule__toggle-icon {
     grid-column: 3;
     grid-row: 1 / span 2;
+  }
+}
+
+@media (min-width: 48.0625rem) {
+  .practice-schedule {
+    max-width: 45rem;
   }
 }
 
@@ -3888,6 +3899,13 @@ button.pool-filter__clear:focus-visible {
   margin-bottom: 1rem;
 }
 
+.practice-period--current {
+  background-color: var(--current-bg);
+  border-left: 0.25rem solid var(--current-border);
+  border-radius: var(--border-radius);
+  padding: 0.65rem 0.75rem;
+}
+
 .practice-period:last-child {
   margin-bottom: 0;
 }
@@ -3897,6 +3915,17 @@ button.pool-filter__clear:focus-visible {
   color: var(--primary-text-color);
   margin-bottom: 0.5rem;
   font-size: 0.95rem;
+}
+
+.practice-period__badge {
+  background: var(--current-badge-bg);
+  border-radius: 999rem;
+  color: var(--current-badge-text);
+  display: inline-block;
+  font-size: 0.75rem;
+  margin-left: 0.5rem;
+  padding: 0.15rem 0.45rem;
+  vertical-align: middle;
 }
 
 .practice-details {

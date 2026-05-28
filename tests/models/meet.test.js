@@ -1,0 +1,57 @@
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
+const { createSampleMeetsData } = require('../helpers/test-helpers.js');
+const Meet = require('../../src/js/models/meet.js');
+
+describe('Meet', () => {
+  const meet = new Meet(createSampleMeetsData().regular_meets[0]);
+
+  it('exposes published fields with compatibility aliases', () => {
+    assert.equal(meet.getHomeTeam(), 'Bryant Woods Barracudas');
+    assert.equal(meet.getVisitingTeam(), 'Kendall Ridge Krakens');
+    assert.equal(meet.homeTeam, meet.home_team);
+    assert.equal(meet.awayTeam, meet.visiting_team);
+  });
+
+  it('matches participating teams and pool locations', () => {
+    assert.equal(meet.includesTeam('Bryant Woods Barracudas'), true);
+    assert.equal(meet.occursAtPool('Bryant Woods'), true);
+    assert.equal(meet.matchesSearchTerm('Kendall'), true);
+  });
+
+  it('identifies special meets without a matchup', () => {
+    const specialMeet = new Meet({ date: '2026-07-25', name: 'All City', location: 'Columbia' });
+    assert.equal(specialMeet.isSpecialMeet(), true);
+    assert.deepEqual(specialMeet.getParticipatingTeams(), []);
+    assert.equal(specialMeet.occursAtPool('Other Pool'), false);
+    assert.equal(specialMeet.matchesSearchTerm('missing'), false);
+    assert.equal(new Meet().getLocation(), '');
+  });
+
+  it('splits composite published home-team labels', () => {
+    const compositeMeet = new Meet({ home_team: "Clary's Forest, Hawthorn, Swansfield", visiting_team: 'Oakland Mills' });
+    assert.deepEqual(compositeMeet.getParticipatingTeams(), ["Clary's Forest", 'Hawthorn', 'Swansfield', 'Oakland Mills']);
+    assert.equal(compositeMeet.includesTeam('Swansfield'), true);
+  });
+
+  it('normalizes pool suffixes and searches optional meet fields', () => {
+    const timedMeet = new Meet({ location: 'Bryant Woods Pool', time: '9:00 AM', home_team: 'A', visiting_team: 'B' });
+    assert.equal(timedMeet.occursAtPool('  bryant woods  '), true);
+    assert.equal(timedMeet.isSpecialMeet(), false);
+    assert.equal(timedMeet.matchesSearchTerm('9:00'), true);
+    assert.equal(new Meet({ location: '' }).occursAtPool(''), false);
+  });
+
+  it('installs the model as a browser script global', () => {
+    const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'models', 'meet.js');
+    const source = fs.readFileSync(sourcePath, 'utf8');
+    const context = { window: {} };
+    vm.runInNewContext(source, context, { filename: sourcePath });
+
+    assert.equal(typeof context.window.Meet, 'function');
+    assert.equal(new context.window.Meet({ name: 'Browser Meet' }).name, 'Browser Meet');
+  });
+});

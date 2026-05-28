@@ -479,7 +479,10 @@ if (typeof window === 'undefined') {
    */
   getWeekSchedule() {
     if (this.legacySchedules) {
-      return this._getLegacyWeekSchedule();
+      const weekStartDate = new Date();
+      const daysSinceMonday = (weekStartDate.getDay() + 6) % 7;
+      weekStartDate.setDate(weekStartDate.getDate() - daysSinceMonday);
+      return this._getLegacyWeekScheduleForDate(weekStartDate);
     }
     return this.schedule.getAllDaysStatus();
   }
