@@ -135,6 +135,7 @@ describe('Pool', () => {
         assert.equal(pool.isOpenForNextMinutes(), true);
         assert.equal(pool.isOpenForNextMinutes(60), true);
         assert.equal(pool.isOpenForNextMinutes(120), false);
+        assert.deepEqual(pool.getPublicStatusTransitionToday(), { action: 'closes', minutes: 60 });
       } finally {
         TimeUtils.getCurrentEasternTimeInfo = originalGetCurrentEasternTimeInfo;
       }
@@ -163,6 +164,73 @@ describe('Pool', () => {
 
         assert.equal(pool.getCurrentStatus(), PoolStatus.CLOSED_TO_PUBLIC);
         assert.equal(pool.isOpenForNextMinutes(), false);
+        assert.equal(pool.getPublicStatusTransitionToday(), null);
+      } finally {
+        TimeUtils.getCurrentEasternTimeInfo = originalGetCurrentEasternTimeInfo;
+      }
+    });
+
+    it('finds the next public opening later today while closed', () => {
+      const originalGetCurrentEasternTimeInfo = TimeUtils.getCurrentEasternTimeInfo;
+      TimeUtils.getCurrentEasternTimeInfo = () => ({
+        date: '2026-05-26', day: 'Tue', minutes: (13 * 60) + 31, isValid: true
+      });
+
+      try {
+        const pool = new Pool(createSamplePoolData({
+          schedules: [{
+            startDate: '2026-05-23',
+            endDate: '2026-09-07',
+            hours: [
+              { weekDays: ['Tue'], startTime: '2:00PM', endTime: '3:00PM', types: ['Closed to Public'] },
+              { weekDays: ['Tue'], startTime: '3:00PM', endTime: '5:00PM', types: ['Rec Swim'] }
+            ]
+          }]
+        }));
+
+        assert.deepEqual(pool.getPublicStatusTransitionToday(), { action: 'opens', minutes: 89 });
+      } finally {
+        TimeUtils.getCurrentEasternTimeInfo = originalGetCurrentEasternTimeInfo;
+      }
+    });
+
+    it('does not find an opening when public hours resume on another day', () => {
+      const originalGetCurrentEasternTimeInfo = TimeUtils.getCurrentEasternTimeInfo;
+      TimeUtils.getCurrentEasternTimeInfo = () => ({
+        date: '2026-05-26', day: 'Tue', minutes: 19 * 60, isValid: true
+      });
+
+      try {
+        const pool = new Pool(createSamplePoolData({
+          schedules: [{
+            startDate: '2026-05-23',
+            endDate: '2026-09-07',
+            hours: [{ weekDays: ['Wed'], startTime: '12:00PM', endTime: '7:00PM', types: ['Rec Swim'] }]
+          }]
+        }));
+
+        assert.equal(pool.getPublicStatusTransitionToday(), null);
+      } finally {
+        TimeUtils.getCurrentEasternTimeInfo = originalGetCurrentEasternTimeInfo;
+      }
+    });
+
+    it('returns the next opening rather than a closing transition while currently closed', () => {
+      const originalGetCurrentEasternTimeInfo = TimeUtils.getCurrentEasternTimeInfo;
+      TimeUtils.getCurrentEasternTimeInfo = () => ({
+        date: '2026-05-26', day: 'Tue', minutes: 12 * 60, isValid: true
+      });
+
+      try {
+        const pool = new Pool(createSamplePoolData({
+          schedules: [{
+            startDate: '2026-05-23',
+            endDate: '2026-09-07',
+            hours: [{ weekDays: ['Tue'], startTime: '1:00PM', endTime: '5:00PM', types: ['Rec Swim'] }]
+          }]
+        }));
+
+        assert.deepEqual(pool.getPublicStatusTransitionToday(), { action: 'opens', minutes: 60 });
       } finally {
         TimeUtils.getCurrentEasternTimeInfo = originalGetCurrentEasternTimeInfo;
       }

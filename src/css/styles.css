@@ -2817,6 +2817,22 @@ button.pool-filter__clear:focus-visible {
   margin-left: 0.5rem;
 }
 
+.pool-hours .pool-status-countdown {
+  display: inline-block;
+  margin-left: 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.pool-hours .pool-status-countdown--caution {
+  background-color: var(--warning-soft-bg);
+  border-radius: 0.25rem;
+  color: var(--warning-text-color);
+  font-weight: 600;
+  padding: 0.1rem 0.35rem;
+}
+
 .pool-hours .period-info {
   font-size: 0.85rem;
   color: var(--text-muted);

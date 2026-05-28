@@ -319,6 +319,13 @@ function formatPoolHours(pool) {
   const statusClass = ['green', 'red', 'yellow', 'gray'].includes(poolStatus.color) ? poolStatus.color : 'gray';
   const safeStatusIcon = PoolBrowserSafety.escapeHtml(poolStatus.icon);
   const safeStatusText = PoolBrowserSafety.escapeHtml(poolStatus.status);
+  const statusTransition = poolObj.getPublicStatusTransitionToday();
+  const statusCountdown = PoolScheduleDisplay.formatPublicStatusTransition(statusTransition);
+  const statusCountdownLabel = PoolScheduleDisplay.formatPublicStatusTransition(statusTransition, { useLongUnits: true });
+  const statusCountdownClass = PoolScheduleDisplay.getPublicStatusTransitionClass(statusTransition);
+  const statusCountdownHtml = statusCountdown
+    ? `<span class="${statusCountdownClass}" aria-label="${PoolBrowserSafety.escapeHtml(statusCountdownLabel)}">${PoolBrowserSafety.escapeHtml(statusCountdown)}</span>`
+    : '';
   
   // Build navigation controls
   const navigationHtml = `
@@ -363,7 +370,7 @@ function formatPoolHours(pool) {
       <span class="open-status status-${statusClass} status-tooltip">
         ${safeStatusIcon} ${safeStatusText}
         <span class="tooltip-text">${getStatusTooltip(statusClass)}</span>
-      </span><br>
+      </span>${statusCountdownHtml}<br>
       ${navigationHtml}
       ${hoursDisplay}
     </div>

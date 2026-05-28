@@ -56,4 +56,44 @@ describe('PoolScheduleDisplay', () => {
       assert.equal(PoolScheduleDisplay.getActivityCategory('Closed to Public'), 'restricted');
     });
   });
+
+  describe('formatPublicStatusTransition', () => {
+    it('uses compact minute units for openings within an hour', () => {
+      assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'opens', minutes: 1 }), 'Opens in 1 min');
+      assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'opens', minutes: 59 }), 'Opens in 59 min');
+    });
+
+    it('uses compact hour and minute units for later openings today', () => {
+      assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'opens', minutes: 60 }), 'Opens in 1 hr 0 min');
+      assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'opens', minutes: 61 }), 'Opens in 1 hr 1 min');
+      assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'opens', minutes: 122 }), 'Opens in 2 hr 2 min');
+    });
+
+    it('omits a countdown without a later same-day opening', () => {
+      assert.equal(PoolScheduleDisplay.formatPublicStatusTransition(null), '');
+      assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'opens', minutes: 0 }), '');
+    });
+
+    it('uses compact units for current-day closures', () => {
+      assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'closes', minutes: 1 }), 'Closes in 1 min');
+      assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'closes', minutes: 60 }), 'Closes in 1 hr 0 min');
+      assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'closes', minutes: 122 }), 'Closes in 2 hr 2 min');
+    });
+
+    it('provides expanded units for an accessible label', () => {
+      assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'closes', minutes: 121 }, { useLongUnits: true }), 'Closes in 2 hours 1 minute');
+    });
+
+    it('omits a countdown without a current-day public closure', () => {
+      assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'closed', minutes: 15 }), '');
+    });
+  });
+
+  describe('getPublicStatusTransitionClass', () => {
+    it('adds caution styling only for a closing transition within the next hour', () => {
+      assert.equal(PoolScheduleDisplay.getPublicStatusTransitionClass({ action: 'closes', minutes: 59 }), 'pool-status-countdown pool-status-countdown--caution');
+      assert.equal(PoolScheduleDisplay.getPublicStatusTransitionClass({ action: 'closes', minutes: 60 }), 'pool-status-countdown');
+      assert.equal(PoolScheduleDisplay.getPublicStatusTransitionClass({ action: 'opens', minutes: 15 }), 'pool-status-countdown');
+    });
+  });
 });

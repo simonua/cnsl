@@ -323,6 +323,70 @@ if (typeof window === 'undefined') {
   }
 
   /**
+   * Return the next same-day transition in public-use availability.
+   * @returns {{ action: string, minutes: number }|null} Next public opening or closing transition
+   */
+  getPublicStatusTransitionToday() {
+    const TimeUtilsRef = this._getTimeUtils();
+    const PoolStatusRef = this._getPoolStatus();
+    if (!TimeUtilsRef || !PoolStatusRef) return null;
+
+    const currentStatus = this.getCurrentStatus();
+    const action = currentStatus === PoolStatusRef.CLOSED
+      ? 'opens'
+      : currentStatus === PoolStatusRef.OPEN ? 'closes' : null;
+    if (!action) return null;
+
+    if (this.legacySchedules) {
+      const easternTimeInfo = TimeUtilsRef.getCurrentEasternTimeInfo();
+      if (!easternTimeInfo.isValid) return null;
+
+      const timeSlots = this._getLegacyTimeSlotsForDate(easternTimeInfo.date, easternTimeInfo.day.substring(0, 3));
+      if (action === 'opens') {
+        for (const slot of timeSlots) {
+          if (this._getLegacySlotStatus(slot) !== PoolStatusRef.OPEN || typeof slot.startTime !== 'string') continue;
+          const startMinutes = TimeUtilsRef.timeStringToMinutes(slot.startTime);
+          if (startMinutes > easternTimeInfo.minutes) return { action, minutes: startMinutes - easternTimeInfo.minutes };
+        }
+        return null;
+      }
+
+      let coveredUntil = easternTimeInfo.minutes;
+      for (const slot of timeSlots) {
+        if (this._getLegacySlotStatus(slot) !== PoolStatusRef.OPEN) continue;
+        if (typeof slot.startTime !== 'string' || typeof slot.endTime !== 'string') continue;
+        const startMinutes = TimeUtilsRef.timeStringToMinutes(slot.startTime);
+        const endMinutes = TimeUtilsRef.timeStringToMinutes(slot.endTime);
+        if (startMinutes > coveredUntil) break;
+        if (startMinutes <= coveredUntil && endMinutes > coveredUntil) coveredUntil = endMinutes;
+      }
+      return coveredUntil > easternTimeInfo.minutes
+        ? { action, minutes: coveredUntil - easternTimeInfo.minutes }
+        : null;
+    }
+
+    const easternTime = TimeUtilsRef.getEasternTime();
+    const dayName = TimeUtilsRef.getDayName(easternTime);
+    const dayHours = this.schedule.getDayHours(dayName);
+    const currentMinutes = TimeUtilsRef.formatTimeForComparison(easternTime);
+
+    if (action === 'opens') {
+      if (!dayHours || dayHours.closed || typeof dayHours.open !== 'string') return null;
+      const openingMinutes = TimeUtilsRef.timeStringToMinutes(dayHours.open);
+      return openingMinutes > currentMinutes ? { action, minutes: openingMinutes - currentMinutes } : null;
+    }
+
+    if (!dayHours || typeof dayHours.close !== 'string') return null;
+    let closingMinutes = TimeUtilsRef.timeStringToMinutes(dayHours.close);
+    (dayHours.restrictions || []).forEach(restriction => {
+      if (typeof restriction.start !== 'string') return;
+      const restrictionStart = TimeUtilsRef.timeStringToMinutes(restriction.start);
+      if (restrictionStart > currentMinutes && restrictionStart < closingMinutes) closingMinutes = restrictionStart;
+    });
+    return closingMinutes > currentMinutes ? { action, minutes: closingMinutes - currentMinutes } : null;
+  }
+
+  /**
    * Find published or overriding slots for a calendar day.
    * @private
    * @param {string} dateString - Date in YYYY-MM-DD format

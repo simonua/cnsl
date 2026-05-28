@@ -23,6 +23,49 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
     }
 
     /**
+     * Format a same-day public opening or closing transition for a status row.
+     * @param {Object|null} transition - Public status action and positive minutes until it occurs
+     * @param {Object} options - Display formatting options
+     * @returns {string} Display label, or an empty string without a supported transition
+     */
+    static formatPublicStatusTransition(transition, options = {}) {
+      if (!transition || !['opens', 'closes'].includes(transition.action)) return '';
+      const actionLabel = transition.action === 'opens' ? 'Opens' : 'Closes';
+      return PoolScheduleDisplay.formatStatusCountdown(actionLabel, transition.minutes, options.useLongUnits === true);
+    }
+
+    /**
+     * Map semantic public transition urgency to status-countdown presentation.
+     * @param {Object|null} transition - Public status action and minutes until it occurs
+     * @returns {string} CSS classes for the transition label
+     */
+    static getPublicStatusTransitionClass(transition) {
+      const isImminentClosing = transition
+        && transition.action === 'closes'
+        && Number.isInteger(transition.minutes)
+        && transition.minutes > 0
+        && transition.minutes < 60;
+      return isImminentClosing
+        ? 'pool-status-countdown pool-status-countdown--caution'
+        : 'pool-status-countdown';
+    }
+
+    static formatStatusCountdown(action, minutesUntilChange, useLongUnits = false) {
+      if (!Number.isInteger(minutesUntilChange) || minutesUntilChange <= 0) return '';
+
+      if (minutesUntilChange < 60) {
+        const unit = useLongUnits ? (minutesUntilChange === 1 ? 'minute' : 'minutes') : 'min';
+        return `${action} in ${minutesUntilChange} ${unit}`;
+      }
+
+      const hours = Math.floor(minutesUntilChange / 60);
+      const minutes = minutesUntilChange % 60;
+      const hourUnit = useLongUnits ? (hours === 1 ? 'hour' : 'hours') : 'hr';
+      const minuteUnit = useLongUnits ? (minutes === 1 ? 'minute' : 'minutes') : 'min';
+      return `${action} in ${hours} ${hourUnit} ${minutes} ${minuteUnit}`;
+    }
+
+    /**
      * Attach calendar dates and current-day state to schedule days.
      * @param {Array} weekSchedule - Schedule data for the week
      * @param {Date} weekStart - Monday shown in the display
