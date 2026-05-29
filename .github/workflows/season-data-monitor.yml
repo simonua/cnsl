@@ -66,14 +66,14 @@ jobs:
           fi
           node scripts/season-data-agent.js "${arguments[@]}"
 
-      - name: Confirm Copilot rollover-assignment token is configured
+      - name: Confirm rollover issue token is configured
         if: steps.season.outputs.ready != 'true'
         env:
           GH_TOKEN: ${{ secrets.CNSL_DATA_UPDATER_PR_TOKEN }}
         shell: bash
         run: |
           if [[ -z "$GH_TOKEN" ]]; then
-            echo "Repository secret CNSL_DATA_UPDATER_PR_TOKEN is required to assign annual season-rollover issues to Copilot. The token needs repository read/write access to Actions, Contents, Issues, and Pull requests." >&2
+            echo "Repository secret CNSL_DATA_UPDATER_PR_TOKEN is required to create annual season-rollover review issues. The token needs repository Issues read/write permission." >&2
             exit 1
           fi
 
@@ -93,12 +93,12 @@ jobs:
           existing_url="$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "${marker} in:title" --json url --jq '.[0].url')"
           if [[ -n "$existing_url" ]]; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
-            echo "A ${TARGET_YEAR} rollover issue is already assigned or awaiting review; no additional rollover issue was created: ${existing_url}" >> "$GITHUB_STEP_SUMMARY"
+            echo "A ${TARGET_YEAR} rollover issue is already awaiting review; no additional rollover issue was created: ${existing_url}" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Assign target-year rollover preparation to Copilot
+      - name: Create target-year rollover preparation issue
         if: steps.season.outputs.ready != 'true' && steps.rollover_pending.outputs.exists != 'true'
         env:
           GH_TOKEN: ${{ secrets.CNSL_DATA_UPDATER_PR_TOKEN }}
@@ -109,17 +109,9 @@ jobs:
           request_json="$(jq -n \
             --arg active_year "$ACTIVE_YEAR" \
             --arg target_year "$TARGET_YEAR" \
-            --arg repo "$GITHUB_REPOSITORY" \
             '{
               title: ("CNSL season rollover [" + $target_year + "]"),
-              body: ("Prepare the " + $target_year + " annual CNSL data set. Follow `.github/skills/cnsl-season-rollover/SKILL.md` and `docs/annual-season-assets.md`. Scheduled monitoring has detected that `YEAR` is still " + $active_year + "; do not modify `src/assets/data/" + $active_year + "` while preparing the new season. Use only official " + $target_year + " sources; create `src/assets/data/" + $target_year + "` and activate `YEAR` only after required pool, meet, and team data are supported and validated. Open a pull request only when official " + $target_year + " material supports an actionable season preparation or activation update. If official data is not ready, make no repository changes and close this issue with that conclusion so a later scheduled run can retry."),
-              assignees: ["copilot-swe-agent[bot]"],
-              agent_assignment: {
-                target_repo: $repo,
-                base_branch: "main",
-                custom_instructions: "Follow the CNSL season rollover skill and annual data instructions. Make changes only when supported by official target-year material.",
-                model: ""
-              }
+              body: ("Prepare the " + $target_year + " annual CNSL data set. Follow `.github/skills/cnsl-season-rollover/SKILL.md` and `docs/annual-season-assets.md`. Scheduled monitoring has detected that `YEAR` is still " + $active_year + "; do not modify `src/assets/data/" + $active_year + "` while preparing the new season. Use only official " + $target_year + " sources; create `src/assets/data/" + $target_year + "` and activate `YEAR` only after required pool, meet, and team data are supported and validated. Open a pull request only when official " + $target_year + " material supports an actionable season preparation or activation update. If official data is not ready, make no repository changes and close this issue with that conclusion so a later scheduled run can retry.\n\nThis issue may be assigned to Copilot cloud agent manually from GitHub when available for your account.")
             }')"
           issue_url="$(gh api \
             --method POST \
@@ -128,7 +120,7 @@ jobs:
             "/repos/${GITHUB_REPOSITORY}/issues" \
             --input - \
             --jq '.html_url' <<< "$request_json")"
-          echo "Assigned a ${TARGET_YEAR} season-rollover preparation issue to Copilot: ${issue_url}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Created a ${TARGET_YEAR} season-rollover preparation issue: ${issue_url}" >> "$GITHUB_STEP_SUMMARY"
           echo "No ${ACTIVE_YEAR} annual data was inspected or modified by this scheduled run." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Summarize source monitoring outcome
@@ -148,14 +140,14 @@ jobs:
             echo "Checked official sources for ${SEASON}: candidate source differences detected (${CANDIDATE_KEY}); checking whether this evidence has already been reviewed." >> "$GITHUB_STEP_SUMMARY"
           fi
 
-      - name: Confirm Copilot review-assignment token is configured
+      - name: Confirm seasonal review issue token is configured
         if: steps.source_monitor.outputs.candidate_changed == 'true'
         env:
           GH_TOKEN: ${{ secrets.CNSL_DATA_UPDATER_PR_TOKEN }}
         shell: bash
         run: |
           if [[ -z "$GH_TOKEN" ]]; then
-            echo "Repository secret CNSL_DATA_UPDATER_PR_TOKEN is required to assign seasonal review issues to Copilot. The token needs repository read/write access to Actions, Contents, Issues, and Pull requests." >&2
+            echo "Repository secret CNSL_DATA_UPDATER_PR_TOKEN is required to create seasonal review issues. The token needs repository Issues read/write permission." >&2
             exit 1
           fi
 
@@ -179,7 +171,7 @@ jobs:
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Assign represented-data review to Copilot
+      - name: Create represented-data review issue
         if: steps.source_monitor.outputs.candidate_changed == 'true' && steps.duplicate.outputs.exists != 'true'
         env:
           GH_TOKEN: ${{ secrets.CNSL_DATA_UPDATER_PR_TOKEN }}
@@ -193,19 +185,10 @@ jobs:
           } > "$request_file"
           request_json="$(jq -n \
             --arg title "${REVIEW_TITLE_PREFIX} [${CANDIDATE_KEY}]" \
-            --arg repo "$GITHUB_REPOSITORY" \
             --rawfile prompt "$request_file" \
             '{
               title: $title,
-              body: $prompt,
-              assignees: ["copilot-swe-agent[bot]"],
-              agent_assignment: {
-                target_repo: $repo,
-                base_branch: "main",
-                custom_instructions: "Follow the season-data-reviewer profile. Open a pull request only for a verified modeled-data or visitor-facing source-link update.",
-                custom_agent: "season-data-reviewer",
-                model: ""
-              }
+              body: ($prompt + "\n\nThis issue may be assigned to Copilot cloud agent manually from GitHub when available for your account. Use the `season-data-reviewer` custom agent when assigning it.")
             }')"
           issue_url="$(gh api \
             --method POST \
@@ -214,8 +197,8 @@ jobs:
             "/repos/${GITHUB_REPOSITORY}/issues" \
             --input - \
             --jq '.html_url' <<< "$request_json")"
-          echo "Assigned a seasonal data review issue to Copilot: ${issue_url}" >> "$GITHUB_STEP_SUMMARY"
-          echo "The reviewer will open a pull request only if it verifies an actionable modeled-data or visitor-facing source-link change." >> "$GITHUB_STEP_SUMMARY"
+          echo "Created a seasonal data review issue: ${issue_url}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Assign it to Copilot manually, or review it directly; open a pull request only for a verified actionable modeled-data or visitor-facing source-link change." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Summarize failed monitor run
         if: failure()
