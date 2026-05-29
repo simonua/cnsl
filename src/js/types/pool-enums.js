@@ -90,7 +90,7 @@ class PoolStatus {
   static OPEN = Object.freeze({ isOpen: true, status: 'Open Now', color: 'green', icon: '🟢' });
   static CLOSED = Object.freeze({ isOpen: false, status: 'Closed', color: 'red', icon: '🔴' });
   static RESTRICTED = Object.freeze({ isOpen: true, status: 'Restricted Access', color: 'yellow', icon: '🟡' });
-  static PRACTICE_ONLY = Object.freeze({ isOpen: true, status: 'CNSL Practice Only', color: 'yellow', icon: '🟡' });
+  static PRACTICE_ONLY = Object.freeze({ isOpen: true, status: 'Practice Only', color: 'yellow', icon: '🟡' });
   static CLOSED_TO_PUBLIC = Object.freeze({ isOpen: false, status: 'Closed to Public', color: 'red', icon: '🔴' });
   static SWIM_MEET = Object.freeze({ isOpen: true, status: 'Swim Meet', color: 'yellow', icon: '🟡' });
   static SCHEDULE_NOT_FOUND = Object.freeze({ isOpen: false, status: 'Schedule TBD', color: 'gray', icon: '⚫' });

@@ -46,6 +46,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -66,6 +67,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "4:00pm",
               "endTime": "7:00pm"
             },
@@ -75,7 +77,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -86,6 +89,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -104,6 +108,7 @@
               "types": [
                 "Aqua Fitness"
               ],
+              "accessStatus": "public",
               "startTime": "10:45am",
               "endTime": "11:40am"
             },
@@ -117,6 +122,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "5:45pm"
             },
@@ -129,6 +135,7 @@
               "types": [
                 "Laps"
               ],
+              "accessStatus": "public",
               "startTime": "5:45pm",
               "endTime": "7:30pm"
             },
@@ -139,6 +146,7 @@
               "types": [
                 "Aqua Fitness"
               ],
+              "accessStatus": "public",
               "startTime": "10:45am",
               "endTime": "11:40am"
             },
@@ -149,6 +157,7 @@
               "types": [
                 "Closed to Public"
               ],
+              "accessStatus": "closed-to-public",
               "startTime": "12:00pm",
               "endTime": "7:30pm"
             },
@@ -159,6 +168,7 @@
               "types": [
                 "Aqua Fitness"
               ],
+              "accessStatus": "public",
               "startTime": "10:45am",
               "endTime": "11:40am"
             },
@@ -170,6 +180,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "5:45pm"
             },
@@ -180,6 +191,7 @@
               "types": [
                 "Laps"
               ],
+              "accessStatus": "public",
               "startTime": "5:45pm",
               "endTime": "7:00pm"
             },
@@ -190,6 +202,7 @@
               "types": [
                 "Adult Swim"
               ],
+              "accessStatus": "public",
               "startTime": "7:00pm",
               "endTime": "10:00pm"
             },
@@ -200,6 +213,7 @@
               "types": [
                 "Aqua Fitness"
               ],
+              "accessStatus": "public",
               "startTime": "9:30am",
               "endTime": "10:25am"
             },
@@ -211,6 +225,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -222,6 +237,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -241,6 +257,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -259,6 +276,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -313,6 +331,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -328,7 +347,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -341,6 +361,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "4:00pm",
               "endTime": "7:00pm"
             },
@@ -352,6 +373,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "10:30am",
               "endTime": "7:00pm"
             },
@@ -363,6 +385,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -379,6 +402,7 @@
               "types": [
                 "Closed to Public"
               ],
+              "accessStatus": "closed-to-public",
               "startTime": "12:00pm",
               "endTime": "5:00pm"
             },
@@ -389,6 +413,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "8:00pm"
             },
@@ -402,6 +427,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:30pm"
             },
@@ -413,6 +439,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:30pm"
             },
@@ -424,6 +451,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "10:30am",
               "endTime": "8:30pm"
             },
@@ -435,6 +463,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -455,6 +484,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             },
@@ -464,7 +494,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -475,6 +506,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             }
@@ -494,6 +526,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -512,6 +545,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -565,6 +599,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -584,7 +619,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -597,6 +633,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "7:00pm"
             },
@@ -609,6 +646,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -626,6 +664,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:30pm"
             },
@@ -636,6 +675,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -646,6 +686,7 @@
               "types": [
                 "Closed to Public"
               ],
+              "accessStatus": "closed-to-public",
               "startTime": "10:00am",
               "endTime": "5:00pm"
             },
@@ -656,6 +697,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "8:00pm"
             },
@@ -667,6 +709,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -679,6 +722,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:30pm"
             },
@@ -689,6 +733,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -700,6 +745,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -710,6 +756,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -721,6 +768,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -732,6 +780,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -752,6 +801,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             },
@@ -761,7 +811,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -772,6 +823,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             }
@@ -791,7 +843,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -802,6 +855,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "6:30pm"
             }
@@ -819,6 +873,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "6:00pm"
             }
@@ -837,6 +892,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -848,6 +904,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -865,6 +922,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -876,6 +934,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -894,6 +953,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -911,6 +971,7 @@
               "types": [
                 "Special Event"
               ],
+              "accessStatus": "public",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             }
@@ -929,6 +990,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -946,6 +1008,7 @@
               "types": [
                 "Special Event"
               ],
+              "accessStatus": "public",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             }
@@ -998,6 +1061,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -1017,7 +1081,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -1030,6 +1095,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "7:00pm"
             },
@@ -1042,6 +1108,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -1059,6 +1126,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:30pm"
             },
@@ -1069,6 +1137,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -1079,6 +1148,7 @@
               "types": [
                 "Closed to Public"
               ],
+              "accessStatus": "closed-to-public",
               "startTime": "10:00am",
               "endTime": "5:00pm"
             },
@@ -1089,6 +1159,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "8:00pm"
             },
@@ -1100,6 +1171,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -1112,6 +1184,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:30pm"
             },
@@ -1122,6 +1195,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -1133,6 +1207,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -1143,6 +1218,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -1154,6 +1230,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -1165,6 +1242,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -1187,6 +1265,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             },
@@ -1196,7 +1275,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             }
           ]
         }
@@ -1213,6 +1293,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -1224,6 +1305,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -1241,6 +1323,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -1252,6 +1335,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -1270,6 +1354,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -1287,6 +1372,7 @@
               "types": [
                 "Pool Party"
               ],
+              "accessStatus": "public",
               "startTime": "6:00pm",
               "endTime": "9:00pm"
             }
@@ -1305,6 +1391,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -1359,6 +1446,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -1379,6 +1467,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "4:00pm",
               "endTime": "7:00pm"
             },
@@ -1388,7 +1477,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -1398,6 +1488,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "10:30am",
               "endTime": "7:00pm"
             },
@@ -1409,6 +1500,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -1428,6 +1520,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "10:00am",
               "endTime": "8:00pm"
             },
@@ -1438,6 +1531,7 @@
               "types": [
                 "Closed to Public"
               ],
+              "accessStatus": "closed-to-public",
               "startTime": "12:00pm",
               "endTime": "5:00pm"
             },
@@ -1448,6 +1542,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "8:00pm"
             },
@@ -1460,6 +1555,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "10:00am",
               "endTime": "8:30pm"
             },
@@ -1471,6 +1567,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "11:00am",
               "endTime": "7:00pm"
             }
@@ -1490,6 +1587,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -1508,6 +1606,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -1526,6 +1625,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -1544,6 +1644,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -1561,6 +1662,7 @@
               "types": [
                 "Pool Party"
               ],
+              "accessStatus": "public",
               "startTime": "6:00pm",
               "endTime": "9:00pm"
             }
@@ -1618,6 +1720,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -1639,6 +1742,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "4:00pm",
               "endTime": "7:00pm"
             },
@@ -1651,6 +1755,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -1668,6 +1773,7 @@
                 "Lessons",
                 "Wading Pool"
               ],
+              "accessStatus": "public",
               "startTime": "10:00am",
               "endTime": "12:00pm"
             },
@@ -1679,6 +1785,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:30pm"
             },
@@ -1692,6 +1799,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -1706,6 +1814,7 @@
                 "Lessons",
                 "Wading Pool"
               ],
+              "accessStatus": "public",
               "startTime": "10:00am",
               "endTime": "12:00pm"
             },
@@ -1720,6 +1829,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:30pm"
             },
@@ -1730,6 +1840,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -1741,6 +1852,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:30pm"
             },
@@ -1752,6 +1864,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:30pm"
             }
@@ -1773,6 +1886,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             },
@@ -1785,6 +1899,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             }
@@ -1803,7 +1918,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -1813,6 +1929,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "4:00pm",
               "endTime": "6:30pm"
             },
@@ -1825,6 +1942,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "6:30pm"
             }
@@ -1842,6 +1960,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "6:00pm"
             }
@@ -1860,6 +1979,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -1871,6 +1991,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -1888,6 +2009,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -1899,6 +2021,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -1917,6 +2040,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -1935,6 +2059,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -1953,6 +2078,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -1971,6 +2097,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -1989,6 +2116,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -2006,6 +2134,7 @@
               "types": [
                 "Pool Party"
               ],
+              "accessStatus": "public",
               "startTime": "6:00pm",
               "endTime": "9:00pm"
             }
@@ -2058,6 +2187,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -2077,7 +2207,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -2090,6 +2221,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "7:00pm"
             },
@@ -2102,6 +2234,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -2119,6 +2252,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:30pm"
             },
@@ -2130,6 +2264,7 @@
                 "Lessons",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "4:30pm",
               "endTime": "7:30pm",
               "notes": "Four lanes lessons and two lanes recreational swim"
@@ -2141,6 +2276,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -2152,6 +2288,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "6:00pm"
             },
@@ -2162,6 +2299,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "6:00pm",
               "endTime": "7:30pm"
             },
@@ -2172,6 +2310,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -2182,6 +2321,7 @@
               "types": [
                 "Closed to Public"
               ],
+              "accessStatus": "closed-to-public",
               "startTime": "10:00am",
               "endTime": "5:00pm"
             },
@@ -2192,6 +2332,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "8:00pm"
             },
@@ -2203,6 +2344,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -2214,6 +2356,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:30pm"
             },
@@ -2225,6 +2368,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -2235,6 +2379,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -2246,6 +2391,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -2257,6 +2403,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -2277,6 +2424,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             },
@@ -2286,7 +2434,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -2297,6 +2446,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             }
@@ -2316,7 +2466,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -2327,6 +2478,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "6:30pm"
             }
@@ -2344,6 +2496,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "6:00pm"
             }
@@ -2362,6 +2515,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -2373,6 +2527,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -2390,6 +2545,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -2401,6 +2557,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -2419,6 +2576,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -2436,6 +2594,7 @@
               "types": [
                 "Special Event"
               ],
+              "accessStatus": "public",
               "startTime": "5:30pm",
               "endTime": "7:30pm"
             }
@@ -2454,6 +2613,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -2471,6 +2631,7 @@
               "types": [
                 "Pool Party"
               ],
+              "accessStatus": "public",
               "startTime": "6:00pm",
               "endTime": "8:00pm"
             }
@@ -2528,6 +2689,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -2547,7 +2709,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -2560,6 +2723,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "7:00pm"
             },
@@ -2572,6 +2736,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -2592,6 +2757,7 @@
                 "Lessons",
                 "Wading Pool"
               ],
+              "accessStatus": "public",
               "startTime": "10:00am",
               "endTime": "12:00pm"
             },
@@ -2606,6 +2772,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -2617,6 +2784,7 @@
                 "Lessons",
                 "Wading Pool"
               ],
+              "accessStatus": "public",
               "startTime": "10:00am",
               "endTime": "12:00pm"
             },
@@ -2627,6 +2795,7 @@
               "types": [
                 "Wibit"
               ],
+              "accessStatus": "public",
               "startTime": "1:00pm",
               "endTime": "4:00pm"
             },
@@ -2637,6 +2806,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "8:00pm"
             },
@@ -2648,6 +2818,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -2659,6 +2830,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "11:00am",
               "endTime": "7:00pm"
             }
@@ -2678,6 +2850,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -2695,6 +2868,7 @@
               "types": [
                 "Pool Party"
               ],
+              "accessStatus": "public",
               "startTime": "6:00pm",
               "endTime": "8:00pm"
             }
@@ -2713,6 +2887,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -2766,6 +2941,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -2784,7 +2960,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -2796,6 +2973,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "7:00pm"
             },
@@ -2805,7 +2983,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -2814,6 +2993,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "4:00pm",
               "endTime": "8:00pm"
             },
@@ -2825,6 +3005,7 @@
               "types": [
                 "Senior Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "3:00pm"
             },
@@ -2837,6 +3018,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "3:00pm",
               "endTime": "7:00pm"
             }
@@ -2856,6 +3038,7 @@
               "types": [
                 "Senior Swim"
               ],
+              "accessStatus": "public",
               "startTime": "11:30am",
               "endTime": "1:30pm"
             },
@@ -2870,6 +3053,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "1:30pm",
               "endTime": "7:30pm"
             },
@@ -2879,7 +3063,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -2888,6 +3073,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "8:00pm"
             },
@@ -2898,6 +3084,7 @@
               "types": [
                 "Senior Swim"
               ],
+              "accessStatus": "public",
               "startTime": "10:30am",
               "endTime": "12:30pm"
             },
@@ -2909,6 +3096,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:30pm",
               "endTime": "7:30pm"
             },
@@ -2919,6 +3107,7 @@
               "types": [
                 "Senior Swim"
               ],
+              "accessStatus": "public",
               "startTime": "11:00am",
               "endTime": "1:00pm"
             },
@@ -2930,6 +3119,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "1:00pm",
               "endTime": "7:00pm"
             }
@@ -2949,6 +3139,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -2967,6 +3158,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -3022,6 +3214,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -3042,6 +3235,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "4:00pm",
               "endTime": "7:00pm"
             },
@@ -3051,7 +3245,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -3062,6 +3257,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -3081,6 +3277,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -3090,7 +3287,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -3099,6 +3297,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "8:00pm"
             },
@@ -3110,6 +3309,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:30pm"
             },
@@ -3121,6 +3321,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "10:30am",
               "endTime": "8:30pm"
             },
@@ -3132,6 +3333,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -3152,6 +3354,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             },
@@ -3161,7 +3364,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -3172,6 +3376,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             }
@@ -3191,7 +3396,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -3202,6 +3408,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "6:30pm"
             }
@@ -3219,6 +3426,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "6:00pm"
             }
@@ -3238,6 +3446,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -3256,6 +3465,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -3307,6 +3517,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -3326,7 +3537,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -3339,6 +3551,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "7:00pm"
             },
@@ -3351,6 +3564,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -3366,7 +3580,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -3375,6 +3590,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "8:00pm"
             },
@@ -3387,6 +3603,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -3400,6 +3617,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:30pm"
             },
@@ -3410,6 +3628,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -3421,6 +3640,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -3431,6 +3651,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -3442,6 +3663,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             },
@@ -3452,6 +3674,7 @@
               "types": [
                 "Adult Swim"
               ],
+              "accessStatus": "public",
               "startTime": "7:00pm",
               "endTime": "10:00pm"
             },
@@ -3463,6 +3686,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -3478,7 +3702,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -3487,6 +3712,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "8:00pm"
             },
@@ -3499,6 +3725,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -3512,6 +3739,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:30pm"
             },
@@ -3522,6 +3750,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -3533,6 +3762,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -3543,6 +3773,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -3554,6 +3785,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             },
@@ -3565,6 +3797,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -3580,7 +3813,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -3593,6 +3827,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             },
@@ -3605,6 +3840,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             }
@@ -3624,7 +3860,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -3635,6 +3872,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "6:30pm"
             }
@@ -3652,6 +3890,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "6:00pm"
             }
@@ -3670,6 +3909,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -3681,6 +3921,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -3698,6 +3939,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -3709,6 +3951,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -3727,6 +3970,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -3745,6 +3989,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -3795,6 +4040,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -3814,7 +4060,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -3827,6 +4074,7 @@
               "types": [
                 "Clippers Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "3:00pm",
               "endTime": "7:00pm"
             },
@@ -3839,6 +4087,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -3856,6 +4105,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "4:30pm"
             },
@@ -3866,6 +4116,7 @@
               "types": [
                 "Ultimate Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "4:30pm",
               "endTime": "6:00pm"
             },
@@ -3876,6 +4127,7 @@
               "types": [
                 "Clippers Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "6:00pm",
               "endTime": "8:30pm"
             },
@@ -3887,6 +4139,7 @@
               "types": [
                 "Clippers Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "6:00am",
               "endTime": "8:00am"
             },
@@ -3899,6 +4152,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "4:30pm"
             },
@@ -3910,6 +4164,7 @@
               "types": [
                 "Ultimate Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "4:30pm",
               "endTime": "6:00pm"
             },
@@ -3921,6 +4176,7 @@
               "types": [
                 "Clippers Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "6:00pm",
               "endTime": "8:30pm"
             },
@@ -3931,6 +4187,7 @@
               "types": [
                 "Clippers Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "6:00am",
               "endTime": "8:30am"
             },
@@ -3941,6 +4198,7 @@
               "types": [
                 "Closed to Public"
               ],
+              "accessStatus": "closed-to-public",
               "startTime": "12:00pm",
               "endTime": "5:00pm"
             },
@@ -3951,6 +4209,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "6:30pm"
             },
@@ -3961,6 +4220,7 @@
               "types": [
                 "Clippers Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "6:00pm",
               "endTime": "8:30pm"
             },
@@ -3971,6 +4231,7 @@
               "types": [
                 "Clippers Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "6:00am",
               "endTime": "8:00am"
             },
@@ -3983,6 +4244,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -3994,6 +4256,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -4012,6 +4275,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -4023,6 +4287,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -4041,6 +4306,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -4059,6 +4325,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -4076,6 +4343,7 @@
               "types": [
                 "Closed to Public"
               ],
+              "accessStatus": "closed-to-public",
               "startTime": "9:00am",
               "endTime": "7:00pm"
             }
@@ -4093,6 +4361,7 @@
               "types": [
                 "Closed to Public"
               ],
+              "accessStatus": "closed-to-public",
               "startTime": "9:00am",
               "endTime": "7:00pm"
             }
@@ -4110,6 +4379,7 @@
               "types": [
                 "Closed to Public"
               ],
+              "accessStatus": "closed-to-public",
               "startTime": "9:00am",
               "endTime": "7:00pm"
             }
@@ -4167,6 +4437,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -4187,6 +4458,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "4:00pm",
               "endTime": "7:00pm"
             },
@@ -4196,7 +4468,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -4207,6 +4480,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -4224,6 +4498,7 @@
                 "Lessons",
                 "Wading Pool"
               ],
+              "accessStatus": "public",
               "startTime": "10:00am",
               "endTime": "12:00pm"
             },
@@ -4235,6 +4510,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -4245,6 +4521,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -4256,6 +4533,7 @@
                 "Lessons",
                 "Wading Pool"
               ],
+              "accessStatus": "public",
               "startTime": "10:00am",
               "endTime": "12:00pm"
             },
@@ -4266,6 +4544,7 @@
               "types": [
                 "Closed to Public"
               ],
+              "accessStatus": "closed-to-public",
               "startTime": "12:00pm",
               "endTime": "5:00pm"
             },
@@ -4276,6 +4555,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "8:00pm"
             },
@@ -4288,6 +4568,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -4301,6 +4582,7 @@
                 "Lessons",
                 "Wading Pool"
               ],
+              "accessStatus": "public",
               "startTime": "10:00am",
               "endTime": "12:00pm"
             },
@@ -4313,6 +4595,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -4324,6 +4607,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:30pm"
             },
@@ -4334,6 +4618,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -4345,6 +4630,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:30pm"
             },
@@ -4356,6 +4642,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "11:00am",
               "endTime": "7:00pm"
             }
@@ -4374,6 +4661,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -4385,6 +4673,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -4402,6 +4691,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -4413,6 +4703,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -4431,6 +4722,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -4449,6 +4741,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -4467,6 +4760,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -4485,6 +4779,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -4502,6 +4797,7 @@
               "types": [
                 "Pool Party"
               ],
+              "accessStatus": "public",
               "startTime": "6:00pm",
               "endTime": "8:30pm"
             }
@@ -4551,6 +4847,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -4570,7 +4867,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -4583,6 +4881,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "7:00pm"
             },
@@ -4595,6 +4894,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -4613,6 +4913,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             },
@@ -4624,6 +4925,7 @@
               "types": [
                 "Aqua Fitness"
               ],
+              "accessStatus": "public",
               "startTime": "7:00pm",
               "endTime": "7:55pm"
             },
@@ -4635,6 +4937,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             },
@@ -4646,6 +4949,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "5:00pm"
             },
@@ -4658,6 +4962,7 @@
                 "Rec Swim",
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "6:30pm",
               "notes": "Shared lane use"
@@ -4668,7 +4973,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -4678,6 +4984,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "10:30am",
               "endTime": "8:00pm"
             },
@@ -4689,6 +4996,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -4707,6 +5015,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             },
@@ -4718,6 +5027,7 @@
               "types": [
                 "Aqua Fitness"
               ],
+              "accessStatus": "public",
               "startTime": "7:00pm",
               "endTime": "7:55pm"
             },
@@ -4732,6 +5042,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             },
@@ -4741,7 +5052,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             }
           ]
         },
@@ -4756,7 +5068,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -4767,6 +5080,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "6:30pm"
             }
@@ -4784,6 +5098,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "6:00pm"
             }
@@ -4803,6 +5118,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -4821,6 +5137,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -4875,6 +5192,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -4894,7 +5212,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -4907,6 +5226,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "7:00pm"
             },
@@ -4919,6 +5239,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -4934,7 +5255,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -4943,6 +5265,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "4:00pm",
               "endTime": "8:30pm"
             },
@@ -4956,6 +5279,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -4969,6 +5293,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:30pm"
             },
@@ -4981,6 +5306,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -4991,6 +5317,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -5002,6 +5329,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -5022,6 +5350,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             },
@@ -5031,7 +5360,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -5042,6 +5372,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             }
@@ -5060,6 +5391,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -5071,6 +5403,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -5088,6 +5421,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -5099,6 +5433,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -5117,6 +5452,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -5135,6 +5471,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -5152,6 +5489,7 @@
               "types": [
                 "Pool Party"
               ],
+              "accessStatus": "public",
               "startTime": "6:00pm",
               "endTime": "8:00pm"
             }
@@ -5203,6 +5541,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -5222,7 +5561,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -5235,6 +5575,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "7:00pm"
             },
@@ -5247,6 +5588,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -5264,6 +5606,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:30pm"
             },
@@ -5274,6 +5617,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -5284,6 +5628,7 @@
               "types": [
                 "Closed to Public"
               ],
+              "accessStatus": "closed-to-public",
               "startTime": "10:00am",
               "endTime": "5:00pm"
             },
@@ -5294,6 +5639,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "8:00pm"
             },
@@ -5306,6 +5652,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -5318,6 +5665,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:30pm"
             },
@@ -5329,6 +5677,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -5339,6 +5688,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -5350,6 +5700,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -5361,6 +5712,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -5381,6 +5733,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             },
@@ -5390,7 +5743,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -5401,6 +5755,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             }
@@ -5419,6 +5774,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -5430,6 +5786,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -5447,6 +5804,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -5458,6 +5816,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -5476,6 +5835,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -5494,6 +5854,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -5544,6 +5905,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -5563,7 +5925,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -5576,6 +5939,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "7:00pm"
             },
@@ -5588,6 +5952,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -5605,6 +5970,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -5616,6 +5982,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -5628,6 +5995,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -5638,6 +6006,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -5648,6 +6017,7 @@
               "types": [
                 "Closed to Public"
               ],
+              "accessStatus": "closed-to-public",
               "startTime": "10:00am",
               "endTime": "5:00pm"
             },
@@ -5658,6 +6028,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "8:00pm"
             },
@@ -5668,6 +6039,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -5680,6 +6052,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -5690,6 +6063,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -5701,6 +6075,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -5721,6 +6096,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             },
@@ -5730,7 +6106,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -5741,6 +6118,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             }
@@ -5759,6 +6137,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -5770,6 +6149,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -5787,6 +6167,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -5798,6 +6179,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -5816,6 +6198,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -5834,6 +6217,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -5850,7 +6234,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             }
           ],
           "reason": "Closed for CNSL All-City swim meet"
@@ -5865,7 +6250,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             }
           ],
           "reason": "Closed for CNSL All-City swim meet"
@@ -5919,6 +6305,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -5939,6 +6326,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "4:00pm",
               "endTime": "7:00pm"
             },
@@ -5952,6 +6340,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "7:00pm",
               "notes": "Four lanes"
@@ -5964,6 +6353,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "4:00pm",
               "endTime": "7:00pm"
             },
@@ -5975,6 +6365,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:30pm",
               "endTime": "7:00pm"
             },
@@ -5986,6 +6377,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "11:00am",
               "endTime": "7:00pm"
             }
@@ -6003,6 +6395,7 @@
                 "Lessons",
                 "Wading Pool"
               ],
+              "accessStatus": "public",
               "startTime": "10:00am",
               "endTime": "12:00pm"
             },
@@ -6014,6 +6407,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -6027,6 +6421,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -6041,6 +6436,7 @@
                 "Lessons",
                 "Wading Pool"
               ],
+              "accessStatus": "public",
               "startTime": "10:00am",
               "endTime": "12:00pm",
               "notes": "CNSL practice also uses four lanes"
@@ -6056,6 +6452,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -6066,6 +6463,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:30pm"
             },
@@ -6077,6 +6475,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:30pm",
               "endTime": "8:30pm"
             },
@@ -6088,6 +6487,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "11:00am",
               "endTime": "7:00pm"
             }
@@ -6109,6 +6509,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             },
@@ -6121,6 +6522,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             }
@@ -6139,7 +6541,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -6149,6 +6552,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "4:00pm",
               "endTime": "6:30pm"
             },
@@ -6161,6 +6565,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "6:30pm"
             }
@@ -6178,6 +6583,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "6:00pm"
             }
@@ -6196,6 +6602,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:30pm"
             },
@@ -6207,6 +6614,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:30pm",
               "endTime": "7:00pm"
             }
@@ -6224,6 +6632,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:30pm"
             },
@@ -6235,6 +6644,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:30pm",
               "endTime": "7:00pm"
             }
@@ -6253,6 +6663,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             },
@@ -6263,6 +6674,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "7:00pm",
               "notes": "Four lanes"
@@ -6282,6 +6694,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             },
@@ -6292,6 +6705,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "7:00pm",
               "notes": "Four lanes"
@@ -6311,6 +6725,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             },
@@ -6321,6 +6736,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "7:00pm",
               "notes": "Four lanes"
@@ -6340,6 +6756,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -6358,6 +6775,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -6375,6 +6793,7 @@
               "types": [
                 "Pool Party"
               ],
+              "accessStatus": "public",
               "startTime": "6:00pm",
               "endTime": "8:00pm"
             }
@@ -6425,6 +6844,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -6444,7 +6864,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -6457,6 +6878,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "7:00pm"
             },
@@ -6469,6 +6891,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -6487,6 +6910,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:30pm"
             },
@@ -6498,6 +6922,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "4:30pm"
             },
@@ -6509,6 +6934,7 @@
                 "Lessons",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "4:30pm",
               "endTime": "7:30pm",
               "notes": "Three lanes lessons and three lanes recreational swim"
@@ -6520,6 +6946,7 @@
               "types": [
                 "Closed to Public"
               ],
+              "accessStatus": "closed-to-public",
               "startTime": "12:00pm",
               "endTime": "5:00pm"
             },
@@ -6530,6 +6957,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "8:00pm"
             },
@@ -6542,6 +6970,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -6553,6 +6982,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -6573,6 +7003,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             },
@@ -6582,7 +7013,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -6593,6 +7025,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             }
@@ -6612,6 +7045,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -6630,6 +7064,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -6682,6 +7117,7 @@
                 "Masters Swim",
                 "Adult Laps Only"
               ],
+              "accessStatus": "public",
               "startTime": "5:30am",
               "endTime": "7:00am",
               "notes": "Four lanes each"
@@ -6695,6 +7131,7 @@
               "types": [
                 "Adult Laps Only"
               ],
+              "accessStatus": "public",
               "startTime": "7:00am",
               "endTime": "10:30am"
             },
@@ -6707,6 +7144,7 @@
               "types": [
                 "Closed to Public"
               ],
+              "accessStatus": "closed-to-public",
               "startTime": "10:30am",
               "endTime": "4:30pm"
             },
@@ -6719,6 +7157,7 @@
               "types": [
                 "Adult Laps Only"
               ],
+              "accessStatus": "public",
               "startTime": "4:30pm",
               "endTime": "7:00pm"
             },
@@ -6730,6 +7169,7 @@
               "types": [
                 "Adult Laps Only"
               ],
+              "accessStatus": "public",
               "startTime": "5:30am",
               "endTime": "10:30am"
             },
@@ -6741,6 +7181,7 @@
               "types": [
                 "Closed to Public"
               ],
+              "accessStatus": "closed-to-public",
               "startTime": "10:30am",
               "endTime": "4:30pm"
             },
@@ -6752,6 +7193,7 @@
               "types": [
                 "Adult Laps Only"
               ],
+              "accessStatus": "public",
               "startTime": "4:30pm",
               "endTime": "7:00pm"
             },
@@ -6763,6 +7205,7 @@
               "types": [
                 "Adult Laps Only"
               ],
+              "accessStatus": "public",
               "startTime": "9:00am",
               "endTime": "12:00pm"
             },
@@ -6774,6 +7217,7 @@
               "types": [
                 "Closed to Public"
               ],
+              "accessStatus": "closed-to-public",
               "startTime": "12:00pm",
               "endTime": "7:00pm",
               "notes": "Lifeguard training"
@@ -6793,6 +7237,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             },
@@ -6803,6 +7248,7 @@
               "types": [
                 "Closed to Public"
               ],
+              "accessStatus": "closed-to-public",
               "startTime": "7:30am",
               "endTime": "11:30am",
               "notes": "Lifeguard training"
@@ -6815,6 +7261,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -6831,6 +7278,7 @@
               "types": [
                 "Adult Laps Only"
               ],
+              "accessStatus": "public",
               "startTime": "5:30am",
               "endTime": "10:30am"
             },
@@ -6841,6 +7289,7 @@
               "types": [
                 "Yoga"
               ],
+              "accessStatus": "public",
               "startTime": "8:30am",
               "endTime": "9:30am"
             },
@@ -6851,6 +7300,7 @@
               "types": [
                 "Closed to Public"
               ],
+              "accessStatus": "closed-to-public",
               "startTime": "10:30am",
               "endTime": "7:00pm"
             },
@@ -6864,6 +7314,7 @@
               "types": [
                 "Adult Laps Only"
               ],
+              "accessStatus": "public",
               "startTime": "5:30am",
               "endTime": "10:30am"
             },
@@ -6877,6 +7328,7 @@
               "types": [
                 "Yoga"
               ],
+              "accessStatus": "public",
               "startTime": "8:30am",
               "endTime": "9:30am"
             },
@@ -6891,6 +7343,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "10:30am",
               "endTime": "7:00pm"
             },
@@ -6902,6 +7355,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             },
@@ -6912,6 +7366,7 @@
               "types": [
                 "Aqua Fitness"
               ],
+              "accessStatus": "public",
               "startTime": "10:00am",
               "endTime": "10:55am"
             },
@@ -6923,6 +7378,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "11:00am",
               "endTime": "7:00pm"
             }
@@ -6939,6 +7395,7 @@
               "types": [
                 "Adult Laps Only"
               ],
+              "accessStatus": "public",
               "startTime": "5:30am",
               "endTime": "9:45am"
             },
@@ -6949,6 +7406,7 @@
               "types": [
                 "Yoga"
               ],
+              "accessStatus": "public",
               "startTime": "8:30am",
               "endTime": "9:30am"
             },
@@ -6959,6 +7417,7 @@
               "types": [
                 "Aqua Fitness"
               ],
+              "accessStatus": "public",
               "startTime": "10:00am",
               "endTime": "10:55am"
             },
@@ -6969,6 +7428,7 @@
               "types": [
                 "Closed to Public"
               ],
+              "accessStatus": "closed-to-public",
               "startTime": "11:00am",
               "endTime": "5:00pm"
             },
@@ -6979,6 +7439,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "8:00pm"
             },
@@ -6990,6 +7451,7 @@
               "types": [
                 "Adult Laps Only"
               ],
+              "accessStatus": "public",
               "startTime": "5:30am",
               "endTime": "9:45am"
             },
@@ -7001,6 +7463,7 @@
               "types": [
                 "Yoga"
               ],
+              "accessStatus": "public",
               "startTime": "8:30am",
               "endTime": "9:30am"
             },
@@ -7012,6 +7475,7 @@
               "types": [
                 "Aqua Fitness"
               ],
+              "accessStatus": "public",
               "startTime": "10:00am",
               "endTime": "10:55am"
             },
@@ -7024,6 +7488,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "11:00am",
               "endTime": "8:00pm"
             },
@@ -7035,6 +7500,7 @@
               "types": [
                 "Adult Laps Only"
               ],
+              "accessStatus": "public",
               "startTime": "5:30am",
               "endTime": "9:45am"
             },
@@ -7046,6 +7512,7 @@
               "types": [
                 "Yoga"
               ],
+              "accessStatus": "public",
               "startTime": "8:30am",
               "endTime": "9:30am"
             },
@@ -7057,6 +7524,7 @@
               "types": [
                 "Aqua Fitness"
               ],
+              "accessStatus": "public",
               "startTime": "10:00am",
               "endTime": "10:55am"
             },
@@ -7069,6 +7537,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "11:00am",
               "endTime": "8:00pm"
             },
@@ -7079,6 +7548,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -7090,6 +7560,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -7100,6 +7571,7 @@
               "types": [
                 "Aqua Fitness"
               ],
+              "accessStatus": "public",
               "startTime": "10:00am",
               "endTime": "10:55am"
             },
@@ -7111,6 +7583,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "11:00am",
               "endTime": "7:00pm"
             }
@@ -7128,6 +7601,7 @@
                 "Masters Swim",
                 "Adult Laps Only"
               ],
+              "accessStatus": "public",
               "startTime": "5:30am",
               "endTime": "7:00am",
               "notes": "Four lanes each"
@@ -7139,6 +7613,7 @@
               "types": [
                 "Adult Laps Only"
               ],
+              "accessStatus": "public",
               "startTime": "7:00am",
               "endTime": "9:45am"
             },
@@ -7149,6 +7624,7 @@
               "types": [
                 "Yoga"
               ],
+              "accessStatus": "public",
               "startTime": "8:30am",
               "endTime": "9:30am"
             },
@@ -7159,6 +7635,7 @@
               "types": [
                 "Aqua Fitness"
               ],
+              "accessStatus": "public",
               "startTime": "10:00am",
               "endTime": "10:55am"
             },
@@ -7169,6 +7646,7 @@
               "types": [
                 "Closed to Public"
               ],
+              "accessStatus": "closed-to-public",
               "startTime": "11:00am",
               "endTime": "5:00pm"
             },
@@ -7180,6 +7658,7 @@
               "types": [
                 "Adult Laps Only"
               ],
+              "accessStatus": "public",
               "startTime": "5:30am",
               "endTime": "9:45am"
             },
@@ -7191,6 +7670,7 @@
               "types": [
                 "Yoga"
               ],
+              "accessStatus": "public",
               "startTime": "8:30am",
               "endTime": "9:30am"
             },
@@ -7202,6 +7682,7 @@
               "types": [
                 "Aqua Fitness"
               ],
+              "accessStatus": "public",
               "startTime": "10:00am",
               "endTime": "10:55am"
             },
@@ -7214,6 +7695,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "11:00am",
               "endTime": "8:00pm"
             },
@@ -7226,6 +7708,7 @@
                 "Masters Swim",
                 "Adult Laps Only"
               ],
+              "accessStatus": "public",
               "startTime": "5:30am",
               "endTime": "7:00am",
               "notes": "Four lanes each"
@@ -7238,6 +7721,7 @@
               "types": [
                 "Adult Laps Only"
               ],
+              "accessStatus": "public",
               "startTime": "7:00am",
               "endTime": "9:45am"
             },
@@ -7249,6 +7733,7 @@
               "types": [
                 "Yoga"
               ],
+              "accessStatus": "public",
               "startTime": "8:30am",
               "endTime": "9:30am"
             },
@@ -7260,6 +7745,7 @@
               "types": [
                 "Aqua Fitness"
               ],
+              "accessStatus": "public",
               "startTime": "10:00am",
               "endTime": "10:55am"
             },
@@ -7272,6 +7758,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "11:00am",
               "endTime": "8:00pm"
             },
@@ -7283,6 +7770,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "11:00am",
               "endTime": "8:00pm"
             },
@@ -7293,6 +7781,7 @@
               "types": [
                 "Aqua Fitness"
               ],
+              "accessStatus": "public",
               "startTime": "10:00am",
               "endTime": "10:55am"
             },
@@ -7304,6 +7793,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "11:00am",
               "endTime": "7:00pm"
             }
@@ -7323,6 +7813,7 @@
                 "Masters Swim",
                 "Adult Laps Only"
               ],
+              "accessStatus": "public",
               "startTime": "5:30am",
               "endTime": "7:00am",
               "notes": "Four lanes each"
@@ -7336,6 +7827,7 @@
               "types": [
                 "Adult Laps Only"
               ],
+              "accessStatus": "public",
               "startTime": "7:00am",
               "endTime": "9:00am"
             },
@@ -7349,6 +7841,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "9:00am",
               "endTime": "4:00pm"
             },
@@ -7361,6 +7854,7 @@
               "types": [
                 "Clippers Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "4:00pm",
               "endTime": "9:00pm"
             },
@@ -7372,6 +7866,7 @@
               "types": [
                 "Adult Laps Only"
               ],
+              "accessStatus": "public",
               "startTime": "5:30am",
               "endTime": "9:00am"
             },
@@ -7384,6 +7879,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "9:00am",
               "endTime": "4:00pm"
             },
@@ -7395,6 +7891,7 @@
               "types": [
                 "Clippers Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "4:00pm",
               "endTime": "9:00pm"
             },
@@ -7405,6 +7902,7 @@
               "types": [
                 "Adult Laps Only"
               ],
+              "accessStatus": "public",
               "startTime": "7:00am",
               "endTime": "10:00am"
             },
@@ -7416,6 +7914,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "10:00am",
               "endTime": "7:00pm"
             },
@@ -7426,6 +7925,7 @@
               "types": [
                 "Adult Laps Only"
               ],
+              "accessStatus": "public",
               "startTime": "7:00am",
               "endTime": "8:55am"
             },
@@ -7437,6 +7937,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "9:00am",
               "endTime": "6:00pm"
             }
@@ -7453,6 +7954,7 @@
               "types": [
                 "Adult Laps Only"
               ],
+              "accessStatus": "public",
               "startTime": "5:30am",
               "endTime": "10:30am"
             },
@@ -7463,6 +7965,7 @@
               "types": [
                 "Aqua Fitness"
               ],
+              "accessStatus": "public",
               "startTime": "10:30am",
               "endTime": "11:25am"
             },
@@ -7474,6 +7977,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "6:00pm"
             }
@@ -7492,6 +7996,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -7503,6 +8008,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -7520,6 +8026,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -7531,6 +8038,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -7548,6 +8056,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -7559,6 +8068,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -7576,6 +8086,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -7587,6 +8098,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -7605,6 +8117,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -7623,6 +8136,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -7640,6 +8154,7 @@
               "types": [
                 "Pool Party"
               ],
+              "accessStatus": "public",
               "startTime": "6:00pm",
               "endTime": "9:00pm"
             }
@@ -7696,6 +8211,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -7716,6 +8232,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "11:00am",
               "endTime": "7:00pm"
             },
@@ -7725,7 +8242,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -7736,6 +8254,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -7753,6 +8272,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "10:00am",
               "endTime": "8:00pm"
             },
@@ -7764,6 +8284,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -7776,6 +8297,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "10:00am",
               "endTime": "8:00pm"
             },
@@ -7786,6 +8308,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -7796,6 +8319,7 @@
               "types": [
                 "Closed to Public"
               ],
+              "accessStatus": "closed-to-public",
               "startTime": "10:00am",
               "endTime": "5:00pm"
             },
@@ -7806,6 +8330,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "8:00pm"
             },
@@ -7816,6 +8341,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -7827,6 +8353,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "10:00am",
               "endTime": "8:00pm"
             },
@@ -7837,6 +8364,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -7848,6 +8376,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -7859,6 +8388,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -7879,6 +8409,7 @@
               "types": [
                 "Adult Laps Only"
               ],
+              "accessStatus": "public",
               "startTime": "7:00am",
               "endTime": "9:00am"
             },
@@ -7893,6 +8424,7 @@
               "types": [
                 "Combo Fitness"
               ],
+              "accessStatus": "public",
               "startTime": "8:00am",
               "endTime": "8:55am",
               "notes": "Diving well and two lanes"
@@ -7907,6 +8439,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "9:00am",
               "endTime": "7:00pm"
             },
@@ -7919,6 +8452,7 @@
               "types": [
                 "Masters Swim"
               ],
+              "accessStatus": "public",
               "startTime": "10:15am",
               "endTime": "11:30am",
               "notes": "Two lanes"
@@ -7930,6 +8464,7 @@
               "types": [
                 "Closed to Public"
               ],
+              "accessStatus": "closed-to-public",
               "startTime": "9:00am",
               "endTime": "7:00pm"
             },
@@ -7941,6 +8476,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "9:00am",
               "endTime": "8:00pm"
             },
@@ -7952,6 +8488,7 @@
               "types": [
                 "Adult Laps Only"
               ],
+              "accessStatus": "public",
               "startTime": "7:00am",
               "endTime": "11:45am"
             },
@@ -7964,6 +8501,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm",
               "notes": "No wading pool or splashpad"
@@ -7983,7 +8521,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -7993,6 +8532,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "4:00pm",
               "endTime": "7:00pm"
             },
@@ -8005,6 +8545,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -8022,6 +8563,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "6:00pm"
             }
@@ -8040,6 +8582,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -8051,6 +8594,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -8068,6 +8612,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -8079,6 +8624,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -8097,6 +8643,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -8115,6 +8662,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -8132,6 +8680,7 @@
               "types": [
                 "Pool Party"
               ],
+              "accessStatus": "public",
               "startTime": "6:00pm",
               "endTime": "8:00pm"
             }
@@ -8153,6 +8702,7 @@
               "types": [
                 "Combo Fitness"
               ],
+              "accessStatus": "public",
               "startTime": "8:00am",
               "endTime": "8:55am",
               "notes": "Diving well and two lanes"
@@ -8207,6 +8757,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -8225,6 +8776,7 @@
               "types": [
                 "Masters Swim"
               ],
+              "accessStatus": "public",
               "startTime": "5:30am",
               "endTime": "7:00am"
             },
@@ -8239,6 +8791,7 @@
               "types": [
                 "Closed to Public"
               ],
+              "accessStatus": "closed-to-public",
               "startTime": "7:00am",
               "endTime": "5:00pm"
             },
@@ -8253,6 +8806,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "7:00pm"
             },
@@ -8265,6 +8819,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -8283,6 +8838,7 @@
               "types": [
                 "Masters Swim"
               ],
+              "accessStatus": "public",
               "startTime": "5:30am",
               "endTime": "7:00am"
             },
@@ -8294,6 +8850,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "6:00pm"
             },
@@ -8306,6 +8863,7 @@
                 "Rec Swim",
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "6:00pm",
               "endTime": "7:30pm",
               "notes": "Shared lanes"
@@ -8318,6 +8876,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -8330,6 +8889,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "4:30pm"
             },
@@ -8342,6 +8902,7 @@
                 "Lessons",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "4:30pm",
               "endTime": "7:30pm",
               "notes": "Four lanes lessons and four lanes recreational swim"
@@ -8353,6 +8914,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -8363,6 +8925,7 @@
               "types": [
                 "Closed to Public"
               ],
+              "accessStatus": "closed-to-public",
               "startTime": "10:00am",
               "endTime": "5:00pm"
             },
@@ -8373,6 +8936,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "8:00pm"
             },
@@ -8383,6 +8947,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -8395,6 +8960,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -8406,6 +8972,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -8425,6 +8992,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -8443,6 +9011,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -8494,6 +9063,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -8513,7 +9083,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -8526,6 +9097,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "7:00pm"
             },
@@ -8538,6 +9110,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -8555,6 +9128,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -8565,6 +9139,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -8575,6 +9150,7 @@
               "types": [
                 "Closed to Public"
               ],
+              "accessStatus": "closed-to-public",
               "startTime": "10:00am",
               "endTime": "5:00pm"
             },
@@ -8585,6 +9161,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "5:00pm",
               "endTime": "8:00pm"
             },
@@ -8597,6 +9174,7 @@
               "types": [
                 "CNSL Practice Only"
               ],
+              "accessStatus": "practice-only",
               "startTime": "8:00am",
               "endTime": "10:00am"
             },
@@ -8610,6 +9188,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -8620,6 +9199,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -8631,6 +9211,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             },
@@ -8642,6 +9223,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -8662,6 +9244,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             },
@@ -8671,7 +9254,8 @@
               ],
               "types": [
                 "Closed to Public"
-              ]
+              ],
+              "accessStatus": "closed-to-public"
             },
             {
               "weekDays": [
@@ -8682,6 +9266,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "8:00pm"
             }
@@ -8700,6 +9285,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -8711,6 +9297,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -8728,6 +9315,7 @@
               "types": [
                 "Swim Meet"
               ],
+              "accessStatus": "swim-meet",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             },
@@ -8739,6 +9327,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -8757,6 +9346,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }
@@ -8775,6 +9365,7 @@
                 "Laps",
                 "Rec Swim"
               ],
+              "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
             }

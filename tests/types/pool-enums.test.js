@@ -50,6 +50,8 @@ describe('PoolStatus', () => {
 
   it('defines PRACTICE_ONLY status', () => {
     assert.equal(PoolStatus.PRACTICE_ONLY.isOpen, true);
+    assert.equal(PoolStatus.PRACTICE_ONLY.status, 'Practice Only');
+    assert.equal(PoolStatus.PRACTICE_ONLY.color, 'yellow');
   });
 
   it('defines SWIM_MEET status', () => {

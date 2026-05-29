@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://example.com/pools.schema.json",
-    "version": "V4",
+    "version": "V5",
     "title": "Pool Data Schema",
     "description": "Schema for pool data containing schedules, features, and location information",
     "type": "object",
@@ -213,12 +213,17 @@
                         }
                     ]
                 },
+                "accessStatus": {
+                    "$ref": "#/definitions/AccessStatusType",
+                    "description": "Semantic public-access status used for live pool availability and indicators"
+                },
                 "notes": {
                     "type": "string"
                 }
             },
             "required": [
-                "weekDays"
+                "weekDays",
+                "accessStatus"
             ],
             "additionalProperties": false
         },
@@ -327,6 +332,15 @@
                 "Fri",
                 "Sat",
                 "Sun"
+            ]
+        },
+        "AccessStatusType": {
+            "type": "string",
+            "enum": [
+                "closed-to-public",
+                "practice-only",
+                "public",
+                "swim-meet"
             ]
         },
         "ScheduleType": {

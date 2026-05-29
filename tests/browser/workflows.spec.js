@@ -394,7 +394,8 @@ test('[WF-POOLS-002] pool availability filters show pools open now or for the ne
           weekDays: ['Tue'],
           startTime: '1:00PM',
           endTime: index === 0 ? '6:00PM' : '4:00PM',
-          types: ['Rec Swim']
+          types: ['Rec Swim'],
+          accessStatus: 'public'
         }]
       }];
       pool.scheduleOverrides = [];
@@ -1361,4 +1362,21 @@ test('[WF-POOLS-010] practice-only schedules do not infer a team from pool assoc
   await jeffersHill.locator('.pool-header__toggle').click();
   await expect(jeffersHill).toContainText('CNSL Practice Only');
   await expect(jeffersHill.locator('.schedule-activity__team-names')).toHaveCount(0);
+});
+
+test('[WF-POOLS-011] team-only practice uses restricted live status and public availability filtering', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-05-26T15:30:00-04:00'));
+  await page.goto('/pools.html');
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+
+  let jeffersHill = page.locator('.pool-card').filter({ hasText: 'Jeffers Hill' });
+  await jeffersHill.locator('.pool-header__toggle').click();
+  await expect(jeffersHill).toContainText('Clippers Practice Only');
+  await expect(jeffersHill.locator('.open-status')).toContainText('Practice Only');
+  await expect(jeffersHill.locator('.open-status')).toHaveClass(/status-yellow/);
+
+  await page.locator('#togglePoolFeatureFilters').click();
+  await page.selectOption('#poolAvailabilityFilter', 'open-now');
+  jeffersHill = page.locator('.pool-card').filter({ hasText: 'Jeffers Hill' });
+  await expect(jeffersHill).toHaveCount(0);
 });

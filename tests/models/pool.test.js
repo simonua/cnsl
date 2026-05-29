@@ -143,9 +143,9 @@ describe('Pool', () => {
             startDate: '2026-05-23',
             endDate: '2026-09-07',
             hours: [
-              { weekDays: ['Tue'], startTime: '1:00PM', endTime: '2:00PM', types: ['Rec Swim'] },
-              { weekDays: ['Tue'], startTime: '2:00PM', endTime: '3:00PM', types: ['Closed to Public'] },
-              { weekDays: ['Tue'], startTime: '3:00PM', endTime: '5:00PM', types: ['Rec Swim'] }
+              { weekDays: ['Tue'], startTime: '1:00PM', endTime: '2:00PM', types: ['Rec Swim'], accessStatus: 'public' },
+              { weekDays: ['Tue'], startTime: '2:00PM', endTime: '3:00PM', types: ['Closed to Public'], accessStatus: 'closed-to-public' },
+              { weekDays: ['Tue'], startTime: '3:00PM', endTime: '5:00PM', types: ['Rec Swim'], accessStatus: 'public' }
             ]
           }]
         }));
@@ -170,13 +170,13 @@ describe('Pool', () => {
           schedules: [{
             startDate: '2026-05-23',
             endDate: '2026-09-07',
-            hours: [{ weekDays: ['Tue'], startTime: '1:00PM', endTime: '5:00PM', types: ['Rec Swim'] }]
+            hours: [{ weekDays: ['Tue'], startTime: '1:00PM', endTime: '5:00PM', types: ['Rec Swim'], accessStatus: 'public' }]
           }],
           scheduleOverrides: [{
             startDate: '2026-05-26',
             endDate: '2026-05-26',
             reason: 'Private event',
-            hours: [{ weekDays: ['Tue'], startTime: '2:00PM', endTime: '3:00PM', types: ['Closed to Public'] }]
+            hours: [{ weekDays: ['Tue'], startTime: '2:00PM', endTime: '3:00PM', types: ['Closed to Public'], accessStatus: 'closed-to-public' }]
           }]
         }));
 
@@ -200,8 +200,8 @@ describe('Pool', () => {
             startDate: '2026-05-23',
             endDate: '2026-09-07',
             hours: [
-              { weekDays: ['Tue'], startTime: '2:00PM', endTime: '3:00PM', types: ['Closed to Public'] },
-              { weekDays: ['Tue'], startTime: '3:00PM', endTime: '5:00PM', types: ['Rec Swim'] }
+              { weekDays: ['Tue'], startTime: '2:00PM', endTime: '3:00PM', types: ['Closed to Public'], accessStatus: 'closed-to-public' },
+              { weekDays: ['Tue'], startTime: '3:00PM', endTime: '5:00PM', types: ['Rec Swim'], accessStatus: 'public' }
             ]
           }]
         }));
@@ -244,7 +244,7 @@ describe('Pool', () => {
           schedules: [{
             startDate: '2026-05-23',
             endDate: '2026-09-07',
-            hours: [{ weekDays: ['Tue'], startTime: '1:00PM', endTime: '5:00PM', types: ['Rec Swim'] }]
+            hours: [{ weekDays: ['Tue'], startTime: '1:00PM', endTime: '5:00PM', types: ['Rec Swim'], accessStatus: 'public' }]
           }]
         }));
 
@@ -282,15 +282,33 @@ describe('Pool', () => {
       }
     });
 
-    it('maps legacy schedule activity types to access statuses', () => {
+    it('maps declared schedule access statuses without interpreting activity labels', () => {
       const pool = new Pool(createSamplePoolData({ schedules: [] }));
-      assert.equal(pool._getLegacySlotStatus({ types: ['Closed to Public'] }), PoolStatus.CLOSED_TO_PUBLIC);
-      assert.equal(pool._getLegacySlotStatus({ types: ['CNSL Practice Only'] }), PoolStatus.PRACTICE_ONLY);
-      assert.equal(pool._getLegacySlotStatus({ types: ['Swim Meet'] }), PoolStatus.SWIM_MEET);
-      assert.equal(pool._getLegacySlotStatus({ types: ['Rec Swim'] }), PoolStatus.OPEN);
+      assert.equal(pool._getLegacySlotStatus({ accessStatus: 'closed-to-public', types: ['Open-looking label'] }), PoolStatus.CLOSED_TO_PUBLIC);
+      assert.equal(pool._getLegacySlotStatus({ accessStatus: 'practice-only', types: ['Clippers Practice Only'] }), PoolStatus.PRACTICE_ONLY);
+      assert.equal(pool._getLegacySlotStatus({ accessStatus: 'swim-meet', types: ['Event'] }), PoolStatus.SWIM_MEET);
+      assert.equal(pool._getLegacySlotStatus({ accessStatus: 'public', types: ['CNSL Practice Only'] }), PoolStatus.OPEN);
+      assert.equal(pool._getLegacySlotStatus({ types: ['Rec Swim'] }), PoolStatus.RESTRICTED);
       suppressConsole(() => assert.equal(pool._getLegacyStatusAtMinutes([{}], 60), PoolStatus.CLOSED));
       pool.scheduleOverrides = null;
       assert.equal(pool._getScheduleOverrideForDate('2026-05-26', 'Tue'), null);
+    });
+
+    it('excludes declared team-only practice periods from public availability', () => {
+      const originalGetInfo = TimeUtils.getCurrentEasternTimeInfo;
+      TimeUtils.getCurrentEasternTimeInfo = () => ({ date: '2026-05-26', day: 'Tue', minutes: (15 * 60) + 30, isValid: true });
+      try {
+        const pool = new Pool(createSamplePoolData({ schedules: [{
+          startDate: '2026-05-23',
+          endDate: '2026-09-07',
+          hours: [{ weekDays: ['Tue'], startTime: '3:00PM', endTime: '7:00PM', types: ['Clippers Practice Only'], accessStatus: 'practice-only' }]
+        }] }));
+        assert.equal(pool.getCurrentStatus(), PoolStatus.PRACTICE_ONLY);
+        assert.equal(pool.getCurrentStatus().color, 'yellow');
+        assert.equal(pool.isOpenForNextMinutes(), false);
+      } finally {
+        TimeUtils.getCurrentEasternTimeInfo = originalGetInfo;
+      }
     });
 
     it('handles legacy schedules without active hours and renders regular non-override weeks', () => {
@@ -331,7 +349,7 @@ describe('Pool', () => {
       pool._getTimeUtils = () => null;
       assert.equal(pool._getLegacyStatus(), PoolStatus.SCHEDULE_NOT_FOUND);
       assert.deepEqual(pool._getLegacyTimeSlotsForDate('2026-06-01', 'Mon'), []);
-      assert.equal(pool._getLegacySlotStatus({ types: ['Rec Swim'] }).isOpen, false);
+      assert.equal(pool._getLegacySlotStatus({ types: ['Rec Swim'] }), PoolStatus.RESTRICTED);
       assert.equal(pool._getLegacyStatusAtMinutes([], 0).isOpen, false);
       assert.equal(pool.getPublicStatusTransitionToday(), null);
       assert.equal(pool.getCurrentRestrictions().length, 0);

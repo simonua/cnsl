@@ -164,7 +164,7 @@ if (typeof window === 'undefined') {
                 close: hour.endTime,
                 activities: hour.types || [],
                 notes: hour.notes || '',
-                access: hour.access || 'Public'
+                accessStatus: hour.accessStatus
               };
             }
             // If multiple time slots for same day, we'll use the first one for now
@@ -423,14 +423,20 @@ if (typeof window === 'undefined') {
    */
   _getLegacySlotStatus(slot) {
     const PoolStatusRef = this._getPoolStatus();
-    const TimeUtilsRef = this._getTimeUtils();
-    if (!PoolStatusRef || !TimeUtilsRef) return { isOpen: false, color: 'gray' };
+    if (!PoolStatusRef) return { isOpen: false, color: 'gray' };
 
-    const activityTypes = TimeUtilsRef.formatActivityTypes(slot.types || slot.activities).toLowerCase();
-    if (activityTypes.includes('closed to public')) return PoolStatusRef.CLOSED_TO_PUBLIC;
-    if (activityTypes.includes('cnsl practice only')) return PoolStatusRef.PRACTICE_ONLY;
-    if (activityTypes.includes('swim meet')) return PoolStatusRef.SWIM_MEET;
-    return PoolStatusRef.OPEN;
+    switch (slot.accessStatus) {
+      case 'public':
+        return PoolStatusRef.OPEN;
+      case 'closed-to-public':
+        return PoolStatusRef.CLOSED_TO_PUBLIC;
+      case 'practice-only':
+        return PoolStatusRef.PRACTICE_ONLY;
+      case 'swim-meet':
+        return PoolStatusRef.SWIM_MEET;
+      default:
+        return PoolStatusRef.RESTRICTED;
+    }
   }
 
   /**
@@ -555,7 +561,7 @@ if (typeof window === 'undefined') {
                 endTime: hour.endTime,
                 activities: hour.types || [],
                 notes: hour.notes || '',
-                access: hour.access || 'Public'
+                accessStatus: hour.accessStatus
               });
               dayData.isOpen = true;
             }
@@ -634,7 +640,7 @@ if (typeof window === 'undefined') {
             endTime: hour.endTime,
             activities: hour.types || [],
             notes: hour.notes || '',
-            access: hour.access || 'Public',
+            accessStatus: hour.accessStatus,
             isOverride: false
           });
         }
@@ -665,7 +671,7 @@ if (typeof window === 'undefined') {
             endTime: hour.endTime,
             activities: hour.types || [],
             notes: isSpecialEvent ? (hour.notes || override.reason) : (hour.notes || ''),
-            access: hour.access || 'Public',
+            accessStatus: hour.accessStatus,
             isOverride: isSpecialEvent,
             overrideReason: isSpecialEvent ? override.reason : null
           });
@@ -765,7 +771,7 @@ if (typeof window === 'undefined') {
       endTime: slot.endTime,
       activities: slot.activities,
       notes: slot.notes,
-      access: slot.access,
+      accessStatus: slot.accessStatus,
       isOverride: slot.isOverride,
       overrideReason: slot.overrideReason
     }));
@@ -874,7 +880,7 @@ if (typeof window === 'undefined') {
           endTime: 'Error', 
           activities: overrideSlot.activities,
           notes: shouldShowAsOverride ? overrideSlot.notes : (overrideSlot.notes || ''),
-          access: overrideSlot.access,
+          accessStatus: overrideSlot.accessStatus,
           isOverride: shouldShowAsOverride,
           overrideReason: shouldShowAsOverride ? overrideSlot.overrideReason : null
         };
@@ -885,7 +891,7 @@ if (typeof window === 'undefined') {
         endTime: TimeUtilsRef.minutesToTimeString(endMinutes),
         activities: overrideSlot.activities,
         notes: shouldShowAsOverride ? overrideSlot.notes : (overrideSlot.notes || ''),
-        access: overrideSlot.access,
+        accessStatus: overrideSlot.accessStatus,
         isOverride: shouldShowAsOverride,
         overrideReason: shouldShowAsOverride ? overrideSlot.overrideReason : null
       };
@@ -897,7 +903,7 @@ if (typeof window === 'undefined') {
           endTime: 'Error',
           activities: [],
           notes: '',
-          access: 'Unknown',
+          accessStatus: 'restricted',
           isOverride: false
         };
       }
@@ -908,7 +914,7 @@ if (typeof window === 'undefined') {
         endTime: TimeUtilsRef.minutesToTimeString(endMinutes),
         activities: regularSlot.activities,
         notes: regularSlot.notes,
-        access: regularSlot.access,
+        accessStatus: regularSlot.accessStatus,
         isOverride: false
       };
     }
