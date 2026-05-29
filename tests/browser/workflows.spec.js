@@ -346,6 +346,10 @@ test('[WF-POOLS-001] pool feature filters expose their state and resulting count
   await expect(page.locator('.pool-filter__group--accessibility')).toBeVisible();
   await expect(page.locator('.pool-filter__option--young-swimmers').first()).toBeVisible();
   await expect(page.locator('.pool-filter__option--water-play').first()).toBeVisible();
+  await expect(page.locator('.pool-filter__data-marker')).toHaveCount(2);
+  await expect(page.getByLabel('Meter lanes')).toHaveAttribute('aria-describedby', 'poolLaneUnitsNote');
+  await expect(page.getByLabel('Yard lanes')).toHaveAttribute('aria-describedby', 'poolLaneUnitsNote');
+  await expect(page.locator('#poolLaneUnitsNote')).toContainText('Lane-length unit data is incomplete');
   const chipColors = await Promise.all([
     page.locator('.pool-filter__option--accessibility > span').first().evaluate(chip => globalThis.getComputedStyle(chip).backgroundColor),
     page.locator('.pool-filter__option--young-swimmers > span').first().evaluate(chip => globalThis.getComputedStyle(chip).backgroundColor),
