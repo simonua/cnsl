@@ -1595,9 +1595,22 @@ nav a:focus {
 
 .meet-location-row {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   gap: 0.25rem;
+}
+
+.meet-course {
+  background-color: var(--light-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  color: var(--text-dark);
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-left: auto;
+  padding: 0.15rem 0.4rem;
+  white-space: nowrap;
 }
 
 .meet-time-row .results-link {
@@ -1958,17 +1971,6 @@ button.pool-filter__clear:focus-visible {
 
 .pool-filter__label {
   display: inline;
-}
-
-.pool-filter__data-marker {
-  font-weight: 700;
-  margin-left: 0.1rem;
-}
-
-.pool-filter__data-note {
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  margin: 0.75rem 0 0;
 }
 
 .pool-filter__option input:checked + span {
@@ -3872,6 +3874,14 @@ button.pool-filter__clear:focus-visible {
   color: var(--text-muted);
   font-weight: 600;
   margin-right: 0.25rem;
+}
+
+.team-meets__course {
+  color: var(--text-muted);
+  display: block;
+  font-size: 0.8rem;
+  margin-top: 0.2rem;
+  white-space: nowrap;
 }
 
 .team-staff {

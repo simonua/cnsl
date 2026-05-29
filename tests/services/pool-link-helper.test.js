@@ -7,6 +7,7 @@ const {
   createPoolLocationIndex,
   getPoolIdFromLocation,
   getPoolDataFromLocation,
+  formatPoolCourseLabel,
   generateGoogleMapsLink,
   generatePoolsPageLink,
   generateLinkedPoolMentions,
@@ -82,6 +83,15 @@ describe('pool-link-helper', () => {
       } finally {
         console.warn = originalWarn;
       }
+    });
+  });
+
+  describe('formatPoolCourseLabel', () => {
+    it('formats complete semantic lane metadata and omits incomplete combinations', () => {
+      assert.equal(formatPoolCourseLabel({ laneCount: 6, laneLengthUnits: 'meters' }), '6-lane / meter');
+      assert.equal(formatPoolCourseLabel({ laneCount: 8, laneLengthUnits: 'yards' }), '8-lane / yard');
+      assert.equal(formatPoolCourseLabel({ laneCount: 6, laneLengthUnits: null }), '');
+      assert.equal(formatPoolCourseLabel(null), '');
     });
   });
 
@@ -177,6 +187,7 @@ describe('pool-link-helper', () => {
       vm.runInNewContext(source, context, { filename: sourcePath });
       assert.equal(typeof context.window.generateEnhancedPoolLink, 'function');
       assert.equal(typeof context.window.createPoolLocationIndex, 'function');
+      assert.equal(typeof context.window.formatPoolCourseLabel, 'function');
     });
   });
 });

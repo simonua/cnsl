@@ -36,6 +36,7 @@ describe('FileHelper', () => {
       assert.equal(EXTERNAL_LINKS.FEEDBACK_EMAIL, 'mailto:simonkurtz@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20App%20Feedback');
       assert.equal(EXTERNAL_LINKS.DATA_MISMATCH_EMAIL, 'mailto:simonkurtz@gmail.com?subject=Assistant%20App%20Data%20Mismatch');
       assert.equal(EXTERNAL_LINKS.FEATURE_REQUEST_EMAIL, 'mailto:simonkurtz@gmail.com?subject=Assistant%20App%20Feature%20Request');
+      assert.equal(EXTERNAL_LINKS.USA_SWIMMING_RULES_POLICIES, 'https://www.usaswimming.org/resources/rules-regulations');
     });
   });
 

@@ -41,6 +41,7 @@ module.exports = [
         WeatherAlertService: 'readonly',
         generateEnhancedPoolLink: 'readonly',
         getPoolDataFromLocation: 'readonly',
+        formatPoolCourseLabel: 'readonly',
         getPoolStatus: 'readonly',
         isPoolOpen: 'readonly',
         handleSearch: 'readonly',

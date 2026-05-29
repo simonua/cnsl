@@ -21,7 +21,7 @@
       },
       "phone": "410-730-5326",
       "laneCount": 6,
-      "laneLengthUnits": null,
+      "laneLengthUnits": "meters",
       "features": [
         "hot tub",
         "lap",
@@ -282,7 +282,7 @@
       },
       "phone": "410-964-0805",
       "laneCount": 6,
-      "laneLengthUnits": null,
+      "laneLengthUnits": "meters",
       "features": [
         "beach entry",
         "dive",
@@ -534,7 +534,7 @@
       },
       "phone": "410-997-4214",
       "laneCount": 8,
-      "laneLengthUnits": null,
+      "laneLengthUnits": "yards",
       "features": [
         "dive",
         "lap",
@@ -967,7 +967,7 @@
       },
       "phone": "410-715-3194",
       "laneCount": 8,
-      "laneLengthUnits": null,
+      "laneLengthUnits": "yards",
       "features": [
         "bathhouse",
         "cornhole",
@@ -1325,7 +1325,7 @@
       },
       "phone": "410-381-3080",
       "laneCount": 6,
-      "laneLengthUnits": null,
+      "laneLengthUnits": "meters",
       "features": [
         "ADA compliant",
         "beach entry",
@@ -1580,7 +1580,7 @@
       },
       "phone": "410-461-1481",
       "laneCount": 8,
-      "laneLengthUnits": null,
+      "laneLengthUnits": "yards",
       "features": [
         "ADA compliant",
         "basketball",
@@ -2024,7 +2024,7 @@
       },
       "phone": "410-730-5292",
       "laneCount": 6,
-      "laneLengthUnits": null,
+      "laneLengthUnits": "meters",
       "features": [
         "basketball",
         "beach entry",
@@ -2488,7 +2488,7 @@
       },
       "phone": "410-730-0943",
       "laneCount": 6,
-      "laneLengthUnits": null,
+      "laneLengthUnits": "meters",
       "features": [
         "ADA compliant",
         "basketball",
@@ -2729,7 +2729,7 @@
       },
       "phone": "410-730-6770",
       "laneCount": 6,
-      "laneLengthUnits": null,
+      "laneLengthUnits": "meters",
       "features": [
         "basketball",
         "golf course",
@@ -2982,7 +2982,7 @@
       },
       "phone": "410-381-1460",
       "laneCount": 8,
-      "laneLengthUnits": null,
+      "laneLengthUnits": "yards",
       "features": [
         "baseball",
         "basketball",
@@ -3270,7 +3270,7 @@
       },
       "phone": "301-490-3310",
       "laneCount": 8,
-      "laneLengthUnits": null,
+      "laneLengthUnits": "yards",
       "features": [
         "deck",
         "hot tub",
@@ -3758,7 +3758,7 @@
       },
       "phone": "410-730-1220",
       "laneCount": 8,
-      "laneLengthUnits": null,
+      "laneLengthUnits": "yards",
       "features": [
         "climbing wall",
         "lap",
@@ -4513,7 +4513,7 @@
       },
       "phone": "410-730-5621",
       "laneCount": 8,
-      "laneLengthUnits": null,
+      "laneLengthUnits": "yards",
       "features": [
         "basketball",
         "lap",
@@ -5161,7 +5161,7 @@
       },
       "phone": "410-730-5995",
       "laneCount": 6,
-      "laneLengthUnits": null,
+      "laneLengthUnits": "meters",
       "features": [
         "basketball",
         "lap",
@@ -5502,7 +5502,7 @@
       },
       "phone": "410-730-5765",
       "laneCount": 8,
-      "laneLengthUnits": null,
+      "laneLengthUnits": "yards",
       "features": [
         "dive",
         "lap",
@@ -5871,7 +5871,7 @@
       },
       "phone": "410-531-0191",
       "laneCount": 8,
-      "laneLengthUnits": null,
+      "laneLengthUnits": "yards",
       "features": [
         "ADA compliant",
         "beach entry",
@@ -6381,7 +6381,7 @@
       },
       "phone": "410-730-5293",
       "laneCount": 6,
-      "laneLengthUnits": null,
+      "laneLengthUnits": "meters",
       "features": [
         "basketball",
         "dive",
@@ -6635,7 +6635,7 @@
       },
       "phone": "410-730-5452",
       "laneCount": 8,
-      "laneLengthUnits": null,
+      "laneLengthUnits": "yards",
       "features": [
         "fitness pavilion",
         "heated",
@@ -8157,7 +8157,7 @@
       },
       "phone": "410-730-5421",
       "laneCount": 8,
-      "laneLengthUnits": null,
+      "laneLengthUnits": "yards",
       "features": [
         "basketball",
         "grill",
@@ -8445,7 +8445,7 @@
       },
       "phone": "410-730-5563",
       "laneCount": 6,
-      "laneLengthUnits": null,
+      "laneLengthUnits": "meters",
       "features": [
         "dive",
         "lap",

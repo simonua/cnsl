@@ -8,7 +8,7 @@ The 2026 folder is the active season selected by the application. Pools, meets, 
 
 Pool information is accepted only from official public Columbia Association pages and documents. Meet and team information is accepted only from official public CNSL publication and team pages. Social media posts, email threads, messaging groups, and other community-shared content are not source evidence for application data unless the information is published through an official public source.
 
-**Last accepted official-source check:** 2026-05-27. This accepted review date is published in the FAQ through `OFFICIAL_SOURCE_CHECKED_ON` in `src/js/config/app-config.js`; update both records together after a reviewed official-source refresh or check changes accepted application data.
+**Last accepted official-source check:** 2026-05-29. This accepted review date is published in the FAQ through `OFFICIAL_SOURCE_CHECKED_ON` in `src/js/config/app-config.js`; update both records together after a reviewed official-source refresh or check changes accepted application data.
 
 | Domain | Local assets | Application readiness | Source status |
 | --- | --- | --- | --- |
@@ -54,7 +54,7 @@ The 2026 CNSL downloads above were verified from the official [CNSL home page](h
 - Missing pool facility features were completed from each official Columbia Association pool-location page on 2026-05-24, while existing CA-backed values were retained. The update combines the pages' facility descriptions and Amenities lists, normalizing terms to schema labels such as `lap`, `play features`, and `splash` while retaining specifically published amenities such as `heated`, `climbing wall`, and `sensory friendly`.
 - A 2026-05-24 facility-page audit corrected published location text for Bryant Woods, Dickinson, Dorsey Hall, Faulkner Ridge, Hobbit's Glen, Hopewell, Longfellow, and Swansfield, and removed an unsupported `pool lift` designation from Bryant Woods. Coordinate fields were not re-derived from facility-page map-link coordinates because the CA directory remains the recorded location source.
 - Clary's Forest, Dorsey Hall, Swansfield, and Thunder Hill facility-page monitor findings were rechecked on 2026-05-27; their supported address, phone, and amenity values remain consistent with `pools/pools.json`, so no pool transcription changed.
-- Lane counts were added for all 23 pools from the provided 2026 pool lane inventory on 2026-05-28. Longfellow's and Swansfield's lane length units were identified as `meters` and Kendall Ridge's as `yards` on 2026-05-29; remaining lane length units remain `null` until meters-or-yards values are available for transcription.
+- Lane counts were added for all 23 pools from the provided 2026 pool lane inventory on 2026-05-28. On 2026-05-29, lane-length units were completed from the established inventory rule that 6-lane pools use `meters` and 8-lane pools use `yards`.
 - Stevens Forest's official PDF includes adult and class programming beginning 2026-05-04 before the general outdoor season start; its early schedule entries in `pools/pools.json` are intentional.
 - The source monitor byte-matched all retained official PDFs to their public URLs on 2026-05-24. Extracted PDF text supported spot verification of the JSON transcription, but the source tables do not extract with reliable cell ordering for an exhaustive automated field-by-field comparison.
 - The meets file transcribes the five scheduled dual-meet dates and three special-meet entries from the official PDF.

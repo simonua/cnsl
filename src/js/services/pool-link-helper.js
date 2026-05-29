@@ -60,6 +60,17 @@ function getPoolDataFromLocation(locationName, dataManager, poolsOrIndex = null)
 }
 
 /**
+ * Format modeled lane metadata for course-sensitive meet planning.
+ * @param {Object|null} poolData - Published pool data resolved from a meet location
+ * @returns {string} Compact lane and unit description, when available
+ */
+function formatPoolCourseLabel(poolData) {
+  const laneCount = Number.isInteger(poolData?.laneCount) && poolData.laneCount > 0 ? poolData.laneCount : null;
+  const laneUnit = { meters: 'meter', yards: 'yard' }[poolData?.laneLengthUnits];
+  return laneCount && laneUnit ? `${laneCount}-lane / ${laneUnit}` : '';
+}
+
+/**
  * Generate a link to pools.html for a specific pool
  * @param {string} poolId - Pool ID (3-letter code)
  * @param {string} displayText - Text to display in the link
@@ -197,6 +208,7 @@ if (typeof module !== 'undefined' && module.exports) {
     createPoolLocationIndex,
     getPoolIdFromLocation,
     getPoolDataFromLocation,
+    formatPoolCourseLabel,
     generatePoolsPageLink,
     generateLinkedPoolMentions,
     generateGoogleMapsLink,
@@ -209,6 +221,7 @@ if (typeof window !== 'undefined') {
   window.getPoolIdFromLocation = getPoolIdFromLocation;
   window.createPoolLocationIndex = createPoolLocationIndex;
   window.getPoolDataFromLocation = getPoolDataFromLocation;
+  window.formatPoolCourseLabel = formatPoolCourseLabel;
   window.generatePoolsPageLink = generatePoolsPageLink;
   window.generateLinkedPoolMentions = generateLinkedPoolMentions;
   window.generateGoogleMapsLink = generateGoogleMapsLink;

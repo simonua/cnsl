@@ -4,7 +4,7 @@
 (function initializeAppConfig(globalScope) {
   // Published site and active season metadata.
   const YEAR = 2026;
-  const OFFICIAL_SOURCE_CHECKED_ON = '2026-05-27';
+  const OFFICIAL_SOURCE_CHECKED_ON = '2026-05-29';
   const APP_VERSION = '2.6.0';
   const APP_LAST_UPDATED_ON = '2026-05-28';
   const HOME_PAGE_HOSTNAME = 'pools.longreachmarlins.org';
@@ -23,6 +23,7 @@
     GOOGLE_ANALYTICS_PRIVACY_GUIDANCE: 'https://support.google.com/analytics/answer/6366371?hl=en#zippy=%2Cin-this-article',
     LINKEDIN_PROFILE: 'https://www.linkedin.com/in/simonkurtz',
     OFFICIAL_CNSL_SITE: 'https://www.gomotionapp.com/team/reccnsl/page/home',
+    USA_SWIMMING_RULES_POLICIES: 'https://www.usaswimming.org/resources/rules-regulations',
     SMS_SHARE: `sms:?&body=${encodeURIComponent(SHARE_MESSAGE)}`
   });
 

@@ -346,10 +346,10 @@ test('[WF-POOLS-001] pool feature filters expose their state and resulting count
   await expect(page.locator('.pool-filter__group--accessibility')).toBeVisible();
   await expect(page.locator('.pool-filter__option--young-swimmers').first()).toBeVisible();
   await expect(page.locator('.pool-filter__option--water-play').first()).toBeVisible();
-  await expect(page.locator('.pool-filter__data-marker')).toHaveCount(2);
-  await expect(page.getByLabel('Meter lanes')).toHaveAttribute('aria-describedby', 'poolLaneUnitsNote');
-  await expect(page.getByLabel('Yard lanes')).toHaveAttribute('aria-describedby', 'poolLaneUnitsNote');
-  await expect(page.locator('#poolLaneUnitsNote')).toContainText('Lane-length unit data is incomplete');
+  await expect(page.getByLabel('Meter lanes')).toBeVisible();
+  await expect(page.getByLabel('Yard lanes')).toBeVisible();
+  await expect(page.locator('.pool-filter__data-marker')).toHaveCount(0);
+  await expect(page.locator('#poolLaneUnitsNote')).toHaveCount(0);
   const chipColors = await Promise.all([
     page.locator('.pool-filter__option--accessibility > span').first().evaluate(chip => globalThis.getComputedStyle(chip).backgroundColor),
     page.locator('.pool-filter__option--young-swimmers > span').first().evaluate(chip => globalThis.getComputedStyle(chip).backgroundColor),
@@ -443,7 +443,9 @@ test('[WF-POOLS-003] pool tile features are ordered by category then alphabetica
     'Family changing room',
     'Beach entry',
     'Wading pool',
+    '6 lanes',
     'Lap',
+    'Meter lanes',
     'Slide',
     'Bathhouse',
     'Wi-Fi'
@@ -544,6 +546,7 @@ test('[WF-TEAMS-002] team directory displays collapsed pre-season and in-season 
   await expect(firstMeet).toHaveClass(/team-meets__row--home/);
   await expect(firstMeet.locator('.team-meets__matchup')).toHaveText("Clary's Forest, Hawthorn, Swansfield vs. Oakland Mills");
   await expect(firstMeet.locator('.team-meets__matchup strong')).toHaveText("Clary's Forest, Hawthorn, Swansfield");
+  await expect(firstMeet.locator('.team-meets__course')).toHaveText('6-lane / meter');
   const awayMeet = meets.locator('tbody tr').nth(1);
   await expect(awayMeet).not.toHaveClass(/team-meets__row--home/);
   await expect(awayMeet.locator('.team-meets__matchup')).toHaveText("Owen Brown vs. Clary's Forest, Hawthorn, Swansfield");
@@ -820,6 +823,8 @@ test('[WF-MEETS-001] meet pool links reveal the destination below the mobile fix
   });
   await page.goto('/meets.html');
   await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
+  await expect(page.locator('.meet-course').filter({ hasText: '6-lane / meter' }).first()).toBeVisible();
+  await expect(page.locator('.meet-course').filter({ hasText: '8-lane / yard' }).first()).toBeVisible();
 
   const poolLink = page.locator('.pool-link').last();
   const targetPoolId = await poolLink.evaluate(link => new URL(link.href).searchParams.get('pool'));

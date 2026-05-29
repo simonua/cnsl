@@ -50,6 +50,8 @@ describe('season data validation', () => {
             caUrl: 'https://pools.test/known',
             scheduleUrl: 'https://pools.test/Known_Pool.pdf',
             location: { googleMapsUrl: 'https://maps.google.com/known' },
+            laneCount: 6,
+            laneLengthUnits: 'yards',
             schedules: []
           }]
         },
@@ -84,6 +86,7 @@ describe('season data validation', () => {
       assert.ok(errors.includes('Known Team calendar URL must use HTTPS: http://teams.test/calendar.'));
       assert.ok(errors.includes('Known Team booster URL must use HTTPS: http://teams.test/booster.'));
       assert.ok(errors.includes('Regular meet 1 references an unknown team alias: missing team.'));
+      assert.ok(errors.includes('Known Pool lane length units must be meters for a 6-lane pool.'));
     });
 
     it('should reject detailed practice recurrence text that cannot render', () => {

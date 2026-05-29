@@ -155,6 +155,7 @@ async function renderMeets(meets) {
       
       // Generate enhanced location link that links to pools.html page
       let locationLink = MeetsBrowserSafety.escapeHtml(location);
+      let courseLabel = '';
       if (meetsBrowserDataManager && typeof generateEnhancedPoolLink === 'function') {
         try {
           locationLink = generateEnhancedPoolLink(location, meetsBrowserDataManager, {
@@ -165,6 +166,7 @@ async function renderMeets(meets) {
           // Add maps link for the maps icon
           if (typeof getPoolDataFromLocation === 'function') {
             const poolData = getPoolDataFromLocation(location, meetsBrowserDataManager, meetsPoolLocationIndex);
+            courseLabel = formatPoolCourseLabel(poolData);
             const safeMapsUrl = poolData && poolData.location
               ? MeetsBrowserSafety.safeHttpUrl(poolData.location.googleMapsUrl)
               : '';
@@ -177,6 +179,9 @@ async function renderMeets(meets) {
           locationLink = MeetsBrowserSafety.escapeHtml(location); // Fall back to plain text
         }
       }
+      const courseInfo = courseLabel
+        ? `<span class="meet-course">${MeetsBrowserSafety.escapeHtml(courseLabel)}</span>`
+        : '';
       
       // Generate weather information for upcoming meets
       let weatherInfo = '';
@@ -204,6 +209,7 @@ async function renderMeets(meets) {
               <div class="meet-location-time">
                 <div class="meet-location-row">
                   <span class="meet-location">${locationLink}</span>
+                  ${courseInfo}
                 </div>
                 <div class="meet-time-row">
                   <span class="meet-time">${MeetsBrowserSafety.escapeHtml(time)}</span>
@@ -226,6 +232,7 @@ async function renderMeets(meets) {
               <div class="meet-location-time">
                 <div class="meet-location-row">
                   <span class="meet-location">${locationLink}</span>
+                  ${courseInfo}
                 </div>
                 <div class="meet-time-row">
                   <span class="meet-time">${MeetsBrowserSafety.escapeHtml(time)}</span>

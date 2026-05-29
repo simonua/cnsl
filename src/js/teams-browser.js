@@ -203,12 +203,14 @@ function formatMeetsSchedule(team, meets) {
     const awayTeam = meet.visiting_team || meet.awayTeam || 'Away Team';
     const homeTeam = meet.home_team || meet.homeTeam || 'Home Team';
     const isHomeMeet = PreferencesService.teamMatchesLabel(team, homeTeam);
+    const courseLabel = formatPoolCourseLabel(findPoolByName(meet.location));
+    const courseInfo = courseLabel ? `<span class="team-meets__course">${TeamsBrowserSafety.escapeHtml(courseLabel)}</span>` : '';
     return `
       <tr${isHomeMeet ? ' class="team-meets__row--home"' : ''}>
         <td>${formatMeetDate(meet.date)}</td>
         <td>${TeamsBrowserSafety.escapeHtml(meet.name || 'Meet')}</td>
         <td class="team-meets__matchup"><span class="team-meets__matchup-team">${formatMeetTeamLabel(homeTeam, team)}</span> <span class="team-meets__matchup-team"><span class="vs">vs.</span> ${formatMeetTeamLabel(awayTeam, team)}</span></td>
-        <td>${getEnhancedPoolLink(meet.location, '', formatMeetLocationLabel(meet.location))}</td>
+        <td>${getEnhancedPoolLink(meet.location, '', formatMeetLocationLabel(meet.location))}${courseInfo}</td>
       </tr>
     `;
   }).join('');

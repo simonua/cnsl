@@ -447,11 +447,9 @@ function setupPoolFeatureFilters(pools) {
   const toggleButton = document.getElementById('togglePoolFeatureFilters');
   const controls = document.getElementById('poolFeatureFilterControls');
   const clearButton = document.getElementById('clearPoolFeatureFilters');
-  const laneUnitsNote = document.getElementById('poolLaneUnitsNote');
-  if (!filterSection || !optionsContainer || !toggleButton || !controls || !clearButton || !laneUnitsNote) return;
+  if (!filterSection || !optionsContainer || !toggleButton || !controls || !clearButton) return;
 
   const availableFeatures = PreferencesService.getPoolFeatures(pools);
-  const incompleteLaneUnitFeatures = new Set(['meter lanes', 'yard lanes']);
   const preferences = PreferencesService.get();
   const selectedFeatures = preferences.poolFeatureFilters.filter(feature => availableFeatures.includes(feature));
   if (selectedFeatures.length !== preferences.poolFeatureFilters.length) {
@@ -471,13 +469,11 @@ function setupPoolFeatureFilters(pools) {
     groupOptions.className = 'pool-filter__group-options';
 
     group.features.forEach(feature => {
-      const hasIncompleteLaneUnitData = incompleteLaneUnitFeatures.has(feature);
       const input = document.createElement('input');
       input.name = 'poolFeature';
       input.type = 'checkbox';
       input.value = feature;
       input.checked = selectedFeatures.includes(feature);
-      if (hasIncompleteLaneUnitData) input.setAttribute('aria-describedby', 'poolLaneUnitsNote');
 
       const labelText = document.createElement('span');
       labelText.className = 'pool-filter__label';
@@ -485,13 +481,6 @@ function setupPoolFeatureFilters(pools) {
 
       const chip = document.createElement('span');
       chip.append(labelText);
-      if (hasIncompleteLaneUnitData) {
-        const marker = document.createElement('span');
-        marker.className = 'pool-filter__data-marker';
-        marker.setAttribute('aria-hidden', 'true');
-        marker.textContent = '*';
-        chip.append(marker);
-      }
 
       const label = document.createElement('label');
       label.className = `pool-filter__option pool-filter__option--${group.key}`;
@@ -502,7 +491,6 @@ function setupPoolFeatureFilters(pools) {
     groupFieldset.append(groupTitle, groupOptions);
     optionsContainer.appendChild(groupFieldset);
   });
-  laneUnitsNote.hidden = !availableFeatures.some(feature => incompleteLaneUnitFeatures.has(feature));
   filterSection.hidden = availableFeatures.length === 0;
   filterSection.classList.toggle('pool-filter--collapsed', controls.hidden);
   clearButton.hidden = selectedFeatures.length === 0 && poolAvailabilityFilter === 'all';
@@ -719,7 +707,7 @@ function renderPools(pools) {
     const poolId = String(pool.id || '');
     const safePoolId = PoolBrowserSafety.escapeHtml(poolId);
     const detailsId = `pool-details-${String(poolId || poolName).replace(/[^a-zA-Z0-9_-]/g, '-')}`;
-    const features = pool.features || [];
+    const features = PreferencesService.getFilterablePoolFeatures(pool);
     const isFavorite = poolName === favoritePoolName;
     const isExpanded = (isInitialRender && poolId === linkedPoolId)
       || (isFavorite ? preferences.favoritePoolExpanded : expandedPoolIds.has(poolId));
