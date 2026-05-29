@@ -1,6 +1,6 @@
-# Seasonal Data Source Monitor
+# Retired Seasonal Data Source Monitor
 
-The seasonal monitor checks public sources that support the active `YEAR` data set while the pool season is underway. Its scheduled run occurs daily at 05:17 UTC during May, June, and July only. It discovers source URLs from the active annual JSON and README rather than carrying a separate list that could drift.
+The retired seasonal monitor checked public sources that support the active `YEAR` data set while the pool season was underway. Its scheduled run occurred daily at 05:17 UTC during May, June, and July only. It discovered source URLs from the active annual JSON and README rather than carrying a separate list that could drift. Its GitHub Actions workflow definition has been removed, so no push, schedule, or manual dispatch can start it.
 
 ## Coverage
 
@@ -26,11 +26,11 @@ Any material-data pull request describes only verified application changes, grou
 
 ## Operation
 
-`.github/workflows/season-data-monitor.yml` is currently disabled to avoid automatically creating seasonal review issues. Its retained implementation is ready to check active-season public sources and create deduplicated tracking issues only after an explicit decision to restore its triggers.
+The workflow definition was removed to prevent automatic seasonal review issue creation. The script and reviewed baseline remain available for deliberate local investigation or for designing a future reviewed automation.
 
 Before inspecting sources, each run compares the UTC calendar year with the configured active `YEAR`. When a new schedule window begins before that year's assets have been activated, the workflow does not read or update the prior year's annual data. Instead, it creates a rollover preparation issue for `src/assets/data/<current-year>/`, following the `cnsl-season-rollover` skill. The issue may be assigned to Copilot manually, and any resulting pull request may be opened only for official target-year material and must leave earlier annual folders unchanged. An open rollover issue suppresses duplicates; after a no-change conclusion closes the issue or a partial preparation pull request is merged without activating `YEAR`, a later scheduled run may retry preparation.
 
-When enabled, the workflow uses the `CNSL_DATA_UPDATER_PR_TOKEN` repository secret only to create and query tracking issues when a previously unseen candidate is confirmed. Configure a fine-grained user token with repository read/write access to `Issues` plus the required metadata read permission. The built-in workflow token remains `contents: read` only for checkout. Automatic Copilot assignment through GitHub's API is not used because GitHub documents that API entry point for organizations with Copilot Business or Copilot Enterprise plans; users with an eligible Copilot plan can instead assign a generated issue to Copilot manually on GitHub.
+A future restored workflow would use the `CNSL_DATA_UPDATER_PR_TOKEN` repository secret only to create and query tracking issues when a previously unseen candidate is confirmed. Configure a fine-grained user token with repository read/write access to `Issues` plus the required metadata read permission. Its built-in workflow token should remain `contents: read` only for checkout. Automatic Copilot assignment through GitHub's API is not used because GitHub documents that API entry point for organizations with Copilot Business or Copilot Enterprise plans; users with an eligible Copilot plan can instead assign a generated issue to Copilot manually on GitHub.
 
 The reviewer is constrained to active-season annual data, retained official evidence, accepted-source metadata, and the monitor baseline. It runs `pnpm run validate:data`, `pnpm test`, `pnpm run lint`, and `pnpm run build` before opening a material-data pull request.
 
