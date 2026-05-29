@@ -28,17 +28,17 @@ describe('season monitor evidence boundary', () => {
   });
 
   describe('review delegation workflow', () => {
-    it('should start issue-free review tasks without forcing a pull request', async () => {
+    it('should prepare tracking issues without automatically assigning Copilot', async () => {
       const repositoryRoot = path.resolve(__dirname, '..', '..');
       const workflow = await fs.readFile(path.join(repositoryRoot, '.github', 'workflows', 'season-data-monitor.yml'), 'utf8');
 
-      assert.match(workflow, /\/agents\/repos\/\$\{GITHUB_REPOSITORY\}\/tasks/);
-      assert.match(workflow, /create_pull_request: false/);
-      assert.match(workflow, /no review task or pull request was created/);
-      assert.doesNotMatch(workflow, /\/repos\/\$\{GITHUB_REPOSITORY\}\/issues/);
+      assert.match(workflow, /\/repos\/\$\{GITHUB_REPOSITORY\}\/issues/);
+      assert.match(workflow, /Create represented-data review issue/);
+      assert.doesNotMatch(workflow, /copilot-swe-agent\[bot\]/);
+      assert.doesNotMatch(workflow, /agent_assignment/);
     });
 
-    it('should schedule recurring workflows only during May through July with stated cadence', async () => {
+    it('should keep Copilot-related workflows disabled while preserving the browser schedule', async () => {
       const repositoryRoot = path.resolve(__dirname, '..', '..');
       const workflowsRoot = path.join(repositoryRoot, '.github', 'workflows');
       const workflowFiles = (await fs.readdir(workflowsRoot)).filter((fileName) => fileName.endsWith('.yml'));
@@ -59,12 +59,14 @@ describe('season monitor evidence boundary', () => {
         assert.strictEqual(schedule.split(/\s+/)[3], '5-7');
       });
 
-      assert.match(monitor, /Runs daily at 05:17 UTC during May, June, and July only/);
-      assert.match(monitor, /cron: '17 5 \* 5-7 \*'/);
+      assert.match(monitor, /Disabled pending an explicit decision to resume automated seasonal review issue creation/);
+      assert.match(monitor, /on: \{\}/);
+      assert.doesNotMatch(monitor, /^\s*- cron:/m);
       assert.match(browser, /Runs daily at 05:47 UTC during May, June, and July only/);
       assert.match(browser, /cron: '47 5 \* 5-7 \*'/);
-      assert.match(audit, /Runs monthly at 06:41 UTC on the first day of May, June, and July only/);
-      assert.match(audit, /cron: '41 6 1 5-7 \*'/);
+      assert.match(audit, /Disabled pending an explicit decision to resume Copilot-assigned audits/);
+      assert.match(audit, /on: \{\}/);
+      assert.doesNotMatch(audit, /^\s*- cron:/m);
     });
 
     it('should prepare a new calendar-year data folder before monitoring prior active data', async () => {
@@ -75,7 +77,7 @@ describe('season monitor evidence boundary', () => {
       assert.match(workflow, /CNSL season rollover \[\$\{TARGET_YEAR\}\]/);
       assert.match(workflow, /do not modify `src\/assets\/data\/" \+ \$active_year \+ "`/);
       assert.match(workflow, /create `src\/assets\/data\/" \+ \$target_year \+ "`/);
-      assert.match(workflow, /select\(\.state == "open"\)/);
+      assert.match(workflow, /gh issue list --repo "\$GITHUB_REPOSITORY" --state open/);
       assert.match(workflow, /No \$\{ACTIVE_YEAR\} annual data was inspected or modified by this scheduled run/);
     });
 

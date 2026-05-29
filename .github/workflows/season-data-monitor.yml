@@ -1,16 +1,19 @@
 name: Monitor Seasonal Data Sources
 
-on:
-  schedule:
-    # Runs daily at 05:17 UTC during May, June, and July only.
-    - cron: '17 5 * 5-7 *'
-  workflow_dispatch:
-    inputs:
-      run_outside_season:
-        description: Check public sources outside the active season dates
-        required: false
-        default: false
-        type: boolean
+# Disabled pending an explicit decision to resume automated seasonal review issue creation.
+# To re-enable, replace `on: {}` with the retained triggers below.
+# on:
+#   schedule:
+#     # Runs daily at 05:17 UTC during May, June, and July only.
+#     - cron: '17 5 * 5-7 *'
+#   workflow_dispatch:
+#     inputs:
+#       run_outside_season:
+#         description: Check public sources outside the active season dates
+#         required: false
+#         default: false
+#         type: boolean
+on: {}
 
 permissions:
   contents: read
@@ -135,7 +138,7 @@ jobs:
           if [[ "$SKIPPED" == "true" ]]; then
             echo "No sources checked: the ${SEASON} season is outside its configured active dates." >> "$GITHUB_STEP_SUMMARY"
           elif [[ "$CANDIDATE_CHANGED" != "true" ]]; then
-            echo "Checked official sources for ${SEASON}: no candidate source differences detected and no review task or pull request was created." >> "$GITHUB_STEP_SUMMARY"
+            echo "Checked official sources for ${SEASON}: no candidate source differences detected and no review issue or pull request was created." >> "$GITHUB_STEP_SUMMARY"
           else
             echo "Checked official sources for ${SEASON}: candidate source differences detected (${CANDIDATE_KEY}); checking whether this evidence has already been reviewed." >> "$GITHUB_STEP_SUMMARY"
           fi

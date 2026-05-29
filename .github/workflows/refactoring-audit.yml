@@ -1,10 +1,13 @@
 name: Schedule Refactoring Audit With Copilot
 
-on:
-  schedule:
-    # Runs monthly at 06:41 UTC on the first day of May, June, and July only.
-    - cron: '41 6 1 5-7 *'
-  workflow_dispatch:
+# Disabled pending an explicit decision to resume Copilot-assigned audits.
+# To re-enable, replace `on: {}` with the retained triggers below.
+# on:
+#   schedule:
+#     # Runs monthly at 06:41 UTC on the first day of May, June, and July only.
+#     - cron: '41 6 1 5-7 *'
+#   workflow_dispatch:
+on: {}
 
 permissions:
   contents: read
