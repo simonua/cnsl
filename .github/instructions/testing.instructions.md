@@ -13,7 +13,7 @@ description: "Use when writing or modifying unit tests. Covers test patterns, st
 
 ## Structure
 
-```
+```text
 tests/
 ├── browser/
 │   ├── accessibility.spec.js # Playwright + axe route checks

@@ -12,7 +12,7 @@ description: "Use when working with the build pipeline, dev server, testing, lin
 ## Commands
 
 | Command | Purpose |
-|---|---|
+| --- | --- |
 | `pnpm start` | Clean, build, watch for changes, and serve with live reload (port 9090) |
 | `pnpm run build` | One-time clean build to `out/` |
 | `pnpm test` | Run all unit tests |
@@ -56,7 +56,7 @@ Run `.\start.ps1` (Windows) or `./start.sh` (macOS/Linux) for an interactive men
 - Run `pnpm run lint` whenever executable JavaScript, JavaScript configuration, build scripts, or automation scripts change; combine it with the focused behavior check below when applicable.
 
 | Change Scope | Local Iteration Check | When To Widen Coverage |
-|---|---|---|
+| --- | --- | --- |
 | Documentation or agent instructions only | Review the changed content and links; no application test is required. | Run the named command only if the edit changes a command, workflow, or release requirement. |
 | One service, model, manager, or type | `node --test tests/<area>/<module>.test.js` | Run `pnpm test` when shared contracts, utility behavior, or several consumers change. |
 | Visitor-facing view, CSS, or interaction | `pnpm run build` and inspect the affected workflow in the running site. | The next nightly browser-verification run covers Playwright workflows and automated accessibility after repository updates. |
