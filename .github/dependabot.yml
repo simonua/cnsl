@@ -4,7 +4,10 @@ updates:
   - package-ecosystem: npm
     directory: "/"
     schedule:
-      interval: weekly
+      # Resume daily update checks during the May-July maintenance window only.
+      interval: cron
+      cronjob: "0 9 * 5-7 *"
+      timezone: "America/New_York"
     groups:
       node-packages:
         patterns:
@@ -14,7 +17,10 @@ updates:
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
-      interval: weekly
+      # Resume daily update checks during the May-July maintenance window only.
+      interval: cron
+      cronjob: "0 9 * 5-7 *"
+      timezone: "America/New_York"
     groups:
       github-actions:
         patterns:

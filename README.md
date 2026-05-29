@@ -48,7 +48,7 @@ Pools, meets, and teams are stored beneath annual domain folders in `src/assets/
 
 See [Annual Season Assets](docs/annual-season-assets.md) for the exact PDF, JSON, and schema layout and the checklist for preparing a new season such as 2027.
 
-While a season is active, a nightly source monitor checks the official pool, meet, and team references used by the active annual data. Changed evidence is submitted as a review pull request; structured JSON updates remain reviewed transcriptions of the official material. Run `pnpm run validate:data` after annual-data changes to validate active schemas, references, URLs, and retained official source documents. See [Seasonal Data Source Monitor](.github/automation/season-data-monitor/README.md) for coverage and operation.
+While a season is active, a daily May-to-July source monitor checks the official pool, meet, and team references used by the active annual data. On the first scheduled run of a new year, it prepares that year's annual folder before monitoring and does not touch prior-year data. Changed evidence launches an issue-free review task; a pull request is opened only for verified changes to represented application data or an application-used source destination. Structured JSON updates remain reviewed transcriptions of the official material. Run `pnpm run validate:data` after annual-data changes to validate active schemas, references, URLs, and retained official source documents. See [Seasonal Data Source Monitor](.github/automation/season-data-monitor/README.md) for coverage and operation.
 
 ### Verification
 
@@ -61,7 +61,7 @@ pnpm run build
 pnpm run verify:pwa
 ```
 
-Playwright browser verification is deferred to the `Nightly Browser Verification` GitHub Actions workflow. Each night, it compares the current `main` revision with the preceding scheduled run and runs Chromium workflow and automated WCAG A/AA checks only after repository updates. Browser results are reported separately and do not delay or block a GitHub Pages build. Use the [Release Verification Checklist](docs/release-checklist.md) for the secure-origin installed-PWA and manual assistive-technology checks that automation cannot establish.
+Playwright browser verification is deferred to the `Nightly Browser Verification` GitHub Actions workflow. Each day during May, June, and July, it compares the current `main` revision with the preceding scheduled run and runs Chromium workflow and automated WCAG A/AA checks only after repository updates. Browser results are reported separately and do not delay or block a GitHub Pages build. Use the [Release Verification Checklist](docs/release-checklist.md) for the secure-origin installed-PWA and manual assistive-technology checks that automation cannot establish.
 
 Design and maintenance decisions are recorded in [Runtime And Stylesheet Ownership](docs/runtime-architecture.md) and [Security And Privacy Decision](docs/security-privacy.md).
 
@@ -79,11 +79,11 @@ This project uses GitHub Actions to automatically build and deploy the website t
 8. Uploads the built files as an artifact
 9. Deploys the artifact to GitHub Pages
 
-Separately, the nightly browser-verification workflow runs Playwright only when the repository head has changed since its previous scheduled run.
+Separately, the May-to-July daily browser-verification workflow runs Playwright only when the repository head has changed since its previous scheduled run.
 
 Workflow configurations are located in `.github/workflows/build-deploy.yml` and `.github/workflows/nightly-browser-verification.yml`.
 
-A second workflow, `.github/workflows/season-data-monitor.yml`, checks official active-season data sources nightly and opens a review pull request when source evidence changes.
+A second workflow, `.github/workflows/season-data-monitor.yml`, checks official active-season data sources daily during May, June, and July and starts an issue-free review task when source evidence changes; only verified application-data updates produce a pull request.
 
 ---
 

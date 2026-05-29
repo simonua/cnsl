@@ -280,7 +280,7 @@ function formatReport({ candidateKey, changes, checkedOn, season }) {
     `Checked official public sources for active season \`${season}\` on ${checkedOn}.`,
     `Candidate key: \`${candidateKey}\``,
     '',
-    'The monitoring evidence changed. Review the official source against the modeled annual JSON fields before creating a pull request. Do not create a pull request when the observed source difference does not change application data or a retained official document.',
+    'The monitoring evidence changed. Review the official source against the modeled annual JSON fields before creating a pull request. Do not create a pull request when the observed source difference does not change application data or an application-used official source destination.',
     '',
     '## Detected Changes',
     '',
@@ -294,7 +294,7 @@ function formatReport({ candidateKey, changes, checkedOn, season }) {
     `- [ ] After accepting reviewed application data, update \`OFFICIAL_SOURCE_CHECKED_ON\` in \`src/js/config/app-config.js\` and record the same accepted source-check date in \`src/assets/data/${season}/README.md\` so the FAQ reports data currency.`,
     '- [ ] Run `pnpm run validate:data`, `pnpm test`, `pnpm run lint`, and `pnpm run build` after completing any transcription.',
     '',
-    'A reviewer should open a pull request only when the harvested document or represented application data requires an update.',
+    'A reviewer should open a pull request only when represented application data or an application-used official source destination requires an update.',
     ''
   ].join('\n');
 }

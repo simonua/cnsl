@@ -4,7 +4,7 @@ The monthly refactoring audit delegates a documentation-only assessment to GitHu
 
 ## Schedule And Duplicate Protection
 
-`.github/workflows/refactoring-audit.yml` runs on the first day of each month at 06:41 UTC and can also be run manually. Before assigning a new audit, it looks for an open issue whose title contains `Scheduled refactoring audit`. An existing open audit keeps the schedule from creating overlapping Copilot work.
+`.github/workflows/refactoring-audit.yml` runs at 06:41 UTC on the first day of May, June, and July only, and can also be run manually. Before assigning a new audit, it looks for an open issue whose title contains `Scheduled refactoring audit`. An existing open audit keeps the schedule from creating overlapping Copilot work.
 
 ## Required Repository Setup
 

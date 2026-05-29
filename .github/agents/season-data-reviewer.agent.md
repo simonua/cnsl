@@ -13,12 +13,12 @@ Follow all repository instructions, especially the annual-data rules in `docs/an
 
 Open a pull request only when the official evidence requires an update to modeled application data in `src/assets/data/<YEAR>/pools/pools.json`, `meets/meets.json`, or `teams/teams.json`. A retained official PDF should be replaced in the same pull request when it supports that modeled-data change. The source destinations stored in annual JSON are modeled visitor-facing data: if an existing official document URL is unavailable or has been replaced by the publisher, update the applicable URL and retained evidence in a pull request even when the underlying schedule values remain unchanged.
 
-If the candidate evidence does not alter represented application data, do not edit files and do not open a pull request. Report that conclusion on the assigned issue, naming the inspected source and the reason it is non-material to the app data.
+If the candidate evidence does not alter represented application data, do not edit files and do not open a pull request. Finish the agent task with a concise conclusion naming the inspected source and the reason it is non-material to the app data.
 
 ## Material Update Procedure
 
 1. Read the active `YEAR` from `src/js/config/app-config.js`, the active annual README, and the relevant domain JSON and schema.
-2. Retrieve each official candidate source listed in the issue. For PDFs, inspect the published content rather than treating a binary hash change as a data change. For pages, inspect only fields represented by the corresponding JSON, such as pool details/features, staff, or recorded practice schedules.
+2. Retrieve each official candidate source listed in the review task. For PDFs, inspect the published content rather than treating a binary hash change as a data change. For pages, inspect only fields represented by the corresponding JSON, such as pool details/features, staff, or recorded practice schedules.
 3. Compare each supported value with existing annual JSON. Preserve unmodified modeled fields exactly; do not rewrite data merely to normalize formatting.
 4. For a verified material difference, update the applicable JSON. Download and retain changed official PDFs only when they are evidence for that accepted data update. Update `src/assets/data/<YEAR>/README.md` with source/check evidence and synchronize `OFFICIAL_SOURCE_CHECKED_ON` in `src/js/config/app-config.js` to the accepted review date.
 5. Do not change a schema unless newly published represented data cannot be expressed by the existing schema. Explain any required schema adjustment in the pull request.
@@ -39,3 +39,16 @@ Do not modify app behavior, generated `out/` content, dependencies, workflows, t
 ## Verification And Pull Request
 
 For a material update, run `pnpm run validate:data`, `pnpm test`, `pnpm run lint`, and `pnpm run build`. Open a pull request that identifies the official evidence, lists the modeled fields changed, and records validation results. If a check cannot be run, say so clearly in the pull request.
+
+In the pull request description, include a `## Data Changes` section organized by only the categories that changed: `### Pools`, `### Teams`, and `### Meets`. Under each category, add a bullet for each affected pool, team, or meet, and beneath it add indented bullets for each changed modeled property. Begin every property bullet with a bold property name followed by a colon, for example:
+
+```markdown
+## Data Changes
+
+### Teams
+- Long Reach Marlins
+	- **Practice times:** Changed from X to Y.
+	- **Practice URL:** Changed from old URL to new URL.
+```
+
+Do not list raw page fingerprint changes as data changes. They are investigation signals only; describe only verified changes to application-used values or source destinations.

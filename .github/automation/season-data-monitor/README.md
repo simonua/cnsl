@@ -1,6 +1,6 @@
 # Seasonal Data Source Monitor
 
-The nightly monitor checks public sources that support the active `YEAR` data set while the pool season is underway. It discovers source URLs from the active annual JSON and README rather than carrying a separate list that could drift.
+The seasonal monitor checks public sources that support the active `YEAR` data set while the pool season is underway. Its scheduled run occurs daily at 05:17 UTC during May, June, and July only. It discovers source URLs from the active annual JSON and README rather than carrying a separate list that could drift.
 
 ## Coverage
 
@@ -12,15 +12,25 @@ Stored PDFs are compared byte-for-byte against the public document. A changed PD
 
 ## Review Boundary
 
-The workflow does not create an evidence-only pull request. Instead, each confirmed candidate difference receives a stable key and is assigned once to the `season-data-reviewer` Copilot agent. That reviewer reads the official evidence and active annual JSON, then opens a pull request only when a represented application value or visitor-used official source link needs updating. A material-data pull request updates the affected JSON together with supporting retained PDFs where applicable, accepted source-check metadata, and the reviewed fingerprint baseline. Presentation-only page edits, equivalent link relocations that do not affect an application destination, and PDF binary/metadata-only changes result in no repository edit and no pull request.
+The workflow never creates an issue and does not create an evidence-only pull request. Each confirmed candidate difference receives a stable key and starts one issue-free Copilot Agent Tasks API session. That reviewer reads the official evidence and active annual JSON, then opens a pull request only when a represented application value or visitor-used official source link needs updating. A material-data pull request updates the affected JSON together with supporting retained PDFs where applicable, accepted source-check metadata, and the reviewed fingerprint baseline. Presentation-only page edits, equivalent link relocations that do not affect an application destination, and PDF binary/metadata-only changes result in no repository edit and no pull request.
 
-Only one open seasonal review issue is delegated at a time. A candidate key already recorded in an open or closed issue is not re-delegated on later nightly runs, avoiding repeated review traffic for an unchanged non-material observation.
+The workflow checks previous Copilot tasks for the stable candidate key before starting a session. An already reviewed candidate is not delegated again on later nightly runs, avoiding repeated work for an unchanged non-material observation without using issues as state.
+
+Any material-data pull request describes only verified application changes, grouped under `Pools`, `Teams`, and `Meets` as applicable. Each affected pool, team, or meet contains indented property bullets whose property labels are bold, for example:
+
+```markdown
+### Teams
+#### Long Reach Marlins
+    - **Practice times:** Changed from X to Y.
+```
 
 ## Operation
 
-`.github/workflows/season-data-monitor.yml` runs nightly at 05:17 UTC and passes `--season-only`; the monitor uses `seasonStartDate` and `seasonEndDate` from active pool data. A manual workflow dispatch can opt into checking outside that date range.
+`.github/workflows/season-data-monitor.yml` runs daily at 05:17 UTC during May, June, and July only and passes `--season-only`; the monitor uses `seasonStartDate` and `seasonEndDate` from active pool data. A manual workflow dispatch can intentionally opt into checking outside that date range.
 
-The workflow uses the `COPILOT_AGENT_TOKEN` repository secret to create an issue assigned to the `season-data-reviewer` custom Copilot agent when a previously unseen candidate is confirmed. Keep that token narrowly scoped to the issue assignment capability required by Copilot; the built-in workflow token remains `contents: read` only for checkout.
+Before inspecting sources, each run compares the UTC calendar year with the configured active `YEAR`. When a new schedule window begins before that year's assets have been activated, the workflow does not read or update the prior year's annual data. Instead, it starts an issue-free rollover preparation task for `src/assets/data/<current-year>/`, following the `cnsl-season-rollover` skill. That task may open a pull request only for official target-year material and must leave earlier annual folders unchanged. An active rollover task or open rollover pull request suppresses duplicates; after a no-change conclusion or a partial preparation pull request is merged without activating `YEAR`, a later scheduled run may retry preparation.
+
+The workflow uses the `CNSL_DATA_UPDATER_PR_TOKEN` repository secret to start a `season-data-reviewer` task through GitHub's Agent Tasks API when a previously unseen candidate is confirmed. GitHub currently documents that public-preview API for organizations with Copilot Business or Copilot Enterprise; confirm the repository is eligible before enabling the scheduled handoff. The secret must be a supported user-to-server token with repository `Agent tasks` read and write permission; GitHub App installation tokens are not accepted by this API. The built-in workflow token remains `contents: read` only for checkout.
 
 The reviewer is constrained to active-season annual data, retained official evidence, accepted-source metadata, and the monitor baseline. It runs `pnpm run validate:data`, `pnpm test`, `pnpm run lint`, and `pnpm run build` before opening a material-data pull request.
 
@@ -40,4 +50,4 @@ For a local source check that does not write files, run:
 node scripts/season-data-agent.js
 ```
 
-The command reports candidate document or webpage observations without writing evidence files. Use `--report` when generating the ignored, ephemeral candidate report consumed by the scheduled review delegation; it is not a pull-request artifact.
+The command reports candidate document or webpage observations without writing evidence files. Use `--report` when generating the ignored, ephemeral candidate report supplied to an issue-free review task; it is not a pull-request artifact.

@@ -2,7 +2,8 @@ name: Schedule Refactoring Audit With Copilot
 
 on:
   schedule:
-    - cron: '41 6 1 * *'
+    # Runs monthly at 06:41 UTC on the first day of May, June, and July only.
+    - cron: '41 6 1 5-7 *'
   workflow_dispatch:
 
 permissions:

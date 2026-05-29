@@ -2,7 +2,8 @@ name: Nightly Browser Verification
 
 on:
   schedule:
-    - cron: '47 5 * * *'
+    # Runs daily at 05:47 UTC during May, June, and July only.
+    - cron: '47 5 * 5-7 *'
 
 permissions:
   actions: read

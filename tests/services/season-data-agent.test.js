@@ -180,6 +180,8 @@ describe('season data agent', () => {
       assert.match(report, /OFFICIAL_SOURCE_CHECKED_ON/);
       assert.match(report, /pnpm run validate:data/);
       assert.match(report, /Candidate key: `0123456789abcdef`/);
+      assert.match(report, /application-used official source destination requires an update/);
+      assert.doesNotMatch(report, /harvested document or represented application data/);
     });
   });
 
