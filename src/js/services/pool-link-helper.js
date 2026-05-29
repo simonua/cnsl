@@ -148,12 +148,14 @@ function generateGoogleMapsLink(poolData, displayText) {
  * @param {Object} options - Options for link generation
  * @param {boolean} options.preferPoolsPage - Whether to prefer pools.html link over maps
  * @param {boolean} options.showBothLinks - Whether to show both pools.html and maps links
+ * @param {string} [options.displayText] - Optional visible link label while resolving the published location
  * @returns {string} - HTML link(s) for the pool
  */
 function generateEnhancedPoolLink(locationName, dataManager, options = {}, poolsOrIndex = null) {
   const {
     preferPoolsPage = true,
-    showBothLinks = false
+    showBothLinks = false,
+    displayText = locationName
   } = options;
   
   if (!locationName) return '';
@@ -163,12 +165,12 @@ function generateEnhancedPoolLink(locationName, dataManager, options = {}, pools
   const poolId = getPoolIdFromLocation(locationName, poolsOrIndex || pools);
   
   if (poolData && poolId) {
-    const poolsLink = generatePoolsPageLink(poolId, locationName);
-    const mapsLink = generateGoogleMapsLink(poolData, locationName);
+    const poolsLink = generatePoolsPageLink(poolId, displayText);
+    const mapsLink = generateGoogleMapsLink(poolData, displayText);
     
     if (showBothLinks) {
       const safeMapsUrl = PoolLinkSafety.safeHttpUrl(poolData.location?.googleMapsUrl);
-      const safeLocationName = PoolLinkSafety.escapeHtml(locationName);
+      const safeLocationName = PoolLinkSafety.escapeHtml(displayText);
       return safeMapsUrl
         ? `${poolsLink} <span class="link-separator">|</span> <a href="${safeMapsUrl}" target="_blank" rel="noopener" class="maps-icon" aria-label="View ${safeLocationName} on Google Maps">🗺️</a>`
         : poolsLink;
@@ -181,11 +183,11 @@ function generateEnhancedPoolLink(locationName, dataManager, options = {}, pools
   
   // Fallback when pool data not found
   if (preferPoolsPage) {
-    return `<a href="pools.html" class="location-link">${PoolLinkSafety.escapeHtml(locationName)}</a>`;
+    return `<a href="pools.html" class="location-link">${PoolLinkSafety.escapeHtml(displayText)}</a>`;
   } else {
     const searchQuery = encodeURIComponent(`${locationName} Columbia MD`);
     const mapsUrl = `${globalThis.GOOGLE_MAPS_SEARCH_BASE_URL}${searchQuery}`;
-    return `<a href="${PoolLinkSafety.safeHttpUrl(mapsUrl)}" target="_blank" rel="noopener" class="location-link">${PoolLinkSafety.escapeHtml(locationName)}</a>`;
+    return `<a href="${PoolLinkSafety.safeHttpUrl(mapsUrl)}" target="_blank" rel="noopener" class="location-link">${PoolLinkSafety.escapeHtml(displayText)}</a>`;
   }
 }
 

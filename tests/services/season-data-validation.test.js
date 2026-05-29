@@ -60,6 +60,7 @@ describe('season data validation', () => {
             keywords: ['known'],
             url: 'https://teams.test/known',
             calendarUrl: 'http://teams.test/calendar',
+            booster: { name: 'Known Booster', url: 'http://teams.test/booster' },
             homePools: ['Missing Pool'],
             timeTrialsPool: 'Missing Time Trials Pool',
             practicePools: ['Known Pool'],
@@ -81,6 +82,7 @@ describe('season data validation', () => {
       assert.ok(errors.includes('Known Team references unknown pool: Missing Pool.'));
       assert.ok(errors.includes('Known Team references unknown pool: Missing Time Trials Pool.'));
       assert.ok(errors.includes('Known Team calendar URL must use HTTPS: http://teams.test/calendar.'));
+      assert.ok(errors.includes('Known Team booster URL must use HTTPS: http://teams.test/booster.'));
       assert.ok(errors.includes('Regular meet 1 references an unknown team alias: missing team.'));
     });
 

@@ -50,15 +50,17 @@ function findPoolByName(poolName) {
  * Get enhanced pool link using new pool link helper
  * @param {string} location - Pool location name
  * @param {string} fallbackAddress - Fallback address if pool not found (unused now)
+ * @param {string} [displayText] - Optional visible pool link label
  * @returns {string} - HTML link to pools.html page with pool data
  */
-function getEnhancedPoolLink(location, _fallbackAddress) {
+function getEnhancedPoolLink(location, _fallbackAddress, displayText = location) {
   if (!location) return '';
   
   // Use the new pool link helper
   return generateEnhancedPoolLink(location, teamsBrowserDataManager, {
     preferPoolsPage: true,
-    showBothLinks: false
+    showBothLinks: false,
+    displayText
   }, teamsPoolLocationIndex);
 }
 
@@ -185,6 +187,10 @@ function formatMeetTeamLabel(label, team) {
   return PreferencesService.teamMatchesLabel(team, label) ? `<strong>${safeLabel}</strong>` : safeLabel;
 }
 
+function formatMeetLocationLabel(location) {
+  return typeof location === 'string' ? location.replace(/\s+Pool\s*$/i, '').trim() : '';
+}
+
 function formatMeetsSchedule(team, meets) {
   const teamMeets = Array.isArray(meets) ? meets.filter(meet => (
     meet && (meet.home_team || meet.visiting_team) && PreferencesService.meetIncludesFavoriteTeam(meet, team)
@@ -192,32 +198,41 @@ function formatMeetsSchedule(team, meets) {
   if (teamMeets.length === 0) return '';
 
   const safeTeamName = TeamsBrowserSafety.escapeHtml(team.name || 'team');
+  const hasHomeMeet = teamMeets.some(meet => PreferencesService.teamMatchesLabel(team, meet.home_team || meet.homeTeam || ''));
   const rows = teamMeets.map(meet => {
     const awayTeam = meet.visiting_team || meet.awayTeam || 'Away Team';
     const homeTeam = meet.home_team || meet.homeTeam || 'Home Team';
+    const isHomeMeet = PreferencesService.teamMatchesLabel(team, homeTeam);
     return `
-      <tr>
+      <tr${isHomeMeet ? ' class="team-meets__row--home"' : ''}>
         <td>${formatMeetDate(meet.date)}</td>
         <td>${TeamsBrowserSafety.escapeHtml(meet.name || 'Meet')}</td>
-        <td>${formatMeetTeamLabel(awayTeam, team)}</td>
-        <td>${formatMeetTeamLabel(homeTeam, team)}</td>
-        <td>${getEnhancedPoolLink(meet.location, '')}</td>
+        <td class="team-meets__matchup"><span class="team-meets__matchup-team">${formatMeetTeamLabel(homeTeam, team)}</span> <span class="team-meets__matchup-team"><span class="vs">vs.</span> ${formatMeetTeamLabel(awayTeam, team)}</span></td>
+        <td>${getEnhancedPoolLink(meet.location, '', formatMeetLocationLabel(meet.location))}</td>
       </tr>
     `;
   }).join('');
 
   return `
     <section class="team-meets" aria-label="Meet schedule">
-      <h3>Meet schedule</h3>
-      <div class="team-meets__scroll">
-        <table class="team-meets__table">
-          <caption class="visually-hidden">Meet schedule for ${safeTeamName}</caption>
-          <thead>
-            <tr><th scope="col">Date</th><th scope="col">Meet</th><th scope="col">Away</th><th scope="col">Home</th><th scope="col">Location</th></tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
+      <details class="practice-schedule__phase team-meets__phase">
+        <summary class="practice-schedule__summary team-meets__summary">
+          <h3 class="practice-schedule__title">Meet schedule</h3>
+          ${hasHomeMeet ? '<span class="team-meets__home-label">Home meet</span>' : ''}
+          <span class="practice-schedule__toggle-icon" aria-hidden="true">&#9650;</span>
+        </summary>
+        <div class="practice-schedule__body team-meets__body">
+          <div class="team-meets__scroll">
+            <table class="team-meets__table">
+              <caption class="visually-hidden">Meet schedule for ${safeTeamName}</caption>
+              <thead>
+                <tr><th scope="col">Date</th><th scope="col">Meet</th><th scope="col">Matchup</th><th scope="col">Pool Location</th></tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        </div>
+      </details>
     </section>
   `;
 }
@@ -387,6 +402,7 @@ function renderTeams(teams) {
     const calendarUrl = TeamsBrowserSafety.safeHttpUrl(team.calendarUrl);
     const resultsUrl = TeamsBrowserSafety.safeHttpUrl(team.resultsUrl);
     const merchandiseUrl = TeamsBrowserSafety.safeHttpUrl(team.merchandiseUrl);
+    const boosterUrl = TeamsBrowserSafety.safeHttpUrl(team.booster && team.booster.url);
     const isFavorite = teamId === favoriteTeamId;
     const isExpanded = isFavorite && favoriteTeamExpanded;
     const homePools = Array.isArray(team.homePools) ? team.homePools : [];
@@ -466,11 +482,12 @@ function renderTeams(teams) {
 
           ${meetsScheduleHtml}
 
-          ${teamUrl || calendarUrl || practiceUrl ? `
+          ${teamUrl || calendarUrl || practiceUrl || boosterUrl ? `
             <div class="team-actions team-actions--website">
               ${teamUrl ? `<a href="${teamUrl}" target="_blank" rel="noopener" class="btn">🌐 Team Website</a>` : ''}
               ${calendarUrl ? `<a href="${calendarUrl}" target="_blank" rel="noopener" class="btn">📅 Team Calendar</a>` : ''}
               ${practiceUrl ? `<a href="${practiceUrl}" target="_blank" rel="noopener" class="btn">📅 Practice Schedule</a>` : ''}
+              ${boosterUrl ? `<a href="${boosterUrl}" target="_blank" rel="noopener noreferrer" class="btn">Booster Club</a>` : ''}
             </div>
           ` : ''}
           

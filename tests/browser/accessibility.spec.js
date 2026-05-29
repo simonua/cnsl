@@ -90,12 +90,15 @@ for (const theme of ['light', 'dark']) {
     expect(violations).toEqual([]);
   });
 
-  test(`[AX-TEAMS-001-${theme.toUpperCase()}] expanded detailed-practice schedule has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
+  test(`[AX-TEAMS-001-${theme.toUpperCase()}] expanded team schedules have no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
     await loadScenario(page, pageScenarios.find(scenario => scenario.name === 'teams'), theme);
     const teamToggle = page.locator('.team-card[data-team-id="cfhss"] .team-header__toggle');
     if (await teamToggle.getAttribute('aria-expanded') !== 'true') await teamToggle.click();
     await expect(page.locator('.team-card[data-team-id="cfhss"] .favorite-week')).toBeVisible();
     await expect(page.locator('.team-card[data-team-id="cfhss"] .practice-schedule')).toBeVisible();
+    const meetSchedule = page.locator('.team-card[data-team-id="cfhss"] .team-meets__phase');
+    await meetSchedule.locator('summary').click();
+    await expect(meetSchedule.locator('.team-meets__table')).toBeVisible();
 
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])

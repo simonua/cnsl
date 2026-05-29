@@ -34,6 +34,9 @@
   --favorite-bg: #fff3cd;
   --favorite-text: #664d03;
   --favorite-badge-text: #392b00;
+  --home-meet-bg: #e7f4fc;
+  --home-meet-label-bg: #d0e9f8;
+  --home-meet-text: #004578;
   --weather-alert-bg: #e8f3fa;
   --weather-alert-border: #2c7da8;
   --weather-alert-title: #765500;
@@ -128,6 +131,9 @@
   --favorite-bg: #3a321c;
   --favorite-text: #f7dc86;
   --favorite-badge-text: #392b00;
+  --home-meet-bg: #142d40;
+  --home-meet-label-bg: #184668;
+  --home-meet-text: #d7efff;
   --weather-alert-bg: #162d3d;
   --weather-alert-border: #58b0ee;
   --weather-alert-title: #f1c64b;
@@ -217,6 +223,9 @@
     --favorite-bg: #3a321c;
     --favorite-text: #f7dc86;
     --favorite-badge-text: #392b00;
+    --home-meet-bg: #142d40;
+    --home-meet-label-bg: #184668;
+    --home-meet-text: #d7efff;
     --weather-alert-bg: #162d3d;
     --weather-alert-border: #58b0ee;
     --weather-alert-title: #f1c64b;
@@ -3778,10 +3787,38 @@ button.pool-filter__clear:focus-visible {
   overflow-x: auto;
 }
 
+.team-meets__summary {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.team-meets__summary h3 {
+  grid-column: 1;
+  grid-row: 1;
+  margin: 0;
+}
+
+.team-meets__home-label {
+  background: var(--home-meet-label-bg);
+  border-radius: 999rem;
+  color: var(--home-meet-text);
+  font-size: 0.75rem;
+  font-weight: 700;
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: start;
+  padding: 0.2rem 0.5rem;
+  white-space: nowrap;
+}
+
+.team-meets__summary .practice-schedule__toggle-icon {
+  grid-column: 3;
+  grid-row: 1;
+}
+
 .team-meets__table {
   border-collapse: collapse;
   font-size: 0.9rem;
-  min-width: 38rem;
+  min-width: 34rem;
   text-align: left;
   width: 100%;
 }
@@ -3803,9 +3840,27 @@ button.pool-filter__clear:focus-visible {
   border-bottom: 0;
 }
 
+.team-meets__row--home td {
+  background: var(--home-meet-bg);
+}
+
 .team-meets__table td:first-child,
 .team-meets__table td:nth-child(2) {
   white-space: nowrap;
+}
+
+.team-meets__matchup-team {
+  display: block;
+}
+
+.team-meets__matchup-team + .team-meets__matchup-team {
+  margin-top: 0.2rem;
+}
+
+.team-meets__matchup .vs {
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-right: 0.25rem;
 }
 
 .team-staff {
@@ -4017,6 +4072,12 @@ button.pool-filter__clear:focus-visible {
 .team-actions--website {
   margin-top: 0;
   padding-top: 0;
+}
+
+.team-actions--website .btn {
+  font-size: 0.95rem;
+  min-width: 0;
+  padding: 0.55rem 0.85rem;
 }
 
 /* Team Card Collapsible Functionality */

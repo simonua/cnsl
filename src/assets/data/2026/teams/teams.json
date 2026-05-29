@@ -308,6 +308,10 @@
       "keywords": ["long reach marlins", "long reach", "marlins"],
       "url": "https://www.gomotionapp.com/team/reccnsllrm/page/home",
       "merchandiseUrl": "https://2026-long-marlins-swimpreseason.spiritsale.com/",
+      "booster": {
+        "name": "Long Reach Marlins, Inc.",
+        "url": "https://www.longreachmarlins.org/"
+      },
       "calendarUrl": "https://www.gomotionapp.com/team/reccnsllrm/page/events",
       "homePools": ["Kendall Ridge"],
       "timeTrialsPool": "Kendall Ridge",

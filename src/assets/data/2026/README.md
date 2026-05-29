@@ -14,7 +14,7 @@ Pool information is accepted only from official public Columbia Association page
 | --- | --- | --- | --- |
 | Pools | `pools/pools.json`, `pools/pools.schema.json`, and 23 PDFs in `pools/pool-schedules/` | Ready, including facility features | Columbia Association pool pages and directory URLs are recorded in `pools/pools.json` |
 | Meets | `meets/meets.json`, `meets/meets.schema.json`, and one PDF in `meets/meet-schedules/` | Ready | Official CNSL meet schedule downloaded and transcribed |
-| Teams | `teams/teams.json`, `teams/teams.schema.json`, and two PDFs in `teams/team-schedules/` | Ready, with complete detailed published practices for seven teams, a published First Splash schedule for Harper's Choice, and public calendar/event links for all fourteen teams | Official CNSL practice and team-assignment documents retained; public team-page practice schedules and calendars recorded where verified |
+| Teams | `teams/teams.json`, `teams/teams.schema.json`, and two PDFs in `teams/team-schedules/` | Ready, with complete detailed published practices for seven teams, a published First Splash schedule for Harper's Choice, public calendar/event links for all fourteen teams, and an available booster-club link | Official CNSL practice and team-assignment documents retained; public team-page practice schedules and calendars recorded where verified; Long Reach Marlins booster-club site recorded |
 
 ## Pools
 
@@ -42,6 +42,8 @@ The stored meet PDF is the authoritative source used to create `meets/meets.json
 | 2026 CNSL Team Assignments - Final | [Download PDF](https://www.gomotionapp.com/reccnsl/UserFiles/Image/QuickUpload/2026-cnsl-team-assignments--final_059448.pdf) | `teams/team-schedules/2026-cnsl-team-assignments--final_059448.pdf` | 2026-05-24 |
 
 The practice-schedule PDF supplies the current team pool associations recorded in `teams/teams.json`. Complete detailed public schedule pages were accepted and transcribed for CHS Swim Sundevils, Huntington Dolphins, Long Reach Marlins, Phelps Luck Snappers, and Pointers Run Piranhas on 2026-05-26, and for Dorsey Search Dolphins and Owen Brown Barracudas on 2026-05-27. Harper's Choice Challenge now includes its fully published First Splash sessions; its later age-group practice times remain untranscribed because its public page still marks them `TBD`. A public practice source link remains recorded for Oakland Mills Tigersharks while detailed transcription is incomplete. Public calendar or event destinations were verified for all fourteen official team sites on 2026-05-27. Dorsey Search, Kings Contrivance, Long Reach, Oakland Mills, and Pheasant Ridge publish visitor-accessible `Events` pages while their direct calendar routes either redirect to sign-in or do not provide the public destination; their `calendarUrl` values therefore target the official events pages shown to visitors. The team-assignment PDF is retained as the official registration-assignment source; neighborhood and school assignment matrices are not represented in the application schema.
+
+The Long Reach Marlins team record includes its available booster-club destination, [Long Reach Marlins, Inc.](https://www.longreachmarlins.org/), for display with the team's published links.
 
 ## Publication Page
 

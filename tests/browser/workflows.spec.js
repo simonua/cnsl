@@ -524,17 +524,29 @@ test('[WF-TEAMS-002] team directory displays collapsed pre-season and in-season 
   const meets = sundevils.locator('.team-meets');
   await expect(sundevils.locator('.practice-schedule + .team-meets')).toHaveCount(1);
   await expect(meets.getByRole('heading', { name: 'Meet schedule' })).toBeVisible();
-  await expect(meets.getByText('Published meets')).toHaveCount(0);
+  const meetSchedule = meets.locator('.team-meets__phase');
+  await expect(meetSchedule).not.toHaveAttribute('open', '');
+  await expect(meets.getByText('Home meet')).toBeVisible();
+  await expect(meets.locator('.team-meets__scroll')).not.toBeVisible();
+  await meetSchedule.locator('summary').focus();
+  await page.keyboard.press('Enter');
+  await expect(meetSchedule).toHaveAttribute('open', '');
   await expect(meets.locator('.team-meets__scroll')).toBeVisible();
-  await expect(meets.locator('thead th')).toHaveText(['Date', 'Meet', 'Away', 'Home', 'Location']);
+  await expect(meets.locator('thead th')).toHaveText(['Date', 'Meet', 'Matchup', 'Pool Location']);
   await expect(meets.locator('tbody tr')).toHaveCount(5);
   const firstMeet = meets.locator('tbody tr').first();
   await expect(firstMeet.locator('td').nth(0)).toHaveText('June 13');
   await expect(firstMeet.locator('td').nth(1)).toHaveText('Dual Meet #1');
-  await expect(firstMeet.locator('td').nth(2)).toHaveText('Oakland Mills');
-  await expect(firstMeet.locator('td').nth(3).locator('strong')).toHaveText("Clary's Forest, Hawthorn, Swansfield");
-  await expect(meets.locator('tbody tr').nth(1).locator('td').nth(2).locator('strong')).toHaveText("Clary's Forest, Hawthorn, Swansfield");
-  await expect(firstMeet.getByRole('link', { name: 'Swansfield Pool' })).toHaveAttribute('href', /pools\.html\?pool=/);
+  await expect(firstMeet).toHaveClass(/team-meets__row--home/);
+  await expect(firstMeet.locator('.team-meets__matchup')).toHaveText("Clary's Forest, Hawthorn, Swansfield vs. Oakland Mills");
+  await expect(firstMeet.locator('.team-meets__matchup strong')).toHaveText("Clary's Forest, Hawthorn, Swansfield");
+  const awayMeet = meets.locator('tbody tr').nth(1);
+  await expect(awayMeet).not.toHaveClass(/team-meets__row--home/);
+  await expect(awayMeet.locator('.team-meets__matchup')).toHaveText("Owen Brown vs. Clary's Forest, Hawthorn, Swansfield");
+  await expect(awayMeet.locator('.team-meets__matchup strong')).toHaveText("Clary's Forest, Hawthorn, Swansfield");
+  await expect(firstMeet.locator('.team-meets__matchup-team')).toHaveText(["Clary's Forest, Hawthorn, Swansfield", 'vs. Oakland Mills']);
+  await expect(firstMeet.getByRole('link', { name: 'Swansfield' })).toHaveAttribute('href', /pools\.html\?pool=/);
+  await expect(firstMeet).not.toContainText('Swansfield Pool');
   const primaryActions = sundevils.locator('.team-actions--website');
   await expect(sundevils.locator('.team-meets + .team-actions--website')).toHaveCount(1);
   await expect(primaryActions.locator('a')).toHaveText(['🌐 Team Website', '📅 Team Calendar', '📅 Practice Schedule']);
@@ -559,7 +571,7 @@ test('[WF-TEAMS-003] team directory filters regular practice times to selected p
   await expect(schedule).not.toContainText('5:45 - 6:30pm');
 });
 
-test('[WF-TEAMS-004] merchandise action appears only for a team with a published store link', async ({ page }) => {
+test('[WF-TEAMS-004] published Long Reach merchandise and booster actions appear in team details', async ({ page }) => {
   await initializeAnalyticsRecorder(page);
   await page.goto('/teams.html');
   await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
@@ -573,6 +585,8 @@ test('[WF-TEAMS-004] merchandise action appears only for a team with a published
     .toHaveAttribute('href', 'https://2026-long-marlins-swimpreseason.spiritsale.com/');
   await expect(marlins.getByRole('link', { name: 'Team Calendar' }))
     .toHaveAttribute('href', 'https://www.gomotionapp.com/team/reccnsllrm/page/events');
+  await expect(marlins.getByRole('link', { name: 'Booster Club', exact: true }))
+    .toHaveAttribute('href', 'https://www.longreachmarlins.org/');
   await marlins.locator('.team-merchandise').evaluate(link => {
     link.addEventListener('click', event => event.preventDefault(), { once: true });
     link.click();
@@ -584,6 +598,7 @@ test('[WF-TEAMS-004] merchandise action appears only for a team with a published
 
   const sundevils = page.locator('.team-card[data-team-id="cfhss"]');
   await expect(sundevils.locator('.team-merchandise')).toHaveCount(0);
+  await expect(sundevils.getByRole('link', { name: /Booster Club/ })).toHaveCount(0);
 });
 
 test('[WF-TEAMS-005] unknown team deep links leave the loaded directory stable', async ({ page }) => {
@@ -876,12 +891,13 @@ test('[WF-SECURITY-001] pool directory encodes text and rejects unsafe published
   await expect(page.locator('.phone-link').filter({ hasText: 'onclick=alert' })).toHaveCount(0);
 });
 
-test('[WF-SECURITY-002] team directory rejects an unsafe published merchandise destination', async ({ page }) => {
+test('[WF-SECURITY-002] team directory rejects unsafe published action destinations', async ({ page }) => {
   await page.route('**/assets/data/2026/teams/teams.json*', async route => {
     const response = await route.fetch();
     const teamData = await response.json();
     const marlins = teamData.teams.find(team => team.id === 'lrm');
     marlins.merchandiseUrl = 'javascript:alert(1)';
+    marlins.booster.url = 'javascript:alert(1)';
     await route.fulfill({ response, json: teamData });
   });
 
@@ -889,6 +905,7 @@ test('[WF-SECURITY-002] team directory rejects an unsafe published merchandise d
   await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
   const marlins = page.locator('.team-card[data-team-id="lrm"]');
   await expect(marlins.locator('.team-merchandise')).toHaveCount(0);
+  await expect(marlins.getByRole('link', { name: /Booster Club/ })).toHaveCount(0);
   await expect(page.locator('a[href^="javascript:"]')).toHaveCount(0);
 });
 

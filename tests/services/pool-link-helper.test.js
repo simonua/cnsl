@@ -151,6 +151,10 @@ describe('pool-link-helper', () => {
 
     it('selects internal, map, and combined destinations for a known pool', () => {
       assert.match(generateEnhancedPoolLink('Bryant Woods', dataManager), /pools\.html\?pool=bwp/);
+      const conciseLink = generateEnhancedPoolLink('Bryant Woods Pool', dataManager, { displayText: 'Bryant Woods' });
+      assert.match(conciseLink, /pools\.html\?pool=bwp/);
+      assert.match(conciseLink, />Bryant Woods<\/a>/);
+      assert.doesNotMatch(conciseLink, />Bryant Woods Pool<\/a>/);
       assert.match(generateEnhancedPoolLink('Bryant Woods', dataManager, { preferPoolsPage: false }), /maps\.google\.com/);
       assert.match(generateEnhancedPoolLink('Bryant Woods', dataManager, { showBothLinks: true }), /maps-icon/);
       const unsafeMapsManager = { getPools: () => ({ getAllPools: () => [{ id: 'bwp', name: 'Bryant Woods', toJSON: () => ({ location: { googleMapsUrl: 'javascript:bad' } }) }] }) };
@@ -160,6 +164,7 @@ describe('pool-link-helper', () => {
     it('generates safe fallback destinations for unknown locations', () => {
       assert.equal(generateEnhancedPoolLink('', dataManager), '');
       assert.match(generateEnhancedPoolLink('Unknown <Pool>', dataManager), /pools\.html/);
+      assert.match(generateEnhancedPoolLink('Unknown Pool', dataManager, { displayText: '<Unknown>' }), /&lt;Unknown&gt;/);
       assert.match(generateEnhancedPoolLink('Unknown Pool', dataManager, { preferPoolsPage: false }), /maps\/search/);
     });
   });
