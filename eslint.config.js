@@ -96,6 +96,6 @@ module.exports = [
 
   // Ignore build output and dependencies
   {
-    ignores: ['out/**', 'node_modules/**'],
+    ignores: ['out/**', 'node_modules/**', 'test-results/**', 'playwright-report/**'],
   },
 ];
