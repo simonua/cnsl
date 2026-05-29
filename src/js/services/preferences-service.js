@@ -38,7 +38,7 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
       Object.freeze({
         key: 'water-play',
         label: 'Swimming & water play',
-        features: Object.freeze(['climbing wall', 'dive', 'lap', 'slide'])
+        features: Object.freeze(['6 lanes', '8 lanes', 'meter lanes', 'yard lanes', 'climbing wall', 'dive', 'lap', 'slide'])
       }),
       Object.freeze({
         key: 'recreation',
@@ -236,8 +236,23 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
       if (!Array.isArray(pools)) return [];
 
       return PreferencesService.normalizeFeatureFilters(
-        pools.flatMap(pool => Array.isArray(pool.features) ? pool.features : [])
+        pools.flatMap(pool => PreferencesService.getFilterablePoolFeatures(pool))
       );
+    }
+
+    /**
+     * Expose structured lane metadata alongside published amenities for pool filtering.
+     * @param {Object} pool - Published pool record
+     * @returns {Array} Filterable feature labels
+     */
+    static getFilterablePoolFeatures(pool) {
+      const features = Array.isArray(pool?.features) ? pool.features : [];
+      const laneFeature = Number.isInteger(pool?.laneCount) && pool.laneCount > 0 ? [`${pool.laneCount} lanes`] : [];
+      const laneUnitsFeature = {
+        meters: 'meter lanes',
+        yards: 'yard lanes'
+      }[pool?.laneLengthUnits];
+      return [...features, ...laneFeature, ...(laneUnitsFeature ? [laneUnitsFeature] : [])];
     }
 
     /**
@@ -286,7 +301,7 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
       if (selectedFeatures.length === 0) return [...pools];
 
       return pools.filter(pool => {
-        const availableFeatures = PreferencesService.normalizeFeatureFilters(pool.features);
+        const availableFeatures = PreferencesService.normalizeFeatureFilters(PreferencesService.getFilterablePoolFeatures(pool));
         return selectedFeatures.every(feature => availableFeatures.includes(feature));
       });
     }

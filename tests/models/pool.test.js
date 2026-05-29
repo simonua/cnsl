@@ -433,11 +433,13 @@ describe('Pool', () => {
 
   describe('toJSON', () => {
     it('returns a plain object', () => {
-      const pool = new Pool(createSamplePoolData());
+      const pool = new Pool(createSamplePoolData({ laneCount: 6, laneLengthUnits: null }));
       const json = pool.toJSON();
       assert.equal(typeof json, 'object');
       assert.equal(json.id, 'bwp');
       assert.equal(json.name, 'Bryant Woods');
+      assert.equal(json.laneCount, 6);
+      assert.equal(json.laneLengthUnits, null);
     });
 
     it('retains published schedule periods needed by weather operating windows', () => {

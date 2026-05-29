@@ -20,6 +20,8 @@
         "googleMapsUrl": "https://maps.app.goo.gl/JVc94GRVWrKKmKgW7"
       },
       "phone": "410-730-5326",
+      "laneCount": 6,
+      "laneLengthUnits": null,
       "features": [
         "hot tub",
         "lap",
@@ -279,6 +281,8 @@
         "googleMapsUrl": "https://maps.app.goo.gl/USbbviedhzT6mXAc7"
       },
       "phone": "410-964-0805",
+      "laneCount": 6,
+      "laneLengthUnits": null,
       "features": [
         "beach entry",
         "dive",
@@ -529,6 +533,8 @@
         "googleMapsUrl": "https://maps.app.goo.gl/nDhXsSz8vgU3NLWh6"
       },
       "phone": "410-997-4214",
+      "laneCount": 8,
+      "laneLengthUnits": null,
       "features": [
         "dive",
         "lap",
@@ -960,6 +966,8 @@
         "googleMapsUrl": "https://maps.app.goo.gl/ccMhQkE8MaApGSTP6"
       },
       "phone": "410-715-3194",
+      "laneCount": 8,
+      "laneLengthUnits": null,
       "features": [
         "bathhouse",
         "cornhole",
@@ -1316,6 +1324,8 @@
         "googleMapsUrl": "https://maps.app.goo.gl/G4ChZdAMEPsCsg9G9"
       },
       "phone": "410-381-3080",
+      "laneCount": 6,
+      "laneLengthUnits": null,
       "features": [
         "ADA compliant",
         "beach entry",
@@ -1569,6 +1579,8 @@
         "googleMapsUrl": "https://maps.app.goo.gl/d8a4CdahR1YtAUxL8"
       },
       "phone": "410-461-1481",
+      "laneCount": 8,
+      "laneLengthUnits": null,
       "features": [
         "ADA compliant",
         "basketball",
@@ -2011,6 +2023,8 @@
         "googleMapsUrl": "https://maps.app.goo.gl/CZjfGdxz5LL4Ehk49"
       },
       "phone": "410-730-5292",
+      "laneCount": 6,
+      "laneLengthUnits": null,
       "features": [
         "basketball",
         "beach entry",
@@ -2473,6 +2487,8 @@
         "googleMapsUrl": "https://maps.app.goo.gl/2QVrxxmmGQVnDRKS8"
       },
       "phone": "410-730-0943",
+      "laneCount": 6,
+      "laneLengthUnits": null,
       "features": [
         "ADA compliant",
         "basketball",
@@ -2712,6 +2728,8 @@
         "googleMapsUrl": "https://maps.app.goo.gl/VQgb4qbeZs4aeB9r9"
       },
       "phone": "410-730-6770",
+      "laneCount": 6,
+      "laneLengthUnits": null,
       "features": [
         "basketball",
         "golf course",
@@ -2963,6 +2981,8 @@
         "googleMapsUrl": "https://maps.app.goo.gl/bLiRAA7xdfhMbJnX9"
       },
       "phone": "410-381-1460",
+      "laneCount": 8,
+      "laneLengthUnits": null,
       "features": [
         "baseball",
         "basketball",
@@ -3249,6 +3269,8 @@
         "googleMapsUrl": "https://maps.app.goo.gl/ynLi2WRYwM7BmUKYA"
       },
       "phone": "301-490-3310",
+      "laneCount": 8,
+      "laneLengthUnits": null,
       "features": [
         "deck",
         "hot tub",
@@ -3735,6 +3757,8 @@
         "googleMapsUrl": "https://maps.app.goo.gl/tTho6AftfVxAPzEH8"
       },
       "phone": "410-730-1220",
+      "laneCount": 8,
+      "laneLengthUnits": null,
       "features": [
         "climbing wall",
         "lap",
@@ -4097,6 +4121,8 @@
         "googleMapsUrl": "https://maps.app.goo.gl/814De8NJV9LSAVbp6"
       },
       "phone": "410-715-3074",
+      "laneCount": 8,
+      "laneLengthUnits": "yards",
       "features": [
         "ADA compliant",
         "beach entry",
@@ -4486,6 +4512,8 @@
         "googleMapsUrl": "https://maps.app.goo.gl/cr5nz16axo9QMNM57"
       },
       "phone": "410-730-5621",
+      "laneCount": 8,
+      "laneLengthUnits": null,
       "features": [
         "basketball",
         "lap",
@@ -4802,6 +4830,8 @@
         "googleMapsUrl": "https://maps.app.goo.gl/sXwyg4Dsvjba2ukU6"
       },
       "phone": "410-730-4978",
+      "laneCount": 6,
+      "laneLengthUnits": "meters",
       "features": [
         "ADA compliant",
         "basketball",
@@ -5130,6 +5160,8 @@
         "googleMapsUrl": "https://maps.app.goo.gl/NRXjnEGVoyBmzmXP7"
       },
       "phone": "410-730-5995",
+      "laneCount": 6,
+      "laneLengthUnits": null,
       "features": [
         "basketball",
         "lap",
@@ -5469,6 +5501,8 @@
         "googleMapsUrl": "https://maps.app.goo.gl/rjeXTRjCS1miCPy79"
       },
       "phone": "410-730-5765",
+      "laneCount": 8,
+      "laneLengthUnits": null,
       "features": [
         "dive",
         "lap",
@@ -5836,6 +5870,8 @@
         "googleMapsUrl": "https://maps.app.goo.gl/BiEz14tBdHNcGiUz5"
       },
       "phone": "410-531-0191",
+      "laneCount": 8,
+      "laneLengthUnits": null,
       "features": [
         "ADA compliant",
         "beach entry",
@@ -6344,6 +6380,8 @@
         "googleMapsUrl": "https://maps.app.goo.gl/C4hLgLBoCyTiqN178"
       },
       "phone": "410-730-5293",
+      "laneCount": 6,
+      "laneLengthUnits": null,
       "features": [
         "basketball",
         "dive",
@@ -6596,6 +6634,8 @@
         "googleMapsUrl": "https://maps.app.goo.gl/sz76wNDeNmt9Er87A"
       },
       "phone": "410-730-5452",
+      "laneCount": 8,
+      "laneLengthUnits": null,
       "features": [
         "fitness pavilion",
         "heated",
@@ -7603,6 +7643,8 @@
         "googleMapsUrl": "https://maps.app.goo.gl/X24sByCcNba2KppMA"
       },
       "phone": "410-730-3180",
+      "laneCount": 6,
+      "laneLengthUnits": "meters",
       "features": [
         "basketball",
         "bathhouse",
@@ -8114,6 +8156,8 @@
         "googleMapsUrl": "https://maps.app.goo.gl/ThxBCzAsArVLqf8UA"
       },
       "phone": "410-730-5421",
+      "laneCount": 8,
+      "laneLengthUnits": null,
       "features": [
         "basketball",
         "grill",
@@ -8400,6 +8444,8 @@
         "googleMapsUrl": "https://maps.app.goo.gl/4V7Q9XNr6R7ejB1B9"
       },
       "phone": "410-730-5563",
+      "laneCount": 6,
+      "laneLengthUnits": null,
       "features": [
         "dive",
         "lap",

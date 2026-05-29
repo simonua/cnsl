@@ -50,6 +50,8 @@
  * @property {number} [lng]
  * @property {string} [phone]
  * @property {string} [website]
+ * @property {number} laneCount
+ * @property {'meters'|'yards'|null} laneLengthUnits
  * @property {string[]} features
  * @property {string[]} [amenities]
  * @property {boolean} [divingBoard]

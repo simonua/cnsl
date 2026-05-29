@@ -49,6 +49,8 @@ if (typeof window === 'undefined') {
     
     this.phone = poolData.phone || '';
     this.website = poolData.website || '';
+    this.laneCount = Number.isInteger(poolData.laneCount) && poolData.laneCount > 0 ? poolData.laneCount : null;
+    this.laneLengthUnits = ['meters', 'yards'].includes(poolData.laneLengthUnits) ? poolData.laneLengthUnits : null;
     this.features = poolData.features || [];
     this.amenities = poolData.amenities || [];
     this.divingBoard = poolData.divingBoard || false;
@@ -1090,6 +1092,8 @@ if (typeof window === 'undefined') {
       address: this.address,
       phone: this.phone,
       website: this.website,
+      laneCount: this.laneCount,
+      laneLengthUnits: this.laneLengthUnits,
       features: this.features,
       amenities: this.amenities,
       divingBoard: this.divingBoard,

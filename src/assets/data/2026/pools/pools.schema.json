@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://example.com/pools.schema.json",
-    "version": "V2",
+    "version": "V3",
     "title": "Pool Data Schema",
     "description": "Schema for pool data containing schedules, features, and location information",
     "type": "object",
@@ -69,6 +69,19 @@
                         "$ref": "#/definitions/FeatureType"
                     }
                 },
+                "laneCount": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Number of lanes in the pool"
+                },
+                "laneLengthUnits": {
+                    "enum": [
+                        "meters",
+                        "yards",
+                        null
+                    ],
+                    "description": "Lane measurement unit, when published"
+                },
                 "schedules": {
                     "type": "array",
                     "items": {
@@ -93,6 +106,8 @@
             "required": [
                 "name",
                 "features",
+                "laneCount",
+                "laneLengthUnits",
                 "scheduleUrl",
                 "schedules"
             ],
