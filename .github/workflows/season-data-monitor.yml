@@ -34,18 +34,18 @@ jobs:
 
       - name: Confirm Copilot assignment token is configured
         env:
-          GH_TOKEN: ${{ secrets.COPILOT_AGENT_TOKEN }}
+          GH_TOKEN: ${{ secrets.CNSL_DATA_UPDATER_PR_TOKEN }}
         shell: bash
         run: |
           if [[ -z "$GH_TOKEN" ]]; then
-            echo "Repository secret COPILOT_AGENT_TOKEN is required to assign seasonal data reviews to Copilot cloud agent." >&2
+            echo "Repository secret CNSL_DATA_UPDATER_PR_TOKEN is required to assign seasonal data reviews to Copilot cloud agent." >&2
             exit 1
           fi
 
       - name: Check for a pending seasonal data review
         id: pending
         env:
-          GH_TOKEN: ${{ secrets.COPILOT_AGENT_TOKEN }}
+          GH_TOKEN: ${{ secrets.CNSL_DATA_UPDATER_PR_TOKEN }}
         shell: bash
         run: |
           review_url="$(gh issue list --state open --search "${REVIEW_TITLE_PREFIX} in:title" --json url --jq '.[0].url')"
@@ -73,7 +73,7 @@ jobs:
         id: duplicate
         if: steps.source_monitor.outputs.candidate_changed == 'true'
         env:
-          GH_TOKEN: ${{ secrets.COPILOT_AGENT_TOKEN }}
+          GH_TOKEN: ${{ secrets.CNSL_DATA_UPDATER_PR_TOKEN }}
           CANDIDATE_KEY: ${{ steps.source_monitor.outputs.candidate_key }}
         shell: bash
         run: |
@@ -92,7 +92,7 @@ jobs:
       - name: Delegate represented-data review to Copilot
         if: steps.source_monitor.outputs.candidate_changed == 'true' && steps.duplicate.outputs.exists != 'true'
         env:
-          GH_TOKEN: ${{ secrets.COPILOT_AGENT_TOKEN }}
+          GH_TOKEN: ${{ secrets.CNSL_DATA_UPDATER_PR_TOKEN }}
           CANDIDATE_KEY: ${{ steps.source_monitor.outputs.candidate_key }}
         shell: bash
         run: |
