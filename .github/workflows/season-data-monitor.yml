@@ -73,7 +73,7 @@ jobs:
         shell: bash
         run: |
           if [[ -z "$GH_TOKEN" ]]; then
-            echo "Repository secret CNSL_DATA_UPDATER_PR_TOKEN is required to assign annual season-rollover issues to Copilot." >&2
+            echo "Repository secret CNSL_DATA_UPDATER_PR_TOKEN is required to assign annual season-rollover issues to Copilot. The token needs repository read/write access to Actions, Contents, Issues, and Pull requests." >&2
             exit 1
           fi
 
@@ -155,7 +155,7 @@ jobs:
         shell: bash
         run: |
           if [[ -z "$GH_TOKEN" ]]; then
-            echo "Repository secret CNSL_DATA_UPDATER_PR_TOKEN is required to assign seasonal review issues to Copilot." >&2
+            echo "Repository secret CNSL_DATA_UPDATER_PR_TOKEN is required to assign seasonal review issues to Copilot. The token needs repository read/write access to Actions, Contents, Issues, and Pull requests." >&2
             exit 1
           fi
 
