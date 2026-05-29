@@ -170,6 +170,60 @@ function formatPracticeSchedules(practice) {
   return `<section class="practice-schedule" aria-label="Practice schedules"><h3>Practice schedules</h3>${preSeasonHtml}${inSeasonHtml}</section>`;
 }
 
+function formatMeetDate(dateValue) {
+  const date = new Date(`${dateValue}T12:00:00`);
+  if (Number.isNaN(date.getTime())) return TeamsBrowserSafety.escapeHtml(dateValue || 'Date unavailable');
+
+  return TeamsBrowserSafety.escapeHtml(date.toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric'
+  }));
+}
+
+function formatMeetsSchedule(team, meets) {
+  const teamMeets = Array.isArray(meets) ? meets.filter(meet => (
+    meet && (meet.home_team || meet.visiting_team) && PreferencesService.meetIncludesFavoriteTeam(meet, team)
+  )).sort((first, second) => String(first.date || '').localeCompare(String(second.date || ''))) : [];
+  if (teamMeets.length === 0) return '';
+
+  const safeTeamName = TeamsBrowserSafety.escapeHtml(team.name || 'team');
+  const rows = teamMeets.map(meet => {
+    const teams = `${meet.visiting_team || meet.awayTeam || 'Visiting Team'} at ${meet.home_team || meet.homeTeam || 'Home Team'}`;
+    return `
+      <tr>
+        <td>${formatMeetDate(meet.date)}</td>
+        <td>${TeamsBrowserSafety.escapeHtml(meet.name || 'Meet')}</td>
+        <td>${TeamsBrowserSafety.escapeHtml(teams)}</td>
+        <td>${getEnhancedPoolLink(meet.location, '')}</td>
+      </tr>
+    `;
+  }).join('');
+
+  return `
+    <section class="team-meets" aria-label="Meet schedule">
+      <h3>Meet schedule</h3>
+      <details class="practice-schedule__phase team-meets__phase">
+        <summary class="practice-schedule__summary">
+          <span class="practice-schedule__title">Published meets</span>
+          <span class="practice-schedule__toggle-icon" aria-hidden="true">&#9650;</span>
+        </summary>
+        <div class="practice-schedule__body team-meets__body">
+          <div class="team-meets__scroll">
+            <table class="team-meets__table">
+              <caption class="visually-hidden">Published meet schedule for ${safeTeamName}</caption>
+              <thead>
+                <tr><th scope="col">Date</th><th scope="col">Meet</th><th scope="col">Teams</th><th scope="col">Location</th></tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        </div>
+      </details>
+    </section>
+  `;
+}
+
 /**
  * Create a map link for a pool location
  * @param {string} location - Pool location name
@@ -350,6 +404,7 @@ function renderTeams(teams) {
     const agendaTitleId = `team-agenda-title-${String(teamId || teamName).replace(/[^a-zA-Z0-9_-]/g, '-')}`;
     
     const practiceScheduleHtml = formatPracticeSchedules(team.practice);
+    const meetsScheduleHtml = formatMeetsSchedule(team, teamsBrowserDataManager.getMeets().getAllMeets());
     const staffHtml = formatTeamStaff(team.staff);
     
     const upcomingEventsHtml = `
@@ -410,6 +465,8 @@ function renderTeams(teams) {
           ${staffHtml}
 
           ${practiceScheduleHtml}
+
+          ${meetsScheduleHtml}
 
           ${teamUrl || calendarUrl || practiceUrl ? `
             <div class="team-actions team-actions--website">

@@ -116,20 +116,22 @@ describe('TeamScheduleService', () => {
   describe('getDetailedPracticeTeamNames', () => {
     const teams = [{
       name: 'Morning Team',
+      shortName: 'Morning',
       practice: { regular: { season: 'June 19 - July 24', morning: [{ days: 'Tuesday', location: 'Shared Pool', sessions: [{ time: '8:00 - 10:00am' }] }] } }
     }, {
       name: 'Evening Team',
+      shortName: 'Evening',
       practice: { regular: { season: 'June 19 - July 24', evening: [{ day: 'Tuesday', location: 'Shared Pool', sessions: [{ time: '5:00 - 6:30pm' }] }] } }
     }, {
       name: 'Second Evening Team',
       practice: { regular: { season: 'June 19 - July 24', evening: [{ day: 'Tuesday', location: 'Shared Pool', sessions: [{ time: '6:00 - 7:00pm' }] }] } }
     }];
 
-    it('matches detailed practices by date, normalized pool location, and overlapping session time', () => {
+    it('returns short team names for matching detailed practices with a full-name fallback', () => {
       const slot = { startTime: '5:00pm', endTime: '8:00pm' };
       assert.deepEqual(
         TeamScheduleService.getDetailedPracticeTeamNames(teams, 'Shared', new Date('2026-06-23T12:00:00'), slot, TimeUtils),
-        ['Evening Team', 'Second Evening Team']
+        ['Evening', 'Second Evening Team']
       );
       assert.deepEqual(
         TeamScheduleService.getDetailedPracticeTeamNames(teams, 'Shared', new Date('2026-06-24T12:00:00'), slot, TimeUtils),
@@ -141,6 +143,7 @@ describe('TeamScheduleService', () => {
       assert.deepEqual(TeamScheduleService.getTimeRange('5:00 - 6:30pm', TimeUtils), { start: 1020, end: 1110 });
       assert.equal(TeamScheduleService.getTimeRange('bad', TimeUtils), null);
       assert.equal(TeamScheduleService.getTimeRange('8:00pm - 7:00pm', TimeUtils), null);
+      assert.equal(TeamScheduleService.getTimeRange('5:00pm - 6:30pm', { timeStringToMinutes: () => { throw new Error('Invalid time'); } }), null);
     });
   });
 

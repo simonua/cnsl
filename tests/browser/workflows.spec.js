@@ -521,8 +521,24 @@ test('[WF-TEAMS-002] team directory displays collapsed pre-season and in-season 
   await expect(inSeason.locator('.practice-schedule__body')).toBeVisible();
   await expect(inSeason).toContainText('Swansfield Pool');
   await expect(inSeason).toContainText('8:00 - 8:30am');
+  const meets = sundevils.locator('.team-meets');
+  await expect(sundevils.locator('.practice-schedule + .team-meets')).toHaveCount(1);
+  await expect(meets.getByRole('heading', { name: 'Meet schedule' })).toBeVisible();
+  const meetSchedule = meets.locator('.team-meets__phase');
+  await expect(meetSchedule).not.toHaveAttribute('open', '');
+  await expect(meets.locator('.team-meets__scroll')).not.toBeVisible();
+  await meetSchedule.locator('summary').focus();
+  await page.keyboard.press('Enter');
+  await expect(meetSchedule).toHaveAttribute('open', '');
+  await expect(meets.locator('.team-meets__scroll')).toBeVisible();
+  await expect(meets.locator('tbody tr')).toHaveCount(5);
+  const firstMeet = meets.locator('tbody tr').first();
+  await expect(firstMeet).toContainText('Saturday, June 13');
+  await expect(firstMeet).toContainText('Dual Meet #1');
+  await expect(firstMeet).toContainText("Oakland Mills at Clary's Forest, Hawthorn, Swansfield");
+  await expect(firstMeet.getByRole('link', { name: 'Swansfield Pool' })).toHaveAttribute('href', /pools\.html\?pool=/);
   const primaryActions = sundevils.locator('.team-actions--website');
-  await expect(sundevils.locator('.practice-schedule ~ .team-actions--website')).toHaveCount(1);
+  await expect(sundevils.locator('.team-meets + .team-actions--website')).toHaveCount(1);
   await expect(primaryActions.locator('a')).toHaveText(['🌐 Team Website', '📅 Team Calendar', '📅 Practice Schedule']);
   await expect(primaryActions.getByRole('link', { name: 'Team Website' })).toBeVisible();
   await expect(primaryActions.getByRole('link', { name: 'Team Calendar' })).toHaveAttribute('href', /\/page\/calendar$/);
@@ -1286,20 +1302,25 @@ test('[WF-POOLS-009] practice-only schedules identify teams from detailed schedu
 
   const jeffersHill = page.locator('.pool-card').filter({ hasText: 'Jeffers Hill' });
   await jeffersHill.locator('.pool-header__toggle').click();
-  await expect(jeffersHill).toContainText('CNSL Practice Only (Long Reach Marlins)');
+  await expect(jeffersHill).toContainText('CNSL Practice Only');
+  const marlinsName = jeffersHill.locator('.schedule-activity__team-names').filter({ hasText: 'Marlins' }).first();
+  await expect(marlinsName).toBeVisible();
+  expect(await marlinsName.evaluate(element => (
+    element.getBoundingClientRect().top >= element.previousElementSibling.getBoundingClientRect().bottom
+  ))).toBe(true);
 
   const hawthorn = page.locator('.pool-card').filter({ hasText: 'Hawthorn' });
   await hawthorn.locator('.pool-header__toggle').click();
-  await expect(hawthorn).toContainText('CNSL Practice Only (CHS Swim Sundevils)');
+  await expect(hawthorn.locator('.schedule-activity__team-names').filter({ hasText: 'Sundevils' }).first()).toBeVisible();
 
   const hopewell = page.locator('.pool-card').filter({ hasText: 'Hopewell' });
   await hopewell.locator('.pool-header__toggle').click();
-  await expect(hopewell).toContainText('CNSL Practice Only (Huntington Dolphins, Owen Brown Barracudas)');
+  await expect(hopewell.locator('.schedule-activity__team-names').filter({ hasText: 'Dolphins, Barracudas' }).first()).toBeVisible();
 
   const faulknerRidge = page.locator('.pool-card').filter({ hasText: 'Faulkner Ridge' });
   await faulknerRidge.locator('.pool-header__toggle').click();
   await expect(faulknerRidge).toContainText('CNSL Practice Only');
-  await expect(faulknerRidge).not.toContainText('CNSL Practice Only (');
+  await expect(faulknerRidge.locator('.schedule-activity__team-names')).toHaveCount(0);
 });
 
 test('[WF-POOLS-010] practice-only schedules do not infer a team from pool association alone', async ({ page }) => {
@@ -1317,5 +1338,5 @@ test('[WF-POOLS-010] practice-only schedules do not infer a team from pool assoc
   const jeffersHill = page.locator('.pool-card').filter({ hasText: 'Jeffers Hill' });
   await jeffersHill.locator('.pool-header__toggle').click();
   await expect(jeffersHill).toContainText('CNSL Practice Only');
-  await expect(jeffersHill).not.toContainText('CNSL Practice Only (');
+  await expect(jeffersHill.locator('.schedule-activity__team-names')).toHaveCount(0);
 });

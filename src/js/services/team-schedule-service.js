@@ -159,7 +159,7 @@ if (typeof window === 'undefined' || !window.TeamScheduleService) {
           const sessionRange = TeamScheduleService.getTimeRange(session.time, timeUtils);
           return sessionRange && sessionRange.start < slotRange.end && sessionRange.end > slotRange.start;
         });
-      })).map(team => team.name);
+      })).map(team => team.shortName || team.name);
     }
 
     static normalizePoolName(poolName) {

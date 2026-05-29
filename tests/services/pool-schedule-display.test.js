@@ -144,16 +144,16 @@ describe('PoolScheduleDisplay', () => {
       assert.doesNotMatch(plain, /schedule-activity--event/);
     });
 
-    it('identifies resolved CNSL practice teams and escapes their names', () => {
+    it('renders resolved CNSL practice teams on a separate escaped secondary line', () => {
       const day = { isCurrentDay: false };
       const slot = { startTime: '5:00PM', endTime: '6:30PM', activities: ['CNSL Practice Only'], notes: '' };
       const named = PoolScheduleDisplay.renderSlot({ ...slot, practiceTeamNames: ['Long Reach <Marlins>', 'Second Team'] }, day, options, false);
       const unnamed = PoolScheduleDisplay.renderSlot(slot, day, options, false);
 
-      assert.match(named, /CNSL Practice Only \(Long Reach &lt;Marlins&gt;, Second Team\)/);
+      assert.match(named, /<span class="schedule-activity__label">CNSL Practice Only<\/span><span class="schedule-activity__team-names">Long Reach &lt;Marlins&gt;, Second Team<\/span>/);
       assert.doesNotMatch(named, /<Marlins>/);
       assert.match(unnamed, />CNSL Practice Only</);
-      assert.doesNotMatch(unnamed, /CNSL Practice Only \(/);
+      assert.doesNotMatch(unnamed, /schedule-activity__team-names/);
     });
 
     it('installs the display service as a browser script global', () => {

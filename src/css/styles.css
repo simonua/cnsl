@@ -2908,6 +2908,12 @@ button.pool-filter__clear:focus-visible {
   margin-left: 0.35rem;
 }
 
+.pool-schedule-list .schedule-activity__team-names {
+  color: var(--text-muted);
+  display: block;
+  margin: 0.1rem 0 0 10.35rem;
+}
+
 .schedule-calendar {
   align-items: stretch;
   display: flex;
@@ -2990,6 +2996,7 @@ button.pool-filter__clear:focus-visible {
 }
 
 .schedule-calendar .schedule-activity__label,
+.schedule-calendar .schedule-activity__team-names,
 .schedule-calendar .schedule-activity__note {
   display: block;
   font-size: 0.8rem;
@@ -3003,6 +3010,11 @@ button.pool-filter__clear:focus-visible {
 .schedule-calendar .schedule-activity__note {
   color: var(--text-muted);
   margin-top: 0.2rem;
+}
+
+.schedule-calendar .schedule-activity__team-names {
+  color: var(--text-muted);
+  margin-top: 0.15rem;
 }
 
 .schedule-calendar .override-notice {
@@ -3666,11 +3678,13 @@ button.pool-filter__clear:focus-visible {
   width: 1.15rem;
 }
 
-.practice-schedule {
+.practice-schedule,
+.team-meets {
   margin: 0.75rem 0;
 }
 
-.practice-schedule h3 {
+.practice-schedule h3,
+.team-meets h3 {
   color: var(--primary-color);
   margin-bottom: 0.75rem;
   font-weight: 600;
@@ -3793,9 +3807,46 @@ button.pool-filter__clear:focus-visible {
 }
 
 @media (min-width: 48.0625rem) {
-  .practice-schedule {
+  .practice-schedule,
+  .team-meets {
     max-width: 45rem;
   }
+}
+
+.team-meets__scroll {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  overflow-x: auto;
+}
+
+.team-meets__table {
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  min-width: 38rem;
+  text-align: left;
+  width: 100%;
+}
+
+.team-meets__table th {
+  background: var(--primary-soft-bg-strong);
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+.team-meets__table th,
+.team-meets__table td {
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.65rem 0.7rem;
+  vertical-align: top;
+}
+
+.team-meets__table tr:last-child td {
+  border-bottom: 0;
+}
+
+.team-meets__table td:first-child,
+.team-meets__table td:nth-child(2) {
+  white-space: nowrap;
 }
 
 .team-staff {

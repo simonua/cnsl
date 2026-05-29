@@ -158,7 +158,8 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
      */
     static renderSlot(slot, day, options, useActivityColors) {
       const timeUtils = options.timeUtils;
-      const activityText = PoolScheduleDisplay.formatActivityText(slot.activities, slot.practiceTeamNames, timeUtils);
+      const activityText = PoolScheduleDisplay.formatActivityText(slot.activities, timeUtils);
+      const practiceTeamText = PoolScheduleDisplay.formatPracticeTeamText(slot.activities, slot.practiceTeamNames);
       const category = PoolScheduleDisplay.getActivityCategory(activityText, slot);
       const activityClass = useActivityColors ? ` schedule-activity schedule-activity--${category}` : '';
       const overrideClass = slot.isOverride ? ' override-slot' : '';
@@ -166,8 +167,11 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
       const timeHtml = timeUtils.formatTimeRangeWithHighlight(timeRange, day.isCurrentDay, null, options.poolStatus);
       const safeActivityText = PoolScheduleDisplay.escapeHtml(activityText);
       const restrictedClass = category === 'restricted' ? ' closed-to-public' : '';
+      const practiceTeamHtml = practiceTeamText
+        ? `<span class="schedule-activity__team-names">${PoolScheduleDisplay.escapeHtml(practiceTeamText)}</span>`
+        : '';
       const activityHtml = safeActivityText
-        ? `<span class="schedule-activity__label${restrictedClass}">${safeActivityText}</span>`
+        ? `<span class="schedule-activity__label${restrictedClass}">${safeActivityText}</span>${practiceTeamHtml}`
         : '';
       const notesHtml = slot.notes
         ? `<span class="schedule-activity__note">${PoolScheduleDisplay.escapeHtml(slot.notes)}</span>`
@@ -177,18 +181,24 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
     }
 
     /**
-     * Add practicing team names already resolved from published schedule details.
      * @param {Array} activities - Published activity labels
-     * @param {string[]} practiceTeamNames - Team names resolved from published schedule details
      * @param {Object} timeUtils - Existing published activity formatter
      * @returns {string} Formatted activity text
      */
-    static formatActivityText(activities, practiceTeamNames = [], timeUtils) {
+    static formatActivityText(activities, timeUtils) {
+      return timeUtils.formatActivityTypes(activities);
+    }
+
+    /**
+     * Return teams resolved from detailed CNSL practice schedules for a secondary label.
+     * @param {Array} activities - Published activity labels
+     * @param {string[]} practiceTeamNames - Team names resolved from published schedule details
+     * @returns {string} Formatted practicing team names
+     */
+    static formatPracticeTeamText(activities, practiceTeamNames = []) {
+      if (!Array.isArray(activities) || !activities.includes('CNSL Practice Only')) return '';
       const names = Array.isArray(practiceTeamNames) ? practiceTeamNames.filter(name => typeof name === 'string' && name.trim()) : [];
-      const displayedActivities = names.length > 0 && Array.isArray(activities)
-        ? activities.map(activity => activity === 'CNSL Practice Only' ? `${activity} (${names.join(', ')})` : activity)
-        : activities;
-      return timeUtils.formatActivityTypes(displayedActivities);
+      return names.join(', ');
     }
 
     /**
