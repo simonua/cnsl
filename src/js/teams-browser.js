@@ -175,10 +175,14 @@ function formatMeetDate(dateValue) {
   if (Number.isNaN(date.getTime())) return TeamsBrowserSafety.escapeHtml(dateValue || 'Date unavailable');
 
   return TeamsBrowserSafety.escapeHtml(date.toLocaleDateString('en-US', {
-    weekday: 'long',
     month: 'long',
     day: 'numeric'
   }));
+}
+
+function formatMeetTeamLabel(label, team) {
+  const safeLabel = TeamsBrowserSafety.escapeHtml(label);
+  return PreferencesService.teamMatchesLabel(team, label) ? `<strong>${safeLabel}</strong>` : safeLabel;
 }
 
 function formatMeetsSchedule(team, meets) {
@@ -189,12 +193,14 @@ function formatMeetsSchedule(team, meets) {
 
   const safeTeamName = TeamsBrowserSafety.escapeHtml(team.name || 'team');
   const rows = teamMeets.map(meet => {
-    const teams = `${meet.visiting_team || meet.awayTeam || 'Visiting Team'} at ${meet.home_team || meet.homeTeam || 'Home Team'}`;
+    const awayTeam = meet.visiting_team || meet.awayTeam || 'Away Team';
+    const homeTeam = meet.home_team || meet.homeTeam || 'Home Team';
     return `
       <tr>
         <td>${formatMeetDate(meet.date)}</td>
         <td>${TeamsBrowserSafety.escapeHtml(meet.name || 'Meet')}</td>
-        <td>${TeamsBrowserSafety.escapeHtml(teams)}</td>
+        <td>${formatMeetTeamLabel(awayTeam, team)}</td>
+        <td>${formatMeetTeamLabel(homeTeam, team)}</td>
         <td>${getEnhancedPoolLink(meet.location, '')}</td>
       </tr>
     `;
@@ -203,23 +209,15 @@ function formatMeetsSchedule(team, meets) {
   return `
     <section class="team-meets" aria-label="Meet schedule">
       <h3>Meet schedule</h3>
-      <details class="practice-schedule__phase team-meets__phase">
-        <summary class="practice-schedule__summary">
-          <span class="practice-schedule__title">Published meets</span>
-          <span class="practice-schedule__toggle-icon" aria-hidden="true">&#9650;</span>
-        </summary>
-        <div class="practice-schedule__body team-meets__body">
-          <div class="team-meets__scroll">
-            <table class="team-meets__table">
-              <caption class="visually-hidden">Published meet schedule for ${safeTeamName}</caption>
-              <thead>
-                <tr><th scope="col">Date</th><th scope="col">Meet</th><th scope="col">Teams</th><th scope="col">Location</th></tr>
-              </thead>
-              <tbody>${rows}</tbody>
-            </table>
-          </div>
-        </div>
-      </details>
+      <div class="team-meets__scroll">
+        <table class="team-meets__table">
+          <caption class="visually-hidden">Meet schedule for ${safeTeamName}</caption>
+          <thead>
+            <tr><th scope="col">Date</th><th scope="col">Meet</th><th scope="col">Away</th><th scope="col">Home</th><th scope="col">Location</th></tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
     </section>
   `;
 }

@@ -1078,10 +1078,6 @@ button.favorite-week__toggle {
   text-align: center;
 }
 
-#favoriteWeek .favorite-week__directory-link {
-  margin-inline: auto;
-}
-
 .favorite-week__toggle-icon {
   align-items: center;
   display: inline-flex;
@@ -1128,34 +1124,6 @@ button.favorite-week__toggle:focus-visible {
 
 .favorite-week__content[hidden] {
   display: none;
-}
-
-.favorite-week__directory-link {
-  align-items: center;
-  background-color: var(--white);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  color: var(--primary-text-color);
-  display: flex;
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin: 0.75rem 0;
-  padding: 0.3rem 0.55rem;
-  text-decoration: none;
-  transition: var(--transition);
-  width: fit-content;
-}
-
-.favorite-week__directory-link:hover {
-  background-color: var(--light-bg);
-  border-color: var(--primary-color);
-  text-decoration: underline;
-  text-underline-offset: 0.18rem;
-}
-
-.favorite-week__directory-link:focus-visible {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 0.15rem;
 }
 
 .favorite-week__status {
@@ -1275,15 +1243,6 @@ button.favorite-week__toggle:focus-visible {
   stroke-linejoin: round;
   stroke-width: 1.75;
   width: 100%;
-}
-
-@media (min-width: 48.0625rem) {
-  #favoriteWeek .favorite-week__directory-link {
-    inset-block-start: 1.1rem;
-    inset-inline-end: 0;
-    margin: 0;
-    position: absolute;
-  }
 }
 
 /* Share Site Section */

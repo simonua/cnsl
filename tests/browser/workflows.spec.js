@@ -524,18 +524,16 @@ test('[WF-TEAMS-002] team directory displays collapsed pre-season and in-season 
   const meets = sundevils.locator('.team-meets');
   await expect(sundevils.locator('.practice-schedule + .team-meets')).toHaveCount(1);
   await expect(meets.getByRole('heading', { name: 'Meet schedule' })).toBeVisible();
-  const meetSchedule = meets.locator('.team-meets__phase');
-  await expect(meetSchedule).not.toHaveAttribute('open', '');
-  await expect(meets.locator('.team-meets__scroll')).not.toBeVisible();
-  await meetSchedule.locator('summary').focus();
-  await page.keyboard.press('Enter');
-  await expect(meetSchedule).toHaveAttribute('open', '');
+  await expect(meets.getByText('Published meets')).toHaveCount(0);
   await expect(meets.locator('.team-meets__scroll')).toBeVisible();
+  await expect(meets.locator('thead th')).toHaveText(['Date', 'Meet', 'Away', 'Home', 'Location']);
   await expect(meets.locator('tbody tr')).toHaveCount(5);
   const firstMeet = meets.locator('tbody tr').first();
-  await expect(firstMeet).toContainText('Saturday, June 13');
-  await expect(firstMeet).toContainText('Dual Meet #1');
-  await expect(firstMeet).toContainText("Oakland Mills at Clary's Forest, Hawthorn, Swansfield");
+  await expect(firstMeet.locator('td').nth(0)).toHaveText('June 13');
+  await expect(firstMeet.locator('td').nth(1)).toHaveText('Dual Meet #1');
+  await expect(firstMeet.locator('td').nth(2)).toHaveText('Oakland Mills');
+  await expect(firstMeet.locator('td').nth(3).locator('strong')).toHaveText("Clary's Forest, Hawthorn, Swansfield");
+  await expect(meets.locator('tbody tr').nth(1).locator('td').nth(2).locator('strong')).toHaveText("Clary's Forest, Hawthorn, Swansfield");
   await expect(firstMeet.getByRole('link', { name: 'Swansfield Pool' })).toHaveAttribute('href', /pools\.html\?pool=/);
   const primaryActions = sundevils.locator('.team-actions--website');
   await expect(sundevils.locator('.team-meets + .team-actions--website')).toHaveCount(1);
@@ -644,8 +642,7 @@ test('[WF-AGENDA-002] home page shows the next practices and swim event for a se
   await expect(agenda).toBeVisible();
   await expect(agenda.getByRole('heading', { name: /Upcoming Snappers events/ })).toBeVisible();
   await expect(agenda.locator('.favorite-badge')).toHaveCount(0);
-  const teamDetailsLink = agenda.getByRole('link', { name: 'Team details' });
-  await expect(teamDetailsLink).toBeVisible();
+  await expect(agenda.getByRole('link', { name: 'Team details' })).toHaveCount(0);
   await expect(page.locator('#favoriteWeekStatus')).toBeHidden();
   await expect(agenda.locator('.favorite-week__events li')).toHaveCount(3);
   await expect(agenda).toContainText('Tuesday, May 26');
@@ -669,10 +666,8 @@ test('[WF-AGENDA-002] home page shows the next practices and swim event for a se
   await toggle.press('Enter');
   await expect(toggle).toHaveAttribute('aria-expanded', 'false');
   await expect(page.locator('#favoriteWeekContent')).toBeHidden();
-  await expect(teamDetailsLink).toBeHidden();
   await toggle.press('Enter');
   await expect(page.locator('#favoriteWeekContent')).toBeVisible();
-  await expect(teamDetailsLink).toBeVisible();
 });
 
 test('[WF-HOME-002] home page keeps its three-link rows intact on narrow phones', async ({ page }) => {
