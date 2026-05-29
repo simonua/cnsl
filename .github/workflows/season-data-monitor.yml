@@ -93,17 +93,22 @@ jobs:
           tasks_file="$RUNNER_TEMP/season-rollover-tasks.jsonl"
           : > "$tasks_file"
           for archived in false true; do
-            while IFS= read -r task_id; do
-              gh api \
-                -H 'Accept: application/vnd.github+json' \
-                -H 'X-GitHub-Api-Version: 2026-03-10' \
-                "/agents/repos/${GITHUB_REPOSITORY}/tasks/${task_id}" >> "$tasks_file"
-            done < <(gh api \
+            if ! task_ids="$(gh api \
               -H 'Accept: application/vnd.github+json' \
               -H 'X-GitHub-Api-Version: 2026-03-10' \
               "/agents/repos/${GITHUB_REPOSITORY}/tasks?per_page=100&sort=created_at&direction=desc&is_archived=${archived}" \
               --paginate \
-              --jq '.tasks[].id')
+              --jq '.tasks[].id')"; then
+              echo "Unable to read Copilot Agent Tasks for ${GITHUB_REPOSITORY}. Replace CNSL_DATA_UPDATER_PR_TOKEN with a supported user token that has access to this repository and Agent tasks read/write permission." >&2
+              exit 1
+            fi
+            while IFS= read -r task_id; do
+              [[ -z "$task_id" ]] && continue
+              gh api \
+                -H 'Accept: application/vnd.github+json' \
+                -H 'X-GitHub-Api-Version: 2026-03-10' \
+                "/agents/repos/${GITHUB_REPOSITORY}/tasks/${task_id}" >> "$tasks_file"
+            done <<< "$task_ids"
           done
           existing_url="$(jq -rs --arg marker "$marker" '
             [.[] | select(any(.sessions[]?; (.prompt // "") | contains($marker)))
@@ -200,17 +205,22 @@ jobs:
           tasks_file="$RUNNER_TEMP/season-data-agent-tasks.jsonl"
           : > "$tasks_file"
           for archived in false true; do
-            while IFS= read -r task_id; do
-              gh api \
-                -H 'Accept: application/vnd.github+json' \
-                -H 'X-GitHub-Api-Version: 2026-03-10' \
-                "/agents/repos/${GITHUB_REPOSITORY}/tasks/${task_id}" >> "$tasks_file"
-            done < <(gh api \
+            if ! task_ids="$(gh api \
               -H 'Accept: application/vnd.github+json' \
               -H 'X-GitHub-Api-Version: 2026-03-10' \
               "/agents/repos/${GITHUB_REPOSITORY}/tasks?per_page=100&sort=created_at&direction=desc&is_archived=${archived}" \
               --paginate \
-              --jq '.tasks[].id')
+              --jq '.tasks[].id')"; then
+              echo "Unable to read Copilot Agent Tasks for ${GITHUB_REPOSITORY}. Replace CNSL_DATA_UPDATER_PR_TOKEN with a supported user token that has access to this repository and Agent tasks read/write permission." >&2
+              exit 1
+            fi
+            while IFS= read -r task_id; do
+              [[ -z "$task_id" ]] && continue
+              gh api \
+                -H 'Accept: application/vnd.github+json' \
+                -H 'X-GitHub-Api-Version: 2026-03-10' \
+                "/agents/repos/${GITHUB_REPOSITORY}/tasks/${task_id}" >> "$tasks_file"
+            done <<< "$task_ids"
           done
           existing_url="$(jq -rs --arg candidate_key "$CANDIDATE_KEY" \
             '[.[] | select(any(.sessions[]?; (.prompt // "") | contains($candidate_key)))][0].html_url // empty' \
