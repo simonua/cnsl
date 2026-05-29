@@ -9,7 +9,6 @@ const { TeamScheduleService } = require('../src/js/services/team-schedule-servic
 
 const DOMAINS = Object.freeze(['pools', 'meets', 'teams']);
 const REPOSITORY_ROOT = path.resolve(__dirname, '..');
-const LANE_LENGTH_UNITS_BY_COUNT = Object.freeze({ 6: 'meters', 8: 'yards' });
 
 async function readJson(filePath) {
   return JSON.parse(await fs.readFile(filePath, 'utf8'));
@@ -106,9 +105,8 @@ function collectIntegrityErrors({ meetsData, poolsData, season, teamsData }) {
   validateHttpsUrl(errors, 'CA pool guide URL', poolsData.caPoolGuideUrl);
 
   pools.forEach((pool) => {
-    const expectedLaneLengthUnits = LANE_LENGTH_UNITS_BY_COUNT[pool.laneCount];
-    if (expectedLaneLengthUnits && pool.laneLengthUnits !== expectedLaneLengthUnits) {
-      errors.push(`${pool.name} lane length units must be ${expectedLaneLengthUnits} for a ${pool.laneCount}-lane pool.`);
+    if (Number.isFinite(pool.laneLength) && pool.laneLength > 0 && !['meters', 'yards'].includes(pool.laneLengthUnits)) {
+      errors.push(`${pool.name} lane measurement units must be provided when lane length is known.`);
     }
     validateHttpsUrl(errors, `${pool.name} CA source URL`, pool.caUrl);
     validateHttpsUrl(errors, `${pool.name} schedule URL`, pool.scheduleUrl);

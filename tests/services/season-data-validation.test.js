@@ -52,6 +52,7 @@ describe('season data validation', () => {
             location: { googleMapsUrl: 'https://maps.google.com/known' },
             laneCount: 6,
             laneLengthUnits: 'yards',
+            laneLength: 25,
             schedules: []
           }]
         },
@@ -86,7 +87,26 @@ describe('season data validation', () => {
       assert.ok(errors.includes('Known Team calendar URL must use HTTPS: http://teams.test/calendar.'));
       assert.ok(errors.includes('Known Team booster URL must use HTTPS: http://teams.test/booster.'));
       assert.ok(errors.includes('Regular meet 1 references an unknown team alias: missing team.'));
-      assert.ok(errors.includes('Known Pool lane length units must be meters for a 6-lane pool.'));
+      assert.ok(!errors.some((error) => error.includes('Known Pool lane measurement')));
+    });
+
+    it('should reject a known lane length without measurement units', () => {
+      const errors = collectIntegrityErrors({
+        season: 2026,
+        poolsData: {
+          caPoolDirectoryUrl: 'https://pools.test/directory', caPoolGuideUrl: 'https://pools.test/guide',
+          seasonStartDate: '2026-05-23', seasonEndDate: '2026-09-07',
+          pools: [{
+            id: 'pool', name: 'Known Pool', caUrl: 'https://pools.test/known',
+            scheduleUrl: 'https://pools.test/Known_Pool.pdf', location: { googleMapsUrl: 'https://maps.google.com/known' },
+            laneCount: 6, laneLengthUnits: null, laneLength: 25, schedules: []
+          }]
+        },
+        teamsData: { teams: [] },
+        meetsData: { url: 'https://league.test/meets.pdf', regular_meets: [], special_meets: [] }
+      });
+
+      assert.ok(errors.includes('Known Pool lane measurement units must be provided when lane length is known.'));
     });
 
     it('should reject detailed practice recurrence text that cannot render', () => {

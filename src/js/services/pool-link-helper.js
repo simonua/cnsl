@@ -62,12 +62,14 @@ function getPoolDataFromLocation(locationName, dataManager, poolsOrIndex = null)
 /**
  * Format modeled lane metadata for course-sensitive meet planning.
  * @param {Object|null} poolData - Published pool data resolved from a meet location
- * @returns {string} Compact lane and unit description, when available
+ * @returns {string} Compact lane, length, and unit description, when available
  */
 function formatPoolCourseLabel(poolData) {
   const laneCount = Number.isInteger(poolData?.laneCount) && poolData.laneCount > 0 ? poolData.laneCount : null;
   const laneUnit = { meters: 'meter', yards: 'yard' }[poolData?.laneLengthUnits];
-  return laneCount && laneUnit ? `${laneCount}-lane / ${laneUnit}` : '';
+  const laneLength = Number.isFinite(poolData?.laneLength) && poolData.laneLength > 0 ? poolData.laneLength : null;
+  if (!laneCount || !laneUnit) return '';
+  return laneLength ? `${laneCount}-lane / ${laneLength}-${laneUnit}` : `${laneCount}-lane / ${laneUnit}`;
 }
 
 /**

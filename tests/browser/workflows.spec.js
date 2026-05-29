@@ -546,7 +546,7 @@ test('[WF-TEAMS-002] team directory displays collapsed pre-season and in-season 
   await expect(firstMeet).toHaveClass(/team-meets__row--home/);
   await expect(firstMeet.locator('.team-meets__matchup')).toHaveText("Clary's Forest, Hawthorn, Swansfield vs. Oakland Mills");
   await expect(firstMeet.locator('.team-meets__matchup strong')).toHaveText("Clary's Forest, Hawthorn, Swansfield");
-  await expect(firstMeet.locator('.team-meets__course')).toHaveText('6-lane / meter');
+  await expect(firstMeet.locator('.team-meets__course')).toHaveText('6-lane / 25-yard');
   const awayMeet = meets.locator('tbody tr').nth(1);
   await expect(awayMeet).not.toHaveClass(/team-meets__row--home/);
   await expect(awayMeet.locator('.team-meets__matchup')).toHaveText("Owen Brown vs. Clary's Forest, Hawthorn, Swansfield");
@@ -823,8 +823,9 @@ test('[WF-MEETS-001] meet pool links reveal the destination below the mobile fix
   });
   await page.goto('/meets.html');
   await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
-  await expect(page.locator('.meet-course').filter({ hasText: '6-lane / meter' }).first()).toBeVisible();
-  await expect(page.locator('.meet-course').filter({ hasText: '8-lane / yard' }).first()).toBeVisible();
+  await expect(page.locator('.meet-course').filter({ hasText: '6-lane / 25-meter' }).first()).toBeVisible();
+  await expect(page.locator('.meet-course').filter({ hasText: '6-lane / 25-yard' }).first()).toBeVisible();
+  await expect(page.locator('.meet-course').filter({ hasText: '8-lane / 25-yard' }).first()).toBeVisible();
 
   const poolLink = page.locator('.pool-link').last();
   const targetPoolId = await poolLink.evaluate(link => new URL(link.href).searchParams.get('pool'));

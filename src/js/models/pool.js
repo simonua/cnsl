@@ -51,6 +51,7 @@ if (typeof window === 'undefined') {
     this.website = poolData.website || '';
     this.laneCount = Number.isInteger(poolData.laneCount) && poolData.laneCount > 0 ? poolData.laneCount : null;
     this.laneLengthUnits = ['meters', 'yards'].includes(poolData.laneLengthUnits) ? poolData.laneLengthUnits : null;
+    this.laneLength = Number.isFinite(poolData.laneLength) && poolData.laneLength > 0 ? poolData.laneLength : null;
     this.features = poolData.features || [];
     this.amenities = poolData.amenities || [];
     this.divingBoard = poolData.divingBoard || false;
@@ -1094,6 +1095,7 @@ if (typeof window === 'undefined') {
       website: this.website,
       laneCount: this.laneCount,
       laneLengthUnits: this.laneLengthUnits,
+      laneLength: this.laneLength,
       features: this.features,
       amenities: this.amenities,
       divingBoard: this.divingBoard,

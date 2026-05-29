@@ -52,6 +52,7 @@
  * @property {string} [website]
  * @property {number} laneCount
  * @property {'meters'|'yards'|null} laneLengthUnits
+ * @property {number|null} laneLength
  * @property {string[]} features
  * @property {string[]} [amenities]
  * @property {boolean} [divingBoard]

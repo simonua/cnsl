@@ -88,8 +88,9 @@ describe('pool-link-helper', () => {
 
   describe('formatPoolCourseLabel', () => {
     it('formats complete semantic lane metadata and omits incomplete combinations', () => {
-      assert.equal(formatPoolCourseLabel({ laneCount: 6, laneLengthUnits: 'meters' }), '6-lane / meter');
-      assert.equal(formatPoolCourseLabel({ laneCount: 8, laneLengthUnits: 'yards' }), '8-lane / yard');
+      assert.equal(formatPoolCourseLabel({ laneCount: 6, laneLength: 25, laneLengthUnits: 'meters' }), '6-lane / 25-meter');
+      assert.equal(formatPoolCourseLabel({ laneCount: 6, laneLength: 25, laneLengthUnits: 'yards' }), '6-lane / 25-yard');
+      assert.equal(formatPoolCourseLabel({ laneCount: 6, laneLength: null, laneLengthUnits: 'yards' }), '6-lane / yard');
       assert.equal(formatPoolCourseLabel({ laneCount: 6, laneLengthUnits: null }), '');
       assert.equal(formatPoolCourseLabel(null), '');
     });
