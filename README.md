@@ -61,7 +61,7 @@ pnpm run build
 pnpm run verify:pwa
 ```
 
-Playwright browser verification is deferred to the `Nightly Browser Verification` GitHub Actions workflow. Each day during May, June, and July, it compares the current `main` revision with the preceding scheduled run and runs Chromium workflow and automated WCAG A/AA checks only after repository updates. Browser results are reported separately and do not delay or block a GitHub Pages build. Use the [Release Verification Checklist](docs/release-checklist.md) for the secure-origin installed-PWA and manual assistive-technology checks that automation cannot establish.
+Playwright browser verification is deferred to the `Nightly Browser Verification` GitHub Actions workflow. Each day during May, June, and July, its scheduled check runs Chromium workflow and automated WCAG A/AA checks only when a push to `main` was recorded during the preceding 24 hours. It can also be run on demand through workflow dispatch. Browser results are reported separately and do not delay or block a GitHub Pages build. Use the [Release Verification Checklist](docs/release-checklist.md) for the secure-origin installed-PWA and manual assistive-technology checks that automation cannot establish.
 
 Design and maintenance decisions are recorded in [Runtime And Stylesheet Ownership](docs/runtime-architecture.md) and [Security And Privacy Decision](docs/security-privacy.md).
 
@@ -79,7 +79,7 @@ This project uses GitHub Actions to automatically build and deploy the website t
 8. Uploads the built files as an artifact
 9. Deploys the artifact to GitHub Pages
 
-Separately, the May-to-July daily browser-verification workflow runs Playwright only when the repository head has changed since its previous scheduled run.
+Separately, the May-to-July daily browser-verification workflow runs Playwright after a push to `main` in the preceding 24 hours, or when manually dispatched.
 
 Workflow configurations are located in `.github/workflows/build-deploy.yml` and `.github/workflows/nightly-browser-verification.yml`.
 

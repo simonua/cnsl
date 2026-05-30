@@ -15,7 +15,7 @@ pnpm run build
 pnpm run verify:pwa
 ```
 
-Record the command results in the pull request or release record. `pnpm run verify:pwa` reports the public artifact footprint, requires that only the configured active season's data is emitted, and prevents retained annual evidence PDFs from entering the deployment. GitHub Actions runs the high-severity dependency audit as a required pre-deployment gate. Playwright is intentionally excluded from local release verification and the Pages build: the nightly browser-verification workflow runs Chromium workflows and automated WCAG A/AA scans only after the repository has changed since its previous scheduled run, without blocking deployment.
+Record the command results in the pull request or release record. `pnpm run verify:pwa` reports the public artifact footprint, requires that only the configured active season's data is emitted, and prevents retained annual evidence PDFs from entering the deployment. GitHub Actions runs the high-severity dependency audit as a required pre-deployment gate. Playwright is intentionally excluded from local release verification and the Pages build: the nightly browser-verification workflow runs Chromium workflows and automated WCAG A/AA scans after a push to `main` in the preceding 24 hours, or when manually dispatched, without blocking deployment.
 
 ## Secure-Origin PWA Review
 

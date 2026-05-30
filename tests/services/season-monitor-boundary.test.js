@@ -52,6 +52,12 @@ describe('season monitor evidence boundary', () => {
 
       assert.match(browser, /Runs daily at 05:47 UTC during May, June, and July only/);
       assert.match(browser, /cron: '47 5 \* 5-7 \*'/);
+      assert.match(browser, /workflow_dispatch:/);
+      assert.match(browser, /Running browser verification requested through workflow dispatch/);
+      assert.match(browser, /date --utc --date='24 hours ago'/);
+      assert.match(browser, /actions\/workflows\/build-deploy\.yml\/runs/);
+      assert.match(browser, /-f event='push'/);
+      assert.match(browser, /-f branch='main'/);
       assert.doesNotMatch(workflowFiles.join('\n'), /season-data-monitor|refactoring-audit/);
     });
 

@@ -67,7 +67,7 @@ Run `.\start.ps1` (Windows) or `./start.sh` (macOS/Linux) for an interactive men
 - The nightly workflow must run Playwright through `pnpm run test:browser:nightly`. The Playwright configuration serializes invocations for the same workspace, waiting for an existing browser-test process to finish and recovering locks abandoned by interrupted runs.
 - When an explicitly requested or nightly `pnpm run test:browser:nightly` run is blocked by a long-running idle lock holder, inspect the owning process command line and activity. If it is a persistent Playwright `test-server` process for this workspace, has produced no test progress while blocking the requested run, and has remained idle for at least 15 minutes, automatically terminate only that `test-server` process and allow the queued command to recover the abandoned lock. Do not terminate an active Playwright test execution, a process still reporting test progress, or the shared development server.
 - The complete local release gate is defined in [docs/release-checklist.md](../../docs/release-checklist.md); it is a publishing checkpoint rather than the default iteration loop.
-- The GitHub Pages build contains no Playwright setup or execution. A nightly GitHub Actions workflow runs `pnpm run test:browser:nightly` only when `main` has a different head revision from its prior scheduled run, and its result does not block deployment.
+- The GitHub Pages build contains no Playwright setup or execution. A nightly GitHub Actions workflow runs `pnpm run test:browser:nightly` after a push to `main` in the preceding 24 hours, or when manually dispatched, and its result does not block deployment.
 
 ## Linting
 

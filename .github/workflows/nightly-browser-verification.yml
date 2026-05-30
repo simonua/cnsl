@@ -1,6 +1,7 @@
 name: Nightly Browser Verification
 
 on:
+  workflow_dispatch:
   schedule:
     # Runs daily at 05:47 UTC during May, June, and July only.
     - cron: '47 5 * 5-7 *'
@@ -16,60 +17,70 @@ jobs:
   browser-verification:
     runs-on: ubuntu-latest
     steps:
-      - name: Check for repository updates since the previous nightly run
-        id: changes
+      - name: Determine whether to run browser verification
+        id: decision
         env:
+          EVENT_NAME: ${{ github.event_name }}
           GH_TOKEN: ${{ github.token }}
-          CURRENT_RUN_ID: ${{ github.run_id }}
-          CURRENT_SHA: ${{ github.sha }}
         shell: bash
         run: |
-          runs_json="$(gh api \
+          if [[ "$EVENT_NAME" == 'workflow_dispatch' ]]; then
+            echo "run_tests=true" >> "$GITHUB_OUTPUT"
+            echo "Running browser verification requested through workflow dispatch." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          window_start="$(date --utc --date='24 hours ago' '+%Y-%m-%dT%H:%M:%SZ')"
+          push_runs_json="$(gh api \
             -H 'Accept: application/vnd.github+json' \
             -H 'X-GitHub-Api-Version: 2022-11-28' \
-            "/repos/${GITHUB_REPOSITORY}/actions/workflows/nightly-browser-verification.yml/runs?event=schedule&per_page=10")"
-          previous_sha="$(jq -r --argjson current_run "$CURRENT_RUN_ID" \
-            '[.workflow_runs[] | select(.id != $current_run)][0].head_sha // empty' <<< "$runs_json")"
+            --method GET \
+            -f event='push' \
+            -f branch='main' \
+            -f created=">=${window_start}" \
+            -f per_page=1 \
+            "/repos/${GITHUB_REPOSITORY}/actions/workflows/build-deploy.yml/runs")"
+          recent_push_run_count="$(jq -r '.total_count' <<< "$push_runs_json")"
 
-          if [[ -z "$previous_sha" || "$previous_sha" != "$CURRENT_SHA" ]]; then
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-            echo "Running browser verification for updated revision ${CURRENT_SHA}." >> "$GITHUB_STEP_SUMMARY"
+          if (( recent_push_run_count > 0 )); then
+            echo "run_tests=true" >> "$GITHUB_OUTPUT"
+            echo "Running browser verification after a push to main in the last 24 hours." >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "Skipping browser verification: main is unchanged since the prior nightly run (${CURRENT_SHA})." >> "$GITHUB_STEP_SUMMARY"
+            echo "run_tests=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping browser verification: no push to main was recorded in the last 24 hours." >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Checkout
-        if: steps.changes.outputs.changed == 'true'
+        if: steps.decision.outputs.run_tests == 'true'
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
       - name: Setup pnpm
-        if: steps.changes.outputs.changed == 'true'
+        if: steps.decision.outputs.run_tests == 'true'
         uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
         with:
           version: 10
 
       - name: Setup Node.js
-        if: steps.changes.outputs.changed == 'true'
+        if: steps.decision.outputs.run_tests == 'true'
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: 24
           cache: 'pnpm'
 
       - name: Install dependencies
-        if: steps.changes.outputs.changed == 'true'
+        if: steps.decision.outputs.run_tests == 'true'
         run: pnpm install --frozen-lockfile
 
       - name: Build project for browser verification
-        if: steps.changes.outputs.changed == 'true'
+        if: steps.decision.outputs.run_tests == 'true'
         run: pnpm run build
 
       - name: Install Chromium for browser verification
-        if: steps.changes.outputs.changed == 'true'
+        if: steps.decision.outputs.run_tests == 'true'
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Run browser accessibility and workflow checks
-        if: steps.changes.outputs.changed == 'true'
+        if: steps.decision.outputs.run_tests == 'true'
         run: pnpm run test:browser:nightly
