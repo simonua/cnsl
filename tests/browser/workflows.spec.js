@@ -735,6 +735,12 @@ test('[WF-AGENDA-004] home page loads agenda dependencies only after a favorite 
 
   await expect(page.locator('#favoriteWeek')).toBeVisible();
   await expect(page.locator('script[data-home-schedule-dependency]')).toHaveCount(15);
+  const homeScheduleVersion = await page.locator('script[src*="js/home-schedule.js"]').evaluate(script => new URL(script.src).searchParams.get('v'));
+  const dependencyVersions = await page.locator('script[data-home-schedule-dependency]').evaluateAll(scripts => (
+    scripts.map(script => new URL(script.src).searchParams.get('v'))
+  ));
+  expect(homeScheduleVersion).toBeTruthy();
+  expect(dependencyVersions.every(version => version === homeScheduleVersion)).toBe(true);
   await expect(page.locator('#favoriteWeek')).toContainText('Phelps Luck');
   await expect(page.locator('#favoriteWeek')).not.toContainText('Phelps Luck Pool');
 });

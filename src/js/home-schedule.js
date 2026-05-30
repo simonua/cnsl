@@ -19,12 +19,24 @@
     'js/services/team-schedule-service.js',
     'js/services/team-agenda-display.js'
   ];
+  const controllerSource = document.currentScript && document.currentScript.src
+    ? new URL(document.currentScript.src, document.baseURI)
+    : null;
+  const assetVersion = controllerSource ? controllerSource.searchParams.get('v') : '';
   let dependenciesPromise;
+
+  function getDependencySource(source) {
+    if (!assetVersion) return source;
+
+    const dependencySource = new URL(source, document.baseURI);
+    dependencySource.searchParams.set('v', assetVersion);
+    return dependencySource.toString();
+  }
 
   function loadScript(source) {
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = source;
+      script.src = getDependencySource(source);
       script.dataset.homeScheduleDependency = source;
       script.addEventListener('load', resolve, { once: true });
       script.addEventListener('error', () => reject(new Error(`Unable to load ${source}.`)), { once: true });
