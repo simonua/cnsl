@@ -45,6 +45,20 @@
     })).filter(practice => practice.sessions.length > 0);
   }
 
+  function isPendingPractice(practice, referenceDate) {
+    const practiceDate = startOfDay(practice.date);
+    const today = startOfDay(referenceDate);
+    if (practiceDate > today) return true;
+    if (practiceDate < today) return false;
+
+    const currentMinutes = (referenceDate.getHours() * 60) + referenceDate.getMinutes();
+    const sessionRanges = practice.sessions
+      .map(session => globalThis.TeamScheduleService.getTimeRange(session.time, globalThis.TimeUtils))
+      .filter(Boolean);
+    return sessionRanges.length < practice.sessions.length
+      || sessionRanges.some(sessionRange => sessionRange.end > currentMinutes);
+  }
+
   function getMeetLocation(meet, team) {
     const isTimeTrials = typeof meet.name === 'string' && /^Time Trials\b/i.test(meet.name);
     const usesTeamHomePool = typeof meet.location === 'string' && /^Each Team's Home Pool\b/i.test(meet.location);
@@ -72,7 +86,8 @@
     if (!team) return [];
 
     const today = startOfDay(firstDate);
-    const practices = getNextPractices(getVisiblePractices(globalThis.TeamScheduleService.getUpcomingPractices(team.practice, today, SCHEDULE_LOOKAHEAD_DAYS)));
+    const visiblePractices = getVisiblePractices(globalThis.TeamScheduleService.getUpcomingPractices(team.practice, today, SCHEDULE_LOOKAHEAD_DAYS));
+    const practices = getNextPractices(visiblePractices.filter(practice => isPendingPractice(practice, firstDate)));
     return [...practices, ...getNextMeet(Array.isArray(meets) ? meets : [], team, today)]
       .sort((first, second) => first.date - second.date);
   }

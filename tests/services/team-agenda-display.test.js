@@ -1,6 +1,8 @@
 const { after, describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const activeTeamsData = require('../../src/assets/data/2026/teams/teams.json');
+const TimeUtils = require('../../src/js/services/time-utils');
+const { TeamScheduleService: PublishedTeamScheduleService } = require('../../src/js/services/team-schedule-service');
 
 globalThis.HtmlSafety = {
   escapeHtml: value => String(value)
@@ -12,8 +14,10 @@ globalThis.PreferencesService = {
   filterPracticeSessions: sessions => sessions,
   meetIncludesFavoriteTeam: () => false
 };
+globalThis.TimeUtils = TimeUtils;
 globalThis.TeamScheduleService = {
-  getUpcomingPractices: () => []
+  getUpcomingPractices: () => [],
+  getTimeRange: PublishedTeamScheduleService.getTimeRange
 };
 
 require('../../src/js/services/team-agenda-display.js');
@@ -25,6 +29,7 @@ after(() => {
   delete globalThis.generateLinkedPoolMentions;
   delete globalThis.createPoolLocationIndex;
   delete globalThis.PreferencesService;
+  delete globalThis.TimeUtils;
   delete globalThis.TeamScheduleService;
   delete globalThis.TeamAgendaDisplay;
 });
@@ -171,6 +176,23 @@ describe('TeamAgendaDisplay', () => {
       ];
       try {
         assert.deepEqual(TeamAgendaDisplay.getUpcomingEvents({ practice: {} }, [], new Date(2026, 5, 1)).map(event => event.label), ['Next morning practice', 'Next evening practice']);
+      } finally {
+        globalThis.TeamScheduleService.getUpcomingPractices = originalGetUpcoming;
+      }
+    });
+
+    it('selects the next same-period practice once todays visible session has ended', () => {
+      const originalGetUpcoming = globalThis.TeamScheduleService.getUpcomingPractices;
+      globalThis.TeamScheduleService.getUpcomingPractices = () => [
+        { date: new Date(2026, 4, 29), label: 'Evening Practice', location: 'First Pool', sessions: [{ time: '6:30 - 7:00pm', group: 'A' }] },
+        { date: new Date(2026, 5, 1), label: 'Evening Practice', location: 'Next Pool', sessions: [{ time: '5:00 - 6:00pm', group: 'A' }] }
+      ];
+      try {
+        const beforeEnd = TeamAgendaDisplay.getUpcomingEvents({ practice: {} }, [], new Date(2026, 4, 29, 18, 59));
+        const atEnd = TeamAgendaDisplay.getUpcomingEvents({ practice: {} }, [], new Date(2026, 4, 29, 19, 0));
+
+        assert.equal(beforeEnd[0].location, 'First Pool');
+        assert.equal(atEnd[0].location, 'Next Pool');
       } finally {
         globalThis.TeamScheduleService.getUpcomingPractices = originalGetUpcoming;
       }
