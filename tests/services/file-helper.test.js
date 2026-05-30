@@ -75,9 +75,14 @@ describe('FileHelper', () => {
   describe('loadJsonFile', () => {
     it('returns parsed JSON from the requested delivered path', async () => {
       const originalFetch = global.fetch;
-      global.fetch = async filePath => ({ ok: true, json: async () => ({ filePath }) });
+      let requestOptions;
+      global.fetch = async (filePath, options) => {
+        requestOptions = options;
+        return { ok: true, json: async () => ({ filePath }) };
+      };
       try {
         assert.deepEqual(await FileHelper.loadJsonFile('assets/data/example.json'), { filePath: 'assets/data/example.json' });
+        assert.deepEqual(requestOptions, { cache: 'no-cache' });
       } finally {
         global.fetch = originalFetch;
       }

@@ -116,6 +116,22 @@ test('[WF-DATA-004] malformed published pool responses are announced as unavaila
   await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 });
 
+test('[WF-OFFLINE-001] loaded directory features remain usable while offline status is announced', async ({ page, context }) => {
+  await page.goto('/teams.html');
+  await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
+  await expect(page.locator('#connectivityStatus')).toBeHidden();
+
+  await context.setOffline(true);
+  await expect(page.locator('#connectivityStatus')).toBeVisible();
+  await expect(page.locator('#connectivityStatus')).toContainText('Offline mode');
+  await expect(page.locator('#connectivityStatus')).toContainText('Saved schedules remain available when previously loaded.');
+  await page.locator('.team-card').first().locator('.team-header__toggle').click();
+  await expect(page.locator('.team-card').first().locator('.team-details')).toBeVisible();
+
+  await context.setOffline(false);
+  await expect(page.locator('#connectivityStatus')).toBeHidden();
+});
+
 test('[WF-HOME-001] season summary and sharing actions appear only on the home page', async ({ page }) => {
   await initializeAnalyticsRecorder(page);
   await page.goto('/');

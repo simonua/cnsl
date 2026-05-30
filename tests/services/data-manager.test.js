@@ -18,6 +18,7 @@ describe('DataManager', () => {
       const originalFileHelper = global.FileHelper;
       const originalConsoleLog = console.log;
       const requestPaths = [];
+      const requestCacheModes = [];
       const datasets = {
         '/data/pools.json': {
           ...createSamplePoolsManagerData(),
@@ -36,8 +37,9 @@ describe('DataManager', () => {
         getTeamsDataPath: () => '/data/teams.json',
         getMeetsDataPath: () => '/data/meets.json'
       };
-      global.fetch = async (filePath) => {
+      global.fetch = async (filePath, options) => {
         requestPaths.push(filePath);
+        requestCacheModes.push(options.cache);
         return { ok: true, json: async () => datasets[filePath] };
       };
       console.log = () => {};
@@ -51,6 +53,7 @@ describe('DataManager', () => {
           '/data/pools.json',
           '/data/teams.json'
         ]);
+        assert.deepStrictEqual(requestCacheModes, ['no-cache', 'no-cache', 'no-cache']);
         assert.deepStrictEqual(manager.getSeasonInfo(), {
           seasonStartDate: '2026-05-23',
           seasonEndDate: '2026-09-07',

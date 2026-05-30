@@ -192,6 +192,8 @@ Object.entries(canonicalPages).forEach(([page, canonical]) => {
     `${page} must load application URL configuration before analytics handling.`
   );
   assert.match(html, /js\/analytics\.js\?v=/, `${page} must load deployed-site analytics handling.`);
+  assert.match(html, /id="connectivityStatus"/, `${page} must include shared offline connection status.`);
+  assert.match(html, /js\/connectivity-status\.js\?v=/, `${page} must load shared offline connection-status handling.`);
   assert.match(html, /js\/weather-alert-cached\.js\?v=/, `${page} must load cached weather rendering from a same-origin script.`);
   assert.doesNotMatch(html, /analytics-consent\.js|onclick=/, `${page} must not publish the obsolete consent loader or inline click handlers.`);
 });
@@ -210,6 +212,8 @@ assert.ok(faqHtml.includes(`href="${activeSeasonPools.caPoolGuideUrl}"`), 'FAQ m
 
 const offlineHtml = fs.readFileSync(path.join(outDir, 'offline.html'), 'utf8');
 assert.match(offlineHtml, /<meta name="robots" content="noindex">/, 'Offline fallback must not be indexed.');
+assert.match(offlineHtml, /id="connectivityStatus"/, 'Offline fallback must include shared offline connection status.');
+assert.match(offlineHtml, /js\/connectivity-status\.js\?v=/, 'Offline fallback must load shared offline connection-status handling.');
 
 const sitemap = fs.readFileSync(path.join(outDir, 'sitemap.xml'), 'utf8');
 assert.equal((sitemap.match(/<\?xml/g) || []).length, 1, 'Sitemap must contain one XML document.');

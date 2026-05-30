@@ -70,7 +70,7 @@ function createWorkerHarness(precacheResources, options = {}) {
     LOCAL_DEVELOPMENT_PORT,
     PWA_CACHE_PREFIX,
     self: scope,
-    fetch: request => fetchImplementation(request),
+    fetch: (request, options) => fetchImplementation(request, options),
     caches: {
       open: async () => cache,
       keys: async () => [`${PWA_CACHE_PREFIX}old`, 'unrelated-cache'],
@@ -175,6 +175,24 @@ describe('service worker cache strategy', () => {
 
     assert.equal(response.status, 200);
     assert.match(await response.text(), /pools\.json\?v=development/);
+  });
+
+  it('should revalidate HTTP-cached annual data while online', async () => {
+    const harness = createWorkerHarness(coreResources);
+    let requestOptions;
+    harness.setFetchImplementation(async (_request, options) => {
+      requestOptions = options;
+      return new Response('fresh data', { status: 200 });
+    });
+
+    const response = await harness.dispatch('fetch', {
+      method: 'GET',
+      mode: 'cors',
+      url: 'https://pools.longreachmarlins.org/assets/data/2026/teams/teams.json'
+    });
+
+    assert.equal(await response.text(), 'fresh data');
+    assert.equal(requestOptions.cache, 'no-cache');
   });
 
   it('should fetch a newer explicitly versioned static resource while an older worker controls the page', async () => {

@@ -410,6 +410,16 @@ body {
   display: none;
 }
 
+.connectivity-status {
+  background-color: var(--warning-soft-bg);
+  border-bottom-color: var(--warning-color);
+  box-shadow: none;
+}
+
+.connectivity-status .home-banner__message strong {
+  color: var(--warning-text-color);
+}
+
 .home-banner__inner {
   align-items: center;
   display: grid;

@@ -129,7 +129,7 @@ if (typeof window === 'undefined' || !window.DataManager) {
    */
   async _loadJsonFile(filePath) {
     try {
-      const response = await fetch(filePath);
+      const response = await fetch(filePath, { cache: 'no-cache' });
       if (!response.ok) {
         throw new Error(`Failed to load ${filePath}: ${response.status}`);
       }
