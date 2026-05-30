@@ -2913,7 +2913,7 @@
       "phone": "410-730-6770",
       "laneCount": 6,
       "laneLengthUnits": "yards",
-      "laneLength": null,
+      "laneLength": 25,
       "features": [
         "basketball",
         "golf course",
