@@ -4,6 +4,8 @@ let userCoords = null;
 let poolBrowserPools = [];
 let poolSortOrder = 'name';
 let poolAvailabilityFilter = 'all';
+let poolLiveStatusRefreshTimeout = null;
+let poolLiveStatusSignature = '';
 const PoolBrowserSafety = HtmlSafety;
 
 // Pool-specific week states (poolId -> Date)
@@ -647,6 +649,108 @@ function filterPoolsByAvailability(pools) {
 }
 
 /**
+ * Capture a focused control before an automatic status rerender replaces card markup.
+ * @returns {{ poolId: string, selector: string }|null} Focus target that may be restored
+ */
+function captureFocusedPoolControl() {
+  const list = document.getElementById('poolList');
+  const focusedElement = document.activeElement;
+  if (!list || !(focusedElement instanceof Element) || !list.contains(focusedElement)) return null;
+
+  const poolCard = focusedElement.closest('.pool-card');
+  if (!poolCard) return null;
+
+  const selectors = [
+    '.pool-header__toggle', '.address-link', '.ca-link', '.phone-link', '.calendar-btn',
+    '.today-btn', '.prev-week', '.next-week', '.week-picker'
+  ];
+  const selector = selectors.find(candidate => focusedElement.matches(candidate));
+  return selector ? { poolId: poolCard.dataset.poolId, selector } : null;
+}
+
+/**
+ * Restore focus following a time-driven rerender when its originating card remains visible.
+ * @param {{ poolId: string, selector: string }|null} focusTarget - Previously focused card control
+ */
+function restoreFocusedPoolControl(focusTarget) {
+  if (!focusTarget) return;
+
+  const card = Array.from(document.querySelectorAll('#poolList .pool-card'))
+    .find(poolCard => poolCard.dataset.poolId === focusTarget.poolId);
+  const target = card && card.querySelector(focusTarget.selector);
+  if (target && !target.disabled) target.focus();
+}
+
+/**
+ * Build a lightweight representation of status values currently affecting the rendered directory.
+ * @param {Array} pools - Available pool records
+ * @returns {string} State signature for detecting schedule transitions
+ */
+function getPoolLiveStatusSignature(pools) {
+  if (!poolBrowserDataManager || !Array.isArray(pools)) return '';
+
+  const requiredMinutes = poolAvailabilityFilter === 'open-next-two-hours' ? 120 : 0;
+  const includesAvailability = poolAvailabilityFilter !== 'all';
+  return pools.map(pool => {
+    const poolModel = poolBrowserDataManager.getPool(pool.name);
+    if (!poolModel) return `${pool.id || pool.name}:unavailable`;
+    const status = poolModel.getCurrentStatus();
+    const availability = includesAvailability ? poolModel.isOpenForNextMinutes(requiredMinutes) : '';
+    return `${pool.id || pool.name}:${status.status}:${status.color}:${String(availability)}`;
+  }).join('|');
+}
+
+/**
+ * Re-render only when the current clock crosses a visible schedule or filter boundary.
+ */
+function refreshPoolsForCurrentTime() {
+  if (poolBrowserPools.length === 0) return;
+
+  const nextSignature = getPoolLiveStatusSignature(poolBrowserPools);
+  if (nextSignature === poolLiveStatusSignature) return;
+
+  const focusTarget = captureFocusedPoolControl();
+  renderPools(poolBrowserPools);
+  restoreFocusedPoolControl(focusTarget);
+  setPoolListStatus('Pool availability updated for the current time.', false);
+}
+
+/**
+ * Check for live schedule changes promptly after each minute boundary.
+ */
+function scheduleNextPoolLiveStatusRefresh() {
+  if (poolLiveStatusRefreshTimeout !== null) window.clearTimeout(poolLiveStatusRefreshTimeout);
+  const now = new Date();
+  const millisecondsIntoMinute = (now.getSeconds() * 1000) + now.getMilliseconds();
+  const delayMilliseconds = (60 * 1000) - millisecondsIntoMinute + 25;
+  poolLiveStatusRefreshTimeout = window.setTimeout(() => {
+    refreshPoolsForCurrentTime();
+    scheduleNextPoolLiveStatusRefresh();
+  }, delayMilliseconds);
+}
+
+/**
+ * Start status updates once pool records are available.
+ */
+function startPoolLiveStatusUpdates() {
+  poolLiveStatusSignature = getPoolLiveStatusSignature(poolBrowserPools);
+  scheduleNextPoolLiveStatusRefresh();
+}
+
+/**
+ * Catch up immediately when returning to a pool directory left open in the background.
+ */
+function handlePoolPageVisibilityChange() {
+  if (document.hidden) {
+    if (poolLiveStatusRefreshTimeout !== null) window.clearTimeout(poolLiveStatusRefreshTimeout);
+    poolLiveStatusRefreshTimeout = null;
+    return;
+  }
+  refreshPoolsForCurrentTime();
+  scheduleNextPoolLiveStatusRefresh();
+}
+
+/**
  * Renders the list of pools in the #poolList element
  * @param {Array} pools - Array of pool data objects (legacy format)
  */
@@ -671,6 +775,7 @@ function renderPools(pools) {
   }).map(poolCard => poolCard.dataset.poolId));
   const linkedPoolId = new URLSearchParams(window.location.search).get('pool');
   const isInitialRender = expandedPoolIds.size === 0 && !list.querySelector('.pool-card');
+  poolLiveStatusSignature = getPoolLiveStatusSignature(pools);
   const preferences = PreferencesService.get();
   const favoritePoolName = preferences.favoritePoolName;
   const matchingFeaturePools = PreferencesService.filterPoolsByFeatures(pools, preferences.poolFeatureFilters);
@@ -1133,6 +1238,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     // Always render pools first with no location data
     renderPools(legacyPools);
+    startPoolLiveStatusUpdates();
     setPoolListStatus(`Pool directory loaded. ${legacyPools.length} pools available.`, false);
     
     // Set up pool-specific navigation event handlers
@@ -1159,6 +1265,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 window.addEventListener('cnsl:preferences-changed', refreshPoolsForPreferences);
+document.addEventListener('visibilitychange', handlePoolPageVisibilityChange);
 
 // Make functions available globally
 window.getMondayOfWeek = getMondayOfWeek;

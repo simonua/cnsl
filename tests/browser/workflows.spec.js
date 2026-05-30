@@ -1380,3 +1380,37 @@ test('[WF-POOLS-011] team-only practice uses restricted live status and public a
   jeffersHill = page.locator('.pool-card').filter({ hasText: 'Jeffers Hill' });
   await expect(jeffersHill).toHaveCount(0);
 });
+
+test('[WF-POOLS-012] live status updates after a team-only practice period ends without a reload', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-05-26T18:59:30-04:00') });
+  await page.goto('/pools.html');
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+
+  const jeffersHill = page.locator('.pool-card').filter({ hasText: 'Jeffers Hill' });
+  const toggle = jeffersHill.locator('.pool-header__toggle');
+  await toggle.evaluate(button => button.click());
+  await expect(jeffersHill.locator('.open-status')).toContainText('Practice Only');
+  await expect(jeffersHill.locator('.open-status')).toHaveClass(/status-yellow/);
+
+  await toggle.focus();
+  await page.clock.fastForward(31 * 1000);
+  await expect(jeffersHill.locator('.open-status')).toContainText('Closed');
+  await expect(jeffersHill.locator('.open-status')).toHaveClass(/status-red/);
+  await expect(jeffersHill.locator('.pool-header__toggle')).toBeFocused();
+  await expect(page.locator('#poolListStatus')).toHaveText('Pool availability updated for the current time.');
+});
+
+test('[WF-POOLS-013] open-now results update after a public-use period ends without a reload', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-05-26T18:59:30-04:00') });
+  await page.goto('/pools.html');
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+
+  await page.locator('#togglePoolFeatureFilters').evaluate(button => button.click());
+  await page.selectOption('#poolAvailabilityFilter', 'open-now');
+  const clarysForest = page.locator('.pool-card').filter({ hasText: "Clary's Forest" });
+  await expect(clarysForest).toHaveCount(1);
+
+  await page.clock.fastForward(31 * 1000);
+  await expect(clarysForest).toHaveCount(0);
+  await expect(page.locator('#poolListStatus')).toHaveText('Pool availability updated for the current time.');
+});
