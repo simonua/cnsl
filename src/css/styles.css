@@ -2119,6 +2119,12 @@ button.pool-filter__clear:focus-visible {
   min-width: 0;
 }
 
+.pool-course {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 0.5rem 0 0;
+}
+
 .address-section__actions {
   align-items: flex-end;
   display: flex;

@@ -63,7 +63,7 @@
             "name": "Where does this app get its data, and when was it checked?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Pool information is transcribed from publicly available Columbia Association publications, while team and meet information is transcribed from publicly available official CNSL publications. Accepted {{ YEAR }} season data was last checked against its official public sources on {{ OFFICIAL_SOURCE_CHECKED_ON }}."
+              "text": "Pool information is transcribed from publicly available Columbia Association publications, while team and meet information is transcribed from publicly available official CNSL publications. The app's structured annual data and retained source materials can be viewed or downloaded from its public GitHub data directory. Accepted {{ YEAR }} season data was last checked against its official public sources on {{ OFFICIAL_SOURCE_CHECKED_ON }}."
             }
           },
           {
@@ -104,6 +104,14 @@
             "acceptedAnswer": {
               "@type": "Answer",
               "text": "Email simonkurtz@gmail.com with the subject Assistant App Feature Request and a brief description of what would make the app more useful."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I view or reuse the app source code?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. The source code is public on GitHub and released under the MIT License. This permissive license permits use, copying, modification, and distribution of the app source as long as the copyright and license notices are included. Official Columbia Association and CNSL publications remain subject to their respective owners' terms."
             }
           }
         ]
@@ -155,6 +163,7 @@
           <article class="faq-item">
             <h3>Where does this app get its data, and when was it checked?</h3>
             <p>Pool information is transcribed from publicly available <a href="{{ ACTIVE_SEASON.CA_POOL_SCHEDULES_URL }}" target="_blank" rel="noopener">Columbia Association (CA) publications</a>. Team and meet information is transcribed from publicly available <a href="{{ EXTERNAL_LINKS.OFFICIAL_CNSL_SITE }}" target="_blank" rel="noopener">official CNSL publications</a>. These official public sources are the source of truth for this web app.</p>
+            <p>The structured annual data used by this app and retained public source materials can be viewed or downloaded in the <a href="{{ EXTERNAL_LINKS.GITHUB_DATA_DIRECTORY }}" target="_blank" rel="noopener">public data directory on GitHub</a>.</p>
             <p>Information shared through social media, email, messaging groups, or other community channels can be helpful, but is not treated as authoritative here unless it is reflected in an official public source.</p>
             <p><strong>Last accepted official-source check for {{ YEAR }} data:</strong> <time datetime="{{ OFFICIAL_SOURCE_CHECKED_ON }}">{{ OFFICIAL_SOURCE_CHECKED_ON }}</time>. Published details can change, so please confirm time-sensitive plans before heading out.</p>
           </article>
@@ -186,6 +195,15 @@
           <article class="faq-item">
             <h3>How can I request a feature or share feedback?</h3>
             <p>Email <a href="{{ EXTERNAL_LINKS.FEATURE_REQUEST_EMAIL }}">{{ CONTACT_EMAIL }}</a> with the subject "Assistant App Feature Request" and a brief description of what would make the app more useful for your summer swim experience.</p>
+          </article>
+        </section>
+
+        <section class="faq-list__category" aria-labelledby="faq-code">
+          <h2 id="faq-code" class="faq-list__heading">Open Source Code</h2>
+          <article class="faq-item">
+            <h3>Can I view or reuse the app source code?</h3>
+            <p>Yes. The app source is available in the <a href="{{ EXTERNAL_LINKS.GITHUB_REPOSITORY }}" target="_blank" rel="noopener">public GitHub repository</a> and is released under the <a href="{{ EXTERNAL_LINKS.GITHUB_LICENSE }}" target="_blank" rel="noopener">MIT License</a>.</p>
+            <p>The MIT License is permissive: it permits use, copying, modification, and distribution of the app source as long as the copyright and license notices are included. Official CA and CNSL publications, linked source materials, and third-party assets remain subject to their respective owners' terms.</p>
           </article>
         </section>
       </div>

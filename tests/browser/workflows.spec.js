@@ -455,6 +455,7 @@ test('[WF-POOLS-003] pool tile features are ordered by category then alphabetica
 
   const firstPoolCard = page.locator('.pool-card').first();
   await firstPoolCard.locator('.pool-header__toggle').click();
+  await expect(firstPoolCard.locator('.pool-course')).toHaveText('Course: 6-lane / 25-meter');
   await expect(firstPoolCard.locator('.feature-pill')).toHaveText([
     'ADA compliant',
     'Family changing room',

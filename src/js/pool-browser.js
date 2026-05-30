@@ -919,6 +919,10 @@ function renderPools(pools) {
     const safeMapsUrl = PoolBrowserSafety.safeHttpUrl(mapsUrl);
     const safeStreetAddress = PoolBrowserSafety.escapeHtml(streetAddress);
     const safeCityStateZip = PoolBrowserSafety.escapeHtml(cityStateZip);
+    const courseLabel = formatPoolCourseLabel(pool);
+    const courseHtml = courseLabel
+      ? `<p class="pool-course"><strong>Course:</strong> ${PoolBrowserSafety.escapeHtml(courseLabel)}</p>`
+      : '';
 
     return `
       <div class="pool-card ${isFavorite ? 'favorite-card' : ''}${isExpanded ? '' : ' collapsed'}" data-pool-id="${safePoolId}">
@@ -937,6 +941,7 @@ function renderPools(pools) {
                    class="address-link">
                   ${safeStreetAddress ? `${safeStreetAddress}${safeCityStateZip ? '<br>' : ''}` : ''}${safeCityStateZip || (safeStreetAddress ? '' : 'Address not available')}
                 </a>
+                ${courseHtml}
               </div>
               ${(caLinkHtml || phoneHtml) ? `<div class="address-section__actions">${caLinkHtml}${phoneHtml}</div>` : ''}
             </div>

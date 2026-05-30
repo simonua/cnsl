@@ -19,6 +19,8 @@
     FACEBOOK_SHARE: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(HOME_PAGE_URL)}`,
     FEATURE_REQUEST_EMAIL: `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Assistant App Feature Request')}`,
     FEEDBACK_EMAIL: `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('CA Pool & CNSL Assistant App Feedback')}`,
+    GITHUB_DATA_DIRECTORY: 'https://github.com/simonua/cnsl/tree/main/src/assets/data',
+    GITHUB_LICENSE: 'https://github.com/simonua/cnsl/blob/main/LICENSE',
     GITHUB_REPOSITORY: 'https://github.com/simonua/cnsl',
     GOOGLE_ANALYTICS_PRIVACY_GUIDANCE: 'https://support.google.com/analytics/answer/6366371?hl=en#zippy=%2Cin-this-article',
     LINKEDIN_PROFILE: 'https://www.linkedin.com/in/simonkurtz',
