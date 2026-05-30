@@ -18,7 +18,7 @@ description: "Use when working with the build pipeline, dev server, testing, lin
 | `pnpm test` | Run all unit tests |
 | `pnpm run test:coverage` | Run unit tests with coverage for delivered application JavaScript (`src/js/**`, `service-worker.js`); omit `scripts/**` maintenance implementations from the report |
 | `node --test tests/<area>/<module>.test.js` | Run one affected unit-test file during iteration |
-| `pnpm run test:browser:nightly` | Run Playwright workflow and WCAG A/AA checks from the conditional nightly workflow only |
+| `pnpm run test:browser:nightly` | Run serialized Playwright workflow and WCAG A/AA checks for the conditional nightly workflow or required significant-refactor completion gate |
 | `pnpm run lint` | Run ESLint on all JS files |
 | `pnpm run lint:fix` | Auto-fix lint issues |
 
@@ -60,14 +60,15 @@ Run `.\start.ps1` (Windows) or `./start.sh` (macOS/Linux) for an interactive men
 | Documentation or agent instructions only | Review the changed content and links; no application test is required. | Run the named command only if the edit changes a command, workflow, or release requirement. |
 | One service, model, manager, or type | `node --test tests/<area>/<module>.test.js` | Run `pnpm test` when shared contracts, utility behavior, or several consumers change. |
 | Visitor-facing view, CSS, or interaction | `pnpm run build` and inspect the affected workflow in the running site. | The next nightly browser-verification run covers Playwright workflows and automated accessibility after repository updates. |
+| Significant implemented refactor affecting delivered code or browser-facing contracts | Run focused checks while iterating, then `pnpm run build` and `pnpm run test:browser:nightly` when the refactor is complete. | Treat the serialized browser workflow and WCAG result as required completion evidence for the refactor. |
 | Annual data or active-season configuration | Follow the season rollover verification, beginning with `pnpm run validate:data`. | Use its complete required checks when activating or publishing a season. |
 | Build, PWA/offline, privacy/analytics, shared navigation, or release candidate | Use the complete automated gate in the release checklist. | Complete secure-origin or manual review sections where required. |
 
-- Do not run Playwright locally as part of development or release verification; it is reserved for the nightly browser-verification workflow.
-- The nightly workflow must run Playwright through `pnpm run test:browser:nightly`. The Playwright configuration serializes invocations for the same workspace, waiting for an existing browser-test process to finish and recovering locks abandoned by interrupted runs.
-- When an explicitly requested or nightly `pnpm run test:browser:nightly` run is blocked by a long-running idle lock holder, inspect the owning process command line and activity. If it is a persistent Playwright `test-server` process for this workspace, has produced no test progress while blocking the requested run, and has remained idle for at least 15 minutes, automatically terminate only that `test-server` process and allow the queued command to recover the abandoned lock. Do not terminate an active Playwright test execution, a process still reporting test progress, or the shared development server.
+- Do not run Playwright for ordinary local iteration or the general release gate. As an explicit exception, run `pnpm run test:browser:nightly` locally after a significant implemented refactor affecting delivered application behavior or browser-facing contracts.
+- Both the nightly workflow and the significant-refactor completion gate must run Playwright through `pnpm run test:browser:nightly`. The Playwright configuration serializes invocations for the same workspace, waiting for an existing browser-test process to finish and recovering locks abandoned by interrupted runs.
+- When an explicitly requested, required significant-refactor, or nightly `pnpm run test:browser:nightly` run is blocked by a long-running idle lock holder, inspect the owning process command line and activity. If it is a persistent Playwright `test-server` process for this workspace, has produced no test progress while blocking the requested run, and has remained idle for at least 15 minutes, automatically terminate only that `test-server` process and allow the queued command to recover the abandoned lock. Do not terminate an active Playwright test execution, a process still reporting test progress, or the shared development server.
 - The complete local release gate is defined in [docs/release-checklist.md](../../docs/release-checklist.md); it is a publishing checkpoint rather than the default iteration loop.
-- The GitHub Pages build contains no Playwright setup or execution. A nightly GitHub Actions workflow runs `pnpm run test:browser:nightly` after a push to `main` in the preceding 24 hours, or when manually dispatched, and its result does not block deployment.
+- The GitHub Pages build contains no Playwright setup or execution. A nightly GitHub Actions workflow also runs `pnpm run test:browser:nightly` after a push to `main` in the preceding 24 hours, or when manually dispatched, and its result does not block deployment.
 
 ## Linting
 

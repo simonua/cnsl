@@ -50,6 +50,30 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
         : 'pool-status-countdown';
     }
 
+    /**
+     * Map semantic current status to explanatory copy.
+     * @param {string} statusKind - Current PoolStatus kind
+     * @returns {string} User-facing status explanation
+     */
+    static getStatusTooltip(statusKind) {
+      switch (statusKind) {
+        case 'open':
+          return 'Open for public use';
+        case 'closed':
+        case 'closed-to-public':
+          return 'Currently closed';
+        case 'restricted':
+        case 'practice-only':
+        case 'swim-meet':
+          return 'Special schedule or restrictions';
+        case 'schedule-not-found':
+        case 'unavailable':
+          return 'Schedule not available';
+        default:
+          return 'Status unknown';
+      }
+    }
+
     static formatStatusCountdown(action, minutesUntilChange, useLongUnits = false) {
       if (!Number.isInteger(minutesUntilChange) || minutesUntilChange <= 0) return '';
 
@@ -159,8 +183,8 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
     static renderSlot(slot, day, options, useActivityColors) {
       const timeUtils = options.timeUtils;
       const activityText = PoolScheduleDisplay.formatActivityText(slot.activities, timeUtils);
-      const practiceTeamText = PoolScheduleDisplay.formatPracticeTeamText(slot.activities, slot.practiceTeamNames);
-      const category = PoolScheduleDisplay.getActivityCategory(activityText, slot);
+      const practiceTeamText = PoolScheduleDisplay.formatPracticeTeamText(slot.accessStatus, slot.practiceTeamNames);
+      const category = PoolScheduleDisplay.getActivityCategory(slot);
       const activityClass = useActivityColors ? ` schedule-activity schedule-activity--${category}` : '';
       const overrideClass = slot.isOverride ? ' override-slot' : '';
       const timeRange = `${slot.startTime}-${slot.endTime}`;
@@ -191,29 +215,26 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
 
     /**
      * Return teams resolved from detailed CNSL practice schedules for a secondary label.
-     * @param {Array} activities - Published activity labels
+     * @param {string} accessStatus - Semantic public-access state for a schedule slot
      * @param {string[]} practiceTeamNames - Team names resolved from published schedule details
      * @returns {string} Formatted practicing team names
      */
-    static formatPracticeTeamText(activities, practiceTeamNames = []) {
-      if (!Array.isArray(activities) || !activities.includes('CNSL Practice Only')) return '';
+    static formatPracticeTeamText(accessStatus, practiceTeamNames = []) {
+      if (accessStatus !== 'practice-only') return '';
       const names = Array.isArray(practiceTeamNames) ? practiceTeamNames.filter(name => typeof name === 'string' && name.trim()) : [];
       return names.join(', ');
     }
 
     /**
-     * Map published activity labels to a small set of visual categories.
-     * @param {string} activityText - Activity label text
+     * Map semantic schedule state to a small set of visual categories.
      * @param {Object} slot - Time slot metadata
      * @returns {string} CSS category suffix
      */
-    static getActivityCategory(activityText, slot = {}) {
-      const normalized = activityText.toLowerCase();
-      if (slot.isOverride || /meet|party|event|competition/.test(normalized)) return 'event';
-      if (/closed|restricted|maintenance/.test(normalized)) return 'restricted';
-      if (/practice|team/.test(normalized)) return 'team';
-      if (/fitness|lesson|class|program/.test(normalized)) return 'program';
-      return 'public';
+    static getActivityCategory(slot = {}) {
+      if (slot.accessStatus === 'swim-meet') return 'event';
+      if (slot.accessStatus === 'practice-only') return 'team';
+      if (slot.accessStatus === 'public') return 'public';
+      return 'restricted';
     }
 
     static renderHeading(day) {

@@ -12,11 +12,11 @@ const timeUtils = {
 
 const weekSchedule = [{
   day: 'Wed',
-  timeSlots: [{ startTime: '12:00pm', endTime: '7:00pm', activities: ['Laps', 'Rec Swim'], notes: '' }],
+  timeSlots: [{ startTime: '12:00pm', endTime: '7:00pm', activities: ['Laps', 'Rec Swim'], accessStatus: 'public', notes: '' }],
   hasOverrides: false
 }, {
   day: 'Thu',
-  timeSlots: [{ startTime: '4:00pm', endTime: '7:00pm', activities: ['Closed to Public'], notes: '' }],
+  timeSlots: [{ startTime: '4:00pm', endTime: '7:00pm', activities: ['Closed to Public'], accessStatus: 'closed-to-public', notes: '' }],
   hasOverrides: false
 }];
 
@@ -79,13 +79,23 @@ describe('PoolScheduleDisplay', () => {
   });
 
   describe('getActivityCategory', () => {
-    it('categorizes operating activities for calendar tinting', () => {
-      assert.equal(PoolScheduleDisplay.getActivityCategory('Aqua Fitness'), 'program');
-      assert.equal(PoolScheduleDisplay.getActivityCategory('CNSL Practice Only'), 'team');
-      assert.equal(PoolScheduleDisplay.getActivityCategory('Swim Meet'), 'event');
-      assert.equal(PoolScheduleDisplay.getActivityCategory('Closed to Public'), 'restricted');
-      assert.equal(PoolScheduleDisplay.getActivityCategory('Rec Swim'), 'public');
-      assert.equal(PoolScheduleDisplay.getActivityCategory('Rec Swim', { isOverride: true }), 'event');
+    it('categorizes operating slots from semantic access status rather than labels', () => {
+      assert.equal(PoolScheduleDisplay.getActivityCategory({ accessStatus: 'public' }), 'public');
+      assert.equal(PoolScheduleDisplay.getActivityCategory({ accessStatus: 'practice-only' }), 'team');
+      assert.equal(PoolScheduleDisplay.getActivityCategory({ accessStatus: 'swim-meet' }), 'event');
+      assert.equal(PoolScheduleDisplay.getActivityCategory({ accessStatus: 'closed-to-public' }), 'restricted');
+      assert.equal(PoolScheduleDisplay.getActivityCategory({ accessStatus: 'public', activities: ['CNSL Practice Only'] }), 'public');
+      assert.equal(PoolScheduleDisplay.getActivityCategory({ accessStatus: 'public', isOverride: true }), 'public');
+    });
+  });
+
+  describe('getStatusTooltip', () => {
+    it('maps semantic current status to explanatory copy independent of color', () => {
+      assert.equal(PoolScheduleDisplay.getStatusTooltip('open'), 'Open for public use');
+      assert.equal(PoolScheduleDisplay.getStatusTooltip('practice-only'), 'Special schedule or restrictions');
+      assert.equal(PoolScheduleDisplay.getStatusTooltip('closed-to-public'), 'Currently closed');
+      assert.equal(PoolScheduleDisplay.getStatusTooltip('schedule-not-found'), 'Schedule not available');
+      assert.equal(PoolScheduleDisplay.getStatusTooltip('missing'), 'Status unknown');
     });
   });
 
@@ -136,7 +146,7 @@ describe('PoolScheduleDisplay', () => {
   describe('slot rendering and browser registration', () => {
     it('renders notes and override activity styling only when requested', () => {
       const day = { isCurrentDay: false };
-      const slot = { startTime: '1:00PM', endTime: '2:00PM', activities: ['Swim Meet'], notes: '<note>', isOverride: true };
+      const slot = { startTime: '1:00PM', endTime: '2:00PM', activities: ['Swim Meet'], accessStatus: 'swim-meet', notes: '<note>', isOverride: true };
       const colored = PoolScheduleDisplay.renderSlot(slot, day, options, true);
       const plain = PoolScheduleDisplay.renderSlot(slot, day, options, false);
       assert.match(colored, /schedule-activity--event override-slot/);
@@ -144,16 +154,16 @@ describe('PoolScheduleDisplay', () => {
       assert.doesNotMatch(plain, /schedule-activity--event/);
     });
 
-    it('renders resolved CNSL practice teams on a separate escaped secondary line', () => {
+    it('renders resolved practice teams only for semantic practice slots', () => {
       const day = { isCurrentDay: false };
-      const slot = { startTime: '5:00PM', endTime: '6:30PM', activities: ['CNSL Practice Only'], notes: '' };
+      const slot = { startTime: '5:00PM', endTime: '6:30PM', activities: ['Published Team Session'], accessStatus: 'practice-only', notes: '' };
       const named = PoolScheduleDisplay.renderSlot({ ...slot, practiceTeamNames: ['Long Reach <Marlins>', 'Second Team'] }, day, options, false);
-      const unnamed = PoolScheduleDisplay.renderSlot(slot, day, options, false);
+      const misleadingLabel = PoolScheduleDisplay.renderSlot({ ...slot, activities: ['CNSL Practice Only'], accessStatus: 'public', practiceTeamNames: ['Hidden Team'] }, day, options, false);
 
-      assert.match(named, /<span class="schedule-activity__label">CNSL Practice Only<\/span><span class="schedule-activity__team-names">Long Reach &lt;Marlins&gt;, Second Team<\/span>/);
+      assert.match(named, /<span class="schedule-activity__label">Published Team Session<\/span><span class="schedule-activity__team-names">Long Reach &lt;Marlins&gt;, Second Team<\/span>/);
       assert.doesNotMatch(named, /<Marlins>/);
-      assert.match(unnamed, />CNSL Practice Only</);
-      assert.doesNotMatch(unnamed, /schedule-activity__team-names/);
+      assert.match(misleadingLabel, />CNSL Practice Only</);
+      assert.doesNotMatch(misleadingLabel, /schedule-activity__team-names/);
     });
 
     it('installs the display service as a browser script global', () => {

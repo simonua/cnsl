@@ -1442,3 +1442,29 @@ test('[WF-POOLS-013] open-now results update after a public-use period ends with
   await expect(clarysForest).toHaveCount(0);
   await expect(page.locator('#poolListStatus')).toHaveText('Pool availability updated for the current time.');
 });
+
+test('[WF-POOLS-014] semantic practice status drives detail and calendar styling when its label changes', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-06-25T12:00:00-04:00'));
+  await seedPreferences(page, { poolScheduleLayout: 'calendar' });
+  await page.route('**/assets/data/2026/pools/pools.json*', async route => {
+    const response = await route.fetch();
+    const poolData = await response.json();
+    poolData.pools.forEach(pool => {
+      pool.schedules.forEach(schedule => {
+        schedule.hours.forEach(hours => {
+          if (hours.accessStatus === 'practice-only') hours.types = ['Published Team Session'];
+        });
+      });
+    });
+    await route.fulfill({ response, json: poolData });
+  });
+  await page.goto('/pools.html');
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+
+  const jeffersHill = page.locator('.pool-card').filter({ hasText: 'Jeffers Hill' });
+  await jeffersHill.locator('.pool-header__toggle').click();
+  const marlinsName = jeffersHill.locator('.schedule-activity__team-names').filter({ hasText: 'Marlins' }).first();
+  await expect(marlinsName).toBeVisible();
+  await expect(marlinsName.locator('xpath=..')).toHaveClass(/schedule-activity--team/);
+  await expect(marlinsName.locator('xpath=..')).toContainText('Published Team Session');
+});

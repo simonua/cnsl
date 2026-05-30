@@ -87,22 +87,11 @@ function setPoolWeekStart(poolId, weekStart) {
 
 /**
  * Get tooltip text for pool status
- * @param {string} color - Status color (green, red, yellow, gray)
+ * @param {string} statusKind - Semantic PoolStatus kind
  * @returns {string} - Tooltip text
  */
-function getStatusTooltip(color) {
-  switch (color) {
-    case 'green':
-      return 'Open for public use';
-    case 'red':
-      return 'Currently closed';
-    case 'yellow':
-      return 'Special schedule or restrictions';
-    case 'gray':
-      return 'Schedule not available';
-    default:
-      return 'Status unknown';
-  }
+function getStatusTooltip(statusKind) {
+  return PoolScheduleDisplay.getStatusTooltip(statusKind);
 }
 
 
@@ -205,6 +194,7 @@ function getPoolStatus(pool) {
   if (!poolBrowserDataManager) {
     console.warn('Data manager not initialized');
     return {
+      kind: 'unavailable',
       isOpen: false,
       status: 'Unavailable',
       color: 'red',
@@ -215,6 +205,7 @@ function getPoolStatus(pool) {
   const poolObj = poolBrowserDataManager.getPool(pool.name);
   if (!poolObj) {
     return {
+      kind: 'closed',
       isOpen: false,
       status: 'Closed',
       color: 'red',
@@ -224,6 +215,7 @@ function getPoolStatus(pool) {
 
   const status = poolObj.getCurrentStatus();
   return {
+    kind: status.kind || 'unavailable',
     isOpen: status.isOpen,
     status: status.status,
     color: status.color || 'red',
@@ -239,7 +231,7 @@ function getPoolStatus(pool) {
 // eslint-disable-next-line no-unused-vars
 function isPoolOpen(pool) {
   const status = getPoolStatus(pool);
-  return status.isOpen && status.color === 'green';
+  return status.kind === 'open';
 }
 
 /**
@@ -291,6 +283,7 @@ function formatPoolHours(pool) {
   } catch (error) {
     console.error(`[Pool Browser] Error getting status for pool ${poolObj.name}:`, error);
     poolStatus = {
+      kind: 'unavailable',
       isOpen: false,
       status: 'Error',
       color: 'gray',
@@ -364,7 +357,7 @@ function formatPoolHours(pool) {
     return {
       ...scheduleDay,
       timeSlots: (scheduleDay.timeSlots || []).map(slot => {
-        if (!Array.isArray(slot.activities) || !slot.activities.includes('CNSL Practice Only')) return slot;
+        if (slot.accessStatus !== 'practice-only') return slot;
         const detailedNames = globalThis.TeamScheduleService.getDetailedPracticeTeamNames(practiceTeams, poolObj.name, scheduleDate, slot, timeUtils);
         return { ...slot, practiceTeamNames: detailedNames };
       })
@@ -385,7 +378,7 @@ function formatPoolHours(pool) {
       <strong>🕒 Hours:</strong> 
       <span class="open-status status-${statusClass} status-tooltip">
         ${safeStatusIcon} ${safeStatusText}
-        <span class="tooltip-text">${getStatusTooltip(statusClass)}</span>
+        <span class="tooltip-text">${getStatusTooltip(poolStatus.kind)}</span>
       </span>${statusCountdownHtml}<br>
       ${navigationHtml}
       ${hoursDisplay}
@@ -696,7 +689,7 @@ function getPoolLiveStatusSignature(pools) {
     if (!poolModel) return `${pool.id || pool.name}:unavailable`;
     const status = poolModel.getCurrentStatus();
     const availability = includesAvailability ? poolModel.isOpenForNextMinutes(requiredMinutes) : '';
-    return `${pool.id || pool.name}:${status.status}:${status.color}:${String(availability)}`;
+    return `${pool.id || pool.name}:${status.kind}:${String(availability)}`;
   }).join('|');
 }
 
@@ -882,7 +875,7 @@ function renderPools(pools) {
     const statusClass = poolStatus.color;
     
     // Show status indicator with tooltip for all pools
-    const tooltipText = getStatusTooltip(statusClass);
+    const tooltipText = getStatusTooltip(poolStatus.kind);
     const statusIndicatorHtml = `<span class="pool-status-indicator ${statusClass} status-tooltip" aria-hidden="true">
       <span class="tooltip-text">${tooltipText}</span>
     </span><span class="visually-hidden">${tooltipText}: </span>`;

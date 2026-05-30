@@ -58,4 +58,4 @@ describe('MyClass', () => {
 - Use `describe` blocks to group by class/function, nested `describe` for methods.
 - Use descriptive `it` strings: "should return X when given Y".
 - No mocking frameworks — use simple stubs when needed.
-- Unit tests must run without a browser; browser specs require a prior `pnpm run build`. Do not run Playwright during local development or release verification. GitHub Actions runs `pnpm run test:browser:nightly` only in the nightly browser workflow after a push to `main` in the preceding 24 hours or a manual dispatch; that separate result does not block deployment.
+- Unit tests must run without a browser; browser specs require a prior `pnpm run build`. Do not run Playwright during ordinary local iteration or the general release gate. After a significant implemented refactor affecting delivered application behavior or browser-facing contracts, run `pnpm run test:browser:nightly` as required completion verification. GitHub Actions also runs that serialized command in the nightly browser workflow after a push to `main` in the preceding 24 hours or a manual dispatch; that separate result does not block deployment.

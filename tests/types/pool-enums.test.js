@@ -32,33 +32,39 @@ describe('PoolNames', () => {
 
 describe('PoolStatus', () => {
   it('defines OPEN status', () => {
+    assert.equal(PoolStatus.OPEN.kind, 'open');
     assert.equal(PoolStatus.OPEN.isOpen, true);
     assert.equal(PoolStatus.OPEN.status, 'Open Now');
     assert.equal(PoolStatus.OPEN.color, 'green');
   });
 
   it('defines CLOSED status', () => {
+    assert.equal(PoolStatus.CLOSED.kind, 'closed');
     assert.equal(PoolStatus.CLOSED.isOpen, false);
     assert.equal(PoolStatus.CLOSED.status, 'Closed');
     assert.equal(PoolStatus.CLOSED.color, 'red');
   });
 
   it('defines RESTRICTED status', () => {
+    assert.equal(PoolStatus.RESTRICTED.kind, 'restricted');
     assert.equal(PoolStatus.RESTRICTED.isOpen, true);
     assert.equal(PoolStatus.RESTRICTED.color, 'yellow');
   });
 
   it('defines PRACTICE_ONLY status', () => {
+    assert.equal(PoolStatus.PRACTICE_ONLY.kind, 'practice-only');
     assert.equal(PoolStatus.PRACTICE_ONLY.isOpen, true);
     assert.equal(PoolStatus.PRACTICE_ONLY.status, 'Practice Only');
     assert.equal(PoolStatus.PRACTICE_ONLY.color, 'yellow');
   });
 
   it('defines SWIM_MEET status', () => {
+    assert.equal(PoolStatus.SWIM_MEET.kind, 'swim-meet');
     assert.equal(PoolStatus.SWIM_MEET.isOpen, true);
   });
 
   it('defines SCHEDULE_NOT_FOUND status', () => {
+    assert.equal(PoolStatus.SCHEDULE_NOT_FOUND.kind, 'schedule-not-found');
     assert.equal(PoolStatus.SCHEDULE_NOT_FOUND.isOpen, false);
     assert.equal(PoolStatus.SCHEDULE_NOT_FOUND.color, 'gray');
   });
@@ -71,6 +77,7 @@ describe('PoolStatus', () => {
     ];
     for (const status of statuses) {
       assert.equal(Object.isFrozen(status), true);
+      assert.equal(typeof status.kind, 'string');
       assert.equal(typeof status.isOpen, 'boolean');
       assert.equal(typeof status.status, 'string');
       assert.equal(typeof status.color, 'string');
