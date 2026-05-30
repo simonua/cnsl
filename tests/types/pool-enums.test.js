@@ -3,32 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const { PoolNames, PoolStatus } = require('../../src/js/types/pool-enums.js');
-
-describe('PoolNames', () => {
-  it('defines known pool name constants', () => {
-    assert.equal(PoolNames.BRYANT_WOODS, 'Bryant Woods');
-    assert.equal(PoolNames.KENDALL_RIDGE, 'Kendall Ridge');
-  });
-
-  it('pool names are strings', () => {
-    const names = Object.values(Object.getOwnPropertyDescriptors(PoolNames))
-      .filter(d => typeof d.value === 'string')
-      .map(d => d.value);
-    assert.ok(names.length > 0, 'Should have at least one pool name');
-    for (const name of names) {
-      assert.equal(typeof name, 'string');
-      assert.ok(name.length > 0);
-    }
-  });
-
-  it('lists, validates, and normalizes compatibility pool names', () => {
-    assert.equal(PoolNames.getAllPoolNames().length, 23);
-    assert.equal(PoolNames.isValidPoolName('Bryant Woods'), true);
-    assert.equal(PoolNames.isValidPoolName('Unknown Pool'), false);
-    assert.equal(PoolNames.toEnumName("Macgill's Common"), 'MACGILLS_COMMON');
-  });
-});
+const { PoolStatus } = require('../../src/js/types/pool-enums.js');
 
 describe('PoolStatus', () => {
   it('defines OPEN status', () => {
@@ -87,12 +62,12 @@ describe('PoolStatus', () => {
 });
 
 describe('browser registration', () => {
-  it('installs pool names and statuses as browser globals', () => {
+  it('installs pool statuses as browser globals', () => {
     const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'types', 'pool-enums.js');
     const source = fs.readFileSync(sourcePath, 'utf8');
     const context = { window: {} };
     vm.runInNewContext(source, context, { filename: sourcePath });
-    assert.equal(typeof context.window.PoolNames, 'function');
+    assert.equal(context.window.PoolNames, undefined);
     assert.equal(typeof context.window.PoolStatus, 'function');
   });
 });
