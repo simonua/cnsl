@@ -85,6 +85,22 @@ Separately, the May-to-July daily browser-verification workflow runs Playwright 
 
 Workflow configurations are located in `.github/workflows/build-deploy.yml` and `.github/workflows/nightly-browser-verification.yml`.
 
+### Repository Configuration
+
+Repository automation and Copilot configuration is kept in `.github/`:
+
+- `.github/agents/` contains discoverable GitHub Copilot custom agent profiles.
+- `.github/automation/` contains retained notes and reviewed state for retired automations.
+- `.github/instructions/`, `.github/skills/`, and `.github/copilot-instructions.md` contain repository-specific Copilot guidance.
+- `.github/workflows/` contains GitHub Actions definitions; `.github/dependabot.yml` configures dependency update checks.
+
+Retired automation references:
+
+- [Refactoring Audit](.github/automation/refactoring-audit/README.md) retains design notes for the retired assessment driven by the `refactoring-auditor` custom agent.
+- [Seasonal Data Source Monitor](.github/automation/season-data-monitor/README.md) retains source-monitoring notes and its reviewed fingerprint baseline; no Actions workflow invokes it.
+
+The separation of `automation/` from `agents/` keeps retained automation support files from being discovered as custom agent profiles.
+
 ---
 
 ## Features
