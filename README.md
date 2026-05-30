@@ -118,6 +118,7 @@ The separation of `automation/` from `agents/` keeps retained automation support
 
 ## Repo Structure
 
+```text
 /CNSL
 ├── index.html                 # Season overview homepage (generated)
 ├── pools.html                 # Pool directory with filters (generated)
@@ -141,6 +142,7 @@ The separation of `automation/` from `agents/` keeps retained automation support
 └── assets/
     ├── images/                # Logos and icons
     └── data/                  # JSON for pools, teams, and meets
+```
 
 ---
 
