@@ -350,6 +350,9 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
   static getCurrentEasternTimeInfo() {
     try {
       const easternTime = this.getEasternTime();
+      if (isNaN(easternTime.getTime())) {
+        throw new Error('Invalid Eastern date');
+      }
       
       // Get timezone name with fallback
       let timezone = 'ET'; // Default fallback
@@ -367,10 +370,9 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
       }
 
       const result = {
-        date: easternTime.toISOString().split('T')[0], // YYYY-MM-DD
+        date: `${easternTime.getFullYear()}-${String(easternTime.getMonth() + 1).padStart(2, '0')}-${String(easternTime.getDate()).padStart(2, '0')}`, // YYYY-MM-DD in Eastern wall-clock time
         day: easternTime.toLocaleDateString('en-US', { 
-          weekday: 'short', 
-          timeZone: this.TIMEZONE 
+          weekday: 'short'
         }),
         minutes: easternTime.getHours() * this.MINUTES_PER_HOUR + easternTime.getMinutes(),
         timezone: timezone,

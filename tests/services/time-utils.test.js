@@ -292,6 +292,20 @@ describe('TimeUtils', () => {
       assert.ok(info.minutes < 1440);
     });
 
+    it('keeps an Eastern evening on the current calendar day until midnight', () => {
+      const originalGetEasternTime = TimeUtils.getEasternTime;
+      const easternEvening = new Date(2026, 4, 29, 20, 25);
+      easternEvening.toISOString = () => '2026-05-30T00:25:00.000Z';
+      TimeUtils.getEasternTime = () => easternEvening;
+      try {
+        const info = TimeUtils.getCurrentEasternTimeInfo();
+        assert.equal(info.date, '2026-05-29');
+        assert.equal(info.minutes, (20 * 60) + 25);
+      } finally {
+        TimeUtils.getEasternTime = originalGetEasternTime;
+      }
+    });
+
     it('returns a local fallback when Eastern conversion cannot be formatted', () => {
       const originalGetEasternTime = TimeUtils.getEasternTime;
       TimeUtils.getEasternTime = () => new Date('invalid');
