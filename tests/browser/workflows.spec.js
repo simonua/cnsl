@@ -632,6 +632,11 @@ test('[WF-AGENDA-001] team directory shows the same next practices and swim even
   await expect(agenda.getByRole('heading', { name: 'Upcoming events' })).toBeVisible();
   await expect(agenda.locator('.favorite-week__status')).toHaveCount(0);
   await expect(agenda.locator('.favorite-week__events li')).toHaveCount(3);
+  await expect.poll(() => agenda.locator('.favorite-week__day').first().evaluate(day => {
+    const dayHeading = day.querySelector('h4');
+    const events = day.querySelector('.favorite-week__events');
+    return Math.round(events.getBoundingClientRect().left - dayHeading.getBoundingClientRect().left);
+  })).toBe(0);
   await expect(agenda).toContainText('Next morning practice');
   await expect(agenda).toContainText('Next evening practice');
   await expect(agenda).toContainText('Next swim event: Time Trials for returning/experienced swimmers');

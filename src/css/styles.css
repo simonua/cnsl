@@ -1171,13 +1171,12 @@ button.favorite-week__toggle:focus-visible {
 .favorite-week__events {
   display: grid;
   gap: 0.625rem;
-  padding-inline-start: 0.75rem;
+  padding-inline-start: 0;
 }
 
 #favoriteWeek .favorite-week__events {
   margin-inline: auto;
   max-width: 30rem;
-  padding-inline-start: 0;
 }
 
 .favorite-week__events li {
