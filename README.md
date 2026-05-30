@@ -2,6 +2,8 @@
 
 ![GitHub Pages](https://img.shields.io/badge/hosted%20on-GitHub%20Pages-121013?logo=github&logoColor=white&style=flat-square)
 ![PWA Ready](https://img.shields.io/badge/PWA-ready-0abf53?logo=googlechrome&logoColor=white&style=flat-square)
+[![Nightly Browser Verification](https://github.com/simonua/cnsl/actions/workflows/nightly-browser-verification.yml/badge.svg?branch=main)](https://github.com/simonua/cnsl/actions/workflows/nightly-browser-verification.yml)
+[![CodeQL](https://github.com/simonua/cnsl/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/simonua/cnsl/actions/workflows/github-code-scanning/codeql)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)
 
 A lightweight, mobile-first web app that helps Columbia Neighborhood Swim League (CNSL) swimmers, families, and fans quickly find information about pool openings, team practices, meets, and league resources.
