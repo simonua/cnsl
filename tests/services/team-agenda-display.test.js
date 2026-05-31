@@ -80,7 +80,7 @@ describe('TeamAgendaDisplay', () => {
       const html = TeamAgendaDisplay.renderEvents([{
         date: new Date(2026, 5, 6),
         label: 'Next swim event:',
-        name: 'Time Trials for returning/experienced swimmers',
+        name: 'Time Trials for returning / experienced swimmers',
         location: 'Kendall Ridge Pool',
         time: '8:00 AM - 12:00 PM',
         sessions: [],
@@ -128,7 +128,7 @@ describe('TeamAgendaDisplay', () => {
       const phelpsLuckEvent = TeamAgendaDisplay.getUpcomingEvents(phelpsLuck, [meet], new Date('2026-05-26'))[0];
 
       assert.equal(phelpsLuckEvent.label, 'Next swim event:');
-      assert.equal(phelpsLuckEvent.name, 'Time Trials for returning/experienced swimmers');
+      assert.equal(phelpsLuckEvent.name, 'Time Trials for returning / experienced swimmers');
       assert.equal(phelpsLuckEvent.location, 'Phelps Luck Pool');
       assert.equal(phelpsLuckEvent.time, '8:00 AM - 12:00 PM');
       assert.equal(TeamAgendaDisplay.isTimeTrialsMeet(meet), true);

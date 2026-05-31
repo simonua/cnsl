@@ -588,7 +588,7 @@ test('[WF-TEAMS-002] team directory groups practice and meet disclosures in one 
   const timeTrials = meetSchedule.locator('tbody tr').first();
   await expect(timeTrials.locator('td').nth(0)).toContainText('June 6');
   await expect(timeTrials.locator('.team-meets__time')).toHaveText('8:00 AM - 12:00 PM');
-  await expect(timeTrials.locator('td').nth(1)).toHaveText('Time Trials for returning/experienced swimmers');
+  await expect(timeTrials.locator('td').nth(1)).toHaveText('Time Trials for returning / experienced swimmers');
   const firstMeet = meetSchedule.locator('tbody tr').nth(1);
   await expect(firstMeet.locator('td').nth(0)).toContainText('June 13');
   await expect(firstMeet.locator('.team-meets__time')).toHaveText('8:00 AM - 12:00 PM');
@@ -691,7 +691,7 @@ test('[WF-TEAMS-006] team meet schedule shows all columns within its phone-width
   }));
   expect(sizing.overflow).toBeLessThanOrEqual(1);
   expect(Math.abs(sizing.tableWidth - sizing.bodyWidth)).toBeLessThanOrEqual(1);
-  await expect(meetSchedule.locator('tbody tr').first().locator('td').nth(1)).toHaveText('Time Trials for returning/experienced swimmers');
+  await expect(meetSchedule.locator('tbody tr').first().locator('td').nth(1)).toHaveText('Time Trials for returning / experienced swimmers');
   await expect(meetSchedule.locator('tbody tr').first().locator('.team-meets__time')).toHaveText('8:00 AM - 12:00 PM');
   await expect(meetSchedule.locator('tbody tr').first().locator('td').nth(2)).toBeEmpty();
   await expect(meetSchedule.locator('tbody tr').first().locator('td').nth(3)).toContainText('Swansfield');
@@ -719,7 +719,7 @@ test('[WF-AGENDA-001] team directory shows the same next practices and swim even
   })).toBe(0);
   await expect(agenda).toContainText('Next morning practice');
   await expect(agenda).toContainText('Next evening practice');
-  await expect(agenda).toContainText('Next swim event: Time Trials for returning/experienced swimmers');
+  await expect(agenda).toContainText('Next swim event: Time Trials for returning / experienced swimmers');
   await expect(agenda).toContainText('8:00 AM - 12:00 PM');
   await expect(agenda).not.toContainText("Each Team's Home Pool");
   await expect(agenda).not.toContainText('Jeffers Hill Pool');
@@ -757,7 +757,7 @@ test('[WF-AGENDA-002] home page shows the next practices and swim event for a se
   await expect(agenda).toContainText('Tuesday, May 26');
   await expect(agenda).toContainText('Next morning practice');
   await expect(agenda).toContainText('Next evening practice');
-  await expect(agenda).toContainText('Next swim event: Time Trials for returning/experienced swimmers');
+  await expect(agenda).toContainText('Next swim event: Time Trials for returning / experienced swimmers');
   await expect(agenda).toContainText('8:00 AM - 12:00 PM');
   await expect(agenda).toContainText('Phelps Luck');
   await expect(agenda).not.toContainText('Phelps Luck Pool');
