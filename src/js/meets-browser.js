@@ -158,17 +158,6 @@ async function renderMeets(meets, preserveExpansion = false) {
     const collapsedClass = shouldExpand ? '' : 'collapsed';
     const detailsId = `meet-details-${dateIndex}`;
     
-    // Determine status for the date group
-    let statusClass = 'upcoming';
-    
-    if (isToday) {
-      statusClass = 'today';
-    } else if (isTomorrow) {
-      statusClass = 'tomorrow';
-    } else if (!isUpcoming) {
-      statusClass = 'past';
-    }
-
     // Get the meet name from the first meet on this date
     const meetName = MeetsBrowserSafety.escapeHtml(meetsByDate[dateKey][0].name || '');
     const safeDateKey = MeetsBrowserSafety.escapeHtml(dateKey);
@@ -188,7 +177,6 @@ async function renderMeets(meets, preserveExpansion = false) {
             ${liveStatusBadge}
             ${isToday ? '<span class="status-text">TODAY</span>' : isTomorrow ? '<span class="status-text">TOMORROW</span>' : ''}
             <span class="visually-hidden">${isToday ? 'Meet is today' : isTomorrow ? 'Meet is tomorrow' : isUpcoming ? 'Upcoming meet' : 'Past meet'}</span>
-            <span class="meet-status-indicator ${statusClass}" aria-hidden="true"></span>
           </div>
         </div>
         <div class="meet-date-details" id="${detailsId}"${shouldExpand ? '' : ' hidden'}>

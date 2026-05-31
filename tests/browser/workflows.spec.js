@@ -959,6 +959,7 @@ test('[WF-MEETS-002] favorite team matchups appear first on every meet day they 
 });
 
 test('[WF-MEETS-003] regular meet-day labels advance from upcoming to ongoing and to the next meet after noon', async ({ page }) => {
+  await page.setViewportSize(MOBILE_VIEWPORT);
   await page.clock.install({ time: new Date('2026-06-13T07:59:30-04:00') });
   await page.goto('/meets.html');
   await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
@@ -966,6 +967,17 @@ test('[WF-MEETS-003] regular meet-day labels advance from upcoming to ongoing an
   const firstDualMeet = page.locator('.meet-date-card[data-meet-date="2026-06-13"]');
   const secondDualMeet = page.locator('.meet-date-card[data-meet-date="2026-06-20"]');
   await expect(firstDualMeet.locator('.meet-live-badge')).toHaveText('Upcoming');
+  await expect(page.locator('.meet-status-indicator')).toHaveCount(0);
+  const mobileHeaderLayout = await firstDualMeet.locator('.meet-date-header').evaluate(header => {
+    const meetNameBounds = header.querySelector('.meet-name-header').getBoundingClientRect();
+    const badgeBounds = header.querySelector('.meet-live-badge').getBoundingClientRect();
+    return {
+      badgeGap: badgeBounds.left - meetNameBounds.right,
+      topOffset: Math.abs(badgeBounds.top - meetNameBounds.top)
+    };
+  });
+  expect(mobileHeaderLayout.badgeGap).toBeGreaterThanOrEqual(7);
+  expect(mobileHeaderLayout.topOffset).toBeLessThanOrEqual(1);
   await expect(page.locator('.meet-date-card[data-meet-date="2026-06-06"] .meet-live-badge')).toHaveCount(0);
 
   await firstDualMeet.locator('.meet-date-header__toggle').focus();

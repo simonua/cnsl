@@ -3531,30 +3531,6 @@ button.pool-filter__clear:focus-visible {
   border-radius: var(--border-radius);
 }
 
-.meet-status-indicator {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  margin-left: 0.5rem;
-}
-
-.meet-status-indicator.upcoming {
-  background-color: var(--info-color);
-}
-
-.meet-status-indicator.today {
-  background-color: var(--success-color);
-}
-
-.meet-status-indicator.tomorrow {
-  background-color: var(--warning-color);
-}
-
-.meet-status-indicator.past {
-  background-color: var(--text-muted);
-}
-
 .meet-date-details {
   overflow: hidden;
   transition: max-height 0.3s ease, opacity 0.3s ease;
@@ -4027,6 +4003,31 @@ button.pool-filter__clear:focus-visible {
   .meet-date-details {
     padding-left: 0.625rem;
     padding-right: 0.625rem;
+  }
+
+  .meet-date-header {
+    align-items: center;
+    column-gap: 0.5rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: 0.5rem;
+  }
+
+  .date-and-name {
+    display: contents;
+  }
+
+  .date-and-name h2 {
+    grid-column: 1 / -1;
+  }
+
+  .meet-name-header {
+    grid-column: 1;
+    min-width: 0;
+  }
+
+  .status-container {
+    grid-column: 2;
   }
 
   .team-meets__table {
