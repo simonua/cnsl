@@ -97,6 +97,10 @@ function createSampleMeetsData() {
   lastWeek.setDate(lastWeek.getDate() - 7);
 
   return {
+    meetTimes: {
+      dualMeets: { start: '08:00', end: '12:00' },
+      timeTrials: { start: '08:00', end: '12:00' }
+    },
     regular_meets: [
       {
         id: 'meet-1',

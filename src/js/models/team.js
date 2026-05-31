@@ -12,6 +12,8 @@ if (typeof window === 'undefined' || !window.Team) {
       this.name = teamData.name || '';
       this.homePools = Array.isArray(teamData.homePools) ? [...teamData.homePools] : [];
       this.practicePools = Array.isArray(teamData.practicePools) ? [...teamData.practicePools] : [];
+      this.meetTimeOverrides = Object.fromEntries(Object.entries(teamData.meetTimeOverrides || {})
+        .map(([key, timingWindow]) => [key, { ...timingWindow }]));
       const staff = teamData.staff || {};
       this.staff = {
         ...staff,
@@ -27,6 +29,11 @@ if (typeof window === 'undefined' || !window.Team) {
 
     getPracticePools() {
       return [...this.practicePools];
+    }
+
+    getMeetTimeOverride(eventType) {
+      const timingWindow = this.meetTimeOverrides[eventType];
+      return timingWindow ? { ...timingWindow } : null;
     }
 
     getCoaches() {

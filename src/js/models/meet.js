@@ -3,22 +3,20 @@
  */
 if (typeof window === 'undefined' || !window.Meet) {
   class Meet {
-    static REGULAR_DUAL_MEET_WINDOW = Object.freeze({
-      startMinutes: 8 * 60,
-      endMinutes: 12 * 60,
-      displayTime: '8:00 AM - 12:00 PM'
-    });
-
     /**
      * @param {MeetRecord} meetData - Published annual meet record
+     * @param {Object<string, MeetTimingWindow>} meetTimes - Standard timing windows from annual meet data
+     * @param {string} defaultTimeWindowKey - Default timing key assigned by the meet collection
      */
-    constructor(meetData = {}) {
+    constructor(meetData = {}, meetTimes = {}, defaultTimeWindowKey = '') {
       Object.assign(this, meetData);
       this.date = meetData.date || '';
       this.name = meetData.name || '';
       this.home_team = meetData.home_team || '';
       this.visiting_team = meetData.visiting_team || '';
       this.location = meetData.location || '';
+      this.timeWindowKey = meetData.timeWindowKey || defaultTimeWindowKey;
+      this.timingWindow = meetTimes[this.timeWindowKey] ? { ...meetTimes[this.timeWindowKey] } : null;
 
       this.homeTeam = this.home_team;
       this.awayTeam = this.visiting_team;
@@ -56,20 +54,51 @@ if (typeof window === 'undefined' || !window.Meet) {
       return !this.home_team && !this.visiting_team;
     }
 
+    getTimeWindowKey() {
+      return this.timeWindowKey;
+    }
+
+    static getClockMinutes(value) {
+      const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(String(value || ''));
+      return match ? (Number(match[1]) * 60) + Number(match[2]) : null;
+    }
+
+    static formatClockTime(value) {
+      const minutes = Meet.getClockMinutes(value);
+      if (minutes === null) return '';
+
+      const hour = Math.floor(minutes / 60);
+      const minute = String(minutes % 60).padStart(2, '0');
+      const period = hour < 12 ? 'AM' : 'PM';
+      const displayHour = hour % 12 || 12;
+      return `${displayHour}:${minute} ${period}`;
+    }
+
     /**
-     * Get the approved public schedule window for standard dual meets.
+     * Get the published standard or team-overridden schedule window.
+     * @param {MeetTimingWindow|null} overrideTimingWindow - Optional team-specific published window
      * @returns {{ startMinutes: number, endMinutes: number, displayTime: string }|null} Known timing window
      */
-    getKnownTimingWindow() {
-      return this.isSpecialMeet() ? null : Meet.REGULAR_DUAL_MEET_WINDOW;
+    getKnownTimingWindow(overrideTimingWindow = null) {
+      const timingWindow = overrideTimingWindow || this.timingWindow;
+      const startMinutes = Meet.getClockMinutes(timingWindow?.start);
+      const endMinutes = Meet.getClockMinutes(timingWindow?.end);
+      if (startMinutes === null || endMinutes === null || startMinutes >= endMinutes) return null;
+
+      return {
+        startMinutes,
+        endMinutes,
+        displayTime: `${Meet.formatClockTime(timingWindow.start)} - ${Meet.formatClockTime(timingWindow.end)}`
+      };
     }
 
     /**
      * Format the known schedule time without applying the dual-meet convention to special meets.
      * @returns {string} Displayable published or approved schedule time
      */
-    getDisplayTime() {
-      const knownTimingWindow = this.getKnownTimingWindow();
+    getDisplayTime(overrideTimingWindow = null) {
+      const knownTimingWindow = this.getKnownTimingWindow(overrideTimingWindow);
+      if (overrideTimingWindow && knownTimingWindow) return knownTimingWindow.displayTime;
       return this.time || (knownTimingWindow ? knownTimingWindow.displayTime : 'Time not published');
     }
 
@@ -78,8 +107,8 @@ if (typeof window === 'undefined' || !window.Meet) {
      * @param {{ date: string, minutes: number, isValid?: boolean }} easternTimeInfo - Current Eastern wall-clock value
      * @returns {'upcoming'|'ongoing'|'concluded'|null} Current live state, or null for special meets/invalid time
      */
-    getLiveStatus(easternTimeInfo) {
-      const timingWindow = this.getKnownTimingWindow();
+    getLiveStatus(easternTimeInfo, overrideTimingWindow = null) {
+      const timingWindow = this.getKnownTimingWindow(overrideTimingWindow);
       if (!timingWindow || !easternTimeInfo || easternTimeInfo.isValid === false) return null;
       if (typeof easternTimeInfo.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(easternTimeInfo.date) || !/^\d{4}-\d{2}-\d{2}$/.test(this.date)) return null;
       if (!Number.isFinite(easternTimeInfo.minutes)) return null;

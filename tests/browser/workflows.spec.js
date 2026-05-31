@@ -570,15 +570,20 @@ test('[WF-TEAMS-002] team directory groups practice and meet disclosures in one 
   await expect(meetSchedule).toHaveAttribute('open', '');
   await expect(meetSchedule.locator('.team-meets__scroll')).toBeVisible();
   await expect(meetSchedule.locator('thead th')).toHaveText(['Date', 'Meet', 'Matchup', 'Pool Location']);
-  await expect(meetSchedule.locator('tbody tr')).toHaveCount(5);
-  const firstMeet = meetSchedule.locator('tbody tr').first();
-  await expect(firstMeet.locator('td').nth(0)).toHaveText('June 13');
+  await expect(meetSchedule.locator('tbody tr')).toHaveCount(8);
+  const timeTrials = meetSchedule.locator('tbody tr').first();
+  await expect(timeTrials.locator('td').nth(0)).toContainText('June 6');
+  await expect(timeTrials.locator('.team-meets__time')).toHaveText('8:00 AM - 12:00 PM');
+  await expect(timeTrials.locator('td').nth(1)).toHaveText('Time Trials for returning/experienced swimmers');
+  const firstMeet = meetSchedule.locator('tbody tr').nth(1);
+  await expect(firstMeet.locator('td').nth(0)).toContainText('June 13');
+  await expect(firstMeet.locator('.team-meets__time')).toHaveText('8:00 AM - 12:00 PM');
   await expect(firstMeet.locator('td').nth(1)).toHaveText('Dual #1');
   await expect(firstMeet).toHaveClass(/team-meets__row--home/);
   await expect(firstMeet.locator('.team-meets__matchup')).toHaveText("Clary's Forest, Hawthorn, Swansfield vs. Oakland Mills");
   await expect(firstMeet.locator('.team-meets__matchup strong')).toHaveText("Clary's Forest, Hawthorn, Swansfield");
   await expect(firstMeet.locator('.team-meets__course--nonstandard')).toHaveText('6-lane / 25-meter');
-  const awayMeet = meetSchedule.locator('tbody tr').nth(1);
+  const awayMeet = meetSchedule.locator('tbody tr').nth(2);
   await expect(awayMeet).not.toHaveClass(/team-meets__row--home/);
   await expect(awayMeet.locator('.team-meets__matchup')).toHaveText("Owen Brown vs. Clary's Forest, Hawthorn, Swansfield");
   await expect(awayMeet.locator('.team-meets__matchup strong')).toHaveText("Clary's Forest, Hawthorn, Swansfield");
@@ -672,7 +677,13 @@ test('[WF-TEAMS-006] team meet schedule retains readable spacing with restrained
   expect(sizing.overflow).toBeGreaterThan(0);
   expect(sizing.overflow).toBeLessThan(192);
   expect(sizing.tableWidth).toBeGreaterThanOrEqual(448);
-  await expect(meetSchedule.locator('tbody tr').first().locator('td').nth(1)).toHaveText('Dual #1');
+  await expect(meetSchedule.locator('tbody tr').first().locator('td').nth(1)).toHaveText('Time Trials for returning/experienced swimmers');
+  await expect(meetSchedule.locator('tbody tr').first().locator('.team-meets__time')).toHaveText('8:00 AM - 12:00 PM');
+  await expect(meetSchedule.locator('tbody tr').first().locator('td').nth(2)).toHaveText('No matchup');
+  await expect(meetSchedule.locator('tbody tr').first().locator('td').nth(3)).toContainText('Swansfield');
+  await expect(meetSchedule.locator('tbody tr').nth(1).locator('td').nth(1)).toHaveText('Dual #1');
+  await expect(meetSchedule.locator('tbody tr').nth(1).locator('.team-meets__time')).toHaveText('8:00 AM - 12:00 PM');
+  await expect(meetSchedule).toContainText('All-City Championship Meet Part 1');
   await expect(meetSchedule.locator('.team-meets__course--nonstandard').first()).toHaveText('6-lane / 25-meter');
 });
 
@@ -695,6 +706,7 @@ test('[WF-AGENDA-001] team directory shows the same next practices and swim even
   await expect(agenda).toContainText('Next morning practice');
   await expect(agenda).toContainText('Next evening practice');
   await expect(agenda).toContainText('Next swim event: Time Trials for returning/experienced swimmers');
+  await expect(agenda).toContainText('8:00 AM - 12:00 PM');
   await expect(agenda).not.toContainText("Each Team's Home Pool");
   await expect(agenda).not.toContainText('Jeffers Hill Pool');
 });
@@ -732,6 +744,7 @@ test('[WF-AGENDA-002] home page shows the next practices and swim event for a se
   await expect(agenda).toContainText('Next morning practice');
   await expect(agenda).toContainText('Next evening practice');
   await expect(agenda).toContainText('Next swim event: Time Trials for returning/experienced swimmers');
+  await expect(agenda).toContainText('8:00 AM - 12:00 PM');
   await expect(agenda).toContainText('Phelps Luck');
   await expect(agenda).not.toContainText('Phelps Luck Pool');
   await expect(agenda.getByRole('link', { name: 'Phelps Luck' }).first()).toHaveAttribute('href', 'pools.html?pool=plp');
@@ -771,7 +784,7 @@ test('[WF-AGENDA-003] shared team agenda filters published practice times by sel
   await page.goto('/index.html');
 
   const agenda = page.locator('#favoriteWeek');
-  await expect(agenda.locator('.session-item')).toHaveText([
+  await expect(agenda.locator('.session-item:has(.session-group)')).toHaveText([
     /5:30 - 6:00pm\s+8 and under/,
     /8:00 - 8:30am\s+8 and under/
   ]);
@@ -947,7 +960,21 @@ test('[WF-MEETS-003] regular meet-day labels advance from upcoming to ongoing an
   await page.clock.fastForward((4 * 60 * 60 * 1000));
   await expect(firstDualMeet.locator('.meet-live-badge')).toHaveCount(0);
   await expect(secondDualMeet.locator('.meet-live-badge')).toHaveText('Upcoming');
-  await expect(page.locator('#meetListStatus')).toHaveText('Meet timing updated for the current time.');
+  await expect(page.locator('#meetListStatus')).toHaveText('Meet status updated for the current date and time.');
+});
+
+test('[WF-MEETS-004] Time Trials advances from upcoming to ongoing using its published hours', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-06-06T07:59:30-04:00') });
+  await page.goto('/meets.html');
+  await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
+
+  const timeTrials = page.locator('.meet-date-card[data-meet-date="2026-06-06"]');
+  await expect(timeTrials.locator('.meet-live-badge')).toHaveText('Upcoming');
+  await expect(timeTrials.locator('.meet-time')).toHaveText('8:00 AM - 12:00 PM');
+  await expect(page.locator('.meet-date-card[data-meet-date="2026-06-13"] .meet-live-badge')).toHaveCount(0);
+
+  await page.clock.fastForward(31 * 1000);
+  await expect(timeTrials.locator('.meet-live-badge')).toHaveText('Ongoing');
 });
 
 for (const scenario of directoryScenarios) {

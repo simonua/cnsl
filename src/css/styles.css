@@ -3889,9 +3889,15 @@ button.pool-filter__clear:focus-visible {
   background: var(--home-meet-bg);
 }
 
-.team-meets__table td:first-child,
-.team-meets__table td:nth-child(2) {
+.team-meets__table td:first-child {
   white-space: nowrap;
+}
+
+.team-meets__time {
+  color: var(--text-muted);
+  display: block;
+  font-size: 0.8rem;
+  margin-top: 0.2rem;
 }
 
 .team-meets__matchup-team {

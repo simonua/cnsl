@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://example.com/meets.schema.json",
-  "version": "V1",
+  "version": "V2",
   "title": "Meet Data Schema",
   "description": "Schema for meet data containing regular and special meets",
   "type": "object",
@@ -12,6 +12,9 @@
     },
     "url": {
       "$ref": "#/definitions/NonEmptyString"
+    },
+    "meetTimes": {
+      "$ref": "#/definitions/StandardMeetTimes"
     },
     "regular_meets": {
       "type": "array",
@@ -26,7 +29,7 @@
       }
     }
   },
-  "required": ["url", "regular_meets", "special_meets"],
+  "required": ["url", "meetTimes", "regular_meets", "special_meets"],
   "additionalProperties": false,
   "definitions": {
     "RegularMeet": {
@@ -62,10 +65,43 @@
         },
         "location": {
           "$ref": "#/definitions/NonEmptyString"
+        },
+        "timeWindowKey": {
+          "const": "timeTrials"
         }
       },
       "required": ["date", "name", "location"],
       "additionalProperties": false
+    },
+    "StandardMeetTimes": {
+      "type": "object",
+      "properties": {
+        "dualMeets": {
+          "$ref": "#/definitions/TimingWindow"
+        },
+        "timeTrials": {
+          "$ref": "#/definitions/TimingWindow"
+        }
+      },
+      "required": ["dualMeets", "timeTrials"],
+      "additionalProperties": false
+    },
+    "TimingWindow": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "$ref": "#/definitions/ClockTime"
+        },
+        "end": {
+          "$ref": "#/definitions/ClockTime"
+        }
+      },
+      "required": ["start", "end"],
+      "additionalProperties": false
+    },
+    "ClockTime": {
+      "type": "string",
+      "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
     },
     "NonEmptyString": {
       "type": "string",

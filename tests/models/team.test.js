@@ -34,6 +34,13 @@ describe('Team', () => {
     assert.equal(team.getSummary().contact.hasEmail, true);
   });
 
+  it('returns a team-specific meet-time override when published', () => {
+    const configuredTeam = new Team({ meetTimeOverrides: { timeTrials: { start: '08:30', end: '11:30' } } });
+
+    assert.equal(configuredTeam.getMeetTimeOverride('dualMeets'), null);
+    assert.deepEqual(configuredTeam.getMeetTimeOverride('timeTrials'), { start: '08:30', end: '11:30' });
+  });
+
   it('provides stable empty/default projections for optional published data', () => {
     const minimalTeam = new Team({ name: 'Minimal Team', poolName: 'Legacy Pool', coach: 'Legacy Coach', email: 'team@example.com', phone: '410-555-0100', roster: [{}], schedule: [{}], division: 'A' });
 

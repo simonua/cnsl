@@ -35,19 +35,22 @@ function setMeetListStatus(message, isBusy) {
 }
 
 /**
- * Select the one regular meet day that should expose a live timing badge.
+ * Select the next scheduled event for Upcoming, using Ongoing for a meet with a published timing window.
  * @param {Array} meets - Meet models available to the page
- * @returns {{ date: string, kind: string, label: string }|null} Highlighted regular meet status
+ * @returns {{ date: string, kind: string, label: string }|null} Highlighted meet status
  */
 function getMeetLiveStatusTarget(meets) {
   const easternTimeInfo = TimeUtils.getCurrentEasternTimeInfo();
   if (!easternTimeInfo.isValid) return null;
 
-  const regularMeets = meets.filter(meet => !meet.isSpecialMeet()).sort((first, second) => first.date.localeCompare(second.date));
-  const ongoingMeet = regularMeets.find(meet => meet.getLiveStatus(easternTimeInfo) === 'ongoing');
+  const orderedMeets = [...meets].sort((first, second) => first.date.localeCompare(second.date));
+  const ongoingMeet = orderedMeets.find(meet => meet.getLiveStatus(easternTimeInfo) === 'ongoing');
   if (ongoingMeet) return { date: ongoingMeet.date, kind: 'ongoing', label: 'Ongoing' };
 
-  const upcomingMeet = regularMeets.find(meet => meet.getLiveStatus(easternTimeInfo) === 'upcoming');
+  if (orderedMeets.some(meet => meet.date === easternTimeInfo.date && meet.getLiveStatus(easternTimeInfo) === null)) return null;
+
+  const upcomingMeet = orderedMeets.find(meet => meet.getLiveStatus(easternTimeInfo) === 'upcoming'
+    || (meet.getLiveStatus(easternTimeInfo) === null && meet.date > easternTimeInfo.date));
   return upcomingMeet ? { date: upcomingMeet.date, kind: 'upcoming', label: 'Upcoming' } : null;
 }
 
@@ -60,7 +63,6 @@ function getMeetLiveStatusSignature(meets) {
   const target = getMeetLiveStatusTarget(meets);
   return target ? `${target.date}:${target.kind}` : '';
 }
-
 
 // ------------------------------
 //    EXISTING FUNCTIONS (Updated to use pool link helper)
@@ -310,7 +312,7 @@ function refreshMeetsForPreferences() {
 }
 
 /**
- * Refresh time-dependent badge state only when a regular meet crosses a timing boundary.
+ * Refresh badge state when the next event or a timed meet status changes.
  */
 function refreshMeetsForCurrentTime() {
   if (meetsBrowserMeets.length === 0) return;
@@ -326,7 +328,7 @@ function refreshMeetsForCurrentTime() {
       .find(card => card.dataset.meetDate === focusedToggle);
     focusedCard?.querySelector('.meet-date-header__toggle')?.focus();
   }
-  setMeetListStatus('Meet timing updated for the current time.', false);
+  setMeetListStatus('Meet status updated for the current date and time.', false);
 }
 
 /**

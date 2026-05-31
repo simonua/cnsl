@@ -59,10 +59,23 @@
       || sessionRanges.some(sessionRange => sessionRange.end > currentMinutes);
   }
 
+  function isTimeTrialsMeet(meet) {
+    return Boolean(meet && (typeof meet.getTimeWindowKey === 'function'
+      ? meet.getTimeWindowKey() === 'timeTrials'
+      : meet.timeWindowKey === 'timeTrials'));
+  }
+
   function getMeetLocation(meet, team) {
-    const isTimeTrials = typeof meet.name === 'string' && /^Time Trials\b/i.test(meet.name);
-    const usesTeamHomePool = typeof meet.location === 'string' && /^Each Team's Home Pool\b/i.test(meet.location);
-    return isTimeTrials && usesTeamHomePool && team.timeTrialsPool ? `${team.timeTrialsPool} Pool` : meet.location;
+    const isTimeTrials = isTimeTrialsMeet(meet);
+    return isTimeTrials && team.timeTrialsPool ? `${team.timeTrialsPool} Pool` : meet.location;
+  }
+
+  function getMeetDisplayTime(meet, team) {
+    const timeWindowKey = typeof meet.getTimeWindowKey === 'function' ? meet.getTimeWindowKey() : '';
+    const overrideTimingWindow = timeWindowKey && team
+      ? (typeof team.getMeetTimeOverride === 'function' ? team.getMeetTimeOverride(timeWindowKey) : team.meetTimeOverrides?.[timeWindowKey])
+      : null;
+    return typeof meet.getDisplayTime === 'function' ? meet.getDisplayTime(overrideTimingWindow) : meet.time || 'Time not published';
   }
 
   function getNextMeet(meets, team, firstDate) {
@@ -76,6 +89,7 @@
       label: 'Next swim event:',
       name: meet.name || 'Meet',
       location: getMeetLocation(meet, team),
+      time: getMeetDisplayTime(meet, team),
       sessions: [],
       teams: meet.visiting_team || meet.awayTeam ? `${meet.visiting_team || meet.awayTeam} at ${meet.home_team || meet.homeTeam}` : '',
       type: 'meet'
@@ -144,6 +158,7 @@
               <span class="favorite-week__location">${renderLocation(event.location, poolLocationIndex)}</span>
             </div>
             ${event.teams ? `<span>${globalThis.HtmlSafety.escapeHtml(event.teams)}</span>` : ''}
+            ${event.type === 'meet' && event.time ? `<div class="sessions"><div class="session-item"><span class="session-time">${globalThis.HtmlSafety.escapeHtml(event.time)}</span></div></div>` : ''}
             ${event.sessions.length > 0 ? `<div class="sessions">${event.sessions.map(session => `
               <div class="session-item">
                 <span class="session-time">${globalThis.HtmlSafety.escapeHtml(session.time)}</span>
@@ -159,7 +174,10 @@
   globalThis.TeamAgendaDisplay = Object.freeze({
     getStatus,
     getTitle,
+    getMeetDisplayTime,
+    getMeetLocation,
     getUpcomingEvents,
+    isTimeTrialsMeet,
     renderEvents
   });
 })();

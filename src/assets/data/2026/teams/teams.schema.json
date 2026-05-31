@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://example.com/teams.schema.json",
-  "version": "V8",
+  "version": "V9",
   "title": "Team Data Schema",
   "description": "Schema for team data containing practice schedules and team information",
   "type": "object",
@@ -74,6 +74,9 @@
         "timeTrialsPool": {
           "$ref": "#/definitions/NonEmptyString"
         },
+        "meetTimeOverrides": {
+          "$ref": "#/definitions/MeetTimeOverrides"
+        },
         "practicePools": {
           "type": "array",
           "items": {
@@ -90,6 +93,36 @@
       },
       "required": ["id", "name", "shortName", "keywords", "url", "merchandiseUrl", "homePools", "timeTrialsPool", "practicePools", "staff"],
       "additionalProperties": false
+    },
+    "MeetTimeOverrides": {
+      "type": "object",
+      "properties": {
+        "dualMeets": {
+          "$ref": "#/definitions/TimingWindow"
+        },
+        "timeTrials": {
+          "$ref": "#/definitions/TimingWindow"
+        }
+      },
+      "minProperties": 1,
+      "additionalProperties": false
+    },
+    "TimingWindow": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "$ref": "#/definitions/ClockTime"
+        },
+        "end": {
+          "$ref": "#/definitions/ClockTime"
+        }
+      },
+      "required": ["start", "end"],
+      "additionalProperties": false
+    },
+    "ClockTime": {
+      "type": "string",
+      "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
     },
     "Booster": {
       "type": "object",

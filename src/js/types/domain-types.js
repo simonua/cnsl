@@ -111,6 +111,7 @@
  * @property {string} merchandiseUrl
  * @property {string[]} homePools
  * @property {string} timeTrialsPool
+ * @property {{dualMeets?: MeetTimingWindow, timeTrials?: MeetTimingWindow}} [meetTimeOverrides]
  * @property {string[]} practicePools
  * @property {TeamStaffRecord} staff
  * @property {Object} [practice]
@@ -141,11 +142,19 @@
  * @property {string} [homePool] Legacy home-pool value accepted by managers.
  * @property {string} [awayPool] Legacy away-pool value accepted by managers.
  * @property {string} [time] Legacy meet time accepted by managers.
+ * @property {'timeTrials'} [timeWindowKey]
+ */
+
+/**
+ * @typedef {Object} MeetTimingWindow
+ * @property {string} start Time in 24-hour `HH:mm` format.
+ * @property {string} end Time in 24-hour `HH:mm` format.
  */
 
 /**
  * @typedef {Object} MeetsDocument
  * @property {string} [url]
+ * @property {{dualMeets: MeetTimingWindow, timeTrials: MeetTimingWindow}} meetTimes
  * @property {MeetRecord[]} [regular_meets]
  * @property {MeetRecord[]} [special_meets]
  * @property {MeetRecord[]} [meets] Legacy combined meet list accepted by managers.

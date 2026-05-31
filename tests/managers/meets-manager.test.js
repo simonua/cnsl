@@ -25,6 +25,9 @@ describe('MeetsManager', () => {
     it('loads meets from array', () => {
       suppressConsole(() => manager.loadData(sampleData));
       assert.equal(manager.isDataLoaded(), true);
+      assert.deepEqual(manager.getMeetTimes(), sampleData.meetTimes);
+      assert.equal(manager.getAllMeets()[0].getTimeWindowKey(), 'dualMeets');
+      assert.equal(manager.getAllMeets()[0].getDisplayTime(), '6:00PM');
     });
 
     it('does not mark an empty annual document as loaded', () => {
@@ -163,6 +166,7 @@ describe('MeetsManager', () => {
         assert.equal(summaries[1].homeTeam, 'TBD');
         assert.equal(summaries[1].location, 'TBD');
         assert.equal(manager.exportData().meets.length, 2);
+        assert.deepEqual(manager.exportData().meetTimes, {});
       } finally {
         global.TimeUtils = originalTimeUtils;
       }
@@ -175,6 +179,7 @@ describe('MeetsManager', () => {
       assert.equal(manager.isDataLoaded(), true);
       manager.clearData();
       assert.equal(manager.isDataLoaded(), false);
+      assert.deepEqual(manager.getMeetTimes(), {});
     });
   });
 

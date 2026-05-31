@@ -1,6 +1,10 @@
 {
   "$schema": "meets.schema.json",
   "url": "https://www.gomotionapp.com/reccnsl/UserFiles/Image/QuickUpload/2026-cnsl-meet-schedule--final_047535.pdf",
+  "meetTimes": {
+    "dualMeets": { "start": "08:00", "end": "12:00" },
+    "timeTrials": { "start": "08:00", "end": "12:00" }
+  },
   "regular_meets": [
     {
       "date": "2026-06-13",
@@ -252,7 +256,8 @@
     {
       "date": "2026-06-06",
       "name": "Time Trials for returning/experienced swimmers",
-      "location": "Each Team's Home Pool (Pointers Run at Jeffers Hill Pool)"
+      "location": "Each Team's Home Pool (Pointers Run at Jeffers Hill Pool)",
+      "timeWindowKey": "timeTrials"
     },
     {
       "date": "2026-07-24",

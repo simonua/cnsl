@@ -13,6 +13,7 @@ if (typeof window === 'undefined') {
   constructor() {
     /** @type {Map<string, Meet>} */
     this.meets = new Map();
+    this.meetTimes = {};
     this.lastUpdated = null;
     this.dataLoaded = false;
   }
@@ -23,16 +24,19 @@ if (typeof window === 'undefined') {
    */
   loadData(meetsData) {
     this.meets.clear();
+    this.meetTimes = meetsData && meetsData.meetTimes
+      ? Object.fromEntries(Object.entries(meetsData.meetTimes).map(([key, timingWindow]) => [key, { ...timingWindow }]))
+      : {};
     this.lastUpdated = null;
     this.dataLoaded = false;
     const meetsList = [
-      ...(meetsData && Array.isArray(meetsData.regular_meets) ? meetsData.regular_meets : []),
-      ...(meetsData && Array.isArray(meetsData.special_meets) ? meetsData.special_meets : [])
+      ...(meetsData && Array.isArray(meetsData.regular_meets) ? meetsData.regular_meets.map(meetData => ({ meetData, defaultTimeWindowKey: 'dualMeets' })) : []),
+      ...(meetsData && Array.isArray(meetsData.special_meets) ? meetsData.special_meets.map(meetData => ({ meetData, defaultTimeWindowKey: '' })) : [])
     ];
     
     if (meetsList.length > 0) {
-      meetsList.forEach((meetData, index) => {
-        const meet = new Meet(meetData);
+      meetsList.forEach(({ meetData, defaultTimeWindowKey }, index) => {
+        const meet = new Meet(meetData, this.meetTimes, defaultTimeWindowKey);
         const meetKey = `${meet.date}_${meet.home_team || 'special'}_${meet.visiting_team || meet.name || 'meet'}_${index}`;
         this.meets.set(meetKey, meet);
       });
@@ -56,6 +60,10 @@ if (typeof window === 'undefined') {
    */
   getMeetCount() {
     return this.meets.size;
+  }
+
+  getMeetTimes() {
+    return Object.fromEntries(Object.entries(this.meetTimes).map(([key, timingWindow]) => [key, { ...timingWindow }]));
   }
 
   /**
@@ -237,6 +245,7 @@ if (typeof window === 'undefined') {
    */
   exportData() {
     return {
+      meetTimes: this.getMeetTimes(),
       meets: this.getAllMeets(),
       statistics: this.getStatistics(),
       lastUpdated: this.lastUpdated
@@ -256,6 +265,7 @@ if (typeof window === 'undefined') {
    */
   clearData() {
     this.meets.clear();
+    this.meetTimes = {};
     this.lastUpdated = null;
     this.dataLoaded = false;
   }
@@ -273,7 +283,7 @@ if (typeof window === 'undefined') {
     return this.getAllMeets().map(meet => ({
       date: meet.date,
       formattedDate: TimeUtilsRef.formatDateForDisplay(new Date(meet.date)),
-      time: meet.time || 'TBD',
+      time: meet.getDisplayTime() === 'Time not published' ? 'TBD' : meet.getDisplayTime(),
       homeTeam: meet.getHomeTeam() || 'TBD',
       awayTeam: meet.getVisitingTeam() || 'TBD',
       location: meet.getLocation() || 'TBD',

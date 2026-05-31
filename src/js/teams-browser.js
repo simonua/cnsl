@@ -209,26 +209,34 @@ function hasNonstandardMeetCourse(poolData) {
 
 function formatMeetsSchedule(team, meets) {
   const teamMeets = Array.isArray(meets) ? meets.filter(meet => (
-    meet && (meet.home_team || meet.visiting_team) && PreferencesService.meetIncludesFavoriteTeam(meet, team)
+    meet && (!(meet.home_team || meet.visiting_team)
+      || PreferencesService.meetIncludesFavoriteTeam(meet, team))
   )).sort((first, second) => String(first.date || '').localeCompare(String(second.date || ''))) : [];
   if (teamMeets.length === 0) return '';
 
   const safeTeamName = TeamsBrowserSafety.escapeHtml(team.name || 'team');
   const hasHomeMeet = teamMeets.some(meet => PreferencesService.teamMatchesLabel(team, meet.home_team || meet.homeTeam || ''));
   const rows = teamMeets.map(meet => {
+    const isTimeTrials = globalThis.TeamAgendaDisplay.isTimeTrialsMeet(meet);
+    const isSpecialMeet = !(meet.home_team || meet.visiting_team);
     const awayTeam = meet.visiting_team || meet.awayTeam || 'Away Team';
     const homeTeam = meet.home_team || meet.homeTeam || 'Home Team';
     const isHomeMeet = PreferencesService.teamMatchesLabel(team, homeTeam);
-    const poolData = findPoolByName(meet.location);
+    const location = isTimeTrials ? globalThis.TeamAgendaDisplay.getMeetLocation(meet, team) : meet.location;
+    const time = globalThis.TeamAgendaDisplay.getMeetDisplayTime(meet, team);
+    const poolData = findPoolByName(location);
     const courseLabel = formatPoolCourseLabel(poolData);
     const isNonstandardCourse = hasNonstandardMeetCourse(poolData);
     const courseInfo = courseLabel ? `<span class="team-meets__course${isNonstandardCourse ? ' team-meets__course--nonstandard' : ''}">${TeamsBrowserSafety.escapeHtml(courseLabel)}</span>` : '';
+    const matchup = isSpecialMeet
+      ? '<span class="team-meets__matchup-team">No matchup</span>'
+      : `<span class="team-meets__matchup-team">${formatMeetTeamLabel(homeTeam, team)}</span> <span class="team-meets__matchup-team"><span class="vs">vs.</span> ${formatMeetTeamLabel(awayTeam, team)}</span>`;
     return `
       <tr${isHomeMeet ? ' class="team-meets__row--home"' : ''}>
-        <td>${formatMeetDate(meet.date)}</td>
+        <td>${formatMeetDate(meet.date)}<span class="team-meets__time">${TeamsBrowserSafety.escapeHtml(time)}</span></td>
         <td>${formatTeamMeetName(meet.name)}</td>
-        <td class="team-meets__matchup"><span class="team-meets__matchup-team">${formatMeetTeamLabel(homeTeam, team)}</span> <span class="team-meets__matchup-team"><span class="vs">vs.</span> ${formatMeetTeamLabel(awayTeam, team)}</span></td>
-        <td>${getEnhancedPoolLink(meet.location, '', formatMeetLocationLabel(meet.location))}${courseInfo}</td>
+        <td class="team-meets__matchup">${matchup}</td>
+        <td>${getEnhancedPoolLink(location, '', formatMeetLocationLabel(location))}${courseInfo}</td>
       </tr>
     `;
   }).join('');
