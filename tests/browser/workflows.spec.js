@@ -398,7 +398,7 @@ test('[WF-POOLS-001] pool feature filters expose their state and resulting count
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).poolFeatureFilters)).toEqual([]);
 });
 
-test('[WF-POOLS-002] pool availability filters show pools open now or for the next two hours', async ({ page }) => {
+test('[WF-POOLS-002] pool availability filters show pools open now, opening soon, or open for the next two hours', async ({ page }) => {
   await page.route('**/assets/data/2026/pools/pools.json*', async route => {
     const response = await route.fetch();
     const poolData = await response.json();
@@ -408,8 +408,8 @@ test('[WF-POOLS-002] pool availability filters show pools open now or for the ne
         endDate: '2026-09-07',
         hours: [{
           weekDays: ['Tue'],
-          startTime: '1:00PM',
-          endTime: index === 0 ? '6:00PM' : '4:00PM',
+          startTime: index === 1 ? '3:45PM' : '1:00PM',
+          endTime: index < 2 ? '6:00PM' : '4:00PM',
           types: ['Rec Swim'],
           accessStatus: 'public'
         }]
@@ -428,7 +428,13 @@ test('[WF-POOLS-002] pool availability filters show pools open now or for the ne
   await page.locator('#togglePoolFeatureFilters').click();
 
   await page.selectOption('#poolAvailabilityFilter', 'open-now');
-  await expect(page.locator('#poolFilterSummary')).toHaveText('23 / 23 pools');
+  await expect(page.locator('#poolFilterSummary')).toHaveText('22 / 23 pools');
+
+  await page.locator('#poolAvailabilityFilter').focus();
+  await page.keyboard.press('ArrowDown');
+  await expect(page.locator('#poolAvailabilityFilter')).toHaveValue('opens-soon');
+  await expect(page.locator('#poolFilterSummary')).toHaveText('1 / 23 pools');
+  await expect(page.locator('#poolListStatus')).toHaveText('Pool directory filtered to pools opening within the hour.');
 
   await page.selectOption('#poolAvailabilityFilter', 'open-next-two-hours');
   await expect(page.locator('#poolFilterSummary')).toHaveText('1 / 23 pools');
@@ -455,7 +461,7 @@ test('[WF-POOLS-003] pool tile features are ordered by category then alphabetica
 
   const firstPoolCard = page.locator('.pool-card').first();
   await firstPoolCard.locator('.pool-header__toggle').click();
-  await expect(firstPoolCard.locator('.pool-course')).toHaveText('Course: 6-lane / 25-meter');
+  await expect(firstPoolCard.locator('.pool-course')).toHaveCount(0);
   await expect(firstPoolCard.locator('.feature-pill')).toHaveText([
     'ADA compliant',
     'Family changing room',
@@ -518,13 +524,22 @@ test('[WF-TEAMS-001] collapsed favorite team stays collapsed after returning to 
   await expect(page.locator('.favorite-card .team-header__toggle')).toHaveAttribute('aria-expanded', 'false');
 });
 
-test('[WF-TEAMS-002] team directory displays collapsed pre-season and in-season public practice schedules', async ({ page }) => {
+test('[WF-TEAMS-002] team directory groups practice and meet disclosures in one compact schedule list', async ({ page }) => {
   await setAgendaReferenceTime(page);
   await page.goto('/teams.html');
   await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
 
   const sundevils = page.locator('.team-card[data-team-id="cfhss"]');
   await sundevils.locator('.team-header__toggle').click();
+  const schedules = sundevils.locator('.practice-schedule');
+  const scheduleRows = schedules.locator(':scope > .practice-schedule__phase');
+  await expect(schedules.getByRole('heading', { name: 'Schedules' })).toBeVisible();
+  await expect(scheduleRows).toHaveCount(3);
+  await expect(scheduleRows.locator('.practice-schedule__title')).toHaveText(['Pre-season practices', 'In-season practices', 'Meets']);
+  const collapsedGaps = await scheduleRows.evaluateAll(rows => rows.slice(1).map((row, index) => (
+    Math.round(row.getBoundingClientRect().top - rows[index].getBoundingClientRect().bottom)
+  )));
+  expect(collapsedGaps[0]).toBe(collapsedGaps[1]);
   const preSeason = sundevils.locator('.practice-schedule__phase').filter({ hasText: 'Pre-season practices' });
   const inSeason = sundevils.locator('.practice-schedule__phase').filter({ hasText: 'In-season practices' });
   await expect(preSeason).toHaveCount(1);
@@ -540,40 +555,40 @@ test('[WF-TEAMS-002] team directory displays collapsed pre-season and in-season 
   const practicePanelWidth = await sundevils.locator('.practice-schedule').evaluate(element => element.getBoundingClientRect().width);
   const teamCardWidth = await sundevils.evaluate(element => element.getBoundingClientRect().width);
   expect(practicePanelWidth).toBeLessThan(teamCardWidth);
+  expect(practicePanelWidth).toBeLessThanOrEqual(608);
   await expect(inSeason).not.toHaveClass(/practice-schedule__phase--current/);
   await inSeason.locator('summary').click();
   await expect(inSeason.locator('.practice-schedule__body')).toBeVisible();
   await expect(inSeason).toContainText('Swansfield Pool');
   await expect(inSeason).toContainText('8:00 - 8:30am');
-  const meets = sundevils.locator('.team-meets');
-  await expect(sundevils.locator('.practice-schedule + .team-meets')).toHaveCount(1);
-  await expect(meets.getByRole('heading', { name: 'Meet schedule' })).toBeVisible();
-  const meetSchedule = meets.locator('.team-meets__phase');
+  const meetSchedule = schedules.locator('.team-meets__phase');
   await expect(meetSchedule).not.toHaveAttribute('open', '');
-  await expect(meets.getByText('Home meet')).toBeVisible();
-  await expect(meets.locator('.team-meets__scroll')).not.toBeVisible();
+  await expect(meetSchedule.getByText('Home meet')).toBeVisible();
+  await expect(meetSchedule.locator('.team-meets__scroll')).not.toBeVisible();
   await meetSchedule.locator('summary').focus();
   await page.keyboard.press('Enter');
   await expect(meetSchedule).toHaveAttribute('open', '');
-  await expect(meets.locator('.team-meets__scroll')).toBeVisible();
-  await expect(meets.locator('thead th')).toHaveText(['Date', 'Meet', 'Matchup', 'Pool Location']);
-  await expect(meets.locator('tbody tr')).toHaveCount(5);
-  const firstMeet = meets.locator('tbody tr').first();
+  await expect(meetSchedule.locator('.team-meets__scroll')).toBeVisible();
+  await expect(meetSchedule.locator('thead th')).toHaveText(['Date', 'Meet', 'Matchup', 'Pool Location']);
+  await expect(meetSchedule.locator('tbody tr')).toHaveCount(5);
+  const firstMeet = meetSchedule.locator('tbody tr').first();
   await expect(firstMeet.locator('td').nth(0)).toHaveText('June 13');
-  await expect(firstMeet.locator('td').nth(1)).toHaveText('Dual Meet #1');
+  await expect(firstMeet.locator('td').nth(1)).toHaveText('Dual #1');
   await expect(firstMeet).toHaveClass(/team-meets__row--home/);
   await expect(firstMeet.locator('.team-meets__matchup')).toHaveText("Clary's Forest, Hawthorn, Swansfield vs. Oakland Mills");
   await expect(firstMeet.locator('.team-meets__matchup strong')).toHaveText("Clary's Forest, Hawthorn, Swansfield");
-  await expect(firstMeet.locator('.team-meets__course')).toHaveText('6-lane / 25-meter');
-  const awayMeet = meets.locator('tbody tr').nth(1);
+  await expect(firstMeet.locator('.team-meets__course--nonstandard')).toHaveText('6-lane / 25-meter');
+  const awayMeet = meetSchedule.locator('tbody tr').nth(1);
   await expect(awayMeet).not.toHaveClass(/team-meets__row--home/);
   await expect(awayMeet.locator('.team-meets__matchup')).toHaveText("Owen Brown vs. Clary's Forest, Hawthorn, Swansfield");
   await expect(awayMeet.locator('.team-meets__matchup strong')).toHaveText("Clary's Forest, Hawthorn, Swansfield");
+  await expect(awayMeet.locator('.team-meets__course')).toHaveText('8-lane / 25-yard');
+  await expect(awayMeet.locator('.team-meets__course--nonstandard')).toHaveCount(0);
   await expect(firstMeet.locator('.team-meets__matchup-team')).toHaveText(["Clary's Forest, Hawthorn, Swansfield", 'vs. Oakland Mills']);
   await expect(firstMeet.getByRole('link', { name: 'Swansfield' })).toHaveAttribute('href', /pools\.html\?pool=/);
   await expect(firstMeet).not.toContainText('Swansfield Pool');
   const primaryActions = sundevils.locator('.team-actions--website');
-  await expect(sundevils.locator('.team-meets + .team-actions--website')).toHaveCount(1);
+  await expect(sundevils.locator('.practice-schedule + .team-actions--website')).toHaveCount(1);
   await expect(primaryActions.locator('a')).toHaveText(['🌐 Team Website', '📅 Team Calendar', '📅 Practice Schedule']);
   await expect(primaryActions.getByRole('link', { name: 'Team Website' })).toBeVisible();
   await expect(primaryActions.getByRole('link', { name: 'Team Calendar' })).toHaveAttribute('href', /\/page\/calendar$/);
@@ -636,6 +651,29 @@ test('[WF-TEAMS-005] unknown team deep links leave the loaded directory stable',
   await page.waitForTimeout(300);
   await expect(teamCards).toHaveCount(renderedTeamCount);
   await expect(page.locator('.team-card.highlighted')).toHaveCount(0);
+});
+
+test('[WF-TEAMS-006] team meet schedule retains readable spacing with restrained phone scrolling', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 900 });
+  await setAgendaReferenceTime(page);
+  await page.goto('/teams.html');
+  await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
+
+  const sundevils = page.locator('.team-card[data-team-id="cfhss"]');
+  await sundevils.locator('.team-header__toggle').click();
+  const meetSchedule = sundevils.locator('.team-meets__phase');
+  await meetSchedule.locator('summary').click();
+  const scrollContainer = meetSchedule.locator('.team-meets__scroll');
+  await expect(scrollContainer).toBeVisible();
+  const sizing = await scrollContainer.evaluate(element => ({
+    overflow: element.scrollWidth - element.clientWidth,
+    tableWidth: element.querySelector('.team-meets__table').getBoundingClientRect().width
+  }));
+  expect(sizing.overflow).toBeGreaterThan(0);
+  expect(sizing.overflow).toBeLessThan(192);
+  expect(sizing.tableWidth).toBeGreaterThanOrEqual(448);
+  await expect(meetSchedule.locator('tbody tr').first().locator('td').nth(1)).toHaveText('Dual #1');
+  await expect(meetSchedule.locator('.team-meets__course--nonstandard').first()).toHaveText('6-lane / 25-meter');
 });
 
 test('[WF-AGENDA-001] team directory shows the same next practices and swim event agenda as home', async ({ page }) => {
@@ -891,6 +929,27 @@ test('[WF-MEETS-002] favorite team matchups appear first on every meet day they 
   expect(favoriteDayPlacement.every(firstIsFavorite => firstIsFavorite)).toBe(true);
 });
 
+test('[WF-MEETS-003] regular meet-day labels advance from upcoming to ongoing and to the next meet after noon', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-06-13T07:59:30-04:00') });
+  await page.goto('/meets.html');
+  await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
+
+  const firstDualMeet = page.locator('.meet-date-card[data-meet-date="2026-06-13"]');
+  const secondDualMeet = page.locator('.meet-date-card[data-meet-date="2026-06-20"]');
+  await expect(firstDualMeet.locator('.meet-live-badge')).toHaveText('Upcoming');
+  await expect(page.locator('.meet-date-card[data-meet-date="2026-06-06"] .meet-live-badge')).toHaveCount(0);
+
+  await firstDualMeet.locator('.meet-date-header__toggle').focus();
+  await page.clock.fastForward(31 * 1000);
+  await expect(firstDualMeet.locator('.meet-live-badge')).toHaveText('Ongoing');
+  await expect(firstDualMeet.locator('.meet-date-header__toggle')).toBeFocused();
+
+  await page.clock.fastForward((4 * 60 * 60 * 1000));
+  await expect(firstDualMeet.locator('.meet-live-badge')).toHaveCount(0);
+  await expect(secondDualMeet.locator('.meet-live-badge')).toHaveText('Upcoming');
+  await expect(page.locator('#meetListStatus')).toHaveText('Meet timing updated for the current time.');
+});
+
 for (const scenario of directoryScenarios) {
   test(`[WF-DIR-002-${scenario.reference}] ${scenario.path} directory tiles point, stay still, and expand from their surface`, async ({ page }) => {
     await page.goto(scenario.path);
@@ -978,8 +1037,8 @@ test('[WF-POOLS-006] desktop expanded pool details group contact links and fit t
       addressHasAccentBorder: card.ownerDocument.defaultView.getComputedStyle(addressSection).borderLeftWidth === '3px',
       addressIsFullWidth: Math.abs(addressBox.width - contactBox.width) <= 1,
       addressIsIndented: addressLinkBox.left > addressDetailsBox.left,
-      caWebsiteIsBesideAddress: caWebsiteBox.left >= addressDetailsBox.right && caWebsiteBox.top < addressDetailsBox.bottom,
-      phoneIsUnderCaWebsite: phoneBox.top >= caWebsiteBox.bottom && phoneBox.left >= addressDetailsBox.right,
+      phoneIsBesideAddress: phoneBox.left >= addressDetailsBox.right && phoneBox.top < addressDetailsBox.bottom,
+      caWebsiteIsUnderPhone: caWebsiteBox.top >= phoneBox.bottom && caWebsiteBox.left >= addressDetailsBox.right,
       phoneIsInsideAddress: phoneBox.top > addressBox.top && phoneBox.bottom <= addressBox.bottom,
       caWebsiteIsInsideAddress: caWebsiteBox.bottom <= addressBox.bottom,
       calendarFits: schedule.scrollWidth <= schedule.clientWidth + 1,
@@ -993,8 +1052,8 @@ test('[WF-POOLS-006] desktop expanded pool details group contact links and fit t
   expect(layout.addressHasAccentBorder).toBe(true);
   expect(layout.addressIsFullWidth).toBe(true);
   expect(layout.addressIsIndented).toBe(true);
-  expect(layout.caWebsiteIsBesideAddress).toBe(true);
-  expect(layout.phoneIsUnderCaWebsite).toBe(true);
+  expect(layout.phoneIsBesideAddress).toBe(true);
+  expect(layout.caWebsiteIsUnderPhone).toBe(true);
   expect(layout.phoneIsInsideAddress).toBe(true);
   expect(layout.caWebsiteIsInsideAddress).toBe(true);
   expect(layout.calendarFits).toBe(true);
@@ -1467,4 +1526,37 @@ test('[WF-POOLS-014] semantic practice status drives detail and calendar styling
   await expect(marlinsName).toBeVisible();
   await expect(marlinsName.locator('xpath=..')).toHaveClass(/schedule-activity--team/);
   await expect(marlinsName.locator('xpath=..')).toContainText('Published Team Session');
+});
+
+test('[WF-POOLS-015] opens-soon results update when a public opening enters the next hour', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-05-26T13:59:30-04:00') });
+  await page.route('**/assets/data/2026/pools/pools.json*', async route => {
+    const response = await route.fetch();
+    const poolData = await response.json();
+    poolData.pools.forEach(pool => {
+      pool.schedules = [{
+        startDate: '2026-05-23',
+        endDate: '2026-09-07',
+        hours: [{
+          weekDays: ['Tue'],
+          startTime: '3:00PM',
+          endTime: '6:00PM',
+          types: ['Rec Swim'],
+          accessStatus: 'public'
+        }]
+      }];
+      pool.scheduleOverrides = [];
+    });
+    await route.fulfill({ response, json: poolData });
+  });
+  await page.goto('/pools.html');
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+
+  await page.locator('#togglePoolFeatureFilters').click();
+  await page.selectOption('#poolAvailabilityFilter', 'opens-soon');
+  await expect(page.locator('#poolList .pool-card')).toHaveCount(0);
+
+  await page.clock.fastForward(31 * 1000);
+  await expect(page.locator('#poolList .pool-card')).toHaveCount(23);
+  await expect(page.locator('#poolListStatus')).toHaveText('Pool availability updated for the current time.');
 });

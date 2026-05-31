@@ -326,6 +326,18 @@ if (typeof window === 'undefined') {
   }
 
   /**
+   * Check whether this closed pool next opens to public use within a time window today.
+   * @param {number} durationMinutes - Maximum minutes until opening
+   * @returns {boolean} Whether a public opening occurs within the requested window
+   */
+  opensWithinNextMinutes(durationMinutes = 60) {
+    if (!Number.isFinite(durationMinutes) || durationMinutes < 0) return false;
+
+    const transition = this.getPublicStatusTransitionToday();
+    return transition !== null && transition.action === 'opens' && transition.minutes <= durationMinutes;
+  }
+
+  /**
    * Return the next same-day transition in public-use availability.
    * @returns {{ action: string, minutes: number }|null} Next public opening or closing transition
    */

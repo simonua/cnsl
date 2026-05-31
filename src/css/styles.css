@@ -2119,12 +2119,6 @@ button.pool-filter__clear:focus-visible {
   min-width: 0;
 }
 
-.pool-course {
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  margin: 0.5rem 0 0;
-}
-
 .address-section__actions {
   align-items: flex-end;
   display: flex;
@@ -3407,6 +3401,33 @@ button.pool-filter__clear:focus-visible {
   flex: 1;
 }
 
+.status-container {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.4rem;
+}
+
+.meet-live-badge {
+  border: 1px solid var(--info-color);
+  border-radius: var(--border-radius);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.45rem;
+  white-space: nowrap;
+}
+
+.meet-live-badge--ongoing {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+  color: var(--accent-text);
+}
+
+.meet-live-badge--upcoming {
+  background-color: var(--light-bg);
+  color: var(--text-dark);
+}
+
 .meet-date-header h2 {
   color: var(--primary-color);
   margin: 0;
@@ -3674,13 +3695,11 @@ button.pool-filter__clear:focus-visible {
   width: 1.15rem;
 }
 
-.practice-schedule,
-.team-meets {
+.practice-schedule {
   margin: 0.75rem 0;
 }
 
-.practice-schedule h3,
-.team-meets h3 {
+.practice-schedule h3 {
   color: var(--primary-color);
   margin-bottom: 0.75rem;
   font-weight: 600;
@@ -3803,9 +3822,8 @@ button.pool-filter__clear:focus-visible {
 }
 
 @media (min-width: 48.0625rem) {
-  .practice-schedule,
-  .team-meets {
-    max-width: 45rem;
+  .practice-schedule {
+    max-width: 38rem;
   }
 }
 
@@ -3819,10 +3837,9 @@ button.pool-filter__clear:focus-visible {
   grid-template-columns: auto minmax(0, 1fr) auto;
 }
 
-.team-meets__summary h3 {
+.team-meets__summary .practice-schedule__title {
   grid-column: 1;
   grid-row: 1;
-  margin: 0;
 }
 
 .team-meets__home-label {
@@ -3888,7 +3905,6 @@ button.pool-filter__clear:focus-visible {
 .team-meets__matchup .vs {
   color: var(--text-muted);
   font-weight: 600;
-  margin-right: 0.25rem;
 }
 
 .team-meets__course {
@@ -3897,6 +3913,31 @@ button.pool-filter__clear:focus-visible {
   font-size: 0.8rem;
   margin-top: 0.2rem;
   white-space: nowrap;
+}
+
+.team-meets__course--nonstandard {
+  background: var(--warning-soft-bg);
+  border-left: 3px solid var(--warning-color);
+  border-radius: 0.2rem;
+  color: var(--warning-text-color);
+  padding: 0.2rem 0.3rem;
+  white-space: normal;
+}
+
+@media (max-width: 48rem) {
+  .team-meets__body {
+    padding: 0.6rem;
+  }
+
+  .team-meets__table {
+    font-size: 0.875rem;
+    min-width: 28rem;
+  }
+
+  .team-meets__table th,
+  .team-meets__table td {
+    padding: 0.55rem 0.45rem;
+  }
 }
 
 .team-staff {
@@ -3913,6 +3954,7 @@ button.pool-filter__clear:focus-visible {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
+  max-width: 45rem;
 }
 
 .team-staff__list {

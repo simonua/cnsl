@@ -8,6 +8,7 @@ const PoolDirectoryService = require('../../src/js/services/pool-directory-servi
 describe('PoolDirectoryService', () => {
   it('accepts only supported availability filters', () => {
     assert.equal(PoolDirectoryService.isAvailabilityFilter('open-now'), true);
+    assert.equal(PoolDirectoryService.isAvailabilityFilter('opens-soon'), true);
     assert.equal(PoolDirectoryService.isAvailabilityFilter('unknown'), false);
   });
 

@@ -29,6 +29,21 @@ describe('Meet', () => {
     assert.equal(specialMeet.occursAtPool('Other Pool'), false);
     assert.equal(specialMeet.matchesSearchTerm('missing'), false);
     assert.equal(new Meet().getLocation(), '');
+    assert.equal(specialMeet.getKnownTimingWindow(), null);
+    assert.equal(specialMeet.getDisplayTime(), 'Time not published');
+    assert.equal(specialMeet.getLiveStatus({ date: '2026-07-25', minutes: 600, isValid: true }), null);
+  });
+
+  it('uses the approved standard dual-meet window for live timing status', () => {
+    const regularMeet = new Meet({ date: '2026-06-13', home_team: 'Home', visiting_team: 'Away' });
+    assert.equal(regularMeet.getDisplayTime(), '8:00 AM - 12:00 PM');
+    assert.equal(regularMeet.getLiveStatus({ date: '2026-06-13', minutes: 479, isValid: true }), 'upcoming');
+    assert.equal(regularMeet.getLiveStatus({ date: '2026-06-13', minutes: 480, isValid: true }), 'ongoing');
+    assert.equal(regularMeet.getLiveStatus({ date: '2026-06-13', minutes: 719, isValid: true }), 'ongoing');
+    assert.equal(regularMeet.getLiveStatus({ date: '2026-06-13', minutes: 720, isValid: true }), 'concluded');
+    assert.equal(regularMeet.getLiveStatus({ date: '2026-06-20', minutes: 0, isValid: true }), 'concluded');
+    assert.equal(regularMeet.getLiveStatus({ date: '2026-06-01', minutes: 0, isValid: true }), 'upcoming');
+    assert.equal(regularMeet.getLiveStatus({ date: 'bad date', minutes: 480, isValid: true }), null);
   });
 
   it('splits composite published home-team labels', () => {

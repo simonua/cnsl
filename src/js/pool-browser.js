@@ -6,6 +6,7 @@ let poolSortOrder = 'name';
 let poolAvailabilityFilter = 'all';
 let poolLiveStatusRefreshTimeout = null;
 let poolLiveStatusSignature = '';
+const POOL_OPENING_SOON_MINUTES = 60;
 const PoolBrowserSafety = HtmlSafety;
 
 // Pool-specific week states (poolId -> Date)
@@ -575,6 +576,7 @@ function handlePoolAvailabilityChange(event) {
   const descriptions = {
     all: 'all pools',
     'open-now': 'pools open now',
+    'opens-soon': 'pools opening within the hour',
     'open-next-two-hours': 'pools open for the next 2 hours'
   };
   setPoolListStatus(`Pool directory filtered to ${descriptions[poolAvailabilityFilter]}.`, false);
@@ -627,6 +629,18 @@ function updatePoolFilterSummary(matchingCount, totalCount, filterCount) {
 }
 
 /**
+ * Check whether one pool matches the selected live-availability requirement.
+ * @param {Pool} poolModel - Pool model with current public-use schedule state
+ * @returns {boolean} Whether this pool matches the active filter
+ */
+function matchesPoolAvailabilityFilter(poolModel) {
+  if (!poolModel) return false;
+  if (poolAvailabilityFilter === 'opens-soon') return poolModel.opensWithinNextMinutes(POOL_OPENING_SOON_MINUTES);
+  if (poolAvailabilityFilter === 'open-next-two-hours') return poolModel.isOpenForNextMinutes(120);
+  return poolAvailabilityFilter === 'all' || poolModel.isOpenForNextMinutes();
+}
+
+/**
  * Apply the selected live-availability requirement to matching pools.
  * @param {Array} pools - Pools already matched by facility features
  * @returns {Array} Pools matching the selected availability condition
@@ -634,10 +648,9 @@ function updatePoolFilterSummary(matchingCount, totalCount, filterCount) {
 function filterPoolsByAvailability(pools) {
   if (poolAvailabilityFilter === 'all' || !poolBrowserDataManager) return pools;
 
-  const requiredMinutes = poolAvailabilityFilter === 'open-next-two-hours' ? 120 : 0;
   return pools.filter(pool => {
     const poolModel = poolBrowserDataManager.getPool(pool.name);
-    return poolModel && poolModel.isOpenForNextMinutes(requiredMinutes);
+    return matchesPoolAvailabilityFilter(poolModel);
   });
 }
 
@@ -682,13 +695,12 @@ function restoreFocusedPoolControl(focusTarget) {
 function getPoolLiveStatusSignature(pools) {
   if (!poolBrowserDataManager || !Array.isArray(pools)) return '';
 
-  const requiredMinutes = poolAvailabilityFilter === 'open-next-two-hours' ? 120 : 0;
   const includesAvailability = poolAvailabilityFilter !== 'all';
   return pools.map(pool => {
     const poolModel = poolBrowserDataManager.getPool(pool.name);
     if (!poolModel) return `${pool.id || pool.name}:unavailable`;
     const status = poolModel.getCurrentStatus();
-    const availability = includesAvailability ? poolModel.isOpenForNextMinutes(requiredMinutes) : '';
+    const availability = includesAvailability ? matchesPoolAvailabilityFilter(poolModel) : '';
     return `${pool.id || pool.name}:${status.kind}:${String(availability)}`;
   }).join('|');
 }
@@ -912,11 +924,6 @@ function renderPools(pools) {
     const safeMapsUrl = PoolBrowserSafety.safeHttpUrl(mapsUrl);
     const safeStreetAddress = PoolBrowserSafety.escapeHtml(streetAddress);
     const safeCityStateZip = PoolBrowserSafety.escapeHtml(cityStateZip);
-    const courseLabel = formatPoolCourseLabel(pool);
-    const courseHtml = courseLabel
-      ? `<p class="pool-course"><strong>Course:</strong> ${PoolBrowserSafety.escapeHtml(courseLabel)}</p>`
-      : '';
-
     return `
       <div class="pool-card ${isFavorite ? 'favorite-card' : ''}${isExpanded ? '' : ' collapsed'}" data-pool-id="${safePoolId}">
         <div class="pool-header">
@@ -934,9 +941,8 @@ function renderPools(pools) {
                    class="address-link">
                   ${safeStreetAddress ? `${safeStreetAddress}${safeCityStateZip ? '<br>' : ''}` : ''}${safeCityStateZip || (safeStreetAddress ? '' : 'Address not available')}
                 </a>
-                ${courseHtml}
               </div>
-              ${(caLinkHtml || phoneHtml) ? `<div class="address-section__actions">${caLinkHtml}${phoneHtml}</div>` : ''}
+              ${(caLinkHtml || phoneHtml) ? `<div class="address-section__actions">${phoneHtml}${caLinkHtml}</div>` : ''}
             </div>
           </div>
           ${hoursHtml}

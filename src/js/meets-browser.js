@@ -1,6 +1,9 @@
 // Global data manager instance for meets browser
 let meetsBrowserDataManager = null;
 let meetsPoolLocationIndex = new Map();
+let meetsBrowserMeets = [];
+let meetLiveStatusRefreshTimeout = null;
+let meetLiveStatusSignature = '';
 const MeetsBrowserSafety = HtmlSafety;
 
 
@@ -31,6 +34,33 @@ function setMeetListStatus(message, isBusy) {
   if (status) status.textContent = message;
 }
 
+/**
+ * Select the one regular meet day that should expose a live timing badge.
+ * @param {Array} meets - Meet models available to the page
+ * @returns {{ date: string, kind: string, label: string }|null} Highlighted regular meet status
+ */
+function getMeetLiveStatusTarget(meets) {
+  const easternTimeInfo = TimeUtils.getCurrentEasternTimeInfo();
+  if (!easternTimeInfo.isValid) return null;
+
+  const regularMeets = meets.filter(meet => !meet.isSpecialMeet()).sort((first, second) => first.date.localeCompare(second.date));
+  const ongoingMeet = regularMeets.find(meet => meet.getLiveStatus(easternTimeInfo) === 'ongoing');
+  if (ongoingMeet) return { date: ongoingMeet.date, kind: 'ongoing', label: 'Ongoing' };
+
+  const upcomingMeet = regularMeets.find(meet => meet.getLiveStatus(easternTimeInfo) === 'upcoming');
+  return upcomingMeet ? { date: upcomingMeet.date, kind: 'upcoming', label: 'Upcoming' } : null;
+}
+
+/**
+ * Capture the live badge state to avoid replacing the meet list unnecessarily each minute.
+ * @param {Array} meets - Meet models available to the page
+ * @returns {string} Compact live timing signature
+ */
+function getMeetLiveStatusSignature(meets) {
+  const target = getMeetLiveStatusTarget(meets);
+  return target ? `${target.date}:${target.kind}` : '';
+}
+
 
 // ------------------------------
 //    EXISTING FUNCTIONS (Updated to use pool link helper)
@@ -40,7 +70,7 @@ function setMeetListStatus(message, isBusy) {
  * Renders the list of meets in the #meetList element
  * @param {Array} meets - Array of meet objects
  */
-async function renderMeets(meets) {
+async function renderMeets(meets, preserveExpansion = false) {
   const list = document.getElementById("meetList");
   if (!list) return;
   
@@ -57,10 +87,17 @@ async function renderMeets(meets) {
     const isFavorite = PreferencesService.teamMatchesLabel(favoriteTeam, displayLabel);
     return `<span class="${className}${isFavorite ? ' favorite-team' : ''}">${MeetsBrowserSafety.escapeHtml(displayLabel)}</span>`;
   };
+  const expandedDateValues = preserveExpansion
+    ? new Set(Array.from(list.querySelectorAll('.meet-date-card')).filter(card => (
+      card.querySelector('.meet-date-header__toggle')?.getAttribute('aria-expanded') === 'true'
+    )).map(card => card.dataset.meetDate))
+    : null;
+  const liveStatusTarget = getMeetLiveStatusTarget(meets);
+  meetLiveStatusSignature = getMeetLiveStatusSignature(meets);
 
-  // Get current date for highlighting upcoming meets - simplified approach
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); // Normalize to start of day
+  const easternTimeInfo = TimeUtils.getCurrentEasternTimeInfo();
+  const today = easternTimeInfo.isValid ? TimeUtils.parseDateOnly(easternTimeInfo.date) : new Date();
+  today.setHours(0, 0, 0, 0);
   
   // Sort meets by date
   const sortedMeets = [...meets].sort((a, b) => {
@@ -108,13 +145,14 @@ async function renderMeets(meets) {
   
   Object.keys(meetsByDate).forEach((dateKey, dateIndex) => {
     const meetDate = TimeUtils.parseDateOnly(meetsByDate[dateKey][0].date);
+    const meetDateValue = meetsByDate[dateKey][0].date;
     const isUpcoming = meetDate >= today;
     const isToday = meetDate.toDateString() === today.toDateString();
     const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
     const isTomorrow = meetDate.toDateString() === tomorrow.toDateString();
     
     // Determine if this card should be expanded (only the next upcoming meet)
-    const shouldExpand = dateKey === nextUpcomingDateKey;
+    const shouldExpand = expandedDateValues ? expandedDateValues.has(meetDateValue) : dateKey === nextUpcomingDateKey;
     const collapsedClass = shouldExpand ? '' : 'collapsed';
     const detailsId = `meet-details-${dateIndex}`;
     
@@ -132,15 +170,20 @@ async function renderMeets(meets) {
     // Get the meet name from the first meet on this date
     const meetName = MeetsBrowserSafety.escapeHtml(meetsByDate[dateKey][0].name || '');
     const safeDateKey = MeetsBrowserSafety.escapeHtml(dateKey);
+    const safeMeetDateValue = MeetsBrowserSafety.escapeHtml(meetDateValue);
+    const liveStatusBadge = liveStatusTarget && liveStatusTarget.date === meetDateValue
+      ? `<span class="meet-live-badge meet-live-badge--${liveStatusTarget.kind}">${liveStatusTarget.label}</span>`
+      : '';
 
     html += `
-      <div class="meet-date-card ${collapsedClass}">
+      <div class="meet-date-card ${collapsedClass}" data-meet-date="${safeMeetDateValue}">
         <div class="meet-date-header">
           <div class="date-and-name">
             <h2><button type="button" class="meet-date-header__toggle" aria-expanded="${String(shouldExpand)}" aria-controls="${detailsId}">${safeDateKey}</button></h2>
             ${meetName ? `<span class="meet-name-header">${meetName}</span>` : ''}
           </div>
           <div class="status-container">
+            ${liveStatusBadge}
             ${isToday ? '<span class="status-text">TODAY</span>' : isTomorrow ? '<span class="status-text">TOMORROW</span>' : ''}
             <span class="visually-hidden">${isToday ? 'Meet is today' : isTomorrow ? 'Meet is tomorrow' : isUpcoming ? 'Upcoming meet' : 'Past meet'}</span>
             <span class="meet-status-indicator ${statusClass}" aria-hidden="true"></span>
@@ -151,7 +194,7 @@ async function renderMeets(meets) {
 
     meetsByDate[dateKey].forEach(meet => {
       const location = meet.location || 'TBA';
-      const time = meet.time || ('8:00 AM - 12:00 PM');
+      const time = meet.getDisplayTime();
       
       // Generate enhanced location link that links to pools.html page
       let locationLink = MeetsBrowserSafety.escapeHtml(location);
@@ -263,7 +306,51 @@ async function renderMeets(meets) {
 
 function refreshMeetsForPreferences() {
   if (!meetsBrowserDataManager || !document.getElementById('meetList')) return;
-  renderMeets(meetsBrowserDataManager.getMeets().getAllMeets());
+  renderMeets(meetsBrowserMeets, true);
+}
+
+/**
+ * Refresh time-dependent badge state only when a regular meet crosses a timing boundary.
+ */
+function refreshMeetsForCurrentTime() {
+  if (meetsBrowserMeets.length === 0) return;
+  const nextSignature = getMeetLiveStatusSignature(meetsBrowserMeets);
+  if (nextSignature === meetLiveStatusSignature) return;
+
+  const focusedToggle = document.activeElement instanceof Element && document.activeElement.matches('.meet-date-header__toggle')
+    ? document.activeElement.closest('.meet-date-card')?.dataset.meetDate
+    : null;
+  renderMeets(meetsBrowserMeets, true);
+  if (focusedToggle) {
+    const focusedCard = Array.from(document.querySelectorAll('.meet-date-card'))
+      .find(card => card.dataset.meetDate === focusedToggle);
+    focusedCard?.querySelector('.meet-date-header__toggle')?.focus();
+  }
+  setMeetListStatus('Meet timing updated for the current time.', false);
+}
+
+/**
+ * Check promptly after minute boundaries for an Upcoming/Ongoing transition.
+ */
+function scheduleNextMeetLiveStatusRefresh() {
+  if (meetLiveStatusRefreshTimeout !== null) window.clearTimeout(meetLiveStatusRefreshTimeout);
+  const now = new Date();
+  const millisecondsIntoMinute = (now.getSeconds() * 1000) + now.getMilliseconds();
+  const delayMilliseconds = (60 * 1000) - millisecondsIntoMinute + 25;
+  meetLiveStatusRefreshTimeout = window.setTimeout(() => {
+    refreshMeetsForCurrentTime();
+    scheduleNextMeetLiveStatusRefresh();
+  }, delayMilliseconds);
+}
+
+function handleMeetPageVisibilityChange() {
+  if (document.hidden) {
+    if (meetLiveStatusRefreshTimeout !== null) window.clearTimeout(meetLiveStatusRefreshTimeout);
+    meetLiveStatusRefreshTimeout = null;
+    return;
+  }
+  refreshMeetsForCurrentTime();
+  scheduleNextMeetLiveStatusRefresh();
 }
 
 /**
@@ -297,8 +384,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     await initializeMeetsBrowser();
     const allMeets = meetsBrowserDataManager.getMeets().getAllMeets();
-    
+    meetsBrowserMeets = allMeets;
     await renderMeets(allMeets);
+    scheduleNextMeetLiveStatusRefresh();
     setMeetListStatus(`Meet schedule loaded. ${allMeets.length} meets available.`, false);
     
   } catch (error) {
@@ -309,6 +397,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 window.addEventListener('cnsl:preferences-changed', refreshMeetsForPreferences);
+document.addEventListener('visibilitychange', handleMeetPageVisibilityChange);
 
 // ------------------------------
 //    WEATHER DISPLAY FUNCTIONS

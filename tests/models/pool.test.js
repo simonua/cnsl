@@ -153,6 +153,7 @@ describe('Pool', () => {
         assert.equal(pool.isOpenForNextMinutes(), true);
         assert.equal(pool.isOpenForNextMinutes(60), true);
         assert.equal(pool.isOpenForNextMinutes(120), false);
+        assert.equal(pool.opensWithinNextMinutes(), false);
         assert.deepEqual(pool.getPublicStatusTransitionToday(), { action: 'closes', minutes: 60 });
       } finally {
         TimeUtils.getCurrentEasternTimeInfo = originalGetCurrentEasternTimeInfo;
@@ -207,6 +208,7 @@ describe('Pool', () => {
         }));
 
         assert.deepEqual(pool.getPublicStatusTransitionToday(), { action: 'opens', minutes: 89 });
+  assert.equal(pool.opensWithinNextMinutes(), false);
       } finally {
         TimeUtils.getCurrentEasternTimeInfo = originalGetCurrentEasternTimeInfo;
       }
@@ -249,6 +251,9 @@ describe('Pool', () => {
         }));
 
         assert.deepEqual(pool.getPublicStatusTransitionToday(), { action: 'opens', minutes: 60 });
+  assert.equal(pool.opensWithinNextMinutes(), true);
+  assert.equal(pool.opensWithinNextMinutes(59), false);
+  assert.equal(pool.opensWithinNextMinutes(-1), false);
       } finally {
         TimeUtils.getCurrentEasternTimeInfo = originalGetCurrentEasternTimeInfo;
       }

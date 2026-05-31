@@ -169,7 +169,7 @@ function formatPracticeSchedules(practice) {
   const inSeasonHtml = formatInSeasonPracticeSchedule(practice, currentPhase === 'regular');
   if (!preSeasonHtml && !inSeasonHtml) return '';
 
-  return `<section class="practice-schedule" aria-label="Practice schedules"><h3>Practice schedules</h3>${preSeasonHtml}${inSeasonHtml}</section>`;
+  return `${preSeasonHtml}${inSeasonHtml}`;
 }
 
 function formatMeetDate(dateValue) {
@@ -191,6 +191,22 @@ function formatMeetLocationLabel(location) {
   return typeof location === 'string' ? location.replace(/\s+Pool\s*$/i, '').trim() : '';
 }
 
+function formatTeamMeetName(meetName) {
+  const displayName = String(meetName || 'Meet').replace(/^Dual Meet\s+(#\d+)$/i, 'Dual $1');
+  return TeamsBrowserSafety.escapeHtml(displayName);
+}
+
+function hasNonstandardMeetCourse(poolData) {
+  const hasKnownCourse = Number.isInteger(poolData?.laneCount)
+    && Number.isFinite(poolData?.laneLength)
+    && typeof poolData?.laneLengthUnits === 'string';
+  return hasKnownCourse && (
+    poolData.laneCount !== 8
+    || poolData.laneLength !== 25
+    || poolData.laneLengthUnits !== 'yards'
+  );
+}
+
 function formatMeetsSchedule(team, meets) {
   const teamMeets = Array.isArray(meets) ? meets.filter(meet => (
     meet && (meet.home_team || meet.visiting_team) && PreferencesService.meetIncludesFavoriteTeam(meet, team)
@@ -203,12 +219,14 @@ function formatMeetsSchedule(team, meets) {
     const awayTeam = meet.visiting_team || meet.awayTeam || 'Away Team';
     const homeTeam = meet.home_team || meet.homeTeam || 'Home Team';
     const isHomeMeet = PreferencesService.teamMatchesLabel(team, homeTeam);
-    const courseLabel = formatPoolCourseLabel(findPoolByName(meet.location));
-    const courseInfo = courseLabel ? `<span class="team-meets__course">${TeamsBrowserSafety.escapeHtml(courseLabel)}</span>` : '';
+    const poolData = findPoolByName(meet.location);
+    const courseLabel = formatPoolCourseLabel(poolData);
+    const isNonstandardCourse = hasNonstandardMeetCourse(poolData);
+    const courseInfo = courseLabel ? `<span class="team-meets__course${isNonstandardCourse ? ' team-meets__course--nonstandard' : ''}">${TeamsBrowserSafety.escapeHtml(courseLabel)}</span>` : '';
     return `
       <tr${isHomeMeet ? ' class="team-meets__row--home"' : ''}>
         <td>${formatMeetDate(meet.date)}</td>
-        <td>${TeamsBrowserSafety.escapeHtml(meet.name || 'Meet')}</td>
+        <td>${formatTeamMeetName(meet.name)}</td>
         <td class="team-meets__matchup"><span class="team-meets__matchup-team">${formatMeetTeamLabel(homeTeam, team)}</span> <span class="team-meets__matchup-team"><span class="vs">vs.</span> ${formatMeetTeamLabel(awayTeam, team)}</span></td>
         <td>${getEnhancedPoolLink(meet.location, '', formatMeetLocationLabel(meet.location))}${courseInfo}</td>
       </tr>
@@ -216,27 +234,33 @@ function formatMeetsSchedule(team, meets) {
   }).join('');
 
   return `
-    <section class="team-meets" aria-label="Meet schedule">
-      <details class="practice-schedule__phase team-meets__phase">
-        <summary class="practice-schedule__summary team-meets__summary">
-          <h3 class="practice-schedule__title">Meet schedule</h3>
-          ${hasHomeMeet ? '<span class="team-meets__home-label">Home meet</span>' : ''}
-          <span class="practice-schedule__toggle-icon" aria-hidden="true">&#9650;</span>
-        </summary>
-        <div class="practice-schedule__body team-meets__body">
-          <div class="team-meets__scroll">
-            <table class="team-meets__table">
-              <caption class="visually-hidden">Meet schedule for ${safeTeamName}</caption>
-              <thead>
-                <tr><th scope="col">Date</th><th scope="col">Meet</th><th scope="col">Matchup</th><th scope="col">Pool Location</th></tr>
-              </thead>
-              <tbody>${rows}</tbody>
-            </table>
-          </div>
+    <details class="practice-schedule__phase team-meets__phase">
+      <summary class="practice-schedule__summary team-meets__summary">
+        <span class="practice-schedule__title">Meets</span>
+        ${hasHomeMeet ? '<span class="team-meets__home-label">Home meet</span>' : ''}
+        <span class="practice-schedule__toggle-icon" aria-hidden="true">&#9650;</span>
+      </summary>
+      <div class="practice-schedule__body team-meets__body">
+        <div class="team-meets__scroll">
+          <table class="team-meets__table">
+            <caption class="visually-hidden">Meet schedule for ${safeTeamName}</caption>
+            <thead>
+              <tr><th scope="col">Date</th><th scope="col">Meet</th><th scope="col">Matchup</th><th scope="col">Pool Location</th></tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
         </div>
-      </details>
-    </section>
+      </div>
+    </details>
   `;
+}
+
+function formatSchedules(team, meets) {
+  const practiceScheduleHtml = formatPracticeSchedules(team.practice);
+  const meetsScheduleHtml = formatMeetsSchedule(team, meets);
+  if (!practiceScheduleHtml && !meetsScheduleHtml) return '';
+
+  return `<section class="practice-schedule" aria-label="Schedules"><h3>Schedules</h3>${practiceScheduleHtml}${meetsScheduleHtml}</section>`;
 }
 
 /**
@@ -419,8 +443,7 @@ function renderTeams(teams) {
     const upcomingEvents = globalThis.TeamAgendaDisplay.getUpcomingEvents(team, teamsBrowserDataManager.getMeets().getAllMeets());
     const agendaTitleId = `team-agenda-title-${String(teamId || teamName).replace(/[^a-zA-Z0-9_-]/g, '-')}`;
     
-    const practiceScheduleHtml = formatPracticeSchedules(team.practice);
-    const meetsScheduleHtml = formatMeetsSchedule(team, teamsBrowserDataManager.getMeets().getAllMeets());
+    const schedulesHtml = formatSchedules(team, teamsBrowserDataManager.getMeets().getAllMeets());
     const staffHtml = formatTeamStaff(team.staff);
     
     const upcomingEventsHtml = `
@@ -480,9 +503,7 @@ function renderTeams(teams) {
 
           ${staffHtml}
 
-          ${practiceScheduleHtml}
-
-          ${meetsScheduleHtml}
+          ${schedulesHtml}
 
           ${teamUrl || calendarUrl || practiceUrl || boosterUrl ? `
             <div class="team-actions team-actions--website">

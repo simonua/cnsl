@@ -3,7 +3,7 @@
  */
 if (typeof window === 'undefined' || !window.PoolDirectoryService) {
   class PoolDirectoryService {
-    static AVAILABILITY_FILTERS = Object.freeze(['all', 'open-now', 'open-next-two-hours']);
+    static AVAILABILITY_FILTERS = Object.freeze(['all', 'open-now', 'opens-soon', 'open-next-two-hours']);
 
     static isAvailabilityFilter(value) {
       return PoolDirectoryService.AVAILABILITY_FILTERS.includes(value);
