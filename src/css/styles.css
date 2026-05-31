@@ -3911,7 +3911,7 @@ button.pool-filter__clear:focus-visible {
 
 @media (min-width: 48.0625rem) {
   .practice-schedule {
-    max-width: 38rem;
+    max-width: 44rem;
   }
 }
 
@@ -4017,6 +4017,18 @@ button.pool-filter__clear:focus-visible {
 }
 
 @media (max-width: 48rem) {
+  .team-card,
+  .pool-card {
+    padding-left: 0.625rem;
+    padding-right: 0.625rem;
+  }
+
+  .meet-date-header,
+  .meet-date-details {
+    padding-left: 0.625rem;
+    padding-right: 0.625rem;
+  }
+
   .team-meets__table {
     font-size: 0.875rem;
     table-layout: fixed;

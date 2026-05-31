@@ -537,7 +537,7 @@ test('[WF-TEAMS-001] collapsed favorite team stays collapsed after returning to 
   await expect(page.locator('.favorite-card .team-header__toggle')).toHaveAttribute('aria-expanded', 'false');
 });
 
-test('[WF-TEAMS-002] team directory groups practice and meet disclosures in one compact schedule list', async ({ page }) => {
+test('[WF-TEAMS-002] team directory groups practice and meet disclosures in one readable schedule list', async ({ page }) => {
   await setAgendaReferenceTime(page);
   await page.goto('/teams.html');
   await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
@@ -568,7 +568,8 @@ test('[WF-TEAMS-002] team directory groups practice and meet disclosures in one 
   const practicePanelWidth = await sundevils.locator('.practice-schedule').evaluate(element => element.getBoundingClientRect().width);
   const teamCardWidth = await sundevils.evaluate(element => element.getBoundingClientRect().width);
   expect(practicePanelWidth).toBeLessThan(teamCardWidth);
-  expect(practicePanelWidth).toBeLessThanOrEqual(608);
+  expect(practicePanelWidth).toBeGreaterThan(608);
+  expect(practicePanelWidth).toBeLessThanOrEqual(704);
   await expect(inSeason).not.toHaveClass(/practice-schedule__phase--current/);
   await inSeason.locator('summary').click();
   await expect(inSeason.locator('.practice-schedule__body')).toBeVisible();
