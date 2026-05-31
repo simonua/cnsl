@@ -147,7 +147,7 @@ test('[WF-HOME-001] season summary and sharing actions appear only on the home p
   await page.keyboard.press('Tab');
   await expect(page.getByRole('button', { name: 'QR Code' })).toBeFocused();
   await page.keyboard.press('Enter');
-  const qrDialog = page.getByRole('dialog', { name: 'Scan to share this site' });
+  const qrDialog = page.getByRole('dialog', { name: 'Scan to open site' });
   await expect(qrDialog).toBeVisible();
   await expect(qrDialog.getByRole('img', { name: 'QR code for https://pools.longreachmarlins.org' })).toHaveAttribute('src', /assets\/images\/share-site-qr\.svg\?v=/);
   await expect(qrDialog.getByRole('link', { name: 'https://pools.longreachmarlins.org' })).toHaveAttribute('href', 'https://pools.longreachmarlins.org/');

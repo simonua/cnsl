@@ -72,7 +72,7 @@ for (const theme of ['light', 'dark']) {
   test(`[AX-SHARE-001-${theme.toUpperCase()}] QR sharing dialog has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
     await loadScenario(page, pageScenarios.find(scenario => scenario.name === 'home'), theme);
     await page.getByRole('button', { name: 'QR Code' }).click();
-    await expect(page.getByRole('dialog', { name: 'Scan to share this site' })).toBeVisible();
+    await expect(page.getByRole('dialog', { name: 'Scan to open site' })).toBeVisible();
 
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
