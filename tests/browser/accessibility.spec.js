@@ -69,6 +69,23 @@ for (const theme of ['light', 'dark']) {
 }
 
 for (const theme of ['light', 'dark']) {
+  test(`[AX-SHARE-001-${theme.toUpperCase()}] QR sharing dialog has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
+    await loadScenario(page, pageScenarios.find(scenario => scenario.name === 'home'), theme);
+    await page.getByRole('button', { name: 'QR Code' }).click();
+    await expect(page.getByRole('dialog', { name: 'Scan to share this site' })).toBeVisible();
+
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .analyze();
+    const violations = results.violations.map(violation => ({
+      id: violation.id,
+      impact: violation.impact,
+      targets: violation.nodes.map(node => node.target)
+    }));
+
+    expect(violations).toEqual([]);
+  });
+
   test(`[AX-AGENDA-001-${theme.toUpperCase()}] favorite-team agenda has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
     await setAgendaReferenceTime(page);
     await prepareStableWeatherResponses(page);

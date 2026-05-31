@@ -138,11 +138,23 @@ test('[WF-HOME-001] season summary and sharing actions appear only on the home p
 
   await expect(page.locator('.season-text')).toHaveText('The 2026 season runs from May 23 to September 7.');
   await expect(page.getByRole('link', { name: "CA's 2026 Pool Season" })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'QR Code' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Text' })).toHaveAttribute('href', 'sms:?&body=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org');
   await expect(page.getByRole('link', { name: 'Email' })).toHaveAttribute('href', 'mailto:?subject=Columbia%20Pools%20and%20CNSL%20Schedules&body=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org');
   await expect(page.getByRole('link', { name: 'Facebook (opens in new tab)' })).toHaveAttribute('href', 'https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fpools.longreachmarlins.org');
   await expect(page.getByRole('link', { name: 'Send Feedback' })).toHaveAttribute('href', 'mailto:simonkurtz@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20App%20Feedback');
   await page.getByRole('link', { name: 'Meets' }).focus();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: 'QR Code' })).toBeFocused();
+  await page.keyboard.press('Enter');
+  const qrDialog = page.getByRole('dialog', { name: 'Scan to share this site' });
+  await expect(qrDialog).toBeVisible();
+  await expect(qrDialog.getByRole('img', { name: 'QR code for https://pools.longreachmarlins.org' })).toHaveAttribute('src', /assets\/images\/share-site-qr\.svg\?v=/);
+  await expect(qrDialog.getByRole('link', { name: 'https://pools.longreachmarlins.org' })).toHaveAttribute('href', 'https://pools.longreachmarlins.org/');
+  await expect(page.getByRole('button', { name: 'Close QR code' })).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(qrDialog).toBeHidden();
+  await expect(page.getByRole('button', { name: 'QR Code' })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Text' })).toBeFocused();
   await page.keyboard.press('Tab');
@@ -159,6 +171,7 @@ test('[WF-HOME-001] season summary and sharing actions appear only on the home p
     });
   }
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_share' || eventArguments[1] === 'ca_external_link'))).toEqual([
+    ['event', 'ca_share', { method: 'qr_code', content_type: 'website', item_id: 'home_page' }],
     ['event', 'ca_share', { method: 'text', content_type: 'website', item_id: 'home_page' }],
     ['event', 'ca_external_link', { link_context: 'share', link_purpose: 'general' }],
     ['event', 'ca_share', { method: 'email', content_type: 'website', item_id: 'home_page' }],
@@ -185,7 +198,7 @@ test('[WF-HOME-001] season summary and sharing actions appear only on the home p
     const bounds = link.getBoundingClientRect();
     return { top: bounds.top, right: bounds.right, height: bounds.height };
   }));
-  expect(new Set(compactShareLayout.map(link => link.top)).size).toBe(1);
+  expect(new Set(compactShareLayout.map(link => link.top)).size).toBe(2);
   expect(compactShareLayout.every(link => link.right <= MOBILE_VIEWPORT.width && link.height >= 44)).toBe(true);
 
   await page.goto('/pools.html');
@@ -564,12 +577,12 @@ test('[WF-TEAMS-002] team directory groups practice and meet disclosures in one 
   const meetSchedule = schedules.locator('.team-meets__phase');
   await expect(meetSchedule).not.toHaveAttribute('open', '');
   await expect(meetSchedule.getByText('Home meet')).toBeVisible();
-  await expect(meetSchedule.locator('.team-meets__scroll')).not.toBeVisible();
+  await expect(meetSchedule.locator('.team-meets__table')).not.toBeVisible();
   await meetSchedule.locator('summary').focus();
   await page.keyboard.press('Enter');
   await expect(meetSchedule).toHaveAttribute('open', '');
-  await expect(meetSchedule.locator('.team-meets__scroll')).toBeVisible();
-  await expect(meetSchedule.locator('thead th')).toHaveText(['Date', 'Meet', 'Matchup', 'Pool Location']);
+  await expect(meetSchedule.locator('.team-meets__body > .team-meets__table')).toBeVisible();
+  await expect(meetSchedule.locator('thead th')).toHaveText(['Date', 'Meet', 'Matchup', 'Pool']);
   await expect(meetSchedule.locator('tbody tr')).toHaveCount(8);
   const timeTrials = meetSchedule.locator('tbody tr').first();
   await expect(timeTrials.locator('td').nth(0)).toContainText('June 6');
@@ -658,7 +671,7 @@ test('[WF-TEAMS-005] unknown team deep links leave the loaded directory stable',
   await expect(page.locator('.team-card.highlighted')).toHaveCount(0);
 });
 
-test('[WF-TEAMS-006] team meet schedule retains readable spacing with restrained phone scrolling', async ({ page }) => {
+test('[WF-TEAMS-006] team meet schedule shows all columns within its phone-width panel', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 900 });
   await setAgendaReferenceTime(page);
   await page.goto('/teams.html');
@@ -668,18 +681,18 @@ test('[WF-TEAMS-006] team meet schedule retains readable spacing with restrained
   await sundevils.locator('.team-header__toggle').click();
   const meetSchedule = sundevils.locator('.team-meets__phase');
   await meetSchedule.locator('summary').click();
-  const scrollContainer = meetSchedule.locator('.team-meets__scroll');
-  await expect(scrollContainer).toBeVisible();
-  const sizing = await scrollContainer.evaluate(element => ({
+  const scheduleBody = meetSchedule.locator('.team-meets__body');
+  await expect(scheduleBody.locator(':scope > .team-meets__table')).toBeVisible();
+  const sizing = await scheduleBody.evaluate(element => ({
     overflow: element.scrollWidth - element.clientWidth,
+    bodyWidth: element.getBoundingClientRect().width,
     tableWidth: element.querySelector('.team-meets__table').getBoundingClientRect().width
   }));
-  expect(sizing.overflow).toBeGreaterThan(0);
-  expect(sizing.overflow).toBeLessThan(192);
-  expect(sizing.tableWidth).toBeGreaterThanOrEqual(448);
+  expect(sizing.overflow).toBeLessThanOrEqual(1);
+  expect(Math.abs(sizing.tableWidth - sizing.bodyWidth)).toBeLessThanOrEqual(1);
   await expect(meetSchedule.locator('tbody tr').first().locator('td').nth(1)).toHaveText('Time Trials for returning/experienced swimmers');
   await expect(meetSchedule.locator('tbody tr').first().locator('.team-meets__time')).toHaveText('8:00 AM - 12:00 PM');
-  await expect(meetSchedule.locator('tbody tr').first().locator('td').nth(2)).toHaveText('No matchup');
+  await expect(meetSchedule.locator('tbody tr').first().locator('td').nth(2)).toBeEmpty();
   await expect(meetSchedule.locator('tbody tr').first().locator('td').nth(3)).toContainText('Swansfield');
   await expect(meetSchedule.locator('tbody tr').nth(1).locator('td').nth(1)).toHaveText('Dual #1');
   await expect(meetSchedule.locator('tbody tr').nth(1).locator('.team-meets__time')).toHaveText('8:00 AM - 12:00 PM');
@@ -766,7 +779,7 @@ test('[WF-AGENDA-002] home page shows the next practices and swim event for a se
   await expect(page.locator('#favoriteWeekContent')).toBeVisible();
 });
 
-test('[WF-HOME-002] home page keeps its three-link rows intact on narrow phones', async ({ page }) => {
+test('[WF-HOME-002] home page keeps compact link actions readable on narrow phones', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 900 });
   await page.goto('/index.html');
 
@@ -775,7 +788,9 @@ test('[WF-HOME-002] home page keeps its three-link rows intact on narrow phones'
   ));
 
   await expect.poll(() => hasSingleRow('.quick-links-grid .quick-link-card')).toBe(true);
-  await expect.poll(() => hasSingleRow('.share-site__links .share-site__link')).toBe(true);
+  await expect.poll(() => page.locator('.share-site__links .share-site__link').evaluateAll(elements => (
+    new Set(elements.map(element => Math.round(element.getBoundingClientRect().top))).size
+  ))).toBe(2);
 });
 
 test('[WF-AGENDA-003] shared team agenda filters published practice times by selected group', async ({ page }) => {

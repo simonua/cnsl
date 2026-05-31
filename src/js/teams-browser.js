@@ -182,6 +182,15 @@ function formatMeetDate(dateValue) {
   }));
 }
 
+function formatMeetTime(time) {
+  const timeParts = String(time || '').split(' - ');
+  if (timeParts.length !== 2) return TeamsBrowserSafety.escapeHtml(time);
+
+  const startTime = TeamsBrowserSafety.escapeHtml(timeParts[0]);
+  const endTime = TeamsBrowserSafety.escapeHtml(timeParts[1]);
+  return `<span class="team-meets__time-start">${startTime} -</span><span class="team-meets__time-end"> ${endTime}</span>`;
+}
+
 function formatMeetTeamLabel(label, team) {
   const safeLabel = TeamsBrowserSafety.escapeHtml(label);
   return PreferencesService.teamMatchesLabel(team, label) ? `<strong>${safeLabel}</strong>` : safeLabel;
@@ -229,11 +238,11 @@ function formatMeetsSchedule(team, meets) {
     const isNonstandardCourse = hasNonstandardMeetCourse(poolData);
     const courseInfo = courseLabel ? `<span class="team-meets__course${isNonstandardCourse ? ' team-meets__course--nonstandard' : ''}">${TeamsBrowserSafety.escapeHtml(courseLabel)}</span>` : '';
     const matchup = isSpecialMeet
-      ? '<span class="team-meets__matchup-team">No matchup</span>'
+      ? ''
       : `<span class="team-meets__matchup-team">${formatMeetTeamLabel(homeTeam, team)}</span> <span class="team-meets__matchup-team"><span class="vs">vs.</span> ${formatMeetTeamLabel(awayTeam, team)}</span>`;
     return `
       <tr${isHomeMeet ? ' class="team-meets__row--home"' : ''}>
-        <td>${formatMeetDate(meet.date)}<span class="team-meets__time">${TeamsBrowserSafety.escapeHtml(time)}</span></td>
+        <td>${formatMeetDate(meet.date)}<span class="team-meets__time">${formatMeetTime(time)}</span></td>
         <td>${formatTeamMeetName(meet.name)}</td>
         <td class="team-meets__matchup">${matchup}</td>
         <td>${getEnhancedPoolLink(location, '', formatMeetLocationLabel(location))}${courseInfo}</td>
@@ -249,15 +258,13 @@ function formatMeetsSchedule(team, meets) {
         <span class="practice-schedule__toggle-icon" aria-hidden="true">&#9650;</span>
       </summary>
       <div class="practice-schedule__body team-meets__body">
-        <div class="team-meets__scroll">
-          <table class="team-meets__table">
-            <caption class="visually-hidden">Meet schedule for ${safeTeamName}</caption>
-            <thead>
-              <tr><th scope="col">Date</th><th scope="col">Meet</th><th scope="col">Matchup</th><th scope="col">Pool Location</th></tr>
-            </thead>
-            <tbody>${rows}</tbody>
-          </table>
-        </div>
+        <table class="team-meets__table">
+          <caption class="visually-hidden">Meet schedule for ${safeTeamName}</caption>
+          <thead>
+            <tr><th scope="col">Date</th><th scope="col">Meet</th><th scope="col">Matchup</th><th scope="col">Pool</th></tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
       </div>
     </details>
   `;

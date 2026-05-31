@@ -1332,15 +1332,103 @@ button.favorite-week__toggle:focus-visible {
   stroke: none;
 }
 
+button.share-site__link {
+  cursor: pointer;
+  font: inherit;
+}
+
+html:has(.share-qr-dialog[open]) {
+  overflow: hidden;
+}
+
+.share-qr-dialog {
+  background: transparent;
+  border: none;
+  color: var(--text-dark);
+  margin: auto;
+  padding: 0;
+  width: min(calc(100% - 2rem), 24rem);
+}
+
+.share-qr-dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.52);
+}
+
+.share-qr-dialog__panel {
+  background-color: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: var(--shadow-hover);
+  padding-bottom: 1.25rem;
+}
+
+.share-qr-dialog__header {
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 1rem 0.9rem 1.25rem;
+}
+
+.share-qr-dialog__header h3 {
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+button.share-qr-dialog__close {
+  align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  box-shadow: none;
+  color: var(--text-dark);
+  display: inline-flex;
+  font-size: 1.75rem;
+  height: 2.75rem;
+  justify-content: center;
+  line-height: 1;
+  min-width: 2.75rem;
+  padding: 0;
+  width: 2.75rem;
+}
+
+button.share-qr-dialog__close:hover,
+button.share-qr-dialog__close:focus {
+  background-color: var(--light-bg);
+  border-color: var(--border-color);
+  box-shadow: none;
+  color: var(--text-dark);
+  transform: none;
+}
+
+.share-qr-dialog__image {
+  aspect-ratio: 1;
+  display: block;
+  height: auto;
+  margin: 1rem auto 0.75rem;
+  width: min(calc(100vw - 5rem), 20.5rem);
+}
+
+.share-qr-dialog__url {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0;
+  overflow-wrap: anywhere;
+  padding-inline: 1rem;
+  text-align: center;
+}
+
 @media (max-width: 30rem) {
   .share-site__links {
-    flex-wrap: nowrap;
+    display: grid;
     gap: 0.5rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .share-site__links .share-site__link {
     min-width: 0;
     padding-inline: 0.5rem;
+    width: 100%;
   }
 }
 
@@ -3827,12 +3915,6 @@ button.pool-filter__clear:focus-visible {
   }
 }
 
-.team-meets__scroll {
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  overflow-x: auto;
-}
-
 .team-meets__summary {
   grid-template-columns: auto minmax(0, 1fr) auto;
 }
@@ -3858,6 +3940,10 @@ button.pool-filter__clear:focus-visible {
 .team-meets__summary .practice-schedule__toggle-icon {
   grid-column: 3;
   grid-row: 1;
+}
+
+.team-meets__body {
+  padding: 0;
 }
 
 .team-meets__table {
@@ -3931,18 +4017,26 @@ button.pool-filter__clear:focus-visible {
 }
 
 @media (max-width: 48rem) {
-  .team-meets__body {
-    padding: 0.6rem;
-  }
-
   .team-meets__table {
     font-size: 0.875rem;
-    min-width: 28rem;
+    table-layout: fixed;
+    min-width: 0;
   }
 
   .team-meets__table th,
   .team-meets__table td {
     padding: 0.55rem 0.45rem;
+    overflow-wrap: anywhere;
+  }
+
+  .team-meets__table td:first-child,
+  .team-meets__course {
+    white-space: normal;
+  }
+
+  .team-meets__time-start,
+  .team-meets__time-end {
+    display: block;
   }
 }
 
