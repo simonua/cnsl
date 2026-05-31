@@ -89,7 +89,7 @@ describe('TeamAgendaDisplay', () => {
       }]);
 
       assert.match(html, /favorite-week__event-icon--event" aria-hidden="true">🏊<\/span>/);
-      assert.match(html, /<strong class="favorite-week__event-label">[\s\S]*Next swim event:<\/strong>[\s\S]*<strong class="favorite-week__event-name">Time Trials for returning\/experienced swimmers<\/strong>/);
+      assert.match(html, /<strong class="favorite-week__event-label">[\s\S]*Next swim event:<\/strong>[\s\S]*<strong class="favorite-week__event-name">Time Trials for returning \/ experienced swimmers<\/strong>/);
       assert.match(html, /class="session-time">8:00 AM - 12:00 PM<\/span>/);
     });
 
