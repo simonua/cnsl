@@ -15,10 +15,13 @@ description: "Use when working with JSON data files, schemas, or data loading. C
 ## Annual Structure
 
 - Canonical documentation: `docs/annual-season-assets.md`.
-- Keep one `src/assets/data/<YEAR>/README.md` annual source manifest with official download URLs, stored-document paths, readiness status, and transcription notes; do not create per-domain README files.
+- Keep one `src/assets/data/<YEAR>/README.md` annual source manifest with official download URLs, stored-document paths, the ISO `YYYY-MM-DD` date each stored source document was downloaded, readiness status, and transcription notes; do not create per-domain README files.
+- Record a PDF's download date in the annual README when the local source file is retrieved. For historical retained files whose actual download date was not recorded, state that it is not recorded and optionally note the earliest repository retention evidence; do not substitute a verification date or inferred timestamp for a known download date.
+- A single inventory row may cover an explicitly scoped PDF set only when the same download-date value or `Not recorded` status applies to every member and the README states that coverage; otherwise list retained documents individually.
 - Use `src/assets/data/<YEAR>/<domain>/` for `pools`, `meets`, and `teams`.
 - JSON and schema files live together as `<domain>/<domain>.json` and `<domain>/<domain>.schema.json`.
 - Official PDF subfolders are domain-specific: `pools/pool-schedules/`, `meets/meet-schedules/`, and `teams/team-schedules/` when source PDFs exist. Retain league-wide practice schedules and team-assignment PDFs under `teams/team-schedules/` when published.
+- Keep official source PDFs under `src/assets/data/<YEAR>/` in source control; their exclusion applies only when generating the public `out/` artifact.
 - Pool facility `features` come from the official Columbia Association page stored in each pool's `caUrl`. For every season rollover, review each page's description and Amenities list, normalize useful terms into feature labels, and record the verification date in the annual README instead of copying the prior year's array without review.
 - Official public Columbia Association pages/documents are authoritative for pool data, and official public CNSL publication/team pages are authoritative for meet and team data. Do not accept social media or other community-shared information as data evidence unless it appears in an official public source.
 - When an official Time Trials label uses `returning/experienced`, transcribe that qualifier as `returning / experienced` so visitor-facing text has a natural wrapping opportunity on narrow screens while preserving the published meaning.

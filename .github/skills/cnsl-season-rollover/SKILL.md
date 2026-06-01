@@ -12,6 +12,7 @@ Use this workflow for annual schedule assets. The canonical human-facing contrac
 ## Guardrails
 
 - Annual JSON, schemas, and official PDFs are human-maintained source data. Modify them only when the user's request authorizes that season/domain update.
+- Keep retrieved official PDFs in source control; exclude them only from generated public `out/` artifacts.
 - Never edit generated `out/` content; validate by rebuilding it.
 - Do not copy schedule values from a prior year without checking the new official PDF or authoritative source.
 - Keep historical year folders intact unless the user explicitly asks for a correction.
@@ -77,8 +78,9 @@ pnpm run build
 
 After the build, verify:
 
-- Active JSON and source PDF assets are present beneath `out/assets/data/<YEAR>/`.
-- The active annual `README.md` is copied to `out/assets/data/<YEAR>/` and accurately describes source links and local documents.
+- Active JSON and schemas are present beneath `out/assets/data/<YEAR>/`.
+- Retained source PDF evidence directories are not present beneath `out/assets/data/<YEAR>/`.
+- The active annual `README.md` is copied to `out/assets/data/<YEAR>/` and accurately describes source links and retained local documents.
 - Archived year folders are not present in `out/assets/data/`.
 - The pools, teams, and meets views do not request missing active-year JSON files.
 - Any domain left incomplete is explicitly documented and not silently activated.

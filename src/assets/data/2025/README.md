@@ -7,7 +7,7 @@ The 2025 folder is an archived season and is excluded from published builds. It 
 | Domain | Local assets | Archive coverage | Source status |
 | --- | --- | --- | --- |
 | Pools | `pools/pools.json`, `pools/pools.schema.json`, and 23 PDFs in `pools/pool-schedules/` | Complete, including facility features | Columbia Association pool pages and directory URLs are recorded in `pools/pools.json` |
-| Meets | `meets/meets.json` and `meets/meets.schema.json` | Complete | Official CNSL meet schedule URL recorded in `meets/meets.json` |
+| Meets | `meets/meets.json`, `meets/meets.schema.json`, and one PDF in `meets/meet-schedules/` | Complete | Official CNSL meet schedule downloaded and retained |
 | Teams | `teams/teams.json` and `teams/teams.schema.json` | Complete | Individual team source URLs recorded; no verified central PDF link |
 
 ## Pools
@@ -20,6 +20,14 @@ Pool schedule PDFs are stored in `pools/pool-schedules/`. The annual data file r
 | Columbia Association pool directory | [View pool directory](https://experience.arcgis.com/experience/ac58c73ab9bd4640a880c8ddf46bf198) | `pools/pools.json` |
 | Columbia Association individual pool-location pages | Official page stored as each `pools[].caUrl` | `pools[].features`, verified 2026-05-24 |
 
+### Retained Pool Document Inventory
+
+| Local PDF set | File count | Downloaded on | Earliest repository retention record |
+| --- | --- | --- | --- |
+| `pools/pool-schedules/*.pdf` | 23 | Not recorded; retained before download-date tracking was required | 2025-08-12 |
+
+The inventory row applies to each of the 23 stored 2025 pool schedule PDFs. Their original download dates were not captured, so the repository retention date is supplied only as archive provenance rather than as a download date.
+
 ### Feature Correction
 
 Existing CA-backed feature values were retained and missing `pools[].features` values were completed on 2026-05-24 from each official Columbia Association pool-location page, using its facility description and Amenities list. Published wording is normalized to compact schema labels, such as `lap` for a lane pool, `play features` for water features, and `splash` for a splash pad.
@@ -28,11 +36,11 @@ This update makes the archived application dataset complete for the currently pu
 
 ## Meets
 
-| Source document | Official download | Local copy | Recorded from |
-| --- | --- | --- | --- |
-| CNSL Meet Schedule 2025 - Final | [Download PDF](https://www.gomotionapp.com/reccnsl/UserFiles/Image/QuickUpload/cnsl-meet-schedule-2025---final_026345.pdf) | Not stored | `meets/meets.json` `url` field |
+| Source document | Official download | Local copy | Downloaded on | Recorded from |
+| --- | --- | --- | --- | --- |
+| CNSL Meet Schedule 2025 - Final | [Download PDF](https://www.gomotionapp.com/reccnsl/UserFiles/Image/QuickUpload/cnsl-meet-schedule-2025---final_026345.pdf) | `meets/meet-schedules/cnsl-meet-schedule-2025---final_026345.pdf` | 2026-06-01 | `meets/meets.json` `url` field |
 
-The official meet link is retained here for auditability of the archived transcribed schedule data.
+The official meet PDF is retained locally for auditability of the archived transcribed schedule data. As archived evidence, it remains excluded from published builds.
 
 ## Teams
 
