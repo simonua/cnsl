@@ -130,8 +130,8 @@ assert.match(GA4_MEASUREMENT_ID, /^G-[A-Z0-9]+$/, 'Analytics configuration must 
 assert.match(appConfig, new RegExp(GA4_MEASUREMENT_ID), 'Delivered application configuration must include the configured GA4 measurement ID.');
 assert.equal(appConfigBrowserContext.APP_VERSION, APP_VERSION, 'Delivered application configuration must expose the published app version to browser measurement.');
 assert.match(analytics, /window\.GA4_MEASUREMENT_ID/, 'Analytics must publish through the configured GA4 web-stream measurement ID.');
-assert.match(analytics, /analytics_storage:\s*'granted'/, 'Analytics must allow the disclosed usage and session reporting.');
-assert.doesNotMatch(analytics, /analytics_storage:\s*'denied'/, 'Analytics measurement must retain the disclosed usage and session reporting.');
+assert.match(analytics, /analytics_storage:\s*'denied'/, 'Analytics must deny identifier-backed storage for aggregate reporting.');
+assert.doesNotMatch(analytics, /analytics_storage:\s*'granted'/, 'Analytics must not enable identifier-backed usage and session reporting.');
 assert.match(analytics, /ad_storage:\s*'denied'/, 'Analytics must deny advertising storage.');
 assert.match(analytics, /allow_google_signals:\s*false/, 'Analytics must disable Google advertising signals.');
 assert.match(analytics, /allow_ad_personalization_signals:\s*false/, 'Analytics must disable advertising personalization.');
@@ -148,6 +148,16 @@ assert.match(analytics, /publishEvent\('ca_external_link'/, 'External-link measu
 assert.match(analytics, /link_purpose:\s*getExternalLinkPurpose\(clickedLink\)/, 'External-link measurement must publish only its bounded link purpose category.');
 assert.match(analytics, /publishEvent\('ca_setting_change'/, 'Settings measurement must be owned by the analytics module.');
 assert.match(analytics, /publishEvent\('ca_banner_interaction'/, 'Banner measurement must be owned by the analytics module.');
+assert.match(analytics, /window\.gtag\('event', 'ca_flyer_visit'\)/, 'Flyer visit measurement must use a fixed app-specific analytics event.');
+assert.match(analytics, /source:\s*'flyer'/, 'Flyer attribution must use the reviewed fixed campaign source.');
+assert.match(analytics, /medium:\s*'qr'/, 'Flyer attribution must use the reviewed fixed campaign medium.');
+assert.match(analytics, /name:\s*'2026_pool_season'/, 'Flyer attribution must use the reviewed fixed campaign name.');
+assert.match(analytics, /campaign_source:\s*flyerCampaign\.source/, 'Reviewed flyer attribution must be mapped to standard GA campaign source measurement.');
+assert.match(analytics, /campaign_medium:\s*flyerCampaign\.medium/, 'Reviewed flyer attribution must be mapped to standard GA campaign medium measurement.');
+assert.match(analytics, /campaign_name:\s*flyerCampaign\.name/, 'Reviewed flyer attribution must be mapped to standard GA campaign name measurement.');
+assert.match(analytics, /landingUrl\.searchParams\.delete\('utm_source'\)/, 'Recognized flyer URLs must remove their campaign marker before page measurement.');
+assert.match(analytics, /isProductionSite\(\) \? consumeFlyerCampaign\(\) : null/, 'Flyer campaign cleanup must occur only on the deployed application landing page.');
+assert.match(analytics, /window\.history\.replaceState\(/, 'Recognized flyer URLs must be cleaned without a navigation or referrer-producing redirect.');
 assert.doesNotMatch(analytics, /setting_value\s*:/, 'Settings measurement must not send selected preference values.');
 assert.doesNotMatch(analytics, /link_(?:url|host|destination)\s*:/, 'External-link measurement must not send destination details.');
 assert.match(analytics, /app_version:\s*window\.APP_VERSION/, 'Version measurement must send only the configured published app version.');

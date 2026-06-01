@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CA Pool &amp; CNSL Assistant - Printable Flyer</title>
+  <style>
+    :root {
+      --navy: #123e61;
+      --blue: #067aa8;
+      --teal: #007c78;
+      --mint: #d9f2ec;
+      --sky: #e6f4fc;
+      --sun: #ffd45a;
+      --coral: #eb6752;
+      --gold: #8b6400;
+      --slate: #506980;
+      --ink: #173049;
+      --paper: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    @page {
+      size: letter portrait;
+      margin: 0;
+    }
+
+    html,
+    body {
+      background: #e4eaee;
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .flyer {
+      background: var(--paper);
+      box-shadow: 0 0.1in 0.35in rgb(18 62 97 / 14%);
+      display: flex;
+      flex-direction: column;
+      height: 11in;
+      margin: 0.2in auto;
+      overflow: hidden;
+      width: 8.5in;
+    }
+
+    .hero {
+      background: var(--navy);
+      color: var(--paper);
+      padding: 0.42in 0.5in 0.38in;
+      position: relative;
+    }
+
+    .hero::after {
+      background: var(--sun);
+      bottom: 0;
+      content: "";
+      height: 0.08in;
+      left: 0;
+      position: absolute;
+      right: 0;
+    }
+
+    .season {
+      align-items: center;
+      color: #cfeaf5;
+      display: flex;
+      font-size: 11px;
+      font-weight: 700;
+      gap: 0.12in;
+      letter-spacing: 0;
+      margin: 0 0 0.22in;
+      text-transform: uppercase;
+    }
+
+    .season::before {
+      background: var(--coral);
+      border-radius: 50%;
+      content: "";
+      display: block;
+      height: 0.13in;
+      width: 0.13in;
+    }
+
+    h1 {
+      font-size: 34px;
+      font-weight: 800;
+      line-height: 1.05;
+      margin: 0 0 0.16in;
+      max-width: 6.5in;
+    }
+
+    .app-name {
+      color: var(--sun);
+      display: block;
+      font-size: 21px;
+      margin-top: 0.09in;
+    }
+
+    .hero-copy {
+      color: #edf7fc;
+      font-size: 15px;
+      line-height: 1.42;
+      margin: 0;
+      max-width: 6.7in;
+    }
+
+    .content {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      gap: 0.23in;
+      padding: 0.3in 0.5in 0.34in;
+    }
+
+    h2 {
+      color: var(--navy);
+      font-size: 20px;
+      line-height: 1.15;
+      margin: 0 0 0.14in;
+    }
+
+    .feature-intro {
+      color: #53697d;
+      font-size: 12.5px;
+      line-height: 1.4;
+      margin: -0.05in 0 0.18in;
+    }
+
+    .features {
+      display: grid;
+      gap: 0.14in;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .feature {
+      --feature-accent: var(--blue);
+      border: 1px solid #d7e4ec;
+      border-radius: 0.07in;
+      border-top: 0.06in solid var(--feature-accent);
+      min-height: 1.03in;
+      padding: 0.1in 0.14in 0.11in;
+    }
+
+    .feature--teams {
+      --feature-accent: var(--teal);
+    }
+
+    .feature--meets {
+      --feature-accent: var(--coral);
+    }
+
+    .feature--view {
+      --feature-accent: var(--gold);
+    }
+
+    .feature--mobile {
+      --feature-accent: var(--navy);
+    }
+
+    .feature--updates {
+      --feature-accent: var(--slate);
+    }
+
+    .feature-label {
+      color: var(--feature-accent);
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin: 0 0 0.04in;
+      text-transform: uppercase;
+    }
+
+    .feature strong {
+      color: var(--navy);
+      display: block;
+      font-size: 14px;
+      line-height: 1.2;
+      margin-bottom: 0.04in;
+    }
+
+    .feature span {
+      display: block;
+      font-size: 11.5px;
+      line-height: 1.35;
+    }
+
+    .call-to-action {
+      align-items: center;
+      background: var(--mint);
+      border-radius: 0.08in;
+      display: grid;
+      gap: 0.24in;
+      grid-template-columns: 1fr 1.48in;
+      margin-top: auto;
+      padding: 0.18in 0.2in;
+    }
+
+    .cta-label {
+      color: var(--teal);
+      font-size: 12px;
+      font-weight: 700;
+      margin: 0 0 0.06in;
+      text-transform: uppercase;
+    }
+
+    .cta-title {
+      color: var(--navy);
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1.1;
+      margin: 0 0 0.09in;
+    }
+
+    .cta-url {
+      color: var(--teal);
+      font-size: 13px;
+      font-weight: 700;
+      margin: 0 0 0.11in;
+      word-break: break-word;
+    }
+
+    .cta-note {
+      font-size: 10.5px;
+      line-height: 1.36;
+      margin: 0;
+      max-width: 4.55in;
+    }
+
+    .qr {
+      background: var(--paper);
+      border-radius: 0.06in;
+      display: block;
+      height: 1.48in;
+      padding: 0.07in;
+      width: 1.48in;
+    }
+
+    .footer {
+      align-items: center;
+      color: #607286;
+      display: flex;
+      font-size: 9.5px;
+      gap: 0.16in;
+      justify-content: space-between;
+      margin-top: 0.04in;
+    }
+
+    .footer strong {
+      color: var(--navy);
+    }
+
+    @media print {
+      html,
+      body {
+        background: var(--paper);
+      }
+
+      .flyer {
+        box-shadow: none;
+        margin: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="flyer" aria-label="CA Pool and CNSL Assistant promotional flyer">
+    <header class="hero">
+      <p class="season">2026 Outdoor Pool Season | Columbia, Maryland</p>
+      <h1>
+        Make a splash this summer!
+        <span class="app-name">CA Pool &amp; CNSL Assistant</span>
+      </h1>
+      <p class="hero-copy">Your cheerful, phone-friendly guide to pool hours, team practices, swim meets, and the details that keep Columbia families moving.</p>
+    </header>
+
+    <div class="content">
+      <section aria-labelledby="features-title">
+        <h2 id="features-title">Six ways to make swim life easier</h2>
+        <p class="feature-intro">Spend less time searching and more time enjoying the season.</p>
+        <div class="features">
+          <article class="feature feature--pools">
+            <p class="feature-label">Pools</p>
+            <strong>Find a pool for today</strong>
+            <span>See published hours, open-now status, amenities, and course details.</span>
+          </article>
+          <article class="feature feature--teams">
+            <p class="feature-label">Teams</p>
+            <strong>Keep practices close</strong>
+            <span>Choose your team and practice groups to bring what's ahead into view.</span>
+          </article>
+          <article class="feature feature--meets">
+            <p class="feature-label">Meets</p>
+            <strong>Be meet-ready</strong>
+            <span>Check meet dates, host pools, and helpful location details.</span>
+          </article>
+          <article class="feature feature--view">
+            <p class="feature-label">Your View</p>
+            <strong>See your favorites first</strong>
+            <span>Keep selected teams and practice groups saved on your device.</span>
+          </article>
+          <article class="feature feature--mobile">
+            <p class="feature-label">On Your Phone</p>
+            <strong>Bring schedules along</strong>
+            <span>Add the web app to your home screen; loaded schedules remain handy with limited connectivity.</span>
+          </article>
+          <article class="feature feature--updates">
+            <p class="feature-label">Timely Updates</p>
+            <strong>Confirm plans quickly</strong>
+            <span>Weather safety messaging and official-source links help with changing details.</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="call-to-action" aria-labelledby="scan-title">
+        <div>
+          <p class="cta-label">Free Web App | No Download Required</p>
+          <h2 class="cta-title" id="scan-title">Scan and dive into summer</h2>
+          <p class="cta-url">pools.longreachmarlins.org</p>
+          <p class="cta-note">Independent community project using published Columbia Association and CNSL information. Please confirm time-sensitive plans with the official sources linked in the app.</p>
+        </div>
+        <img class="qr" src="ca-pool-cnsl-assistant-qr.svg" width="142" height="142" alt="QR code for the CA Pool and CNSL Assistant home page">
+      </section>
+
+      <footer class="footer">
+        <span><strong>CA Pool &amp; CNSL Assistant</strong> | Built for summer swim planning</span>
+        <span>Revision: <time datetime="2026-05-31">May 31, 2026</time></span>
+      </footer>
+    </div>
+  </main>
+</body>
+</html>

@@ -248,7 +248,7 @@ test('[WF-ANALYTICS-001] analytics publishes a page view and public app version 
         ad_storage: 'denied',
         ad_user_data: 'denied',
         ad_personalization: 'denied',
-        analytics_storage: 'granted'
+        analytics_storage: 'denied'
       }],
       ['set', 'ads_data_redaction', true],
       ['set', {
@@ -284,6 +284,59 @@ test('[WF-ANALYTICS-001] analytics publishes a page view and public app version 
   });
   await expect.poll(() => page.evaluate(() => Array.from(globalThis.dataLayer.at(-1))[2])).toEqual({
     app_version: appVersion
+  });
+  await page.unrouteAll({ behavior: 'ignoreErrors' });
+});
+
+test('[WF-ANALYTICS-002] flyer QR campaign visits publish reviewed attribution and clear their landing tags', async ({ page }) => {
+  await page.route('https://www.googletagmanager.com/**', route => route.fulfill({
+    contentType: 'application/javascript',
+    body: 'globalThis.cnslTagScriptLoaded = true;'
+  }));
+  await page.route('https://pools.longreachmarlins.org/**', async route => {
+    const requestedUrl = new URL(route.request().url());
+    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    await route.fulfill({ response });
+  });
+
+  await page.goto('https://pools.longreachmarlins.org/?utm_source=flyer&utm_medium=qr&utm_campaign=2026_pool_season', { waitUntil: 'domcontentloaded' });
+  await expect(page).toHaveURL('https://pools.longreachmarlins.org/');
+  await expect.poll(() => page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
+    .toContainEqual(['event', 'ca_flyer_visit']);
+
+  const measurementCommands = await page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList)));
+  expect(JSON.stringify(measurementCommands)).not.toContain('utm_source=flyer');
+  expect(measurementCommands.find(argumentsList => argumentsList[0] === 'config')[2]).toMatchObject({
+    campaign_source: 'flyer',
+    campaign_medium: 'qr',
+    campaign_name: '2026_pool_season'
+  });
+  expect(measurementCommands.find(argumentsList => argumentsList[1] === 'page_view')[2]).toMatchObject({
+    page_location: 'https://pools.longreachmarlins.org/',
+    page_referrer: ''
+  });
+  await page.unrouteAll({ behavior: 'ignoreErrors' });
+});
+
+test('[WF-ANALYTICS-003] unrecognized campaign input is neither consumed nor counted', async ({ page }) => {
+  await page.route('https://www.googletagmanager.com/**', route => route.fulfill({
+    contentType: 'application/javascript',
+    body: 'globalThis.cnslTagScriptLoaded = true;'
+  }));
+  await page.route('https://pools.longreachmarlins.org/**', async route => {
+    const requestedUrl = new URL(route.request().url());
+    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    await route.fulfill({ response });
+  });
+
+  await page.goto('https://pools.longreachmarlins.org/?utm_source=javascript%3Aalert(1)&utm_medium=qr&utm_campaign=2026_pool_season', { waitUntil: 'domcontentloaded' });
+  await expect.poll(() => page.evaluate(() => globalThis.dataLayer.some(argumentsList => Array.from(argumentsList)[1] === 'page_view'))).toBe(true);
+  expect(new URL(page.url()).searchParams.get('utm_source')).toBe('javascript:alert(1)');
+  expect(await page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList)).filter(argumentsList => argumentsList[1] === 'ca_flyer_visit'))).toEqual([]);
+  expect(await page.evaluate(() => Array.from(globalThis.dataLayer.find(argumentsList => Array.from(argumentsList)[0] === 'config'))[2])).not.toHaveProperty('campaign_source');
+  expect(await page.evaluate(() => Array.from(globalThis.dataLayer.find(argumentsList => Array.from(argumentsList)[1] === 'page_view'))[2])).toMatchObject({
+    page_location: 'https://pools.longreachmarlins.org/',
+    page_referrer: ''
   });
   await page.unrouteAll({ behavior: 'ignoreErrors' });
 });

@@ -22,6 +22,11 @@
     GENERAL: 'general',
     MERCHANDISE: 'merchandise'
   });
+  const FLYER_CAMPAIGN = Object.freeze({
+    source: 'flyer',
+    medium: 'qr',
+    name: '2026_pool_season'
+  });
   const EXTERNAL_LINK_CONTEXTS = Object.freeze([
     { selector: '.share-site__links', context: 'share' },
     { selector: '.share-site__feedback', context: 'feedback' },
@@ -37,6 +42,30 @@
     return {
       page_location: `${window.HOME_PAGE_URL}${window.location.pathname}`,
       page_referrer: ''
+    };
+  }
+
+  function consumeFlyerCampaign() {
+    const landingUrl = new URL(window.location.href);
+    if (landingUrl.pathname !== '/'
+      || landingUrl.searchParams.get('utm_source') !== FLYER_CAMPAIGN.source
+      || landingUrl.searchParams.get('utm_medium') !== FLYER_CAMPAIGN.medium
+      || landingUrl.searchParams.get('utm_campaign') !== FLYER_CAMPAIGN.name) return null;
+
+    landingUrl.searchParams.delete('utm_source');
+    landingUrl.searchParams.delete('utm_medium');
+    landingUrl.searchParams.delete('utm_campaign');
+    window.history.replaceState(window.history.state, '', `${landingUrl.pathname}${landingUrl.search}${landingUrl.hash}`);
+    return FLYER_CAMPAIGN;
+  }
+
+  function getMeasuredCampaignParameters(flyerCampaign) {
+    if (!flyerCampaign) return {};
+
+    return {
+      campaign_source: flyerCampaign.source,
+      campaign_medium: flyerCampaign.medium,
+      campaign_name: flyerCampaign.name
     };
   }
 
@@ -129,6 +158,8 @@
       && window.location.hostname === window.HOME_PAGE_HOSTNAME;
   }
 
+  const flyerCampaign = isProductionSite() ? consumeFlyerCampaign() : null;
+
   window.cnslAnalytics = Object.freeze({
     bannerNames: BANNER_NAMES,
     trackFixedSettingChange,
@@ -148,7 +179,7 @@
     ad_storage: 'denied',
     ad_user_data: 'denied',
     ad_personalization: 'denied',
-    analytics_storage: 'granted'
+    analytics_storage: 'denied'
   });
   window.gtag('set', 'ads_data_redaction', true);
   window.gtag('set', {
@@ -167,7 +198,8 @@
       allow_google_signals: false,
       allow_ad_personalization_signals: false,
       ignore_referrer: true,
-      send_page_view: false
+      send_page_view: false,
+      ...getMeasuredCampaignParameters(flyerCampaign)
     });
     window.gtag('event', 'page_view', {
       page_title: document.title,
@@ -176,6 +208,9 @@
     window.gtag('event', 'ca_version', {
       app_version: window.APP_VERSION
     });
+    if (flyerCampaign) {
+      window.gtag('event', 'ca_flyer_visit');
+    }
   }, { once: true });
   document.head.appendChild(script);
 }());

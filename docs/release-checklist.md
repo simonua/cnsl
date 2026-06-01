@@ -47,8 +47,9 @@ Automated axe results do not substitute for this walkthrough. Do not state full 
 
 ## Privacy And Policy Check
 
-- Confirm an HTTPS deployed page loads the intended Google Analytics path with analytics storage granted for disclosed usage/session reporting, advertising storage and Google signals disabled, and no app-authored referrer or query/fragment page data transmitted.
-- Confirm application events send no PII, contact details, coordinates, free-form text, persistent identifier, user-property data, saved preference value, selected pool/team, or selected filter value. Measurement may count public page paths and coarse feature-interaction categories only.
+- Confirm an HTTPS deployed page loads the intended Google Analytics path with analytics and advertising storage denied, Google signals disabled, and no app-authored referrer or query/fragment page-location data transmitted.
+- Confirm application measurement sends no PII, contact details, coordinates, free-form text, persistent identifier, user-property data, saved preference value, selected pool/team, or selected filter value. Measurement may count aggregate public page paths, coarse feature-interaction categories, and only documented fixed campaign labels for app-published inbound links.
+- For each approved tagged inbound link, confirm only its reviewed campaign source, medium, and name are sent to GA campaign fields for aggregate source attribution, with no analytics storage or identifier-enabled visitor association, and that arbitrary or malformed campaign values are neither reported nor removed from the visitor's URL.
 - Compare delivered requests with the categorical data-collection boundary in [Security And Privacy Decision](security-privacy.md); any field outside that boundary requires a separate privacy review before collection.
 - In Google Analytics administration, confirm Google signals, advertising personalization, enhanced measurement, and granular location/device reporting are disabled unless a separately reviewed exception exists; confirm no linked advertising destination broadens purpose-limited usage reporting into advertising or profiling use.
 - Confirm Settings exposes no obsolete analytics-consent toggle or stored analytics preference.

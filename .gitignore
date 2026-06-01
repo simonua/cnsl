@@ -2,6 +2,7 @@ node_modules
 package-lock.json
 *.html
 !src/**/*.html
+!docs/flyer/**/*.html
 /out/
 tmp
 /test-results/

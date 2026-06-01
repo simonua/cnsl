@@ -24,7 +24,7 @@ description: "Use when changing URL handling, navigation, generated markup, exte
 
 - Prefer setting text content and validated element properties over emitting HTML strings. For property assignment, set a parsed and allowlisted URL value without HTML entity encoding; reserve the `HtmlSafety` destination helpers for markup strings. When existing controllers build markup, keep text escaping and destination validation visibly adjacent to the interpolation site.
 - Do not use `innerHTML` with raw external or stored data, even when the current dataset appears maintained or trusted.
-- Do not pass query strings, URL fragments, referrers, or destination values into analytics; retain the privacy boundary in the JavaScript instructions.
+- Do not pass raw query strings, URL fragments, referrers, or destination values into analytics. Only a separately reviewed, fixed campaign tuple from an app-published inbound link may be allowlisted and mapped to GA campaign fields; reject arbitrary campaign values and retain the remaining privacy boundary in the JavaScript instructions.
 
 ## Regression Coverage
 
