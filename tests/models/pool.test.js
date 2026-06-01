@@ -90,6 +90,7 @@ describe('Pool', () => {
       const pool = new Pool(createSamplePoolData({
         hours: { Monday: { open: '9:00AM', close: '5:00PM' } }
       }));
+      pool.schedule.getCurrentStatus = () => PoolStatus.CLOSED;
 
       assert.equal(pool.getHoursForDay('Monday'), '9:00AM - 5:00PM');
       assert.equal(pool.getStatusAtTime('Monday', new Date(2026, 5, 1, 12, 0)), PoolStatus.OPEN);
