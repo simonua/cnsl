@@ -6,20 +6,23 @@ The flyer should remain welcoming and factual. It may describe visitor-facing co
 
 ## Revisions
 
-Each published flyer revision lives in its own self-contained folder named for its revision date in `YYYY-MM-DD` format. If more than one printable revision is prepared on the same date, append `-r2`, `-r3`, and so on. Do not overwrite an earlier distributed revision; copy its source into a new revision folder before making new visitor-facing edits.
+Each published flyer revision lives in its own folder named for its revision date in `YYYY-MM-DD` format. If more than one printable revision is prepared on the same date, append `-r2`, `-r3`, and so on. Do not overwrite an earlier distributed revision; create a new revision folder before making a newly distributed PDF.
 
 | Revision | Purpose |
 | --- | --- |
+| [2026-06-01](2026-06-01) | Revised PDF flyer with parent-focused planning highlights and Pexels stock photography. |
 | [2026-05-31](2026-05-31) | Initial printable flyer revision for the 2026 outdoor pool season. |
 
-Each revision folder contains the following files:
+New revision folders contain the following finished distribution files when a QR handoff asset is needed:
 
 | File | Purpose |
 | --- | --- |
-| `ca-pool-cnsl-assistant-flyer.html` | Editable letter-size flyer source. Maintain the copy and visual layout here. |
-| `ca-pool-cnsl-assistant-qr.svg` | Print-quality QR code encoding the reviewed flyer landing URL. |
 | `ca-pool-cnsl-assistant-flyer.pdf` | Ready-to-print US Letter PDF distributed to printers or volunteers. |
-| `ca-pool-cnsl-assistant-flyer-preview.png` | Quick visual preview for reviewing layout without opening the PDF. |
+| `ca-pool-cnsl-assistant-qr.svg` | Reviewed high-contrast QR asset for placement or reuse with the printed flyer. |
+
+The initial `2026-05-31` revision retains its HTML source and PNG preview for now. These files are legacy artifacts: do not regenerate, revise, or add them to newer flyer revisions unless this decision is intentionally revisited. Its reviewed QR SVG is copied into the `2026-06-01` revision for reuse with the updated PDF.
+
+The `2026-06-01` PDF uses illustrative stock photos from Pexels for general pool play and a swim race: [people and children in a pool by Willian Justen de Vasconcellos](https://www.pexels.com/photo/people-and-children-in-pool-19821197/) and [people doing a swim race by Jim De Ramos](https://www.pexels.com/photo/people-doing-swim-race-1263349/). Pexels lists these as free stock photos and permits their use in print marketing materials under the [Pexels License](https://www.pexels.com/license/). The water-play photo is the official [CA Pools-8 image from the Columbia Association Pools page](https://columbiaassociation.org/sports-recreation/pools/), credited to Columbia Association in the flyer footer.
 
 ## Content Guidance
 
@@ -32,15 +35,15 @@ Each revision folder contains the following files:
 
 ## Editing Workflow
 
-1. Create a new dated revision folder beneath `docs/flyer/` and copy the most recent source and QR asset into it. Use a same-day `-rN` suffix only when needed.
-2. Update the wording, layout, and printed revision date in the new revision's `ca-pool-cnsl-assistant-flyer.html` source.
-3. If the destination URL changes, regenerate the new revision's `ca-pool-cnsl-assistant-qr.svg` from the repository root. The example below targets the initial revision; replace the folder name for a newer revision:
+1. Create a new dated revision folder beneath `docs/flyer/` for the finished PDF. Use a same-day `-rN` suffix only when needed.
+2. Prepare the updated one-page flyer in the chosen authoring tool, keeping any working HTML or preview image outside the committed revision artifacts.
+3. Copy the approved `ca-pool-cnsl-assistant-qr.svg` into a revision when it should be distributed for reuse. If the destination URL changes, regenerate and review the QR asset before publishing it. For example:
 
    ```powershell
-   pnpm dlx qrcode -t svg -e H -q 4 -d 123E61FF -l FFFFFFFF -o docs/flyer/2026-05-31/ca-pool-cnsl-assistant-qr.svg "https://pools.longreachmarlins.org/?utm_source=flyer&utm_medium=qr&utm_campaign=2026_pool_season"
+   pnpm dlx qrcode -t svg -e H -q 4 -d 123E61FF -l FFFFFFFF -o tmp/flyer/ca-pool-cnsl-assistant-qr.svg "https://pools.longreachmarlins.org/?utm_source=flyer&utm_medium=qr&utm_campaign=2026_pool_season"
    ```
 
-4. Open the HTML source in a browser and print to `ca-pool-cnsl-assistant-flyer.pdf` in the same revision folder using these settings:
+4. Export or print `ca-pool-cnsl-assistant-flyer.pdf` into the revision folder using these settings:
 
    - Paper size: `Letter`
    - Orientation: `Portrait`
@@ -48,7 +51,7 @@ Each revision folder contains the following files:
    - Scale: `100%`
    - Background graphics: enabled
 
-5. Refresh `ca-pool-cnsl-assistant-flyer-preview.png` in the same revision folder from the rendered flyer when its layout or copy changes.
+5. Commit the finished PDF and, when intentionally included, its reviewed QR SVG. PNG previews and HTML sources are disabled publication artifacts.
 
 ## Review Checklist
 

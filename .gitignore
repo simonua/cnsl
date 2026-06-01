@@ -2,7 +2,9 @@ node_modules
 package-lock.json
 *.html
 !src/**/*.html
-!docs/flyer/**/*.html
+docs/flyer/**/*.png
+docs/flyer/**/*.svg
+!docs/flyer/2026-06-01/ca-pool-cnsl-assistant-qr.svg
 /out/
 tmp
 /test-results/
