@@ -43,7 +43,7 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
       Object.freeze({
         key: 'recreation',
         label: 'Sports & recreation',
-        features: Object.freeze(['baseball', 'basketball', 'cornhole', 'fitness pavilion', 'golf course', 'soccer', 'softball', 'sports field', 'tennis', 'volleyball'])
+        features: Object.freeze(['baseball', 'basketball', 'cornhole', 'fitness pavilion', 'golf course', 'soccer', 'softball', 'sports field', 'tennis', 'volleyball', 'yoga'])
       }),
       Object.freeze({
         key: 'amenities',

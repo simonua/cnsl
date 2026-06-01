@@ -121,14 +121,14 @@ describe('PreferencesService', () => {
 
   describe('pool feature filtering', () => {
     const pools = [
-      { name: 'Hopewell', laneCount: 8, laneLengthUnits: 'yards', features: ['Beach Entry', 'Slide', 'Wading'] },
+      { name: 'Hopewell', laneCount: 8, laneLengthUnits: 'yards', features: ['Beach Entry', 'Slide', 'Wading', 'Yoga'] },
       { name: 'Running Brook', laneCount: 6, laneLengthUnits: 'meters', features: ['beach entry', 'shade'] },
       { name: 'Bryant Woods', laneCount: 6, features: ['pool lift', 'shade'] }
     ];
 
     it('returns sorted published features and lane metadata filters without duplicate casing', () => {
       assert.deepEqual(PreferencesService.getPoolFeatures(pools), [
-        '6 lanes', '8 lanes', 'beach entry', 'meter lanes', 'pool lift', 'shade', 'slide', 'wading', 'yard lanes'
+        '6 lanes', '8 lanes', 'beach entry', 'meter lanes', 'pool lift', 'shade', 'slide', 'wading', 'yard lanes', 'yoga'
       ]);
       assert.deepEqual(PreferencesService.getPoolFeatures(null), []);
       assert.deepEqual(PreferencesService.getPoolFeatures([{ features: null }]), []);
@@ -136,12 +136,12 @@ describe('PreferencesService', () => {
 
     it('groups available features by visitor need and retains new published features', () => {
       assert.deepEqual(PreferencesService.groupPoolFeatures([
-        'pool lift', 'ADA compliant', 'baseball', 'splash', 'lap', '8 lanes', 'meter lanes', 'yard lanes', 'wifi', 'new amenity'
+        'pool lift', 'ADA compliant', 'baseball', 'yoga', 'splash', 'lap', '8 lanes', 'meter lanes', 'yard lanes', 'wifi', 'new amenity'
       ]), [
         { key: 'accessibility', label: 'Accessibility & inclusion', features: ['ada compliant', 'pool lift'] },
         { key: 'young-swimmers', label: 'Young swimmers & non-swimmers', features: ['splash'] },
         { key: 'water-play', label: 'Swimming & water play', features: ['8 lanes', 'meter lanes', 'yard lanes', 'lap'] },
-        { key: 'recreation', label: 'Sports & recreation', features: ['baseball'] },
+        { key: 'recreation', label: 'Sports & recreation', features: ['baseball', 'yoga'] },
         { key: 'amenities', label: 'Amenities', features: ['wifi'] },
         { key: 'additional', label: 'Additional features', features: ['new amenity'] }
       ]);
@@ -158,6 +158,7 @@ describe('PreferencesService', () => {
       assert.equal(PreferencesService.getPoolFeatureCategory('meter lanes'), 'water-play');
       assert.equal(PreferencesService.getPoolFeatureCategory('yard lanes'), 'water-play');
       assert.equal(PreferencesService.getPoolFeatureCategory('tennis'), 'recreation');
+      assert.equal(PreferencesService.getPoolFeatureCategory('yoga'), 'recreation');
       assert.equal(PreferencesService.getPoolFeatureCategory('shade'), 'amenities');
       assert.equal(PreferencesService.getPoolFeatureCategory('new amenity'), 'additional');
     });
@@ -177,6 +178,10 @@ describe('PreferencesService', () => {
       );
       assert.deepEqual(
         PreferencesService.filterPoolsByFeatures(pools, ['8 lanes', 'yard lanes']).map(pool => pool.name),
+        ['Hopewell']
+      );
+      assert.deepEqual(
+        PreferencesService.filterPoolsByFeatures(pools, ['yoga']).map(pool => pool.name),
         ['Hopewell']
       );
       assert.deepEqual(PreferencesService.filterPoolsByFeatures(pools, []), pools);

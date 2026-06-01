@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://example.com/pools.schema.json",
-    "version": "V5",
+    "version": "V6",
     "title": "Pool Data Schema",
     "description": "Schema for pool data containing schedules, features, and location information",
     "type": "object",
@@ -319,7 +319,8 @@
                 "tot lot",
                 "volleyball",
                 "wading",
-                "wifi"
+                "wifi",
+                "yoga"
             ]
         },
         "WeekDayType": {

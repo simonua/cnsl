@@ -411,6 +411,19 @@ test('[WF-POOLS-001] pool feature filters expose their state and resulting count
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).poolFeatureFilters)).toEqual([]);
 });
 
+test('[WF-POOLS-014] yoga feature filter finds the pool with published yoga programming', async ({ page }) => {
+  await page.goto('/pools.html');
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+
+  await page.locator('#togglePoolFeatureFilters').click();
+  await expect(page.getByLabel('Yoga')).toBeVisible();
+  await page.getByLabel('Yoga').check();
+
+  await expect(page.locator('#poolFilterSummary')).toHaveText('1 / 23 pools');
+  await expect(page.locator('#poolList .pool-card')).toHaveCount(1);
+  await expect(page.locator('#poolList .pool-card')).toContainText('Stevens Forest');
+});
+
 test('[WF-POOLS-002] pool availability filters show pools open now, opening soon, or open for the next two hours', async ({ page }) => {
   await page.route('**/assets/data/2026/pools/pools.json*', async route => {
     const response = await route.fetch();
