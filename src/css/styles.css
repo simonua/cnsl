@@ -4006,7 +4006,7 @@ button.pool-filter__clear:focus-visible {
   }
 
   .meet-date-header {
-    align-items: center;
+    align-items: start;
     column-gap: 0.5rem;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
