@@ -4265,7 +4265,13 @@ button.pool-filter__clear:focus-visible {
   padding-top: 0;
 }
 
-.team-actions--website .btn {
+.team-actions--calendar {
+  margin-top: 0.75rem;
+  padding-top: 0;
+}
+
+.team-actions--website .btn,
+.team-actions--calendar .btn {
   font-size: 0.95rem;
   min-width: 0;
   padding: 0.55rem 0.85rem;

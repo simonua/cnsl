@@ -51,6 +51,9 @@ for (const theme of ['light', 'dark']) {
           const sundevilsToggle = page.locator('.team-card[data-team-id="cfhss"] .team-header__toggle');
           if (await sundevilsToggle.getAttribute('aria-expanded') !== 'true') await sundevilsToggle.click();
           await expect(page.getByRole('link', { name: 'Team Calendar' })).toBeVisible();
+          const marlinsToggle = page.locator('.team-card[data-team-id="lrm"] .team-header__toggle');
+          if (await marlinsToggle.getAttribute('aria-expanded') !== 'true') await marlinsToggle.click();
+          await expect(page.getByRole('link', { name: 'Subscribe to team events calendar' })).toBeVisible();
         }
 
         const results = await new AxeBuilder({ page })

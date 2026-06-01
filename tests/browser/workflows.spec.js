@@ -673,11 +673,14 @@ test('[WF-TEAMS-002] team directory groups practice and meet disclosures in one 
   await expect(firstMeet.getByRole('link', { name: 'Swansfield' })).toHaveAttribute('href', /pools\.html\?pool=/);
   await expect(firstMeet).not.toContainText('Swansfield Pool');
   const primaryActions = sundevils.locator('.team-actions--website');
+  const calendarActions = sundevils.locator('.team-actions--calendar');
   await expect(sundevils.locator('.practice-schedule + .team-actions--website')).toHaveCount(1);
-  await expect(primaryActions.locator('a')).toHaveText(['🌐 Team Website', '📅 Team Calendar', '📅 Practice Schedule']);
+  await expect(primaryActions.locator('a')).toHaveText(['🌐 Team Website', '📅 Practice Schedule']);
   await expect(primaryActions.getByRole('link', { name: 'Team Website' })).toBeVisible();
-  await expect(primaryActions.getByRole('link', { name: 'Team Calendar' })).toHaveAttribute('href', /\/page\/calendar$/);
   await expect(primaryActions.getByRole('link', { name: 'Practice Schedule' })).toHaveAttribute('href', /practice-schedule/);
+  await expect(calendarActions.locator('a')).toHaveText(['📅 Team Calendar']);
+  await expect(calendarActions.getByRole('link', { name: 'Team Calendar' })).toHaveAttribute('href', /\/page\/calendar$/);
+  await expect(calendarActions.getByRole('link', { name: 'Subscribe to team events calendar' })).toHaveCount(0);
 });
 
 test('[WF-TEAMS-003] team directory filters regular practice times to selected practice groups', async ({ page }) => {
@@ -697,6 +700,7 @@ test('[WF-TEAMS-003] team directory filters regular practice times to selected p
 });
 
 test('[WF-TEAMS-004] published Long Reach merchandise and booster actions appear in team details', async ({ page }) => {
+  await page.setViewportSize(MOBILE_VIEWPORT);
   await initializeAnalyticsRecorder(page);
   await page.goto('/teams.html');
   await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
@@ -707,9 +711,15 @@ test('[WF-TEAMS-004] published Long Reach merchandise and booster actions appear
   await marlins.locator('.team-header__toggle').click();
   await expect(merchandiseLink).toBeVisible();
   await expect(merchandiseLink)
-    .toHaveAttribute('href', 'https://2026-long-marlins-swimpreseason.spiritsale.com/');
+    .toHaveAttribute('href', 'https://2026-long-marlins-swimseason.spiritsale.com/');
   await expect(marlins.getByRole('link', { name: 'Team Calendar' }))
     .toHaveAttribute('href', 'https://www.gomotionapp.com/team/reccnsllrm/page/events');
+  await expect(marlins.getByRole('link', { name: 'Subscribe to team events calendar' }))
+    .toHaveAttribute('href', 'https://www.gomotionapp.com/rest/ics/system/5/Events.ics?key=eH0JlshDIHydTEGomF73nQ%3D%3D&enabled=false&tz=America%2FNew_York');
+  const calendarActionTops = await marlins.locator('.team-actions--calendar a').evaluateAll(links => (
+    links.map(link => link.getBoundingClientRect().top)
+  ));
+  expect(Math.abs(calendarActionTops[0] - calendarActionTops[1])).toBeLessThan(1);
   await expect(marlins.getByRole('link', { name: 'Booster Club', exact: true }))
     .toHaveAttribute('href', 'https://www.longreachmarlins.org/');
   await marlins.locator('.team-merchandise').evaluate(link => {
@@ -1116,6 +1126,7 @@ test('[WF-SECURITY-002] team directory rejects unsafe published action destinati
     const teamData = await response.json();
     const marlins = teamData.teams.find(team => team.id === 'lrm');
     marlins.merchandiseUrl = 'javascript:alert(1)';
+    marlins.eventsSubscriptionUrl = 'javascript:alert(1)';
     marlins.booster.url = 'javascript:alert(1)';
     await route.fulfill({ response, json: teamData });
   });
@@ -1124,6 +1135,7 @@ test('[WF-SECURITY-002] team directory rejects unsafe published action destinati
   await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
   const marlins = page.locator('.team-card[data-team-id="lrm"]');
   await expect(marlins.locator('.team-merchandise')).toHaveCount(0);
+  await expect(marlins.getByRole('link', { name: 'Subscribe to team events calendar' })).toHaveCount(0);
   await expect(marlins.getByRole('link', { name: /Booster Club/ })).toHaveCount(0);
   await expect(page.locator('a[href^="javascript:"]')).toHaveCount(0);
 });

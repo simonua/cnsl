@@ -441,6 +441,7 @@ function renderTeams(teams) {
     const teamUrl = TeamsBrowserSafety.safeHttpUrl(team.url);
     const practiceUrl = TeamsBrowserSafety.safeHttpUrl(team.practice && team.practice.url);
     const calendarUrl = TeamsBrowserSafety.safeHttpUrl(team.calendarUrl);
+    const eventsSubscriptionUrl = TeamsBrowserSafety.safeHttpUrl(team.eventsSubscriptionUrl);
     const resultsUrl = TeamsBrowserSafety.safeHttpUrl(team.resultsUrl);
     const merchandiseUrl = TeamsBrowserSafety.safeHttpUrl(team.merchandiseUrl);
     const boosterUrl = TeamsBrowserSafety.safeHttpUrl(team.booster && team.booster.url);
@@ -520,12 +521,18 @@ function renderTeams(teams) {
 
           ${schedulesHtml}
 
-          ${teamUrl || calendarUrl || practiceUrl || boosterUrl ? `
+          ${teamUrl || practiceUrl || boosterUrl ? `
             <div class="team-actions team-actions--website">
               ${teamUrl ? `<a href="${teamUrl}" target="_blank" rel="noopener" class="btn">🌐 Team Website</a>` : ''}
-              ${calendarUrl ? `<a href="${calendarUrl}" target="_blank" rel="noopener" class="btn">📅 Team Calendar</a>` : ''}
               ${practiceUrl ? `<a href="${practiceUrl}" target="_blank" rel="noopener" class="btn">📅 Practice Schedule</a>` : ''}
               ${boosterUrl ? `<a href="${boosterUrl}" target="_blank" rel="noopener noreferrer" class="btn">Booster Club</a>` : ''}
+            </div>
+          ` : ''}
+
+          ${calendarUrl || eventsSubscriptionUrl ? `
+            <div class="team-actions team-actions--calendar">
+              ${calendarUrl ? `<a href="${calendarUrl}" target="_blank" rel="noopener" class="btn">📅 Team Calendar</a>` : ''}
+              ${eventsSubscriptionUrl ? `<a href="${eventsSubscriptionUrl}" target="_blank" rel="noopener" class="btn">📅 Subscribe<span class="visually-hidden"> to team events calendar</span></a>` : ''}
             </div>
           ` : ''}
           

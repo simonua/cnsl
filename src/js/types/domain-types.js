@@ -108,6 +108,7 @@
  * @property {string} url
  * @property {string} [resultsUrl]
  * @property {string} [calendarUrl]
+ * @property {string} eventsSubscriptionUrl
  * @property {string} merchandiseUrl
  * @property {string[]} homePools
  * @property {string} timeTrialsPool
