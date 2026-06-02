@@ -39,6 +39,8 @@ describe('FileHelper', () => {
       assert.equal(EXTERNAL_LINKS.GITHUB_DATA_DIRECTORY, 'https://github.com/simonua/cnsl/tree/main/src/assets/data');
       assert.equal(EXTERNAL_LINKS.GITHUB_LICENSE, 'https://github.com/simonua/cnsl/blob/main/LICENSE');
       assert.equal(EXTERNAL_LINKS.GITHUB_REPOSITORY, 'https://github.com/simonua/cnsl');
+      assert.equal(EXTERNAL_LINKS.NATIONAL_WEATHER_SERVICE_ACTIVE_ALERTS, 'https://api.weather.gov/alerts/active?point=39.2014%2C-76.8610');
+      assert.equal(EXTERNAL_LINKS.NATIONAL_WEATHER_SERVICE_POINT, 'https://api.weather.gov/points/39.2014,-76.8610');
       assert.equal(EXTERNAL_LINKS.USA_SWIMMING_RULES_POLICIES, 'https://www.usaswimming.org/resources/rules-regulations');
     });
   });

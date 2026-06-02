@@ -150,7 +150,7 @@
       timeZoneName: 'short',
       year: 'numeric'
     }).format(updatedAt);
-    weatherCheckStatus.replaceChildren(unavailableMessage, 'Most recent successful weather check: ', time, `.${offMessage}`);
+    weatherCheckStatus.replaceChildren(unavailableMessage, 'Most recent successful weather check: ', time, offMessage ? `.${offMessage}` : '');
   }
 
   document.addEventListener('DOMContentLoaded', () => {

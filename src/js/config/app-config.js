@@ -12,6 +12,15 @@
   const CONTACT_EMAIL = 'simonkurtz@gmail.com';
   const SHARE_MESSAGE = `Find Columbia pools and CNSL schedules: ${HOME_PAGE_URL}`;
 
+  // External services and regional behavior.
+  const GA4_MEASUREMENT_ID = 'G-ZMBPYQKLQP';
+  const APP_TIMEZONE = 'America/New_York';
+  const WEATHER_API_BASE_URL = 'https://api.weather.gov';
+  const WEATHER_LOCATION_POINT = '39.2014,-76.8610';
+  const WEATHER_ACTIVE_ALERTS_URL = `${WEATHER_API_BASE_URL}/alerts/active?point=${encodeURIComponent(WEATHER_LOCATION_POINT)}`;
+  const WEATHER_POINT_URL = `${WEATHER_API_BASE_URL}/points/${WEATHER_LOCATION_POINT}`;
+  const GOOGLE_MAPS_SEARCH_BASE_URL = 'https://www.google.com/maps/search/?api=1&query=';
+
   // Public destinations referenced by authored site content.
   const EXTERNAL_LINKS = Object.freeze({
     DATA_MISMATCH_EMAIL: `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Assistant App Data Mismatch')}`,
@@ -24,17 +33,12 @@
     GITHUB_REPOSITORY: 'https://github.com/simonua/cnsl',
     GOOGLE_ANALYTICS_PRIVACY_GUIDANCE: 'https://support.google.com/analytics/answer/6366371?hl=en#zippy=%2Cin-this-article',
     LINKEDIN_PROFILE: 'https://www.linkedin.com/in/simonkurtz',
+    NATIONAL_WEATHER_SERVICE_ACTIVE_ALERTS: WEATHER_ACTIVE_ALERTS_URL,
+    NATIONAL_WEATHER_SERVICE_POINT: WEATHER_POINT_URL,
     OFFICIAL_CNSL_SITE: 'https://www.gomotionapp.com/team/reccnsl/page/home',
     USA_SWIMMING_RULES_POLICIES: 'https://www.usaswimming.org/resources/rules-regulations',
     SMS_SHARE: `sms:?&body=${encodeURIComponent(SHARE_MESSAGE)}`
   });
-
-  // External services and regional behavior.
-  const GA4_MEASUREMENT_ID = 'G-ZMBPYQKLQP';
-  const APP_TIMEZONE = 'America/New_York';
-  const WEATHER_API_BASE_URL = 'https://api.weather.gov';
-  const WEATHER_LOCATION_POINT = '39.2014,-76.8610';
-  const GOOGLE_MAPS_SEARCH_BASE_URL = 'https://www.google.com/maps/search/?api=1&query=';
 
   // Weather alert experience policy.
   const WEATHER_ALERT_DEFAULT_REFRESH_MINUTES = 5;
@@ -86,8 +90,10 @@
     WEATHER_ALERT_OPENING_LEAD_MINUTES,
     WEATHER_ALERT_REFRESH_MINUTES_OPTIONS,
     WEATHER_ALERT_STATUS_STORAGE_KEY,
+    WEATHER_ACTIVE_ALERTS_URL,
     WEATHER_API_BASE_URL,
     WEATHER_LOCATION_POINT,
+    WEATHER_POINT_URL,
     YEAR
   });
 

@@ -44,7 +44,7 @@
           <input type="checkbox" id="locationAwarenessEnabled" name="locationAwarenessEnabled" aria-describedby="locationAwarenessHint">
           <span>Use my current location to estimate distances to pools</span>
         </label>
-        <p class="settings-hint" id="locationAwarenessHint">Off by default. When enabled, the Pools page asks your browser for location access. Your current location is not saved by this site.</p>
+        <p class="settings-hint" id="locationAwarenessHint">Off by default. When enabled, the Pools page asks your browser for location access only to calculate pool distances. This app never tracks, saves, or sends your current location.</p>
       </fieldset>
 
       <fieldset class="settings-group" aria-describedby="weatherAlertsHint weatherCheckStatus">
@@ -54,7 +54,7 @@
           <label><input type="radio" name="weatherRefreshMinutes" value="5"> 5 min</label>
           <label><input type="radio" name="weatherRefreshMinutes" value="10"> 10 min</label>
         </div>
-        <p class="settings-hint settings-hint--flush" id="weatherAlertsHint">Weather is checked only from one hour before the first scheduled pool activity until pools close. Visible alerts show when they were last updated.</p>
+        <p class="settings-hint settings-hint--flush" id="weatherAlertsHint">Weather is checked only from one hour before the first scheduled pool activity until pools close. Checks use a fixed Columbia-area point, not your current location. Visible alerts show when they were last updated. <a href="faq.html#weather-safety-location" target="_blank" rel="noopener">View weather source details.</a></p>
         <p class="settings-weather-status" id="weatherCheckStatus" aria-live="polite">No weather check has been recorded in this tab yet.</p>
       </fieldset>
 

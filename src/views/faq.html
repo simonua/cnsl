@@ -87,7 +87,15 @@
             "name": "Does the app use my location?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Distance estimates are off by default. If location awareness is enabled, the browser provides the current location to calculate nearby pool distances; app-defined measurement does not send coordinates."
+              "text": "Distance estimates are off by default. If location awareness is enabled, the browser provides the current location only to calculate nearby pool distances. The app never tracks, saves, or sends the visitor's current location."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does weather safety use my current location?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Weather safety alerts use a fixed Columbia-area point representing the pool area, not the visitor's current location. The app requests active alerts and forecast metadata from the National Weather Service for that fixed point. The forecast metadata response identifies the National Weather Service forecast URL used for the near-term forecast check. Even when location awareness is enabled for pool distance estimates, the app never tracks, saves, or sends the visitor's current location."
             }
           },
           {
@@ -182,7 +190,16 @@
           </article>
           <article class="faq-item">
             <h3>Does the app use my location?</h3>
-            <p>Distance estimates are off by default. If you turn location awareness on in <a href="settings.html">Settings</a>, your browser provides your current location to calculate nearby pool distances. App-defined measurement does not send your coordinates.</p>
+            <p>Distance estimates are off by default. If you turn location awareness on in <a href="settings.html">Settings</a>, your browser provides your current location only to calculate nearby pool distances. This app never tracks, saves, or sends your current location.</p>
+          </article>
+          <article class="faq-item" id="weather-safety-location">
+            <h3>Does weather safety use my current location?</h3>
+            <p>No. This app uses one fixed point in Columbia for all weather checks (<code>39.2014,-76.8610</code>), not your current location. National Weather Service links:</p>
+            <ul>
+              <li><a href="{{ EXTERNAL_LINKS.NATIONAL_WEATHER_SERVICE_ACTIVE_ALERTS }}" target="_blank" rel="noopener">Alerts</a></li>
+              <li><a href="{{ EXTERNAL_LINKS.NATIONAL_WEATHER_SERVICE_POINT }}" target="_blank" rel="noopener">Forecast metadata</a></li>
+            </ul>
+            <p>The forecast metadata response identifies the National Weather Service forecast URL used for the near-term forecast check. Optional browser location awareness is separate and is used only to calculate pool distance estimates. Even when you grant location access, this app never tracks, saves, or sends your current location.</p>
           </article>
           <article class="faq-item">
             <h3>Where are my preferences saved?</h3>

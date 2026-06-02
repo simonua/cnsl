@@ -1597,6 +1597,29 @@ test('[WF-SETTINGS-006] weather safety alerts retain the last successful check w
   await expect(page.locator('#weatherAlert')).toBeHidden();
 });
 
+test('[WF-SETTINGS-007] weather source details expose fixed Columbia-area National Weather Service requests in a new tab', async ({ page }) => {
+  await page.goto('/settings.html');
+  const sourceDetailsLink = page.getByRole('link', { name: 'View weather source details.' });
+
+  await expect(sourceDetailsLink).toHaveAttribute('href', 'faq.html#weather-safety-location');
+  await expect(sourceDetailsLink).toHaveAttribute('target', '_blank');
+  await expect(sourceDetailsLink).toHaveAttribute('rel', 'noopener');
+
+  await page.goto('/faq.html#weather-safety-location');
+  const weatherDetails = page.locator('#weather-safety-location');
+  const nwsLinks = weatherDetails.getByRole('link');
+
+  await expect(weatherDetails).toContainText('never tracks, saves, or sends your current location');
+  await expect(nwsLinks.nth(0)).toHaveText('Active weather alerts for the Columbia-area pool point');
+  await expect(nwsLinks.nth(1)).toHaveText('Forecast metadata for the Columbia-area pool point');
+  await expect(nwsLinks.nth(0)).toHaveAttribute('href', 'https://api.weather.gov/alerts/active?point=39.2014%2C-76.8610');
+  await expect(nwsLinks.nth(1)).toHaveAttribute('href', 'https://api.weather.gov/points/39.2014,-76.8610');
+  await expect(nwsLinks.nth(0)).toHaveAttribute('target', '_blank');
+  await expect(nwsLinks.nth(1)).toHaveAttribute('target', '_blank');
+  await expect(nwsLinks.nth(0)).toHaveAttribute('rel', 'noopener');
+  await expect(nwsLinks.nth(1)).toHaveAttribute('rel', 'noopener');
+});
+
 test('[WF-WEATHER-001] desktop weather safety alerts restore collapsed details on every page', async ({ page }) => {
   await prepareVisibleWeatherAlert(page);
   await page.addInitScript(() => {

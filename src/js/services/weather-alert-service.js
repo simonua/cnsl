@@ -94,8 +94,8 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
       const cachedStatus = WeatherAlertService.readCachedStatus(storage, refreshMinutes, now);
       if (cachedStatus) return cachedStatus;
 
-      const alertUrl = `${WeatherAlertService.BASE_URL}/alerts/active?point=${WeatherAlertService.COLUMBIA_MD_POINT}`;
-      const pointUrl = `${WeatherAlertService.BASE_URL}/points/${WeatherAlertService.COLUMBIA_MD_POINT}`;
+      const alertUrl = globalThis.WEATHER_ACTIVE_ALERTS_URL;
+      const pointUrl = globalThis.WEATHER_POINT_URL;
       const [alertData, pointData] = await Promise.all([
         WeatherAlertService.fetchJson(alertUrl, fetchImplementation),
         WeatherAlertService.fetchJson(pointUrl, fetchImplementation)
