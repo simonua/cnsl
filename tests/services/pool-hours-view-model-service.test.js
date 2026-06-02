@@ -1,0 +1,95 @@
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
+const PoolHoursViewModelService = require('../../src/js/services/pool-hours-view-model-service.js');
+const PoolCalendarService = require('../../src/js/services/pool-calendar-service.js');
+
+describe('PoolHoursViewModelService', () => {
+  it('builds the display model and enriches only semantic practice slots', () => {
+    const weekStart = new Date(2026, 5, 15);
+    const pool = { id: 'long-reach', name: 'Long Reach' };
+    const poolModel = {
+      name: 'Long Reach',
+      getCurrentStatus: () => ({ kind: 'open', status: 'Open', color: 'green', icon: '🟢' }),
+      getWeekScheduleForDate: receivedWeekStart => {
+        assert.equal(receivedWeekStart, weekStart);
+        return [{
+          day: 'Mon',
+          timeSlots: [
+            { accessStatus: 'practice-only', startTime: '5:00pm', endTime: '6:00pm' },
+            { accessStatus: 'public', startTime: '6:00pm', endTime: '7:00pm' }
+          ]
+        }];
+      },
+      getValidDateRange: () => ({ startDate: new Date(2026, 5, 1), endDate: new Date(2026, 5, 30) }),
+      getPublicStatusTransitionToday: () => ({ action: 'closes', minutes: 90 })
+    };
+    const timeUtils = { getCurrentEasternTimeInfo: () => ({ date: '2026-06-16' }) };
+    const teamScheduleService = {
+      getDetailedPracticeTeamNames: (teams, poolName, date, slot, receivedTimeUtils) => {
+        assert.deepEqual(teams, [{ name: 'Barracudas' }]);
+        assert.equal(poolName, 'Long Reach');
+        assert.equal(date.getDate(), 15);
+        assert.equal(slot.accessStatus, 'practice-only');
+        assert.equal(receivedTimeUtils, timeUtils);
+        return ['Barracudas'];
+      }
+    };
+
+    const viewModel = PoolHoursViewModelService.build(pool, poolModel, {
+      weekStart,
+      timeUtils,
+      practiceTeams: [{ name: 'Barracudas' }],
+      layout: 'calendar',
+      teamScheduleService,
+      getStatusTooltip: kind => `tooltip:${kind}`
+    });
+
+    assert.equal(viewModel.poolId, 'long-reach');
+    assert.equal(viewModel.weekPickerId, 'week-picker-long-reach');
+    assert.equal(viewModel.weekStartText, 'June 15');
+    assert.equal(viewModel.weekEndText, 'June 21');
+    assert.equal(viewModel.isPreviousWeekDisabled, false);
+    assert.equal(viewModel.isNextWeekDisabled, false);
+    assert.equal(viewModel.weekStartInputValue, '2026-06-15');
+    assert.equal(viewModel.statusTooltip, 'tooltip:open');
+    assert.deepEqual(viewModel.weekSchedule[0].timeSlots[0].practiceTeamNames, ['Barracudas']);
+    assert.equal(Object.hasOwn(viewModel.weekSchedule[0].timeSlots[1], 'practiceTeamNames'), false);
+    assert.equal(viewModel.scheduleOptions.layout, 'calendar');
+    assert.equal(viewModel.scheduleOptions.weekStart, weekStart);
+    assert.equal(viewModel.scheduleOptions.today.getDate(), 16);
+    assert.equal(viewModel.scheduleOptions.timeUtils, timeUtils);
+  });
+
+  it('keeps the existing unavailable status and empty schedule fallbacks when model access fails', () => {
+    const errors = [];
+    const poolModel = {
+      name: 'Broken Pool',
+      getCurrentStatus: () => { throw new Error('status failed'); },
+      getWeekScheduleForDate: () => { throw new Error('schedule failed'); },
+      getValidDateRange: () => null,
+      getPublicStatusTransitionToday: () => null
+    };
+
+    const viewModel = PoolHoursViewModelService.build({ name: 'Broken Pool' }, poolModel, {
+      weekStart: new Date(2026, 5, 15),
+      timeUtils: { getCurrentEasternTimeInfo: () => ({ date: '2026-06-16' }) },
+      onError: (operation, poolName) => errors.push([operation, poolName])
+    });
+
+    assert.equal(viewModel.poolStatus.kind, 'unavailable');
+    assert.deepEqual(viewModel.weekSchedule, []);
+    assert.deepEqual(errors, [['status', 'Broken Pool'], ['week schedule', 'Broken Pool']]);
+  });
+
+  it('installs the service as a browser script global', () => {
+    const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'pool-hours-view-model-service.js');
+    const source = fs.readFileSync(sourcePath, 'utf8');
+    const context = { window: {}, PoolCalendarService, TeamScheduleService: {} };
+    vm.runInNewContext(source, context, { filename: sourcePath });
+
+    assert.equal(typeof context.window.PoolHoursViewModelService, 'function');
+  });
+});

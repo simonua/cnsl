@@ -12,6 +12,47 @@ describe('PoolDirectoryService', () => {
     assert.equal(PoolDirectoryService.isAvailabilityFilter('unknown'), false);
   });
 
+  it('matches semantic pool availability rules without inspecting presentation state', () => {
+    const model = {
+      opensWithinNextMinutes: minutes => minutes === PoolDirectoryService.OPENING_SOON_MINUTES,
+      isOpenForNextMinutes: minutes => minutes === undefined
+    };
+
+    assert.equal(PoolDirectoryService.matchesAvailabilityFilter(model, 'all'), true);
+    assert.equal(PoolDirectoryService.matchesAvailabilityFilter(model, 'open-now'), true);
+    assert.equal(PoolDirectoryService.matchesAvailabilityFilter(model, 'opens-soon'), true);
+    assert.equal(PoolDirectoryService.matchesAvailabilityFilter(model, 'open-next-two-hours'), false);
+    assert.equal(PoolDirectoryService.matchesAvailabilityFilter(null, 'open-now'), false);
+  });
+
+  it('filters records and builds live signatures through a model lookup callback', () => {
+    const pools = [{ id: 'open', name: 'Open' }, { id: 'soon', name: 'Soon' }, { id: 'missing', name: 'Missing' }];
+    const models = new Map([
+      ['Open', {
+        getCurrentStatus: () => ({ kind: 'open' }),
+        isOpenForNextMinutes: minutes => minutes === undefined,
+        opensWithinNextMinutes: () => false
+      }],
+      ['Soon', {
+        getCurrentStatus: () => ({ kind: 'closed' }),
+        isOpenForNextMinutes: () => false,
+        opensWithinNextMinutes: minutes => minutes === PoolDirectoryService.OPENING_SOON_MINUTES
+      }]
+    ]);
+    const getPoolModel = pool => models.get(pool.name);
+
+    assert.equal(PoolDirectoryService.filterByAvailability(pools, 'all', getPoolModel), pools);
+    assert.deepEqual(
+      PoolDirectoryService.filterByAvailability(pools, 'opens-soon', getPoolModel),
+      [pools[1]]
+    );
+    assert.equal(
+      PoolDirectoryService.getLiveStatusSignature(pools, 'opens-soon', getPoolModel),
+      'open:open:false|soon:closed:true|missing:unavailable'
+    );
+    assert.equal(PoolDirectoryService.getLiveStatusSignature(pools, 'all', null), '');
+  });
+
   it('formats and orders feature labels through supplied groups', () => {
     const groups = () => [{ features: ['wifi', 'shallow', 'ada compliant'] }];
     assert.deepEqual(PoolDirectoryService.sortFeaturesForDisplay([], groups), ['ada compliant', 'shallow', 'wifi']);

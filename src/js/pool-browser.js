@@ -6,11 +6,7 @@ let poolSortOrder = 'name';
 let poolAvailabilityFilter = 'all';
 let poolLiveStatusRefreshTimeout = null;
 let poolLiveStatusSignature = '';
-const POOL_OPENING_SOON_MINUTES = 60;
 const PoolBrowserSafety = HtmlSafety;
-
-// Pool-specific week states (poolId -> Date)
-const poolWeekStates = new Map();
 
 // ------------------------------
 //    SAFE REFERENCE HELPERS
@@ -52,10 +48,7 @@ function isTodayInSeason(dateRange) {
  * @returns {Date} - Week start date for this pool
  */
 function getPoolWeekStart(poolId) {
-  if (!poolWeekStates.has(poolId)) {
-    poolWeekStates.set(poolId, getMondayOfWeek(new Date()));
-  }
-  return poolWeekStates.get(poolId);
+  return PoolWeekStateService.getWeekStart(poolId);
 }
 
 /**
@@ -64,7 +57,7 @@ function getPoolWeekStart(poolId) {
  * @param {Date} weekStart - New week start date
  */
 function setPoolWeekStart(poolId, weekStart) {
-  poolWeekStates.set(poolId, weekStart);
+  PoolWeekStateService.setWeekStart(poolId, weekStart);
 }
 
 /**
@@ -236,95 +229,27 @@ function formatPoolHours(pool) {
   }
 
   const poolId = pool.id || pool.name;
-  const controlId = String(poolId).replace(/[^a-zA-Z0-9_-]/g, '-');
-  const weekPickerId = `week-picker-${controlId}`;
-  const poolName = pool.name || 'this pool';
   const weekStart = getPoolWeekStart(poolId);
-  const weekEnd = PoolCalendarService.getWeekEnd(weekStart);
   
   const timeUtils = _getTimeUtils();
   if (!timeUtils) {
     return PoolHoursDisplay.renderTimeUtilityMessage('Time utilities not available');
   }
-  
-  const easternTimeInfo = timeUtils.getCurrentEasternTimeInfo();
-  
-  // Get pool status with error handling
-  let poolStatus;
-  try {
-    poolStatus = poolObj.getCurrentStatus();
-  } catch (error) {
-    console.error(`[Pool Browser] Error getting status for pool ${poolObj.name}:`, error);
-    poolStatus = {
-      kind: 'unavailable',
-      isOpen: false,
-      status: 'Error',
-      color: 'gray',
-      icon: '⚫'
-    };
-  }
-  
-  // Get week schedule for the selected week with error handling
-  let weekSchedule;
-  try {
-    weekSchedule = poolObj.getWeekScheduleForDate(weekStart);
-  } catch (error) {
-    console.error(`[Pool Browser] Error getting week schedule for pool ${poolObj.name}:`, error);
-    weekSchedule = [];
-  }
-  
-  // Format the week display text
-  const weekStartText = weekStart.toLocaleDateString('en-US', { 
-    month: 'long', 
-    day: 'numeric' 
-  });
-  const weekEndText = weekEnd.toLocaleDateString('en-US', { 
-    month: 'long', 
-    day: 'numeric' 
-  });
-  
-  const dateRange = poolObj.getValidDateRange();
-  const statusTransition = poolObj.getPublicStatusTransitionToday();
   const practiceTeams = poolBrowserDataManager.getTeams().getPracticeTeamsByPool(poolObj.name);
-  weekSchedule = weekSchedule.map((scheduleDay, index) => {
-    const scheduleDate = PoolCalendarService.addDays(weekStart, index);
-    return {
-      ...scheduleDay,
-      timeSlots: (scheduleDay.timeSlots || []).map(slot => {
-        if (slot.accessStatus !== 'practice-only') return slot;
-        const detailedNames = globalThis.TeamScheduleService.getDetailedPracticeTeamNames(practiceTeams, poolObj.name, scheduleDate, slot, timeUtils);
-        return { ...slot, practiceTeamNames: detailedNames };
-      })
-    };
-  });
   const preferences = PreferencesService.get();
-  const today = new Date(`${easternTimeInfo.date}T12:00:00`);
-
-  return PoolHoursDisplay.render({
-    poolId,
-    poolName,
-    weekPickerId,
-    weekStartText,
-    weekEndText,
-    hasDateRange: Boolean(dateRange),
-    isTodayDisabled: !dateRange || !isTodayInSeason(dateRange),
-    isPreviousWeekDisabled: !dateRange || weekStart <= dateRange.startDate,
-    isNextWeekDisabled: !dateRange || weekEnd >= dateRange.endDate,
-    weekStartInputValue: PoolCalendarService.formatDateInputValue(weekStart),
-    minDateInputValue: dateRange ? PoolCalendarService.formatDateInputValue(dateRange.startDate) : '',
-    maxDateInputValue: dateRange ? PoolCalendarService.formatDateInputValue(dateRange.endDate) : '',
-    poolStatus,
-    statusTransition,
-    statusTooltip: getStatusTooltip(poolStatus.kind),
-    weekSchedule,
-    scheduleOptions: {
-      layout: preferences.poolScheduleLayout,
-      weekStart,
-      today,
-      timeUtils,
-      poolStatus
+  const viewModel = PoolHoursViewModelService.build(pool, poolObj, {
+    weekStart,
+    timeUtils,
+    practiceTeams,
+    layout: preferences.poolScheduleLayout,
+    teamScheduleService: TeamScheduleService,
+    getStatusTooltip,
+    onError: (operation, poolName, error) => {
+      console.error(`[Pool Browser] Error getting ${operation} for pool ${poolName}:`, error);
     }
   });
+
+  return PoolHoursDisplay.render(viewModel);
 }
 
 /**
@@ -569,29 +494,18 @@ function updatePoolFilterSummary(matchingCount, totalCount, filterCount) {
 }
 
 /**
- * Check whether one pool matches the selected live-availability requirement.
- * @param {Pool} poolModel - Pool model with current public-use schedule state
- * @returns {boolean} Whether this pool matches the active filter
- */
-function matchesPoolAvailabilityFilter(poolModel) {
-  if (!poolModel) return false;
-  if (poolAvailabilityFilter === 'opens-soon') return poolModel.opensWithinNextMinutes(POOL_OPENING_SOON_MINUTES);
-  if (poolAvailabilityFilter === 'open-next-two-hours') return poolModel.isOpenForNextMinutes(120);
-  return poolAvailabilityFilter === 'all' || poolModel.isOpenForNextMinutes();
-}
-
-/**
  * Apply the selected live-availability requirement to matching pools.
  * @param {Array} pools - Pools already matched by facility features
  * @returns {Array} Pools matching the selected availability condition
  */
 function filterPoolsByAvailability(pools) {
-  if (poolAvailabilityFilter === 'all' || !poolBrowserDataManager) return pools;
+  if (!poolBrowserDataManager) return pools;
 
-  return pools.filter(pool => {
-    const poolModel = poolBrowserDataManager.getPool(pool.name);
-    return matchesPoolAvailabilityFilter(poolModel);
-  });
+  return PoolDirectoryService.filterByAvailability(
+    pools,
+    poolAvailabilityFilter,
+    pool => poolBrowserDataManager.getPool(pool.name)
+  );
 }
 
 /**
@@ -633,16 +547,13 @@ function restoreFocusedPoolControl(focusTarget) {
  * @returns {string} State signature for detecting schedule transitions
  */
 function getPoolLiveStatusSignature(pools) {
-  if (!poolBrowserDataManager || !Array.isArray(pools)) return '';
+  if (!poolBrowserDataManager) return '';
 
-  const includesAvailability = poolAvailabilityFilter !== 'all';
-  return pools.map(pool => {
-    const poolModel = poolBrowserDataManager.getPool(pool.name);
-    if (!poolModel) return `${pool.id || pool.name}:unavailable`;
-    const status = poolModel.getCurrentStatus();
-    const availability = includesAvailability ? matchesPoolAvailabilityFilter(poolModel) : '';
-    return `${pool.id || pool.name}:${status.kind}:${String(availability)}`;
-  }).join('|');
+  return PoolDirectoryService.getLiveStatusSignature(
+    pools,
+    poolAvailabilityFilter,
+    pool => poolBrowserDataManager.getPool(pool.name)
+  );
 }
 
 /**
@@ -750,146 +661,42 @@ function renderPools(pools) {
     })
     : PreferencesService.sortWithFavorite(displayPools, favoritePoolName, pool => pool.name || '', comparePools);
 
-  // Generate HTML for each pool with mobile-optimized cards
+  // Build display-ready card state while keeping static markup in PoolCardDisplay.
   const html = sortedPools.map(pool => {
     const poolName = pool.name || 'Unknown Pool';
-    const safePoolName = PoolBrowserSafety.escapeHtml(poolName);
     const poolId = String(pool.id || '');
-    const safePoolId = PoolBrowserSafety.escapeHtml(poolId);
     const detailsId = `pool-details-${String(poolId || poolName).replace(/[^a-zA-Z0-9_-]/g, '-')}`;
     const features = PreferencesService.getFilterablePoolFeatures(pool);
     const isFavorite = poolName === favoritePoolName;
     const isExpanded = (isInitialRender && poolId === linkedPoolId)
       || (isFavorite ? preferences.favoritePoolExpanded : expandedPoolIds.has(poolId));
-    
-    let distanceHtml = '';
-    if (pool.distance !== undefined && !isNaN(pool.distance)) {
-      const distanceMiles = pool.distance.toFixed(1);
-      distanceHtml = `<span class="distance-badge" aria-label="${distanceMiles} miles away">${distanceMiles} mi</span>`;
-    }
-
-    // Handle both location formats (new location object vs legacy flat properties)
-    let streetAddress, cityStateZip, mapsUrl;
-    
-    if (pool.location) {
-      // New location format
-      streetAddress = pool.location.street || '';
-      const city = pool.location.city || '';
-      const state = pool.location.state || '';
-      const zip = pool.location.zip || '';
-      cityStateZip = (city + ', ' + state + ' ' + zip).trim();
-      mapsUrl = pool.location.googleMapsUrl || `${globalThis.GOOGLE_MAPS_SEARCH_BASE_URL}${encodeURIComponent(pool.location.mapsQuery || '')}`;
-    } else {
-      // Compatibility format - handle flat address property
-      const fullAddress = pool.address || '';
-      const addressParts = fullAddress.split(',').map(part => part.trim());
-      
-      if (addressParts.length >= 2) {
-        // Split address into street and city/state/zip
-        streetAddress = addressParts[0];
-        cityStateZip = addressParts.slice(1).join(', ');
-      } else {
-        // Fallback if address format is unexpected
-        streetAddress = fullAddress;
-        cityStateZip = '';
-      }
-      
-      const locationQuery = encodeURIComponent(pool.mapsQuery || fullAddress || '');
-      mapsUrl = `${globalThis.GOOGLE_MAPS_SEARCH_BASE_URL}${locationQuery}`;
-    }
-
-    // Format features for display as horizontal pills
-    let featuresHtml;
-    if (Array.isArray(features) && features.length > 0) {
-      const sortedFeatures = PoolDirectoryService.sortFeaturesForDisplay(features, PreferencesService.groupPoolFeatures);
-      featuresHtml = `
-        <div class="pool-features">
-          <h3>Features</h3>
-          <div class="feature-pills">
-            ${sortedFeatures.map(feature => `<span class="feature-pill feature-pill--${PreferencesService.getPoolFeatureCategory(feature)}">${PoolBrowserSafety.escapeHtml(PoolDirectoryService.formatFeatureLabel(feature))}</span>`).join('')}
-          </div>
-        </div>
-      `;
-    } else {
-      featuresHtml = `
-        <div class="pool-features">
-          <h3>Features</h3>
-          <span class="status-tbd">TBD</span>
-        </div>
-      `;
-    }
 
     // Format opening hours for display using new helper
     const hoursHtml = formatPoolHours(pool);
     
     // Get pool status for indicator using new helper
     const poolStatus = getPoolStatus(pool);
-    const statusClass = poolStatus.color;
-    
-    // Show status indicator with tooltip for all pools
     const tooltipText = getStatusTooltip(poolStatus.kind);
-    const statusIndicatorHtml = `<span class="pool-status-indicator ${statusClass} status-tooltip" aria-hidden="true">
-      <span class="tooltip-text">${tooltipText}</span>
-    </span><span class="visually-hidden">${tooltipText}: </span>`;
+    const sortedFeatures = PoolDirectoryService.sortFeaturesForDisplay(features, PreferencesService.groupPoolFeatures);
+    const featureItems = sortedFeatures.map(feature => ({
+      label: PoolDirectoryService.formatFeatureLabel(feature),
+      category: PreferencesService.getPoolFeatureCategory(feature)
+    }));
 
-    // Create CA Pool website link if caUrl is available
-    let caLinkHtml = '';
-    const safeCaUrl = PoolBrowserSafety.safeHttpUrl(pool.caUrl);
-    if (safeCaUrl) {
-      caLinkHtml = `
-        <div class="ca-website-section">
-          <a href="${safeCaUrl}" 
-             target="_blank" 
-             rel="noopener" 
-             class="ca-link">
-            Visit CA Pool Page
-          </a>
-        </div>
-      `;
-    }
-
-    // Create phone number action if a published phone number is available
-    let phoneHtml = '';
-    const safePhoneUrl = PoolBrowserSafety.safeTelephoneUrl(pool.phone);
-    if (safePhoneUrl) {
-      phoneHtml = `
-        <div class="address-section__phone">
-          <a href="${safePhoneUrl}" class="phone-link" aria-label="Call ${safePoolName} pool desk at ${PoolBrowserSafety.escapeHtml(pool.phone)}">
-            <span aria-hidden="true">📞</span> ${PoolBrowserSafety.escapeHtml(pool.phone)}
-          </a>
-        </div>
-      `;
-    }
-
-    const safeMapsUrl = PoolBrowserSafety.safeHttpUrl(mapsUrl);
-    const safeStreetAddress = PoolBrowserSafety.escapeHtml(streetAddress);
-    const safeCityStateZip = PoolBrowserSafety.escapeHtml(cityStateZip);
-    return `
-      <div class="pool-card ${isFavorite ? 'favorite-card' : ''}${isExpanded ? '' : ' collapsed'}" data-pool-id="${safePoolId}">
-        <div class="pool-header">
-          <h2><button type="button" class="pool-header__toggle" aria-expanded="${String(isExpanded)}" aria-controls="${detailsId}">${statusIndicatorHtml}${safePoolName}${isFavorite ? ' <span class="favorite-badge">Favorite pool</span>' : ''}</button></h2>
-          ${distanceHtml}
-        </div>
-        <div class="pool-details" id="${detailsId}"${isExpanded ? '' : ' hidden'}>
-          <div class="pool-contact">
-            <div class="address-section">
-              <div class="address-section__details">
-                <strong>📍 Address:</strong><br>
-                <a href="${safeMapsUrl}"
-                   target="_blank"
-                   rel="noopener"
-                   class="address-link">
-                  ${safeStreetAddress ? `${safeStreetAddress}${safeCityStateZip ? '<br>' : ''}` : ''}${safeCityStateZip || (safeStreetAddress ? '' : 'Address not available')}
-                </a>
-              </div>
-              ${(caLinkHtml || phoneHtml) ? `<div class="address-section__actions">${phoneHtml}${caLinkHtml}</div>` : ''}
-            </div>
-          </div>
-          ${hoursHtml}
-          ${featuresHtml}
-        </div>
-      </div>
-    `;
+    return PoolCardDisplay.render({
+      pool,
+      poolName,
+      poolId,
+      detailsId,
+      isFavorite,
+      isExpanded,
+      distanceMiles: Number.isFinite(pool.distance) ? pool.distance : null,
+      poolStatus,
+      statusTooltip: tooltipText,
+      featureItems,
+      hoursHtml,
+      mapsSearchBaseUrl: globalThis.GOOGLE_MAPS_SEARCH_BASE_URL
+    });
   }).join('');
 
   list.innerHTML = html;
@@ -953,9 +760,7 @@ function togglePoolCard(toggleButton) {
  * @param {string} poolId - Pool identifier
  */
 function navigatePoolToPreviousWeek(poolId) {
-  const currentWeek = getPoolWeekStart(poolId);
-  const newWeek = PoolCalendarService.addDays(currentWeek, -7);
-  setPoolWeekStart(poolId, newWeek);
+  PoolWeekStateService.moveWeekStart(poolId, -7);
   refreshPoolDisplay(poolId);
 }
 
@@ -964,9 +769,7 @@ function navigatePoolToPreviousWeek(poolId) {
  * @param {string} poolId - Pool identifier
  */
 function navigatePoolToNextWeek(poolId) {
-  const currentWeek = getPoolWeekStart(poolId);
-  const newWeek = PoolCalendarService.addDays(currentWeek, 7);
-  setPoolWeekStart(poolId, newWeek);
+  PoolWeekStateService.moveWeekStart(poolId, 7);
   refreshPoolDisplay(poolId);
 }
 
@@ -976,13 +779,7 @@ function navigatePoolToNextWeek(poolId) {
  * @param {string} dateValue - Selected date value
  */
 function navigatePoolToSelectedWeek(poolId, dateValue) {
-  if (!dateValue) return;
-  
-  const selectedDate = PoolCalendarService.parseDateInput(dateValue);
-  if (!selectedDate) return;
-
-  const weekStart = getMondayOfWeek(selectedDate);
-  setPoolWeekStart(poolId, weekStart);
+  if (!PoolWeekStateService.setSelectedWeekStart(poolId, dateValue)) return;
   refreshPoolDisplay(poolId);
 }
 
@@ -991,9 +788,7 @@ function navigatePoolToSelectedWeek(poolId, dateValue) {
  * @param {string} poolId - Pool identifier
  */
 function navigatePoolToToday(poolId) {
-  const today = new Date();
-  const weekStart = getMondayOfWeek(today);
-  setPoolWeekStart(poolId, weekStart);
+  PoolWeekStateService.setTodayWeekStart(poolId);
   refreshPoolDisplay(poolId);
 }
 
