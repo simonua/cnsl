@@ -12,6 +12,9 @@ if (typeof window === 'undefined' || !window.getPoolIdFromLocation) {
 const PoolLinkSafety = typeof module !== 'undefined' && module.exports
   ? require('./html-safety.js')
   : HtmlSafety;
+const PoolLinkIcons = typeof module !== 'undefined' && module.exports
+  ? require('./icon-catalog.js')
+  : IconCatalog;
 
 function createPoolLocationIndex(pools = []) {
   const poolLocations = new Map();
@@ -185,7 +188,7 @@ function generateEnhancedPoolLink(locationName, dataManager, options = {}, pools
       const safeMapsUrl = PoolLinkSafety.safeHttpUrl(poolData.location?.googleMapsUrl);
       const safeLocationName = PoolLinkSafety.escapeHtml(displayText);
       return safeMapsUrl
-        ? `${poolsLink} <span class="link-separator">|</span> <a href="${safeMapsUrl}" target="_blank" rel="noopener" class="maps-icon" aria-label="View ${safeLocationName} on Google Maps">🗺️</a>`
+        ? `${poolsLink} <span class="link-separator">|</span> <a href="${safeMapsUrl}" target="_blank" rel="noopener" class="maps-icon" aria-label="View ${safeLocationName} on Google Maps">${PoolLinkIcons.render('map')}</a>`
         : poolsLink;
     } else if (preferPoolsPage) {
       return poolsLink;

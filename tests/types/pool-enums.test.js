@@ -56,7 +56,7 @@ describe('PoolStatus', () => {
       assert.equal(typeof status.isOpen, 'boolean');
       assert.equal(typeof status.status, 'string');
       assert.equal(typeof status.color, 'string');
-      assert.equal(typeof status.icon, 'string');
+      assert.equal('icon' in status, false);
     }
   });
 });

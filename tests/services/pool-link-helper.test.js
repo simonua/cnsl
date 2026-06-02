@@ -184,7 +184,7 @@ describe('pool-link-helper', () => {
     it('installs link helpers as browser globals', () => {
       const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'pool-link-helper.js');
       const source = fs.readFileSync(sourcePath, 'utf8');
-      const context = { window: {}, HtmlSafety: { escapeHtml: String, safeHttpUrl: String } };
+      const context = { window: {}, HtmlSafety: { escapeHtml: String, safeHttpUrl: String }, IconCatalog: { render: () => '' } };
       vm.runInNewContext(source, context, { filename: sourcePath });
       assert.equal(typeof context.window.generateEnhancedPoolLink, 'function');
       assert.equal(typeof context.window.createPoolLocationIndex, 'function');

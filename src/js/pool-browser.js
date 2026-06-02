@@ -147,7 +147,7 @@ function loadSeasonInfo() {
     seasonInfo.innerHTML = `
       <p class="ca-directory-link">
         <a href="${safeDirectoryUrl}" target="_blank" rel="noopener" class="directory-link" data-analytics-context="official_information">
-          📍 Interactive CA Pool Directory
+          ${IconCatalog.render('map-pin')}Interactive CA Pool Directory
         </a>
       </p>
     `;
@@ -163,7 +163,7 @@ function loadSeasonInfo() {
 /**
  * Compatibility wrapper for pool status - uses the Pool class method
  * @param {Object} pool - Pool data object
- * @returns {Object} - Status object with isOpen, status, color, and icon
+ * @returns {Object} - Status object with semantic kind, isOpen, status, and color
  */
 function getPoolStatus(pool) {
   if (!poolBrowserDataManager) {
@@ -172,8 +172,7 @@ function getPoolStatus(pool) {
       kind: 'unavailable',
       isOpen: false,
       status: 'Unavailable',
-      color: 'red',
-      icon: '🔴'
+      color: 'red'
     };
   }
 
@@ -183,8 +182,7 @@ function getPoolStatus(pool) {
       kind: 'closed',
       isOpen: false,
       status: 'Closed',
-      color: 'red',
-      icon: '🔴'
+      color: 'red'
     };
   }
 
@@ -193,8 +191,7 @@ function getPoolStatus(pool) {
     kind: status.kind || 'unavailable',
     isOpen: status.isOpen,
     status: status.status,
-    color: status.color || 'red',
-    icon: status.icon || '🔴'
+    color: status.color || 'red'
   };
 }
 
@@ -618,7 +615,7 @@ function renderPools(pools) {
   if (!Array.isArray(pools) || pools.length === 0) {
     list.innerHTML = `
       <div class="pool-card error">
-        <h2>⚠️ No pools available</h2>
+        <h2>${IconCatalog.getTextGlyph('warning')} No pools available</h2>
         <p>Pool information is currently unavailable. Please try again later.</p>
       </div>
     `;
@@ -997,7 +994,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Failed to load pool data:", error);
     const list = document.getElementById("poolList");
     if (list) {
-      list.innerHTML = "<p>⚠️ Pool data is currently unavailable. Please try again later.</p>";
+      list.innerHTML = `<p>${IconCatalog.getTextGlyph('warning')} Pool data is currently unavailable. Please try again later.</p>`;
     }
     setPoolListStatus('Pool information is currently unavailable. Please try again later.', false);
   }

@@ -685,10 +685,10 @@ test('[WF-TEAMS-002] team directory groups practice and meet disclosures in one 
   const primaryActions = sundevils.locator('.team-actions--website');
   const calendarActions = sundevils.locator('.team-actions--calendar');
   await expect(sundevils.locator('.practice-schedule + .team-actions--website')).toHaveCount(1);
-  await expect(primaryActions.locator('a')).toHaveText(['🌐 Team Website', '📅 Practice Schedule']);
+  await expect(primaryActions.locator('a')).toHaveText(['Team Website', 'Practice Schedule']);
   await expect(primaryActions.getByRole('link', { name: 'Team Website' })).toBeVisible();
   await expect(primaryActions.getByRole('link', { name: 'Practice Schedule' })).toHaveAttribute('href', /practice-schedule/);
-  await expect(calendarActions.locator('a')).toHaveText(['📅 Team Calendar']);
+  await expect(calendarActions.locator('a')).toHaveText(['Team Calendar']);
   await expect(calendarActions.getByRole('link', { name: 'Team Calendar' })).toHaveAttribute('href', /\/page\/calendar$/);
   await expect(calendarActions.getByRole('link', { name: 'Subscribe to team events calendar' })).toHaveCount(0);
 });

@@ -3,6 +3,7 @@
  */
 if (typeof window === 'undefined') {
   if (typeof HtmlSafety === 'undefined') { var HtmlSafety = require('./html-safety.js'); } // eslint-disable-line no-var
+  if (typeof IconCatalog === 'undefined') { var IconCatalog = require('./icon-catalog.js'); } // eslint-disable-line no-var
 }
 
 if (typeof window === 'undefined' || !window.PoolCardDisplay) {
@@ -71,7 +72,7 @@ if (typeof window === 'undefined' || !window.PoolCardDisplay) {
           <div class="pool-contact">
             <div class="address-section">
               <div class="address-section__details">
-                <strong>📍 Address:</strong><br>
+                <strong>${IconCatalog.render('map-pin')} Address:</strong><br>
                 <a href="${safeMapsUrl}"
                    target="_blank"
                    rel="noopener"
@@ -138,7 +139,7 @@ if (typeof window === 'undefined' || !window.PoolCardDisplay) {
       const phoneHtml = phoneUrl
         ? `<div class="address-section__phone">
           <a href="${phoneUrl}" class="phone-link" aria-label="Call ${safePoolName} pool desk at ${HtmlSafety.escapeHtml(safePool.phone)}">
-            <span aria-hidden="true">📞</span> ${HtmlSafety.escapeHtml(safePool.phone)}
+            ${IconCatalog.render('phone')} ${HtmlSafety.escapeHtml(safePool.phone)}
           </a>
         </div>`
         : '';

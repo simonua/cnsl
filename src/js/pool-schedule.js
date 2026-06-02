@@ -90,7 +90,7 @@ if (typeof window === 'undefined' || !window.PoolSchedule) {
   getStatusAtTime(dayName, time = new Date()) {
     const PoolStatusRef = this._getPoolStatus();
     if (!PoolStatusRef) {
-      return { isOpen: false, status: 'Error', color: 'gray', icon: '⚫' };
+      return { kind: 'unavailable', isOpen: false, status: 'Error', color: 'gray' };
     }
     
     const dayHours = this.getDayHours(dayName);
@@ -134,7 +134,7 @@ if (typeof window === 'undefined' || !window.PoolSchedule) {
   getCurrentStatus() {
     const TimeUtilsRef = this._getTimeUtils();
     if (!TimeUtilsRef) {
-      return { isOpen: false, status: 'Error', color: 'gray', icon: '⚫' };
+      return { kind: 'unavailable', isOpen: false, status: 'Error', color: 'gray' };
     }
     
     const now = new Date();
@@ -195,7 +195,7 @@ if (typeof window === 'undefined' || !window.PoolSchedule) {
         
         const PoolStatusRef = this._getPoolStatus();
         let isCurrentSlot = false;
-        let status = PoolStatusRef ? PoolStatusRef.OPEN : { isOpen: true, status: 'Open', color: 'green', icon: '🟢' };
+        let status = PoolStatusRef ? PoolStatusRef.OPEN : { kind: 'open', isOpen: true, status: 'Open', color: 'green' };
 
         if (isToday) {
           const currentHour = now.getHours();
@@ -230,7 +230,7 @@ if (typeof window === 'undefined' || !window.PoolSchedule) {
   _getRestrictionStatus(restrictions, time) {
     const PoolStatusRef = this._getPoolStatus();
     if (!PoolStatusRef) {
-      return { isOpen: false, status: 'Error', color: 'gray', icon: '⚫' };
+      return { kind: 'unavailable', isOpen: false, status: 'Error', color: 'gray' };
     }
     
     // Check if current time falls within any restriction period

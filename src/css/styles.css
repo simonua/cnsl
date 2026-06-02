@@ -281,6 +281,26 @@
   }
 }
 
+.icon-sprite {
+  display: none;
+}
+
+.icon {
+  display: inline-block;
+  fill: none;
+  height: 1em;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.75;
+  vertical-align: -0.125em;
+  width: 1em;
+}
+
+.icon--heading {
+  margin-right: 0.2rem;
+}
+
 /* Reset and base styles */
 * {
   box-sizing: border-box;
@@ -799,6 +819,10 @@ button.home-banner__close:focus {
   transition: var(--transition);
   border-left: 4px solid transparent;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-menu .icon {
+  margin-right: 0.35rem;
 }
 
 .nav-menu a:hover,
@@ -1488,6 +1512,10 @@ input::placeholder {
   height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
   transition: left 0.5s;
+}
+
+.btn .icon {
+  margin-right: 0.35rem;
 }
 
 .btn:hover::before,
@@ -2946,11 +2974,6 @@ button.pool-filter__clear:focus-visible {
   box-shadow: 0 2px 8px var(--current-shadow);
   transform: scale(1.02);
   position: relative;
-}
-
-.day-schedule.current-day strong::before {
-  content: "📅 ";
-  margin-right: 0.25rem;
 }
 
 .day-schedule.current-day {

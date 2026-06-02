@@ -39,7 +39,8 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
    * @param {Object} data - Additional data to log
    */
   static _log(message, level = 'info', data = null) {
-    const prefix = level === 'error' ? '❌' : level === 'warn' ? '⚠️' : '🕐';
+    const TimeIcons = typeof module !== 'undefined' && module.exports ? require('./icon-catalog.js') : IconCatalog;
+    const prefix = level === 'error' ? TimeIcons.getTextGlyph('error') : level === 'warn' ? TimeIcons.getTextGlyph('warning') : TimeIcons.getTextGlyph('time');
     
     if (data) {
       console[level](`${prefix} [TimeUtils] ${message}`, data);
@@ -598,7 +599,7 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
         const result = currentMinutes >= startMinutes || currentMinutes < endMinutes;
         
         if (result) {
-          this._log(`🎯 OVERNIGHT TIME SLOT MATCH! ${startTime}-${endTime} contains ${currentMinutes} minutes`);
+          this._log(`OVERNIGHT TIME SLOT MATCH! ${startTime}-${endTime} contains ${currentMinutes} minutes`);
         }
         
         return result;
@@ -618,7 +619,7 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
       const result = currentMinutes >= startMinutes && currentMinutes < endMinutes;
 
       if (result) {
-        this._log(`🎯 TIME SLOT MATCH! ${startTime}-${endTime} contains ${currentMinutes} minutes`);
+        this._log(`TIME SLOT MATCH! ${startTime}-${endTime} contains ${currentMinutes} minutes`);
       }
 
       return result;
@@ -778,7 +779,7 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
       if (forceHighlight) {
         shouldHighlight = true;
         highlightReason = 'force highlight enabled';
-        this._log(`🚀 Force highlighting enabled for ${timeRange}`);
+        this._log(`Force highlighting enabled for ${timeRange}`);
       } else if (isCurrentDay) {
         try {
           shouldHighlight = this.isCurrentTimeSlot(startTime, endTime, currentMinutes, isCurrentDay);
@@ -801,14 +802,14 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
           highlightClass = styles.className;
           inlineStyle = styles.inlineStyle;
           
-          this._log(`🎯 MATCH FOUND! Highlighting time slot: ${startTime}-${endTime} (${highlightReason})`);
-          this._log(`🎯 Status color: ${status.color}`);
-          this._log(`🎯 Applied highlight class: "${highlightClass.trim()}"`);
+          this._log(`MATCH FOUND! Highlighting time slot: ${startTime}-${endTime} (${highlightReason})`);
+          this._log(`Status color: ${status.color}`);
+          this._log(`Applied highlight class: "${highlightClass.trim()}"`);
         } else {
-          this._log(`🚫 Current time slot but unsupported status color: ${status.color}`, 'warn');
+          this._log(`Current time slot but unsupported status color: ${status.color}`, 'warn');
         }
       } else if (shouldHighlight && !status) {
-        this._log(`🚫 Should highlight ${timeRange} but no valid status provided`, 'warn');
+        this._log(`Should highlight ${timeRange} but no valid status provided`, 'warn');
       }
       
       // Build final HTML with safety escaping

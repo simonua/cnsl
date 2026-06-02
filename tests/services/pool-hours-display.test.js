@@ -23,7 +23,7 @@ const viewModel = {
   weekStartInputValue: '2026-06-15',
   minDateInputValue: '2026-06-01',
   maxDateInputValue: '2026-06-30',
-  poolStatus: { color: 'green', icon: '<open>', status: 'Open <public>' },
+  poolStatus: { kind: 'open', color: 'green', icon: '<open>', status: 'Open <public>' },
   statusTransition: { action: 'opens', minutes: 15 },
   statusTooltip: 'Open <tip>',
   weekSchedule: [{
@@ -48,7 +48,8 @@ describe('PoolHoursDisplay', () => {
     assert.match(html, /aria-label="Choose a week for Long &lt;Reach&gt;"/);
     assert.match(html, /data-pool-id="pool&quot;&gt;&lt;script&gt;"/);
     assert.match(html, /status-green/);
-    assert.match(html, /&lt;open&gt; Open &lt;public&gt;/);
+    assert.match(html, /🟢 Open &lt;public&gt;/);
+    assert.doesNotMatch(html, /&lt;open&gt;/);
     assert.match(html, /<span class="tooltip-text">Open &lt;tip&gt;<\/span>/);
     assert.match(html, /Opens in 15 min/);
     assert.match(html, /min="2026-06-01" max="2026-06-30"/);
@@ -74,6 +75,7 @@ describe('PoolHoursDisplay', () => {
     const context = {
       window: {},
       HtmlSafety: { escapeHtml: value => String(value).replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character])) },
+      IconCatalog: { getPoolStatusGlyph: () => '⚫', render: () => '' },
       PoolScheduleDisplay: { render: () => '', formatPublicStatusTransition: () => '', getPublicStatusTransitionClass: () => 'pool-status-countdown' }
     };
     vm.runInNewContext(source, context, { filename: sourcePath });

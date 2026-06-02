@@ -318,7 +318,7 @@ function formatTeamStaff(staff) {
   const contacts = Array.isArray(staff.contacts) ? [...staff.contacts].sort((first, second) => (
     first.label.localeCompare(second.label, undefined, { sensitivity: 'base' })
   )) : [];
-  const mailIcon = '<svg class="team-staff__mail-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a2 2 0 0 1-2.06 0L2 7"></path></svg>';
+  const mailIcon = IconCatalog.render('mail', 'team-staff__mail-icon');
   const getAudienceContacts = audience => contacts.filter(contact => contact.audience === audience);
   const formatEmail = (email, label) => {
     const emailUrl = TeamsBrowserSafety.safeMailtoUrl(email);
@@ -466,7 +466,7 @@ function renderTeams(teams) {
         <div class="team-details" id="${detailsId}"${isExpanded ? '' : ' hidden'}>
           ${merchandiseUrl ? `
             <a href="${merchandiseUrl}" target="_blank" rel="noopener noreferrer" class="team-merchandise" data-analytics-link-purpose="merchandise">
-              <span class="team-merchandise__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 4 6 5.5 3.5 9 6 10.5V20h12v-9.5L20.5 9 18 5.5 15 4a3 3 0 0 1-6 0Z"></path><path d="M12 10.25v4.5"></path><path d="M9.75 12.5h4.5"></path></svg></span>
+              <span class="team-merchandise__icon" aria-hidden="true">${IconCatalog.render('shirt-plus')}</span>
               <span>Get Your Official ${safeShortName} Gear!<span class="visually-hidden"> (opens in new tab)</span></span>
             </a>
           ` : ''}
@@ -475,7 +475,7 @@ function renderTeams(teams) {
           
           ${homePool ? `
             <div class="detail-item">
-              <strong><span class="detail-item__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M2 7c1.5 0 2.25 1.5 3.75 1.5S8 7 9.5 7s2.25 1.5 3.75 1.5S15.5 7 17 7s2.25 1.5 3.75 1.5S23 7 23 7"></path><path d="M2 12c1.5 0 2.25 1.5 3.75 1.5S8 12 9.5 12s2.25 1.5 3.75 1.5S15.5 12 17 12s2.25 1.5 3.75 1.5S23 12 23 12"></path><path d="M2 17c1.5 0 2.25 1.5 3.75 1.5S8 17 9.5 17s2.25 1.5 3.75 1.5S15.5 17 17 17s2.25 1.5 3.75 1.5S23 17 23 17"></path></svg></span> Home Pool:</strong> ${poolData ? 
+              <strong><span class="detail-item__icon" aria-hidden="true">${IconCatalog.render('pool')}</span> Home Pool:</strong> ${poolData ? 
                 getEnhancedPoolLink(homePool) :
                 TeamsBrowserSafety.escapeHtml(homePool)
               }
@@ -488,23 +488,23 @@ function renderTeams(teams) {
 
           ${teamUrl || practiceUrl || boosterUrl ? `
             <div class="team-actions team-actions--website">
-              ${teamUrl ? `<a href="${teamUrl}" target="_blank" rel="noopener" class="btn">🌐 Team Website</a>` : ''}
-              ${practiceUrl ? `<a href="${practiceUrl}" target="_blank" rel="noopener" class="btn">📅 Practice Schedule</a>` : ''}
+              ${teamUrl ? `<a href="${teamUrl}" target="_blank" rel="noopener" class="btn">${IconCatalog.render('globe')}Team Website</a>` : ''}
+              ${practiceUrl ? `<a href="${practiceUrl}" target="_blank" rel="noopener" class="btn">${IconCatalog.render('calendar')}Practice Schedule</a>` : ''}
               ${boosterUrl ? `<a href="${boosterUrl}" target="_blank" rel="noopener noreferrer" class="btn">Booster Club</a>` : ''}
             </div>
           ` : ''}
 
           ${calendarUrl || eventsSubscriptionUrl ? `
             <div class="team-actions team-actions--calendar">
-              ${calendarUrl ? `<a href="${calendarUrl}" target="_blank" rel="noopener" class="btn">📅 Team Calendar</a>` : ''}
-              ${eventsSubscriptionUrl ? `<a href="${eventsSubscriptionUrl}" target="_blank" rel="noopener" class="btn">📅 Subscribe<span class="visually-hidden"> to team events calendar</span></a>` : ''}
+              ${calendarUrl ? `<a href="${calendarUrl}" target="_blank" rel="noopener" class="btn">${IconCatalog.render('calendar')}Team Calendar</a>` : ''}
+              ${eventsSubscriptionUrl ? `<a href="${eventsSubscriptionUrl}" target="_blank" rel="noopener" class="btn">${IconCatalog.render('calendar')}Subscribe<span class="visually-hidden"> to team events calendar</span></a>` : ''}
             </div>
           ` : ''}
           
           ${resultsUrl ? `
             <div class="team-actions">
               ${resultsUrl ? 
-                `<a href="${resultsUrl}" target="_blank" rel="noopener" class="btn">🏆 Swim Meet Results</a>` : 
+                `<a href="${resultsUrl}" target="_blank" rel="noopener" class="btn">${IconCatalog.render('trophy')}Swim Meet Results</a>` : 
                 ''
               }
             </div>
@@ -625,7 +625,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Failed to load team data:", error);
     const list = document.getElementById("teamList");
     if (list) {
-      list.innerHTML = "<p>⚠️ Team data is currently unavailable. Please try again later.</p>";
+      list.innerHTML = `<p>${IconCatalog.getTextGlyph('warning')} Team data is currently unavailable. Please try again later.</p>`;
     }
     setTeamListStatus('Team information is currently unavailable. Please try again later.', false);
   }

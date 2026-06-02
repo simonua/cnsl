@@ -34,6 +34,7 @@ module.exports = [
         PoolWeekStateService: 'readonly',
         PoolDirectoryService: 'readonly',
         HtmlSafety: 'readonly',
+        IconCatalog: 'readonly',
         PoolStatus: 'readonly',
         PoolNames: 'readonly',
         FileHelper: 'readonly',

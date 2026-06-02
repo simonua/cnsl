@@ -101,7 +101,8 @@ describe('PoolCardDisplay', () => {
     const source = fs.readFileSync(sourcePath, 'utf8');
     const context = {
       window: {},
-      HtmlSafety: { escapeHtml: value => String(value).replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character])), safeHttpUrl: () => '', safeTelephoneUrl: () => '' }
+      HtmlSafety: { escapeHtml: value => String(value).replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character])), safeHttpUrl: () => '', safeTelephoneUrl: () => '' },
+      IconCatalog: { render: () => '' }
     };
     vm.runInNewContext(source, context, { filename: sourcePath });
 

@@ -76,8 +76,7 @@ if (typeof window === 'undefined' || !window.PoolHoursViewModelService) {
           kind: 'unavailable',
           isOpen: false,
           status: 'Error',
-          color: 'gray',
-          icon: '⚫'
+          color: 'gray'
         };
       }
     }

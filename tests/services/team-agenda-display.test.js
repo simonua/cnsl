@@ -106,7 +106,7 @@ describe('TeamAgendaDisplay', () => {
         type: 'meet'
       }]);
 
-      assert.match(html, /favorite-week__event-icon--event" aria-hidden="true">🏊<\/span>/);
+      assert.match(html, /favorite-week__event-icon--event" aria-hidden="true">[\s\S]*href="#icon-swimmer"/);
       assert.match(html, /<strong class="favorite-week__event-label">[\s\S]*Next swim event:<\/strong>[\s\S]*<strong class="favorite-week__event-name">Time Trials for returning \/ experienced swimmers<\/strong>/);
       assert.match(html, /class="session-time">8:00 AM - 12:00 PM<\/span>/);
     });
@@ -128,8 +128,8 @@ describe('TeamAgendaDisplay', () => {
         teams: ''
       }]);
 
-      assert.match(html, /favorite-week__event-icon--morning" aria-hidden="true">☀️<\/span>/);
-      assert.match(html, /favorite-week__event-icon--evening" aria-hidden="true">🌙<\/span>/);
+      assert.match(html, /favorite-week__event-icon--morning" aria-hidden="true">[\s\S]*href="#icon-sun"/);
+      assert.match(html, /favorite-week__event-icon--evening" aria-hidden="true">[\s\S]*href="#icon-moon"/);
     });
 
     it('uses compact headings and renders team matchups when supplied', () => {

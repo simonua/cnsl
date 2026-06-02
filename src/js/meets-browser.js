@@ -204,7 +204,7 @@ async function renderMeets(meets, preserveExpansion = false) {
               ? MeetsBrowserSafety.safeHttpUrl(poolData.location.googleMapsUrl)
               : '';
             if (safeMapsUrl) {
-              locationLink += ` <a href="${safeMapsUrl}" target="_blank" rel="noopener" class="maps-icon" aria-label="View ${MeetsBrowserSafety.escapeHtml(location)} on Google Maps">🗺️</a>`;
+              locationLink += ` <a href="${safeMapsUrl}" target="_blank" rel="noopener" class="maps-icon" aria-label="View ${MeetsBrowserSafety.escapeHtml(location)} on Google Maps">${IconCatalog.render('map')}</a>`;
             }
           }
         } catch (error) {
@@ -381,7 +381,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     
   } catch (error) {
     console.error("Error loading meets:", error);
-    meetList.innerHTML = "<p>⚠️ Meet data is currently unavailable. Please try again later.</p>";
+    meetList.innerHTML = `<p>${IconCatalog.getTextGlyph('warning')} Meet data is currently unavailable. Please try again later.</p>`;
     setMeetListStatus('Meet schedule is currently unavailable. Please try again later.', false);
   }
 });
@@ -430,25 +430,25 @@ function generateWeatherDisplay(weather) {
  * @returns {string} Weather icon or emoji
  */
 function getWeatherIcon(condition) {
-  if (!condition) return '🌤️';
+  if (!condition) return IconCatalog.getTextGlyph('weatherUnknown');
   
   const lowerCondition = condition.toLowerCase();
   
   if (lowerCondition.includes('sunny') || lowerCondition.includes('clear')) {
-    return '☀️';
+    return IconCatalog.getTextGlyph('weatherClear');
   } else if (lowerCondition.includes('partly cloudy') || lowerCondition.includes('partly sunny')) {
-    return '⛅';
+    return IconCatalog.getTextGlyph('weatherPartlyCloudy');
   } else if (lowerCondition.includes('cloudy') || lowerCondition.includes('overcast')) {
-    return '☁️';
+    return IconCatalog.getTextGlyph('weatherCloudy');
   } else if (lowerCondition.includes('rain') || lowerCondition.includes('showers')) {
-    return '🌧️';
+    return IconCatalog.getTextGlyph('weatherRain');
   } else if (lowerCondition.includes('thunderstorm') || lowerCondition.includes('storm')) {
-    return '⛈️';
+    return IconCatalog.getTextGlyph('weatherStorm');
   } else if (lowerCondition.includes('snow')) {
-    return '❄️';
+    return IconCatalog.getTextGlyph('weatherSnow');
   } else if (lowerCondition.includes('fog') || lowerCondition.includes('mist')) {
-    return '🌫️';
+    return IconCatalog.getTextGlyph('weatherFog');
   } else {
-    return '🌤️';
+    return IconCatalog.getTextGlyph('weatherUnknown');
   }
 }

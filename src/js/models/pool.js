@@ -238,7 +238,7 @@ if (typeof window === 'undefined') {
   getCurrentStatus() {
     const PoolStatusRef = this._getPoolStatus();
     if (!PoolStatusRef) {
-      return { isOpen: false, status: 'Error', color: 'gray', icon: '⚫' };
+      return { kind: 'unavailable', isOpen: false, status: 'Error', color: 'gray' };
     }
     
     if (this.schedulePeriods) {
@@ -261,7 +261,7 @@ if (typeof window === 'undefined') {
   _getPeriodStatus() {
     const PoolStatusRef = this._getPoolStatus();
     if (!PoolStatusRef) {
-      return { isOpen: false, status: 'Error', color: 'gray', icon: '⚫' };
+      return { kind: 'unavailable', isOpen: false, status: 'Error', color: 'gray' };
     }
     
     // Check if pool has no schedule data at all
@@ -1044,7 +1044,6 @@ if (typeof window === 'undefined') {
       name: this.name,
       status: status.status,
       isOpen: status.isOpen,
-      statusIcon: status.icon,
       todaysHours: this.getHoursForDay(TimeUtilsRef ? TimeUtilsRef.getDayName(new Date()) : 'Unknown'),
       hasEvents: todaysEvents.length > 0,
       eventCount: todaysEvents.length,

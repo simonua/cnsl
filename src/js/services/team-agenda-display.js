@@ -4,11 +4,13 @@
 (function initializeTeamAgendaDisplay() {
   const SCHEDULE_LOOKAHEAD_DAYS = 366;
   const EVENT_LABEL_ICONS = Object.freeze({
-    morning: '☀️',
-    evening: '🌙',
-    event: '🏊'
+    morning: 'sun',
+    evening: 'moon',
+    event: 'swimmer'
   });
-  const POOL_ICON = '<svg viewBox="0 0 24 24"><path d="M2 7c1.5 0 2.25 1.5 3.75 1.5S8 7 9.5 7s2.25 1.5 3.75 1.5S15.5 7 17 7s2.25 1.5 3.75 1.5S23 7 23 7"></path><path d="M2 12c1.5 0 2.25 1.5 3.75 1.5S8 12 9.5 12s2.25 1.5 3.75 1.5S15.5 12 17 12s2.25 1.5 3.75 1.5S23 12 23 12"></path><path d="M2 17c1.5 0 2.25 1.5 3.75 1.5S8 17 9.5 17s2.25 1.5 3.75 1.5S15.5 17 17 17s2.25 1.5 3.75 1.5S23 17 23 17"></path></svg>';
+  const TeamAgendaIcons = typeof module !== 'undefined' && module.exports
+    ? require('./icon-catalog.js')
+    : globalThis.IconCatalog;
 
   function startOfDay(value) {
     const date = new Date(value);
@@ -127,14 +129,14 @@
       ? 'event'
       : EVENT_LABEL_ICONS[event.practicePeriod] ? event.practicePeriod : '';
     const icon = iconType
-      ? `<span class="favorite-week__event-icon favorite-week__event-icon--${iconType}" aria-hidden="true">${EVENT_LABEL_ICONS[iconType]}</span>`
+      ? `<span class="favorite-week__event-icon favorite-week__event-icon--${iconType}" aria-hidden="true">${TeamAgendaIcons.render(EVENT_LABEL_ICONS[iconType])}</span>`
       : '';
     return `<strong class="favorite-week__event-label">${icon}${globalThis.HtmlSafety.escapeHtml(event.label)}</strong>`;
   }
 
   function renderLocation(location, poolLocationIndex) {
     const displayLocation = String(location || '').replace(/\s+Pool\s*$/i, '');
-    return `<span class="favorite-week__pool-icon" aria-hidden="true">${POOL_ICON}</span>${globalThis.generateLinkedPoolMentions(displayLocation, poolLocationIndex)}`;
+    return `<span class="favorite-week__pool-icon" aria-hidden="true">${TeamAgendaIcons.render('pool')}</span>${globalThis.generateLinkedPoolMentions(displayLocation, poolLocationIndex)}`;
   }
 
   function renderEvents(events, dayHeadingLevel = 3, poolsOrIndex = [], referenceDate = new Date()) {

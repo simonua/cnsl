@@ -3,6 +3,7 @@
  */
 if (typeof window === 'undefined') {
   if (typeof HtmlSafety === 'undefined') { var HtmlSafety = require('./html-safety.js'); } // eslint-disable-line no-var
+  if (typeof IconCatalog === 'undefined') { var IconCatalog = require('./icon-catalog.js'); } // eslint-disable-line no-var
   if (typeof PoolScheduleDisplay === 'undefined') { var PoolScheduleDisplay = require('./pool-schedule-display.js'); } // eslint-disable-line no-var
 }
 
@@ -14,7 +15,7 @@ if (typeof window === 'undefined' || !window.PoolHoursDisplay) {
      * @returns {string} Message HTML
      */
     static renderAvailabilityMessage(message) {
-      return `<div class="pool-hours"><strong>🕒 Hours:</strong> ${HtmlSafety.escapeHtml(message)}</div>`;
+      return `<div class="pool-hours"><strong>${IconCatalog.render('clock')} Hours:</strong> ${HtmlSafety.escapeHtml(message)}</div>`;
     }
 
     /**
@@ -23,7 +24,7 @@ if (typeof window === 'undefined' || !window.PoolHoursDisplay) {
      */
     static renderScheduleMissing() {
       return `<div class="pool-hours">
-      <strong>🕒 Hours:</strong>
+      <strong>${IconCatalog.render('clock')} Hours:</strong>
       <span class="status-gray status-tooltip">
         Schedule TBD
         <span class="tooltip-text">Schedule not available</span>
@@ -54,7 +55,7 @@ if (typeof window === 'undefined' || !window.PoolHoursDisplay) {
       const safeWeekStartText = HtmlSafety.escapeHtml(model.weekStartText || '');
       const safeWeekEndText = HtmlSafety.escapeHtml(model.weekEndText || '');
       const statusClass = ['green', 'red', 'yellow', 'gray'].includes(poolStatus.color) ? poolStatus.color : 'gray';
-      const safeStatusIcon = HtmlSafety.escapeHtml(poolStatus.icon || '');
+      const safeStatusIcon = HtmlSafety.escapeHtml(IconCatalog.getPoolStatusGlyph(poolStatus.kind));
       const safeStatusText = HtmlSafety.escapeHtml(poolStatus.status || '');
       const safeStatusTooltip = HtmlSafety.escapeHtml(model.statusTooltip || 'Status unknown');
       const statusTransition = model.statusTransition;
@@ -71,7 +72,7 @@ if (typeof window === 'undefined' || !window.PoolHoursDisplay) {
 
       return `
     <div class="pool-hours">
-      <strong>🕒 Hours:</strong> 
+      <strong>${IconCatalog.render('clock')} Hours:</strong> 
       <span class="open-status status-${statusClass} status-tooltip">
         ${safeStatusIcon} ${safeStatusText}
         <span class="tooltip-text">${safeStatusTooltip}</span>
@@ -83,7 +84,7 @@ if (typeof window === 'undefined' || !window.PoolHoursDisplay) {
           </div>
           <div class="nav-buttons">
             <button class="nav-btn calendar-btn" data-pool-id="${safePoolId}" aria-label="Choose a week for ${safePoolName}" aria-controls="${safeWeekPickerId}" aria-expanded="false" ${!model.hasDateRange ? 'disabled' : ''}>
-              📅
+              ${IconCatalog.render('calendar')}
             </button>
             <button class="nav-btn today-btn" data-pool-id="${safePoolId}" ${model.isTodayDisabled ? 'disabled' : ''}>
               Today
