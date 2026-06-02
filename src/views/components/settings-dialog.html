@@ -8,22 +8,19 @@
     </header>
     <p class="settings-dialog__notice">Changes apply automatically. All settings stay on your device.</p>
     <form class="settings-form" id="settingsForm">
-      <fieldset class="settings-group">
-        <legend>Appearance</legend>
-        <div class="settings-segmented" role="radiogroup" aria-label="Appearance theme">
-          <label><input type="radio" name="theme" value="system"> Device default</label>
-          <label><input type="radio" name="theme" value="light"> Light</label>
-          <label><input type="radio" name="theme" value="dark"> Dark</label>
-        </div>
-      </fieldset>
+      <div class="settings-group">
+        <label class="settings-label" for="favoritePool">Favorite pool</label>
+        <select class="settings-select" id="favoritePool" name="favoritePool" disabled>
+          <option value="">Loading pools...</option>
+        </select>
+      </div>
 
-      <fieldset class="settings-group">
-        <legend>Pool schedule view</legend>
-        <div class="settings-segmented settings-segmented--two" role="radiogroup" aria-label="Pool schedule view">
-          <label><input type="radio" name="poolScheduleLayout" value="list"> List</label>
-          <label><input type="radio" name="poolScheduleLayout" value="calendar"> Weekly calendar</label>
-        </div>
-      </fieldset>
+      <div class="settings-group">
+        <label class="settings-label" for="favoriteTeam">Favorite team</label>
+        <select class="settings-select" id="favoriteTeam" name="favoriteTeam" disabled>
+          <option value="">Loading teams...</option>
+        </select>
+      </div>
 
       <fieldset class="settings-group" aria-describedby="practiceGroupsHint">
         <legend>Practice groups</legend>
@@ -39,12 +36,11 @@
       </fieldset>
 
       <fieldset class="settings-group">
-        <legend>Location awareness</legend>
-        <label class="settings-checkbox" for="locationAwarenessEnabled">
-          <input type="checkbox" id="locationAwarenessEnabled" name="locationAwarenessEnabled" aria-describedby="locationAwarenessHint">
-          <span>Use my current location to estimate distances to pools</span>
-        </label>
-        <p class="settings-hint" id="locationAwarenessHint">Off by default. When enabled, the Pools page asks your browser for location access only to calculate pool distances. This app never tracks, saves, or sends your current location.</p>
+        <legend>Pool schedule view</legend>
+        <div class="settings-segmented settings-segmented--two" role="radiogroup" aria-label="Pool schedule view">
+          <label><input type="radio" name="poolScheduleLayout" value="list"> List</label>
+          <label><input type="radio" name="poolScheduleLayout" value="calendar"> Weekly calendar</label>
+        </div>
       </fieldset>
 
       <fieldset class="settings-group" aria-describedby="weatherAlertsHint weatherCheckStatus">
@@ -58,19 +54,23 @@
         <p class="settings-weather-status" id="weatherCheckStatus" aria-live="polite">No weather check has been recorded in this tab yet.</p>
       </fieldset>
 
-      <div class="settings-group">
-        <label class="settings-label" for="favoritePool">Favorite pool</label>
-        <select class="settings-select" id="favoritePool" name="favoritePool" disabled>
-          <option value="">Loading pools...</option>
-        </select>
-      </div>
+      <fieldset class="settings-group">
+        <legend>Pool distance</legend>
+        <label class="settings-checkbox" for="locationAwarenessEnabled">
+          <input type="checkbox" id="locationAwarenessEnabled" name="locationAwarenessEnabled" aria-describedby="locationAwarenessHint">
+          <span>Use my current location to estimate distances to pools</span>
+        </label>
+        <p class="settings-hint" id="locationAwarenessHint">Off by default. When enabled, the Pools page asks your browser for location access only to calculate pool distances. This app never tracks, saves, or sends your current location.</p>
+      </fieldset>
 
-      <div class="settings-group">
-        <label class="settings-label" for="favoriteTeam">Favorite swim team</label>
-        <select class="settings-select" id="favoriteTeam" name="favoriteTeam" disabled>
-          <option value="">Loading teams...</option>
-        </select>
-      </div>
+      <fieldset class="settings-group">
+        <legend>Appearance</legend>
+        <div class="settings-segmented" role="radiogroup" aria-label="Appearance theme">
+          <label><input type="radio" name="theme" value="system"> Device default</label>
+          <label><input type="radio" name="theme" value="light"> Light</label>
+          <label><input type="radio" name="theme" value="dark"> Dark</label>
+        </div>
+      </fieldset>
 
       <div class="settings-actions">
         <button class="btn settings-clear" id="clearSettings" type="button">Clear all app data</button>

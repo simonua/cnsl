@@ -1384,6 +1384,18 @@ test('[WF-SETTINGS-001] settings dialog is right-aligned on mobile and centered 
 
   expect(Math.abs(bounds.x + bounds.width - mobileViewport.width)).toBeLessThanOrEqual(1);
   expect(Math.abs(bounds.y + (bounds.height / 2) - (mobileViewport.height / 2))).toBeLessThanOrEqual(1);
+  await expect(page.locator('#settingsForm > .settings-group').evaluateAll(groups => groups.map(group => {
+    const heading = group.querySelector(':scope > legend, :scope > .settings-label');
+    return heading ? heading.textContent.trim() : '';
+  }))).resolves.toEqual([
+    'Favorite pool',
+    'Favorite team',
+    'Practice groups',
+    'Pool schedule view',
+    'Weather safety alerts',
+    'Pool distance',
+    'Appearance'
+  ]);
   const closeButtonBounds = await page.getByRole('button', { name: 'Close settings' }).boundingBox();
   expect(closeButtonBounds.width).toBeLessThan(closeButtonBounds.height);
   let clearButtonBounds = await page.getByRole('button', { name: 'Clear all app data' }).boundingBox();
@@ -1563,6 +1575,7 @@ test('[WF-SETTINGS-005] weather safety alerts show the most recent check after u
   const weatherCheckStatus = page.locator('#weatherCheckStatus');
   await expect(weatherCheckStatus).toHaveText('Most recent successful weather check: Jun 2, 2026, 2:15 PM EDT. Weather safety alerts are currently off.');
   await expect(weatherCheckStatus.locator('time')).toHaveAttribute('datetime', '2026-06-02T14:15:00-04:00');
+  await expect(weatherCheckStatus.locator('time')).toHaveCSS('display', 'block');
   await expect(weatherCheckStatus).toHaveCSS('border-left-style', 'solid');
 });
 
@@ -1592,7 +1605,7 @@ test('[WF-SETTINGS-006] weather safety alerts retain the last successful check w
   });
 
   const weatherCheckStatus = page.locator('#weatherCheckStatus');
-  await expect(weatherCheckStatus).toHaveText('Weather service is temporarily unavailable. Most recent successful weather check: Jun 2, 2026, 2:15 PM EDT.');
+  await expect(weatherCheckStatus).toHaveText('Weather service is temporarily unavailable. Most recent successful weather check: Jun 2, 2026, 2:15 PM EDT');
   await expect(weatherCheckStatus.locator('time')).toHaveAttribute('datetime', '2026-06-02T14:15:00-04:00');
   await expect(page.locator('#weatherAlert')).toBeHidden();
 });
@@ -1610,8 +1623,8 @@ test('[WF-SETTINGS-007] weather source details expose fixed Columbia-area Nation
   const nwsLinks = weatherDetails.getByRole('link');
 
   await expect(weatherDetails).toContainText('never tracks, saves, or sends your current location');
-  await expect(nwsLinks.nth(0)).toHaveText('Active weather alerts for the Columbia-area pool point');
-  await expect(nwsLinks.nth(1)).toHaveText('Forecast metadata for the Columbia-area pool point');
+  await expect(nwsLinks.nth(0)).toHaveText('Alerts');
+  await expect(nwsLinks.nth(1)).toHaveText('Forecast metadata');
   await expect(nwsLinks.nth(0)).toHaveAttribute('href', 'https://api.weather.gov/alerts/active?point=39.2014%2C-76.8610');
   await expect(nwsLinks.nth(1)).toHaveAttribute('href', 'https://api.weather.gov/points/39.2014,-76.8610');
   await expect(nwsLinks.nth(0)).toHaveAttribute('target', '_blank');

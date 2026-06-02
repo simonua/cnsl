@@ -4847,6 +4847,10 @@ button.settings-dialog__close:focus {
   padding: 0.65rem 0.75rem;
 }
 
+.settings-weather-status time {
+  display: block;
+}
+
 .settings-actions {
   display: flex;
   flex-wrap: wrap;
