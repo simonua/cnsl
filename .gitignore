@@ -10,6 +10,7 @@ tmp
 /test-results/
 /playwright-report/
 /.github/automation/season-data-monitor/update-report.md
+/coverage
 
 # Google Site Verification
 !google3dd9d57115818ebb.html
