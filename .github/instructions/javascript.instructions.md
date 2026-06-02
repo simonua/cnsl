@@ -34,6 +34,12 @@ applyTo: "src/js/**/*.js"
 - Use template literals for string interpolation.
 - Name classes in PascalCase, functions/variables in camelCase, constants in UPPER_SNAKE_CASE.
 
+## File Header Comments
+
+- Leave at least one empty line between a top-of-file comment and the first statement.
+- Keep top-of-file comments concise but informative. Summarize the module's primary responsibility and add a short note about its main boundary, collaborator, or output when that context helps orient the reader.
+- Prefer two or three focused lines over a one-sentence label or a paragraph.
+
 ## Testability
 
 - Keep DOM-free logic in services/models so it can be tested with Node.js.

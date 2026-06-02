@@ -31,6 +31,7 @@ module.exports = [
         PoolHoursViewModelService: 'readonly',
         PoolCardDisplay: 'readonly',
         PoolCalendarService: 'readonly',
+        PoolCalendarControls: 'readonly',
         PoolWeekStateService: 'readonly',
         PoolDirectoryService: 'readonly',
         HtmlSafety: 'readonly',

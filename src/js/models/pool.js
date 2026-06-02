@@ -1,5 +1,6 @@
 /**
- * Individual pool class with contextual methods
+ * Represents an individual pool and exposes schedule, status, and directory-facing helpers.
+ * Delegates published period calculations to PoolPeriodScheduleService while retaining compatibility methods for existing callers.
  */
 
 // Prevent multiple declarations
@@ -9,6 +10,7 @@ if (typeof window === 'undefined' || !window.Pool) {
 if (typeof window === 'undefined') {
   if (typeof PoolSchedule === 'undefined') { var PoolSchedule = require('../pool-schedule.js'); } // eslint-disable-line no-var
   if (typeof TimeUtils === 'undefined') { var TimeUtils = require('../services/time-utils.js'); } // eslint-disable-line no-var
+  if (typeof PoolPeriodScheduleService === 'undefined') { var PoolPeriodScheduleService = require('../services/pool-period-schedule-service.js'); } // eslint-disable-line no-var
 }
 
   class Pool {
@@ -63,12 +65,20 @@ if (typeof window === 'undefined') {
     // The published pool model uses dated schedule periods. Keep the day-hours shape
     // as a compatibility branch for older callers that have not been migrated yet.
     if (poolData.schedules && Array.isArray(poolData.schedules)) {
-      this.schedule = new PoolSchedule(this._normalizeActivePeriodSchedule(poolData.schedules));
       this.schedulePeriods = poolData.schedules;
+      this.periodSchedule = new PoolPeriodScheduleService({
+        schedulePeriods: this.schedulePeriods,
+        scheduleOverrides: this.scheduleOverrides,
+        poolName: this.name,
+        getTimeUtils: () => this._getTimeUtils(),
+        getPoolStatus: () => this._getPoolStatus()
+      });
+      this.schedule = new PoolSchedule(this.periodSchedule.normalizeActiveSchedule());
     } else {
       // Supported day-hours compatibility format
       this.schedule = new PoolSchedule(poolData.hours || {});
       this.schedulePeriods = null;
+      this.periodSchedule = null;
     }
     
     this.restrictions = poolData.restrictions || [];
@@ -114,67 +124,11 @@ if (typeof window === 'undefined') {
     * @param {PoolScheduleRecord[]} schedules - Schedule records with date ranges
    * @returns {Object} - Normalized schedule format for current date
    */
-  _normalizeActivePeriodSchedule(schedules) {
-    // Ensure TimeUtils is available
-    const TimeUtilsRef = this._getTimeUtils();
-    if (!TimeUtilsRef) {
-      console.error('TimeUtils is not available in Pool._normalizeActivePeriodSchedule');
-      return {}; // Return empty schedule as fallback
-    }
-    
-    // Find the current active schedule based on today's date
-    const easternTimeInfo = TimeUtilsRef.getCurrentEasternTimeInfo();
-    const currentDate = easternTimeInfo.date;
-    
-    const activeSchedule = schedules.find(schedule => {
-      return currentDate >= schedule.startDate && currentDate <= schedule.endDate;
-    });
-    
-    if (!activeSchedule || !activeSchedule.hours) {
-      return {}; // No active schedule found for current date
-    }
-    
-    // Normalize to simple day-based format
-    const normalizedSchedule = {};
-    const dayMapping = {
-      'Mon': 'Monday',
-      'Tue': 'Tuesday', 
-      'Wed': 'Wednesday',
-      'Thu': 'Thursday',
-      'Fri': 'Friday',
-      'Sat': 'Saturday',
-      'Sun': 'Sunday'
-    };
-    
-    // Initialize all days as closed
-    Object.values(dayMapping).forEach(day => {
-      normalizedSchedule[day] = { closed: true };
-    });
-    
-    // Process hours and populate days from active schedule
-    activeSchedule.hours.forEach(hour => {
-      if (hour.weekDays && hour.startTime && hour.endTime) {
-        hour.weekDays.forEach(shortDay => {
-          const fullDay = dayMapping[shortDay];
-          if (fullDay) {
-            if (!normalizedSchedule[fullDay] || normalizedSchedule[fullDay].closed) {
-              normalizedSchedule[fullDay] = {
-                closed: false,
-                open: hour.startTime,
-                close: hour.endTime,
-                activities: hour.types || [],
-                notes: hour.notes || '',
-                accessStatus: hour.accessStatus
-              };
-            }
-            // If multiple time slots for same day, we'll use the first one for now
-            // More complex logic could merge them
-          }
-        });
-      }
-    });
-    
-    return normalizedSchedule;
+  _getPeriodSchedule() {
+    if (!this.periodSchedule) return null;
+    this.periodSchedule.schedulePeriods = this.schedulePeriods;
+    this.periodSchedule.scheduleOverrides = this.scheduleOverrides;
+    return this.periodSchedule;
   }
 
   /**
@@ -259,27 +213,8 @@ if (typeof window === 'undefined') {
    * @returns {PoolStatus} - Pool status from published period data
    */
   _getPeriodStatus() {
-    const PoolStatusRef = this._getPoolStatus();
-    if (!PoolStatusRef) {
-      return { kind: 'unavailable', isOpen: false, status: 'Error', color: 'gray' };
-    }
-    
-    // Check if pool has no schedule data at all
-    if (!this.schedulePeriods || !Array.isArray(this.schedulePeriods) || this.schedulePeriods.length === 0) {
-      return PoolStatusRef.SCHEDULE_NOT_FOUND;
-    }
-
-    const TimeUtilsRef = this._getTimeUtils();
-    if (!TimeUtilsRef) {
-      return PoolStatusRef.SCHEDULE_NOT_FOUND;
-    }
-
-    const easternTimeInfo = TimeUtilsRef.getCurrentEasternTimeInfo();
-    const currentDate = easternTimeInfo.date;
-    const currentDay = easternTimeInfo.day.substring(0, 3); // Get short day name (Mon, Tue, etc.)
-    const currentTime = easternTimeInfo.minutes;
-
-    return this._getPeriodStatusAtMinutes(this._getPeriodTimeSlotsForDate(currentDate, currentDay), currentTime);
+    const periodSchedule = this._getPeriodSchedule();
+    return periodSchedule ? periodSchedule.getCurrentStatus() : this._getPoolStatus().SCHEDULE_NOT_FOUND;
   }
 
   /**
@@ -409,22 +344,8 @@ if (typeof window === 'undefined') {
    * @returns {Array} Ordered time slots
    */
   _getPeriodTimeSlotsForDate(dateString, shortDay) {
-    const activeSchedule = this.schedulePeriods.find(schedule => (
-      dateString >= schedule.startDate && dateString <= schedule.endDate
-    ));
-    const overrideForDate = this._getScheduleOverrideForDate(dateString, shortDay);
-    if (overrideForDate) return this._mergeScheduleWithOverride(activeSchedule, shortDay, overrideForDate);
-    if (!activeSchedule || !activeSchedule.hours) return [];
-
-    const TimeUtilsRef = this._getTimeUtils();
-    if (!TimeUtilsRef) return [];
-
-    return activeSchedule.hours.filter(hour => (
-      hour.weekDays && hour.weekDays.includes(shortDay)
-    )).sort((first, second) => {
-      if (typeof first.startTime !== 'string' || typeof second.startTime !== 'string') return 0;
-      return TimeUtilsRef.timeStringToMinutes(first.startTime) - TimeUtilsRef.timeStringToMinutes(second.startTime);
-    });
+    const periodSchedule = this._getPeriodSchedule();
+    return periodSchedule ? periodSchedule.getTimeSlotsForDate(dateString, shortDay) : [];
   }
 
   /**
@@ -434,21 +355,8 @@ if (typeof window === 'undefined') {
    * @returns {PoolStatus} Access status represented by the slot
    */
   _getPeriodSlotStatus(slot) {
-    const PoolStatusRef = this._getPoolStatus();
-    if (!PoolStatusRef) return { isOpen: false, color: 'gray' };
-
-    switch (slot.accessStatus) {
-      case 'public':
-        return PoolStatusRef.OPEN;
-      case 'closed-to-public':
-        return PoolStatusRef.CLOSED_TO_PUBLIC;
-      case 'practice-only':
-        return PoolStatusRef.PRACTICE_ONLY;
-      case 'swim-meet':
-        return PoolStatusRef.SWIM_MEET;
-      default:
-        return PoolStatusRef.RESTRICTED;
-    }
+    const periodSchedule = this._getPeriodSchedule();
+    return periodSchedule ? periodSchedule.getSlotStatus(slot) : { isOpen: false, color: 'gray' };
   }
 
   /**
@@ -459,20 +367,8 @@ if (typeof window === 'undefined') {
    * @returns {PoolStatus} Current access status
    */
   _getPeriodStatusAtMinutes(timeSlots, currentTime) {
-    const PoolStatusRef = this._getPoolStatus();
-    const TimeUtilsRef = this._getTimeUtils();
-    if (!PoolStatusRef || !TimeUtilsRef) return { isOpen: false, color: 'gray' };
-
-    for (const slot of timeSlots) {
-      if (!slot.startTime || !slot.endTime || typeof slot.startTime !== 'string' || typeof slot.endTime !== 'string') {
-        console.warn(`[Pool] Skipping invalid time slot for ${this.name}:`, slot);
-        continue;
-      }
-      const startMinutes = TimeUtilsRef.timeStringToMinutes(slot.startTime);
-      const endMinutes = TimeUtilsRef.timeStringToMinutes(slot.endTime);
-      if (currentTime >= startMinutes && currentTime < endMinutes) return this._getPeriodSlotStatus(slot);
-    }
-    return PoolStatusRef.CLOSED;
+    const periodSchedule = this._getPeriodSchedule();
+    return periodSchedule ? periodSchedule.getStatusAtMinutes(timeSlots, currentTime) : { isOpen: false, color: 'gray' };
   }
 
   /**
@@ -527,77 +423,8 @@ if (typeof window === 'undefined') {
    * @returns {Array} - Array of day objects with time slots
    */
   _getPeriodWeekScheduleForDate(weekStartDate) {
-    const dayOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const fullDayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    
-    return dayOrder.map((shortDay, index) => {
-      const dayData = {
-        day: shortDay,
-        fullDay: fullDayNames[index],
-        timeSlots: [],
-        isOpen: false,
-        hasOverrides: false,
-        overrideReason: null
-      };
-      
-      // Calculate the specific date for this day of the week
-      const targetDate = new Date(weekStartDate);
-      targetDate.setDate(weekStartDate.getDate() + index);
-      const targetDateString = targetDate.toISOString().split('T')[0];
-      
-      // Find active schedule for this specific date
-      const activeSchedule = this.schedulePeriods.find(schedule => {
-        return targetDateString >= schedule.startDate && targetDateString <= schedule.endDate;
-      });
-      
-      // Check for schedule overrides for this specific date
-      const overrideForDate = this._getScheduleOverrideForDate(targetDateString, shortDay);
-      
-      if (overrideForDate) {
-        // Apply schedule override logic - merge with regular schedule
-        dayData.hasOverrides = true;
-        dayData.overrideReason = overrideForDate.reason;
-        dayData.timeSlots = this._mergeScheduleWithOverride(activeSchedule, shortDay, overrideForDate);
-        dayData.isOpen = dayData.timeSlots.length > 0;
-      } else {
-        if (activeSchedule && activeSchedule.hours) {
-          // Regular schedule - no overrides
-          const dayHours = activeSchedule.hours.filter(h => 
-            h.weekDays && h.weekDays.includes(shortDay)
-          );
-          
-          dayHours.forEach(hour => {
-            if (hour.startTime && hour.endTime) {
-              dayData.timeSlots.push({
-                startTime: hour.startTime,
-                endTime: hour.endTime,
-                activities: hour.types || [],
-                notes: hour.notes || '',
-                accessStatus: hour.accessStatus
-              });
-              dayData.isOpen = true;
-            }
-          });
-          
-          // Sort time slots by start time
-          dayData.timeSlots.sort((a, b) => {
-            const TimeUtilsRef = this._getTimeUtils();
-            if (!TimeUtilsRef) return 0;
-            
-            // Skip invalid time slots in sorting
-            if (!a.startTime || !b.startTime || 
-                typeof a.startTime !== 'string' || 
-                typeof b.startTime !== 'string') {
-              return 0;
-            }
-            
-            return TimeUtilsRef.timeStringToMinutes(a.startTime) - TimeUtilsRef.timeStringToMinutes(b.startTime);
-          });
-        }
-      }
-      
-      return dayData;
-    });
+    const periodSchedule = this._getPeriodSchedule();
+    return periodSchedule ? periodSchedule.getWeekScheduleForDate(weekStartDate) : [];
   }
 
   /**
@@ -608,23 +435,8 @@ if (typeof window === 'undefined') {
    * @returns {Object|null} - Override object or null if none found
    */
   _getScheduleOverrideForDate(dateString, shortDay) {
-    if (!this.scheduleOverrides || !Array.isArray(this.scheduleOverrides)) {
-      return null;
-    }
-    
-    return this.scheduleOverrides.find(override => {
-      // Check if the date falls within the override range
-      const isInDateRange = dateString >= override.startDate && dateString <= override.endDate;
-      
-      if (!isInDateRange) {
-        return false;
-      }
-      
-      // Check if any of the override hours apply to this day
-      return override.hours && override.hours.some(hour => 
-        hour.weekDays && hour.weekDays.includes(shortDay)
-      );
-    });
+    const periodSchedule = this._getPeriodSchedule();
+    return periodSchedule ? periodSchedule.getOverrideForDate(dateString, shortDay) : null;
   }
 
   /**
@@ -636,330 +448,8 @@ if (typeof window === 'undefined') {
    * @returns {Array} - Array of merged time slots
    */
   _mergeScheduleWithOverride(activeSchedule, shortDay, override) {
-    const mergedSlots = [];
-    
-    // Get regular schedule slots for this day
-    const regularSlots = [];
-    if (activeSchedule && activeSchedule.hours) {
-      const dayHours = activeSchedule.hours.filter(h => 
-        h.weekDays && h.weekDays.includes(shortDay)
-      );
-      
-      dayHours.forEach(hour => {
-        if (hour.startTime && hour.endTime) {
-          regularSlots.push({
-            startTime: hour.startTime,
-            endTime: hour.endTime,
-            activities: hour.types || [],
-            notes: hour.notes || '',
-            accessStatus: hour.accessStatus,
-            isOverride: false
-          });
-        }
-      });
-    }
-    
-    // Get override slots for this day
-    const overrideSlots = [];
-    if (override.hours) {
-      const dayOverrides = override.hours.filter(h => 
-        h.weekDays && h.weekDays.includes(shortDay)
-      );
-      
-      dayOverrides.forEach(hour => {
-        if (hour.startTime && hour.endTime) {
-          // Determine if this override slot represents a special event
-          const specialEventActivities = ['Swim Meet', 'Pool Party', 'Maintenance', 'Private Event', 'Competition', 'Closed'];
-          const hasSpecialActivity = hour.types && hour.types.some(activity => 
-            specialEventActivities.some(special => activity.toLowerCase().includes(special.toLowerCase()))
-          );
-          
-          // Only mark as override if it contains special event activities
-          // Regular activities like "Laps, Rec Swim" should not be marked as overrides
-          const isSpecialEvent = hasSpecialActivity;
-          
-          overrideSlots.push({
-            startTime: hour.startTime,
-            endTime: hour.endTime,
-            activities: hour.types || [],
-            notes: isSpecialEvent ? (hour.notes || override.reason) : (hour.notes || ''),
-            accessStatus: hour.accessStatus,
-            isOverride: isSpecialEvent,
-            overrideReason: isSpecialEvent ? override.reason : null
-          });
-        }
-      });
-    }
-    
-    // Convert times to minutes for easier comparison
-    const convertSlot = (slot) => {
-      const TimeUtilsRef = this._getTimeUtils();
-      if (!TimeUtilsRef) return { ...slot, startMinutes: 0, endMinutes: 0 };
-      
-      // Skip slots with invalid time strings
-      if (!slot.startTime || !slot.endTime || 
-          typeof slot.startTime !== 'string' || 
-          typeof slot.endTime !== 'string') {
-        console.warn(`[Pool] Skipping slot with invalid times for ${this.name}:`, slot);
-        return { ...slot, startMinutes: 0, endMinutes: 0 };
-      }
-      
-      return {
-        ...slot,
-        startMinutes: TimeUtilsRef.timeStringToMinutes(slot.startTime),
-        endMinutes: TimeUtilsRef.timeStringToMinutes(slot.endTime)
-      };
-    };
-    
-    const regularSlotsWithMinutes = regularSlots.map(convertSlot);
-    const overrideSlotsWithMinutes = overrideSlots.map(convertSlot);
-    
-    // Process overrides first - they take precedence and should maintain their boundaries
-    const processedOverrides = [...overrideSlotsWithMinutes];
-    
-    // For each regular slot, check if it's completely covered by overrides
-    regularSlotsWithMinutes.forEach(regularSlot => {
-      let remainingSlots = [regularSlot];
-      
-      // Check each override against this regular slot
-      processedOverrides.forEach(override => {
-        const newRemainingSlots = [];
-        
-        remainingSlots.forEach(remaining => {
-          // Check if override completely covers this remaining slot
-          if (override.startMinutes <= remaining.startMinutes && override.endMinutes >= remaining.endMinutes) {
-            // Regular slot is completely covered by override - don't add it
-            return;
-          }
-          
-          // Check if override partially overlaps
-          if (override.endMinutes > remaining.startMinutes && override.startMinutes < remaining.endMinutes) {
-            // Partial overlap - split the regular slot
-            
-            // Add part before override (if any)
-            if (remaining.startMinutes < override.startMinutes) {
-              const TimeUtilsRef = this._getTimeUtils();
-              if (TimeUtilsRef) {
-                newRemainingSlots.push({
-                  ...remaining,
-                  endMinutes: override.startMinutes,
-                  endTime: TimeUtilsRef.minutesToTimeString(override.startMinutes)
-                });
-              }
-            }
-            
-            // Add part after override (if any)
-            if (remaining.endMinutes > override.endMinutes) {
-              const TimeUtilsRef = this._getTimeUtils();
-              if (TimeUtilsRef) {
-                newRemainingSlots.push({
-                  ...remaining,
-                  startMinutes: override.endMinutes,
-                  startTime: TimeUtilsRef.minutesToTimeString(override.endMinutes)
-                });
-              }
-            }
-          } else {
-            // No overlap - keep the regular slot
-            newRemainingSlots.push(remaining);
-          }
-        });
-        
-        remainingSlots = newRemainingSlots;
-      });
-      
-      // Add any remaining parts of the regular slot
-      mergedSlots.push(...remainingSlots);
-    });
-    
-    // Add all override slots
-    mergedSlots.push(...processedOverrides);
-    
-    // Sort by start time and convert back to time strings
-    mergedSlots.sort((a, b) => a.startMinutes - b.startMinutes);
-    
-    return mergedSlots.map(slot => ({
-      startTime: slot.startTime,
-      endTime: slot.endTime,
-      activities: slot.activities,
-      notes: slot.notes,
-      accessStatus: slot.accessStatus,
-      isOverride: slot.isOverride,
-      overrideReason: slot.overrideReason
-    }));
-  }
-
-  /**
-   * Group consecutive override slots with the same activities into single slots
-   * @private
-   * @param {Array} overrideSlots - Array of override slots with minutes
-   * @returns {Array} - Array of grouped override slots
-   */
-  _groupConsecutiveOverrideSlots(overrideSlots) {
-    if (overrideSlots.length === 0) return [];
-    
-    // Sort by start time
-    const sortedSlots = [...overrideSlots].sort((a, b) => a.startMinutes - b.startMinutes);
-    const groupedSlots = [];
-    let currentGroup = { ...sortedSlots[0] };
-    
-    for (let i = 1; i < sortedSlots.length; i++) {
-      const slot = sortedSlots[i];
-      
-      // Check if this slot is consecutive and has the same activities
-      const isConsecutive = currentGroup.endMinutes === slot.startMinutes;
-      const sameActivities = this._activitiesMatch(currentGroup.activities, slot.activities);
-      const sameReason = currentGroup.overrideReason === slot.overrideReason;
-      
-      // Only group if consecutive AND same activities AND same reason
-      // Different activities should NEVER be grouped, even with same reason
-      // Example: 7am-12pm "Swim Meet" + 12pm-8pm "Laps, Rec Swim" should stay separate
-      if (isConsecutive && sameActivities && sameReason) {
-        // Extend the current group
-        currentGroup.endMinutes = slot.endMinutes;
-        currentGroup.endTime = slot.endTime;
-      } else {
-        // Start a new group - activities are different or not consecutive
-        groupedSlots.push(currentGroup);
-        currentGroup = { ...slot };
-      }
-    }
-    
-    // Add the final group
-    groupedSlots.push(currentGroup);
-    
-    return groupedSlots;
-  }
-
-  /**
-   * Create a merged slot from active regular and override slots
-   * @private
-   * @param {number} startMinutes - Start time in minutes
-   * @param {number} endMinutes - End time in minutes
-   * @param {Array} activeRegularSlots - Active regular schedule slots
-   * @param {Array} activeOverrideSlots - Active override slots
-   * @returns {Object|null} - Merged slot object or null
-   */
-  _createMergedSlot(startMinutes, endMinutes, activeRegularSlots, activeOverrideSlots) {
-    if (startMinutes >= endMinutes) {
-      return null;
-    }
-    
-    // Override takes precedence over regular schedule
-    if (activeOverrideSlots.length > 0) {
-      const overrideSlot = activeOverrideSlots[0]; // Use first override if multiple
-      
-      // Determine if this is truly a special event override
-      let shouldShowAsOverride;
-      
-      // Check if this is a special event based on reason and activities
-      const specialEventReasons = ['Swim Meet', 'Pool Party', 'Maintenance', 'Private Event', 'Competition'];
-      const specialEventActivities = ['Swim Meet', 'Pool Party', 'Maintenance', 'Private Event', 'Competition', 'Closed'];
-      
-      const hasSpecialReason = overrideSlot.overrideReason && specialEventReasons.some(special => 
-        overrideSlot.overrideReason.toLowerCase().includes(special.toLowerCase())
-      );
-      const hasSpecialActivity = overrideSlot.activities && overrideSlot.activities.some(activity => 
-        specialEventActivities.some(special => activity.toLowerCase().includes(special.toLowerCase()))
-      );
-      
-      if (activeRegularSlots.length > 0) {
-        const regularSlot = activeRegularSlots[0];
-        
-        // Compare activities to see if they're the same
-        const activitiesMatch = this._activitiesMatch(overrideSlot.activities, regularSlot.activities);
-        
-        if (activitiesMatch && !hasSpecialReason && !hasSpecialActivity) {
-          // Same activities and no special event indicators - this is likely a schedule modification
-          shouldShowAsOverride = false;
-        } else if (hasSpecialReason || hasSpecialActivity) {
-          // Has special event indicators - this is a true override
-          shouldShowAsOverride = true;
-        } else {
-          // Different activities but no clear special event - could be either
-          // Default to showing as override to be safe
-          shouldShowAsOverride = true;
-        }
-      } else {
-        // Override with no regular slot - only mark as override if it's clearly a special event
-        shouldShowAsOverride = hasSpecialReason || hasSpecialActivity;
-      }
-      
-      const TimeUtilsRef = this._getTimeUtils();
-      if (!TimeUtilsRef) {
-        return {
-          startTime: 'Error',
-          endTime: 'Error', 
-          activities: overrideSlot.activities,
-          notes: shouldShowAsOverride ? overrideSlot.notes : (overrideSlot.notes || ''),
-          accessStatus: overrideSlot.accessStatus,
-          isOverride: shouldShowAsOverride,
-          overrideReason: shouldShowAsOverride ? overrideSlot.overrideReason : null
-        };
-      }
-      
-      return {
-        startTime: TimeUtilsRef.minutesToTimeString(startMinutes),
-        endTime: TimeUtilsRef.minutesToTimeString(endMinutes),
-        activities: overrideSlot.activities,
-        notes: shouldShowAsOverride ? overrideSlot.notes : (overrideSlot.notes || ''),
-        accessStatus: overrideSlot.accessStatus,
-        isOverride: shouldShowAsOverride,
-        overrideReason: shouldShowAsOverride ? overrideSlot.overrideReason : null
-      };
-    } else if (activeRegularSlots.length > 0) {
-      const TimeUtilsRef = this._getTimeUtils();
-      if (!TimeUtilsRef) {
-        return {
-          startTime: 'Error',
-          endTime: 'Error',
-          activities: [],
-          notes: '',
-          accessStatus: 'restricted',
-          isOverride: false
-        };
-      }
-      
-      const regularSlot = activeRegularSlots[0]; // Use first regular if multiple
-      return {
-        startTime: TimeUtilsRef.minutesToTimeString(startMinutes),
-        endTime: TimeUtilsRef.minutesToTimeString(endMinutes),
-        activities: regularSlot.activities,
-        notes: regularSlot.notes,
-        accessStatus: regularSlot.accessStatus,
-        isOverride: false
-      };
-    }
-    
-    return null;
-  }
-
-  /**
-   * Compare two activity arrays to see if they represent the same activities
-   * @private
-   * @param {Array} activities1 - First activity array
-   * @param {Array} activities2 - Second activity array
-   * @returns {boolean} - True if activities match
-   */
-  _activitiesMatch(activities1, activities2) {
-    if (!activities1 || !activities2) {
-      return false;
-    }
-    
-    // Handle empty arrays
-    if (activities1.length === 0 && activities2.length === 0) {
-      return true;
-    }
-    
-    if (activities1.length !== activities2.length) {
-      return false;
-    }
-    
-    // Sort and compare arrays - ensure we create new arrays to avoid mutating originals
-    const sorted1 = [...activities1].sort();
-    const sorted2 = [...activities2].sort();
-    
-    return JSON.stringify(sorted1) === JSON.stringify(sorted2);
+    const periodSchedule = this._getPeriodSchedule();
+    return periodSchedule ? periodSchedule.mergeScheduleWithOverride(activeSchedule, shortDay, override) : [];
   }
 
   /**
@@ -1147,31 +637,8 @@ if (typeof window === 'undefined') {
    * @returns {Object|null} - Schedule period with startDate and endDate, or null if no active schedule
    */
   getCurrentSchedulePeriod() {
-    if (!this.schedulePeriods || !Array.isArray(this.schedulePeriods)) {
-      return null;
-    }
-    
-    const TimeUtilsRef = this._getTimeUtils();
-    if (!TimeUtilsRef) {
-      return null;
-    }
-    
-    const easternTimeInfo = TimeUtilsRef.getCurrentEasternTimeInfo();
-    const currentDate = easternTimeInfo.date;
-    
-    const activeSchedule = this.schedulePeriods.find(schedule => {
-      return currentDate >= schedule.startDate && currentDate <= schedule.endDate;
-    });
-    
-    if (activeSchedule) {
-      return {
-        startDate: activeSchedule.startDate,
-        endDate: activeSchedule.endDate,
-        name: activeSchedule.name || 'Current Schedule'
-      };
-    }
-    
-    return null;
+    const periodSchedule = this._getPeriodSchedule();
+    return periodSchedule ? periodSchedule.getCurrentSchedulePeriod() : null;
   }
 
   /**
@@ -1179,22 +646,8 @@ if (typeof window === 'undefined') {
    * @returns {Object|null} - Object with {startDate, endDate} or null if no schedules
    */
   getValidDateRange() {
-    if (!this.schedulePeriods || !Array.isArray(this.schedulePeriods) || this.schedulePeriods.length === 0) {
-      return null;
-    }
-    
-    const allDates = this.schedulePeriods.map(schedule => ({
-      start: new Date(schedule.startDate),
-      end: new Date(schedule.endDate)
-    }));
-    
-    const minDate = new Date(Math.min(...allDates.map(d => d.start.getTime())));
-    const maxDate = new Date(Math.max(...allDates.map(d => d.end.getTime())));
-    
-    return {
-      startDate: minDate,
-      endDate: maxDate
-    };
+    const periodSchedule = this._getPeriodSchedule();
+    return periodSchedule ? periodSchedule.getValidDateRange() : null;
   }
 }
 

@@ -7,7 +7,10 @@ const PoolHoursDisplay = require('../../src/js/services/pool-hours-display.js');
 
 const timeUtils = {
   formatActivityTypes: activities => activities.join(', '),
-  formatTimeRangeWithHighlight: timeRange => `<span class="time-range-container">${timeRange}</span>`
+  getCurrentEasternTimeInfo: () => ({ isValid: true, minutes: 0 }),
+  isCurrentTimeSlot: () => false,
+  timeStringToMinutes: time => Number.parseInt(time, 10) * 60,
+  MINUTES_PER_DAY: 1440
 };
 
 const viewModel = {

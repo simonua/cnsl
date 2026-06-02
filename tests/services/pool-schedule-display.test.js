@@ -4,10 +4,14 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const PoolScheduleDisplay = require('../../src/js/services/pool-schedule-display.js');
+const TimeUtils = require('../../src/js/services/time-utils.js');
 
 const timeUtils = {
   formatActivityTypes: activities => activities.join(', '),
-  formatTimeRangeWithHighlight: timeRange => `<span class="time-range-container">${timeRange}</span>`
+  getCurrentEasternTimeInfo: () => ({ isValid: true, minutes: 0 }),
+  isCurrentTimeSlot: () => false,
+  timeStringToMinutes: TimeUtils.timeStringToMinutes.bind(TimeUtils),
+  MINUTES_PER_DAY: TimeUtils.MINUTES_PER_DAY
 };
 
 const weekSchedule = [{
@@ -144,6 +148,19 @@ describe('PoolScheduleDisplay', () => {
   });
 
   describe('slot rendering and browser registration', () => {
+    it('formats highlighted ranges from semantic status without inline styles', () => {
+      const highlighted = PoolScheduleDisplay.formatTimeRange('9:00AM-5:00PM', { timeUtils, currentMinutes: 600, forceHighlight: true, statusKind: 'open' });
+      const invalid = PoolScheduleDisplay.formatTimeRange('<bad>', { timeUtils });
+      assert.match(highlighted, /highlighted-time-slot-green/);
+      assert.doesNotMatch(highlighted, /style=/);
+      assert.match(invalid, /invalid/);
+      assert.match(invalid, /&lt;bad&gt;/);
+      assert.equal(PoolScheduleDisplay.getTimeRangeHighlightClass('practice-only'), ' highlighted-time-slot-yellow');
+      assert.equal(PoolScheduleDisplay.getTimeRangeHighlightClass('closed'), ' highlighted-time-slot-red');
+      assert.equal(PoolScheduleDisplay.getTimeRangeHighlightClass('missing'), '');
+      assert.match(PoolScheduleDisplay.formatTimeRange('9:00AM-5:00PM', { timeUtils: { timeStringToMinutes: () => { throw new Error('bad clock'); } } }), /time-range-container error/);
+    });
+
     it('renders notes and override activity styling only when requested', () => {
       const day = { isCurrentDay: false };
       const slot = { startTime: '1:00PM', endTime: '2:00PM', activities: ['Swim Meet'], accessStatus: 'swim-meet', notes: '<note>', isOverride: true };

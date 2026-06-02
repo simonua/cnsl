@@ -6,6 +6,7 @@ const vm = require('node:vm');
 const { createSamplePoolData, suppressConsole } = require('../helpers/test-helpers.js');
 const { PoolStatus } = require('../../src/js/types/pool-enums.js');
 const TimeUtils = require('../../src/js/services/time-utils.js');
+const PoolPeriodScheduleService = require('../../src/js/services/pool-period-schedule-service.js');
 global.PoolStatus = PoolStatus;
 const Pool = require('../../src/js/models/pool.js');
 
@@ -365,49 +366,7 @@ describe('Pool', () => {
       assert.equal(pool._getScheduleOverrideForDate('2026-06-01', 'Mon'), undefined);
     });
 
-    it('groups compatible overrides and creates merged visible slots', () => {
-      const pool = new Pool(createSamplePoolData());
-      const consecutive = [
-        { startMinutes: 60, endMinutes: 120, endTime: '2:00AM', activities: ['Swim Meet'], overrideReason: 'Meet' },
-        { startMinutes: 120, endMinutes: 180, endTime: '3:00AM', activities: ['Swim Meet'], overrideReason: 'Meet' },
-        { startMinutes: 180, endMinutes: 240, endTime: '4:00AM', activities: ['Practice'], overrideReason: 'Meet' }
-      ];
-      assert.equal(pool._groupConsecutiveOverrideSlots([]).length, 0);
-      assert.equal(pool._groupConsecutiveOverrideSlots(consecutive).length, 2);
-      assert.equal(pool._activitiesMatch(['B', 'A'], ['A', 'B']), true);
-      assert.equal(pool._activitiesMatch([], []), true);
-      assert.equal(pool._activitiesMatch(null, []), false);
-      assert.equal(pool._createMergedSlot(100, 100, [], []), null);
-      assert.equal(pool._createMergedSlot(60, 120, [{ activities: ['Rec Swim'], notes: '', access: 'Public' }], []).isOverride, false);
-      assert.equal(pool._createMergedSlot(60, 120, [], [{ activities: ['Swim Meet'], notes: 'Meet', access: 'Closed', overrideReason: 'Swim Meet' }]).isOverride, true);
-      assert.equal(pool._createMergedSlot(60, 120, [{ activities: ['Rec Swim'], notes: '', access: 'Public' }], [{ activities: ['Rec Swim'], notes: '', access: 'Public', overrideReason: '' }]).isOverride, false);
-      assert.equal(pool._createMergedSlot(60, 120, [{ activities: ['Rec Swim'], notes: '', access: 'Public' }], [{ activities: ['Lessons'], notes: '', access: 'Public', overrideReason: '' }]).isOverride, true);
-      assert.equal(pool._activitiesMatch(['A'], ['B', 'C']), false);
-      assert.equal(pool._createMergedSlot(60, 120, [], []), null);
-    });
-
-    it('handles complete and non-overlapping schedule overrides', () => {
-      const pool = new Pool(createSamplePoolData());
-      const active = { hours: [{ weekDays: ['Mon'], startTime: '1:00PM', endTime: '2:00PM', types: ['Rec Swim'] }] };
-      const covered = pool._mergeScheduleWithOverride(active, 'Mon', { reason: 'Meet', hours: [{ weekDays: ['Mon'], startTime: '12:00PM', endTime: '3:00PM', types: ['Swim Meet'] }] });
-      const separate = pool._mergeScheduleWithOverride(active, 'Mon', { reason: 'Meet', hours: [{ weekDays: ['Mon'], startTime: '3:00PM', endTime: '4:00PM', types: ['Swim Meet'] }] });
-      assert.equal(covered.length, 1);
-      assert.equal(separate.length, 2);
-    });
-
-    it('renders error-shaped merged slots if time formatting is unavailable', () => {
-      const pool = new Pool(createSamplePoolData());
-      const originalGetTimeUtils = pool._getTimeUtils;
-      pool._getTimeUtils = () => null;
-      try {
-        assert.equal(pool._createMergedSlot(60, 120, [], [{ activities: ['Swim Meet'], notes: 'Meet', access: 'Closed', overrideReason: 'Swim Meet' }]).startTime, 'Error');
-        assert.equal(pool._createMergedSlot(60, 120, [{ activities: ['Rec Swim'], notes: '', access: 'Public' }], []).startTime, 'Error');
-      } finally {
-        pool._getTimeUtils = originalGetTimeUtils;
-      }
-    });
-
-    it('tolerates invalid merge times and distinguishes special activity overrides', () => {
+    it('tolerates invalid merge times', () => {
       const pool = new Pool(createSamplePoolData());
       const merged = suppressConsole(() => pool._mergeScheduleWithOverride(
         { hours: [{ weekDays: ['Mon'], startTime: 1, endTime: '2:00PM', types: ['Rec Swim'] }] },
@@ -415,8 +374,6 @@ describe('Pool', () => {
         { reason: '', hours: [{ weekDays: ['Mon'], startTime: '1:00PM', endTime: '2:00PM', types: ['Closed'] }] }
       ));
       assert.ok(Array.isArray(merged));
-      assert.equal(pool._createMergedSlot(60, 120, [], [{ activities: ['Closed'], notes: '', access: 'Closed', overrideReason: '' }]).isOverride, true);
-      assert.equal(pool._createMergedSlot(60, 120, [{ activities: ['Rec Swim'], notes: '', access: 'Public' }], [{ activities: ['Closed'], notes: '', access: 'Closed', overrideReason: '' }]).isOverride, true);
     });
 
     it('sorts period days safely without TimeUtils and reports absent optional projections', () => {
@@ -544,7 +501,7 @@ describe('Pool', () => {
     it('installs the model as a browser script global', () => {
       const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'models', 'pool.js');
       const source = fs.readFileSync(sourcePath, 'utf8');
-      const context = { window: {}, PoolSchedule: class {}, TimeUtils, PoolStatus };
+      const context = { window: {}, PoolSchedule: class {}, PoolPeriodScheduleService, TimeUtils, PoolStatus };
       vm.runInNewContext(source, context, { filename: sourcePath });
       assert.equal(typeof context.window.Pool, 'function');
     });
@@ -556,7 +513,7 @@ describe('Pool', () => {
         constructor(data) { this.data = data; }
         hasScheduleData() { return false; }
       }
-      const context = { window: { TimeUtils, PoolStatus }, PoolSchedule: ScheduleStub, console: { error: () => {} } };
+      const context = { window: { TimeUtils, PoolStatus }, PoolSchedule: ScheduleStub, PoolPeriodScheduleService, console: { error: () => {} } };
       vm.runInNewContext(source, context, { filename: sourcePath });
       const pool = new context.window.Pool({ hours: {} });
       assert.equal(pool._getTimeUtils(), context.window.TimeUtils);

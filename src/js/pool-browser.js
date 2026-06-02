@@ -859,74 +859,13 @@ function refreshPoolsForPreferences() {
  * @param {Event} event - Click event
  */
 function handlePoolNavigationClick(event) {
-  const target = event.target;
-  const disclosureButton = target.closest('[data-pool-card-action="toggle"]');
-  if (disclosureButton) {
-    togglePoolCard(disclosureButton);
-    return;
-  }
-
-  const poolCard = target.closest('[data-pool-card]');
-  const cardToggle = poolCard && poolCard.querySelector('[data-pool-card-action="toggle"]');
-  if (cardToggle && (cardToggle.getAttribute('aria-expanded') !== 'true' || target.closest('[data-pool-card-header]'))) {
-    togglePoolCard(cardToggle);
-    return;
-  }
-  
-  if (target.classList.contains('prev-week')) {
-    const poolNav = target.closest('.pool-week-navigation');
-    if (poolNav) {
-      const poolId = poolNav.dataset.poolId;
-      navigatePoolToPreviousWeek(poolId);
-    }
-  } else if (target.classList.contains('next-week')) {
-    const poolNav = target.closest('.pool-week-navigation');
-    if (poolNav) {
-      const poolId = poolNav.dataset.poolId;
-      navigatePoolToNextWeek(poolId);
-    }
-  } else if (target.classList.contains('today-btn')) {
-    const poolNav = target.closest('.pool-week-navigation');
-    if (poolNav) {
-      const poolId = poolNav.dataset.poolId;
-      navigatePoolToToday(poolId);
-    }
-  } else if (target.classList.contains('calendar-btn')) {
-    const poolNav = target.closest('.pool-week-navigation');
-    if (poolNav) {
-      const datePicker = poolNav.querySelector('.week-picker');
-      if (datePicker) {
-        // Position the date picker at the calendar button location
-        const buttonRect = target.getBoundingClientRect();
-        const navRect = poolNav.getBoundingClientRect();
-        
-        // Calculate position relative to the navigation container
-        const relativeLeft = buttonRect.left - navRect.left;
-        const relativeTop = buttonRect.bottom - navRect.top + 5; // 5px below button
-        
-        datePicker.hidden = false;
-        target.setAttribute('aria-expanded', 'true');
-
-        // Style the date picker to be visible and positioned
-        datePicker.style.position = 'absolute';
-        datePicker.style.left = relativeLeft + 'px';
-        datePicker.style.top = relativeTop + 'px';
-        datePicker.style.opacity = '1';
-        datePicker.style.pointerEvents = 'auto';
-        datePicker.style.zIndex = '1000';
-        datePicker.style.width = 'auto';
-        datePicker.style.height = 'auto';
-        datePicker.style.padding = '0.4rem 0.8rem';
-        datePicker.style.border = '1px solid var(--border-color)';
-        datePicker.classList.add('active');
-        
-        // Trigger the date picker
-        datePicker.click();
-        datePicker.showPicker ? datePicker.showPicker() : datePicker.focus();
-        
-      }
-    }
-  }
+  PoolCalendarControls.handleClick(event, {
+    toggleCard: togglePoolCard,
+    previousWeek: navigatePoolToPreviousWeek,
+    nextWeek: navigatePoolToNextWeek,
+    today: navigatePoolToToday,
+    selectedWeek: navigatePoolToSelectedWeek
+  });
 }
 
 /**
@@ -934,21 +873,7 @@ function handlePoolNavigationClick(event) {
  * @param {Event} event - Change event
  */
 function handlePoolDatePickerChange(event) {
-  const target = event.target;
-  
-  if (target.classList.contains('week-picker')) {
-    const poolNav = target.closest('.pool-week-navigation');
-    if (poolNav) {
-      const poolId = poolNav.dataset.poolId;
-      navigatePoolToSelectedWeek(poolId, target.value);
-      target.hidden = true;
-      const button = poolNav.querySelector('.calendar-btn');
-      if (button) {
-        button.setAttribute('aria-expanded', 'false');
-        button.focus();
-      }
-    }
-  }
+  PoolCalendarControls.handleChange(event, { selectedWeek: navigatePoolToSelectedWeek });
 }
 
 document.addEventListener("DOMContentLoaded", async () => {

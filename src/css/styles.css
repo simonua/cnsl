@@ -1214,6 +1214,10 @@ button.favorite-week__toggle:focus-visible {
   max-width: 30rem;
 }
 
+.team-card .favorite-week__days {
+  max-width: 30rem;
+}
+
 .favorite-week__events {
   display: grid;
   gap: 0.625rem;

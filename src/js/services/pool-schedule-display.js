@@ -1,6 +1,8 @@
 /**
  * Formats weekly pool schedules for list and calendar presentations.
+ * Consumes display-ready schedule state and emits escaped markup without owning pool business rules.
  */
+
 if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
   class PoolScheduleDisplay {
     static LAYOUTS = ['list', 'calendar'];
@@ -188,7 +190,11 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
       const activityClass = useActivityColors ? ` schedule-activity schedule-activity--${category}` : '';
       const overrideClass = slot.isOverride ? ' override-slot' : '';
       const timeRange = `${slot.startTime}-${slot.endTime}`;
-      const timeHtml = timeUtils.formatTimeRangeWithHighlight(timeRange, day.isCurrentDay, null, options.poolStatus);
+      const timeHtml = PoolScheduleDisplay.formatTimeRange(timeRange, {
+        timeUtils,
+        isCurrentDay: day.isCurrentDay,
+        statusKind: options.poolStatus && options.poolStatus.kind
+      });
       const safeActivityText = PoolScheduleDisplay.escapeHtml(activityText);
       const restrictedClass = category === 'restricted' ? ' closed-to-public' : '';
       const practiceTeamHtml = practiceTeamText
@@ -211,6 +217,50 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
      */
     static formatActivityText(activities, timeUtils) {
       return timeUtils.formatActivityTypes(activities);
+    }
+
+    static formatTimeRange(timeRange, options = {}) {
+      const fallback = value => `<span class="time-range-container error">${PoolScheduleDisplay.escapeHtml(value || 'Invalid Time Range')}</span>`;
+      try {
+        if (typeof timeRange !== 'string') return fallback(timeRange);
+        const normalizedRange = timeRange.trim();
+        if (!normalizedRange) return '';
+        const parts = normalizedRange.split('-');
+        if (parts.length !== 2) return `<span class="time-range-container invalid">${PoolScheduleDisplay.escapeHtml(timeRange)}</span>`;
+        const startTime = parts[0].trim();
+        const endTime = parts[1].trim();
+        const timeUtils = options.timeUtils;
+        if (!timeUtils) return fallback(timeRange);
+        timeUtils.timeStringToMinutes(startTime);
+        timeUtils.timeStringToMinutes(endTime);
+
+        let currentMinutes = options.currentMinutes;
+        if (currentMinutes !== undefined && currentMinutes !== null && (currentMinutes < 0 || currentMinutes >= timeUtils.MINUTES_PER_DAY)) return fallback(timeRange);
+        let isHighlighted = options.forceHighlight === true;
+        if (!isHighlighted && options.isCurrentDay) {
+          if (currentMinutes === undefined || currentMinutes === null) {
+            const current = timeUtils.getCurrentEasternTimeInfo();
+            if (!current.isValid) currentMinutes = null; else currentMinutes = current.minutes;
+          }
+          if (currentMinutes !== null) isHighlighted = timeUtils.isCurrentTimeSlot(startTime, endTime, currentMinutes, true);
+        }
+        const highlightClass = isHighlighted ? PoolScheduleDisplay.getTimeRangeHighlightClass(options.statusKind) : '';
+        return `<span class="time-range-container${highlightClass}"><span class="time-start">${PoolScheduleDisplay.escapeHtml(startTime)}</span><span class="time-dash">-</span><span class="time-end">${PoolScheduleDisplay.escapeHtml(endTime)}</span></span>`;
+      } catch (_error) {
+        return fallback(timeRange);
+      }
+    }
+
+    static getTimeRangeHighlightClass(statusKind) {
+      const classes = {
+        open: ' highlighted-time-slot-green',
+        restricted: ' highlighted-time-slot-yellow',
+        'practice-only': ' highlighted-time-slot-yellow',
+        'swim-meet': ' highlighted-time-slot-yellow',
+        closed: ' highlighted-time-slot-red',
+        'closed-to-public': ' highlighted-time-slot-red'
+      };
+      return classes[statusKind] || '';
     }
 
     /**

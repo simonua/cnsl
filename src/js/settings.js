@@ -5,6 +5,7 @@
     { source: 'js/services/time-utils.js', ready: () => Boolean(window.TimeUtils) },
     { source: 'js/types/pool-enums.js', ready: () => Boolean(window.PoolStatus) },
     { source: 'js/pool-schedule.js', ready: () => Boolean(window.PoolSchedule) },
+    { source: 'js/services/pool-period-schedule-service.js', ready: () => Boolean(window.PoolPeriodScheduleService) },
     { source: 'js/models/pool.js', ready: () => Boolean(window.Pool) },
     { source: 'js/pools-manager.js', ready: () => Boolean(window.PoolsManager) },
     { source: 'js/models/team.js', ready: () => Boolean(window.Team) },

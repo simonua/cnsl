@@ -1,6 +1,8 @@
 /**
  * Shows the selected team's next morning practice, evening practice, and swim event.
+ * Loads the agenda dependencies lazily so the home route stays lightweight until a favorite team is available.
  */
+
 (function initializeHomeSchedule() {
   const AGENDA_DEPENDENCIES = [
     'js/services/html-safety.js',
@@ -8,6 +10,7 @@
     'js/services/time-utils.js',
     'js/types/pool-enums.js',
     'js/pool-schedule.js',
+    'js/services/pool-period-schedule-service.js',
     'js/models/pool.js',
     'js/pools-manager.js',
     'js/models/team.js',

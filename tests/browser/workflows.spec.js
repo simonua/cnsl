@@ -893,6 +893,24 @@ test('[WF-AGENDA-001] team directory shows the same next practices and swim even
   await expect(agenda).not.toContainText('Jeffers Hill Pool');
 });
 
+test('[WF-AGENDA-006] desktop team agendas keep a readable embedded measure', async ({ page }) => {
+  await setAgendaReferenceTime(page);
+  await page.goto('/teams.html');
+  await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
+
+  const snappers = page.locator('.team-card[data-team-id="pls"]');
+  await snappers.locator('.team-header__toggle').click();
+  await expect.poll(() => snappers.locator('.favorite-week__days').evaluate(days => {
+    const firstDay = days.querySelector('.favorite-week__day');
+    const heading = firstDay.querySelector('h4');
+    const events = firstDay.querySelector('.favorite-week__events');
+    return {
+      aligned: Math.abs(heading.getBoundingClientRect().left - events.getBoundingClientRect().left) <= 1,
+      width: Math.round(days.getBoundingClientRect().width)
+    };
+  })).toEqual({ aligned: true, width: 480 });
+});
+
 test('[WF-AGENDA-002] home page shows the next practices and swim event for a selected favorite team', async ({ page }) => {
   await setAgendaReferenceTime(page);
   await seedPreferences(page, { favoriteTeamId: 'pls' });
@@ -991,7 +1009,7 @@ test('[WF-AGENDA-004] home page loads agenda dependencies only after a favorite 
   });
 
   await expect(page.locator('#favoriteWeek')).toBeVisible();
-  await expect(page.locator('script[data-home-schedule-dependency]')).toHaveCount(15);
+  await expect(page.locator('script[data-home-schedule-dependency]')).toHaveCount(16);
   const homeScheduleVersion = await page.locator('script[src*="js/home-schedule.js"]').evaluate(script => new URL(script.src).searchParams.get('v'));
   const dependencyVersions = await page.locator('script[data-home-schedule-dependency]').evaluateAll(scripts => (
     scripts.map(script => new URL(script.src).searchParams.get('v'))

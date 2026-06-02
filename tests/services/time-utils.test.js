@@ -438,66 +438,6 @@ describe('TimeUtils', () => {
       });
   });
 
-  describe('formatTimeRangeWithHighlight', () => {
-    it('returns formatted string for basic range', () => {
-      const result = TimeUtils.formatTimeRangeWithHighlight('9:00AM-5:00PM', false);
-      assert.ok(typeof result === 'string');
-      assert.ok(result.length > 0);
-    });
-
-    it('highlights valid active ranges and safely returns invalid markup', () => {
-      const highlighted = suppressConsole(() => TimeUtils.formatTimeRangeWithHighlight(
-        '9:00AM-5:00PM', true, 600, { color: 'green' }
-      ));
-      const invalid = suppressConsole(() => TimeUtils.formatTimeRangeWithHighlight('<bad>', true));
-
-      assert.match(highlighted, /highlighted-time-slot-green/);
-      assert.match(invalid, /invalid/);
-      assert.match(invalid, /&lt;bad&gt;/);
-      assert.doesNotMatch(invalid, /<bad>/);
-    });
-
-    it('covers forced colors, empty input, invalid status, and escaped fallback values', () => {
-      const yellow = suppressConsole(() => TimeUtils.formatTimeRangeWithHighlight('9:00AM-5:00PM', false, 0, { color: 'yellow' }, true));
-      const red = suppressConsole(() => TimeUtils.formatTimeRangeWithHighlight('9:00AM-5:00PM', false, 0, { color: 'red' }, true));
-      const ignored = suppressConsole(() => TimeUtils.formatTimeRangeWithHighlight('9:00AM-5:00PM', false, 0, { color: 'blue' }, true));
-      assert.match(yellow, /highlighted-time-slot-yellow/);
-      assert.match(red, /highlighted-time-slot-red/);
-      assert.doesNotMatch(ignored, /highlighted-time-slot/);
-      assert.equal(suppressConsole(() => TimeUtils.formatTimeRangeWithHighlight(' ')), '');
-      assert.match(suppressConsole(() => TimeUtils.formatTimeRangeWithHighlight(null)), /Invalid Time Range/);
-      assert.equal(TimeUtils._getHighlightStyles('unknown'), null);
-      assert.equal(TimeUtils._escapeHtml('<a>"\'&'), '&lt;a&gt;&quot;&#39;&amp;');
-      assert.equal(TimeUtils._escapeHtml(4), '4');
-    });
-
-    it('fails safely for invalid minute inputs and unavailable highlight time lookups', () => {
-      assert.match(suppressConsole(() => TimeUtils.formatTimeRangeWithHighlight('9:00AM-5:00PM', true, -1)), /time-range-container error/);
-      assert.match(suppressConsole(() => TimeUtils.formatTimeRangeWithHighlight('bad-5:00PM', true, 600)), /time-range-container invalid/);
-      assert.doesNotMatch(suppressConsole(() => TimeUtils.formatTimeRangeWithHighlight('9:00AM-5:00PM', true, 600, 'green')), /highlighted-time-slot/);
-      assert.doesNotMatch(suppressConsole(() => TimeUtils.formatTimeRangeWithHighlight('9:00AM-5:00PM', true, 600)), /highlighted-time-slot/);
-      const originalGetInfo = TimeUtils.getCurrentEasternTimeInfo;
-      const originalSlotCheck = TimeUtils.isCurrentTimeSlot;
-      const originalHighlightStyles = TimeUtils._getHighlightStyles;
-      try {
-        TimeUtils.getCurrentEasternTimeInfo = () => ({ isValid: false });
-        assert.doesNotMatch(suppressConsole(() => TimeUtils.formatTimeRangeWithHighlight('9:00AM-5:00PM', true, null, { color: 'green' })), /highlighted-time-slot/);
-        TimeUtils.getCurrentEasternTimeInfo = () => { throw new Error('clock failed'); };
-        assert.doesNotMatch(suppressConsole(() => TimeUtils.formatTimeRangeWithHighlight('9:00AM-5:00PM', true, null, { color: 'green' })), /highlighted-time-slot/);
-        TimeUtils.getCurrentEasternTimeInfo = () => ({ isValid: true, minutes: 600 });
-        TimeUtils.isCurrentTimeSlot = () => { throw new Error('slot failed'); };
-        assert.doesNotMatch(suppressConsole(() => TimeUtils.formatTimeRangeWithHighlight('9:00AM-5:00PM', true, null, { color: 'green' })), /highlighted-time-slot/);
-        TimeUtils.isCurrentTimeSlot = originalSlotCheck;
-        TimeUtils._getHighlightStyles = () => null;
-        assert.doesNotMatch(suppressConsole(() => TimeUtils.formatTimeRangeWithHighlight('9:00AM-5:00PM', false, 600, { color: 'green' }, true)), /highlighted-time-slot/);
-      } finally {
-        TimeUtils.getCurrentEasternTimeInfo = originalGetInfo;
-        TimeUtils.isCurrentTimeSlot = originalSlotCheck;
-        TimeUtils._getHighlightStyles = originalHighlightStyles;
-      }
-    });
-  });
-
   describe('constants', () => {
     it('has expected timezone', () => {
       assert.equal(TimeUtils.TIMEZONE, 'America/New_York');
