@@ -821,8 +821,10 @@ button.home-banner__close:focus {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.nav-menu .icon {
+.nav-menu__icon {
+  display: inline-block;
   margin-right: 0.35rem;
+  width: 1.25rem;
 }
 
 .nav-menu a:hover,
@@ -1422,6 +1424,7 @@ button.share-qr-dialog__close {
   border-radius: 6px;
   box-shadow: none;
   color: var(--text-dark);
+  cursor: pointer;
   display: inline-flex;
   font-size: 1.75rem;
   height: 2.75rem;
@@ -4746,6 +4749,7 @@ button.settings-dialog__close {
   border-radius: 6px;
   box-shadow: none;
   color: var(--text-dark);
+  cursor: pointer;
   display: inline-flex;
   font-size: 1.75rem;
   height: 2.75rem;
