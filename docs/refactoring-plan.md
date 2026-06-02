@@ -6,7 +6,7 @@ Audit date: 2026-06-02
 
 ## Scope And Validation
 
-This audit reviewed the current default branch for maintainability, accessibility, annual-data integrity, PWA and delivery behavior, testing and CI coverage, security hygiene, performance risk, and documentation drift. The evidence pass inspected the largest delivered JavaScript modules, generated-markup and storage call sites, the pool schedule projection pipeline, semantic status presentation, pinned GitHub Actions workflows, dependency update configuration, the nightly accessibility suite, the release checklist, the security and privacy decision, and the generated PWA artifact. No application code, configuration, workflows, dependencies, annual source data, or generated output was modified during the audit.
+This audit reviewed the current default branch for maintainability, accessibility, annual-data integrity, PWA and delivery behavior, testing and CI coverage, security hygiene, performance risk, documentation drift, and desktop layout consistency. The evidence pass inspected the largest delivered JavaScript modules, generated-markup and storage call sites, the pool schedule projection pipeline, semantic status presentation, embedded team-agenda width rules, pinned GitHub Actions workflows, dependency update configuration, the nightly accessibility suite, the release checklist, the security and privacy decision, and the generated PWA artifact. No application code, configuration, workflows, dependencies, annual source data, or generated output was modified during the audit.
 
 Playwright was intentionally not run as part of this audit. The serialized browser workflow remains owned by the separate nightly browser-verification workflow after repository updates. Delivered-HTTPS PWA lifecycle, keyboard and screen-reader behavior, CSP console review, analytics request review, and browser performance measurements remain pending manual release checks.
 
@@ -32,6 +32,7 @@ Playwright was intentionally not run as part of this audit. The serialized brows
 | ORANGE - Medium | M2. Reduce the pool route controller to orchestration responsibilities | Medium | Medium |
 | ORANGE - Medium | M3. Move time-slot highlight presentation out of `TimeUtils` | Medium | Medium |
 | GREEN - Low | L1. Refresh the public-artifact baseline and record delivered performance measurements | Low | Low |
+| GREEN - Low | L2. Align embedded team agendas to a readable desktop content width | Low | Low |
 
 ## High Priority
 
@@ -69,6 +70,13 @@ No demonstrated accessibility barrier, release or annual-data integrity risk, se
 - **Scoped plan:** During the next qualifying delivered-HTTPS review, refresh the local artifact baseline and record browser measurements for Home, Pools, Teams, and Meets. Compare transfer size, cache behavior, and usable render completion before proposing asset optimization. Treat annual source documents and active-season data as protected inputs; any optimization proposal must preserve reviewed source evidence and public behavior.
 - **Acceptance checks:** Record the clean-build artifact size, browser and network environment, first-view request count and transfer size, directory usable-render completion, and any follow-up budget decision in the release record or checklist. Do not edit generated `out/` files or annual source assets as a measurement shortcut.
 
+### L2. Align Embedded Team Agendas On Desktop
+
+- **Finding:** The upcoming-events agenda embedded in an expanded team card mixes a compact event-content width with a full-card date-heading width. On wide desktop viewports, the relative-day pill such as `today` or `in 4 days` is right-aligned against the distant card edge instead of the readable agenda region. This is a desktop consistency and polish issue, not a demonstrated accessibility barrier.
+- **Repository evidence:** [src/css/styles.css](../src/css/styles.css#L1199) makes each agenda day heading a space-between flex row, while [src/css/styles.css](../src/css/styles.css#L1214) applies the matching `30rem` heading cap only to the home-page `#favoriteWeek` instance. Embedded team-card agendas reuse the shared renderer at [src/js/teams-browser.js](../src/js/teams-browser.js#L441) and [src/js/teams-browser.js](../src/js/teams-browser.js#L453), but their event headings and session rows already use compact `30rem` caps at [src/css/styles.css](../src/css/styles.css#L1244) and [src/css/styles.css](../src/css/styles.css#L4217). Nearby expanded-team blocks also use bounded desktop widths: practice disclosures at [src/css/styles.css](../src/css/styles.css#L3905) and staff columns at [src/css/styles.css](../src/css/styles.css#L4085). The existing browser workflow asserts that practice panels remain narrower than the desktop team card at [tests/browser/workflows.spec.js](../tests/browser/workflows.spec.js#L645), but it does not assert embedded agenda-heading geometry.
+- **Scoped plan:** Give the embedded team agenda one readable-width container or equivalent shared width rule so its date headings, relative-day pills, event headings, and session rows align consistently on desktop. Preserve the intentionally centered home-page favorite agenda, the full-width outer team card, and the existing phone layout. Review the expanded team-detail blocks together for visual rhythm, but keep the implementation limited to width and alignment rules supported by the desktop evidence.
+- **Acceptance checks:** At representative desktop widths, expand Long Reach Marlins and confirm each relative-day pill remains right-aligned within the same readable agenda region as its event and session rows. Confirm the home-page favorite agenda stays centered, team practice and staff sections retain their current bounded widths, narrow phone layouts do not overflow, and keyboard focus remains visible. Add a browser geometry assertion for the embedded desktop agenda and run `pnpm run build` followed by the required serialized `pnpm run test:browser:nightly` completion gate for the visitor-facing CSS change.
+
 ## Phased Roadmap
 
 | Phase | Work | Risk And Prerequisites | Completion Evidence |
@@ -76,7 +84,8 @@ No demonstrated accessibility barrier, release or annual-data integrity risk, se
 | 1. Isolate schedule rules | M1. Extract pool period-schedule projection | Highest behavioral sensitivity; preserve the current `Pool` public contract and annual source data. | Focused characterization tests, complete automated gate, and serialized nightly browser verification. |
 | 2. Thin route orchestration | M2. Reduce the pool route controller | Start after M1 to avoid overlapping churn in pool-directory behavior. | Pool workflow checks, keyboard verification, complete automated gate, and serialized nightly browser verification. |
 | 3. Tighten presentation ownership | M3. Move time-slot highlight presentation out of `TimeUtils` | Coordinate with schedule display tests and retain CSP permission until all runtime-style uses are reviewed. | Focused markup and contrast checks, complete automated gate, and serialized nightly browser verification. |
-| 4. Refresh delivered measurements | L1. Update public-artifact performance evidence | Perform on a qualifying HTTPS release or preview after the higher-risk refactors land. | Updated baseline, delivered browser measurements, and a recorded budget decision. |
+| 4. Normalize desktop team-detail alignment | L2. Align embedded team agendas to a readable content width | Keep the shared home agenda centered and preserve narrow-layout behavior while correcting the embedded desktop presentation. | Desktop agenda geometry assertion, focused visual review, clean build, and serialized nightly browser verification. |
+| 5. Refresh delivered measurements | L1. Update public-artifact performance evidence | Perform on a qualifying HTTPS release or preview after the higher-risk refactors land. | Updated baseline, delivered browser measurements, and a recorded budget decision. |
 
 ## Guardrails
 
@@ -92,4 +101,4 @@ No demonstrated accessibility barrier, release or annual-data integrity risk, se
 
 - **RED - High:** No demonstrated high-priority finding.
 - **ORANGE - Medium:** Extract pool period-schedule projection, slim the pool route controller, and move time-slot highlight presentation out of `TimeUtils`.
-- **GREEN - Low:** Refresh the verified public-artifact baseline and record delivered browser performance measurements.
+- **GREEN - Low:** Refresh the verified public-artifact baseline, record delivered browser performance measurements, and align embedded team agendas to a readable desktop content width.
