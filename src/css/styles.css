@@ -3908,6 +3908,23 @@ button.pool-filter__clear:focus-visible {
   .practice-schedule {
     max-width: 44rem;
   }
+
+  .team-details > :not(.team-merchandise) {
+    box-sizing: border-box;
+    margin-inline: auto;
+    max-width: 44rem;
+    width: 100%;
+  }
+
+  .team-card .favorite-week__days,
+  .team-card .favorite-week__event-heading,
+  .team-card .favorite-week__events .sessions {
+    max-width: none;
+  }
+
+  .team-card .team-actions {
+    justify-content: center;
+  }
 }
 
 .team-meets__summary {
