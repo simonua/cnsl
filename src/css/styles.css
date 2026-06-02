@@ -4836,6 +4836,17 @@ button.settings-dialog__close:focus {
   margin-top: 0.65rem;
 }
 
+.settings-weather-status {
+  background-color: var(--light-bg);
+  border-left: 3px solid var(--info-color);
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0.65rem 0.75rem;
+}
+
 .settings-actions {
   display: flex;
   flex-wrap: wrap;

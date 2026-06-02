@@ -1561,9 +1561,40 @@ test('[WF-SETTINGS-005] weather safety alerts show the most recent check after u
   await page.goto('/settings.html');
 
   const weatherCheckStatus = page.locator('#weatherCheckStatus');
-  await expect(weatherCheckStatus).toHaveText('Most recent weather check: Jun 2, 2026, 2:15 PM EDT. Weather safety alerts are currently off.');
+  await expect(weatherCheckStatus).toHaveText('Most recent successful weather check: Jun 2, 2026, 2:15 PM EDT. Weather safety alerts are currently off.');
   await expect(weatherCheckStatus.locator('time')).toHaveAttribute('datetime', '2026-06-02T14:15:00-04:00');
   await expect(weatherCheckStatus).toHaveCSS('border-left-style', 'solid');
+});
+
+test('[WF-SETTINGS-006] weather safety alerts retain the last successful check when the weather service is unavailable', async ({ page }) => {
+  await page.addInitScript(() => {
+    sessionStorage.setItem('cnsl_weather_alert_status', JSON.stringify({
+      expiresAt: 1,
+      refreshMinutes: 5,
+      status: { isInclement: false, updatedAt: '2026-06-02T14:15:00-04:00' }
+    }));
+  });
+  await page.goto('/settings.html');
+  await page.evaluate(async () => {
+    const poolData = { pools: [{ schedules: [{
+      startDate: '2026-01-01',
+      endDate: '2026-12-31',
+      hours: [{ weekDays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], types: ['Rec Swim'], startTime: '12:00am', endTime: '11:59pm' }]
+    }] }] };
+    const status = await globalThis.WeatherAlertService.getCurrentStatus({
+      fetchImplementation: async () => { throw new Error('offline'); },
+      poolData,
+      refreshMinutes: 5,
+      storage: null
+    });
+    globalThis.WeatherAlertService.setLatestStatus(status);
+    globalThis.dispatchEvent(new CustomEvent('cnsl:weather-alert-status-changed'));
+  });
+
+  const weatherCheckStatus = page.locator('#weatherCheckStatus');
+  await expect(weatherCheckStatus).toHaveText('Weather service is temporarily unavailable. Most recent successful weather check: Jun 2, 2026, 2:15 PM EDT.');
+  await expect(weatherCheckStatus.locator('time')).toHaveAttribute('datetime', '2026-06-02T14:15:00-04:00');
+  await expect(page.locator('#weatherAlert')).toBeHidden();
 });
 
 test('[WF-WEATHER-001] desktop weather safety alerts restore collapsed details on every page', async ({ page }) => {

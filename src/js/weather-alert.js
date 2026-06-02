@@ -84,6 +84,8 @@
     const updated = document.getElementById('weatherAlertUpdated');
     if (!banner || !message || !updated) return;
 
+    notifyWeatherAlertStatus(status);
+
     if (!status.isInclement) {
       banner.hidden = true;
       return;
@@ -102,12 +104,18 @@
     banner.hidden = false;
   }
 
+  function notifyWeatherAlertStatus(status) {
+    WeatherAlertService.setLatestStatus(status);
+    window.dispatchEvent(new CustomEvent('cnsl:weather-alert-status-changed'));
+  }
+
   async function refreshWeatherAlert() {
     window.clearTimeout(scheduledRefresh);
     if (typeof WeatherAlertService === 'undefined') return;
 
     const refreshMinutes = getWeatherRefreshMinutes();
     if (refreshMinutes === 0) {
+      notifyWeatherAlertStatus({ isInclement: false, reason: 'updates-disabled' });
       hideWeatherAlert();
       return;
     }
@@ -122,11 +130,13 @@
     const poolData = await getPoolData();
     const operatingWindow = WeatherAlertService.getPoolOperatingWindow(poolData);
     if (!operatingWindow || operatingWindow.currentMinutes >= operatingWindow.closeMinutes) {
+      notifyWeatherAlertStatus({ isInclement: false, reason: 'outside-pool-operating-window' });
       hideWeatherAlert();
       return;
     }
 
     if (operatingWindow.currentMinutes < operatingWindow.notificationStartMinutes) {
+      notifyWeatherAlertStatus({ isInclement: false, reason: 'outside-pool-operating-window' });
       hideWeatherAlert();
       scheduleRefresh((operatingWindow.notificationStartMinutes - operatingWindow.currentMinutes) * 60 * 1000);
       return;

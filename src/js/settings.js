@@ -122,6 +122,37 @@
     window.dispatchEvent(new CustomEvent('cnsl:preferences-changed', { detail: { source: 'settings-dialog' } }));
   }
 
+  function renderWeatherCheckStatus() {
+    const weatherCheckStatus = document.getElementById('weatherCheckStatus');
+    if (!weatherCheckStatus || typeof WeatherAlertService === 'undefined') return;
+
+    const preferences = PreferencesService.get();
+    const latestStatus = WeatherAlertService.readLatestCheckedStatus(WeatherAlertService.getSessionStorage());
+    const currentStatus = WeatherAlertService.getLatestStatus();
+    const offMessage = preferences.weatherRefreshMinutes === 0 ? ' Weather safety alerts are currently off.' : '';
+    const unavailableMessage = preferences.weatherRefreshMinutes !== 0 && currentStatus && currentStatus.reason === 'weather-service-unavailable'
+      ? 'Weather service is temporarily unavailable. '
+      : '';
+    if (!latestStatus) {
+      weatherCheckStatus.textContent = `${unavailableMessage}No successful weather check has been recorded in this tab yet.${offMessage}`;
+      return;
+    }
+
+    const updatedAt = new Date(latestStatus.updatedAt);
+    const time = document.createElement('time');
+    time.dateTime = latestStatus.updatedAt;
+    time.textContent = new Intl.DateTimeFormat('en-US', {
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      month: 'short',
+      timeZone: WeatherAlertService.EASTERN_TIMEZONE,
+      timeZoneName: 'short',
+      year: 'numeric'
+    }).format(updatedAt);
+    weatherCheckStatus.replaceChildren(unavailableMessage, 'Most recent successful weather check: ', time, `.${offMessage}`);
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     const dialog = document.getElementById('settingsDialog');
     const form = document.getElementById('settingsForm');
@@ -138,6 +169,7 @@
     let preferencesChanged = false;
 
     applyFormValues(form, PreferencesService.get());
+    renderWeatherCheckStatus();
 
     async function loadFavoriteOptions() {
       if (optionsPromise) return optionsPromise;
@@ -169,6 +201,7 @@
       restoreFocusTo = trigger && trigger.closest('#navMenu') ? document.querySelector('.hamburger') : trigger;
       status.textContent = '';
       applyFormValues(form, PreferencesService.get());
+      renderWeatherCheckStatus();
       if (!dialog.open) dialog.showModal();
       closeButton.focus();
       loadFavoriteOptions();
@@ -193,6 +226,7 @@
       });
       trackChangedFormSetting(event.target, existing, saved, publishedPoolNames, publishedTeamIds);
       window.applyPreferenceTheme(saved);
+      renderWeatherCheckStatus();
       preferencesChanged = preferencesChanged || JSON.stringify(existing) !== JSON.stringify(saved);
       if (event.target.name === 'weatherRefreshMinutes' && saved.weatherRefreshMinutes !== existing.weatherRefreshMinutes) {
         notifyPreferencesChanged();
@@ -210,6 +244,7 @@
       trackClearedSettings(existing, cleared, publishedPoolNames, publishedTeamIds);
       applyFormValues(form, cleared);
       window.applyPreferenceTheme(cleared);
+      renderWeatherCheckStatus();
       preferencesChanged = preferencesChanged || JSON.stringify(existing) !== JSON.stringify(cleared);
       status.textContent = 'All app data cleared from this device.';
     });
@@ -222,6 +257,7 @@
       }
       if (restoreFocusTo && restoreFocusTo.isConnected) restoreFocusTo.focus();
     });
+    window.addEventListener('cnsl:weather-alert-status-changed', renderWeatherCheckStatus);
 
     document.addEventListener('click', event => {
       const trigger = event.target.closest('a[href="settings.html"], [data-settings-open]');

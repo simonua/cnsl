@@ -204,21 +204,25 @@ describe('WeatherAlertService', () => {
 
     it('should load operating data by URL and tolerate weather request failures', async () => {
       const urls = [];
+      const storage = createLocalStorageMock();
+      const previousStatus = WeatherAlertService.withUpdatedAt({ isInclement: false }, new Date(now.getTime() - 10 * 60 * 1000));
+      storage.setItem(WeatherAlertService.CACHE_KEY, JSON.stringify({ expiresAt: 1, refreshMinutes: 5, status: previousStatus }));
       const status = await WeatherAlertService.getCurrentStatus({
         poolDataUrl: '/pools.json',
         now,
-        storage: null,
+        storage,
         fetchImplementation: async url => {
           urls.push(url);
           if (url === '/pools.json') return { ok: true, json: async () => poolData };
           throw new Error('offline');
         }
       });
-      assert.equal(status.isInclement, false);
+      assert.deepEqual(status, { isInclement: false, reason: 'weather-service-unavailable' });
+      assert.deepEqual(WeatherAlertService.readLatestCheckedStatus(storage), previousStatus);
       assert.ok(urls.includes('/pools.json'));
     });
 
-    it('returns a clear status when point data has no forecast endpoint', async () => {
+    it('returns an unavailable status when point data has no forecast endpoint', async () => {
       const status = await WeatherAlertService.getCurrentStatus({
         now,
         poolData,
@@ -227,8 +231,7 @@ describe('WeatherAlertService', () => {
           ? { ok: true, json: async () => ({ features: [] }) }
           : { ok: false, json: async () => ({}) }
       });
-      assert.equal(status.isInclement, false);
-      assert.equal(status.updatedAt, now.toISOString());
+      assert.deepEqual(status, { isInclement: false, reason: 'weather-service-unavailable' });
       assert.equal(await WeatherAlertService.fetchJson('/bad', async () => ({ ok: false })), null);
     });
 
@@ -309,6 +312,18 @@ describe('WeatherAlertService', () => {
         if (originalSessionStorage === undefined) delete globalThis.sessionStorage;
         else globalThis.sessionStorage = originalSessionStorage;
       }
+    });
+
+    it('reports the latest checked status after freshness expires or the interval changes', () => {
+      const storage = createLocalStorageMock();
+      const status = WeatherAlertService.withUpdatedAt({ isInclement: false }, now);
+      WeatherAlertService.cacheStatus(storage, status, 5, now);
+
+      assert.deepEqual(WeatherAlertService.readLatestCheckedStatus(storage), status);
+      assert.equal(WeatherAlertService.readCachedStatus(storage, 10, now), null);
+      assert.equal(WeatherAlertService.readCachedStatus(storage, 5, new Date(now.getTime() + 6 * 60 * 1000)), null);
+      storage.setItem(WeatherAlertService.CACHE_KEY, JSON.stringify({ status: { isInclement: false, updatedAt: 'invalid' } }));
+      assert.equal(WeatherAlertService.readLatestCheckedStatus(storage), null);
     });
 
     it('installs weather evaluation as a browser script global', () => {

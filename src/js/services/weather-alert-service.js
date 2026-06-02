@@ -14,6 +14,7 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
     static FORECAST_WINDOW_HOURS = globalThis.WEATHER_ALERT_FORECAST_WINDOW_HOURS;
     static POOL_OPENING_LEAD_MINUTES = globalThis.WEATHER_ALERT_OPENING_LEAD_MINUTES;
     static EASTERN_TIMEZONE = globalThis.APP_TIMEZONE;
+    static latestStatus = null;
     static ALERT_PATTERN = /\b(?:thunderstorms?|t-?storms?|lightning|tornado(?:es)?|flash flood|flood warning|hurricane|tropical storm|extreme wind|high wind warning|hail)\b/i;
     static FORECAST_PATTERN = /\b(?:thunderstorms?|t-?storms?|lightning|tornado(?:es)?|hail)\b/i;
 
@@ -107,13 +108,29 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
       }
 
       const forecastUrl = pointData && pointData.properties ? pointData.properties.forecast : null;
+      if (!alertData || !Array.isArray(alertData.features) || !forecastUrl) {
+        return { isInclement: false, reason: 'weather-service-unavailable' };
+      }
+
       const forecastData = forecastUrl
         ? await WeatherAlertService.fetchJson(forecastUrl, fetchImplementation)
         : null;
-      const forecastPeriods = forecastData && forecastData.properties ? forecastData.properties.periods : [];
+      const forecastPeriods = forecastData && forecastData.properties ? forecastData.properties.periods : null;
+      if (!Array.isArray(forecastPeriods)) {
+        return { isInclement: false, reason: 'weather-service-unavailable' };
+      }
+
       const status = WeatherAlertService.withUpdatedAt(WeatherAlertService.evaluateStatus([], forecastPeriods, now), now);
       WeatherAlertService.cacheStatus(storage, status, refreshMinutes, now);
       return status;
+    }
+
+    static setLatestStatus(status) {
+      WeatherAlertService.latestStatus = status;
+    }
+
+    static getLatestStatus() {
+      return WeatherAlertService.latestStatus;
     }
 
     static normalizeRefreshMinutes(value) {
@@ -237,6 +254,18 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
     static readCachedStatus(storage, refreshMinutes, now = new Date()) {
       const cached = WeatherAlertService.readCachedStatusEntry(storage, refreshMinutes, now);
       return cached ? cached.status : null;
+    }
+
+    static readLatestCheckedStatus(storage) {
+      if (!storage) return null;
+      try {
+        const cached = JSON.parse(storage.getItem(WeatherAlertService.CACHE_KEY));
+        const status = cached && cached.status;
+        const updatedAt = status && typeof status.updatedAt === 'string' ? new Date(status.updatedAt) : null;
+        return status && typeof status.isInclement === 'boolean' && updatedAt && !Number.isNaN(updatedAt.getTime()) ? status : null;
+      } catch (_error) {
+        return null;
+      }
     }
 
     static readCachedStatusEntry(storage, refreshMinutes, now = new Date()) {
