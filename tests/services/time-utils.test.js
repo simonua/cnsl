@@ -260,6 +260,16 @@ describe('TimeUtils', () => {
       });
     });
 
+    it('formats relative calendar days only for today and future dates', () => {
+      const referenceDate = new Date(2026, 5, 17, 23, 30);
+      assert.equal(TimeUtils.formatRelativeFutureDay(new Date(2026, 5, 16), referenceDate), '');
+      assert.equal(TimeUtils.formatRelativeFutureDay(new Date(2026, 5, 17), referenceDate), 'today');
+      assert.equal(TimeUtils.formatRelativeFutureDay(new Date(2026, 5, 18), referenceDate), 'tomorrow');
+      assert.equal(TimeUtils.formatRelativeFutureDay(new Date(2026, 5, 20), referenceDate), 'in 3 days');
+      assert.equal(TimeUtils.formatRelativeFutureDay(new Date('bad'), referenceDate), '');
+      assert.equal(TimeUtils.formatRelativeFutureDay(new Date(2026, 5, 20), new Date('bad')), '');
+    });
+
     it('rejects out-of-range derived minutes and parsed hours', () => {
       const date = new Date(2026, 5, 1);
       date.getHours = () => 24;

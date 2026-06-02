@@ -150,8 +150,7 @@ async function renderMeets(meets, preserveExpansion = false) {
     const meetDateValue = meetsByDate[dateKey][0].date;
     const isUpcoming = meetDate >= today;
     const isToday = meetDate.toDateString() === today.toDateString();
-    const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
-    const isTomorrow = meetDate.toDateString() === tomorrow.toDateString();
+    const relativeDay = TimeUtils.formatRelativeFutureDay(meetDate, today);
     
     // Determine if this card should be expanded (only the next upcoming meet)
     const shouldExpand = expandedDateValues ? expandedDateValues.has(meetDateValue) : dateKey === nextUpcomingDateKey;
@@ -165,6 +164,9 @@ async function renderMeets(meets, preserveExpansion = false) {
     const liveStatusBadge = liveStatusTarget && liveStatusTarget.date === meetDateValue
       ? `<span class="meet-live-badge meet-live-badge--${liveStatusTarget.kind}">${liveStatusTarget.label}</span>`
       : '';
+    const relativeDayBadge = relativeDay
+      ? `<span class="meet-date-header__relative upcoming-day-pill">${MeetsBrowserSafety.escapeHtml(relativeDay)}</span>`
+      : '';
 
     html += `
       <div class="meet-date-card ${collapsedClass}" data-meet-card data-meet-date="${safeMeetDateValue}" data-analytics-context="meet_details">
@@ -175,8 +177,8 @@ async function renderMeets(meets, preserveExpansion = false) {
           </div>
           <div class="status-container">
             ${liveStatusBadge}
-            ${isToday ? '<span class="status-text">TODAY</span>' : isTomorrow ? '<span class="status-text">TOMORROW</span>' : ''}
-            <span class="visually-hidden">${isToday ? 'Meet is today' : isTomorrow ? 'Meet is tomorrow' : isUpcoming ? 'Upcoming meet' : 'Past meet'}</span>
+            ${relativeDayBadge}
+            <span class="visually-hidden">${isToday ? 'Meet is today' : isUpcoming ? 'Upcoming meet' : 'Past meet'}</span>
           </div>
         </div>
         <div class="meet-date-details" id="${detailsId}"${shouldExpand ? '' : ' hidden'}>

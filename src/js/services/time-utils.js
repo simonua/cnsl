@@ -455,6 +455,24 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
   }
 
   /**
+   * Formats a calendar date as a concise forward-looking relative day label.
+   * @param {Date} date - Calendar date to label
+   * @param {Date} referenceDate - Calendar date to compare against
+   * @returns {string} Relative day label, or an empty string for past or invalid dates
+   */
+  static formatRelativeFutureDay(date, referenceDate = new Date()) {
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())
+      || !(referenceDate instanceof Date) || Number.isNaN(referenceDate.getTime())) return '';
+
+    const getCalendarDay = value => Date.UTC(value.getFullYear(), value.getMonth(), value.getDate());
+    const dayOffset = Math.round((getCalendarDay(date) - getCalendarDay(referenceDate)) / (24 * 60 * 60 * 1000));
+    if (dayOffset < 0) return '';
+    if (dayOffset === 0) return 'today';
+    if (dayOffset === 1) return 'tomorrow';
+    return `in ${dayOffset} days`;
+  }
+
+  /**
    * Formats a date as YYYY-MM-DD with validation
    * @param {Date} date - Date object
    * @returns {string} Formatted date string

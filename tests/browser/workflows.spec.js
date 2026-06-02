@@ -828,6 +828,33 @@ test('[WF-TEAMS-007] phone-width team details expose upcoming and full practice 
   expect(labelSizing.height).toBeLessThanOrEqual(labelSizing.lineHeight + 1);
 });
 
+test('[WF-TEAMS-008] touch-capable team details expose every published practice phase', async ({ browser }) => {
+  const touchContext = await browser.newContext({
+    baseURL: 'http://127.0.0.1:4173',
+    hasTouch: true,
+    isMobile: true,
+    viewport: { width: 980, height: 915 }
+  });
+  const touchPage = await touchContext.newPage();
+
+  try {
+    await prepareStableWeatherResponses(touchPage);
+    await touchPage.goto('/teams.html');
+    await expect(touchPage.locator('#teamListStatus')).toContainText('Team directory loaded.');
+    await expect.poll(() => touchPage.evaluate(() => ({
+      compact: globalThis.matchMedia('(max-width: 48rem)').matches,
+      maxTouchPoints: globalThis.navigator.maxTouchPoints
+    }))).toEqual({ compact: false, maxTouchPoints: 1 });
+
+    const marlins = touchPage.locator('.team-card[data-team-id="lrm"]');
+    await marlins.locator('.team-header__toggle').click();
+    await expect(marlins.locator('.practice-schedule__phase').filter({ hasText: 'Pre-season practices' })).toHaveAttribute('open', '');
+    await expect(marlins.locator('.practice-schedule__phase').filter({ hasText: 'In-season practices' })).toHaveAttribute('open', '');
+  } finally {
+    await touchContext.close();
+  }
+});
+
 test('[WF-AGENDA-001] team directory shows the same next practices and swim event agenda as home', async ({ page }) => {
   await setAgendaReferenceTime(page);
   await page.goto('/teams.html');
@@ -840,6 +867,7 @@ test('[WF-AGENDA-001] team directory shows the same next practices and swim even
   await expect(agenda.locator('.favorite-week__status')).toHaveCount(0);
   await expect(agenda.locator('.favorite-week__events li')).toHaveCount(3);
   await expect(agenda.locator('.favorite-week__day-relative')).toHaveText(['today', 'in 11 days', 'in 24 days']);
+  await expect(agenda.locator('.favorite-week__day-relative.upcoming-day-pill')).toHaveCount(3);
   await expect.poll(() => agenda.locator('.favorite-week__day').first().evaluate(day => {
     const dayHeading = day.querySelector('h4');
     const events = day.querySelector('.favorite-week__events');
@@ -1107,6 +1135,9 @@ test('[WF-MEETS-003] regular meet-day labels advance from upcoming to ongoing an
   const firstDualMeet = page.locator('.meet-date-card[data-meet-date="2026-06-13"]');
   const secondDualMeet = page.locator('.meet-date-card[data-meet-date="2026-06-20"]');
   await expect(firstDualMeet.locator('.meet-live-badge')).toHaveText('Upcoming');
+  await expect(firstDualMeet.locator('.meet-date-header__relative')).toHaveText('today');
+  await expect(secondDualMeet.locator('.meet-date-header__relative')).toHaveText('in 7 days');
+  await expect(page.locator('.meet-date-card[data-meet-date="2026-06-06"] .meet-date-header__relative')).toHaveCount(0);
   await expect(page.locator('.meet-status-indicator')).toHaveCount(0);
   const mobileHeaderLayout = await firstDualMeet.locator('.meet-date-header').evaluate(header => {
     const meetNameBounds = header.querySelector('.meet-name-header').getBoundingClientRect();

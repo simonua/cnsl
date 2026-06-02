@@ -61,22 +61,24 @@ describe('TeamAgendaDisplay', () => {
 
       assert.match(html, /Wednesday, June 17/);
       assert.doesNotMatch(html, /Wednesday, Jun 17/);
-      assert.match(html, /favorite-week__day-relative">today</);
+      assert.match(html, /favorite-week__day-relative upcoming-day-pill">today</);
     });
 
     it('renders calendar-relative day cues beside upcoming agenda dates', () => {
       const createEvent = date => ({ date, label: 'Practice', location: 'Pool', sessions: [], teams: '' });
       const html = TeamAgendaDisplay.renderEvents([
+        createEvent(new Date(2026, 5, 16)),
         createEvent(new Date(2026, 5, 17)),
         createEvent(new Date(2026, 5, 18)),
         createEvent(new Date(2026, 5, 20))
       ], 3, [], new Date(2026, 5, 17));
 
-      assert.deepEqual([...html.matchAll(/favorite-week__day-relative">([^<]+)/g)].map(match => match[1]), [
+      assert.deepEqual([...html.matchAll(/favorite-week__day-relative upcoming-day-pill">([^<]+)/g)].map(match => match[1]), [
         'today',
         'tomorrow',
         'in 3 days'
       ]);
+      assert.doesNotMatch(html, /yesterday|days ago/);
     });
 
     it('renders practice sessions using time-first schedule rows', () => {

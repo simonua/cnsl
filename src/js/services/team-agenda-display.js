@@ -22,16 +22,6 @@
     return date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
   }
 
-  function formatRelativeDay(date, referenceDate = new Date()) {
-    const getCalendarDay = value => Date.UTC(value.getFullYear(), value.getMonth(), value.getDate());
-    const dayOffset = Math.round((getCalendarDay(date) - getCalendarDay(referenceDate)) / (24 * 60 * 60 * 1000));
-    if (dayOffset === 0) return 'today';
-    if (dayOffset === 1) return 'tomorrow';
-    if (dayOffset > 1) return `in ${dayOffset} days`;
-    if (dayOffset === -1) return 'yesterday';
-    return `${Math.abs(dayOffset)} days ago`;
-  }
-
   function getNextPractices(practices) {
     return ['morning', 'evening'].map(period => {
       const practice = practices.find(entry => entry.practicePeriod === period);
@@ -149,9 +139,11 @@
       days.get(key).events.push(event);
     });
 
-    return `<ol class="favorite-week__days">${[...days.values()].map(day => `
+    return `<ol class="favorite-week__days">${[...days.values()].map(day => {
+      const relativeDay = globalThis.TimeUtils.formatRelativeFutureDay(day.date, referenceDate);
+      return `
       <li class="favorite-week__day">
-        <${headingTag}><span>${globalThis.HtmlSafety.escapeHtml(formatDay(day.date))}</span> <span class="favorite-week__day-relative">${globalThis.HtmlSafety.escapeHtml(formatRelativeDay(day.date, referenceDate))}</span></${headingTag}>
+        <${headingTag}><span>${globalThis.HtmlSafety.escapeHtml(formatDay(day.date))}</span>${relativeDay ? ` <span class="favorite-week__day-relative upcoming-day-pill">${globalThis.HtmlSafety.escapeHtml(relativeDay)}</span>` : ''}</${headingTag}>
         <ul class="favorite-week__events">${day.events.map(event => `
           <li>
             <div class="favorite-week__event-heading">
@@ -170,7 +162,7 @@
           </li>
         `).join('')}</ul>
       </li>
-    `).join('')}</ol>`;
+    `;}).join('')}</ol>`;
   }
 
   globalThis.TeamAgendaDisplay = Object.freeze({

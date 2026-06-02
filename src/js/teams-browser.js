@@ -79,7 +79,7 @@ function formatPracticeSessions(sessions) {
 function formatPracticePhase(title, dateRange, content, isCurrent) {
   const currentClass = isCurrent ? ' practice-schedule__phase--current' : '';
   const currentBadge = isCurrent ? '<span class="practice-schedule__badge">Current schedule</span>' : '';
-  const mobileOpen = window.matchMedia('(max-width: 48rem)').matches ? ' open' : '';
+  const mobileOpen = window.matchMedia('(max-width: 48rem), (pointer: coarse)').matches ? ' open' : '';
   return `
     <details class="practice-schedule__phase${currentClass}"${mobileOpen}>
       <summary class="practice-schedule__summary">
