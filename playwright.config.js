@@ -1,4 +1,17 @@
 const { defineConfig, devices } = require('@playwright/test');
+const os = require('node:os');
+
+const MIN_PLAYWRIGHT_WORKERS = 2;
+const MAX_PLAYWRIGHT_WORKERS = 3;
+
+function getPlaywrightWorkerCount() {
+  const availableParallelism = typeof os.availableParallelism === 'function'
+    ? os.availableParallelism()
+    : os.cpus().length;
+  const scaledWorkerCount = Math.floor(availableParallelism / 4);
+
+  return Math.min(MAX_PLAYWRIGHT_WORKERS, Math.max(MIN_PLAYWRIGHT_WORKERS, scaledWorkerCount));
+}
 
 module.exports = defineConfig({
   testDir: './tests/browser',
@@ -8,7 +21,7 @@ module.exports = defineConfig({
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['github'], ['list']] : 'list',
-  workers: 2,
+  workers: getPlaywrightWorkerCount(),
   timeout: 45000,
   expect: {
     timeout: 10000
