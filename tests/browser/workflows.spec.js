@@ -250,7 +250,7 @@ test('[WF-ANALYTICS-001] analytics publishes a page view and public app version 
         ad_storage: 'denied',
         ad_user_data: 'denied',
         ad_personalization: 'denied',
-        analytics_storage: 'denied'
+        analytics_storage: 'granted'
       }],
       ['set', 'ads_data_redaction', true],
       ['set', {

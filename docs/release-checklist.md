@@ -45,16 +45,56 @@ Use keyboard-only navigation and at least one available screen reader on the HTT
 
 Automated axe results do not substitute for this walkthrough. Do not state full WCAG conformance unless manual evidence has been recorded.
 
-## Privacy And Policy Check
+## Google Analytics Review
 
-- Confirm an HTTPS deployed page loads the intended Google Analytics path with analytics and advertising storage denied, Google signals disabled, and no app-authored referrer or query/fragment page-location data transmitted.
-- Confirm application measurement sends no PII, contact details, coordinates, free-form text, persistent identifier, user-property data, saved preference value, selected pool/team, or selected filter value. Measurement may count aggregate public page paths, coarse feature-interaction categories, and only documented fixed campaign labels for app-published inbound links.
-- For each approved tagged inbound link, confirm only its reviewed campaign source, medium, and name are sent to GA campaign fields for aggregate source attribution, with no analytics storage or identifier-enabled visitor association, and that arbitrary or malformed campaign values are neither reported nor removed from the visitor's URL.
+Perform this review on the deployed HTTPS site whenever analytics code, the shared layout, Content Security Policy, service-worker behavior, release metadata, or GA administration changes. Local development deliberately does not load the Google tag. Use a clean browser profile or cleared site data, preserve the browser network log, and exercise both a normal browser tab and an installed or standalone PWA launch with an active service-worker controller.
+
+### Transport And Payload
+
+| Check | Evidence To Record |
+| --- | --- |
+| The page loads `https://www.googletagmanager.com/gtag/js` with the configured GA4 web-stream measurement ID. | Deployment URL, launch mode, script URL, HTTP status, and measurement ID. |
+| A home-page load dispatches `page_view` and `ca_version`; `ca_version` carries the published `app_version`. | Collection endpoint, HTTP result when observable, event names, and app version. |
+| A representative internal route load dispatches its sanitized `page_view`. | Route, event name, sanitized `page_location`, and empty `page_referrer`. |
+| A reviewed flyer QR URL dispatches `ca_flyer_visit`, maps only the documented campaign source, medium, and name, and removes those tags from the visible URL before page measurement. | Starting URL, cleaned visible URL, collection fields, and event names. |
+| An unrecognized or malformed campaign URL is not consumed or attributed. | Starting URL, unchanged visible URL, and absence of campaign fields and `ca_flyer_visit`. |
+| Each authored analytics category in the event inventory is exercised and dispatches only its reviewed coarse event fields. | Interaction, event name, transmitted fields, and any category that is intentionally not applicable. |
+| A service-worker-controlled PWA launch still loads the Google tag and dispatches the expected events. | Browser/device, standalone state, active worker state, event names, and app version. |
+
+Treat an HTTP `2xx` or `204` collection response as proof that Google accepted a request for processing, not as proof that the event is visible in GA reports. Beacon-style requests may also appear as canceled or aborted in browser tooling after dispatch, so record the request payload and repeat with a clean cold launch when the response status is not observable.
+
+### Event Inventory
+
+| Event | Representative Trigger | Allowed App-Authored Fields |
+| --- | --- | --- |
+| `page_view` | Load the home page and one internal route. | Sanitized `page_title`, canonical `page_location`, and empty `page_referrer`. |
+| `ca_version` | Load any published page. | Published `app_version`. |
+| `ca_flyer_visit` | Open the reviewed flyer QR destination. | No app-authored event fields; the reviewed campaign tuple is mapped separately. |
+| `ca_share` | Use one visible sharing method. | Allowlisted sharing `method`, fixed `content_type`, and fixed `item_id`. |
+| `ca_external_link` | Open one authored external link. | Allowlisted `link_context` and `link_purpose`; never a URL, label, or destination host. |
+| `ca_setting_change` | Change one available settings category. | Allowlisted `setting_name`; never the selected value. |
+| `ca_banner_interaction` | View, open, or dismiss an available notice banner. | Allowlisted `banner_name` and `banner_action`. |
+
+### Privacy Boundary
+
+- Confirm every collection request uses analytics storage granted, advertising storage denied, Google signals disabled, advertising personalization disabled, and ads-data redaction enabled.
+- Confirm Google Analytics may store its own first-party analytics identifier for aggregate visit and session reporting, while application preferences contain no analytics state or app-authored analytics identifier.
+- Confirm application measurement sends no PII, contact details, coordinates, free-form text, persistent identifier, user-property data, saved preference value, selected pool/team, selected filter value, arbitrary URL query or fragment value, or referrer. Measurement may count aggregate public page paths, app-version adoption, coarse feature-interaction categories, and only documented fixed campaign labels for app-published inbound links.
 - Compare delivered requests with the categorical data-collection boundary in [Security And Privacy Decision](security-privacy.md); any field outside that boundary requires a separate privacy review before collection.
-- In Google Analytics administration, confirm Google signals, advertising personalization, enhanced measurement, and granular location/device reporting are disabled unless a separately reviewed exception exists; confirm no linked advertising destination broadens purpose-limited usage reporting into advertising or profiling use.
 - Confirm Settings exposes no obsolete analytics-consent toggle or stored analytics preference.
 - Check the browser console for Content Security Policy violations on all published routes while analytics is active on HTTPS.
+
+### GA Administration And Reportability
+
+- Confirm the GA4 web data stream uses the same measurement ID as the deployed application configuration.
+- Confirm Google signals, advertising personalization, enhanced measurement, and granular location/device reporting are disabled unless a separately reviewed exception exists; confirm no linked advertising destination broadens purpose-limited usage reporting into advertising or profiling use.
+- Confirm event-scoped custom dimensions required for intended aggregate reporting are registered in GA administration. Register `app_version` before relying on a release-adoption report.
+- Check the GA Realtime view or another appropriate GA report for the expected aggregate events, but record the result separately from browser transport evidence.
+- Do not treat successful browser requests as the only completion evidence. Confirm that the intended aggregate events become visible in GA reporting after the expected processing interval, and record any delay or missing report rows separately from browser transport evidence.
+- Do not change analytics storage to denied, add app-authored identifiers, or weaken the privacy boundary. Any change to the reporting model requires a separate privacy review, visitor-facing documentation update, and regression coverage.
 - Revisit [Security And Privacy Decision](security-privacy.md) before adding any external script, API, image, frame, font, or analytics destination.
+
+Record the network evidence, GA administration evidence, and GA reportability result in the pull request or release record. A review is complete only when it states both whether requests were dispatched and whether the intended aggregate reporting is actually usable under the approved privacy boundary.
 
 ## Performance Measurements
 

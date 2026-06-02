@@ -130,8 +130,8 @@ assert.match(GA4_MEASUREMENT_ID, /^G-[A-Z0-9]+$/, 'Analytics configuration must 
 assert.match(appConfig, new RegExp(GA4_MEASUREMENT_ID), 'Delivered application configuration must include the configured GA4 measurement ID.');
 assert.equal(appConfigBrowserContext.APP_VERSION, APP_VERSION, 'Delivered application configuration must expose the published app version to browser measurement.');
 assert.match(analytics, /window\.GA4_MEASUREMENT_ID/, 'Analytics must publish through the configured GA4 web-stream measurement ID.');
-assert.match(analytics, /analytics_storage:\s*'denied'/, 'Analytics must deny identifier-backed storage for aggregate reporting.');
-assert.doesNotMatch(analytics, /analytics_storage:\s*'granted'/, 'Analytics must not enable identifier-backed usage and session reporting.');
+assert.match(analytics, /analytics_storage:\s*'granted'/, 'Analytics must enable first-party storage for aggregate visit and session reporting.');
+assert.doesNotMatch(analytics, /analytics_storage:\s*'denied'/, 'Analytics must not disable the first-party storage required for reportable visit and session measurement.');
 assert.match(analytics, /ad_storage:\s*'denied'/, 'Analytics must deny advertising storage.');
 assert.match(analytics, /allow_google_signals:\s*false/, 'Analytics must disable Google advertising signals.');
 assert.match(analytics, /allow_ad_personalization_signals:\s*false/, 'Analytics must disable advertising personalization.');
@@ -224,6 +224,8 @@ assert.ok(homeHtml.includes(`href="${activeSeasonPools.caPoolDirectoryUrl}"`), '
 
 const faqHtml = fs.readFileSync(path.join(outDir, 'faq.html'), 'utf8');
 assert.ok(faqHtml.includes(`href="${activeSeasonPools.caPoolGuideUrl}"`), 'FAQ must render its official pool-source destination from active annual metadata.');
+assert.match(faqHtml, /Analytics storage is enabled so Google Analytics can store its own first-party analytics identifier/, 'FAQ must disclose the first-party Google Analytics storage used for aggregate reporting.');
+assert.match(faqHtml, /does not send visitor names, contact details, account identifiers/, 'FAQ must disclose that app-defined measurement does not send direct visitor identity fields.');
 
 const offlineHtml = fs.readFileSync(path.join(outDir, 'offline.html'), 'utf8');
 assert.match(offlineHtml, /<meta name="robots" content="noindex">/, 'Offline fallback must not be indexed.');
