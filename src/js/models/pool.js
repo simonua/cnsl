@@ -13,7 +13,7 @@ if (typeof window === 'undefined') {
 
   class Pool {
   /**
-   * @param {PoolRecord} poolData - Published pool record or a supported legacy equivalent
+   * @param {PoolRecord} poolData - Published pool record or a supported day-hours equivalent
    */
   constructor(poolData) {
     this.id = poolData.id || '';
@@ -60,15 +60,15 @@ if (typeof window === 'undefined') {
     // Store schedule overrides
     this.scheduleOverrides = poolData.scheduleOverrides || [];
     
-    // Handle both legacy and new data formats
+    // The published pool model uses dated schedule periods. Keep the day-hours shape
+    // as a compatibility branch for older callers that have not been migrated yet.
     if (poolData.schedules && Array.isArray(poolData.schedules)) {
-      // Legacy format - convert to new format
-      this.schedule = new PoolSchedule(this._normalizeCurrentSchedule(poolData.schedules));
-      this.legacySchedules = poolData.schedules; // Keep for compatibility
+      this.schedule = new PoolSchedule(this._normalizeActivePeriodSchedule(poolData.schedules));
+      this.schedulePeriods = poolData.schedules;
     } else {
-      // New format
+      // Supported day-hours compatibility format
       this.schedule = new PoolSchedule(poolData.hours || {});
-      this.legacySchedules = null;
+      this.schedulePeriods = null;
     }
     
     this.restrictions = poolData.restrictions || [];
@@ -109,16 +109,16 @@ if (typeof window === 'undefined') {
   }
 
   /**
-   * Normalize current active schedule from date-based schedule data
+   * Normalize the active published schedule period into the day-hours collaborator.
    * @private
     * @param {PoolScheduleRecord[]} schedules - Schedule records with date ranges
    * @returns {Object} - Normalized schedule format for current date
    */
-  _normalizeCurrentSchedule(schedules) {
+  _normalizeActivePeriodSchedule(schedules) {
     // Ensure TimeUtils is available
     const TimeUtilsRef = this._getTimeUtils();
     if (!TimeUtilsRef) {
-      console.error('TimeUtils is not available in Pool._normalizeCurrentSchedule');
+      console.error('TimeUtils is not available in Pool._normalizeActivePeriodSchedule');
       return {}; // Return empty schedule as fallback
     }
     
@@ -232,7 +232,7 @@ if (typeof window === 'undefined') {
   }
 
   /**
-   * Get current pool status (enhanced for legacy format)
+   * Get current pool status from published schedule periods or day-hours compatibility data.
    * @returns {PoolStatus} - Current pool status
    */
   getCurrentStatus() {
@@ -241,11 +241,11 @@ if (typeof window === 'undefined') {
       return { isOpen: false, status: 'Error', color: 'gray', icon: '⚫' };
     }
     
-    if (this.legacySchedules) {
-      return this._getLegacyStatus();
+    if (this.schedulePeriods) {
+      return this._getPeriodStatus();
     }
     
-    // Check if new format pool has no schedule data
+    // Check if day-hours compatibility data has no schedule data
     if (!this.schedule || !this.schedule.hasScheduleData()) {
       return PoolStatusRef.SCHEDULE_NOT_FOUND;
     }
@@ -254,18 +254,18 @@ if (typeof window === 'undefined') {
   }
 
   /**
-   * Get status using legacy schedule format
+   * Get status using the published period-based schedule model.
    * @private
-   * @returns {PoolStatus} - Pool status from legacy data
+   * @returns {PoolStatus} - Pool status from published period data
    */
-  _getLegacyStatus() {
+  _getPeriodStatus() {
     const PoolStatusRef = this._getPoolStatus();
     if (!PoolStatusRef) {
       return { isOpen: false, status: 'Error', color: 'gray', icon: '⚫' };
     }
     
     // Check if pool has no schedule data at all
-    if (!this.legacySchedules || !Array.isArray(this.legacySchedules) || this.legacySchedules.length === 0) {
+    if (!this.schedulePeriods || !Array.isArray(this.schedulePeriods) || this.schedulePeriods.length === 0) {
       return PoolStatusRef.SCHEDULE_NOT_FOUND;
     }
 
@@ -279,7 +279,7 @@ if (typeof window === 'undefined') {
     const currentDay = easternTimeInfo.day.substring(0, 3); // Get short day name (Mon, Tue, etc.)
     const currentTime = easternTimeInfo.minutes;
 
-    return this._getLegacyStatusAtMinutes(this._getLegacyTimeSlotsForDate(currentDate, currentDay), currentTime);
+    return this._getPeriodStatusAtMinutes(this._getPeriodTimeSlotsForDate(currentDate, currentDay), currentTime);
   }
 
   /**
@@ -294,7 +294,7 @@ if (typeof window === 'undefined') {
     const PoolStatusRef = this._getPoolStatus();
     if (!TimeUtilsRef || !PoolStatusRef) return false;
 
-    if (!this.legacySchedules) {
+    if (!this.schedulePeriods) {
       const now = TimeUtilsRef.getEasternTime();
       const intervalMinutes = Math.max(1, durationMinutes);
       for (let offset = 0; offset < intervalMinutes; offset += 1) {
@@ -310,10 +310,10 @@ if (typeof window === 'undefined') {
     const requiredUntil = easternTimeInfo.minutes + durationMinutes;
     if (requiredUntil > TimeUtilsRef.MINUTES_PER_DAY) return false;
 
-    const timeSlots = this._getLegacyTimeSlotsForDate(easternTimeInfo.date, easternTimeInfo.day.substring(0, 3));
+    const timeSlots = this._getPeriodTimeSlotsForDate(easternTimeInfo.date, easternTimeInfo.day.substring(0, 3));
     let coveredUntil = easternTimeInfo.minutes;
     for (const slot of timeSlots) {
-      if (this._getLegacySlotStatus(slot) !== PoolStatusRef.OPEN) continue;
+      if (this._getPeriodSlotStatus(slot) !== PoolStatusRef.OPEN) continue;
       const startMinutes = TimeUtilsRef.timeStringToMinutes(slot.startTime);
       const endMinutes = TimeUtilsRef.timeStringToMinutes(slot.endTime);
       if (startMinutes > coveredUntil) break;
@@ -352,14 +352,14 @@ if (typeof window === 'undefined') {
       : currentStatus === PoolStatusRef.OPEN ? 'closes' : null;
     if (!action) return null;
 
-    if (this.legacySchedules) {
+    if (this.schedulePeriods) {
       const easternTimeInfo = TimeUtilsRef.getCurrentEasternTimeInfo();
       if (!easternTimeInfo.isValid) return null;
 
-      const timeSlots = this._getLegacyTimeSlotsForDate(easternTimeInfo.date, easternTimeInfo.day.substring(0, 3));
+      const timeSlots = this._getPeriodTimeSlotsForDate(easternTimeInfo.date, easternTimeInfo.day.substring(0, 3));
       if (action === 'opens') {
         for (const slot of timeSlots) {
-          if (this._getLegacySlotStatus(slot) !== PoolStatusRef.OPEN || typeof slot.startTime !== 'string') continue;
+          if (this._getPeriodSlotStatus(slot) !== PoolStatusRef.OPEN || typeof slot.startTime !== 'string') continue;
           const startMinutes = TimeUtilsRef.timeStringToMinutes(slot.startTime);
           if (startMinutes > easternTimeInfo.minutes) return { action, minutes: startMinutes - easternTimeInfo.minutes };
         }
@@ -368,7 +368,7 @@ if (typeof window === 'undefined') {
 
       let coveredUntil = easternTimeInfo.minutes;
       for (const slot of timeSlots) {
-        if (this._getLegacySlotStatus(slot) !== PoolStatusRef.OPEN) continue;
+        if (this._getPeriodSlotStatus(slot) !== PoolStatusRef.OPEN) continue;
         if (typeof slot.startTime !== 'string' || typeof slot.endTime !== 'string') continue;
         const startMinutes = TimeUtilsRef.timeStringToMinutes(slot.startTime);
         const endMinutes = TimeUtilsRef.timeStringToMinutes(slot.endTime);
@@ -408,8 +408,8 @@ if (typeof window === 'undefined') {
    * @param {string} shortDay - Day abbreviation
    * @returns {Array} Ordered time slots
    */
-  _getLegacyTimeSlotsForDate(dateString, shortDay) {
-    const activeSchedule = this.legacySchedules.find(schedule => (
+  _getPeriodTimeSlotsForDate(dateString, shortDay) {
+    const activeSchedule = this.schedulePeriods.find(schedule => (
       dateString >= schedule.startDate && dateString <= schedule.endDate
     ));
     const overrideForDate = this._getScheduleOverrideForDate(dateString, shortDay);
@@ -428,12 +428,12 @@ if (typeof window === 'undefined') {
   }
 
   /**
-   * Resolve public access for a legacy schedule slot.
+   * Resolve public access for a published period schedule slot.
    * @private
    * @param {Object} slot - Published schedule slot
    * @returns {PoolStatus} Access status represented by the slot
    */
-  _getLegacySlotStatus(slot) {
+  _getPeriodSlotStatus(slot) {
     const PoolStatusRef = this._getPoolStatus();
     if (!PoolStatusRef) return { isOpen: false, color: 'gray' };
 
@@ -452,13 +452,13 @@ if (typeof window === 'undefined') {
   }
 
   /**
-   * Resolve status for a point within legacy schedule slots.
+   * Resolve status for a point within published period schedule slots.
    * @private
    * @param {Array} timeSlots - Applicable slots for the date
    * @param {number} currentTime - Minute of day to inspect
    * @returns {PoolStatus} Current access status
    */
-  _getLegacyStatusAtMinutes(timeSlots, currentTime) {
+  _getPeriodStatusAtMinutes(timeSlots, currentTime) {
     const PoolStatusRef = this._getPoolStatus();
     const TimeUtilsRef = this._getTimeUtils();
     if (!PoolStatusRef || !TimeUtilsRef) return { isOpen: false, color: 'gray' };
@@ -470,7 +470,7 @@ if (typeof window === 'undefined') {
       }
       const startMinutes = TimeUtilsRef.timeStringToMinutes(slot.startTime);
       const endMinutes = TimeUtilsRef.timeStringToMinutes(slot.endTime);
-      if (currentTime >= startMinutes && currentTime < endMinutes) return this._getLegacySlotStatus(slot);
+      if (currentTime >= startMinutes && currentTime < endMinutes) return this._getPeriodSlotStatus(slot);
     }
     return PoolStatusRef.CLOSED;
   }
@@ -495,38 +495,38 @@ if (typeof window === 'undefined') {
   }
 
   /**
-   * Get all week schedule with status (enhanced for legacy format)
+   * Get all week schedule with status.
    * @returns {Array} - Array of day objects with status
    */
   getWeekSchedule() {
-    if (this.legacySchedules) {
+    if (this.schedulePeriods) {
       const weekStartDate = new Date();
       const daysSinceMonday = (weekStartDate.getDay() + 6) % 7;
       weekStartDate.setDate(weekStartDate.getDate() - daysSinceMonday);
-      return this._getLegacyWeekScheduleForDate(weekStartDate);
+      return this._getPeriodWeekScheduleForDate(weekStartDate);
     }
     return this.schedule.getAllDaysStatus();
   }
 
   /**
-   * Get all week schedule with status for a specific week (enhanced for legacy format)
+   * Get all week schedule with status for a specific week.
    * @param {Date} weekStartDate - The Monday of the week to get the schedule for
    * @returns {Array} - Array of day objects with time slots
    */
   getWeekScheduleForDate(weekStartDate) {
-    if (this.legacySchedules) {
-      return this._getLegacyWeekScheduleForDate(weekStartDate);
+    if (this.schedulePeriods) {
+      return this._getPeriodWeekScheduleForDate(weekStartDate);
     }
     return this.schedule.getAllDaysStatus();
   }
 
   /**
-   * Get week schedule from legacy format for a specific week
+  * Get week schedule from published periods for a specific week.
    * @private
    * @param {Date} weekStartDate - The Monday of the week to get the schedule for
    * @returns {Array} - Array of day objects with time slots
    */
-  _getLegacyWeekScheduleForDate(weekStartDate) {
+  _getPeriodWeekScheduleForDate(weekStartDate) {
     const dayOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     const fullDayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     
@@ -546,7 +546,7 @@ if (typeof window === 'undefined') {
       const targetDateString = targetDate.toISOString().split('T')[0];
       
       // Find active schedule for this specific date
-      const activeSchedule = this.legacySchedules.find(schedule => {
+      const activeSchedule = this.schedulePeriods.find(schedule => {
         return targetDateString >= schedule.startDate && targetDateString <= schedule.endDate;
       });
       
@@ -1125,8 +1125,8 @@ if (typeof window === 'undefined') {
       lastUpdated: this.lastUpdated
     };
 
-    if (this.legacySchedules) {
-      result.schedules = this.legacySchedules;
+    if (this.schedulePeriods) {
+      result.schedules = this.schedulePeriods;
     }
     
     // Include location properties for both formats
@@ -1148,7 +1148,7 @@ if (typeof window === 'undefined') {
    * @returns {Object|null} - Schedule period with startDate and endDate, or null if no active schedule
    */
   getCurrentSchedulePeriod() {
-    if (!this.legacySchedules || !Array.isArray(this.legacySchedules)) {
+    if (!this.schedulePeriods || !Array.isArray(this.schedulePeriods)) {
       return null;
     }
     
@@ -1160,7 +1160,7 @@ if (typeof window === 'undefined') {
     const easternTimeInfo = TimeUtilsRef.getCurrentEasternTimeInfo();
     const currentDate = easternTimeInfo.date;
     
-    const activeSchedule = this.legacySchedules.find(schedule => {
+    const activeSchedule = this.schedulePeriods.find(schedule => {
       return currentDate >= schedule.startDate && currentDate <= schedule.endDate;
     });
     
@@ -1180,11 +1180,11 @@ if (typeof window === 'undefined') {
    * @returns {Object|null} - Object with {startDate, endDate} or null if no schedules
    */
   getValidDateRange() {
-    if (!this.legacySchedules || !Array.isArray(this.legacySchedules) || this.legacySchedules.length === 0) {
+    if (!this.schedulePeriods || !Array.isArray(this.schedulePeriods) || this.schedulePeriods.length === 0) {
       return null;
     }
     
-    const allDates = this.legacySchedules.map(schedule => ({
+    const allDates = this.schedulePeriods.map(schedule => ({
       start: new Date(schedule.startDate),
       end: new Date(schedule.endDate)
     }));

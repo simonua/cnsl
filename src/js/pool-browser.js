@@ -28,41 +28,22 @@ function _getTimeUtils() {
 //    UTILITY FUNCTIONS
 // ------------------------------
 
-// Prevent multiple declarations
-if (!window.getMondayOfWeek) {
-
 /**
- * Get the Monday of the week for a given date
+ * Compatibility delegate for existing browser callers.
  * @param {Date} date - Any date in the week
- * @returns {Date} - The Monday of that week
+ * @returns {Date} Monday for that week
  */
 function getMondayOfWeek(date) {
-  const d = new Date(date);
-  const day = d.getDay();
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
-  return new Date(d.setDate(diff));
+  return PoolCalendarService.getMondayOfWeek(date);
 }
 
 /**
- * Check if today's date is within the season date range
- * @param {Object} dateRange - Object with startDate and endDate properties
- * @returns {boolean} - True if today is within the season, false otherwise
+ * Compatibility delegate for existing browser callers.
+ * @param {Object} dateRange - Published season date range
+ * @returns {boolean} True when today is within the range
  */
 function isTodayInSeason(dateRange) {
-  if (!dateRange || !dateRange.startDate || !dateRange.endDate) {
-    return false;
-  }
-  
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); // Reset time to start of day for comparison
-  
-  const startDate = new Date(dateRange.startDate);
-  startDate.setHours(0, 0, 0, 0);
-  
-  const endDate = new Date(dateRange.endDate);
-  endDate.setHours(23, 59, 59, 999); // Set to end of day
-  
-  return today >= startDate && today <= endDate;
+  return PoolCalendarService.isTodayInSeason(dateRange);
 }
 
 /**
@@ -183,11 +164,11 @@ function loadSeasonInfo() {
 }
 
 // ------------------------------
-//    LEGACY COMPATIBILITY FUNCTIONS
+//    COMPATIBILITY FUNCTIONS
 // ------------------------------
 
 /**
- * Legacy wrapper for pool status - uses new Pool class method
+ * Compatibility wrapper for pool status - uses the Pool class method
  * @param {Object} pool - Pool data object
  * @returns {Object} - Status object with isOpen, status, color, and icon
  */
@@ -225,7 +206,7 @@ function getPoolStatus(pool) {
 }
 
 /**
- * Legacy wrapper for checking if pool is open
+ * Compatibility wrapper for checking if a pool is open
  * @param {Object} pool - Pool data object
  * @returns {boolean} - True if pool is open
  */
@@ -236,43 +217,34 @@ function isPoolOpen(pool) {
 }
 
 /**
- * Formats pool schedule for display with individual week navigation
- * @param {Object} pool - Pool data object (legacy format)
+ * Builds pool-hours display state and delegates the rendered presentation.
+ * @param {Object} pool - Pool data object
  * @returns {string} - HTML string for displaying hours with navigation
  */
 function formatPoolHours(pool) {
   if (!poolBrowserDataManager) {
-    return '<div class="pool-hours"><strong>🕒 Hours:</strong> Data unavailable</div>';
+    return PoolHoursDisplay.renderAvailabilityMessage('Data unavailable');
   }
 
   const poolObj = poolBrowserDataManager.getPool(pool.name);
   if (!poolObj) {
-    return '<div class="pool-hours"><strong>🕒 Hours:</strong> Pool not found</div>';
+    return PoolHoursDisplay.renderAvailabilityMessage('Pool not found');
   }
 
-  if (!poolObj.legacySchedules || poolObj.legacySchedules.length === 0) {
-    return `<div class="pool-hours">
-      <strong>🕒 Hours:</strong>
-      <span class="status-gray status-tooltip">
-        Schedule TBD
-        <span class="tooltip-text">Schedule not available</span>
-      </span>
-    </div>`;
+  if (!poolObj.schedulePeriods || poolObj.schedulePeriods.length === 0) {
+    return PoolHoursDisplay.renderScheduleMissing();
   }
 
   const poolId = pool.id || pool.name;
   const controlId = String(poolId).replace(/[^a-zA-Z0-9_-]/g, '-');
   const weekPickerId = `week-picker-${controlId}`;
   const poolName = pool.name || 'this pool';
-  const safePoolId = PoolBrowserSafety.escapeHtml(poolId);
-  const safePoolName = PoolBrowserSafety.escapeHtml(poolName);
   const weekStart = getPoolWeekStart(poolId);
-  const weekEnd = new Date(weekStart);
-  weekEnd.setDate(weekStart.getDate() + 6);
+  const weekEnd = PoolCalendarService.getWeekEnd(weekStart);
   
   const timeUtils = _getTimeUtils();
   if (!timeUtils) {
-    return '<div class="pool-week-display">Time utilities not available</div>';
+    return PoolHoursDisplay.renderTimeUtilityMessage('Time utilities not available');
   }
   
   const easternTimeInfo = timeUtils.getCurrentEasternTimeInfo();
@@ -311,50 +283,11 @@ function formatPoolHours(pool) {
     day: 'numeric' 
   });
   
-  // Get pool's valid date range for navigation constraints
   const dateRange = poolObj.getValidDateRange();
-  const statusClass = ['green', 'red', 'yellow', 'gray'].includes(poolStatus.color) ? poolStatus.color : 'gray';
-  const safeStatusIcon = PoolBrowserSafety.escapeHtml(poolStatus.icon);
-  const safeStatusText = PoolBrowserSafety.escapeHtml(poolStatus.status);
   const statusTransition = poolObj.getPublicStatusTransitionToday();
-  const statusCountdown = PoolScheduleDisplay.formatPublicStatusTransition(statusTransition);
-  const statusCountdownLabel = PoolScheduleDisplay.formatPublicStatusTransition(statusTransition, { useLongUnits: true });
-  const statusCountdownClass = PoolScheduleDisplay.getPublicStatusTransitionClass(statusTransition);
-  const statusCountdownHtml = statusCountdown
-    ? `<span class="${statusCountdownClass}" aria-label="${PoolBrowserSafety.escapeHtml(statusCountdownLabel)}">${PoolBrowserSafety.escapeHtml(statusCountdown)}</span>`
-    : '';
-  
-  // Build navigation controls
-  const navigationHtml = `
-    <div class="pool-week-navigation" data-pool-id="${safePoolId}">
-      <div class="week-controls-row">
-        <div class="week-display">
-          <span class="week-text">Week of ${weekStartText} - ${weekEndText}</span>
-        </div>
-        <div class="nav-buttons">
-          <button class="nav-btn calendar-btn" data-pool-id="${safePoolId}" aria-label="Choose a week for ${safePoolName}" aria-controls="${weekPickerId}" aria-expanded="false" ${!dateRange ? 'disabled' : ''}>
-            📅
-          </button>
-          <button class="nav-btn today-btn" data-pool-id="${safePoolId}" ${!dateRange || !isTodayInSeason(dateRange) ? 'disabled' : ''}>
-            Today
-          </button>
-          <button class="nav-btn prev-week" ${!dateRange || weekStart <= dateRange.startDate ? 'disabled' : ''}>
-            ◀ Prev
-          </button>
-          <button class="nav-btn next-week" ${!dateRange || weekEnd >= dateRange.endDate ? 'disabled' : ''}>
-            Next ▶
-          </button>
-        </div>
-      </div>
-      <input type="date" class="week-picker" id="${weekPickerId}" aria-label="Week to display for ${safePoolName}" hidden
-             value="${weekStart.toISOString().split('T')[0]}"
-             ${dateRange ? `min="${dateRange.startDate.toISOString().split('T')[0]}" max="${dateRange.endDate.toISOString().split('T')[0]}"` : ''}>
-    </div>`;
-
   const practiceTeams = poolBrowserDataManager.getTeams().getPracticeTeamsByPool(poolObj.name);
   weekSchedule = weekSchedule.map((scheduleDay, index) => {
-    const scheduleDate = new Date(weekStart);
-    scheduleDate.setDate(weekStart.getDate() + index);
+    const scheduleDate = PoolCalendarService.addDays(weekStart, index);
     return {
       ...scheduleDay,
       timeSlots: (scheduleDay.timeSlots || []).map(slot => {
@@ -366,25 +299,32 @@ function formatPoolHours(pool) {
   });
   const preferences = PreferencesService.get();
   const today = new Date(`${easternTimeInfo.date}T12:00:00`);
-  const hoursDisplay = PoolScheduleDisplay.render(weekSchedule, {
-    layout: preferences.poolScheduleLayout,
-    weekStart,
-    today,
-    timeUtils,
-    poolStatus
-  });
 
-  return `
-    <div class="pool-hours">
-      <strong>🕒 Hours:</strong> 
-      <span class="open-status status-${statusClass} status-tooltip">
-        ${safeStatusIcon} ${safeStatusText}
-        <span class="tooltip-text">${getStatusTooltip(poolStatus.kind)}</span>
-      </span>${statusCountdownHtml}<br>
-      ${navigationHtml}
-      ${hoursDisplay}
-    </div>
-  `;
+  return PoolHoursDisplay.render({
+    poolId,
+    poolName,
+    weekPickerId,
+    weekStartText,
+    weekEndText,
+    hasDateRange: Boolean(dateRange),
+    isTodayDisabled: !dateRange || !isTodayInSeason(dateRange),
+    isPreviousWeekDisabled: !dateRange || weekStart <= dateRange.startDate,
+    isNextWeekDisabled: !dateRange || weekEnd >= dateRange.endDate,
+    weekStartInputValue: PoolCalendarService.formatDateInputValue(weekStart),
+    minDateInputValue: dateRange ? PoolCalendarService.formatDateInputValue(dateRange.startDate) : '',
+    maxDateInputValue: dateRange ? PoolCalendarService.formatDateInputValue(dateRange.endDate) : '',
+    poolStatus,
+    statusTransition,
+    statusTooltip: getStatusTooltip(poolStatus.kind),
+    weekSchedule,
+    scheduleOptions: {
+      layout: preferences.poolScheduleLayout,
+      weekStart,
+      today,
+      timeUtils,
+      poolStatus
+    }
+  });
 }
 
 /**
@@ -421,8 +361,8 @@ function getUserLocation() {
         setupPoolSortControl();
         const poolsManager = poolBrowserDataManager.getPools();
         const pools = poolsManager.getAllPools();
-        const legacyPools = pools.map(pool => pool.toJSON());
-        renderPools(legacyPools);
+        const poolRecords = pools.map(pool => pool.toJSON());
+        renderPools(poolRecords);
       }
     },
     // Error callback
@@ -757,7 +697,7 @@ function handlePoolPageVisibilityChange() {
 
 /**
  * Renders the list of pools in the #poolList element
- * @param {Array} pools - Array of pool data objects (legacy format)
+ * @param {Array} pools - Array of plain pool data objects
  */
 function renderPools(pools) {
   const list = document.getElementById("poolList");
@@ -840,7 +780,7 @@ function renderPools(pools) {
       cityStateZip = (city + ', ' + state + ' ' + zip).trim();
       mapsUrl = pool.location.googleMapsUrl || `${globalThis.GOOGLE_MAPS_SEARCH_BASE_URL}${encodeURIComponent(pool.location.mapsQuery || '')}`;
     } else {
-      // Legacy format - handle flat address property
+      // Compatibility format - handle flat address property
       const fullAddress = pool.address || '';
       const addressParts = fullAddress.split(',').map(part => part.trim());
       
@@ -1014,8 +954,7 @@ function togglePoolCard(toggleButton) {
  */
 function navigatePoolToPreviousWeek(poolId) {
   const currentWeek = getPoolWeekStart(poolId);
-  const newWeek = new Date(currentWeek);
-  newWeek.setDate(newWeek.getDate() - 7);
+  const newWeek = PoolCalendarService.addDays(currentWeek, -7);
   setPoolWeekStart(poolId, newWeek);
   refreshPoolDisplay(poolId);
 }
@@ -1026,8 +965,7 @@ function navigatePoolToPreviousWeek(poolId) {
  */
 function navigatePoolToNextWeek(poolId) {
   const currentWeek = getPoolWeekStart(poolId);
-  const newWeek = new Date(currentWeek);
-  newWeek.setDate(newWeek.getDate() + 7);
+  const newWeek = PoolCalendarService.addDays(currentWeek, 7);
   setPoolWeekStart(poolId, newWeek);
   refreshPoolDisplay(poolId);
 }
@@ -1040,7 +978,9 @@ function navigatePoolToNextWeek(poolId) {
 function navigatePoolToSelectedWeek(poolId, dateValue) {
   if (!dateValue) return;
   
-  const selectedDate = new Date(dateValue);
+  const selectedDate = PoolCalendarService.parseDateInput(dateValue);
+  if (!selectedDate) return;
+
   const weekStart = getMondayOfWeek(selectedDate);
   setPoolWeekStart(poolId, weekStart);
   refreshPoolDisplay(poolId);
@@ -1076,7 +1016,7 @@ function refreshPoolDisplay(poolId) {
   const pool = allPools.find(p => (p.id || p.name) === poolId);
   
   if (pool) {
-    const legacyPool = pool.toJSON();
+    const poolRecord = pool.toJSON();
     
     // Find the pool-hours container in the pool card
     const poolCardContainer = poolCard.closest('.pool-card');
@@ -1084,7 +1024,7 @@ function refreshPoolDisplay(poolId) {
     
     if (hoursElement) {
       // Generate the new hours content
-      const newHoursContent = formatPoolHours(legacyPool);
+      const newHoursContent = formatPoolHours(poolRecord);
       
       // Replace the entire content of the pool-hours div
       hoursElement.outerHTML = newHoursContent;
@@ -1235,15 +1175,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     const poolsManager = poolBrowserDataManager.getPools();
     const pools = poolsManager.getAllPools();
     
-    // Convert Pool objects to legacy format for backward compatibility
-    const legacyPools = pools.map(pool => pool.toJSON());
-    poolBrowserPools = legacyPools;
-    setupPoolFeatureFilters(legacyPools);
+    // Convert Pool objects to plain data records for backward compatibility.
+    const poolRecords = pools.map(pool => pool.toJSON());
+    poolBrowserPools = poolRecords;
+    setupPoolFeatureFilters(poolRecords);
     
     // Always render pools first with no location data
-    renderPools(legacyPools);
+    renderPools(poolRecords);
     startPoolLiveStatusUpdates();
-    setPoolListStatus(`Pool directory loaded. ${legacyPools.length} pools available.`, false);
+    setPoolListStatus(`Pool directory loaded. ${poolRecords.length} pools available.`, false);
     
     // Set up pool-specific navigation event handlers
     setupPoolNavigationHandlers();
@@ -1279,5 +1219,3 @@ window.setPoolWeekStart = setPoolWeekStart;
 window.getStatusTooltip = getStatusTooltip;
 window.initializePoolBrowser = initializePoolBrowser;
 window.loadSeasonInfo = loadSeasonInfo;
-
-}

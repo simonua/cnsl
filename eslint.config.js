@@ -27,6 +27,8 @@ module.exports = [
         Meet: 'readonly',
         PoolSchedule: 'readonly',
         PoolScheduleDisplay: 'readonly',
+        PoolHoursDisplay: 'readonly',
+        PoolCalendarService: 'readonly',
         PoolDirectoryService: 'readonly',
         HtmlSafety: 'readonly',
         PoolStatus: 'readonly',

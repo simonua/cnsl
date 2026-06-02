@@ -290,12 +290,12 @@ describe('Pool', () => {
 
     it('maps declared schedule access statuses without interpreting activity labels', () => {
       const pool = new Pool(createSamplePoolData({ schedules: [] }));
-      assert.equal(pool._getLegacySlotStatus({ accessStatus: 'closed-to-public', types: ['Open-looking label'] }), PoolStatus.CLOSED_TO_PUBLIC);
-      assert.equal(pool._getLegacySlotStatus({ accessStatus: 'practice-only', types: ['Clippers Practice Only'] }), PoolStatus.PRACTICE_ONLY);
-      assert.equal(pool._getLegacySlotStatus({ accessStatus: 'swim-meet', types: ['Event'] }), PoolStatus.SWIM_MEET);
-      assert.equal(pool._getLegacySlotStatus({ accessStatus: 'public', types: ['CNSL Practice Only'] }), PoolStatus.OPEN);
-      assert.equal(pool._getLegacySlotStatus({ types: ['Rec Swim'] }), PoolStatus.RESTRICTED);
-      suppressConsole(() => assert.equal(pool._getLegacyStatusAtMinutes([{}], 60), PoolStatus.CLOSED));
+      assert.equal(pool._getPeriodSlotStatus({ accessStatus: 'closed-to-public', types: ['Open-looking label'] }), PoolStatus.CLOSED_TO_PUBLIC);
+      assert.equal(pool._getPeriodSlotStatus({ accessStatus: 'practice-only', types: ['Clippers Practice Only'] }), PoolStatus.PRACTICE_ONLY);
+      assert.equal(pool._getPeriodSlotStatus({ accessStatus: 'swim-meet', types: ['Event'] }), PoolStatus.SWIM_MEET);
+      assert.equal(pool._getPeriodSlotStatus({ accessStatus: 'public', types: ['CNSL Practice Only'] }), PoolStatus.OPEN);
+      assert.equal(pool._getPeriodSlotStatus({ types: ['Rec Swim'] }), PoolStatus.RESTRICTED);
+      suppressConsole(() => assert.equal(pool._getPeriodStatusAtMinutes([{}], 60), PoolStatus.CLOSED));
       pool.scheduleOverrides = null;
       assert.equal(pool._getScheduleOverrideForDate('2026-05-26', 'Tue'), null);
     });
@@ -317,7 +317,7 @@ describe('Pool', () => {
       }
     });
 
-    it('handles legacy schedules without active hours and renders regular non-override weeks', () => {
+    it('handles period schedules without active hours and renders regular non-override weeks', () => {
       const originalGetInfo = TimeUtils.getCurrentEasternTimeInfo;
       TimeUtils.getCurrentEasternTimeInfo = () => ({ date: '2026-06-01', day: 'Mon', minutes: 600, isValid: true });
       try {
@@ -330,10 +330,10 @@ describe('Pool', () => {
       }
     });
 
-    it('renders the current legacy week through the date-aware schedule path', () => {
+    it('renders the current period week through the date-aware schedule path', () => {
       const pool = new Pool(createSamplePoolData({ schedules: [{ startDate: '2026-01-01', endDate: '2026-12-31', hours: [] }] }));
       let requestedWeekStart;
-      pool._getLegacyWeekScheduleForDate = weekStartDate => {
+      pool._getPeriodWeekScheduleForDate = weekStartDate => {
         requestedWeekStart = weekStartDate;
         return ['week'];
       };
@@ -342,7 +342,7 @@ describe('Pool', () => {
       assert.equal(requestedWeekStart.getDay(), 1);
     });
 
-    it('returns safe fallbacks when legacy schedule dependencies or matching records are absent', () => {
+    it('returns safe fallbacks when period schedule dependencies or matching records are absent', () => {
       const pool = new Pool(createSamplePoolData({
         schedules: [{ startDate: '2026-06-01', endDate: '2026-06-07', hours: [{ weekDays: ['Mon'], startTime: '1:00PM', endTime: '2:00PM', types: ['Rec Swim'] }] }],
         scheduleOverrides: [{ startDate: '2026-06-08', endDate: '2026-06-08', hours: [{ weekDays: ['Mon'] }] }]
@@ -350,13 +350,13 @@ describe('Pool', () => {
       const originalGetPoolStatus = pool._getPoolStatus;
       const originalGetTimeUtils = pool._getTimeUtils;
       pool._getPoolStatus = () => null;
-      assert.equal(pool._getLegacyStatus().status, 'Error');
+      assert.equal(pool._getPeriodStatus().status, 'Error');
       pool._getPoolStatus = () => PoolStatus;
       pool._getTimeUtils = () => null;
-      assert.equal(pool._getLegacyStatus(), PoolStatus.SCHEDULE_NOT_FOUND);
-      assert.deepEqual(pool._getLegacyTimeSlotsForDate('2026-06-01', 'Mon'), []);
-      assert.equal(pool._getLegacySlotStatus({ types: ['Rec Swim'] }), PoolStatus.RESTRICTED);
-      assert.equal(pool._getLegacyStatusAtMinutes([], 0).isOpen, false);
+      assert.equal(pool._getPeriodStatus(), PoolStatus.SCHEDULE_NOT_FOUND);
+      assert.deepEqual(pool._getPeriodTimeSlotsForDate('2026-06-01', 'Mon'), []);
+      assert.equal(pool._getPeriodSlotStatus({ types: ['Rec Swim'] }), PoolStatus.RESTRICTED);
+      assert.equal(pool._getPeriodStatusAtMinutes([], 0).isOpen, false);
       assert.equal(pool.getPublicStatusTransitionToday(), null);
       assert.equal(pool.getCurrentRestrictions().length, 0);
       assert.equal(pool.getTodaysEvents().length, 0);
@@ -419,7 +419,7 @@ describe('Pool', () => {
       assert.equal(pool._createMergedSlot(60, 120, [{ activities: ['Rec Swim'], notes: '', access: 'Public' }], [{ activities: ['Closed'], notes: '', access: 'Closed', overrideReason: '' }]).isOverride, true);
     });
 
-    it('sorts legacy days safely without TimeUtils and reports absent optional projections', () => {
+    it('sorts period days safely without TimeUtils and reports absent optional projections', () => {
       const pool = new Pool(createSamplePoolData({
         schedules: [{ startDate: '2026-06-01', endDate: '2026-06-07', hours: [
           { weekDays: ['Mon'], startTime: '2:00PM', endTime: '3:00PM', types: ['Rec Swim'] },
@@ -429,12 +429,12 @@ describe('Pool', () => {
       const originalGetTimeUtils = pool._getTimeUtils;
       pool._getTimeUtils = () => null;
       try {
-        assert.equal(pool._getLegacyWeekScheduleForDate(new Date(2026, 5, 1))[0].timeSlots.length, 2);
+        assert.equal(pool._getPeriodWeekScheduleForDate(new Date(2026, 5, 1))[0].timeSlots.length, 2);
         assert.equal(pool.getCurrentSchedulePeriod(), null);
       } finally {
         pool._getTimeUtils = originalGetTimeUtils;
       }
-      assert.equal(pool._getLegacyWeekScheduleForDate(new Date(2026, 5, 1))[0].timeSlots.length, 2);
+      assert.equal(pool._getPeriodWeekScheduleForDate(new Date(2026, 5, 1))[0].timeSlots.length, 2);
       const noOptions = new Pool(createSamplePoolData({ hours: { Monday: { open: '9:00AM', close: '5:00PM' } }, specialEvents: [] }));
       assert.deepEqual(noOptions.getCurrentRestrictions(), []);
       assert.deepEqual(noOptions.getTodaysEvents(), []);
@@ -526,7 +526,7 @@ describe('Pool', () => {
       assert.equal(range.endDate.toISOString().slice(0, 10), '2026-06-14');
     });
 
-    it('returns current legacy period details and null for unscoped hours', () => {
+    it('returns current period details and null for unscoped hours', () => {
       const originalGetCurrentEasternTimeInfo = TimeUtils.getCurrentEasternTimeInfo;
       TimeUtils.getCurrentEasternTimeInfo = () => ({ date: '2026-06-01' });
       try {
