@@ -63,9 +63,11 @@ Record occasional browser measurements here or in the release record when UI beh
 | Measurement | Route Or Scope | Result | Date / Environment |
 | --- | --- | --- | --- |
 | Published artifact size | Generated public `out/` artifact | 1,791,640 bytes observed; 78 cached resources; active season output only | 2026-06-02 / local clean build and `verify:pwa` |
-| Directory usable/render completion | Pools, Teams, Meets | Pending next HTTPS release review | - |
-| First-view request count and transfer size | Home and Pools | Pending next HTTPS release review | - |
+| Directory usable/render completion | Pools, Teams, Meets | Cold median: Pools 1,840 ms; Teams 1,424 ms; Meets 1,365 ms | 2026-06-02 / production HTTPS; Windows; Playwright Chromium channel with desktop Chrome 137 UA; cache disabled, service workers blocked, fresh context per cold run; median of 3 runs |
+| First-view request count and transfer size | Home and Pools | Cold median: Home 37 requests / 298,427 bytes transferred; Pools 51 requests / 360,911 bytes transferred | 2026-06-02 / production HTTPS; Windows; Playwright Chromium channel with desktop Chrome 137 UA; cache disabled, service workers blocked, fresh context per cold run; median of 3 runs |
 | Authored webfont / FOUT boundary | All routes | System-font-only source boundary covered by unit test; confirm no font requests in delivered page inspection | 2026-05-28 / local validation |
+
+The 2026-06-02 delivered measurements establish the initial HTTPS browser baseline. No asset-optimization follow-up is indicated until a comparable measurement demonstrates a material regression or a visitor-facing performance issue is observed.
 
 ## Release Evidence Record
 

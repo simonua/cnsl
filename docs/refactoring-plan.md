@@ -8,7 +8,7 @@ Audit date: 2026-06-02
 
 This plan retains only actionable recommendations. The 2026-06-02 implementation pass extracted pool period-schedule projection into a DOM-free service, reduced pool-calendar interaction handling to a dedicated browser adapter, moved time-slot highlight markup ownership out of `TimeUtils`, and aligned expanded team agendas to a readable desktop width. Completed recommendations are removed instead of retained as implementation history.
 
-The clean local artifact baseline has also been refreshed in [release-checklist.md](release-checklist.md#L65). Delivered-HTTPS PWA lifecycle, keyboard and screen-reader behavior, CSP console review, analytics request review, and browser performance measurements remain pending manual release checks.
+The clean local artifact baseline and delivered HTTPS browser performance measurements have also been recorded in [release-checklist.md](release-checklist.md#L65). Delivered-HTTPS PWA lifecycle, keyboard and screen-reader behavior, CSP console review, and analytics request review remain pending manual release checks.
 
 ## Priority Matrix
 
@@ -16,7 +16,7 @@ The clean local artifact baseline has also been refreshed in [release-checklist.
 | --- | --- | --- | --- |
 | 🔴 High | No demonstrated high-priority finding | - | - |
 | 🟠 Medium | No open medium-priority recommendation | - | - |
-| 🟢 Low | L1. Record delivered HTTPS performance measurements | Low | Low |
+| 🟢 Low | No open low-priority recommendation | - | - |
 
 ## High Priority
 
@@ -28,18 +28,11 @@ No medium-priority recommendation remains open after the 2026-06-02 implementati
 
 ## Low Priority
 
-### L1. Record Delivered HTTPS Performance Measurements
-
-- **Finding:** The generated PWA artifact baseline is current, but delivered render-completion and request measurements remain pending. This is monitoring follow-up rather than a demonstrated runtime regression.
-- **Repository evidence:** The current clean `pnpm run verify:pwa` result is 78 cached resources and 1,791,640 bytes. Delivered directory render completion and first-view request measurements remain pending at [release-checklist.md](release-checklist.md#L66) and [release-checklist.md](release-checklist.md#L67).
-- **Scoped plan:** During the next qualifying delivered-HTTPS review, record browser measurements for Home, Pools, Teams, and Meets. Compare transfer size, cache behavior, and usable render completion before proposing asset optimization. Treat annual source documents and active-season data as protected inputs; any optimization proposal must preserve reviewed source evidence and public behavior.
-- **Acceptance checks:** Record the clean-build artifact size, browser and network environment, first-view request count and transfer size, directory usable-render completion, and any follow-up budget decision in the release record or checklist. Do not edit generated `out/` files or annual source assets as a measurement shortcut.
+No low-priority recommendation remains open after recording the initial delivered HTTPS browser performance baseline.
 
 ## Phased Roadmap
 
-| Phase | Work | Risk And Prerequisites | Completion Evidence |
-| --- | --- | --- | --- |
-| 1. Record delivered measurements | L1. Record delivered HTTPS performance measurements | Perform on a qualifying HTTPS release or preview. | Delivered browser measurements and a recorded budget decision. |
+No active refactoring phases remain.
 
 ## Guardrails
 
@@ -55,4 +48,4 @@ No medium-priority recommendation remains open after the 2026-06-02 implementati
 
 - **🔴 High:** No demonstrated high-priority finding.
 - **🟠 Medium:** No open medium-priority recommendation.
-- **🟢 Low:** Record delivered HTTPS browser performance measurements during the next qualifying release or preview review.
+- **🟢 Low:** No open low-priority recommendation.
