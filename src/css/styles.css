@@ -3533,15 +3533,21 @@ button.pool-filter__clear:focus-visible {
 }
 
 .meet-live-badge--upcoming,
-.upcoming-day-pill {
+.upcoming-day-pill--tomorrow {
   background-color: var(--light-bg);
   color: var(--text-dark);
 }
 
-.upcoming-day-pill--today {
+.upcoming-day-pill {
   background-color: var(--accent-bg);
   border-color: var(--accent-bg);
   color: var(--accent-text);
+}
+
+.upcoming-day-pill--today {
+  background-color: var(--warning-color);
+  border-color: var(--warning-color);
+  color: var(--favorite-badge-text);
 }
 
 .upcoming-day-pill--tomorrow {
@@ -3818,11 +3824,11 @@ button.pool-filter__clear:focus-visible {
 
 .practice-schedule__phase--current {
   border-color: var(--current-border);
+  border-left: 0.25rem solid var(--current-border);
 }
 
 .practice-schedule__phase--current > .practice-schedule__summary {
   background: var(--current-bg);
-  box-shadow: inset 0.25rem 0 0 var(--current-border);
 }
 
 .practice-schedule__summary {
@@ -3848,7 +3854,6 @@ button.pool-filter__clear:focus-visible {
 .practice-schedule__phase--current .practice-schedule__summary:hover,
 .practice-schedule__phase--current .practice-schedule__summary:focus-visible {
   background: var(--current-bg);
-  box-shadow: inset 0 0 0 1px var(--current-border);
 }
 
 .practice-schedule__title {
@@ -4208,7 +4213,7 @@ button.pool-filter__clear:focus-visible {
 
 .practice-period--current {
   background-color: var(--current-bg);
-  border-left: 0.25rem solid var(--current-border);
+  border: 1px solid var(--current-border);
   border-radius: var(--border-radius);
   padding: 0.65rem 0.75rem;
 }
