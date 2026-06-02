@@ -49,6 +49,10 @@ function updateNavigationOffset() {
   nav.style.setProperty('--nav-top-offset', `${headerBottom}px`);
 }
 
+function isMenuOpen(hamburger = document.querySelector('.hamburger')) {
+  return hamburger?.getAttribute('aria-expanded') === 'true';
+}
+
 function toggleMenu() {
   const nav = document.getElementById('navMenu');
   const hamburger = document.querySelector('.hamburger');
@@ -59,7 +63,7 @@ function toggleMenu() {
   const homeLink = document.querySelector('.header a');
   if (!nav || !hamburger) return;
 
-  if (nav.classList.contains('active')) {
+  if (isMenuOpen(hamburger)) {
     closeMenu(true);
     return;
   }
@@ -86,7 +90,7 @@ function toggleMenu() {
 function containMenuFocus(event) {
   const nav = document.getElementById('navMenu');
   const hamburger = document.querySelector('.hamburger');
-  if (event.key !== 'Tab' || !nav || !hamburger || !nav.classList.contains('active')) return;
+  if (event.key !== 'Tab' || !nav || !hamburger || !isMenuOpen(hamburger)) return;
 
   const focusableElements = [hamburger, ...nav.querySelectorAll('a[href]')];
   const firstElement = focusableElements[0];
@@ -133,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('click', (event) => {
     const nav = document.getElementById('navMenu');
     
-    if (nav && hamburger && nav.classList.contains('active')) {
+    if (nav && hamburger && isMenuOpen(hamburger)) {
       if (!nav.contains(event.target) && !hamburger.contains(event.target)) {
         closeMenu(true);
       }
@@ -142,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.addEventListener('keydown', (event) => {
     const nav = document.getElementById('navMenu');
-    if (event.key === 'Escape' && nav && nav.classList.contains('active')) {
+    if (event.key === 'Escape' && nav && isMenuOpen(hamburger)) {
       closeMenu(true);
     }
     containMenuFocus(event);

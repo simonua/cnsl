@@ -21,18 +21,8 @@
   }
 
   function getNextPractices(practices) {
-    const classifyPractice = practice => {
-      if (practice.label === 'Morning Practice') return 'morning';
-      if (practice.label === 'Evening Practice') return 'evening';
-
-      const sessionTimes = practice.sessions.map(session => session.time).join(' ');
-      if (/am\b/i.test(sessionTimes) && !/pm\b/i.test(sessionTimes)) return 'morning';
-      if (/pm\b/i.test(sessionTimes) && !/am\b/i.test(sessionTimes)) return 'evening';
-      return null;
-    };
-
     return ['morning', 'evening'].map(period => {
-      const practice = practices.find(entry => classifyPractice(entry) === period);
+      const practice = practices.find(entry => entry.practicePeriod === period);
       return practice ? { ...practice, label: `Next ${period} practice` } : null;
     }).filter(Boolean);
   }
@@ -125,7 +115,7 @@
   function renderEventLabel(event) {
     const iconType = event.type === 'meet'
       ? 'event'
-      : event.label === 'Next morning practice' ? 'morning' : event.label === 'Next evening practice' ? 'evening' : '';
+      : EVENT_LABEL_ICONS[event.practicePeriod] ? event.practicePeriod : '';
     const icon = iconType
       ? `<span class="favorite-week__event-icon favorite-week__event-icon--${iconType}" aria-hidden="true">${EVENT_LABEL_ICONS[iconType]}</span>`
       : '';

@@ -146,7 +146,7 @@ function loadSeasonInfo() {
     seasonInfo.hidden = false;
     seasonInfo.innerHTML = `
       <p class="ca-directory-link">
-        <a href="${safeDirectoryUrl}" target="_blank" rel="noopener" class="directory-link">
+        <a href="${safeDirectoryUrl}" target="_blank" rel="noopener" class="directory-link" data-analytics-context="official_information">
           📍 Interactive CA Pool Directory
         </a>
       </p>
@@ -736,7 +736,7 @@ function togglePoolCard(toggleButton) {
   const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
   poolCard.classList.toggle('collapsed', isExpanded);
   toggleButton.setAttribute('aria-expanded', String(!isExpanded));
-  if (poolCard.classList.contains('favorite-card')) {
+  if (poolCard.dataset.poolName === PreferencesService.get().favoritePoolName) {
     const preferences = PreferencesService.get();
     PreferencesService.save({ ...preferences, favoritePoolExpanded: !isExpanded });
     if (window.cnslAnalytics) window.cnslAnalytics.trackFixedSettingChange('favorite_pool_expanded', isExpanded ? 'collapsed' : 'expanded');
@@ -863,16 +863,16 @@ function refreshPoolsForPreferences() {
  */
 function handlePoolNavigationClick(event) {
   const target = event.target;
-  const disclosureButton = target.closest('.pool-header__toggle');
+  const disclosureButton = target.closest('[data-pool-card-action="toggle"]');
   if (disclosureButton) {
     togglePoolCard(disclosureButton);
     return;
   }
 
-  const cardSurface = target.closest('.pool-card.collapsed, .pool-header');
-  if (cardSurface) {
-    const cardToggle = cardSurface.closest('.pool-card').querySelector('.pool-header__toggle');
-    if (cardToggle) togglePoolCard(cardToggle);
+  const poolCard = target.closest('[data-pool-card]');
+  const cardToggle = poolCard && poolCard.querySelector('[data-pool-card-action="toggle"]');
+  if (cardToggle && (cardToggle.getAttribute('aria-expanded') !== 'true' || target.closest('[data-pool-card-header]'))) {
+    togglePoolCard(cardToggle);
     return;
   }
   

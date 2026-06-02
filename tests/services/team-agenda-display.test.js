@@ -53,6 +53,7 @@ describe('TeamAgendaDisplay', () => {
       const html = TeamAgendaDisplay.renderEvents([{
         date: new Date(2026, 5, 17),
         label: 'Next morning practice',
+        practicePeriod: 'morning',
         location: 'Swansfield Pool',
         sessions: [],
         teams: ''
@@ -66,6 +67,7 @@ describe('TeamAgendaDisplay', () => {
       const html = TeamAgendaDisplay.renderEvents([{
         date: new Date(2026, 5, 17),
         label: 'Next morning practice',
+        practicePeriod: 'morning',
         location: 'Swansfield Pool',
         sessions: [{ time: '8:00 - 8:45am', group: '13 and over' }],
         teams: ''
@@ -97,12 +99,14 @@ describe('TeamAgendaDisplay', () => {
       const html = TeamAgendaDisplay.renderEvents([{
         date: new Date(2026, 5, 17),
         label: 'Next morning practice',
+        practicePeriod: 'morning',
         location: 'Swansfield Pool',
         sessions: [],
         teams: ''
       }, {
         date: new Date(2026, 5, 17),
         label: 'Next evening practice',
+        practicePeriod: 'evening',
         location: 'Swansfield Pool',
         sessions: [],
         teams: ''
@@ -172,12 +176,12 @@ describe('TeamAgendaDisplay', () => {
       assert.equal(time, '8:30 AM - 11:30 AM');
     });
 
-    it('returns no agenda without a team and classifies sessions by their time labels', () => {
+    it('returns no agenda without a team and selects explicit semantic practice periods', () => {
       const originalGetUpcoming = globalThis.TeamScheduleService.getUpcomingPractices;
       globalThis.TeamScheduleService.getUpcomingPractices = () => [
-        { date: new Date(2026, 5, 1), label: 'Practice', location: 'Pool', sessions: [{ time: '8:00am', group: 'A' }] },
-        { date: new Date(2026, 5, 1), label: 'Practice', location: 'Pool', sessions: [{ time: '5:00pm', group: 'B' }] },
-        { date: new Date(2026, 5, 1), label: 'Practice', location: 'Pool', sessions: [{ time: 'Noon', group: 'C' }] }
+        { date: new Date(2026, 5, 1), label: 'Evening copy', practicePeriod: 'morning', location: 'Pool', sessions: [{ time: 'Noon', group: 'A' }] },
+        { date: new Date(2026, 5, 1), label: 'Morning copy', practicePeriod: 'evening', location: 'Pool', sessions: [{ time: 'Noon', group: 'B' }] },
+        { date: new Date(2026, 5, 1), label: 'Practice', practicePeriod: 'other', location: 'Pool', sessions: [{ time: '8:00am', group: 'C' }] }
       ];
       try {
         assert.deepEqual(TeamAgendaDisplay.getUpcomingEvents(null, []), []);
@@ -187,14 +191,14 @@ describe('TeamAgendaDisplay', () => {
       }
     });
 
-    it('uses published morning and evening practice labels before inspecting sessions', () => {
+    it('ignores visible practice labels when semantic periods are absent', () => {
       const originalGetUpcoming = globalThis.TeamScheduleService.getUpcomingPractices;
       globalThis.TeamScheduleService.getUpcomingPractices = () => [
         { date: new Date(2026, 5, 1), label: 'Morning Practice', location: 'Pool', sessions: [{ time: 'Noon', group: 'A' }] },
         { date: new Date(2026, 5, 2), label: 'Evening Practice', location: 'Pool', sessions: [{ time: 'Noon', group: 'B' }] }
       ];
       try {
-        assert.deepEqual(TeamAgendaDisplay.getUpcomingEvents({ practice: {} }, [], new Date(2026, 5, 1)).map(event => event.label), ['Next morning practice', 'Next evening practice']);
+        assert.deepEqual(TeamAgendaDisplay.getUpcomingEvents({ practice: {} }, [], new Date(2026, 5, 1)), []);
       } finally {
         globalThis.TeamScheduleService.getUpcomingPractices = originalGetUpcoming;
       }
@@ -203,8 +207,8 @@ describe('TeamAgendaDisplay', () => {
     it('selects the next same-period practice once todays visible session has ended', () => {
       const originalGetUpcoming = globalThis.TeamScheduleService.getUpcomingPractices;
       globalThis.TeamScheduleService.getUpcomingPractices = () => [
-        { date: new Date(2026, 4, 29), label: 'Evening Practice', location: 'First Pool', sessions: [{ time: '6:30 - 7:00pm', group: 'A' }] },
-        { date: new Date(2026, 5, 1), label: 'Evening Practice', location: 'Next Pool', sessions: [{ time: '5:00 - 6:00pm', group: 'A' }] }
+        { date: new Date(2026, 4, 29), label: 'Evening Practice', practicePeriod: 'evening', location: 'First Pool', sessions: [{ time: '6:30 - 7:00pm', group: 'A' }] },
+        { date: new Date(2026, 5, 1), label: 'Evening Practice', practicePeriod: 'evening', location: 'Next Pool', sessions: [{ time: '5:00 - 6:00pm', group: 'A' }] }
       ];
       try {
         const beforeEnd = TeamAgendaDisplay.getUpcomingEvents({ practice: {} }, [], new Date(2026, 4, 29, 18, 59));
@@ -220,7 +224,7 @@ describe('TeamAgendaDisplay', () => {
     it('omits a practice with no morning or evening scheduling signal', () => {
       const originalGetUpcoming = globalThis.TeamScheduleService.getUpcomingPractices;
       globalThis.TeamScheduleService.getUpcomingPractices = () => [
-        { date: new Date(2026, 5, 1), label: 'Practice', location: 'Pool', sessions: [{ time: 'Noon', group: 'A' }] }
+        { date: new Date(2026, 5, 1), label: 'Morning Practice', practicePeriod: 'other', location: 'Pool', sessions: [{ time: '8:00am', group: 'A' }] }
       ];
       try {
         assert.deepEqual(TeamAgendaDisplay.getUpcomingEvents({ practice: {} }, [], new Date(2026, 5, 1)), []);
@@ -232,7 +236,7 @@ describe('TeamAgendaDisplay', () => {
     it('omits practice groups hidden by user preferences and accepts non-array meet input', () => {
       const originalGetUpcoming = globalThis.TeamScheduleService.getUpcomingPractices;
       const originalFilterSessions = globalThis.PreferencesService.filterPracticeSessions;
-      globalThis.TeamScheduleService.getUpcomingPractices = () => [{ date: new Date(2026, 5, 1), label: 'Morning Practice', location: 'Pool', sessions: [{ time: '8:00am', group: 'A' }] }];
+      globalThis.TeamScheduleService.getUpcomingPractices = () => [{ date: new Date(2026, 5, 1), label: 'Morning Practice', practicePeriod: 'morning', location: 'Pool', sessions: [{ time: '8:00am', group: 'A' }] }];
       globalThis.PreferencesService.filterPracticeSessions = () => [];
       try {
         assert.deepEqual(TeamAgendaDisplay.getUpcomingEvents({ practice: {} }, null, new Date(2026, 5, 1)), []);

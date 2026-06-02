@@ -27,16 +27,11 @@
     medium: 'qr',
     name: '2026_pool_season'
   });
-  const EXTERNAL_LINK_CONTEXTS = Object.freeze([
-    { selector: '.share-site__links', context: 'share' },
-    { selector: '.share-site__feedback', context: 'feedback' },
-    { selector: '.weather-alert__link', context: 'weather_status' },
-    { selector: '.pool-card', context: 'pool_details' },
-    { selector: '.team-card', context: 'team_details' },
-    { selector: '.meet-date-card', context: 'meet_details' },
-    { selector: '.directory-link, .cnsl-link-btn, .faq-list', context: 'official_information' },
-    { selector: '.footer', context: 'project_information' }
+  const EXTERNAL_LINK_CONTEXTS = new Set([
+    'share', 'feedback', 'weather_status', 'pool_details', 'team_details',
+    'meet_details', 'official_information', 'project_information', 'other'
   ]);
+  const ALLOWED_EXTERNAL_LINK_PURPOSES = new Set(Object.values(EXTERNAL_LINK_PURPOSES));
 
   function getMeasuredPageParameters() {
     return {
@@ -107,14 +102,14 @@
   }
 
   function getExternalLinkContext(link) {
-    const matchedContext = EXTERNAL_LINK_CONTEXTS.find(entry => link.closest(entry.selector));
-    return matchedContext ? matchedContext.context : 'other';
+    const contextElement = link.closest('[data-analytics-context]');
+    const context = contextElement && contextElement.dataset.analyticsContext;
+    return EXTERNAL_LINK_CONTEXTS.has(context) ? context : 'other';
   }
 
   function getExternalLinkPurpose(link) {
-    return link.classList.contains('team-merchandise')
-      ? EXTERNAL_LINK_PURPOSES.MERCHANDISE
-      : EXTERNAL_LINK_PURPOSES.GENERAL;
+    const purpose = link.dataset.analyticsLinkPurpose || EXTERNAL_LINK_PURPOSES.GENERAL;
+    return ALLOWED_EXTERNAL_LINK_PURPOSES.has(purpose) ? purpose : EXTERNAL_LINK_PURPOSES.GENERAL;
   }
 
   function isExternalLink(link) {

@@ -379,7 +379,7 @@ function toggleTeamCard(toggleButton) {
   const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
   teamCard.classList.toggle('collapsed', isExpanded);
   toggleButton.setAttribute('aria-expanded', String(!isExpanded));
-  if (teamCard.classList.contains('favorite-card')) {
+  if (teamCard.dataset.teamId === PreferencesService.get().favoriteTeamId) {
     const preferences = PreferencesService.get();
     PreferencesService.save({ ...preferences, favoriteTeamExpanded: !isExpanded });
     if (window.cnslAnalytics) window.cnslAnalytics.trackFixedSettingChange('favorite_team_expanded', isExpanded ? 'collapsed' : 'expanded');
@@ -454,17 +454,17 @@ function renderTeams(teams) {
     `;
     
     return `
-      <div class="team-card ${isFavorite ? `favorite-card${isExpanded ? '' : ' collapsed'}` : 'collapsed'}" data-team-id="${safeTeamId}">
-        <div class="team-header">
+      <div class="team-card ${isFavorite ? `favorite-card${isExpanded ? '' : ' collapsed'}` : 'collapsed'}" data-team-card data-team-id="${safeTeamId}" data-analytics-context="team_details">
+        <div class="team-header" data-team-card-header>
           ${logoHtml}
           <div class="team-header-content">
-            <h2><button type="button" class="team-header__toggle" aria-expanded="${String(isExpanded)}" aria-controls="${detailsId}">${safeTeamName}${isFavorite ? ' <span class="favorite-badge">Favorite team</span>' : ''}</button></h2>
+            <h2><button type="button" class="team-header__toggle" data-team-card-action="toggle" aria-expanded="${String(isExpanded)}" aria-controls="${detailsId}">${safeTeamName}${isFavorite ? ' <span class="favorite-badge">Favorite team</span>' : ''}</button></h2>
           </div>
         </div>
 
         <div class="team-details" id="${detailsId}"${isExpanded ? '' : ' hidden'}>
           ${merchandiseUrl ? `
-            <a href="${merchandiseUrl}" target="_blank" rel="noopener noreferrer" class="team-merchandise">
+            <a href="${merchandiseUrl}" target="_blank" rel="noopener noreferrer" class="team-merchandise" data-analytics-link-purpose="merchandise">
               <span class="team-merchandise__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 4 6 5.5 3.5 9 6 10.5V20h12v-9.5L20.5 9 18 5.5 15 4a3 3 0 0 1-6 0Z"></path><path d="M12 10.25v4.5"></path><path d="M9.75 12.5h4.5"></path></svg></span>
               <span>Get Your Official ${safeShortName} Gear!<span class="visually-hidden"> (opens in new tab)</span></span>
             </a>
@@ -593,7 +593,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const teamList = document.getElementById("teamList");
   teamList.addEventListener('click', event => {
-    const toggleButton = event.target.closest('.team-header__toggle');
+    const toggleButton = event.target.closest('[data-team-card-action="toggle"]');
     if (toggleButton) {
       toggleTeamCard(toggleButton);
       return;
@@ -601,10 +601,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (event.target.closest('a')) return;
 
-    const cardSurface = event.target.closest('.team-card.collapsed, .team-header');
-    if (!cardSurface) return;
-    const cardToggle = cardSurface.closest('.team-card').querySelector('.team-header__toggle');
-    if (cardToggle) toggleTeamCard(cardToggle);
+    const teamCard = event.target.closest('[data-team-card]');
+    const cardToggle = teamCard && teamCard.querySelector('[data-team-card-action="toggle"]');
+    if (cardToggle && (cardToggle.getAttribute('aria-expanded') !== 'true' || event.target.closest('[data-team-card-header]'))) toggleTeamCard(cardToggle);
   });
   
   try {

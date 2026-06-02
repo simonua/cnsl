@@ -38,9 +38,9 @@ if (typeof window === 'undefined' || !window.PoolCardDisplay) {
       const hoursHtml = typeof model.hoursHtml === 'string' ? model.hoursHtml : '';
 
       return `
-      <div class="pool-card ${isFavorite ? 'favorite-card' : ''}${isExpanded ? '' : ' collapsed'}" data-pool-id="${safePoolId}">
-        <div class="pool-header">
-          <h2><button type="button" class="pool-header__toggle" aria-expanded="${String(isExpanded)}" aria-controls="${safeDetailsId}">${statusIndicatorHtml}${safePoolName}${isFavorite ? ' <span class="favorite-badge">Favorite pool</span>' : ''}</button></h2>
+      <div class="pool-card ${isFavorite ? 'favorite-card' : ''}${isExpanded ? '' : ' collapsed'}" data-pool-card data-pool-id="${safePoolId}" data-pool-name="${safePoolName}" data-analytics-context="pool_details">
+        <div class="pool-header" data-pool-card-header>
+          <h2><button type="button" class="pool-header__toggle" data-pool-card-action="toggle" aria-expanded="${String(isExpanded)}" aria-controls="${safeDetailsId}">${statusIndicatorHtml}${safePoolName}${isFavorite ? ' <span class="favorite-badge">Favorite pool</span>' : ''}</button></h2>
           ${distanceHtml}
         </div>
         <div class="pool-details" id="${safeDetailsId}"${isExpanded ? '' : ' hidden'}>

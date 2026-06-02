@@ -6,6 +6,7 @@ const vm = require('node:vm');
 const TimeUtils = require('../../src/js/services/time-utils');
 
 globalThis.YEAR = 2026;
+globalThis.TimeUtils = TimeUtils;
 const { TeamScheduleService } = require('../../src/js/services/team-schedule-service');
 
 describe('TeamScheduleService', () => {
@@ -75,6 +76,7 @@ describe('TeamScheduleService', () => {
       });
       assert.equal(patterns.length, 3);
       assert.deepEqual(patterns.map(pattern => pattern.sessions), [[], [], []]);
+      assert.deepEqual(patterns.map(pattern => pattern.practicePeriod), ['other', 'morning', 'evening']);
     });
   });
 
@@ -105,11 +107,24 @@ describe('TeamScheduleService', () => {
       const firstWeek = TeamScheduleService.getUpcomingPractices(practice, new Date('2026-05-26T12:00:00'), 4);
       assert.equal(firstWeek.length, 4);
       assert.equal(firstWeek[0].label, 'Pre-season Practice');
+      assert.equal(firstWeek[0].practicePeriod, 'evening');
 
       const regularWeek = TeamScheduleService.getUpcomingPractices(practice, new Date('2026-06-22T12:00:00'), 5);
       assert.equal(regularWeek.length, 5);
       assert.equal(regularWeek[0].location, "Clary's Forest Pool");
+      assert.equal(regularWeek[0].practicePeriod, 'evening');
       assert.equal(regularWeek[1].label, 'Morning Practice');
+      assert.equal(regularWeek[1].practicePeriod, 'morning');
+    });
+  });
+
+  describe('getPracticePeriod', () => {
+    it('classifies valid session ranges before agenda rendering and returns other for mixed or malformed sessions', () => {
+      assert.equal(TeamScheduleService.getPracticePeriod([{ time: '8:00 - 9:00am' }], TimeUtils), 'morning');
+      assert.equal(TeamScheduleService.getPracticePeriod([{ time: '5:00 - 6:00pm' }], TimeUtils), 'evening');
+      assert.equal(TeamScheduleService.getPracticePeriod([{ time: '11:30am - 12:30pm' }], TimeUtils), 'other');
+      assert.equal(TeamScheduleService.getPracticePeriod([{ time: 'Noon' }], TimeUtils), 'other');
+      assert.equal(TeamScheduleService.getPracticePeriod([], TimeUtils), 'other');
     });
   });
 

@@ -4,6 +4,11 @@
 if (typeof window === 'undefined' || !window.TeamScheduleService) {
   class TeamScheduleService {
     static WEEKDAYS = Object.freeze(['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']);
+    static PRACTICE_PERIODS = Object.freeze({
+      MORNING: 'morning',
+      EVENING: 'evening',
+      OTHER: 'other'
+    });
 
     static parseSeasonRange(range, year = globalThis.YEAR) {
       if (typeof range !== 'string' || !year) return null;
@@ -92,11 +97,13 @@ if (typeof window === 'undefined' || !window.TeamScheduleService) {
       (practice.preseason || []).forEach(period => {
         const dateRange = TeamScheduleService.parseSeasonRange(period.period, year);
         if (!dateRange) return;
+        const sessions = period.sessions || [];
         patterns.push({
           ...dateRange,
           label: 'Pre-season Practice',
           location: period.location,
-          sessions: period.sessions || [],
+          practicePeriod: TeamScheduleService.getPracticePeriod(sessions),
+          sessions,
           weekdays: TeamScheduleService.parseWeekdays(period.days)
         });
       });
@@ -108,6 +115,7 @@ if (typeof window === 'undefined' || !window.TeamScheduleService) {
         ...regularRange,
         label: 'Morning Practice',
         location: morning.location,
+        practicePeriod: TeamScheduleService.PRACTICE_PERIODS.MORNING,
         sessions: morning.sessions || [],
         weekdays: TeamScheduleService.parseWeekdays(morning.days)
       }));
@@ -115,6 +123,7 @@ if (typeof window === 'undefined' || !window.TeamScheduleService) {
         ...regularRange,
         label: 'Evening Practice',
         location: evening.location,
+        practicePeriod: TeamScheduleService.PRACTICE_PERIODS.EVENING,
         sessions: evening.sessions || [],
         weekdays: TeamScheduleService.parseWeekdays(evening.day)
       }));
@@ -138,6 +147,7 @@ if (typeof window === 'undefined' || !window.TeamScheduleService) {
             date,
             label: pattern.label,
             location: pattern.location,
+            practicePeriod: pattern.practicePeriod,
             sessions: pattern.sessions
           });
         });
@@ -181,6 +191,16 @@ if (typeof window === 'undefined' || !window.TeamScheduleService) {
       } catch {
         return null;
       }
+    }
+
+    static getPracticePeriod(sessions, timeUtils = globalThis.TimeUtils) {
+      if (!Array.isArray(sessions) || sessions.length === 0) return TeamScheduleService.PRACTICE_PERIODS.OTHER;
+
+      const ranges = sessions.map(session => TeamScheduleService.getTimeRange(session && session.time, timeUtils));
+      if (ranges.some(range => !range)) return TeamScheduleService.PRACTICE_PERIODS.OTHER;
+      if (ranges.every(range => range.end <= 12 * 60)) return TeamScheduleService.PRACTICE_PERIODS.MORNING;
+      if (ranges.every(range => range.start >= 12 * 60)) return TeamScheduleService.PRACTICE_PERIODS.EVENING;
+      return TeamScheduleService.PRACTICE_PERIODS.OTHER;
     }
   }
 

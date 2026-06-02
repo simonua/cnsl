@@ -100,6 +100,14 @@ describe('PoolsManager', () => {
       assert.deepEqual(manager.getPoolsByStatus(PoolStatus.OPEN), [openPool]);
     });
 
+    it('filters status by semantic kind when visible copy changes', () => {
+      suppressConsole(() => manager.loadData(sampleData));
+      const [openPool] = manager.getAllPools();
+      openPool.getCurrentStatus = () => ({ ...PoolStatus.OPEN, status: 'Visitor-facing copy changed' });
+
+      assert.deepEqual(manager.getPoolsByStatus({ ...PoolStatus.OPEN, status: 'Different visible copy' }), [openPool]);
+    });
+
     it('filters features, amenities, and special pool facilities', () => {
       manager.loadData(createSamplePoolsManagerData([
         { name: 'A', features: ['Lap lanes', 'Slides'], amenities: ['Parking'], divingBoard: true, babyPool: false },

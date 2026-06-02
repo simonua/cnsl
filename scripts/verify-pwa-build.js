@@ -145,6 +145,11 @@ assert.doesNotMatch(analytics, /window\.gtag\('event', 'ca_page_view'/, 'Page me
 assert.match(analytics, /publishEvent\('ca_share'/, 'Share measurement must be owned by the analytics module.');
 assert.match(analytics, /window\.gtag\('event', 'ca_version'/, 'Version measurement must use the app-specific analytics event prefix.');
 assert.match(analytics, /publishEvent\('ca_external_link'/, 'External-link measurement must be owned by the analytics module.');
+assert.match(analytics, /link\.closest\('\[data-analytics-context\]'\)/, 'External-link context measurement must read explicit semantic metadata.');
+assert.match(analytics, /EXTERNAL_LINK_CONTEXTS\.has\(context\)/, 'External-link context measurement must allowlist explicit semantic metadata.');
+assert.match(analytics, /link\.dataset\.analyticsLinkPurpose/, 'External-link purpose measurement must read explicit semantic metadata.');
+assert.match(analytics, /ALLOWED_EXTERNAL_LINK_PURPOSES\.has\(purpose\)/, 'External-link purpose measurement must allowlist explicit semantic metadata.');
+assert.doesNotMatch(analytics, /classList\.contains\('team-merchandise'\)/, 'External-link purpose measurement must not derive categories from styling classes.');
 assert.match(analytics, /link_purpose:\s*getExternalLinkPurpose\(clickedLink\)/, 'External-link measurement must publish only its bounded link purpose category.');
 assert.match(analytics, /publishEvent\('ca_setting_change'/, 'Settings measurement must be owned by the analytics module.');
 assert.match(analytics, /publishEvent\('ca_banner_interaction'/, 'Banner measurement must be owned by the analytics module.');

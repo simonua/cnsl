@@ -95,7 +95,7 @@ if (typeof window === 'undefined') {
   getPoolsByStatus(targetStatus) {
     return this.getAllPools().filter(pool => {
       const status = pool.getCurrentStatus();
-      return status.status === targetStatus.status;
+      return status.kind === targetStatus.kind;
     });
   }
 

@@ -38,6 +38,10 @@ describe('PoolCardDisplay', () => {
     const html = PoolCardDisplay.render(viewModel);
 
     assert.match(html, /class="pool-card favorite-card"/);
+    assert.match(html, /data-pool-card data-pool-id=/);
+    assert.match(html, /data-pool-name="Bryant &lt;Woods&gt;"/);
+    assert.match(html, /data-analytics-context="pool_details"/);
+    assert.match(html, /data-pool-card-action="toggle"/);
     assert.match(html, /data-pool-id="bwp&quot;&gt;&lt;script&gt;"/);
     assert.match(html, /Bryant &lt;Woods&gt;/);
     assert.match(html, /Favorite pool/);

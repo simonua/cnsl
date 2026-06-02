@@ -72,8 +72,10 @@ test('[WF-NAV-001] navigation contains keyboard focus and restores it when dismi
   await page.keyboard.press('Tab');
   await expect(page.getByRole('button', { name: 'Close navigation menu' })).toBeFocused();
 
+  await page.locator('#navMenu').evaluate(nav => nav.classList.remove('active'));
   await page.keyboard.press('Escape');
   await expect(page.getByRole('button', { name: 'Open navigation menu' })).toBeFocused();
+  await expect(page.locator('#navMenu')).toHaveAttribute('aria-hidden', 'true');
   await expect(page.locator('#mainContent')).toHaveJSProperty('inert', false);
 });
 
@@ -566,7 +568,11 @@ test('[WF-POOLS-004] collapsed favorite pool stays collapsed after filters redra
 
   let favoriteToggle = page.locator('.favorite-card .pool-header__toggle');
   await expect(favoriteToggle).toHaveAttribute('aria-expanded', 'true');
-  await favoriteToggle.click();
+  await favoriteToggle.evaluate(toggle => {
+    toggle.closest('[data-pool-card]').classList.remove('favorite-card');
+    toggle.click();
+  });
+  favoriteToggle = page.locator('[data-pool-name="Bryant Woods"] [data-pool-card-action="toggle"]');
   await expect(favoriteToggle).toHaveAttribute('aria-expanded', 'false');
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.at(-1))).toEqual([
     'event', 'ca_setting_change', { setting_name: 'favorite_pool_expanded' }
@@ -593,8 +599,12 @@ test('[WF-TEAMS-001] collapsed favorite team stays collapsed after returning to 
 
   const favoriteToggle = page.locator('.favorite-card .team-header__toggle');
   await expect(favoriteToggle).toHaveAttribute('aria-expanded', 'true');
-  await favoriteToggle.click();
-  await expect(favoriteToggle).toHaveAttribute('aria-expanded', 'false');
+  await favoriteToggle.evaluate(toggle => {
+    toggle.closest('[data-team-card]').classList.remove('favorite-card');
+    toggle.click();
+  });
+  const stableFavoriteToggle = page.locator('[data-team-id="cfhss"] [data-team-card-action="toggle"]');
+  await expect(stableFavoriteToggle).toHaveAttribute('aria-expanded', 'false');
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
     ['event', 'ca_setting_change', { setting_name: 'favorite_team_expanded' }]
   ]);
@@ -724,10 +734,20 @@ test('[WF-TEAMS-004] published Long Reach merchandise and booster actions appear
     .toHaveAttribute('href', 'https://www.longreachmarlins.org/');
   await marlins.locator('.team-merchandise').evaluate(link => {
     link.addEventListener('click', event => event.preventDefault(), { once: true });
+    link.classList.remove('team-merchandise');
     link.click();
   });
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.at(-1))).toEqual([
     'event', 'ca_external_link', { link_context: 'team_details', link_purpose: 'merchandise' }
+  ]);
+  await merchandiseLink.evaluate(link => {
+    link.closest('[data-team-card]').dataset.analyticsContext = 'injected_context';
+    link.dataset.analyticsLinkPurpose = 'injected_purpose';
+    link.addEventListener('click', event => event.preventDefault(), { once: true });
+    link.click();
+  });
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.at(-1))).toEqual([
+    'event', 'ca_external_link', { link_context: 'other', link_purpose: 'general' }
   ]);
   await expect(marlins.locator('.team-header__toggle')).toHaveAttribute('aria-expanded', 'true');
 
@@ -1097,7 +1117,10 @@ for (const scenario of directoryScenarios) {
     expect(await surface.evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).transform)).toBe('none');
 
     await expect(stableToggle).toHaveAttribute('aria-expanded', 'false');
-    await surface.click({ position: { x: 2, y: 2 } });
+    await surface.evaluate(element => {
+      element.classList.remove('collapsed');
+      element.click();
+    });
     await expect(stableToggle).toHaveAttribute('aria-expanded', 'true');
   });
 }

@@ -167,10 +167,10 @@ async function renderMeets(meets, preserveExpansion = false) {
       : '';
 
     html += `
-      <div class="meet-date-card ${collapsedClass}" data-meet-date="${safeMeetDateValue}">
-        <div class="meet-date-header">
+      <div class="meet-date-card ${collapsedClass}" data-meet-card data-meet-date="${safeMeetDateValue}" data-analytics-context="meet_details">
+        <div class="meet-date-header" data-meet-card-header>
           <div class="date-and-name">
-            <h2><button type="button" class="meet-date-header__toggle" aria-expanded="${String(shouldExpand)}" aria-controls="${detailsId}">${safeDateKey}</button></h2>
+            <h2><button type="button" class="meet-date-header__toggle" data-meet-card-action="toggle" aria-expanded="${String(shouldExpand)}" aria-controls="${detailsId}">${safeDateKey}</button></h2>
             ${meetName ? `<span class="meet-name-header">${meetName}</span>` : ''}
           </div>
           <div class="status-container">
@@ -365,10 +365,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const meetList = document.getElementById("meetList");
   meetList.addEventListener('click', event => {
-    const cardSurface = event.target.closest('.meet-date-card.collapsed, .meet-date-header');
-    if (!cardSurface) return;
-    const header = cardSurface.closest('.meet-date-card').querySelector('.meet-date-header');
-    toggleMeetDate(header);
+    const meetCard = event.target.closest('[data-meet-card]');
+    const toggleButton = meetCard && meetCard.querySelector('[data-meet-card-action="toggle"]');
+    const header = meetCard && meetCard.querySelector('[data-meet-card-header]');
+    if (header && toggleButton && (toggleButton.getAttribute('aria-expanded') !== 'true' || event.target.closest('[data-meet-card-header]'))) toggleMeetDate(header);
   });
   
   try {
