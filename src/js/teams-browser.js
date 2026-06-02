@@ -49,11 +49,10 @@ function findPoolByName(poolName) {
 /**
  * Get enhanced pool link using new pool link helper
  * @param {string} location - Pool location name
- * @param {string} fallbackAddress - Fallback address if pool not found (unused now)
  * @param {string} [displayText] - Optional visible pool link label
  * @returns {string} - HTML link to pools.html page with pool data
  */
-function getEnhancedPoolLink(location, _fallbackAddress, displayText = location) {
+function getEnhancedPoolLink(location, displayText = location) {
   if (!location) return '';
   
   // Use the new pool link helper
@@ -108,7 +107,7 @@ function formatPreseasonPracticeSchedule(practice, isCurrent) {
       <strong>${TeamsBrowserSafety.escapeHtml(period.period)}${period.isCurrent ? '<span class="practice-period__badge">Current period</span>' : ''}</strong>
       <div class="practice-details">
         <div><strong>Days:</strong> ${TeamsBrowserSafety.escapeHtml(period.days)}</div>
-        <div><strong>Location:</strong> ${getEnhancedPoolLink(period.location, period.address)}</div>
+        <div><strong>Location:</strong> ${getEnhancedPoolLink(period.location)}</div>
         ${formatPracticeSessions(period.sessions)}
       </div>
     </div>
@@ -138,7 +137,7 @@ function formatInSeasonPracticeSchedule(practice, isCurrent) {
       content += '<div class="practice-details">';
       content += `<div><strong>Days:</strong> ${TeamsBrowserSafety.escapeHtml(morning.days)}</div>`;
       if (morning.location) {
-        const poolLink = getEnhancedPoolLink(morning.location, morning.address);
+        const poolLink = getEnhancedPoolLink(morning.location);
         content += `<div><strong>Location:</strong> ${poolLink}</div>`;
       }
       content += formatPracticeSessions(morning.sessions);
@@ -152,7 +151,7 @@ function formatInSeasonPracticeSchedule(practice, isCurrent) {
       content += `<strong>${TeamsBrowserSafety.escapeHtml(evening.day)} Evening Practice:</strong>`;
       content += '<div class="practice-details">';
       if (evening.location) {
-        const poolLink = getEnhancedPoolLink(evening.location, evening.address);
+        const poolLink = getEnhancedPoolLink(evening.location);
         content += `<div><strong>Location:</strong> ${poolLink}</div>`;
       }
       content += formatPracticeSessions(evening.sessions);
@@ -245,7 +244,7 @@ function formatMeetsSchedule(team, meets) {
         <td>${formatMeetDate(meet.date)}<span class="team-meets__time">${formatMeetTime(time)}</span></td>
         <td>${formatTeamMeetName(meet.name)}</td>
         <td class="team-meets__matchup">${matchup}</td>
-        <td>${getEnhancedPoolLink(location, '', formatMeetLocationLabel(location))}${courseInfo}</td>
+        <td>${getEnhancedPoolLink(location, formatMeetLocationLabel(location))}${courseInfo}</td>
       </tr>
     `;
   }).join('');
@@ -276,24 +275,6 @@ function formatSchedules(team, meets) {
   if (!practiceScheduleHtml && !meetsScheduleHtml) return '';
 
   return `<section class="practice-schedule" aria-label="Schedules"><h3>Schedules</h3>${practiceScheduleHtml}${meetsScheduleHtml}</section>`;
-}
-
-/**
- * Create a map link for a pool location
- * @param {string} location - Pool location name
- * @param {string} address - Pool address
- * @returns {string} - HTML link to pools.html page
- */
-// eslint-disable-next-line no-unused-vars
-function getPoolMapLink(location, address) {
-  // Try to use enhanced pool link first (which links to pools.html when available)
-  const enhancedLink = getEnhancedPoolLink(location, address);
-  if (enhancedLink) {
-    return enhancedLink;
-  }
-  
-  // Fallback to pools.html page
-  return `<a href="pools.html" class="location-link">${TeamsBrowserSafety.escapeHtml(location)}</a>`;
 }
 
 /**
@@ -472,23 +453,6 @@ function renderTeams(teams) {
       </section>
     `;
     
-    // Get fallback address for legacy compatibility
-    let fallbackAddress;
-    if (poolData?.location) {
-      const parts = [];
-      if (poolData.location.street) parts.push(poolData.location.street);
-      if (poolData.location.city || poolData.location.state || poolData.location.zip) {
-        const city = poolData.location.city || '';
-        const state = poolData.location.state || '';
-        const zip = poolData.location.zip || '';
-        const cityStateZip = (city + ', ' + state + ' ' + zip).trim();
-        parts.push(cityStateZip);
-      }
-      fallbackAddress = parts.join(', ');
-    } else {
-      fallbackAddress = poolData?.address || '';
-    }
-    
     return `
       <div class="team-card ${isFavorite ? `favorite-card${isExpanded ? '' : ' collapsed'}` : 'collapsed'}" data-team-id="${safeTeamId}">
         <div class="team-header">
@@ -511,7 +475,7 @@ function renderTeams(teams) {
           ${homePool ? `
             <div class="detail-item">
               <strong><span class="detail-item__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M2 7c1.5 0 2.25 1.5 3.75 1.5S8 7 9.5 7s2.25 1.5 3.75 1.5S15.5 7 17 7s2.25 1.5 3.75 1.5S23 7 23 7"></path><path d="M2 12c1.5 0 2.25 1.5 3.75 1.5S8 12 9.5 12s2.25 1.5 3.75 1.5S15.5 12 17 12s2.25 1.5 3.75 1.5S23 12 23 12"></path><path d="M2 17c1.5 0 2.25 1.5 3.75 1.5S8 17 9.5 17s2.25 1.5 3.75 1.5S15.5 17 17 17s2.25 1.5 3.75 1.5S23 17 23 17"></path></svg></span> Home Pool:</strong> ${poolData ? 
-                getEnhancedPoolLink(homePool, fallbackAddress) : 
+                getEnhancedPoolLink(homePool) :
                 TeamsBrowserSafety.escapeHtml(homePool)
               }
             </div>

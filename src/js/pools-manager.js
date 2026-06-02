@@ -170,17 +170,6 @@ if (typeof window === 'undefined') {
   }
 
   /**
-   * Get pools sorted by distance (placeholder for future GPS implementation)
-    * @param {{lat: number, lng: number}} userLocation - User's lat/lng coordinates
-    * @returns {Pool[]} - Array of pools sorted by distance
-   */
-  getPoolsByDistance(_userLocation) {
-    // Placeholder implementation - would need actual coordinates for pools
-    // For now, return pools in alphabetical order
-    return this.getAllPools().sort((a, b) => a.getName().localeCompare(b.getName()));
-  }
-
-  /**
    * Get pool statistics
    * @returns {Object} - Statistics about all pools
    */
@@ -287,16 +276,6 @@ if (typeof window === 'undefined') {
     this.dataLoaded = false;
   }
 
-  /**
-   * Refresh pool data (for future API integration)
-   * @returns {Promise} - Promise that resolves when data is refreshed
-   */
-  async refreshData() {
-    // Placeholder for future API integration
-    // For now, just update the last updated timestamp
-    this.lastUpdated = new Date().toISOString();
-    return Promise.resolve();
-  }
 }
 
 // Export for Node.js compatibility

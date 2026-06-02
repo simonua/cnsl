@@ -127,10 +127,6 @@ describe('PoolsManager', () => {
       });
     });
 
-    it('sorts pool names alphabetically for distance placeholder behavior', () => {
-      manager.loadData(createSamplePoolsManagerData([{ name: 'Zeta' }, { name: 'Alpha' }]));
-      assert.deepEqual(manager.getPoolsByDistance({ lat: 0, lng: 0 }).map(pool => pool.name), ['Alpha', 'Zeta']);
-    });
   });
 
   describe('getStatistics', () => {
@@ -171,10 +167,6 @@ describe('PoolsManager', () => {
       assert.equal(manager.isDataLoaded(), false);
     });
 
-    it('refreshes its update timestamp', async () => {
-      await manager.refreshData();
-      assert.match(manager.lastUpdated, /^\d{4}-\d{2}-\d{2}T/);
-    });
   });
 
   describe('browser registration', () => {
