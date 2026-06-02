@@ -61,7 +61,7 @@ describe('TeamAgendaDisplay', () => {
 
       assert.match(html, /Wednesday, June 17/);
       assert.doesNotMatch(html, /Wednesday, Jun 17/);
-      assert.match(html, /favorite-week__day-relative upcoming-day-pill">today</);
+      assert.match(html, /favorite-week__day-relative upcoming-day-pill upcoming-day-pill--today">today</);
     });
 
     it('renders calendar-relative day cues beside upcoming agenda dates', () => {
@@ -73,11 +73,13 @@ describe('TeamAgendaDisplay', () => {
         createEvent(new Date(2026, 5, 20))
       ], 3, [], new Date(2026, 5, 17));
 
-      assert.deepEqual([...html.matchAll(/favorite-week__day-relative upcoming-day-pill">([^<]+)/g)].map(match => match[1]), [
+      assert.deepEqual([...html.matchAll(/favorite-week__day-relative upcoming-day-pill(?: upcoming-day-pill--(?:today|tomorrow))?">([^<]+)/g)].map(match => match[1]), [
         'today',
         'tomorrow',
         'in 3 days'
       ]);
+      assert.match(html, /upcoming-day-pill--today">today</);
+      assert.match(html, /upcoming-day-pill--tomorrow">tomorrow</);
       assert.doesNotMatch(html, /yesterday|days ago/);
     });
 

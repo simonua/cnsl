@@ -262,6 +262,10 @@ describe('TimeUtils', () => {
 
     it('formats relative calendar days only for today and future dates', () => {
       const referenceDate = new Date(2026, 5, 17, 23, 30);
+      assert.equal(TimeUtils.getRelativeFutureDayOffset(new Date(2026, 5, 16), referenceDate), null);
+      assert.equal(TimeUtils.getRelativeFutureDayOffset(new Date(2026, 5, 17), referenceDate), 0);
+      assert.equal(TimeUtils.getRelativeFutureDayOffset(new Date(2026, 5, 18), referenceDate), 1);
+      assert.equal(TimeUtils.getRelativeFutureDayOffset(new Date(2026, 5, 20), referenceDate), 3);
       assert.equal(TimeUtils.formatRelativeFutureDay(new Date(2026, 5, 16), referenceDate), '');
       assert.equal(TimeUtils.formatRelativeFutureDay(new Date(2026, 5, 17), referenceDate), 'today');
       assert.equal(TimeUtils.formatRelativeFutureDay(new Date(2026, 5, 18), referenceDate), 'tomorrow');

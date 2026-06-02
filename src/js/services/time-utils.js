@@ -454,18 +454,29 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
   }
 
   /**
+   * Returns the non-negative calendar-day offset for a forward-looking date.
+   * @param {Date} date - Calendar date to compare
+   * @param {Date} referenceDate - Calendar date to compare against
+   * @returns {number|null} Day offset, or null for past or invalid dates
+   */
+  static getRelativeFutureDayOffset(date, referenceDate = new Date()) {
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())
+      || !(referenceDate instanceof Date) || Number.isNaN(referenceDate.getTime())) return null;
+
+    const getCalendarDay = value => Date.UTC(value.getFullYear(), value.getMonth(), value.getDate());
+    const dayOffset = Math.round((getCalendarDay(date) - getCalendarDay(referenceDate)) / (24 * 60 * 60 * 1000));
+    return dayOffset >= 0 ? dayOffset : null;
+  }
+
+  /**
    * Formats a calendar date as a concise forward-looking relative day label.
    * @param {Date} date - Calendar date to label
    * @param {Date} referenceDate - Calendar date to compare against
    * @returns {string} Relative day label, or an empty string for past or invalid dates
    */
   static formatRelativeFutureDay(date, referenceDate = new Date()) {
-    if (!(date instanceof Date) || Number.isNaN(date.getTime())
-      || !(referenceDate instanceof Date) || Number.isNaN(referenceDate.getTime())) return '';
-
-    const getCalendarDay = value => Date.UTC(value.getFullYear(), value.getMonth(), value.getDate());
-    const dayOffset = Math.round((getCalendarDay(date) - getCalendarDay(referenceDate)) / (24 * 60 * 60 * 1000));
-    if (dayOffset < 0) return '';
+    const dayOffset = this.getRelativeFutureDayOffset(date, referenceDate);
+    if (dayOffset === null) return '';
     if (dayOffset === 0) return 'today';
     if (dayOffset === 1) return 'tomorrow';
     return `in ${dayOffset} days`;

@@ -3535,6 +3535,18 @@ button.pool-filter__clear:focus-visible {
   color: var(--text-dark);
 }
 
+.upcoming-day-pill--today {
+  background-color: var(--accent-bg);
+  border-color: var(--accent-bg);
+  color: var(--accent-text);
+}
+
+.upcoming-day-pill--tomorrow {
+  background-color: var(--primary-soft-bg-strong);
+  border-color: var(--primary-color);
+  color: var(--primary-text-color);
+}
+
 .meet-date-header h2 {
   color: var(--primary-color);
   margin: 0;

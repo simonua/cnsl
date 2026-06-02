@@ -868,6 +868,7 @@ test('[WF-AGENDA-001] team directory shows the same next practices and swim even
   await expect(agenda.locator('.favorite-week__events li')).toHaveCount(3);
   await expect(agenda.locator('.favorite-week__day-relative')).toHaveText(['today', 'in 11 days', 'in 24 days']);
   await expect(agenda.locator('.favorite-week__day-relative.upcoming-day-pill')).toHaveCount(3);
+  await expect(agenda.locator('.favorite-week__day-relative.upcoming-day-pill--today')).toHaveText('today');
   await expect.poll(() => agenda.locator('.favorite-week__day').first().evaluate(day => {
     const dayHeading = day.querySelector('h4');
     const events = day.querySelector('.favorite-week__events');
@@ -893,7 +894,7 @@ test('[WF-AGENDA-001] team directory shows the same next practices and swim even
   await expect(agenda).not.toContainText('Jeffers Hill Pool');
 });
 
-test('[WF-AGENDA-006] desktop team agendas keep a readable embedded measure', async ({ page }) => {
+test('[WF-AGENDA-006] desktop team agendas align to the centered team-details measure', async ({ page }) => {
   await setAgendaReferenceTime(page);
   await page.goto('/teams.html');
   await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
@@ -908,7 +909,7 @@ test('[WF-AGENDA-006] desktop team agendas keep a readable embedded measure', as
       aligned: Math.abs(heading.getBoundingClientRect().left - events.getBoundingClientRect().left) <= 1,
       width: Math.round(days.getBoundingClientRect().width)
     };
-  })).toEqual({ aligned: true, width: 480 });
+  })).toEqual({ aligned: true, width: 704 });
 });
 
 test('[WF-AGENDA-002] home page shows the next practices and swim event for a selected favorite team', async ({ page }) => {
@@ -1154,6 +1155,7 @@ test('[WF-MEETS-003] regular meet-day labels advance from upcoming to ongoing an
   const secondDualMeet = page.locator('.meet-date-card[data-meet-date="2026-06-20"]');
   await expect(firstDualMeet.locator('.meet-live-badge')).toHaveText('Upcoming');
   await expect(firstDualMeet.locator('.meet-date-header__relative')).toHaveText('today');
+  await expect(firstDualMeet.locator('.meet-date-header__relative.upcoming-day-pill--today')).toHaveText('today');
   await expect(secondDualMeet.locator('.meet-date-header__relative')).toHaveText('in 7 days');
   await expect(page.locator('.meet-date-card[data-meet-date="2026-06-06"] .meet-date-header__relative')).toHaveCount(0);
   await expect(page.locator('.meet-status-indicator')).toHaveCount(0);
@@ -1192,6 +1194,17 @@ test('[WF-MEETS-004] Time Trials advances from upcoming to ongoing using its pub
 
   await page.clock.fastForward(31 * 1000);
   await expect(timeTrials.locator('.meet-live-badge')).toHaveText('Ongoing');
+});
+
+test('[WF-MEETS-005] next-day meet labels emphasize tomorrow separately from later dates', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-06-05T12:00:00-04:00') });
+  await page.goto('/meets.html');
+  await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
+
+  const timeTrialsRelativeDay = page.locator('.meet-date-card[data-meet-date="2026-06-06"] .meet-date-header__relative');
+  await expect(timeTrialsRelativeDay).toHaveText('tomorrow');
+  await expect(timeTrialsRelativeDay).toHaveClass(/upcoming-day-pill--tomorrow/);
+  await expect(page.locator('.meet-date-card[data-meet-date="2026-06-13"] .meet-date-header__relative')).not.toHaveClass(/upcoming-day-pill--tomorrow/);
 });
 
 for (const scenario of directoryScenarios) {

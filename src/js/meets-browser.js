@@ -150,6 +150,7 @@ async function renderMeets(meets, preserveExpansion = false) {
     const meetDateValue = meetsByDate[dateKey][0].date;
     const isUpcoming = meetDate >= today;
     const isToday = meetDate.toDateString() === today.toDateString();
+    const relativeDayOffset = TimeUtils.getRelativeFutureDayOffset(meetDate, today);
     const relativeDay = TimeUtils.formatRelativeFutureDay(meetDate, today);
     
     // Determine if this card should be expanded (only the next upcoming meet)
@@ -165,7 +166,7 @@ async function renderMeets(meets, preserveExpansion = false) {
       ? `<span class="meet-live-badge meet-live-badge--${liveStatusTarget.kind}">${liveStatusTarget.label}</span>`
       : '';
     const relativeDayBadge = relativeDay
-      ? `<span class="meet-date-header__relative upcoming-day-pill">${MeetsBrowserSafety.escapeHtml(relativeDay)}</span>`
+      ? `<span class="meet-date-header__relative upcoming-day-pill${relativeDayOffset === 0 ? ' upcoming-day-pill--today' : relativeDayOffset === 1 ? ' upcoming-day-pill--tomorrow' : ''}">${MeetsBrowserSafety.escapeHtml(relativeDay)}</span>`
       : '';
 
     html += `

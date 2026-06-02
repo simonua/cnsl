@@ -140,10 +140,11 @@
     });
 
     return `<ol class="favorite-week__days">${[...days.values()].map(day => {
+      const relativeDayOffset = globalThis.TimeUtils.getRelativeFutureDayOffset(day.date, referenceDate);
       const relativeDay = globalThis.TimeUtils.formatRelativeFutureDay(day.date, referenceDate);
       return `
       <li class="favorite-week__day">
-        <${headingTag}><span>${globalThis.HtmlSafety.escapeHtml(formatDay(day.date))}</span>${relativeDay ? ` <span class="favorite-week__day-relative upcoming-day-pill">${globalThis.HtmlSafety.escapeHtml(relativeDay)}</span>` : ''}</${headingTag}>
+        <${headingTag}><span>${globalThis.HtmlSafety.escapeHtml(formatDay(day.date))}</span>${relativeDay ? ` <span class="favorite-week__day-relative upcoming-day-pill${relativeDayOffset === 0 ? ' upcoming-day-pill--today' : relativeDayOffset === 1 ? ' upcoming-day-pill--tomorrow' : ''}">${globalThis.HtmlSafety.escapeHtml(relativeDay)}</span>` : ''}</${headingTag}>
         <ul class="favorite-week__events">${day.events.map(event => `
           <li>
             <div class="favorite-week__event-heading">
