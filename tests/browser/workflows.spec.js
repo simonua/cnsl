@@ -797,6 +797,37 @@ test('[WF-TEAMS-006] team meet schedule shows all columns within its phone-width
   await expect(meetSchedule.locator('.team-meets__course--nonstandard').first()).toHaveText('6-lane / 25-meter');
 });
 
+test('[WF-TEAMS-007] phone-width team details expose upcoming and full practice schedules without cramped labels', async ({ page }) => {
+  await page.setViewportSize(MOBILE_VIEWPORT);
+  await setAgendaReferenceTime(page);
+  await page.goto('/teams.html');
+  await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
+
+  const snappers = page.locator('.team-card[data-team-id="pls"]');
+  await snappers.locator('.team-header__toggle').click();
+  await expect(snappers.locator('.favorite-week')).toContainText('Next morning practice');
+
+  const preSeason = snappers.locator('.practice-schedule__phase').filter({ hasText: 'Pre-season practices' });
+  const inSeason = snappers.locator('.practice-schedule__phase').filter({ hasText: 'In-season practices' });
+  await expect(preSeason).toHaveAttribute('open', '');
+  await expect(inSeason).toHaveAttribute('open', '');
+  await expect(preSeason.locator('.practice-schedule__body')).toBeVisible();
+  await expect(inSeason.locator('.practice-schedule__body')).toBeVisible();
+  await expect(inSeason).toContainText('Morning Practice:');
+
+  const trainingLabel = preSeason.locator('.session-group', { hasText: 'Lap requirement training' });
+  const labelSizing = await trainingLabel.evaluate(label => {
+    const styles = label.ownerDocument.defaultView.getComputedStyle(label);
+    return {
+      height: label.getBoundingClientRect().height,
+      lineHeight: Number.parseFloat(styles.lineHeight),
+      marginRight: Number.parseFloat(styles.marginRight)
+    };
+  });
+  expect(labelSizing.marginRight).toBe(0);
+  expect(labelSizing.height).toBeLessThanOrEqual(labelSizing.lineHeight + 1);
+});
+
 test('[WF-AGENDA-001] team directory shows the same next practices and swim event agenda as home', async ({ page }) => {
   await setAgendaReferenceTime(page);
   await page.goto('/teams.html');
@@ -808,11 +839,24 @@ test('[WF-AGENDA-001] team directory shows the same next practices and swim even
   await expect(agenda.getByRole('heading', { name: 'Upcoming events' })).toBeVisible();
   await expect(agenda.locator('.favorite-week__status')).toHaveCount(0);
   await expect(agenda.locator('.favorite-week__events li')).toHaveCount(3);
+  await expect(agenda.locator('.favorite-week__day-relative')).toHaveText(['today', 'in 11 days', 'in 24 days']);
   await expect.poll(() => agenda.locator('.favorite-week__day').first().evaluate(day => {
     const dayHeading = day.querySelector('h4');
     const events = day.querySelector('.favorite-week__events');
     return Math.round(events.getBoundingClientRect().left - dayHeading.getBoundingClientRect().left);
   })).toBe(0);
+  await expect.poll(() => agenda.locator('.favorite-week__day').first().evaluate(day => {
+    const heading = day.querySelector('h4');
+    const date = heading.querySelector('span');
+    const relativeDay = heading.querySelector('.favorite-week__day-relative');
+    const headingBox = heading.getBoundingClientRect();
+    const dateBox = date.getBoundingClientRect();
+    const relativeDayBox = relativeDay.getBoundingClientRect();
+    return {
+      alignedRight: Math.abs(headingBox.right - relativeDayBox.right) <= 1,
+      sameLine: relativeDayBox.top < dateBox.bottom && relativeDayBox.bottom > dateBox.top
+    };
+  })).toEqual({ alignedRight: true, sameLine: true });
   await expect(agenda).toContainText('Next morning practice');
   await expect(agenda).toContainText('Next evening practice');
   await expect(agenda).toContainText('Next swim event: Time Trials for returning / experienced swimmers');

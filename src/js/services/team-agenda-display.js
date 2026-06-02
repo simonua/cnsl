@@ -20,6 +20,16 @@
     return date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
   }
 
+  function formatRelativeDay(date, referenceDate = new Date()) {
+    const getCalendarDay = value => Date.UTC(value.getFullYear(), value.getMonth(), value.getDate());
+    const dayOffset = Math.round((getCalendarDay(date) - getCalendarDay(referenceDate)) / (24 * 60 * 60 * 1000));
+    if (dayOffset === 0) return 'today';
+    if (dayOffset === 1) return 'tomorrow';
+    if (dayOffset > 1) return `in ${dayOffset} days`;
+    if (dayOffset === -1) return 'yesterday';
+    return `${Math.abs(dayOffset)} days ago`;
+  }
+
   function getNextPractices(practices) {
     return ['morning', 'evening'].map(period => {
       const practice = practices.find(entry => entry.practicePeriod === period);
@@ -127,7 +137,7 @@
     return `<span class="favorite-week__pool-icon" aria-hidden="true">${POOL_ICON}</span>${globalThis.generateLinkedPoolMentions(displayLocation, poolLocationIndex)}`;
   }
 
-  function renderEvents(events, dayHeadingLevel = 3, poolsOrIndex = []) {
+  function renderEvents(events, dayHeadingLevel = 3, poolsOrIndex = [], referenceDate = new Date()) {
     const headingTag = dayHeadingLevel === 4 ? 'h4' : 'h3';
     const poolLocationIndex = poolsOrIndex instanceof Map ? poolsOrIndex : globalThis.createPoolLocationIndex(poolsOrIndex);
     const days = new Map();
@@ -139,7 +149,7 @@
 
     return `<ol class="favorite-week__days">${[...days.values()].map(day => `
       <li class="favorite-week__day">
-        <${headingTag}>${globalThis.HtmlSafety.escapeHtml(formatDay(day.date))}</${headingTag}>
+        <${headingTag}><span>${globalThis.HtmlSafety.escapeHtml(formatDay(day.date))}</span> <span class="favorite-week__day-relative">${globalThis.HtmlSafety.escapeHtml(formatRelativeDay(day.date, referenceDate))}</span></${headingTag}>
         <ul class="favorite-week__events">${day.events.map(event => `
           <li>
             <div class="favorite-week__event-heading">
