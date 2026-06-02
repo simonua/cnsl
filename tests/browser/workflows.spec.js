@@ -1532,6 +1532,40 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
   ]);
 });
 
+test('[WF-SETTINGS-004] system theme follows OS color scheme changes while explicit dark remains dark', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.goto('/settings.html');
+  const root = page.locator('html');
+
+  await expect(root).toHaveAttribute('data-theme', 'system');
+  await expect(root).toHaveAttribute('data-color-scheme', 'dark');
+  await expect.poll(() => root.evaluate(element => globalThis.getComputedStyle(element).getPropertyValue('--light-bg').trim())).toBe('#101820');
+
+  await page.emulateMedia({ colorScheme: 'light' });
+  await expect(root).toHaveAttribute('data-color-scheme', 'light');
+
+  await page.getByLabel('Dark').check();
+  await expect(root).toHaveAttribute('data-theme', 'dark');
+  await expect(root).toHaveAttribute('data-color-scheme', 'dark');
+});
+
+test('[WF-SETTINGS-005] weather safety alerts show the most recent check after updates are turned off', async ({ page }) => {
+  await seedPreferences(page, { weatherRefreshMinutes: 0 });
+  await page.addInitScript(() => {
+    sessionStorage.setItem('cnsl_weather_alert_status', JSON.stringify({
+      expiresAt: 1,
+      refreshMinutes: 5,
+      status: { isInclement: false, updatedAt: '2026-06-02T14:15:00-04:00' }
+    }));
+  });
+  await page.goto('/settings.html');
+
+  const weatherCheckStatus = page.locator('#weatherCheckStatus');
+  await expect(weatherCheckStatus).toHaveText('Most recent weather check: Jun 2, 2026, 2:15 PM EDT. Weather safety alerts are currently off.');
+  await expect(weatherCheckStatus.locator('time')).toHaveAttribute('datetime', '2026-06-02T14:15:00-04:00');
+  await expect(weatherCheckStatus).toHaveCSS('border-left-style', 'solid');
+});
+
 test('[WF-WEATHER-001] desktop weather safety alerts restore collapsed details on every page', async ({ page }) => {
   await prepareVisibleWeatherAlert(page);
   await page.addInitScript(() => {
