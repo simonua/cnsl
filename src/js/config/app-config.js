@@ -4,7 +4,7 @@
 (function initializeAppConfig(globalScope) {
   // Published site and active season metadata.
   const YEAR = 2026;
-  const OFFICIAL_SOURCE_CHECKED_ON = '2026-06-01';
+  const OFFICIAL_SOURCE_CHECKED_ON = '2026-06-02';
   const APP_VERSION = '2.7.9';
   const APP_LAST_UPDATED_ON = '2026-06-02';
   const HOME_PAGE_HOSTNAME = 'pools.longreachmarlins.org';
@@ -51,12 +51,14 @@
   const PREFERENCES_STORAGE_KEY = 'cnsl_preferences';
   const APP_VERSION_STORAGE_KEY = 'cnsl_current_version';
   const SETTINGS_NOTICE_DISMISSED_STORAGE_KEY = 'cnsl_settings_notice_dismissed';
+  const WEATHER_ALERT_LAST_SUCCESSFUL_CHECK_STORAGE_KEY = 'cnsl_weather_alert_last_successful_check';
   const WEATHER_ALERT_STATUS_STORAGE_KEY = 'cnsl_weather_alert_status';
   const WEATHER_ALERT_DISCLOSURE_STORAGE_KEY = 'cnsl_weather_alert_expanded';
   const APP_LOCAL_STORAGE_KEYS = Object.freeze([
     PREFERENCES_STORAGE_KEY,
     APP_VERSION_STORAGE_KEY,
-    SETTINGS_NOTICE_DISMISSED_STORAGE_KEY
+    SETTINGS_NOTICE_DISMISSED_STORAGE_KEY,
+    WEATHER_ALERT_LAST_SUCCESSFUL_CHECK_STORAGE_KEY
   ]);
   const APP_SESSION_STORAGE_KEYS = Object.freeze([
     WEATHER_ALERT_STATUS_STORAGE_KEY,
@@ -89,6 +91,7 @@
     WEATHER_ALERT_MOBILE_MEDIA_QUERY,
     WEATHER_ALERT_OPENING_LEAD_MINUTES,
     WEATHER_ALERT_REFRESH_MINUTES_OPTIONS,
+    WEATHER_ALERT_LAST_SUCCESSFUL_CHECK_STORAGE_KEY,
     WEATHER_ALERT_STATUS_STORAGE_KEY,
     WEATHER_ACTIVE_ALERTS_URL,
     WEATHER_API_BASE_URL,

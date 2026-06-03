@@ -17,7 +17,7 @@ describe('AppStorageService', () => {
         delete: async name => { deletedCaches.push(name); return true; }
       };
 
-      ['cnsl_preferences', 'cnsl_current_version', 'cnsl_settings_notice_dismissed', 'unrelated'].forEach(key => localStorage.setItem(key, 'saved'));
+      ['cnsl_preferences', 'cnsl_current_version', 'cnsl_settings_notice_dismissed', 'cnsl_weather_alert_last_successful_check', 'unrelated'].forEach(key => localStorage.setItem(key, 'saved'));
       ['cnsl_weather_alert_status', 'cnsl_weather_alert_expanded', 'unrelated'].forEach(key => sessionStorage.setItem(key, 'saved'));
 
       await AppStorageService.clearAppData({ localStorage, sessionStorage, cacheStorage });
@@ -25,6 +25,7 @@ describe('AppStorageService', () => {
       assert.equal(localStorage.getItem('cnsl_preferences'), null);
       assert.equal(localStorage.getItem('cnsl_current_version'), null);
       assert.equal(localStorage.getItem('cnsl_settings_notice_dismissed'), null);
+      assert.equal(localStorage.getItem('cnsl_weather_alert_last_successful_check'), null);
       assert.equal(localStorage.getItem('unrelated'), 'saved');
       assert.equal(sessionStorage.getItem('cnsl_weather_alert_status'), null);
       assert.equal(sessionStorage.getItem('cnsl_weather_alert_expanded'), null);
@@ -54,10 +55,12 @@ describe('AppStorageService', () => {
       globalThis.sessionStorage = sessionStorage;
       globalThis.caches = { keys: async () => ['other-cache'], delete: async name => { deleted.push(name); } };
       localStorage.setItem('cnsl_preferences', 'saved');
+      localStorage.setItem('cnsl_weather_alert_last_successful_check', 'saved');
       sessionStorage.setItem('cnsl_weather_alert_status', 'saved');
       try {
         await AppStorageService.clearAppData();
         assert.equal(localStorage.getItem('cnsl_preferences'), null);
+        assert.equal(localStorage.getItem('cnsl_weather_alert_last_successful_check'), null);
         assert.equal(sessionStorage.getItem('cnsl_weather_alert_status'), null);
         assert.deepEqual(deleted, []);
         assert.equal(AppStorageService.getBrowserStorage('localStorage'), localStorage);

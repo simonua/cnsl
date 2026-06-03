@@ -8,7 +8,7 @@ The 2026 folder is the active season selected by the application. Pools, meets, 
 
 Pool information is accepted only from official public Columbia Association pages and documents. Meet and team information is accepted only from official public CNSL publication and team pages. Social media posts, email threads, messaging groups, and other community-shared content are not source evidence for application data unless the information is published through an official public source.
 
-**Last accepted official-source check:** 2026-06-01. This accepted review date is published in the FAQ through `OFFICIAL_SOURCE_CHECKED_ON` in `src/js/config/app-config.js`; update both records together after a reviewed official-source refresh or check changes accepted application data.
+**Last accepted official-source check:** 2026-06-02. This accepted review date is published in the FAQ through `OFFICIAL_SOURCE_CHECKED_ON` in `src/js/config/app-config.js`; update both records together after a reviewed official-source refresh or check changes accepted application data.
 
 | Domain | Local assets | Application readiness | Source status |
 | --- | --- | --- | --- |
@@ -67,7 +67,7 @@ The 2026 CNSL downloads above were verified from the official [CNSL home page](h
 - Stevens Forest's official PDF includes adult and class programming beginning 2026-05-04 before the general outdoor season start; its early schedule entries in `pools/pools.json` are intentional.
 - On 2026-05-29, each pool schedule period received an `accessStatus` value so live public availability is derived independently from official activity wording. `Clippers Practice Only` periods at Jeffers Hill and Stevens Forest are classified as `practice-only`, matching other exclusive team-use periods for status indicators and availability filtering.
 - The source monitor byte-matched all retained official PDFs to their public URLs on 2026-05-24. Extracted PDF text supported spot verification of the JSON transcription, but the source tables do not extract with reliable cell ordering for an exhaustive automated field-by-field comparison.
-- The meets file transcribes the five scheduled dual-meet dates and three special-meet entries from the official PDF, including standard 8:00 AM - 12:00 PM timing windows for regular dual meets and Time Trials.
+- The meets file transcribes the five scheduled dual-meet dates and three special-meet entries from the official PDF, including standard 7:00 AM - 12:00 PM timing windows for regular dual meets and Time Trials.
 - The teams file preserves the stable team IDs and destination URL pattern from the archived model, updating current home and practice pool associations from official 2026 sources. Optional per-team meet-time overrides can represent a published exception to the standard meet timing without duplicating the league schedule. Each team's `timeTrialsPool` resolves the official schedule's delegated home-pool location for time trials, including its stated Pointers Run exception at Jeffers Hill Pool.
 - Each team record includes a compact `shortName`, transcribed from the published team name for concise favorite-team headings on narrow screens (for example, `Long Reach Marlins` is displayed as `Marlins`).
 - Public staff pages for Dorsey Search Dolphins and Thunder Hill Lightning were rechecked on 2026-05-27; supported coach, manager, and contact fields still agree with the published pages, including Dorsey Search's page that does not publish a current roster.

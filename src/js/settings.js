@@ -127,14 +127,14 @@
     if (!weatherCheckStatus || typeof WeatherAlertService === 'undefined') return;
 
     const preferences = PreferencesService.get();
-    const latestStatus = WeatherAlertService.readLatestCheckedStatus(WeatherAlertService.getSessionStorage());
+    const latestStatus = WeatherAlertService.readLatestCheckedStatus();
     const currentStatus = WeatherAlertService.getLatestStatus();
     const offMessage = preferences.weatherRefreshMinutes === 0 ? ' Weather safety alerts are currently off.' : '';
     const unavailableMessage = preferences.weatherRefreshMinutes !== 0 && currentStatus && currentStatus.reason === 'weather-service-unavailable'
       ? 'Weather service is temporarily unavailable. '
       : '';
     if (!latestStatus) {
-      weatherCheckStatus.textContent = `${unavailableMessage}No successful weather check has been recorded in this tab yet.${offMessage}`;
+      weatherCheckStatus.textContent = `${unavailableMessage}No successful weather check has been recorded on this device yet.${offMessage}`;
       return;
     }
 

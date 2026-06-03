@@ -104,7 +104,7 @@ describe('TeamAgendaDisplay', () => {
         label: 'Next swim event:',
         name: 'Time Trials for returning / experienced swimmers',
         location: 'Kendall Ridge Pool',
-        time: '8:00 AM - 12:00 PM',
+        time: '7:00 AM - 12:00 PM',
         sessions: [],
         teams: '',
         type: 'meet'
@@ -112,7 +112,7 @@ describe('TeamAgendaDisplay', () => {
 
       assert.match(html, /favorite-week__event-icon--event" aria-hidden="true">[\s\S]*href="#icon-swimmer"/);
       assert.match(html, /<strong class="favorite-week__event-label">[\s\S]*Next swim event:<\/strong>[\s\S]*<strong class="favorite-week__event-name">Time Trials for returning \/ experienced swimmers<\/strong>/);
-      assert.match(html, /class="session-time">8:00 AM - 12:00 PM<\/span>/);
+      assert.match(html, /class="session-time">7:00 AM - 12:00 PM<\/span>/);
     });
 
     it('renders decorative activity glyphs for morning and evening practices', () => {
@@ -154,7 +154,7 @@ describe('TeamAgendaDisplay', () => {
       assert.equal(phelpsLuckEvent.label, 'Next swim event:');
       assert.equal(phelpsLuckEvent.name, 'Time Trials for returning / experienced swimmers');
       assert.equal(phelpsLuckEvent.location, 'Phelps Luck Pool');
-      assert.equal(phelpsLuckEvent.time, '8:00 AM - 12:00 PM');
+      assert.equal(phelpsLuckEvent.time, '7:00 AM - 12:00 PM');
       assert.equal(TeamAgendaDisplay.isTimeTrialsMeet(meet), true);
       assert.equal(TeamAgendaDisplay.getUpcomingEvents(pointersRun, [meet], new Date('2026-05-26'))[0].location, 'Jeffers Hill Pool');
       const untimedSpecial = new Meet({ ...meetData, timeWindowKey: undefined }, activeMeetsData.meetTimes);

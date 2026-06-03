@@ -142,15 +142,23 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
       const daysHtml = days.map(day => {
         const className = day.isCurrentDay ? 'schedule-calendar__day is-today' : 'schedule-calendar__day';
         const todayLabel = day.isCurrentDay ? '<span class="schedule-calendar__today">Today</span>' : '';
+        const hasSwimMeet = PoolScheduleDisplay.hasSwimMeet(day.schedule);
+        const swimMeetClass = hasSwimMeet ? ' has-swim-meet' : '';
+        const swimMeetLabel = hasSwimMeet ? '<span class="schedule-calendar__meet">Meet day</span>' : '';
         const overrideClass = day.schedule && day.schedule.hasOverrides ? ' has-override' : '';
         const content = PoolScheduleDisplay.renderDayContent(day, options, true);
 
-        return `<section class="${className}${overrideClass}" aria-label="${day.day} ${day.monthDay}">`
-          + `<header class="schedule-calendar__header"><strong>${day.day}</strong><span>${day.monthDay}</span>${todayLabel}</header>`
+        return `<section class="${className}${swimMeetClass}${overrideClass}" aria-label="${day.day} ${day.monthDay}">`
+          + `<header class="schedule-calendar__header"><strong>${day.day}</strong><span>${day.monthDay}</span>${swimMeetLabel}${todayLabel}</header>`
           + `${content}</section>`;
       }).join('');
 
       return `<div class="hours-details schedule-calendar" aria-label="Weekly pool calendar">${daysHtml}</div>`;
+    }
+
+    static hasSwimMeet(schedule) {
+      return Boolean(schedule && Array.isArray(schedule.timeSlots)
+        && schedule.timeSlots.some(slot => slot.accessStatus === 'swim-meet'));
     }
 
     /**

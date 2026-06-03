@@ -98,8 +98,8 @@ function createSampleMeetsData() {
 
   return {
     meetTimes: {
-      dualMeets: { start: '08:00', end: '12:00' },
-      timeTrials: { start: '08:00', end: '12:00' }
+      dualMeets: { start: '07:00', end: '12:00' },
+      timeTrials: { start: '07:00', end: '12:00' }
     },
     regular_meets: [
       {

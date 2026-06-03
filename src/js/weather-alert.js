@@ -122,6 +122,7 @@
 
     const cached = WeatherAlertService.readCachedStatusEntry(WeatherAlertService.getSessionStorage(), refreshMinutes);
     if (cached) {
+      WeatherAlertService.rememberLatestCheckedStatus(cached.status);
       renderWeatherAlert(cached.status);
       scheduleRefresh(Math.max(0, cached.expiresAt - Date.now()));
       return;

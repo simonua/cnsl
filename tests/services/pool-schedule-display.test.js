@@ -80,6 +80,19 @@ describe('PoolScheduleDisplay', () => {
       assert.match(html, /schedule-activity--restricted/);
       assert.equal(PoolScheduleDisplay.isSameDate(options.today, new Date(2026, 5, 18)), false);
     });
+
+    it('highlights calendar meet days from semantic access state rather than visible labels', () => {
+      const html = PoolScheduleDisplay.render([{
+        day: 'Wed',
+        timeSlots: [{ startTime: '7:00am', endTime: '12:00pm', activities: ['Practice'], accessStatus: 'swim-meet' }]
+      }, {
+        day: 'Thu',
+        timeSlots: [{ startTime: '7:00am', endTime: '12:00pm', activities: ['Swim Meet'], accessStatus: 'public' }]
+      }], { ...options, layout: 'calendar' });
+
+      assert.match(html, /schedule-calendar__day is-today has-swim-meet[^]*?schedule-calendar__meet">Meet day/);
+      assert.equal((html.match(/schedule-calendar__meet/g) || []).length, 1);
+    });
   });
 
   describe('getActivityCategory', () => {

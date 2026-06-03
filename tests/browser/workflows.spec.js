@@ -663,11 +663,11 @@ test('[WF-TEAMS-002] team directory groups practice and meet disclosures in one 
   await expect(meetSchedule.locator('tbody tr')).toHaveCount(8);
   const timeTrials = meetSchedule.locator('tbody tr').first();
   await expect(timeTrials.locator('td').nth(0)).toContainText('June 6');
-  await expect(timeTrials.locator('.team-meets__time')).toHaveText('8:00 AM - 12:00 PM');
+  await expect(timeTrials.locator('.team-meets__time')).toHaveText('7:00 AM - 12:00 PM');
   await expect(timeTrials.locator('td').nth(1)).toHaveText('Time Trials for returning / experienced swimmers');
   const firstMeet = meetSchedule.locator('tbody tr').nth(1);
   await expect(firstMeet.locator('td').nth(0)).toContainText('June 13');
-  await expect(firstMeet.locator('.team-meets__time')).toHaveText('8:00 AM - 12:00 PM');
+  await expect(firstMeet.locator('.team-meets__time')).toHaveText('7:00 AM - 12:00 PM');
   await expect(firstMeet.locator('td').nth(1)).toHaveText('Dual #1');
   await expect(firstMeet).toHaveClass(/team-meets__row--home/);
   await expect(firstMeet.locator('.team-meets__matchup')).toHaveText("Clary's Forest, Hawthorn, Swansfield vs. Oakland Mills");
@@ -788,11 +788,11 @@ test('[WF-TEAMS-006] team meet schedule shows all columns within its phone-width
   expect(sizing.overflow).toBeLessThanOrEqual(1);
   expect(Math.abs(sizing.tableWidth - sizing.bodyWidth)).toBeLessThanOrEqual(1);
   await expect(meetSchedule.locator('tbody tr').first().locator('td').nth(1)).toHaveText('Time Trials for returning / experienced swimmers');
-  await expect(meetSchedule.locator('tbody tr').first().locator('.team-meets__time')).toHaveText('8:00 AM - 12:00 PM');
+  await expect(meetSchedule.locator('tbody tr').first().locator('.team-meets__time')).toHaveText('7:00 AM - 12:00 PM');
   await expect(meetSchedule.locator('tbody tr').first().locator('td').nth(2)).toBeEmpty();
   await expect(meetSchedule.locator('tbody tr').first().locator('td').nth(3)).toContainText('Swansfield');
   await expect(meetSchedule.locator('tbody tr').nth(1).locator('td').nth(1)).toHaveText('Dual #1');
-  await expect(meetSchedule.locator('tbody tr').nth(1).locator('.team-meets__time')).toHaveText('8:00 AM - 12:00 PM');
+  await expect(meetSchedule.locator('tbody tr').nth(1).locator('.team-meets__time')).toHaveText('7:00 AM - 12:00 PM');
   await expect(meetSchedule).toContainText('All-City Championship Meet Part 1');
   await expect(meetSchedule.locator('.team-meets__course--nonstandard').first()).toHaveText('6-lane / 25-meter');
 });
@@ -889,7 +889,7 @@ test('[WF-AGENDA-001] team directory shows the same next practices and swim even
   await expect(agenda).toContainText('Next morning practice');
   await expect(agenda).toContainText('Next evening practice');
   await expect(agenda).toContainText('Next swim event: Time Trials for returning / experienced swimmers');
-  await expect(agenda).toContainText('8:00 AM - 12:00 PM');
+  await expect(agenda).toContainText('7:00 AM - 12:00 PM');
   await expect(agenda).not.toContainText("Each Team's Home Pool");
   await expect(agenda).not.toContainText('Jeffers Hill Pool');
 });
@@ -945,7 +945,7 @@ test('[WF-AGENDA-002] home page shows the next practices and swim event for a se
   await expect(agenda).toContainText('Next morning practice');
   await expect(agenda).toContainText('Next evening practice');
   await expect(agenda).toContainText('Next swim event: Time Trials for returning / experienced swimmers');
-  await expect(agenda).toContainText('8:00 AM - 12:00 PM');
+  await expect(agenda).toContainText('7:00 AM - 12:00 PM');
   await expect(agenda).toContainText('Phelps Luck');
   await expect(agenda).not.toContainText('Phelps Luck Pool');
   await expect(agenda.getByRole('link', { name: 'Phelps Luck' }).first()).toHaveAttribute('href', 'pools.html?pool=plp');
@@ -1147,7 +1147,7 @@ test('[WF-MEETS-002] favorite team matchups appear first on every meet day they 
 
 test('[WF-MEETS-003] regular meet-day labels advance from upcoming to ongoing and to the next meet after noon', async ({ page }) => {
   await page.setViewportSize(MOBILE_VIEWPORT);
-  await page.clock.install({ time: new Date('2026-06-13T07:59:30-04:00') });
+  await page.clock.install({ time: new Date('2026-06-13T06:59:30-04:00') });
   await page.goto('/meets.html');
   await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
 
@@ -1176,20 +1176,20 @@ test('[WF-MEETS-003] regular meet-day labels advance from upcoming to ongoing an
   await expect(firstDualMeet.locator('.meet-live-badge')).toHaveText('Ongoing');
   await expect(firstDualMeet.locator('.meet-date-header__toggle')).toBeFocused();
 
-  await page.clock.fastForward((4 * 60 * 60 * 1000));
+  await page.clock.fastForward((5 * 60 * 60 * 1000));
   await expect(firstDualMeet.locator('.meet-live-badge')).toHaveCount(0);
   await expect(secondDualMeet.locator('.meet-live-badge')).toHaveText('Upcoming');
   await expect(page.locator('#meetListStatus')).toHaveText('Meet status updated for the current date and time.');
 });
 
 test('[WF-MEETS-004] Time Trials advances from upcoming to ongoing using its published hours', async ({ page }) => {
-  await page.clock.install({ time: new Date('2026-06-06T07:59:30-04:00') });
+  await page.clock.install({ time: new Date('2026-06-06T06:59:30-04:00') });
   await page.goto('/meets.html');
   await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
 
   const timeTrials = page.locator('.meet-date-card[data-meet-date="2026-06-06"]');
   await expect(timeTrials.locator('.meet-live-badge')).toHaveText('Upcoming');
-  await expect(timeTrials.locator('.meet-time')).toHaveText('8:00 AM - 12:00 PM');
+  await expect(timeTrials.locator('.meet-time')).toHaveText('7:00 AM - 12:00 PM');
   await expect(page.locator('.meet-date-card[data-meet-date="2026-06-13"] .meet-live-badge')).toHaveCount(0);
 
   await page.clock.fastForward(31 * 1000);
@@ -1351,6 +1351,20 @@ test('[WF-POOLS-007] mobile calendar schedules reveal today when a pool is expan
   })).toBe(true);
 });
 
+test('[WF-POOLS-014] weekly calendars highlight modeled swim meets and Time Trials as meet days', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-06-02T12:00:00-04:00'));
+  await seedPreferences(page, { favoritePoolName: 'Clemens Crossing', poolScheduleLayout: 'calendar' });
+  await page.goto('/pools.html');
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+
+  const calendar = page.locator('.favorite-card .schedule-calendar');
+  const timeTrials = calendar.locator('.schedule-calendar__day').filter({ hasText: 'June 6' });
+  await expect(timeTrials).toHaveClass(/has-swim-meet/);
+  await expect(timeTrials.locator('.schedule-calendar__meet')).toHaveText('Meet day');
+  await expect(timeTrials.locator('.schedule-activity--event')).toContainText('Swim Meet');
+  await expect(calendar.locator('.schedule-calendar__day').filter({ hasText: 'June 5' })).not.toHaveClass(/has-swim-meet/);
+});
+
 test('[WF-POOLS-008] desktop site header remains visible while the pool directory scrolls', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto('/pools.html');
@@ -1488,6 +1502,7 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
   await page.evaluate(async () => {
     localStorage.setItem('cnsl_current_version', 'saved');
     localStorage.setItem('cnsl_settings_notice_dismissed', 'true');
+    localStorage.setItem('cnsl_weather_alert_last_successful_check', 'saved');
     localStorage.setItem('unrelated_local_key', 'saved');
     sessionStorage.setItem('cnsl_weather_alert_status', 'saved');
     sessionStorage.setItem('cnsl_weather_alert_expanded', 'false');
@@ -1508,6 +1523,7 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
     preferences: localStorage.getItem('cnsl_preferences'),
     currentVersion: localStorage.getItem('cnsl_current_version'),
     settingsNotice: localStorage.getItem('cnsl_settings_notice_dismissed'),
+    weatherLastSuccessfulCheck: localStorage.getItem('cnsl_weather_alert_last_successful_check'),
     unrelatedLocal: localStorage.getItem('unrelated_local_key'),
     weatherStatus: sessionStorage.getItem('cnsl_weather_alert_status'),
     weatherDisclosure: sessionStorage.getItem('cnsl_weather_alert_expanded'),
@@ -1517,6 +1533,7 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
     preferences: null,
     currentVersion: null,
     settingsNotice: null,
+    weatherLastSuccessfulCheck: null,
     unrelatedLocal: 'saved',
     weatherStatus: null,
     weatherDisclosure: null,
@@ -1564,11 +1581,7 @@ test('[WF-SETTINGS-004] system theme follows OS color scheme changes while expli
 test('[WF-SETTINGS-005] weather safety alerts show the most recent check after updates are turned off', async ({ page }) => {
   await seedPreferences(page, { weatherRefreshMinutes: 0 });
   await page.addInitScript(() => {
-    sessionStorage.setItem('cnsl_weather_alert_status', JSON.stringify({
-      expiresAt: 1,
-      refreshMinutes: 5,
-      status: { isInclement: false, updatedAt: '2026-06-02T14:15:00-04:00' }
-    }));
+    localStorage.setItem('cnsl_weather_alert_last_successful_check', JSON.stringify({ updatedAt: '2026-06-02T14:15:00-04:00' }));
   });
   await page.goto('/settings.html');
 
@@ -1581,11 +1594,7 @@ test('[WF-SETTINGS-005] weather safety alerts show the most recent check after u
 
 test('[WF-SETTINGS-006] weather safety alerts retain the last successful check when the weather service is unavailable', async ({ page }) => {
   await page.addInitScript(() => {
-    sessionStorage.setItem('cnsl_weather_alert_status', JSON.stringify({
-      expiresAt: 1,
-      refreshMinutes: 5,
-      status: { isInclement: false, updatedAt: '2026-06-02T14:15:00-04:00' }
-    }));
+    localStorage.setItem('cnsl_weather_alert_last_successful_check', JSON.stringify({ updatedAt: '2026-06-02T14:15:00-04:00' }));
   });
   await page.goto('/settings.html');
   await page.evaluate(async () => {

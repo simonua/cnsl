@@ -10,6 +10,7 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
     static BASE_URL = globalThis.WEATHER_API_BASE_URL;
     static COLUMBIA_MD_POINT = globalThis.WEATHER_LOCATION_POINT;
     static CACHE_KEY = globalThis.WEATHER_ALERT_STATUS_STORAGE_KEY;
+    static LAST_SUCCESSFUL_CHECK_KEY = globalThis.WEATHER_ALERT_LAST_SUCCESSFUL_CHECK_STORAGE_KEY;
     static DEFAULT_REFRESH_MINUTES = globalThis.WEATHER_ALERT_DEFAULT_REFRESH_MINUTES;
     static FORECAST_WINDOW_HOURS = globalThis.WEATHER_ALERT_FORECAST_WINDOW_HOURS;
     static POOL_OPENING_LEAD_MINUTES = globalThis.WEATHER_ALERT_OPENING_LEAD_MINUTES;
@@ -78,6 +79,9 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
       const storage = Object.prototype.hasOwnProperty.call(options, 'storage')
         ? options.storage
         : WeatherAlertService.getSessionStorage();
+      const latestCheckedStorage = Object.prototype.hasOwnProperty.call(options, 'latestCheckedStorage')
+        ? options.latestCheckedStorage
+        : WeatherAlertService.getLocalStorage();
       const now = options.now || new Date();
       const refreshMinutes = WeatherAlertService.normalizeRefreshMinutes(options.refreshMinutes);
       if (refreshMinutes === 0) {
@@ -92,7 +96,10 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
       }
 
       const cachedStatus = WeatherAlertService.readCachedStatus(storage, refreshMinutes, now);
-      if (cachedStatus) return cachedStatus;
+      if (cachedStatus) {
+        WeatherAlertService.rememberLatestCheckedStatus(cachedStatus, latestCheckedStorage);
+        return cachedStatus;
+      }
 
       const alertUrl = globalThis.WEATHER_ACTIVE_ALERTS_URL;
       const pointUrl = globalThis.WEATHER_POINT_URL;
@@ -103,7 +110,7 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
       const activeAlertStatus = WeatherAlertService.evaluateStatus(alertData && alertData.features, [], now);
       if (activeAlertStatus.isInclement) {
         const currentStatus = WeatherAlertService.withUpdatedAt(activeAlertStatus, now);
-        WeatherAlertService.cacheStatus(storage, currentStatus, refreshMinutes, now);
+        WeatherAlertService.cacheStatus(storage, currentStatus, refreshMinutes, now, latestCheckedStorage);
         return currentStatus;
       }
 
@@ -121,7 +128,7 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
       }
 
       const status = WeatherAlertService.withUpdatedAt(WeatherAlertService.evaluateStatus([], forecastPeriods, now), now);
-      WeatherAlertService.cacheStatus(storage, status, refreshMinutes, now);
+      WeatherAlertService.cacheStatus(storage, status, refreshMinutes, now, latestCheckedStorage);
       return status;
     }
 
@@ -251,20 +258,42 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
       }
     }
 
+    static getLocalStorage() {
+      try {
+        return typeof localStorage === 'undefined' ? null : localStorage;
+      } catch (_error) {
+        return null;
+      }
+    }
+
     static readCachedStatus(storage, refreshMinutes, now = new Date()) {
       const cached = WeatherAlertService.readCachedStatusEntry(storage, refreshMinutes, now);
       return cached ? cached.status : null;
     }
 
-    static readLatestCheckedStatus(storage) {
+    static readLatestCheckedStatus(storage = WeatherAlertService.getLocalStorage()) {
       if (!storage) return null;
       try {
-        const cached = JSON.parse(storage.getItem(WeatherAlertService.CACHE_KEY));
-        const status = cached && cached.status;
+        const status = JSON.parse(storage.getItem(WeatherAlertService.LAST_SUCCESSFUL_CHECK_KEY));
         const updatedAt = status && typeof status.updatedAt === 'string' ? new Date(status.updatedAt) : null;
-        return status && typeof status.isInclement === 'boolean' && updatedAt && !Number.isNaN(updatedAt.getTime()) ? status : null;
+        return updatedAt && !Number.isNaN(updatedAt.getTime()) ? { updatedAt: status.updatedAt } : null;
       } catch (_error) {
         return null;
+      }
+    }
+
+    static rememberLatestCheckedStatus(status, storage = WeatherAlertService.getLocalStorage()) {
+      if (!storage || !status || typeof status.isInclement !== 'boolean' || typeof status.updatedAt !== 'string') return;
+      const updatedAt = new Date(status.updatedAt);
+      if (Number.isNaN(updatedAt.getTime())) return;
+
+      const latestStatus = WeatherAlertService.readLatestCheckedStatus(storage);
+      if (latestStatus && new Date(latestStatus.updatedAt) >= updatedAt) return;
+
+      try {
+        storage.setItem(WeatherAlertService.LAST_SUCCESSFUL_CHECK_KEY, JSON.stringify({ updatedAt: status.updatedAt }));
+      } catch (_error) {
+        return;
       }
     }
 
@@ -278,7 +307,8 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
       }
     }
 
-    static cacheStatus(storage, status, refreshMinutes, now = new Date()) {
+    static cacheStatus(storage, status, refreshMinutes, now = new Date(), latestCheckedStorage = WeatherAlertService.getLocalStorage()) {
+      WeatherAlertService.rememberLatestCheckedStatus(status, latestCheckedStorage);
       if (!storage) return;
       try {
         storage.setItem(WeatherAlertService.CACHE_KEY, JSON.stringify({
