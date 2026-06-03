@@ -2173,6 +2173,7 @@ button.pool-filter__clear:focus-visible {
 /* Address Link Styling */
 .address-link {
   color: var(--primary-color);
+  cursor: pointer;
   text-decoration: none;
   display: inline-block;
   margin-inline-start: 0.5rem;
@@ -2184,9 +2185,8 @@ button.pool-filter__clear:focus-visible {
 
 .address-link:hover,
 .address-link:focus {
-  color: var(--primary-dark);
-  background-color: var(--primary-soft-bg-strong);
-  text-decoration: underline;
+  color: var(--primary-color);
+  text-decoration: none;
 }
 
 /* CA Pool Website Link Styling */
@@ -2225,6 +2225,7 @@ button.pool-filter__clear:focus-visible {
 /* Phone Link Styling */
 .phone-link {
   color: var(--primary-color);
+  cursor: pointer;
   text-decoration: none;
   display: inline-block;
   margin-top: 0;
@@ -2238,10 +2239,8 @@ button.pool-filter__clear:focus-visible {
 
 .phone-link:hover,
 .phone-link:focus {
-  color: var(--primary-dark);
-  background-color: var(--primary-soft-bg-strong);
-  text-decoration: underline;
-  transform: translateY(-1px);
+  color: var(--primary-color);
+  text-decoration: none;
 }
 
 @media (min-width: 48.0625rem) {
