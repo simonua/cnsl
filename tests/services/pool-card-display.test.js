@@ -55,7 +55,7 @@ describe('PoolCardDisplay', () => {
     assert.match(html, /feature-pill--water-play/);
     assert.match(html, /Slide &lt;fun&gt;/);
     assert.match(html, /<div class="pool-hours">Hours<\/div>/);
-    assert.doesNotMatch(html, /<script>/);
+    assert.doesNotMatch(html, /<script\b/i);
   });
 
   it('renders supported flat address records and rejects unsafe destinations', () => {
