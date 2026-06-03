@@ -184,6 +184,15 @@ describe('PoolScheduleDisplay', () => {
       assert.doesNotMatch(plain, /schedule-activity--event/);
     });
 
+    it('keeps public follow-on slots ordinary within a swim meet override', () => {
+      const day = { isCurrentDay: false };
+      const meetSlot = { startTime: '7:00AM', endTime: '12:00PM', activities: ['Swim Meet'], accessStatus: 'swim-meet', notes: '', isOverride: true };
+      const publicSlot = { startTime: '12:00PM', endTime: '7:00PM', activities: ['Laps', 'Rec Swim'], accessStatus: 'public', notes: '', isOverride: true };
+
+      assert.match(PoolScheduleDisplay.renderSlot(meetSlot, day, options, false), /class="time-slot override-slot"/);
+      assert.doesNotMatch(PoolScheduleDisplay.renderSlot(publicSlot, day, options, false), /override-slot/);
+    });
+
     it('renders resolved practice teams only for semantic practice slots', () => {
       const day = { isCurrentDay: false };
       const slot = { startTime: '5:00PM', endTime: '6:30PM', activities: ['Published Team Session'], accessStatus: 'practice-only', notes: '' };

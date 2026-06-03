@@ -196,7 +196,7 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
       const practiceTeamText = PoolScheduleDisplay.formatPracticeTeamText(slot.accessStatus, slot.practiceTeamNames);
       const category = PoolScheduleDisplay.getActivityCategory(slot);
       const activityClass = useActivityColors ? ` schedule-activity schedule-activity--${category}` : '';
-      const overrideClass = slot.isOverride ? ' override-slot' : '';
+      const overrideClass = slot.isOverride && slot.accessStatus !== 'public' ? ' override-slot' : '';
       const timeRange = `${slot.startTime}-${slot.endTime}`;
       const timeHtml = PoolScheduleDisplay.formatTimeRange(timeRange, {
         timeUtils,
