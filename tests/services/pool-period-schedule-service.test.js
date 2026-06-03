@@ -80,6 +80,16 @@ describe('PoolPeriodScheduleService', () => {
       assert.equal(service.getWeekScheduleForDate(new Date(2026, 5, 8))[0].isOpen, false);
     });
 
+    it('formats schedule lookup dates from local calendar fields', () => {
+      const localEveningDate = {
+        getFullYear: () => 2026,
+        getMonth: () => 5,
+        getDate: () => 6,
+        toISOString: () => '2026-06-07T00:30:00.000Z'
+      };
+      assert.equal(PoolPeriodScheduleService.getLocalDateString(localEveningDate), '2026-06-06');
+    });
+
     it('handles null overrides and unavailable time utilities safely', () => {
       const service = createService({ scheduleOverrides: null });
       service.scheduleOverrides = null;

@@ -21,7 +21,7 @@ const directoryScenarios = [
     status: '#poolListStatus',
     announcement: /Pool directory loaded\. 23 pools available\./,
     readyText: /Pool directory loaded\./,
-    domains: ['pools', 'teams'],
+    domains: ['meets', 'pools', 'teams'],
     surface: '.pool-card.collapsed',
     toggle: '.pool-header__toggle'
   },
@@ -1351,9 +1351,9 @@ test('[WF-POOLS-007] mobile calendar schedules reveal today when a pool is expan
   })).toBe(true);
 });
 
-test('[WF-POOLS-014] weekly calendars highlight modeled swim meets and Time Trials as meet days', async ({ page }) => {
+test('[WF-POOLS-016] weekly calendars highlight modeled swim meets and Time Trials as meet days', async ({ page }) => {
   await page.clock.setFixedTime(new Date('2026-06-02T12:00:00-04:00'));
-  await seedPreferences(page, { favoritePoolName: 'Clemens Crossing', poolScheduleLayout: 'calendar' });
+  await seedPreferences(page, { favoritePoolName: 'Kendall Ridge', poolScheduleLayout: 'calendar' });
   await page.goto('/pools.html');
   await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
 
@@ -1363,6 +1363,13 @@ test('[WF-POOLS-014] weekly calendars highlight modeled swim meets and Time Tria
   await expect(timeTrials.locator('.schedule-calendar__meet')).toHaveText('Meet day');
   await expect(timeTrials.locator('.schedule-activity--event')).toContainText('Swim Meet');
   await expect(calendar.locator('.schedule-calendar__day').filter({ hasText: 'June 5' })).not.toHaveClass(/has-swim-meet/);
+
+  await page.locator('.favorite-card .next-week').click();
+  await page.locator('.favorite-card .next-week').click();
+  const hostedDualMeet = calendar.locator('.schedule-calendar__day').filter({ hasText: 'June 20' });
+  await expect(hostedDualMeet).toHaveClass(/has-swim-meet/);
+  await expect(hostedDualMeet.locator('.schedule-calendar__meet')).toHaveText('Meet day');
+  await expect(hostedDualMeet.locator('.schedule-activity--event')).toContainText('Swim Meet');
 });
 
 test('[WF-POOLS-008] desktop site header remains visible while the pool directory scrolls', async ({ page }) => {

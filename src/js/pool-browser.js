@@ -86,6 +86,16 @@ async function initializePoolBrowser() {
     } catch (error) {
       console.warn('[Pool Browser] Team practice labels are unavailable:', error);
     }
+    try {
+      await poolBrowserDataManager.initialize(['meets']);
+      PoolMeetScheduleService.applyMeetOverrides(
+        poolBrowserDataManager.getPools().getAllPools(),
+        poolBrowserDataManager.getTeams().getAllTeams(),
+        poolBrowserDataManager.getMeets().getAllMeets()
+      );
+    } catch (error) {
+      console.warn('[Pool Browser] Swim meet calendar highlights are unavailable:', error);
+    }
   }
 }
 

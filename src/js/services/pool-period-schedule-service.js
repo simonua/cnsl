@@ -15,6 +15,13 @@ if (typeof window === 'undefined' || !window.PoolPeriodScheduleService) {
       Sun: 'Sunday'
     });
 
+    static getLocalDateString(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
     constructor(options = {}) {
       this.schedulePeriods = Array.isArray(options.schedulePeriods) ? options.schedulePeriods : [];
       this.scheduleOverrides = Array.isArray(options.scheduleOverrides) ? options.scheduleOverrides : [];
@@ -107,7 +114,7 @@ if (typeof window === 'undefined' || !window.PoolPeriodScheduleService) {
       return Object.keys(PoolPeriodScheduleService.DAY_NAMES).map((shortDay, index) => {
         const targetDate = new Date(weekStartDate);
         targetDate.setDate(weekStartDate.getDate() + index);
-        const dateString = targetDate.toISOString().split('T')[0];
+        const dateString = PoolPeriodScheduleService.getLocalDateString(targetDate);
         const activeSchedule = this.schedulePeriods.find(schedule => dateString >= schedule.startDate && dateString <= schedule.endDate);
         const override = this.getOverrideForDate(dateString, shortDay);
         const timeSlots = override
