@@ -1537,7 +1537,6 @@ nav a:focus {
   background: linear-gradient(135deg, var(--accent-bg), var(--accent-dark));
   border-radius: var(--border-radius);
   padding: 1rem;
-  display: block;
   text-align: center;
   transition: var(--transition);
   transition-property: background, box-shadow;
@@ -1592,7 +1591,7 @@ nav a:focus {
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   padding: 0.75rem;
-  padding-left:1rem;
+  padding-left: 1rem;
   margin-bottom: 0.75rem;
   box-shadow: var(--shadow);
   transition: var(--transition);
@@ -1637,7 +1636,7 @@ nav a:focus {
 
 .detail-item {
   padding: 0.75rem 0;
-  border-bottom: 0px solid #f0f0f0;
+  border-bottom: 0;
 }
 
 .detail-item:last-child {
@@ -2359,7 +2358,7 @@ button.pool-filter__clear:focus-visible {
   margin: 2rem 0;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 48rem) {
   .quick-links-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.5rem;
@@ -2385,7 +2384,7 @@ button.pool-filter__clear:focus-visible {
   }
 }
 
-@media (min-width: 769px) {
+@media (min-width: 48.0625rem) {
   .quick-links-grid {
     grid-template-columns: repeat(3, 1fr);
     max-width: 600px;
@@ -2614,7 +2613,7 @@ button.pool-filter__clear:focus-visible {
 }
 
 /* Mobile responsive adjustments for pool navigation */
-@media (max-width: 768px) {
+@media (max-width: 48rem) {
   .week-controls-row {
     flex-direction: column;
     gap: 0.75rem;
@@ -2648,7 +2647,7 @@ button.pool-filter__clear:focus-visible {
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 30rem) {
   .pool-week-navigation {
     padding: 0.5rem;
     margin: 0.5rem 0 0.75rem 0;
@@ -2769,7 +2768,7 @@ button.pool-filter__clear:focus-visible {
 }
 
 /* FAQ Mobile Responsive */
-@media (max-width: 768px) {
+@media (max-width: 48rem) {
   .faq-list {
     padding: 0.5rem;
   }
@@ -2795,7 +2794,7 @@ button.pool-filter__clear:focus-visible {
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 30rem) {
   .faq-list {
     padding: 0.25rem;
   }
@@ -3253,7 +3252,7 @@ button.pool-filter__clear:focus-visible {
 }
 
 /* Mobile responsive tooltip adjustments */
-@media (max-width: 768px) {
+@media (max-width: 48rem) {
   .status-tooltip .tooltip-text {
     width: 140px;
     margin-left: -70px;
@@ -3278,28 +3277,27 @@ button.pool-filter__clear:focus-visible {
 }
 
 /* Time slot highlighting based on pool status */
-.highlighted-time-slot-green {
-  background-color: var(--success-color) !important;
-  color: var(--success-highlight-text-color) !important;
+.highlighted-time-slot-green,
+.highlighted-time-slot-yellow,
+.highlighted-time-slot-red {
   padding: 0.2rem 0.4rem !important;
   border-radius: 0.3rem !important;
   font-weight: bold !important;
+}
+
+.highlighted-time-slot-green {
+  background-color: var(--success-color) !important;
+  color: var(--success-highlight-text-color) !important;
 }
 
 .highlighted-time-slot-yellow {
   background-color: var(--warning-color) !important;
   color: var(--warning-highlight-text-color) !important;
-  padding: 0.2rem 0.4rem !important;
-  border-radius: 0.3rem !important;
-  font-weight: bold !important;
 }
 
 .highlighted-time-slot-red {
   background-color: var(--error-color) !important;
   color: var(--error-highlight-text-color) !important;
-  padding: 0.2rem 0.4rem !important;
-  border-radius: 0.3rem !important;
-  font-weight: bold !important;
 }
 
 .pool-details {
@@ -3584,7 +3582,7 @@ button.pool-filter__clear:focus-visible {
 }
 
 /* Indent meet information on desktop */
-@media (min-width: 769px) {
+@media (min-width: 48.0625rem) {
   .meet-location-time {
     margin-left: 2rem;
     margin-top: 0.5rem;
@@ -4273,7 +4271,7 @@ button.pool-filter__clear:focus-visible {
 .team-actions {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 0px solid var(--border-color);
+  border-top: 0;
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
@@ -4345,7 +4343,7 @@ button.pool-filter__clear:focus-visible {
 }
 
 /* Welcome Section Mobile Responsive */
-@media (max-width: 768px) {
+@media (max-width: 48rem) {
   .welcome-section {
     padding: 1.5rem 0.5rem 0.5rem;
     margin-bottom: 0.5rem;
@@ -4362,7 +4360,7 @@ button.pool-filter__clear:focus-visible {
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 30rem) {
   .welcome-section {
     padding: 1rem 0.25rem 0.375rem;
   }
@@ -4440,7 +4438,7 @@ button.pool-filter__clear:focus-visible {
 }
 
 /* CNSL Link Mobile Responsive */
-@media (max-width: 768px) {
+@media (max-width: 48rem) {
   .cnsl-link-card {
     padding: 1.25rem;
   }
@@ -4461,7 +4459,7 @@ button.pool-filter__clear:focus-visible {
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 30rem) {
   .cnsl-link-section {
     margin-bottom: 1.5rem;
   }
@@ -4625,7 +4623,7 @@ button.pool-filter__clear:focus-visible {
 }
 
 /* Mobile responsiveness for swim meet resources */
-@media (max-width: 768px) {
+@media (max-width: 48rem) {
   .resources-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
@@ -4974,7 +4972,7 @@ button.settings-dialog__close:focus {
   font-weight: 700;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 30rem) {
   .settings-dialog {
     margin: auto 0 auto auto;
     max-height: calc(100dvh - 1rem);
