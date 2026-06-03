@@ -57,7 +57,7 @@ describe('PoolHoursDisplay', () => {
     assert.match(html, /Opens in 15 min/);
     assert.match(html, /min="2026-06-01" max="2026-06-30"/);
     assert.match(html, /pool-schedule-list/);
-    assert.doesNotMatch(html, /<script>/);
+    assert.doesNotMatch(html, /<script>/i);
   });
 
   it('renders the retained schedule and availability fallback states', () => {
