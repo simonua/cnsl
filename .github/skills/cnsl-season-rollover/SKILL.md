@@ -61,7 +61,8 @@ assets/data/<YEAR>/pools/pool-schedules/<filename>
    - For activation, confirm `pools.json`, `meets.json`, and `teams.json` exist for the new year if their screens remain enabled; then update `YEAR` in `src/js/config/app-config.js`.
 9. Review `src/js/services/file-helper.js`, `src/js/services/data-manager.js`, `service-worker.js`, and `nodemon.json`. Their generic year/domain paths should normally make annual activation a one-line `YEAR` change; edit only if a new asset class is introduced.
 10. Update the coverage table in `docs/annual-season-assets.md` with what is complete, source-only, missing, active, or archived.
-11. Run verification and report incomplete domains clearly.
+11. After accepted active-season PDF acquisition, accepted PDF replacement, or annual activation, run `node scripts/season-data-agent.js --initialize`. Commit the refreshed `.github/automation/season-data-monitor/source-state.json` when publishing so each retained PDF has a reviewed SHA-256 digest, its available `ETag` and `Last-Modified` HTTP validators, and `Content-Length` response metadata. Normal monitor runs use the validators for conditional requests and fall back to full downloads when validators are unavailable.
+12. Run verification and report incomplete domains clearly.
 
 ## Verification
 
@@ -91,6 +92,7 @@ State:
 
 - Target year and domains updated.
 - Official PDFs added or retained as source material.
+- Whether the reviewed seasonal-source baseline was refreshed with retained-PDF validators and digests.
 - JSON/schema files completed and validated.
 - Whether `YEAR` changed and why.
 - Commands run and any intentionally incomplete domain awaiting source data.

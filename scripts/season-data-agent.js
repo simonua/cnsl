@@ -195,21 +195,44 @@ async function readState(statePath) {
   }
 }
 
-async function request(url, fetchImplementation) {
+function getResponseHeader(response, name) {
+  return response.headers && typeof response.headers.get === 'function'
+    ? response.headers.get(name)
+    : null;
+}
+
+async function request(url, fetchImplementation, { allowNotModified = false, headers = {} } = {}) {
   const response = await fetchImplementation(url, {
     headers: {
       Accept: '*/*',
-      'User-Agent': USER_AGENT
+      'User-Agent': USER_AGENT,
+      ...headers
     },
     redirect: 'follow',
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
   });
 
+  if (allowNotModified && response.status === 304) {
+    return {
+      content: null,
+      contentLength: getResponseHeader(response, 'content-length'),
+      etag: getResponseHeader(response, 'etag'),
+      lastModified: getResponseHeader(response, 'last-modified'),
+      notModified: true
+    };
+  }
+
   if (!response.ok) {
     throw new Error(`Official source returned HTTP ${response.status}: ${url}`);
   }
 
-  return Buffer.from(await response.arrayBuffer());
+  return {
+    content: Buffer.from(await response.arrayBuffer()),
+    contentLength: getResponseHeader(response, 'content-length'),
+    etag: getResponseHeader(response, 'etag'),
+    lastModified: getResponseHeader(response, 'last-modified'),
+    notModified: false
+  };
 }
 
 async function mapWithLimit(items, limit, callback) {
@@ -236,11 +259,21 @@ function safeDataPath(dataRoot, localPath) {
   return path.join(dataRoot, ...normalized.split('/'));
 }
 
-function createState(season, observations, acceptedOn) {
+function createState(season, pageObservations, documentObservations, acceptedOn) {
   return {
     season,
     acceptedOn,
-    pages: observations.map(({ domains, fingerprint, label, sha256: checksum, sourceIds, url }) => ({
+    documents: documentObservations.map(({ contentLength, domain, etag, label, lastModified, localPath, remoteSha256, url }) => ({
+      domain,
+      label,
+      localPath,
+      url,
+      etag,
+      lastModified,
+      contentLength,
+      sha256: remoteSha256
+    })),
+    pages: pageObservations.map(({ domains, fingerprint, label, sha256: checksum, sourceIds, url }) => ({
       domains,
       fingerprint,
       label,
@@ -310,6 +343,11 @@ function findPreviousPage(observation, statePages) {
     || statePages.find((page) => page.label === observation.label);
 }
 
+function findPreviousDocument(observation, stateDocuments) {
+  return stateDocuments.find((document) => document.url === observation.url)
+    || stateDocuments.find((document) => document.localPath === observation.localPath);
+}
+
 function isRetiredTeamNavigationPage(page) {
   return page.domains.includes('teams') && /\b(?:home|calendar) page$/.test(page.label);
 }
@@ -353,19 +391,27 @@ async function monitorSources({
 
   const sources = collectSources({ annualReadme, meetsData, poolsData, teamsData });
   async function observePage(source) {
-    const content = await request(source.url, fetchImplementation);
+    const { content } = await request(source.url, fetchImplementation);
     return { ...source, sha256: sha256(normalizePageContent(content.toString('utf8'), source.fingerprint)) };
   }
 
   const pageObservations = await mapWithLimit(sources.pages, FETCH_CONCURRENCY, observePage);
   const documentObservations = await mapWithLimit(sources.documents, FETCH_CONCURRENCY, async (source) => {
     const localFile = safeDataPath(dataRoot, source.localPath);
-    let remoteContent;
+    const previousDocument = initialize ? null : findPreviousDocument(source, state.documents || []);
+    const headers = {};
+    if (previousDocument && previousDocument.etag) {
+      headers['If-None-Match'] = previousDocument.etag;
+    } else if (previousDocument && previousDocument.lastModified) {
+      headers['If-Modified-Since'] = previousDocument.lastModified;
+    }
+
+    let response;
     try {
-      remoteContent = await request(source.url, fetchImplementation);
+      response = await request(source.url, fetchImplementation, { allowNotModified: true, headers });
     } catch {
       try {
-        remoteContent = await request(source.url, fetchImplementation);
+        response = await request(source.url, fetchImplementation, { allowNotModified: true, headers });
       } catch (confirmedError) {
         return {
           ...source,
@@ -376,6 +422,19 @@ async function monitorSources({
         };
       }
     }
+    if (response.notModified) {
+      return {
+        ...source,
+        changed: false,
+        contentLength: response.contentLength || previousDocument.contentLength || null,
+        etag: response.etag || previousDocument.etag || null,
+        lastModified: response.lastModified || previousDocument.lastModified || null,
+        localFile,
+        remoteSha256: previousDocument.sha256
+      };
+    }
+
+    const remoteContent = response.content;
     if (remoteContent.subarray(0, 5).toString('ascii') !== '%PDF-') {
       throw new Error(`Official PDF source returned non-PDF content: ${source.url}`);
     }
@@ -389,11 +448,17 @@ async function monitorSources({
       }
       existingContent = null;
     }
+    const remoteSha256 = sha256(remoteContent);
     return {
       ...source,
-      changed: !existingContent || sha256(existingContent) !== sha256(remoteContent),
+      changed: previousDocument && previousDocument.sha256
+        ? previousDocument.sha256 !== remoteSha256
+        : !existingContent || sha256(existingContent) !== remoteSha256,
+      contentLength: response.contentLength,
+      etag: response.etag,
+      lastModified: response.lastModified,
       localFile,
-      remoteSha256: sha256(remoteContent),
+      remoteSha256,
       remoteContent
     };
   });
@@ -416,7 +481,7 @@ async function monitorSources({
     if (unstablePages.length > 0) {
       throw new Error(`Public page fingerprints were not stable across two requests: ${unstablePages.map((page) => page.url).join(', ')}`);
     }
-    await writeJson(statePath, createState(season, pageObservations, today));
+    await writeJson(statePath, createState(season, pageObservations, documentObservations, today));
     return { changed: false, initialized: true, pages: pageObservations.length, season, today };
   }
 

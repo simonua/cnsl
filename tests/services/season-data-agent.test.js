@@ -326,6 +326,77 @@ describe('season data agent', () => {
         assert.strictEqual(changedDocumentResult.changed, true);
         assert.deepStrictEqual(changedDocumentResult.changes.map((change) => change.kind), ['Official document content changed']);
         assert.deepStrictEqual(await fs.readFile(path.join(dataRoot, 'teams', 'team-schedules', 'practice.pdf')), changedPdfContent);
+
+        const acceptedEtag = '"accepted-etag"';
+        const acceptedLastModified = 'Mon, 01 Jun 2026 12:00:00 GMT';
+        const acceptedContentLength = '12345';
+        const responseHeaders = {
+          get: (name) => name === 'etag'
+            ? acceptedEtag
+            : (name === 'last-modified' ? acceptedLastModified : (name === 'content-length' ? acceptedContentLength : null))
+        };
+        const acceptedFetchImplementation = async (url) => {
+          const content = url === 'https://league.test/practice.pdf'
+            ? changedPdfContent
+            : (url.endsWith('.pdf') ? pdfContent : Buffer.from(baselineContent));
+          return { ok: true, status: 200, headers: responseHeaders, arrayBuffer: async () => content };
+        };
+
+        const initializedResult = await monitorSources({
+          initialize: true,
+          fetchImplementation: acceptedFetchImplementation,
+          repositoryRoot: root,
+          today: '2026-06-01'
+        });
+        const initializedState = JSON.parse(await fs.readFile(
+          path.join(root, '.github', 'automation', 'season-data-monitor', 'source-state.json'),
+          'utf8'
+        ));
+
+        assert.strictEqual(initializedResult.initialized, true);
+        assert.strictEqual(initializedState.documents.length, 3);
+        assert.ok(initializedState.documents.every((document) => document.etag === acceptedEtag));
+        assert.ok(initializedState.documents.every((document) => document.lastModified === acceptedLastModified));
+        assert.ok(initializedState.documents.every((document) => document.contentLength === acceptedContentLength));
+        assert.strictEqual(
+          initializedState.documents.find((document) => document.url === 'https://league.test/practice.pdf').sha256,
+          sha256(changedPdfContent)
+        );
+
+        const poolDocument = initializedState.documents.find((document) => document.url === 'https://pools.test/pool.pdf');
+        poolDocument.etag = null;
+        await fs.writeFile(
+          path.join(root, '.github', 'automation', 'season-data-monitor', 'source-state.json'),
+          JSON.stringify(initializedState)
+        );
+
+        let conditionalDocumentRequests = 0;
+        const conditionalFetchImplementation = async (url, options) => {
+          if (url.endsWith('.pdf')) {
+            conditionalDocumentRequests += 1;
+            if (url === 'https://pools.test/pool.pdf') {
+              assert.strictEqual(options.headers['If-Modified-Since'], acceptedLastModified);
+              assert.strictEqual(options.headers['If-None-Match'], undefined);
+            } else {
+              assert.strictEqual(options.headers['If-None-Match'], acceptedEtag);
+            }
+            return {
+              ok: false,
+              status: 304,
+              headers: responseHeaders,
+              arrayBuffer: async () => assert.fail('A 304 response body should not be read.')
+            };
+          }
+          return { ok: true, status: 200, arrayBuffer: async () => Buffer.from(baselineContent) };
+        };
+        const conditionalResult = await monitorSources({
+          fetchImplementation: conditionalFetchImplementation,
+          repositoryRoot: root,
+          today: '2026-06-01'
+        });
+
+        assert.strictEqual(conditionalResult.changed, false);
+        assert.strictEqual(conditionalDocumentRequests, 3);
       } finally {
         await fs.rm(root, { force: true, recursive: true });
       }

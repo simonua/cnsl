@@ -8,7 +8,7 @@ The retired seasonal monitor checked public sources that support the active `YEA
 - Meets: the retained official meet-schedule PDF and the CNSL publication page.
 - Teams: retained practice and assignment PDFs, each public staff and recorded practice-schedule page, and the CNSL publication page. Team home pages and event calendars are destinations offered by the app, not transcribed team-data evidence, and are not fingerprinted unless a recorded practice source is hosted on the home page.
 
-Stored PDFs are compared byte-for-byte against the public document. A changed PDF or a repeatedly unavailable monitored PDF link becomes a candidate for modeled-data review. Web pages are tracked by stable data roles, such as a team's staff page or practice-schedule page, and reduced to relevant content fingerprints in `source-state.json`; publication and schedule-index fingerprints include official PDF destinations so relocated source links can be reviewed. Individual Columbia Association pool pages remain limited to the facility evidence section, and the schedule index remains limited to its outdoor-pool schedule section and destination links.
+The reviewed `source-state.json` baseline records each retained PDF's SHA-256 digest and available `ETag`, `Last-Modified`, and `Content-Length` response metadata. Normal checks send conditional requests so unchanged PDFs can return `304 Not Modified` without retransferring document bytes. When a validator is unavailable or the publisher returns `200 OK`, the monitor downloads and hashes the PDF before deciding whether content changed. A changed PDF or a repeatedly unavailable monitored PDF link becomes a candidate for modeled-data review. Web pages are tracked by stable data roles, such as a team's staff page or practice-schedule page, and reduced to relevant content fingerprints in `source-state.json`; publication and schedule-index fingerprints include official PDF destinations so relocated source links can be reviewed. Individual Columbia Association pool pages remain limited to the facility evidence section, and the schedule index remains limited to its outdoor-pool schedule section and destination links.
 
 ## Review Boundary
 
@@ -36,13 +36,13 @@ The reviewer is constrained to active-season annual data, retained official evid
 
 ## Rollover
 
-After a reviewed annual rollover changes `YEAR`, establish diagnostic page fingerprints for that newly accepted data set:
+After accepted active-season PDF acquisition, accepted PDF replacement, or a reviewed annual rollover that changes `YEAR`, establish document validators, document digests, and diagnostic page fingerprints for that accepted data set:
 
 ```bash
 node scripts/season-data-agent.js --initialize
 ```
 
-Commit the resulting `source-state.json` with the rollover. Initialization refuses to proceed if a retained official PDF already differs from its public URL, because that difference needs data review first.
+Commit the resulting `source-state.json` when publishing. Initialization performs a full retrieval of retained PDFs, records their reviewed SHA-256 digests and available `ETag`, `Last-Modified`, and `Content-Length` response metadata, and refuses to proceed if a retained official PDF already differs from its public URL because that difference needs data review first.
 
 For a local source check that does not write files, run:
 
