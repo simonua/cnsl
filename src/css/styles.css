@@ -2342,14 +2342,6 @@ button.pool-filter__clear:focus-visible {
   margin: 0;
 }
 
-/* Loading state */
-.loading {
-  text-align: center;
-  padding: 2rem;
-  color: var(--text-muted);
-  font-style: italic;
-}
-
 /* Quick Links Grid Layout */
 .quick-links-grid {
   display: grid;

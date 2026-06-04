@@ -101,6 +101,29 @@ for (const scenario of directoryScenarios) {
   });
 }
 
+for (const scenario of directoryScenarios) {
+  test(`[WF-DATA-005-${scenario.reference}] ${scenario.path} does not flash a visible loading placeholder`, async ({ page }) => {
+    let resumePoolRequest;
+    const poolRequestPaused = new Promise(resolve => {
+      resumePoolRequest = resolve;
+    });
+    await page.route('**/assets/data/2026/pools/pools.json*', async route => {
+      await poolRequestPaused;
+      await route.continue();
+    });
+
+    try {
+      await page.goto(scenario.path, { waitUntil: 'domcontentloaded' });
+      await expect(page.locator(scenario.list)).toHaveAttribute('aria-busy', 'true');
+      await expect(page.locator(scenario.list)).toBeEmpty();
+    } finally {
+      resumePoolRequest();
+    }
+
+    await expect(page.locator(scenario.status)).toHaveText(scenario.readyText);
+  });
+}
+
 test('[WF-DATA-003] pool load failures are announced and do not leave the directory busy', async ({ page }) => {
   await page.route('**/assets/data/2026/pools/pools.json*', route => route.fulfill({ status: 503, body: '{}' }));
   await page.goto('/pools.html');
