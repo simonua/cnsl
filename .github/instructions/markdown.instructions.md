@@ -11,6 +11,11 @@ description: "Use when creating or changing Markdown files. Covers repository ma
 - Use the recommended `DavidAnson.vscode-markdownlint` extension for live editor diagnostics while authoring Markdown.
 - Markdown linting is a design-time aid in this repository; do not add it to package scripts, build checks, or deployment gates unless explicitly requested.
 
+## Commands
+
+- Run `pnpm dlx markdownlint-cli2 "**/*.md" "#node_modules" "#out"` from the repository root for a workspace-wide Markdown audit. Keep the exclusions quoted so third-party dependency documentation and generated build output are not linted.
+- Run `pnpm dlx markdownlint-cli2 "<path/to/file.md>"` for a focused command-line check of one changed Markdown file.
+
 ## Rules
 
 - For every Markdown file created or modified, resolve markdownlint diagnostics in the affected file before completing the change.
@@ -21,3 +26,4 @@ description: "Use when creating or changing Markdown files. Covers repository ma
 ## Verification
 
 - Review markdownlint diagnostics for each changed Markdown file and correct violations caused or exposed by the edit.
+- For a repository-wide Markdown audit, run the workspace command above and report the linted file count and error count.
