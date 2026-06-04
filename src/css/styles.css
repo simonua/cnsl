@@ -2936,6 +2936,10 @@ button.pool-filter__clear:focus-visible {
   margin-bottom: 0.2rem;
 }
 
+.pool-schedule-list .override-notice {
+  margin-left: 1rem;
+}
+
 .pool-schedule-list .day-schedule.is-today .day-schedule__heading {
   color: var(--current-text);
   font-weight: 700;
@@ -2975,16 +2979,6 @@ button.pool-filter__clear:focus-visible {
   border: 2px solid var(--current-border);
   flex: 1.7 1 12rem;
   min-width: 12rem;
-}
-
-.schedule-calendar__day.has-override {
-  border-top: 3px solid var(--warning-color);
-}
-
-.schedule-calendar__day.has-swim-meet {
-  background-color: var(--warning-soft-bg-muted);
-  border-color: var(--warning-color);
-  box-shadow: inset 0 0 0 1px var(--warning-color);
 }
 
 .schedule-calendar__header {
@@ -3075,6 +3069,17 @@ button.pool-filter__clear:focus-visible {
   font-size: 0.78rem;
   line-height: 1.3;
   margin: 0.35rem 0;
+}
+
+.schedule-calendar .schedule-activity--event {
+  background-color: var(--warning-soft-bg);
+  border-left-width: 4px;
+}
+
+.schedule-activity__link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
 }
 
 @media (min-width: 48.0625rem) {
@@ -3449,6 +3454,12 @@ button.pool-filter__clear:focus-visible {
   margin-bottom: 1rem;
   box-shadow: var(--shadow);
   transition: var(--transition);
+}
+
+.meet-details.highlighted {
+  background-color: var(--primary-soft-bg);
+  border: 2px solid var(--primary-color);
+  box-shadow: 0 0 15px var(--primary-soft-shadow);
 }
 
 .meet-date-header {

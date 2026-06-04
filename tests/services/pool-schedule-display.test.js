@@ -51,8 +51,8 @@ describe('PoolScheduleDisplay', () => {
         overrideReason: '<Meet>'
       }], options);
       assert.match(html, /Closed/);
-      assert.match(html, /Special schedule/);
-      assert.match(html, /Special Schedule: &lt;Meet&gt;/);
+      assert.match(html, /override-notice">&lt;Meet&gt;/);
+      assert.doesNotMatch(html, /Special Schedule:/);
     });
 
     it('creates a complete dated week with one matching current day', () => {
@@ -90,7 +90,7 @@ describe('PoolScheduleDisplay', () => {
         timeSlots: [{ startTime: '7:00am', endTime: '12:00pm', activities: ['Swim Meet'], accessStatus: 'public' }]
       }], { ...options, layout: 'calendar' });
 
-      assert.match(html, /schedule-calendar__day is-today has-swim-meet[^]*?schedule-calendar__meet">Meet day/);
+      assert.match(html, /schedule-calendar__day is-today has-swim-meet[^]*?schedule-calendar__meet">Swim League/);
       assert.equal((html.match(/schedule-calendar__meet/g) || []).length, 1);
     });
   });
@@ -100,6 +100,7 @@ describe('PoolScheduleDisplay', () => {
       assert.equal(PoolScheduleDisplay.getActivityCategory({ accessStatus: 'public' }), 'public');
       assert.equal(PoolScheduleDisplay.getActivityCategory({ accessStatus: 'practice-only' }), 'team');
       assert.equal(PoolScheduleDisplay.getActivityCategory({ accessStatus: 'swim-meet' }), 'event');
+      assert.equal(PoolScheduleDisplay.getActivityCategory({ accessStatus: 'public', isSpecialEvent: true }), 'event');
       assert.equal(PoolScheduleDisplay.getActivityCategory({ accessStatus: 'closed-to-public' }), 'restricted');
       assert.equal(PoolScheduleDisplay.getActivityCategory({ accessStatus: 'public', activities: ['CNSL Practice Only'] }), 'public');
       assert.equal(PoolScheduleDisplay.getActivityCategory({ accessStatus: 'public', isOverride: true }), 'public');
@@ -191,6 +192,17 @@ describe('PoolScheduleDisplay', () => {
 
       assert.match(PoolScheduleDisplay.renderSlot(meetSlot, day, options, false), /class="time-slot override-slot"/);
       assert.doesNotMatch(PoolScheduleDisplay.renderSlot(publicSlot, day, options, false), /override-slot/);
+    });
+
+    it('renders validated dual-meet links and highlighted public events without trusting malformed routes', () => {
+      const day = { isCurrentDay: false };
+      const linkedMeet = { startTime: '7:00AM', endTime: '12:00PM', activities: ['Swim Meet'], accessStatus: 'swim-meet', meetDate: '2026-06-20', meetPoolId: 'krp' };
+      const poolParty = { startTime: '6:00PM', endTime: '8:30PM', activities: ['Pool Party'], accessStatus: 'public', isOverride: true, isSpecialEvent: true };
+
+      assert.match(PoolScheduleDisplay.renderSlot(linkedMeet, day, options, true), /href="meets\.html\?date=2026-06-20&amp;pool=krp"/);
+      assert.match(PoolScheduleDisplay.renderSlot(poolParty, day, options, true), /schedule-activity--event override-slot/);
+      assert.equal(PoolScheduleDisplay.getMeetHref({ meetDate: 'bad', meetPoolId: 'krp' }), '');
+      assert.equal(PoolScheduleDisplay.getMeetHref({ meetDate: '2026-06-20', meetPoolId: '<bad>' }), '');
     });
 
     it('renders resolved practice teams only for semantic practice slots', () => {

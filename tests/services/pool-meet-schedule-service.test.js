@@ -11,11 +11,11 @@ const meetTimes = {
 
 describe('PoolMeetScheduleService', () => {
   it('projects Time Trials and hosted dual meets into semantic pool overrides', () => {
-    const pools = [{ name: 'Kendall Ridge', scheduleOverrides: [] }];
+    const pools = [{ id: 'krp', name: 'Kendall Ridge', scheduleOverrides: [] }];
     const teams = [new Team({ name: 'Kendall Ridge Krakens', timeTrialsPool: 'Kendall Ridge' })];
     const meets = [
       new Meet({ date: '2026-06-06', name: 'Time Trials', timeWindowKey: 'timeTrials' }, meetTimes),
-      new Meet({ date: '2026-06-20', name: 'Dual Meet #2', location: 'Kendall Ridge Pool' }, meetTimes, 'dualMeets')
+      new Meet({ date: '2026-06-20', name: 'Dual Meet #2', home_team: 'Long Reach', visiting_team: 'Pointers Run', location: 'Kendall Ridge Pool' }, meetTimes, 'dualMeets')
     ];
 
     PoolMeetScheduleService.applyMeetOverrides(pools, teams, meets);
@@ -25,7 +25,7 @@ describe('PoolMeetScheduleService', () => {
       hours: override.hours[0]
     })), [{
       date: '2026-06-20',
-      hours: { weekDays: ['Sat'], types: ['Swim Meet'], accessStatus: 'swim-meet', startTime: '7:00am', endTime: '12:00pm' }
+      hours: { weekDays: ['Sat'], types: ['Dual Meet #2'], accessStatus: 'swim-meet', startTime: '7:00am', endTime: '12:00pm', meetDate: '2026-06-20', meetPoolId: 'krp' }
     }, {
       date: '2026-06-06',
       hours: { weekDays: ['Sat'], types: ['Swim Meet'], accessStatus: 'swim-meet', startTime: '7:00am', endTime: '12:00pm' }
@@ -44,6 +44,54 @@ describe('PoolMeetScheduleService', () => {
     assert.equal(pools[0].scheduleOverrides.length, 2);
     assert.equal(pools[0].scheduleOverrides[0], authoredOverride);
     assert.equal(pools[0].scheduleOverrides[1].source, PoolMeetScheduleService.GENERATED_SOURCE);
+  });
+
+  it('replaces recurring and dated pool-guide meet placeholders with authoritative meet records', () => {
+    const pools = [{
+      name: 'Kendall Ridge',
+      schedulePeriods: [{ hours: [
+        { weekDays: ['Sat'], types: ['Swim Meet'], accessStatus: 'swim-meet', startTime: '7:00am', endTime: '12:00pm' },
+        { weekDays: ['Sat'], types: ['Laps'], accessStatus: 'public', startTime: '12:00pm', endTime: '8:30pm' }
+      ] }],
+      scheduleOverrides: [{
+        startDate: '2026-06-06',
+        endDate: '2026-06-06',
+        reason: 'Pool guide placeholder',
+        hours: [
+          { weekDays: ['Sat'], types: ['Swim Meet'], accessStatus: 'swim-meet', startTime: '7:00am', endTime: '12:00pm' },
+          { weekDays: ['Sat'], types: ['Laps'], accessStatus: 'public', startTime: '12:00pm', endTime: '7:00pm' }
+        ]
+      }, {
+        startDate: '2026-06-13',
+        endDate: '2026-06-13',
+        reason: 'Pool guide placeholder',
+        hours: [{ weekDays: ['Sat'], types: ['Swim Meet'], accessStatus: 'swim-meet', startTime: '7:00am', endTime: '12:00pm' }]
+      }, {
+        startDate: '2026-07-09',
+        endDate: '2026-07-09',
+        reason: 'Village Pool Party',
+        hours: [{ weekDays: ['Thu'], types: ['Pool Party'], accessStatus: 'public', startTime: '6:00pm', endTime: '8:30pm' }]
+      }]
+    }];
+    const teams = [new Team({ name: 'Kendall Ridge Krakens', timeTrialsPool: 'Kendall Ridge' })];
+    const meets = [new Meet({ date: '2026-06-06', name: 'Time Trials', timeWindowKey: 'timeTrials' }, meetTimes)];
+
+    PoolMeetScheduleService.applyMeetOverrides(pools, teams, meets);
+
+    assert.deepEqual(pools[0].schedulePeriods[0].hours.map(hour => hour.accessStatus), ['public']);
+    assert.deepEqual(pools[0].scheduleOverrides.map(override => ({
+      date: override.startDate,
+      reason: override.reason,
+      accessStatuses: override.hours.map(hour => hour.accessStatus)
+    })), [{
+      date: '2026-06-06',
+      reason: 'Time Trials',
+      accessStatuses: ['public', 'swim-meet']
+    }, {
+      date: '2026-07-09',
+      reason: 'Village Pool Party',
+      accessStatuses: ['public']
+    }]);
   });
 
   it('rejects unusable records and formats schedule values safely', () => {

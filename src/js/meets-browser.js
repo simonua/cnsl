@@ -188,6 +188,7 @@ async function renderMeets(meets, preserveExpansion = false) {
     meetsByDate[dateKey].forEach(meet => {
       const location = meet.location || 'TBA';
       const time = meet.getDisplayTime();
+      let poolData = null;
       
       // Generate enhanced location link that links to pools.html page
       let locationLink = MeetsBrowserSafety.escapeHtml(location);
@@ -201,7 +202,7 @@ async function renderMeets(meets, preserveExpansion = false) {
           
           // Add maps link for the maps icon
           if (typeof getPoolDataFromLocation === 'function') {
-            const poolData = getPoolDataFromLocation(location, meetsBrowserDataManager, meetsPoolLocationIndex);
+            poolData = getPoolDataFromLocation(location, meetsBrowserDataManager, meetsPoolLocationIndex);
             courseLabel = formatPoolCourseLabel(poolData);
             const safeMapsUrl = poolData && poolData.location
               ? MeetsBrowserSafety.safeHttpUrl(poolData.location.googleMapsUrl)
@@ -233,11 +234,15 @@ async function renderMeets(meets, preserveExpansion = false) {
 
       const isSpecialMeet = meet.isSpecialMeet();
       const isFavoriteMeet = PreferencesService.meetIncludesFavoriteTeam(meet, favoriteTeam);
+      const safeMeetPoolId = poolData && /^[a-zA-Z0-9_-]+$/.test(poolData.id || '')
+        ? MeetsBrowserSafety.escapeHtml(poolData.id)
+        : '';
+      const meetPoolAttribute = safeMeetPoolId ? ` data-meet-pool-id="${safeMeetPoolId}"` : '';
       
       let meetContent;
       if (isSpecialMeet) {
         meetContent = `
-          <div class="meet-details special-meet">
+          <div class="meet-details special-meet"${meetPoolAttribute}>
             <div class="meet-info">
               <div class="special-meet-title">
                 <strong>${MeetsBrowserSafety.escapeHtml(meet.name || 'Special Meet')}</strong>
@@ -257,7 +262,7 @@ async function renderMeets(meets, preserveExpansion = false) {
         `;
       } else {
         meetContent = `
-          <div class="meet-details${isFavoriteMeet ? ' favorite-meet' : ''}">
+          <div class="meet-details${isFavoriteMeet ? ' favorite-meet' : ''}"${meetPoolAttribute}>
             <div class="meet-info">
               ${isFavoriteMeet ? '<span class="favorite-meet__label">Favorite team meet</span>' : ''}
               <div class="meet-teams">
@@ -360,6 +365,32 @@ function toggleMeetDate(header) {
   if (details) details.hidden = isExpanded;
 }
 
+function handleMeetUrlParameters() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const meetDate = urlParams.get('date');
+  const poolId = urlParams.get('pool');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(meetDate || '') || !/^[a-zA-Z0-9_-]+$/.test(poolId || '')) return;
+
+  const meetCard = Array.from(document.querySelectorAll('.meet-date-card'))
+    .find(card => card.dataset.meetDate === meetDate);
+  const linkedMeet = meetCard && Array.from(meetCard.querySelectorAll('.meet-details'))
+    .find(meet => meet.dataset.meetPoolId === poolId);
+  if (!meetCard || !linkedMeet) return;
+
+  meetCard.classList.remove('collapsed');
+  const toggleButton = meetCard.querySelector('.meet-date-header__toggle');
+  const details = meetCard.querySelector('.meet-date-details');
+  if (toggleButton) toggleButton.setAttribute('aria-expanded', 'true');
+  if (details) details.hidden = false;
+
+  linkedMeet.classList.add('highlighted');
+  linkedMeet.scrollIntoView({
+    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+    block: 'center'
+  });
+  setTimeout(() => linkedMeet.classList.remove('highlighted'), 3000);
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   // Check if we're on the meets page before fetching data
   if (!document.getElementById("meetList")) {
@@ -379,6 +410,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const allMeets = meetsBrowserDataManager.getMeets().getAllMeets();
     meetsBrowserMeets = allMeets;
     await renderMeets(allMeets);
+    handleMeetUrlParameters();
     scheduleNextMeetLiveStatusRefresh();
     setMeetListStatus(`Meet schedule loaded. ${allMeets.length} meets available.`, false);
     

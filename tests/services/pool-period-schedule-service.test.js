@@ -72,6 +72,22 @@ describe('PoolPeriodScheduleService', () => {
       ]);
     });
 
+    it('marks public overrides as special events only when they introduce different activities', () => {
+      const service = createService();
+      const activeSchedule = { hours: [{ weekDays: ['Mon'], startTime: '1:00PM', endTime: '5:00PM', types: ['Rec Swim'], accessStatus: 'public' }] };
+      const party = service.mergeScheduleWithOverride(activeSchedule, 'Mon', {
+        reason: 'Village event',
+        hours: [{ weekDays: ['Mon'], startTime: '3:00PM', endTime: '5:00PM', types: ['Pool Party'], accessStatus: 'public' }]
+      });
+      const adjustedHours = service.mergeScheduleWithOverride(activeSchedule, 'Mon', {
+        reason: 'Holiday hours',
+        hours: [{ weekDays: ['Mon'], startTime: '1:00PM', endTime: '4:00PM', types: ['Rec Swim'], accessStatus: 'public' }]
+      });
+
+      assert.equal(party.find(slot => slot.isOverride).isSpecialEvent, true);
+      assert.equal(adjustedHours.find(slot => slot.isOverride).isSpecialEvent, false);
+    });
+
     it('projects regular weekly slots into the display shape', () => {
       const service = createService({ scheduleOverrides: [] });
       const monday = service.getWeekScheduleForDate(new Date(2026, 5, 1))[0];

@@ -143,6 +143,9 @@ if (typeof window === 'undefined' || !window.PoolPeriodScheduleService) {
 
     mergeScheduleWithOverride(activeSchedule, shortDay, override) {
       const regularSlots = this.getRegularSlots(activeSchedule, shortDay);
+      const regularPublicActivities = new Set(regularSlots
+        .filter(slot => slot.accessStatus === 'public')
+        .flatMap(slot => slot.activities));
       const overrideSlots = this.getSlotsForDay(override.hours, shortDay).map(hour => ({
         startTime: hour.startTime,
         endTime: hour.endTime,
@@ -150,7 +153,11 @@ if (typeof window === 'undefined' || !window.PoolPeriodScheduleService) {
         notes: hour.notes || '',
         accessStatus: hour.accessStatus,
         isOverride: true,
-        overrideReason: override.reason || null
+        overrideReason: override.reason || null,
+        isSpecialEvent: hour.accessStatus === 'public'
+          && (hour.types || []).some(activity => !regularPublicActivities.has(activity)),
+        meetDate: hour.meetDate || '',
+        meetPoolId: hour.meetPoolId || ''
       }));
       const convertedOverrides = overrideSlots.map(slot => this.withMinutes(slot));
       const mergedSlots = [];
@@ -170,7 +177,10 @@ if (typeof window === 'undefined' || !window.PoolPeriodScheduleService) {
         notes: slot.notes,
         accessStatus: slot.accessStatus,
         isOverride: slot.isOverride,
-        overrideReason: slot.overrideReason
+        overrideReason: slot.overrideReason,
+        isSpecialEvent: slot.isSpecialEvent,
+        meetDate: slot.meetDate,
+        meetPoolId: slot.meetPoolId
       }));
     }
 

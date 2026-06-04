@@ -1360,16 +1360,40 @@ test('[WF-POOLS-016] weekly calendars highlight modeled swim meets and Time Tria
   const calendar = page.locator('.favorite-card .schedule-calendar');
   const timeTrials = calendar.locator('.schedule-calendar__day').filter({ hasText: 'June 6' });
   await expect(timeTrials).toHaveClass(/has-swim-meet/);
-  await expect(timeTrials.locator('.schedule-calendar__meet')).toHaveText('Meet day');
+  await expect(timeTrials.locator('.schedule-calendar__meet')).toHaveText('Swim League');
   await expect(timeTrials.locator('.schedule-activity--event')).toContainText('Swim Meet');
   await expect(calendar.locator('.schedule-calendar__day').filter({ hasText: 'June 5' })).not.toHaveClass(/has-swim-meet/);
 
   await page.locator('.favorite-card .next-week').click();
+  await expect(calendar.locator('.schedule-calendar__day').filter({ hasText: 'June 13' })).not.toHaveClass(/has-swim-meet/);
   await page.locator('.favorite-card .next-week').click();
   const hostedDualMeet = calendar.locator('.schedule-calendar__day').filter({ hasText: 'June 20' });
   await expect(hostedDualMeet).toHaveClass(/has-swim-meet/);
-  await expect(hostedDualMeet.locator('.schedule-calendar__meet')).toHaveText('Meet day');
-  await expect(hostedDualMeet.locator('.schedule-activity--event')).toContainText('Swim Meet');
+  await expect(hostedDualMeet.locator('.schedule-calendar__meet')).toHaveText('Swim League');
+  await expect(hostedDualMeet.locator('.override-notice')).toHaveCount(0);
+  await expect(hostedDualMeet.locator('.schedule-activity--event')).toContainText('Dual Meet #2');
+  const hostedDualMeetLink = hostedDualMeet.locator('.schedule-activity__link');
+  await expect(hostedDualMeetLink).toHaveText('Dual Meet #2');
+  await expect(hostedDualMeetLink).toHaveAttribute('href', 'meets.html?date=2026-06-20&pool=krp');
+  await hostedDualMeetLink.click();
+
+  const linkedMeet = page.locator('.meet-date-card[data-meet-date="2026-06-20"] .meet-details[data-meet-pool-id="krp"]');
+  await expect(page).toHaveURL(/meets\.html\?date=2026-06-20&pool=krp$/);
+  await expect(linkedMeet).toBeVisible();
+  await expect(linkedMeet).toHaveClass(/highlighted/);
+  await expect(linkedMeet).toContainText('Pointers Run');
+  await expect(linkedMeet).toContainText('Long Reach');
+});
+
+test('[WF-POOLS-017] weekly calendars highlight public pool-party overrides as events', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-07-06T12:00:00-04:00'));
+  await seedPreferences(page, { favoritePoolName: 'Kendall Ridge', poolScheduleLayout: 'calendar' });
+  await page.goto('/pools.html');
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+
+  const poolParty = page.locator('.favorite-card .schedule-calendar__day').filter({ hasText: 'July 9' });
+  await expect(poolParty.locator('.schedule-activity--event.override-slot')).toContainText('Pool Party');
+  await expect(poolParty).toContainText('Long Reach Village Pool Party; registration required');
 });
 
 test('[WF-POOLS-008] desktop site header remains visible while the pool directory scrolls', async ({ page }) => {
@@ -1600,6 +1624,8 @@ test('[WF-SETTINGS-005] weather safety alerts show the most recent check after u
 });
 
 test('[WF-SETTINGS-006] weather safety alerts retain the last successful check when the weather service is unavailable', async ({ page }) => {
+  await page.unroute('https://api.weather.gov/**');
+  await page.route('https://api.weather.gov/**', route => route.abort());
   await page.addInitScript(() => {
     localStorage.setItem('cnsl_weather_alert_last_successful_check', JSON.stringify({ updatedAt: '2026-06-02T14:15:00-04:00' }));
   });
@@ -1809,7 +1835,7 @@ test('[WF-POOLS-009] practice-only schedules identify teams from detailed schedu
   const faulknerRidge = page.locator('.pool-card').filter({ hasText: 'Faulkner Ridge' });
   await faulknerRidge.locator('.pool-header__toggle').click();
   await expect(faulknerRidge).toContainText('CNSL Practice Only');
-  await expect(faulknerRidge.locator('.schedule-activity__team-names')).toHaveCount(0);
+  await expect(faulknerRidge.locator('.schedule-activity__team-names').filter({ hasText: 'Challenge' }).first()).toBeVisible();
 });
 
 test('[WF-POOLS-010] practice-only schedules do not infer a team from pool association alone', async ({ page }) => {

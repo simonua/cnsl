@@ -144,7 +144,7 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
         const todayLabel = day.isCurrentDay ? '<span class="schedule-calendar__today">Today</span>' : '';
         const hasSwimMeet = PoolScheduleDisplay.hasSwimMeet(day.schedule);
         const swimMeetClass = hasSwimMeet ? ' has-swim-meet' : '';
-        const swimMeetLabel = hasSwimMeet ? '<span class="schedule-calendar__meet">Meet day</span>' : '';
+        const swimMeetLabel = hasSwimMeet ? '<span class="schedule-calendar__meet">Swim League</span>' : '';
         const overrideClass = day.schedule && day.schedule.hasOverrides ? ' has-override' : '';
         const content = PoolScheduleDisplay.renderDayContent(day, options, true);
 
@@ -176,7 +176,7 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
       }
 
       const overrideNotice = schedule.hasOverrides && schedule.overrideReason
-        ? `<div class="override-notice">Special Schedule: ${PoolScheduleDisplay.escapeHtml(schedule.overrideReason)}</div>`
+        ? `<div class="override-notice">${PoolScheduleDisplay.escapeHtml(schedule.overrideReason)}</div>`
         : '';
       const slots = schedule.timeSlots.map(slot => PoolScheduleDisplay.renderSlot(slot, day, options, useActivityColors)).join('');
       return `${overrideNotice}${slots}`;
@@ -196,7 +196,7 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
       const practiceTeamText = PoolScheduleDisplay.formatPracticeTeamText(slot.accessStatus, slot.practiceTeamNames);
       const category = PoolScheduleDisplay.getActivityCategory(slot);
       const activityClass = useActivityColors ? ` schedule-activity schedule-activity--${category}` : '';
-      const overrideClass = slot.isOverride && slot.accessStatus !== 'public' ? ' override-slot' : '';
+      const overrideClass = slot.isOverride && (slot.accessStatus !== 'public' || slot.isSpecialEvent) ? ' override-slot' : '';
       const timeRange = `${slot.startTime}-${slot.endTime}`;
       const timeHtml = PoolScheduleDisplay.formatTimeRange(timeRange, {
         timeUtils,
@@ -208,8 +208,12 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
       const practiceTeamHtml = practiceTeamText
         ? `<span class="schedule-activity__team-names">${PoolScheduleDisplay.escapeHtml(practiceTeamText)}</span>`
         : '';
+      const meetHref = PoolScheduleDisplay.getMeetHref(slot);
+      const activityLabelHtml = meetHref
+        ? `<a class="schedule-activity__link" href="${PoolScheduleDisplay.escapeHtml(meetHref)}">${safeActivityText}</a>`
+        : safeActivityText;
       const activityHtml = safeActivityText
-        ? `<span class="schedule-activity__label${restrictedClass}">${safeActivityText}</span>${practiceTeamHtml}`
+        ? `<span class="schedule-activity__label${restrictedClass}">${activityLabelHtml}</span>${practiceTeamHtml}`
         : '';
       const notesHtml = slot.notes
         ? `<span class="schedule-activity__note">${PoolScheduleDisplay.escapeHtml(slot.notes)}</span>`
@@ -289,10 +293,17 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
      * @returns {string} CSS category suffix
      */
     static getActivityCategory(slot = {}) {
+      if (slot.isSpecialEvent) return 'event';
       if (slot.accessStatus === 'swim-meet') return 'event';
       if (slot.accessStatus === 'practice-only') return 'team';
       if (slot.accessStatus === 'public') return 'public';
       return 'restricted';
+    }
+
+    static getMeetHref(slot = {}) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(slot.meetDate || '')) return '';
+      if (!/^[a-zA-Z0-9_-]+$/.test(slot.meetPoolId || '')) return '';
+      return `meets.html?date=${encodeURIComponent(slot.meetDate)}&pool=${encodeURIComponent(slot.meetPoolId)}`;
     }
 
     static renderHeading(day) {

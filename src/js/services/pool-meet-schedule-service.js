@@ -11,26 +11,73 @@ if (typeof window === 'undefined' || !window.PoolMeetScheduleService) {
     static applyMeetOverrides(pools = [], teams = [], meets = []) {
       const overridesByPool = PoolMeetScheduleService.getOverridesByPool(pools, teams, meets);
       pools.forEach(pool => {
+        pool.schedulePeriods = PoolMeetScheduleService.removePublishedMeetSlots(pool.schedulePeriods);
+        const generatedOverrides = overridesByPool.get(pool.name) || [];
         const authoredOverrides = Array.isArray(pool.scheduleOverrides)
-          ? pool.scheduleOverrides.filter(override => override.source !== PoolMeetScheduleService.GENERATED_SOURCE)
+          ? PoolMeetScheduleService.removeUnconfirmedMeetPlaceholders(
+            pool.scheduleOverrides.filter(override => override.source !== PoolMeetScheduleService.GENERATED_SOURCE),
+            generatedOverrides
+          )
           : [];
-        pool.scheduleOverrides = [...authoredOverrides, ...(overridesByPool.get(pool.name) || [])];
+        pool.scheduleOverrides = PoolMeetScheduleService.mergeGeneratedOverrides(
+          authoredOverrides,
+          generatedOverrides
+        );
       });
     }
 
+    static removePublishedMeetSlots(scheduleRecords) {
+      return Array.isArray(scheduleRecords) ? scheduleRecords.map(record => {
+        if (!Array.isArray(record.hours)) return record;
+        const hours = record.hours.filter(hour => hour.accessStatus !== 'swim-meet');
+        return hours.length === record.hours.length ? record : { ...record, hours };
+      }) : scheduleRecords;
+    }
+
+    static removeUnconfirmedMeetPlaceholders(authoredOverrides, generatedOverrides) {
+      return authoredOverrides.flatMap(override => {
+        const hasPublishedMeetSlot = Array.isArray(override.hours)
+          && override.hours.some(hour => hour.accessStatus === 'swim-meet');
+        if (!hasPublishedMeetSlot) return [override];
+
+        const hasAuthoritativeMeet = generatedOverrides.some(generatedOverride => (
+          override.startDate === generatedOverride.startDate
+          && override.endDate === generatedOverride.endDate
+        ));
+        return hasAuthoritativeMeet ? PoolMeetScheduleService.removePublishedMeetSlots([override]) : [];
+      });
+    }
+
+    static mergeGeneratedOverrides(authoredOverrides, generatedOverrides) {
+      return generatedOverrides.reduce((overrides, generatedOverride) => {
+        const existingIndex = overrides.findIndex(override => (
+          override.startDate === generatedOverride.startDate
+          && override.endDate === generatedOverride.endDate
+          && Array.isArray(override.hours)
+        ));
+        if (existingIndex === -1) return [...overrides, generatedOverride];
+
+        return overrides.map((override, index) => index === existingIndex ? {
+          ...override,
+          reason: generatedOverride.reason,
+          hours: [...override.hours, ...generatedOverride.hours]
+        } : override);
+      }, authoredOverrides);
+    }
+
     static getOverridesByPool(pools = [], teams = [], meets = []) {
-      const poolNames = new Map(pools.map(pool => [PoolMeetScheduleService.normalizePoolName(pool.name), pool.name]));
+      const poolsByName = new Map(pools.map(pool => [PoolMeetScheduleService.normalizePoolName(pool.name), pool]));
       const overridesByPool = new Map();
       const overrideKeys = new Set();
       const addOverride = (poolName, meet, timingWindow) => {
-        const publishedPoolName = poolNames.get(PoolMeetScheduleService.normalizePoolName(poolName));
-        const override = PoolMeetScheduleService.createOverride(meet, timingWindow);
-        if (!publishedPoolName || !override) return;
+        const publishedPool = poolsByName.get(PoolMeetScheduleService.normalizePoolName(poolName));
+        const override = PoolMeetScheduleService.createOverride(meet, timingWindow, publishedPool && publishedPool.id);
+        if (!publishedPool || !override) return;
 
-        const key = `${publishedPoolName}|${override.startDate}|${override.hours[0].startTime}|${override.hours[0].endTime}`;
+        const key = `${publishedPool.name}|${override.startDate}|${override.hours[0].startTime}|${override.hours[0].endTime}`;
         if (overrideKeys.has(key)) return;
         overrideKeys.add(key);
-        overridesByPool.set(publishedPoolName, [...(overridesByPool.get(publishedPoolName) || []), override]);
+        overridesByPool.set(publishedPool.name, [...(overridesByPool.get(publishedPool.name) || []), override]);
       };
 
       meets.forEach(meet => addOverride(meet && meet.location, meet, meet && meet.getKnownTimingWindow()));
@@ -45,22 +92,28 @@ if (typeof window === 'undefined' || !window.PoolMeetScheduleService) {
       return overridesByPool;
     }
 
-    static createOverride(meet, timingWindow) {
+    static createOverride(meet, timingWindow, poolId = '') {
       if (!meet || !/^\d{4}-\d{2}-\d{2}$/.test(meet.date) || !timingWindow) return null;
       const weekday = PoolMeetScheduleService.getWeekday(meet.date);
       if (!weekday) return null;
 
+      const isSpecialMeet = typeof meet.isSpecialMeet !== 'function' || meet.isSpecialMeet();
+      const meetLink = !isSpecialMeet
+        && /^[a-zA-Z0-9_-]+$/.test(poolId)
+        ? { meetDate: meet.date, meetPoolId: poolId }
+        : {};
       return {
         source: PoolMeetScheduleService.GENERATED_SOURCE,
         startDate: meet.date,
         endDate: meet.date,
-        reason: meet.name || 'Swim Meet',
+        reason: isSpecialMeet ? meet.name || 'Swim Meet' : '',
         hours: [{
           weekDays: [weekday],
-          types: ['Swim Meet'],
+          types: [isSpecialMeet ? 'Swim Meet' : meet.name || 'Swim Meet'],
           accessStatus: 'swim-meet',
           startTime: PoolMeetScheduleService.formatScheduleTime(timingWindow.startMinutes),
-          endTime: PoolMeetScheduleService.formatScheduleTime(timingWindow.endMinutes)
+          endTime: PoolMeetScheduleService.formatScheduleTime(timingWindow.endMinutes),
+          ...meetLink
         }]
       };
     }
