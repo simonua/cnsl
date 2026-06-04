@@ -24,10 +24,10 @@ Perform on an HTTPS deployment after a clean browser profile or cleared site dat
 | Check | Evidence To Record |
 | --- | --- |
 | First visit registers a service worker and install is offered where supported. | Browser/version, deployment URL, worker state, install result. |
-| Opening Pools, Teams, and Meets once makes current directory content available offline. | Pages visited online, pages opened offline, result. |
+| After the worker finishes preparing the current app version, Pools, Teams, and Meets open with current directory content while offline without requiring a prior visit to each route. | Worker state, pages opened offline, result. |
 | An uncached route while offline presents the intentional offline page. | Uncached URL tested and fallback result. |
 | A new deployment activates a changed worker without losing usable offline navigation. | Previous/current cache version and post-update result. |
-| Annual JSON network failure uses cached current-season content after it has been loaded once. | Route tested and offline/cached result. |
+| Pools, teams, and meets use the precached current-season JSON from the active app version without waiting for a network request. | Route tested, worker/cache version, network observation, result. |
 
 Do not use `pnpm start` for this review: local development deliberately unregisters application service workers and clears its caches.
 

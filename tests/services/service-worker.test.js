@@ -177,22 +177,50 @@ describe('service worker cache strategy', () => {
     assert.match(await response.text(), /pools\.json\?v=development/);
   });
 
-  it('should revalidate HTTP-cached annual data while online', async () => {
+  it('should retry the cache when annual data becomes available after a network failure', async () => {
+    const dataPath = 'assets/data/2026/pools/pools.json';
+    const dataUrl = `https://pools.longreachmarlins.org/${dataPath}`;
     const harness = createWorkerHarness(coreResources);
-    let requestOptions;
-    harness.setFetchImplementation(async (_request, options) => {
-      requestOptions = options;
-      return new Response('fresh data', { status: 200 });
+    harness.setFetchImplementation(async () => {
+      harness.cacheRecords.set(`${dataUrl}?v=development`, new Response('late cached data', { status: 200 }));
+      throw new Error('Offline');
     });
 
-    const response = await harness.dispatch('fetch', {
-      method: 'GET',
-      mode: 'cors',
-      url: 'https://pools.longreachmarlins.org/assets/data/2026/teams/teams.json'
+    const response = await harness.dispatch('fetch', { method: 'GET', mode: 'cors', url: dataUrl });
+
+    assert.equal(await response.text(), 'late cached data');
+  });
+
+  it('should serve precached navigation and annual data without waiting for the network', async () => {
+    const directoryNames = ['pools', 'teams', 'meets'];
+    const directoryResources = directoryNames.flatMap(name => [
+      `${name}.html`,
+      `assets/data/2026/${name}/${name}.json`
+    ]);
+    const harness = createWorkerHarness([...coreResources, ...directoryResources]);
+    await harness.dispatch('install');
+    let networkRequests = 0;
+    harness.setFetchImplementation(async () => {
+      networkRequests += 1;
+      return new Response('unexpected network response', { status: 200 });
     });
 
-    assert.equal(await response.text(), 'fresh data');
-    assert.equal(requestOptions.cache, 'no-cache');
+    for (const name of directoryNames) {
+      const navigationResponse = await harness.dispatch('fetch', {
+        method: 'GET',
+        mode: 'navigate',
+        url: `https://pools.longreachmarlins.org/${name}.html`
+      });
+      const dataResponse = await harness.dispatch('fetch', {
+        method: 'GET',
+        mode: 'cors',
+        url: `https://pools.longreachmarlins.org/assets/data/2026/${name}/${name}.json`
+      });
+
+      assert.match(await navigationResponse.text(), new RegExp(`${name}\\.html\\?v=development`));
+      assert.match(await dataResponse.text(), new RegExp(`${name}\\.json\\?v=development`));
+    }
+    assert.equal(networkRequests, 0);
   });
 
   it('should fetch a newer explicitly versioned static resource while an older worker controls the page', async () => {

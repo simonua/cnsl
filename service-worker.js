@@ -56,14 +56,18 @@ async function cacheOptionalResources(cache) {
   }
 }
 
-async function findOfflineNavigationResponse(request) {
+async function findCachedNavigationResponse(request) {
   const cache = await caches.open(CACHE_NAME);
   const requestUrl = new URL(request.url);
   const exactMatch = await cache.match(createVersionedUrl(requestUrl.toString()));
   if (exactMatch) return exactMatch;
   requestUrl.search = '';
-  return (await cache.match(createVersionedUrl(requestUrl.toString())))
-    || cache.match(createVersionedUrl(OFFLINE_PAGE));
+  return cache.match(createVersionedUrl(requestUrl.toString()));
+}
+
+async function findOfflineNavigationResponse(request) {
+  return (await findCachedNavigationResponse(request))
+    || caches.open(CACHE_NAME).then(cache => cache.match(createVersionedUrl(OFFLINE_PAGE)));
 }
 
 self.addEventListener("install", event => {
@@ -165,22 +169,23 @@ self.addEventListener("fetch", event => {
     return;
   }
 
-  // Check if this is a data file (JSON) - use network-first for data files for faster updates
+  // Annual data stays coherent with the versioned application build and updates with the next worker.
   const isDataFile = requestUrl.pathname.includes('/assets/data/') && requestUrl.pathname.endsWith('.json');
   const isNavigationRequest = event.request.mode === 'navigate';
 
   if (isNavigationRequest) {
     event.respondWith(
-      fetch(event.request, { cache: 'no-cache' })
-        .then(response => {
-          if (response && response.status === 200) {
-            const responseClone = response.clone();
-            return caches.open(CACHE_NAME)
-              .then(cache => cache.put(createVersionedUrl(event.request), responseClone))
-              .then(() => response);
-          }
-          return response;
-        })
+      findCachedNavigationResponse(event.request)
+        .then(cachedResponse => cachedResponse || fetch(event.request, { cache: 'no-cache' })
+          .then(response => {
+            if (response && response.status === 200) {
+              const responseClone = response.clone();
+              return caches.open(CACHE_NAME)
+                .then(cache => cache.put(createVersionedUrl(event.request), responseClone))
+                .then(() => response);
+            }
+            return response;
+          }))
         .catch(() => findOfflineNavigationResponse(event.request))
     );
     return;
@@ -189,20 +194,19 @@ self.addEventListener("fetch", event => {
   if (isDataFile) {
     const cacheRequest = createVersionedUrl(event.request);
 
-    // Network-first strategy for JSON data files
     event.respondWith(
-      fetch(event.request, { cache: 'no-cache' })
-        .then(response => {
-          if (response && response.status === 200) {
-            const responseClone = response.clone();
-            return caches.open(CACHE_NAME)
-              .then(cache => cache.put(cacheRequest, responseClone))
-              .then(() => response);
-          }
-          return response;
-        })
+      caches.open(CACHE_NAME).then(cache => cache.match(cacheRequest))
+        .then(cachedResponse => cachedResponse || fetch(event.request, { cache: 'no-cache' })
+          .then(response => {
+            if (response && response.status === 200) {
+              const responseClone = response.clone();
+              return caches.open(CACHE_NAME)
+                .then(cache => cache.put(cacheRequest, responseClone))
+                .then(() => response);
+            }
+            return response;
+          }))
         .catch(error => {
-          // Network failed, try cache
           return caches.open(CACHE_NAME).then(cache => cache.match(cacheRequest))
             .then(cachedResponse => {
               if (cachedResponse) {

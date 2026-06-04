@@ -20,4 +20,18 @@ describe('app-config', () => {
 
     assert.throws(() => vm.runInNewContext(source, context, { filename: sourcePath }), /configured YEAR does not match/);
   });
+
+  it('rejects malformed and invalid official-source timestamps', () => {
+    const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'config', 'app-config.js');
+    const source = fs.readFileSync(sourcePath, 'utf8');
+    const timestampDeclaration = /const OFFICIAL_SOURCE_CHECKED_AT = '[^']+';/;
+    const runWithTimestamp = timestamp => vm.runInNewContext(
+      source.replace(timestampDeclaration, `const OFFICIAL_SOURCE_CHECKED_AT = '${timestamp}';`),
+      { globalThis: {} },
+      { filename: sourcePath }
+    );
+
+    assert.throws(() => runWithTimestamp('xxxx-xx-xxTxx:xx:xx-04:00'), /must be an ISO timestamp/);
+    assert.throws(() => runWithTimestamp('9999-99-99T99:99:99-04:00'), /must be a valid ISO timestamp/);
+  });
 });

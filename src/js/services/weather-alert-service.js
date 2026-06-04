@@ -119,9 +119,7 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
         return { isInclement: false, reason: 'weather-service-unavailable' };
       }
 
-      const forecastData = forecastUrl
-        ? await WeatherAlertService.fetchJson(forecastUrl, fetchImplementation)
-        : null;
+      const forecastData = await WeatherAlertService.fetchJson(forecastUrl, fetchImplementation);
       const forecastPeriods = forecastData && forecastData.properties ? forecastData.properties.periods : null;
       if (!Array.isArray(forecastPeriods)) {
         return { isInclement: false, reason: 'weather-service-unavailable' };

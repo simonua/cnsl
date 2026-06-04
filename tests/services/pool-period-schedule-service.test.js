@@ -113,6 +113,13 @@ describe('PoolPeriodScheduleService', () => {
       assert.deepEqual(createService({ getTimeUtils: () => null }).getTimeSlotsForDate('2026-06-01', 'Mon'), []);
       assert.equal(createService({ getTimeUtils: () => null }).getWeekScheduleForDate(new Date(2026, 5, 1))[0].timeSlots.length, 1);
     });
+
+    it('uses safe dependency fallbacks when no collaborators are supplied', () => {
+      const service = new PoolPeriodScheduleService();
+
+      assert.deepEqual(service.normalizeActiveSchedule(), {});
+      assert.deepEqual(service.getCurrentStatus(), { kind: 'unavailable', isOpen: false, status: 'Error', color: 'gray' });
+    });
   });
 
   describe('status and date boundaries', () => {
