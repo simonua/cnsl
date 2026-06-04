@@ -4,7 +4,8 @@
 (function initializeAppConfig(globalScope) {
   // Published site and active season metadata.
   const YEAR = 2026;
-  const OFFICIAL_SOURCE_CHECKED_ON = '2026-06-04';
+  const APP_TIMEZONE = 'America/New_York';
+  const OFFICIAL_SOURCE_CHECKED_AT = '2026-06-04T13:02:09-04:00';
   const APP_VERSION = '2.7.11';
   const APP_LAST_UPDATED_ON = '2026-06-04';
   const HOME_PAGE_HOSTNAME = 'pools.longreachmarlins.org';
@@ -14,12 +15,37 @@
 
   // External services and regional behavior.
   const GA4_MEASUREMENT_ID = 'G-ZMBPYQKLQP';
-  const APP_TIMEZONE = 'America/New_York';
   const WEATHER_API_BASE_URL = 'https://api.weather.gov';
   const WEATHER_LOCATION_POINT = '39.2014,-76.8610';
   const WEATHER_ACTIVE_ALERTS_URL = `${WEATHER_API_BASE_URL}/alerts/active?point=${encodeURIComponent(WEATHER_LOCATION_POINT)}`;
   const WEATHER_POINT_URL = `${WEATHER_API_BASE_URL}/points/${WEATHER_LOCATION_POINT}`;
   const GOOGLE_MAPS_SEARCH_BASE_URL = 'https://www.google.com/maps/search/?api=1&query=';
+
+  function formatOfficialSourceCheckedAt(options) {
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}-(?:04|05):00$/.test(OFFICIAL_SOURCE_CHECKED_AT)) {
+      throw new Error('OFFICIAL_SOURCE_CHECKED_AT must be an ISO timestamp with an explicit Eastern UTC offset.');
+    }
+    const checkedAt = new Date(OFFICIAL_SOURCE_CHECKED_AT);
+    if (Number.isNaN(checkedAt.getTime())) {
+      throw new Error('OFFICIAL_SOURCE_CHECKED_AT must be a valid ISO timestamp with an explicit Eastern UTC offset.');
+    }
+    return checkedAt.toLocaleString('en-US', { ...options, timeZone: APP_TIMEZONE, timeZoneName: 'short' });
+  }
+
+  const OFFICIAL_SOURCE_CHECKED_LABEL = formatOfficialSourceCheckedAt({
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    month: 'long',
+    year: 'numeric'
+  });
+  const OFFICIAL_SOURCE_CHECKED_SHORT_LABEL = formatOfficialSourceCheckedAt({
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    month: 'short',
+    year: 'numeric'
+  });
 
   // Public destinations referenced by authored site content.
   const EXTERNAL_LINKS = Object.freeze({
@@ -104,7 +130,9 @@
     APP_LAST_UPDATED_ON,
     CONTACT_EMAIL,
     EXTERNAL_LINKS,
-    OFFICIAL_SOURCE_CHECKED_ON,
+    OFFICIAL_SOURCE_CHECKED_AT,
+    OFFICIAL_SOURCE_CHECKED_LABEL,
+    OFFICIAL_SOURCE_CHECKED_SHORT_LABEL,
     ...RUNTIME_CONFIG
   });
 

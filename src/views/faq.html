@@ -63,7 +63,7 @@
             "name": "Where does this app get its data, and when was it checked?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Pool information is transcribed from publicly available Columbia Association publications, while team and meet information is transcribed from publicly available official CNSL publications. The app's structured annual data and retained source materials can be viewed or downloaded from its public GitHub data directory. Accepted {{ YEAR }} season data was last checked against its official public sources on {{ OFFICIAL_SOURCE_CHECKED_ON }}."
+              "text": "Accepted {{ YEAR }} season data was last checked against its official public sources on {{ OFFICIAL_SOURCE_CHECKED_LABEL }}. Pool information is transcribed from publicly available Columbia Association publications, while team and meet information is transcribed from publicly available official CNSL publications. The app's structured annual data and retained source materials can be viewed or downloaded from its public GitHub data directory."
             }
           },
           {
@@ -170,10 +170,11 @@
           </article>
           <article class="faq-item">
             <h3>Where does this app get its data, and when was it checked?</h3>
+            <p class="faq-item__source-freshness"><strong>Season data last checked:</strong> <time datetime="{{ OFFICIAL_SOURCE_CHECKED_AT }}">{{ OFFICIAL_SOURCE_CHECKED_LABEL }}</time></p>
             <p>Pool information is transcribed from publicly available <a href="{{ ACTIVE_SEASON.CA_POOL_SCHEDULES_URL }}" target="_blank" rel="noopener">Columbia Association (CA) publications</a>. Team and meet information is transcribed from publicly available <a href="{{ EXTERNAL_LINKS.OFFICIAL_CNSL_SITE }}" target="_blank" rel="noopener">official CNSL publications</a>. These official public sources are the source of truth for this web app.</p>
             <p>The structured annual data used by this app and retained public source materials can be viewed or downloaded in the <a href="{{ EXTERNAL_LINKS.GITHUB_DATA_DIRECTORY }}" target="_blank" rel="noopener">public data directory on GitHub</a>.</p>
             <p>Information shared through social media, email, messaging groups, or other community channels can be helpful, but is not treated as authoritative here unless it is reflected in an official public source.</p>
-            <p><strong>Last accepted official-source check for {{ YEAR }} data:</strong> <time datetime="{{ OFFICIAL_SOURCE_CHECKED_ON }}">{{ OFFICIAL_SOURCE_CHECKED_ON }}</time>. Published details can change, so please confirm time-sensitive plans before heading out.</p>
+            <p>Published details can change, so please confirm time-sensitive plans before heading out.</p>
           </article>
           <article class="faq-item">
             <h3>What if information in this app does not match an official source?</h3>

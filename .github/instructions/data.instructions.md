@@ -25,7 +25,7 @@ description: "Use when working with JSON data files, schemas, or data loading. C
 - Pool facility `features` come from the official Columbia Association page stored in each pool's `caUrl`. For every season rollover, review each page's description and Amenities list, normalize useful terms into feature labels, and record the verification date in the annual README instead of copying the prior year's array without review.
 - Official public Columbia Association pages/documents are authoritative for pool data, and official public CNSL publication/team pages are authoritative for meet and team data. Do not accept social media or other community-shared information as data evidence unless it appears in an official public source.
 - When an official Time Trials label uses `returning/experienced`, transcribe that qualifier as `returning / experienced` so visitor-facing text has a natural wrapping opportunity on narrow screens while preserving the published meaning.
-- For the active season, keep the accepted official-source check date in the annual README synchronized with `OFFICIAL_SOURCE_CHECKED_ON` in `src/js/config/app-config.js`, which supplies the public FAQ date.
+- For the active season, keep the accepted official-source check date in the annual README synchronized with the date portion of `OFFICIAL_SOURCE_CHECKED_AT` in `src/js/config/app-config.js`. Record that config value as the review-completion timestamp in `America/New_York` with its explicit UTC offset; it supplies the public FAQ and footer timestamp.
 - Use the `cnsl-season-rollover` skill when creating, auditing, or activating annual data.
 
 ## Schema Conventions

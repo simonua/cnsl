@@ -124,6 +124,25 @@ for (const scenario of directoryScenarios) {
   });
 }
 
+test('[WF-DATA-006] FAQ and footer show the accepted seasonal-source timestamp in Eastern time', async ({ page }) => {
+  await page.goto('/faq.html');
+
+  const faqTimestamp = page.locator('.faq-item__source-freshness time');
+  const footerTimestamp = page.locator('.footer__data-freshness time');
+  await expect(faqTimestamp).toHaveAttribute('datetime', /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}-(?:04|05):00$/);
+  await expect(faqTimestamp).toHaveText(/^[A-Z][a-z]+ \d{1,2}, \d{4} at \d{1,2}:\d{2} [AP]M E[DS]T$/);
+  await expect(footerTimestamp).toHaveAttribute('datetime', /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}-(?:04|05):00$/);
+  await expect(footerTimestamp).toHaveText(/^[A-Z][a-z]{2} \d{1,2}, \d{4}, \d{1,2}:\d{2} [AP]M E[DS]T$/);
+
+  for (const viewport of [{ width: 1280, height: 900 }, { width: 320, height: 640 }]) {
+    await page.setViewportSize(viewport);
+    expect(await page.locator('.footer').evaluate(footer => ({
+      heightFits: footer.scrollHeight <= footer.clientHeight + 1,
+      widthFits: footer.scrollWidth <= footer.clientWidth + 1
+    }))).toEqual({ heightFits: true, widthFits: true });
+  }
+});
+
 test('[WF-DATA-003] pool load failures are announced and do not leave the directory busy', async ({ page }) => {
   await page.route('**/assets/data/2026/pools/pools.json*', route => route.fulfill({ status: 503, body: '{}' }));
   await page.goto('/pools.html');

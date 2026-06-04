@@ -102,7 +102,7 @@
   --feature-amenities-selected-bg: #4f5d69;
   --feature-selected-text: #ffffff;
   --header-height: 4.625rem;
-  --footer-height: 3.25rem;
+  --footer-height: 4rem;
   --footer-bottom-clearance: max(0.5rem, env(safe-area-inset-bottom, 0rem));
   --border-radius: 12px;
   --transition: all 0.15s ease;
@@ -2726,6 +2726,12 @@ button.pool-filter__clear:focus-visible {
   margin-bottom: 0;
 }
 
+.faq-item__source-freshness {
+  background-color: var(--primary-soft-bg);
+  border-left: 3px solid var(--primary-color);
+  padding: 0.75rem;
+}
+
 .faq-item ol {
   color: var(--text-dark);
   line-height: 1.6;
@@ -3376,10 +3382,19 @@ button.pool-filter__clear:focus-visible {
   color: var(--text-muted);
   height: calc(var(--footer-height) + var(--footer-bottom-clearance));
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
   z-index: 100;
+}
+
+.footer__data-freshness {
+  font-size: 0.78rem;
+}
+
+.footer__data-freshness strong {
+  color: var(--text-dark);
 }
 
 .footer p {
@@ -3401,12 +3416,16 @@ button.pool-filter__clear:focus-visible {
 
 @media (max-width: 48rem) {
   :root {
-    --footer-height: 2.5rem;
+    --footer-height: 3.75rem;
     --footer-bottom-clearance: max(0.25rem, env(safe-area-inset-bottom, 0rem));
   }
 
   .footer {
     padding: 0.35rem 1rem calc(0.35rem + var(--footer-bottom-clearance));
+  }
+
+  .footer__data-freshness {
+    font-size: 0.7rem;
   }
 }
 

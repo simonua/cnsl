@@ -177,7 +177,9 @@ describe('season data agent', () => {
       assert.match(report, /meets\/meets\.json/);
       assert.match(report, /teams\/teams\.json/);
       assert.match(report, /coach and manager details and changed recorded practice schedules/);
-      assert.match(report, /OFFICIAL_SOURCE_CHECKED_ON/);
+      assert.match(report, /OFFICIAL_SOURCE_CHECKED_AT/);
+      assert.match(report, /America\/New_York/);
+      assert.match(report, /FAQ and footer report data currency/);
       assert.match(report, /pnpm run validate:data/);
       assert.match(report, /Candidate key: `0123456789abcdef`/);
       assert.match(report, /application-used official source destination requires an update/);
