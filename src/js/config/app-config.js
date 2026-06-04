@@ -5,8 +5,8 @@
   // Published site and active season metadata.
   const YEAR = 2026;
   const OFFICIAL_SOURCE_CHECKED_ON = '2026-06-04';
-  const APP_VERSION = '2.7.10';
-  const APP_LAST_UPDATED_ON = '2026-06-02';
+  const APP_VERSION = '2.7.11';
+  const APP_LAST_UPDATED_ON = '2026-06-04';
   const HOME_PAGE_HOSTNAME = 'pools.longreachmarlins.org';
   const HOME_PAGE_URL = `https://${HOME_PAGE_HOSTNAME}`;
   const CONTACT_EMAIL = 'simonkurtz@gmail.com';
