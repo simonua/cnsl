@@ -1,6 +1,6 @@
 {
   "season": 2026,
-  "acceptedOn": "2026-05-28",
+  "acceptedOn": "2026-06-04",
   "pages": [
     {
       "domains": [
@@ -8,7 +8,7 @@
       ],
       "fingerprint": "pool-facility",
       "label": "Bryant Woods facility page",
-      "sha256": "60719a6e5e9d4f946f90a8f868eedd53b7cdb36957f7fb4a05da650272ccccd5",
+      "sha256": "a44dc5ba39df0ec4725c4f65d58fcb35e1e52d44fc57a5bbc0ee419a4393d509",
       "sourceIds": [
         "pool:bwp:facility"
       ],
@@ -20,7 +20,7 @@
       ],
       "fingerprint": "pool-facility",
       "label": "Clary's Forest facility page",
-      "sha256": "410ade67ef6c76f65b35e8866f447e65d33564b2db74ab12af2400e792bc0797",
+      "sha256": "ae230affdf5c2ab3abb0c9542ed32f141c7b729f376a9ee474f2914656008063",
       "sourceIds": [
         "pool:cfp:facility"
       ],
@@ -32,7 +32,7 @@
       ],
       "fingerprint": "pool-facility",
       "label": "Clemens Crossing facility page",
-      "sha256": "db1b114bfde0bcddbaccbcdfee34483ea5ca9027e39700f39426f134664845d7",
+      "sha256": "b0a6ca9f7f255bc85f52bddb23c44a13896eb91cc5c51629d0a5ce6f45b239ec",
       "sourceIds": [
         "pool:ccp:facility"
       ],
@@ -44,7 +44,7 @@
       ],
       "fingerprint": "pool-facility",
       "label": "Dasher Green facility page",
-      "sha256": "ba72bb8aff56b0b20eed5a8f92ea3685d1c342826bbae962c9afe1a43cfdfcb6",
+      "sha256": "f7d7e3bbc0ca2b90590be898b02f8b88c268dfb8f7391df0791fe29d2378ebbe",
       "sourceIds": [
         "pool:dgp:facility"
       ],
@@ -56,7 +56,7 @@
       ],
       "fingerprint": "pool-facility",
       "label": "Dickinson facility page",
-      "sha256": "6511620586cf4f346d4a543b499008a50004771ba7590dee349f6920534488a8",
+      "sha256": "e8f9070d63415be440d667a0a74dfc6aa41e624a3ba6057c07bc53131aed9d7d",
       "sourceIds": [
         "pool:dcp:facility"
       ],
@@ -68,7 +68,7 @@
       ],
       "fingerprint": "pool-facility",
       "label": "Dorsey Hall facility page",
-      "sha256": "693e7f37009518f65dcbf33e2760120a124503bed64851612f6d3cfc1b93e6f6",
+      "sha256": "fd3e10f52f1242d1b2fcffbfb18b5b4519c6f78d1be24f802efd6cbc2a972ea7",
       "sourceIds": [
         "pool:dhp:facility"
       ],
@@ -80,7 +80,7 @@
       ],
       "fingerprint": "pool-facility",
       "label": "Faulkner Ridge facility page",
-      "sha256": "d4e744228e3ce1f3a849585ce4352ad8c3430dea22e1a06a1affba314a568366",
+      "sha256": "d09333aa80be04cace1bcb88b13b61f7874986bec7fdcbfa34b0dbe8f2410023",
       "sourceIds": [
         "pool:frp:facility"
       ],
@@ -92,7 +92,7 @@
       ],
       "fingerprint": "pool-facility",
       "label": "Hawthorn facility page",
-      "sha256": "4ecb8d8057b35b9c5314011795991b709c925eb8f856870c0330084edf77f1f6",
+      "sha256": "efcea9a6529870efc3ab180f9c8bab41abce9aff6184ac13b44d4836819fc3f0",
       "sourceIds": [
         "pool:hap:facility"
       ],
@@ -104,7 +104,7 @@
       ],
       "fingerprint": "pool-facility",
       "label": "Hobbit's Glen facility page",
-      "sha256": "540e6b81089438c2e35254d62802f7a91cff389ed5ee14a9c109adfb7b47f12c",
+      "sha256": "efb6f73906a8e37ad8890720ee61e80df65d584a782ac02b0be0186541717ff9",
       "sourceIds": [
         "pool:hgp:facility"
       ],
@@ -116,7 +116,7 @@
       ],
       "fingerprint": "pool-facility",
       "label": "Hopewell facility page",
-      "sha256": "3cfbdefce6f8d505138a266faaa574f2de387c07c931ff542778ce82844067f4",
+      "sha256": "e5c03d437a1ff7f1b4c867effe5b0e29245b76fe8402fde652137eef51f71590",
       "sourceIds": [
         "pool:hwp:facility"
       ],
@@ -128,7 +128,7 @@
       ],
       "fingerprint": "pool-facility",
       "label": "Huntington facility page",
-      "sha256": "452ba2911a238fcc81b6767f33978f1de3d9daa50d80ed2e4abb7f6e5f4dab75",
+      "sha256": "fe86f6517714f311e876f076380128cd1a14231dc939e58b99fc29c4ed61d035",
       "sourceIds": [
         "pool:hup:facility"
       ],
@@ -140,7 +140,7 @@
       ],
       "fingerprint": "pool-facility",
       "label": "Jeffers Hill facility page",
-      "sha256": "3631c2c4afabf6bb85698ce7bb371acd9177262f4f63ad4dcb62b4c6ee34d7dd",
+      "sha256": "641ed0eabb1e1f4b9696ad8cbcb29186ce8ea8f8a706caac16452f113768a024",
       "sourceIds": [
         "pool:jhp:facility"
       ],
@@ -152,7 +152,7 @@
       ],
       "fingerprint": "pool-facility",
       "label": "Kendall Ridge facility page",
-      "sha256": "46fff843583d9fa23d628646d7cf537cce403742ee58282ba1ea36f690ff098f",
+      "sha256": "f575f04e8550a4e115b4582cfa014dcb73dce4885acbf7991fab5541979e0fa2",
       "sourceIds": [
         "pool:krp:facility"
       ],
@@ -164,7 +164,7 @@
       ],
       "fingerprint": "pool-facility",
       "label": "Locust Park facility page",
-      "sha256": "944a7b9d761c4c0456bf8edb858092590efce8392cfcff4007a141377de81c8d",
+      "sha256": "e3585df706522cf8d1e95b265680e2a9f7da0e6ca5cf113d8eb2bb34010e2916",
       "sourceIds": [
         "pool:lpp:facility"
       ],
@@ -176,7 +176,7 @@
       ],
       "fingerprint": "pool-facility",
       "label": "Longfellow facility page",
-      "sha256": "a79bb890e8b45c39986dda79ac761185eadfbc5177035c61d4654255a67a304d",
+      "sha256": "3de6a0e713587234024afba5e8d7bab6327d253b54dfa129dc1d833fe37b7121",
       "sourceIds": [
         "pool:lfp:facility"
       ],
@@ -188,7 +188,7 @@
       ],
       "fingerprint": "pool-facility",
       "label": "MacGill's Common facility page",
-      "sha256": "b4ec161670111b84f656888ba3af393bca67fd002e1450e6c8ae67f481453e07",
+      "sha256": "9f91daf4ccd76c56150920c9e992283bf0365c68b9447adb7a17d83b0f948647",
       "sourceIds": [
         "pool:mcp:facility"
       ],
@@ -200,7 +200,7 @@
       ],
       "fingerprint": "pool-facility",
       "label": "Phelps Luck facility page",
-      "sha256": "18f89ee946e5aeac7a66f539b3011db8074be976293b9bc736c38eead514e720",
+      "sha256": "cf37d97e4eced94ab47a90d860c2b40d80babebadab6c14a926d9094ca603370",
       "sourceIds": [
         "pool:plp:facility"
       ],
@@ -212,7 +212,7 @@
       ],
       "fingerprint": "pool-facility",
       "label": "River Hill facility page",
-      "sha256": "04c956c6d7825fb1a71aff9cf51353d624867775215f37c8c037ca642b911d8c",
+      "sha256": "dc0c0b6f252071aae60cba3f55428e25116b380fed7b3aa4a566e80b681fa0df",
       "sourceIds": [
         "pool:rhp:facility"
       ],
@@ -224,7 +224,7 @@
       ],
       "fingerprint": "pool-facility",
       "label": "Running Brook facility page",
-      "sha256": "e27dcfc6e83738a08e7f1a6bcaf7fc24bbfd059b269cf09051310ba327d567ae",
+      "sha256": "8686ec5e2e9263ff418ee6b0e57d640d8b756421e55fd1a08b0846f23213ec93",
       "sourceIds": [
         "pool:rbp:facility"
       ],
@@ -236,7 +236,7 @@
       ],
       "fingerprint": "pool-facility",
       "label": "Stevens Forest facility page",
-      "sha256": "98edb9f5f8d547763ac54dfb946329944434732fc9899d6de19aee894c5a018b",
+      "sha256": "8f90871c6234874e6d11a0288914245fb6b9308f95cd6be7a5ad11b904632a4f",
       "sourceIds": [
         "pool:sfp:facility"
       ],
@@ -248,7 +248,7 @@
       ],
       "fingerprint": "pool-facility",
       "label": "Swansfield facility page",
-      "sha256": "f1d4ad58d6b9b69390232bd1a1f3984b00f0e25e4ffc1508456cdbd7908e6333",
+      "sha256": "e102620d101d5467c4eb3751e74be627124f604e164e6c30c110f59b2da3500e",
       "sourceIds": [
         "pool:swp:facility"
       ],
@@ -260,7 +260,7 @@
       ],
       "fingerprint": "pool-facility",
       "label": "Talbott Springs facility page",
-      "sha256": "1aeb9a2f11949b1312033d98ce5690c1c5cec6683cd4a0192586da11f098ee65",
+      "sha256": "f1f8ea1c854f8cdf22e9aac7ebf2d59c850caa6ec188f19cf2b3c187d4c7c887",
       "sourceIds": [
         "pool:tsp:facility"
       ],
@@ -272,7 +272,7 @@
       ],
       "fingerprint": "pool-facility",
       "label": "Thunder Hill facility page",
-      "sha256": "e3be5de21c40f7fe5f861b495f99a3977731cde8cdf199a9389cce2785d76695",
+      "sha256": "8ab91cd79263f1d57774449a8715351cacd4f381496e55c86ed18bfced3b687a",
       "sourceIds": [
         "pool:thp:facility"
       ],
@@ -307,9 +307,9 @@
         "meets",
         "teams"
       ],
-      "fingerprint": "visible-text",
+      "fingerprint": "publication-links",
       "label": "CNSL publication page",
-      "sha256": "a641234b27ec5cdcd1381a211c9f99aa39470da4da5a95ad8c4878443369a8c4",
+      "sha256": "1274b9ddb550b29b9020bcef293cd3de42f718078adbd8e83b5cbb45aa148bb7",
       "sourceIds": [
         "league:publication"
       ],
@@ -333,7 +333,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "CHS Swim Sundevils staff page",
-      "sha256": "024d12bcc40fbd46e3a72bfaf9292983153c75f8f885d552ace5cef7f1f2d563",
+      "sha256": "8e3a8d1bf08c5461ab82b1e0df2d14f5c9ee09fcbceedac4fed78f444c417a0f",
       "sourceIds": [
         "team:cfhss:staff"
       ],
@@ -381,7 +381,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Harper's Choice Challenge staff page",
-      "sha256": "6a5219707acb4476096b43cc2e8ab378be2fec5a081835763c4e608acc2a9e09",
+      "sha256": "5cb89425066d0beaabacb5d43bac3b1a3f108b300a77b14f25baca283df8fd3a",
       "sourceIds": [
         "team:hcc:staff"
       ],
@@ -393,7 +393,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Harper's Choice Challenge practice schedule page",
-      "sha256": "c4c2a5a367428b8417e166f5b0e7787d2a2ed9b223c1eb6e2909aaea4936367d",
+      "sha256": "1c87111280e6641118dad6eee714f4b9b815771e8189ad178e4eff764c3b225a",
       "sourceIds": [
         "team:hcc:practice"
       ],
@@ -405,7 +405,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Huntington Dolphins practice schedule page",
-      "sha256": "5f32aeb9f8148edbd39678b593ea014ec7dd9b194a44b5697cb8423f94391b03",
+      "sha256": "7144ea84909fa48db37da557b8d81d31d43a8d6fbcb102177a3b83a4e58b31a5",
       "sourceIds": [
         "team:hd:practice"
       ],
@@ -417,7 +417,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Huntington Dolphins staff page",
-      "sha256": "6e2867fd54906c4eb7f4089b74138e7e5f180107adb625140b8bf369c3ee29fc",
+      "sha256": "b31c7c7b2e720a7d01ada7b34778e3ba3bc1319efb66ad37e61a0e14f7087036",
       "sourceIds": [
         "team:hd:staff"
       ],
@@ -477,7 +477,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Owen Brown Barracudas staff page",
-      "sha256": "951a3f5bacf2bbd2e87132cf94ebb314e99fd50853f63eae5b7a2fc547b64548",
+      "sha256": "96b1054c35ca90d76548590248d05f17ee14603587b030c0f1dcb317871743fa",
       "sourceIds": [
         "team:obb:staff"
       ],
@@ -489,7 +489,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Oakland Mills Tigersharks practice schedule page",
-      "sha256": "5f4464d423aa0e676f5520ab90c67803c9d5c561d21d60c06bd72641807a13da",
+      "sha256": "2db189d6173738f1687f920503d23af39d008efc9cdbbfbf88ada40ed6a79f93",
       "sourceIds": [
         "team:omts:practice"
       ],
@@ -501,7 +501,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Oakland Mills Tigersharks staff page",
-      "sha256": "31886a12bfd797e68ea2fa1d42b851259298e8b68d53d35056a94dde54b15be3",
+      "sha256": "599d6d48be784c98180112b77a9fc8e06bc2f2dc810db5169ce95d9ac328ac2d",
       "sourceIds": [
         "team:omts:staff"
       ],
@@ -525,7 +525,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Phelps Luck Snappers staff page",
-      "sha256": "aba84f742b497ae42c633dc9fc4ee2fcfac37767ae707553e01812bdc1e9b8b0",
+      "sha256": "640d505b6949633cc86ccbab1b742cbece53f30ce1dd8740a8ab280eebf0b1b5",
       "sourceIds": [
         "team:pls:staff"
       ],
@@ -549,7 +549,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Pointers Run Piranhas staff page",
-      "sha256": "f02fc7f31e499e7a614845a1fe83fe59a6584d36128d5dbad82173d433aec77f",
+      "sha256": "ec919fa07679d5e63f65d3b4fde7bdf753c330d190278f58a4512c326e9f2cfb",
       "sourceIds": [
         "team:prp:staff"
       ],

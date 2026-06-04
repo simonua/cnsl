@@ -69,11 +69,11 @@
       },
       "staff": {
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslcfhss/page/system/coaches",
-        "verifiedOn": "2026-05-24",
+        "verifiedOn": "2026-06-04",
         "coaches": [
           { "name": "Coach Kat", "role": "Head Coach", "email": "katherine.barger@columbiaassociation.org" },
           { "name": "Coach Connor", "role": "Assistant Coach", "email": "connor.hoy@columbiaassociation.org" },
-          { "name": "Coach Mich", "role": "Assistant Coach", "email": "michaela.stjohn@columbiaassociation.org" },
+          { "name": "Coach Aden", "role": "Assistant Coach", "email": "aden.saunier@columbiaassociation.org" },
           { "name": "Coach Jack", "role": "Assistant Coach", "email": "jack.pettiford@columbiaassociation.org" }
         ],
         "managers": [
@@ -200,8 +200,45 @@
               { "time": "5:30 - 6:15pm", "group": "Returning Swimmers 10 & Under" },
               { "time": "6:15 - 7:00pm", "group": "Returning Swimmers 11 & Up" }
             ]
+          },
+          {
+            "period": "June 1 - June 18",
+            "days": "Monday - Friday",
+            "location": "Longfellow Pool",
+            "sessions": [
+              { "time": "5:00 - 5:30pm", "group": "Ages 8 & Under" },
+              { "time": "5:30 - 6:15pm", "group": "Ages 9 & 10" },
+              { "time": "6:15 - 7:00pm", "group": "Ages 11 & Up" }
+            ]
           }
-        ]
+        ],
+        "regular": {
+          "season": "June 19 - July 24",
+          "morning": [
+            { "days": "Tuesday - Friday", "location": "Longfellow Pool", "sessions": [
+              { "time": "8:00 - 8:30am", "group": "Ages 8 & Under" },
+              { "time": "8:30 - 9:15am", "group": "Ages 9 & 10" },
+              { "time": "9:15 - 10:00am", "group": "Ages 11 & Up" }
+            ] }
+          ],
+          "evening": [
+            { "day": "Monday", "location": "Longfellow Pool", "sessions": [
+              { "time": "5:30 - 6:00pm", "group": "Ages 8 & Under" },
+              { "time": "6:00 - 6:30pm", "group": "Ages 9 & 10" },
+              { "time": "6:30 - 7:00pm", "group": "Ages 11 & Up" }
+            ] },
+            { "day": "Wednesday", "location": "Faulkner Ridge Pool", "sessions": [
+              { "time": "6:30 - 7:00pm", "group": "Ages 8 & Under" },
+              { "time": "7:00 - 7:30pm", "group": "Ages 9 & 10" },
+              { "time": "7:30 - 8:00pm", "group": "Ages 11 & Up" }
+            ] },
+            { "day": "Thursday", "location": "Swansfield Pool", "sessions": [
+              { "time": "6:30 - 7:00pm", "group": "Ages 8 & Under" },
+              { "time": "7:00 - 7:30pm", "group": "Ages 9 & 10" },
+              { "time": "7:30 - 8:00pm", "group": "Ages 11 & Up" }
+            ] }
+          ]
+        }
       },
       "staff": {
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslhcc/page/system/coaches",
@@ -249,7 +286,8 @@
           "season": "June 22 - July 24",
           "morning": [
             { "days": "Tuesday - Friday", "location": "Huntington Pool", "sessions": [
-              { "time": "8:30 - 9:15am", "group": "10 & Under" },
+              { "time": "8:00 - 8:30am", "group": "8 & Under" },
+              { "time": "8:30 - 9:15am", "group": "9 & 10 Year Olds" },
               { "time": "9:15 - 10:00am", "group": "11 & Older" }
             ] }
           ],
@@ -271,10 +309,10 @@
       },
       "staff": {
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslhd/page/system/coaches",
-        "verifiedOn": "2026-05-24",
+        "verifiedOn": "2026-06-03",
         "coaches": [
           { "name": "Brianna Dunn", "role": "Head Coach" },
-          { "name": "Sophia Gonzalez", "role": "Assistant Coach" }
+          { "name": "Sophia Maldonado Gonzalez", "role": "Assistant Coach" }
         ],
         "managers": [],
         "contacts": [],
@@ -295,7 +333,7 @@
       "practicePools": ["MacGill's Common", "Huntington", "Dickinson"],
       "staff": {
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslkcw/page/about/meet-the-people",
-        "verifiedOn": "2026-05-24",
+        "verifiedOn": "2026-06-03",
         "coaches": [
           { "name": "Coach Susanna", "role": "Coach", "email": "Susanna.Decker@columbiaassociation.org" },
           { "name": "Coach Thomas", "role": "Coach", "email": "Thomas.Pecora@columbiaassociation.org" },
@@ -516,7 +554,8 @@
         "verifiedOn": "2026-05-24",
         "coaches": [
           { "name": "Ryan Megdiche", "role": "Head Coach", "email": "ryan.megdiche@columbiaassociation.org" },
-          { "name": "Lexi Sloan", "role": "Assistant Coach", "email": "alexandra.sloan@columbiaassociation.org" }
+          { "name": "Lexi Sloan", "role": "Assistant Coach", "email": "alexandra.sloan@columbiaassociation.org" },
+          { "name": "Bogdan Hilotii", "role": "Assistant Coach", "email": "bogdan.hilotii@columbiaassociation.org" }
         ],
         "managers": [
           { "name": "Jean-Marie Baldi", "role": "Team Manager", "email": "jmbaldi@owenbrownbarracudas.com" },
@@ -543,7 +582,7 @@
       "practicePools": ["River Hill", "MacGill's Common", "Hobbit's Glen", "Running Brook"],
       "staff": {
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslprr/page/system/coaches",
-        "verifiedOn": "2026-05-24",
+        "verifiedOn": "2026-06-03",
         "coaches": [
           { "name": "Reid Thomas", "role": "Head Coach", "email": "reid.thomas@columbiaassociation.org" },
           { "name": "Tim Wang", "role": "Assistant Coach", "email": "timothy.wang@columbiaassociation.org" },
@@ -640,7 +679,10 @@
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslpls/page/system/coaches",
         "verifiedOn": "2026-05-24",
         "coaches": [
-          { "name": "Marisa Otero", "role": "PL Snappers Head Coach", "email": "Marisa.Otero@columbiaassociation.org" }
+          { "name": "Marisa Otero", "role": "PL Snappers Head Coach", "email": "Marisa.Otero@columbiaassociation.org" },
+          { "name": "Joshua Ma", "role": "PL Snappers Assistant Coach", "email": "Joshua.ma@columbiaassociation.org" },
+          { "name": "Davin Ghim", "role": "PL Snappers Assistant Coach", "email": "Davin.ghim@columbiaassociation.org" },
+          { "name": "Olivia Richardson", "role": "PL Snappers Assistant Coach", "email": "Mary.richardson@columbiaassociation.org" }
         ],
         "managers": [
           { "name": "Christine Happel", "role": "PL Snappers Manager", "email": "happymarcin@yahoo.com" },
@@ -718,7 +760,7 @@
       },
       "staff": {
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslprp/page/system/coaches",
-        "verifiedOn": "2026-05-24",
+        "verifiedOn": "2026-06-04",
         "coaches": [
           { "name": "Claire Pecora", "role": "Head Coach", "email": "claire.pecora@columbiaassociation.org" },
           { "name": "Ryan Rhee", "role": "Assistant Coach" },

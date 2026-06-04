@@ -4,7 +4,7 @@
 (function initializeAppConfig(globalScope) {
   // Published site and active season metadata.
   const YEAR = 2026;
-  const OFFICIAL_SOURCE_CHECKED_ON = '2026-06-02';
+  const OFFICIAL_SOURCE_CHECKED_ON = '2026-06-04';
   const APP_VERSION = '2.7.10';
   const APP_LAST_UPDATED_ON = '2026-06-02';
   const HOME_PAGE_HOSTNAME = 'pools.longreachmarlins.org';
