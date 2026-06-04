@@ -51,11 +51,22 @@ The `2026-06-01` PDF uses illustrative stock photos from Pexels for general pool
    - Scale: `100%`
    - Background graphics: enabled
 
-5. Commit the finished PDF and, when intentionally included, its reviewed QR SVG. PNG previews and HTML sources are disabled publication artifacts.
+5. Publish the approved flyer PDF and its first-page thumbnail with stable filenames in `src/assets/swim-meet-resources/` so the Swim Meet Resources page serves the current revision:
+
+   ```powershell
+   Copy-Item "docs/flyer/<revision>/ca-pool-cnsl-assistant-flyer.pdf" "src/assets/swim-meet-resources/ca-pool-cnsl-assistant-flyer.pdf"
+   pnpm dlx pdf-to-img -s 0.5 -g 1 -o "src/assets/swim-meet-resources" "docs/flyer/<revision>/ca-pool-cnsl-assistant-flyer.pdf"
+   Move-Item -Force "src/assets/swim-meet-resources/ca-pool-cnsl-assistant-flyer-1.png" "src/assets/swim-meet-resources/ca-pool-cnsl-assistant-flyer-thumbnail.png"
+   pnpm dlx pdf-to-img -s 0.25 -g 1 -o "src/assets/swim-meet-resources" "docs/flyer/<revision>/ca-pool-cnsl-assistant-flyer.pdf"
+   Move-Item -Force "src/assets/swim-meet-resources/ca-pool-cnsl-assistant-flyer-1.png" "src/assets/swim-meet-resources/ca-pool-cnsl-assistant-flyer-thumbnail-mobile.png"
+   ```
+
+6. Confirm the thumbnail matches the approved PDF, then commit the revision PDF, the published PDF and thumbnail, and, when intentionally included, its reviewed QR SVG. Other PNG previews and HTML sources remain disabled publication artifacts.
 
 ## Review Checklist
 
 - Confirm the PDF is exactly one page and that no text is clipped or crowded.
+- Confirm the published PDF and thumbnail in `src/assets/swim-meet-resources/` match the approved revision.
 - Confirm the printed revision date matches the revision folder name.
 - Scan the printed or rendered QR code with a phone and confirm it opens the app and settles on <https://pools.longreachmarlins.org/> without leaving the flyer marker visible.
 - Check that benefit statements still match delivered app behavior.
