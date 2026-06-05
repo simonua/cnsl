@@ -21,20 +21,11 @@ async function prepareVisibleWeatherAlert(page) {
   await page.route('https://api.weather.gov/**', route => route.fulfill({
     json: { features: [{ properties: { event: 'Severe Thunderstorm Warning' } }] }
   }));
-  await page.route('**/assets/data/2026/pools/pools.json*', async route => {
-    const response = await route.fetch();
-    const data = await response.json();
-    data.pools[0].schedules = [{
-      startDate: '2026-01-01',
-      endDate: '2026-12-31',
-      hours: [{
-        weekDays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-        types: ['Rec Swim'],
-        startTime: '12:00am',
-        endTime: '11:59pm'
-      }]
-    }];
-    await route.fulfill({ response, json: data });
+  await page.route('**/js/config/weather-operating-windows.js*', route => {
+    return route.fulfill({
+      body: 'globalThis.WEATHER_OPERATING_WINDOWS = { dailyOperatingWindows: new Proxy({}, { get: () => [0, 1439] }) };',
+      contentType: 'text/javascript'
+    });
   });
 }
 

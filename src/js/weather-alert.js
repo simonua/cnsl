@@ -61,6 +61,11 @@
   async function getPoolData() {
     if (poolDataPromise) return poolDataPromise;
 
+    if (globalThis.WEATHER_OPERATING_WINDOWS) {
+      poolDataPromise = Promise.resolve(globalThis.WEATHER_OPERATING_WINDOWS);
+      return poolDataPromise;
+    }
+
     poolDataPromise = (async () => {
       if (typeof getDataManager === 'function') {
         try {

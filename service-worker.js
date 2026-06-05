@@ -36,25 +36,8 @@ function createStaticResourceCacheKey(resource) {
   return url.searchParams.has('v') ? url.toString() : createVersionedUrl(url.toString());
 }
 
-const CORE_RESOURCES = MINIMUM_OFFLINE_RESOURCES.map(createVersionedUrl);
-const STATIC_RESOURCES = [...new Set((self.PRECACHE_RESOURCES || MINIMUM_OFFLINE_RESOURCES).map(createVersionedUrl))];
-
-async function cacheOptionalResources(cache) {
-  const coreResources = new Set(CORE_RESOURCES);
-  const optionalResources = STATIC_RESOURCES.filter(resource => !coreResources.has(resource));
-  const failedResources = (await Promise.all(optionalResources.map(async resource => {
-    try {
-      await cache.add(resource);
-      return null;
-    } catch (_error) {
-      return resource;
-    }
-  }))).filter(Boolean);
-
-  if (failedResources.length > 0) {
-    console.warn(`Unable to precache ${failedResources.length} optional resource(s). They remain available online.`);
-  }
-}
+const PRECACHE_CORE_RESOURCES = self.PRECACHE_CORE_RESOURCES || MINIMUM_OFFLINE_RESOURCES;
+const CORE_RESOURCES = [...new Set(PRECACHE_CORE_RESOURCES.map(createVersionedUrl))];
 
 async function findCachedNavigationResponse(request) {
   const cache = await caches.open(CACHE_NAME);
@@ -85,7 +68,6 @@ self.addEventListener("install", event => {
       .then(async cache => {
         console.log(`Creating cache: ${CACHE_NAME}`);
         await cache.addAll(CORE_RESOURCES);
-        await cacheOptionalResources(cache);
       })
       .then(() => {
         console.log(`Cache ${CACHE_NAME} created successfully`);

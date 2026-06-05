@@ -6,7 +6,14 @@ let poolSortOrder = 'name';
 let poolAvailabilityFilter = 'all';
 let poolLiveStatusRefreshTimeout = null;
 let poolLiveStatusSignature = '';
+let poolBrowserEnrichmentPromise = null;
 const PoolBrowserSafety = HtmlSafety;
+
+function markPoolPerformance(markName) {
+  if (globalThis.performance && typeof globalThis.performance.mark === 'function') {
+    globalThis.performance.mark(`cnsl:pools:${markName}`);
+  }
+}
 
 // ------------------------------
 //    SAFE REFERENCE HELPERS
@@ -81,22 +88,34 @@ async function initializePoolBrowser() {
   if (!poolBrowserDataManager) {
     poolBrowserDataManager = getDataManager();
     await poolBrowserDataManager.initialize(['pools']);
-    try {
-      await poolBrowserDataManager.initialize(['teams']);
-    } catch (error) {
-      console.warn('[Pool Browser] Team practice labels are unavailable:', error);
+    markPoolPerformance('primary-data-ready');
+  }
+}
+
+function startPoolBrowserEnrichment() {
+  if (poolBrowserEnrichmentPromise) return poolBrowserEnrichmentPromise;
+
+  poolBrowserEnrichmentPromise = Promise.allSettled([
+    poolBrowserDataManager.initialize(['teams']),
+    poolBrowserDataManager.initialize(['meets'])
+  ]).then(([teamsResult, meetsResult]) => {
+    if (teamsResult.status === 'rejected') {
+      console.warn('[Pool Browser] Team practice labels are unavailable:', teamsResult.reason);
     }
-    try {
-      await poolBrowserDataManager.initialize(['meets']);
+    if (meetsResult.status === 'rejected') {
+      console.warn('[Pool Browser] Swim meet calendar highlights are unavailable:', meetsResult.reason);
+    }
+    if (teamsResult.status === 'fulfilled' && meetsResult.status === 'fulfilled') {
       PoolMeetScheduleService.applyMeetOverrides(
         poolBrowserDataManager.getPools().getAllPools(),
         poolBrowserDataManager.getTeams().getAllTeams(),
         poolBrowserDataManager.getMeets().getAllMeets()
       );
-    } catch (error) {
-      console.warn('[Pool Browser] Swim meet calendar highlights are unavailable:', error);
     }
-  }
+    refreshHydratedPoolDetails();
+    markPoolPerformance('optional-enrichment-settled');
+  });
+  return poolBrowserEnrichmentPromise;
 }
 
 /**
@@ -257,6 +276,48 @@ function formatPoolHours(pool) {
   });
 
   return PoolHoursDisplay.render(viewModel);
+}
+
+function createPoolDetailsViewModel(pool) {
+  const features = PreferencesService.getFilterablePoolFeatures(pool);
+  const sortedFeatures = PoolDirectoryService.sortFeaturesForDisplay(features, PreferencesService.groupPoolFeatures);
+  return {
+    pool,
+    poolName: pool.name || 'Unknown Pool',
+    hoursHtml: formatPoolHours(pool),
+    featureItems: sortedFeatures.map(feature => ({
+      label: PoolDirectoryService.formatFeatureLabel(feature),
+      category: PreferencesService.getPoolFeatureCategory(feature)
+    })),
+    mapsSearchBaseUrl: globalThis.GOOGLE_MAPS_SEARCH_BASE_URL
+  };
+}
+
+function getPoolRecord(poolId) {
+  return poolBrowserPools.find(pool => String(pool.id || pool.name) === String(poolId)) || null;
+}
+
+function hydratePoolDetails(poolCard) {
+  const details = poolCard && poolCard.querySelector('.pool-details');
+  if (!details || details.dataset.poolDetailsHydrated === 'true') return details;
+
+  const pool = getPoolRecord(poolCard.dataset.poolId);
+  if (!pool) return details;
+  details.innerHTML = PoolCardDisplay.renderDetails(createPoolDetailsViewModel(pool));
+  details.dataset.poolDetailsHydrated = 'true';
+  return details;
+}
+
+function refreshHydratedPoolDetails() {
+  const focusTarget = captureFocusedPoolControl();
+  document.querySelectorAll('#poolList .pool-card').forEach(poolCard => {
+    const details = poolCard.querySelector('.pool-details');
+    if (!details || details.dataset.poolDetailsHydrated !== 'true') return;
+    const pool = getPoolRecord(poolCard.dataset.poolId);
+    if (pool) details.innerHTML = PoolCardDisplay.renderDetails(createPoolDetailsViewModel(pool));
+  });
+  scrollCalendarsToToday(document.getElementById('poolList') || document);
+  restoreFocusedPoolControl(focusTarget);
 }
 
 /**
@@ -673,22 +734,14 @@ function renderPools(pools) {
     const poolName = pool.name || 'Unknown Pool';
     const poolId = String(pool.id || '');
     const detailsId = `pool-details-${String(poolId || poolName).replace(/[^a-zA-Z0-9_-]/g, '-')}`;
-    const features = PreferencesService.getFilterablePoolFeatures(pool);
     const isFavorite = poolName === favoritePoolName;
     const isExpanded = (isInitialRender && poolId === linkedPoolId)
       || (isFavorite ? preferences.favoritePoolExpanded : expandedPoolIds.has(poolId));
-
-    // Format opening hours for display using new helper
-    const hoursHtml = formatPoolHours(pool);
     
     // Get pool status for indicator using new helper
     const poolStatus = getPoolStatus(pool);
     const tooltipText = getStatusTooltip(poolStatus.kind);
-    const sortedFeatures = PoolDirectoryService.sortFeaturesForDisplay(features, PreferencesService.groupPoolFeatures);
-    const featureItems = sortedFeatures.map(feature => ({
-      label: PoolDirectoryService.formatFeatureLabel(feature),
-      category: PreferencesService.getPoolFeatureCategory(feature)
-    }));
+    const detailsViewModel = isExpanded ? createPoolDetailsViewModel(pool) : {};
 
     return PoolCardDisplay.render({
       pool,
@@ -700,9 +753,8 @@ function renderPools(pools) {
       distanceMiles: Number.isFinite(pool.distance) ? pool.distance : null,
       poolStatus,
       statusTooltip: tooltipText,
-      featureItems,
-      hoursHtml,
-      mapsSearchBaseUrl: globalThis.GOOGLE_MAPS_SEARCH_BASE_URL
+      isDetailsHydrated: isExpanded,
+      ...detailsViewModel
     });
   }).join('');
 
@@ -739,8 +791,8 @@ function handlePoolUrlParameter() {
  */
 function togglePoolCard(toggleButton) {
   const poolCard = toggleButton.closest('.pool-card');
-  const details = poolCard.querySelector('.pool-details');
   const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
+  const details = isExpanded ? poolCard.querySelector('.pool-details') : hydratePoolDetails(poolCard);
   poolCard.classList.toggle('collapsed', isExpanded);
   toggleButton.setAttribute('aria-expanded', String(!isExpanded));
   if (poolCard.dataset.poolName === PreferencesService.get().favoritePoolName) {
@@ -909,8 +961,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     // Always render pools first with no location data
     renderPools(poolRecords);
+    markPoolPerformance('summary-visible');
     startPoolLiveStatusUpdates();
     setPoolListStatus(`Pool directory loaded. ${poolRecords.length} pools available.`, false);
+    startPoolBrowserEnrichment();
     
     // Set up pool-specific navigation event handlers
     setupPoolNavigationHandlers();

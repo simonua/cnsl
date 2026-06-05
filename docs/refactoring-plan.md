@@ -1,51 +1,41 @@
 # CNSL Engineering Refactoring Plan
 
-Status: Active recommendations. Completed or closed items are removed when resolved.
+Status: No actionable performance refactoring items.
 
-Audit date: 2026-06-02
+Review date: 2026-06-05
 
 ## Scope And Validation
 
-This plan retains only actionable recommendations. The 2026-06-02 implementation pass extracted pool period-schedule projection into a DOM-free service, reduced pool-calendar interaction handling to a dedicated browser adapter, moved time-slot highlight markup ownership out of `TimeUtils`, and aligned expanded team agendas to a readable desktop width. Completed recommendations are removed instead of retained as implementation history.
+The performance follow-up completed the remaining measurement recommendations. The repeatable local report now exposes route usable-time spread, separate Pools primary-data, summary-visible, and optional-enrichment phases, maximum annual-domain request counts, and precise PWA complete-inventory, install-critical, and cache-on-use tier sizes.
 
-The clean local artifact baseline and delivered HTTPS browser performance measurements have also been recorded in [release-checklist.md](release-checklist.md#L65). Delivered-HTTPS PWA lifecycle, keyboard and screen-reader behavior, CSP console review, and analytics request review remain pending manual release checks.
+The completed three-run baseline reported zero warnings. Pools summary-visible median was 478 ms and optional enrichment settled at 691 ms, confirming that optional work does not delay the visible summary. PWA reporting confirms that the 83-resource / 2,525,426-byte cache inventory partitions into a 61-resource / 945,362-byte install-critical core and a 22-resource / 1,580,064-byte cache-on-use optional tier.
+
+Validation completed on 2026-06-05:
+
+- Focused performance-reporting tests passed: 2 tests, 0 failures.
+- `pnpm run lint` passed.
+- `pnpm run measure:performance` passed with zero warnings across three cold runs per route.
+- A one-run `CNSL_PERF_BUDGET_SCALE=0.1` sample emitted 11 advisory warnings and completed successfully.
+- `pnpm run verify:pwa` passed with precise inventory, core, and optional tier reporting.
+
+## Current Decisions
+
+- Do not add local-data query indexes without a benchmark. Current collections remain small, direct pool and team lookups use `Map`, concurrent domain requests are deduplicated, and team practice-pool lookups already have a maintained index.
+- Do not add asynchronous or stale-while-revalidate annual-data refresh. Annual JSON remains coherent with the versioned application build, and no application workflow currently calls `DataManager.refresh()`.
+- Do not extend progressive detail hydration to Teams or Meets. Current repeatable route measurements do not demonstrate a visitor-facing need.
+- Keep the current PWA core/optional split. Do not further reduce the core tier or proactively warm optional resources until delivered-HTTPS installation evidence demonstrates a problem.
+- Keep performance budgets warning-only until repeated local and delivered-HTTPS measurements demonstrate stable blocking thresholds.
 
 ## Priority Matrix
 
 | Priority | Finding | Impact | Effort |
 | --- | --- | --- | --- |
-| 🔴 High | No demonstrated high-priority finding | - | - |
-| 🟠 Medium | No open medium-priority recommendation | - | - |
-| 🟢 Low | No open low-priority recommendation | - | - |
-
-## High Priority
-
-No demonstrated accessibility barrier, release or annual-data integrity risk, security exposure, or current runtime defect warrants a high-priority refactor. Preserve the manual delivered-HTTPS checks because local automation does not establish secure-origin behavior or full accessibility conformance.
-
-## Medium Priority
-
-No medium-priority recommendation remains open after the 2026-06-02 implementation pass.
-
-## Low Priority
-
-No low-priority recommendation remains open after recording the initial delivered HTTPS browser performance baseline.
-
-## Phased Roadmap
-
-No active refactoring phases remain.
-
-## Guardrails
-
-- Do not edit, delete, regenerate, or mechanically rewrite annual JSON, schemas, READMEs, or official PDFs under `src/assets/data/` as part of general refactoring; annual source data requires reviewed seasonal work.
-- Do not edit `out/`; it is generated build output. Publication boundaries remain enforced through build logic and verifier assertions.
-- Keep the PostHTML static-site, single delivered stylesheet, and native DOM architecture unless a separately reviewed decision is justified by measured need.
-- Drive filtering, state transitions, interaction decisions, accessibility state, and analytics categorization from domain values or explicit semantic properties; map semantics to labels, icons, classes, and colors only at the rendering boundary.
-- Preserve purpose-limited analytics, CSP checks, PWA artifact checks, accessibility gates, and pinned workflow actions while refactoring display state.
-- Run focused checks while iterating on delivered code, then run the required complete automated gate and serialized `pnpm run test:browser:nightly` completion gate for significant refactors.
-- Do not claim deployed security or full accessibility conformance from local automation alone; retain secure-origin and assistive-technology review in the release process.
+| RED - High | No actionable item | - | - |
+| ORANGE - Medium | No actionable item | - | - |
+| GREEN - Low | No actionable item | - | - |
 
 ## Priority Summary
 
-- **🔴 High:** No demonstrated high-priority finding.
-- **🟠 Medium:** No open medium-priority recommendation.
-- **🟢 Low:** No open low-priority recommendation.
+- **RED - High:** No actionable item.
+- **ORANGE - Medium:** No actionable item.
+- **GREEN - Low:** No actionable item.

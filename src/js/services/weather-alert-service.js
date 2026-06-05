@@ -168,9 +168,24 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
      * @returns {Object|null} Daily operating window in minutes after midnight
      */
     static getPoolOperatingWindow(poolData, now = new Date()) {
+      const context = WeatherAlertService.getEasternDateContext(now);
+      const dailyWindow = poolData && poolData.dailyOperatingWindows && poolData.dailyOperatingWindows[context.date];
+      if (Array.isArray(dailyWindow) && dailyWindow.length === 2
+        && dailyWindow.every(minutes => Number.isFinite(minutes))) {
+        const [openMinutes, closeMinutes] = dailyWindow;
+        return {
+          closeMinutes,
+          currentMinutes: context.minutes,
+          notificationStartMinutes: Math.max(0, openMinutes - WeatherAlertService.POOL_OPENING_LEAD_MINUTES),
+          openMinutes
+        };
+      }
+      return WeatherAlertService.getPoolOperatingWindowForContext(poolData, context);
+    }
+
+    static getPoolOperatingWindowForContext(poolData, context) {
       if (!poolData || !Array.isArray(poolData.pools)) return null;
 
-      const context = WeatherAlertService.getEasternDateContext(now);
       const times = [];
       poolData.pools.forEach(pool => {
         const schedules = [...(Array.isArray(pool.schedules) ? pool.schedules : []),
@@ -199,6 +214,29 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
         notificationStartMinutes: Math.max(0, openMinutes - WeatherAlertService.POOL_OPENING_LEAD_MINUTES),
         openMinutes
       };
+    }
+
+    static createOperatingWindowSchedule(poolData) {
+      const startDate = poolData && poolData.seasonStartDate;
+      const endDate = poolData && poolData.seasonEndDate;
+      const date = new Date(`${startDate}T00:00:00Z`);
+      const finalDate = new Date(`${endDate}T00:00:00Z`);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(startDate || '') || !/^\d{4}-\d{2}-\d{2}$/.test(endDate || '')
+        || Number.isNaN(date.getTime()) || Number.isNaN(finalDate.getTime())
+        || date.toISOString().slice(0, 10) !== startDate || finalDate.toISOString().slice(0, 10) !== endDate
+        || startDate > endDate) {
+        throw new Error('Pool operating-window schedule requires a valid season date range.');
+      }
+
+      const dailyOperatingWindows = {};
+      while (date <= finalDate) {
+        const dateString = date.toISOString().slice(0, 10);
+        const day = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', weekday: 'short' }).format(date);
+        const window = WeatherAlertService.getPoolOperatingWindowForContext(poolData, { date: dateString, day, minutes: 0 });
+        if (window) dailyOperatingWindows[dateString] = [window.openMinutes, window.closeMinutes];
+        date.setUTCDate(date.getUTCDate() + 1);
+      }
+      return { dailyOperatingWindows };
     }
 
     static isActivityScheduledForDay(hours, day) {

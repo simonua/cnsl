@@ -143,6 +143,51 @@ test('[WF-DATA-006] FAQ and footer show the accepted seasonal-source timestamp i
   }
 });
 
+test('[WF-DATA-007-POOLS] pool summaries and requested details render before optional enrichment settles', async ({ page }) => {
+  let releaseOptionalRequests;
+  const optionalRequestsPaused = new Promise(resolve => {
+    releaseOptionalRequests = resolve;
+  });
+  for (const domain of ['teams', 'meets']) {
+    await page.route(`**/assets/data/2026/${domain}/${domain}.json*`, async route => {
+      await optionalRequestsPaused;
+      await route.continue();
+    });
+  }
+
+  try {
+    await page.goto('/pools.html', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+    await expect(page.locator('#poolList .pool-card')).toHaveCount(23);
+    await expect(page.locator('#poolList .pool-details[data-pool-details-hydrated="false"]')).toHaveCount(23);
+    await expect(page.locator('#poolList .pool-contact')).toHaveCount(0);
+
+    const firstPool = page.locator('#poolList .pool-card').first();
+    await firstPool.locator('.pool-header__toggle').click();
+    await expect(firstPool.locator('.pool-details')).toHaveAttribute('data-pool-details-hydrated', 'true');
+    await expect(firstPool.locator('.pool-contact')).toBeVisible();
+    await expect(firstPool.locator('.pool-hours')).toBeVisible();
+    expect(await page.evaluate(() => performance.getEntriesByName('cnsl:pools:summary-visible').length)).toBe(1);
+    expect(await page.evaluate(() => performance.getEntriesByName('cnsl:pools:optional-enrichment-settled').length)).toBe(0);
+  } finally {
+    releaseOptionalRequests();
+  }
+
+  await expect.poll(() => page.evaluate(() => performance.getEntriesByName('cnsl:pools:optional-enrichment-settled').length)).toBe(1);
+});
+
+test('[WF-DATA-008] generic routes use compact weather eligibility without loading pools data', async ({ page }) => {
+  const poolDataRequests = [];
+  page.on('request', request => {
+    if (request.url().includes('/assets/data/2026/pools/pools.json')) poolDataRequests.push(request.url());
+  });
+
+  await page.goto('/faq.html');
+  await expect(page.locator('h1')).toHaveText('Frequently Asked Questions');
+  expect(poolDataRequests).toEqual([]);
+  expect(await page.evaluate(() => Object.keys(globalThis.WEATHER_OPERATING_WINDOWS.dailyOperatingWindows).length)).toBeGreaterThan(0);
+});
+
 test('[WF-DATA-003] pool load failures are announced and do not leave the directory busy', async ({ page }) => {
   await page.route('**/assets/data/2026/pools/pools.json*', route => route.fulfill({ status: 503, body: '{}' }));
   await page.goto('/pools.html');

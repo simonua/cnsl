@@ -3,6 +3,7 @@ const path = require('path');
 const crypto = require('node:crypto');
 const posthtml = require('posthtml');
 const appConfig = require('./src/js/config/app-config');
+const WeatherAlertService = require('./src/js/services/weather-alert-service');
 const annualDataSourceDir = './src/assets/data';
 const activeSeason = String(appConfig.YEAR);
 const activeSeasonPoolsPath = path.join(annualDataSourceDir, activeSeason, 'pools', 'pools.json');
@@ -209,6 +210,15 @@ copyDir('./src/css', path.join(outDir, 'css'));
 console.log(`⚙️ [${timestamp()}] Copying JS directory...`);
 copyDir('./src/js', path.join(outDir, 'js'));
 
+function writeWeatherOperatingWindowsArtifact() {
+  const operatingWindows = WeatherAlertService.createOperatingWindowSchedule(activeSeasonPools);
+  const outputPath = path.join(outDir, 'js', 'config', 'weather-operating-windows.js');
+  fs.writeFileSync(outputPath, `globalThis.WEATHER_OPERATING_WINDOWS = Object.freeze(${JSON.stringify(operatingWindows)});\n`);
+  console.log(`Generated compact weather operating windows: ${fs.statSync(outputPath).size} bytes.`);
+}
+
+writeWeatherOperatingWindowsArtifact();
+
 // Copy required publishing artifacts, including search and GitHub Pages domain ownership.
 const requiredRootStaticFiles = ['BingSiteAuth.xml', 'browserconfig.xml', 'CNAME', 'google3dd9d57115818ebb.html', 'LICENSE', 'manifest.webmanifest', 'robots.txt', 'sitemap.xml'];
 requiredRootStaticFiles.forEach(file => {
@@ -264,6 +274,12 @@ function writePwaArtifacts() {
     `assets/data/${appConfig.YEAR}/meets/meets.json`
   ];
   const resources = ['./', ...collectPrecacheResources(outDir).sort()];
+  const installCriticalPages = new Set(['index.html', 'offline.html', 'pools.html', 'teams.html', 'meets.html', 'settings.html']);
+  const coreResources = resources.filter(resource => resource === './'
+    || installCriticalPages.has(resource)
+    || /\.(?:css|js|webmanifest)$/i.test(resource)
+    || resource.startsWith(`assets/data/${appConfig.YEAR}/`));
+  const optionalResources = resources.filter(resource => !coreResources.includes(resource));
   const missingResources = requiredOfflineResources.filter(resource => !resources.includes(resource));
   if (missingResources.length > 0) {
     throw new Error(`Required offline resources missing from output: ${missingResources.join(', ')}`);
@@ -271,7 +287,9 @@ function writePwaArtifacts() {
 
   fs.writeFileSync(
     path.join(outDir, 'precache-manifest.js'),
-    `self.PRECACHE_RESOURCES = ${JSON.stringify(resources, null, 2)};\n`
+    `self.PRECACHE_CORE_RESOURCES = ${JSON.stringify(coreResources, null, 2)};\n`
+      + `self.PRECACHE_OPTIONAL_RESOURCES = ${JSON.stringify(optionalResources, null, 2)};\n`
+      + 'self.PRECACHE_RESOURCES = [...self.PRECACHE_CORE_RESOURCES, ...self.PRECACHE_OPTIONAL_RESOURCES];\n'
   );
 
   const serviceWorkerPath = 'service-worker.js';
@@ -283,7 +301,7 @@ function writePwaArtifacts() {
     `const CACHE_VERSION = '${cacheVersion}';`
   );
   fs.writeFileSync(path.join(outDir, serviceWorkerPath), swContent);
-  console.log(`Generated PWA precache inventory with ${resources.length} resources.`);
+  console.log(`Generated PWA precache inventory with ${coreResources.length} core and ${optionalResources.length} optional resources.`);
   console.log(`Updated and copied service-worker.js with cache version: ${cacheVersion}`);
 }
 

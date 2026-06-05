@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('node:vm');
 const { APP_VERSION, GA4_MEASUREMENT_ID, HOME_PAGE_HOSTNAME, HOME_PAGE_URL, YEAR } = require('../src/js/config/app-config.js');
+const WeatherAlertService = require('../src/js/services/weather-alert-service.js');
 
 const outDir = path.join(__dirname, '..', 'out');
 const siteOrigin = HOME_PAGE_URL;
@@ -21,11 +22,13 @@ const requiredArtifacts = [
   'pools.html',
   'teams.html',
   'meets.html',
+  'settings.html',
   'robots.txt',
   'sitemap.xml',
   'manifest.webmanifest',
   'precache-manifest.js',
   'service-worker.js',
+  'js/config/weather-operating-windows.js',
   'assets/images/logos/team-logos@2x.png',
   `assets/data/${YEAR}/pools/pools.json`,
   `assets/data/${YEAR}/teams/teams.json`,
@@ -87,6 +90,15 @@ function calculateDirectoryBytes(directory) {
 
 const artifactBytes = calculateDirectoryBytes(outDir);
 const activeSeasonPools = JSON.parse(fs.readFileSync(path.join(outDir, 'assets', 'data', String(YEAR), 'pools', 'pools.json'), 'utf8'));
+const weatherOperatingWindowsPath = path.join(outDir, 'js', 'config', 'weather-operating-windows.js');
+const weatherOperatingWindowsContext = {};
+vm.runInNewContext(fs.readFileSync(weatherOperatingWindowsPath, 'utf8'), weatherOperatingWindowsContext);
+assert.ok(fs.statSync(weatherOperatingWindowsPath).size <= 10 * 1024, 'Generated weather operating windows must remain no larger than 10 KB.');
+assert.deepEqual(
+  JSON.parse(JSON.stringify(weatherOperatingWindowsContext.WEATHER_OPERATING_WINDOWS)),
+  WeatherAlertService.createOperatingWindowSchedule(activeSeasonPools),
+  'Generated weather operating windows must match the active annual pools source.'
+);
 const formatSeasonDate = dateString => new Date(`${dateString}T00:00:00Z`).toLocaleDateString('en-US', {
   day: 'numeric',
   month: 'long',
@@ -100,7 +112,38 @@ assert.match(manifest.description, new RegExp(String(YEAR)), 'The install manife
 const manifestContext = { self: {} };
 vm.runInNewContext(fs.readFileSync(path.join(outDir, 'precache-manifest.js'), 'utf8'), manifestContext);
 const precacheResources = manifestContext.self.PRECACHE_RESOURCES;
+const precacheCoreResources = manifestContext.self.PRECACHE_CORE_RESOURCES;
+const precacheOptionalResources = manifestContext.self.PRECACHE_OPTIONAL_RESOURCES;
+const calculateResourceBytes = resources => resources
+  .filter(resource => resource !== './')
+  .reduce((total, resource) => total + fs.statSync(path.join(outDir, resource)).size, 0);
 assert.ok(Array.isArray(precacheResources), 'The generated precache inventory must define an array.');
+assert.ok(Array.isArray(precacheCoreResources), 'The generated precache inventory must define a core array.');
+assert.ok(Array.isArray(precacheOptionalResources), 'The generated precache inventory must define an optional array.');
+assert.ok(precacheOptionalResources.length > 0, 'The generated precache inventory must stage optional resources.');
+assert.deepEqual(
+  [...precacheCoreResources, ...precacheOptionalResources].sort(),
+  [...precacheResources].sort(),
+  'Core and optional resources must partition the complete precache inventory.'
+);
+assert.equal(new Set(precacheResources).size, precacheResources.length, 'Precache resources must not be duplicated across cache tiers.');
+[
+  './',
+  'index.html',
+  'offline.html',
+  'pools.html',
+  'teams.html',
+  'meets.html',
+  'settings.html',
+  'css/styles.css',
+  'manifest.webmanifest',
+  'js/config/weather-operating-windows.js',
+  `assets/data/${YEAR}/pools/pools.json`,
+  `assets/data/${YEAR}/teams/teams.json`,
+  `assets/data/${YEAR}/meets/meets.json`
+].forEach(resource => assert.ok(precacheCoreResources.includes(resource), `Install-critical inventory is missing: ${resource}`));
+assert.ok(precacheOptionalResources.includes('assets/images/logos/team-logos@2x.png'), 'Large visual assets must remain optional during installation.');
+assert.ok(precacheOptionalResources.includes('faq.html'), 'Informational routes without an offline requirement must remain optional during installation.');
 requiredArtifacts
   .filter(resource => !['CNAME', 'robots.txt', 'sitemap.xml', 'precache-manifest.js', 'service-worker.js'].includes(resource))
   .forEach(resource => assert.ok(precacheResources.includes(resource), `Precache inventory is missing: ${resource}`));
@@ -114,6 +157,8 @@ const worker = fs.readFileSync(path.join(outDir, 'service-worker.js'), 'utf8');
 assert.doesNotMatch(worker, /const CACHE_VERSION = 'development'/, 'Built service worker must have a release cache version.');
 assert.match(worker, /js\/config\/app-config\.js/, 'Service worker must load shared application configuration.');
 assert.match(worker, /precache-manifest\.js/, 'Service worker must import the generated precache inventory.');
+assert.match(worker, /self\.PRECACHE_CORE_RESOURCES/, 'Service worker installation must use the generated core inventory.');
+assert.doesNotMatch(worker, /cacheOptionalResources/, 'Service worker installation must not wait for optional cache warming.');
 
 const analytics = fs.readFileSync(path.join(outDir, 'js', 'analytics.js'), 'utf8');
 const appConfig = fs.readFileSync(path.join(outDir, 'js', 'config', 'app-config.js'), 'utf8');
@@ -210,6 +255,10 @@ Object.entries(canonicalPages).forEach(([page, canonical]) => {
   assert.match(html, /id="connectivityStatus"/, `${page} must include shared offline connection status.`);
   assert.match(html, /js\/connectivity-status\.js\?v=/, `${page} must load shared offline connection-status handling.`);
   assert.match(html, /js\/weather-alert-cached\.js\?v=/, `${page} must load cached weather rendering from a same-origin script.`);
+  assert.ok(
+    html.indexOf('js/config/weather-operating-windows.js?v=') < html.indexOf('js/services/weather-alert-service.js?v='),
+    `${page} must load compact weather operating windows before weather evaluation.`
+  );
   assert.doesNotMatch(html, /analytics-consent\.js|onclick=/, `${page} must not publish the obsolete consent loader or inline click handlers.`);
 });
 
@@ -247,4 +296,7 @@ assert.match(robots, new RegExp(`Sitemap: ${siteOrigin.replace(/[.*+?^${}()|[\]\
 const customDomain = fs.readFileSync(path.join(outDir, 'CNAME'), 'utf8').trim();
 assert.equal(customDomain, HOME_PAGE_HOSTNAME, 'Published GitHub Pages output must retain the configured custom domain.');
 
-console.log(`Verified PWA artifact: ${precacheResources.length} cached resources and ${artifactBytes} bytes for the ${YEAR} season.`);
+console.log(`Verified PWA artifact for the ${YEAR} season: ${artifactBytes} delivered bytes.`);
+console.log(`PWA cache inventory: ${precacheResources.length} resources / ${calculateResourceBytes(precacheResources)} bytes.`);
+console.log(`PWA install-critical core: ${precacheCoreResources.length} resources / ${calculateResourceBytes(precacheCoreResources)} bytes.`);
+console.log(`PWA cache-on-use optional tier: ${precacheOptionalResources.length} resources / ${calculateResourceBytes(precacheOptionalResources)} bytes.`);

@@ -100,11 +100,19 @@ Record the network evidence, GA administration evidence, and GA reportability re
 
 Record occasional browser measurements here or in the release record when UI behavior changes materially:
 
+Run `pnpm run measure:performance` for the repeatable local warning baseline. It performs a clean build, starts an isolated local server, blocks service workers and external requests, and reports results from three fresh Chromium contexts per directory. The report includes minimum / median / maximum usable time, Pools progressive-render phases, median same-origin requests and response bytes, maximum annual-domain request counts, and complete PWA cache-inventory, install-critical core, and cache-on-use optional tier sizes. It is intentionally separate from functional gates and delivered-HTTPS evidence.
+
+- Set `CNSL_PERF_RUNS` to change the cold-run count while investigating variance.
+- Set `CNSL_PERF_BUDGET_SCALE` below `1` to verify that a sample regression produces warnings without changing source. Warnings are advisory and do not fail the command.
+
 | Measurement | Route Or Scope | Result | Date / Environment |
 | --- | --- | --- | --- |
-| Published artifact size | Generated public `out/` artifact | 1,791,640 bytes observed; 78 cached resources; active season output only | 2026-06-02 / local clean build and `verify:pwa` |
+| Published artifact size | Generated public `out/` artifact | 1,791,640 bytes observed; 78-resource cache inventory; active season output only | 2026-06-02 / local clean build and `verify:pwa` |
 | Directory usable/render completion | Pools, Teams, Meets | Cold median: Pools 1,840 ms; Teams 1,424 ms; Meets 1,365 ms | 2026-06-02 / production HTTPS; Windows; Playwright Chromium channel with desktop Chrome 137 UA; cache disabled, service workers blocked, fresh context per cold run; median of 3 runs |
 | First-view request count and transfer size | Home and Pools | Cold median: Home 37 requests / 298,427 bytes transferred; Pools 51 requests / 360,911 bytes transferred | 2026-06-02 / production HTTPS; Windows; Playwright Chromium channel with desktop Chrome 137 UA; cache disabled, service workers blocked, fresh context per cold run; median of 3 runs |
+| Repeatable local directory baseline | Pools, Teams, Meets | Usable min / median / max: Pools 511 / 553 / 750 ms; Teams 516 / 519 / 547 ms; Meets 405 / 439 / 986 ms; each annual domain requested once per route | 2026-06-05 / clean local artifact; Playwright Chromium; service workers and external requests blocked; fresh context per cold run; 3 runs |
+| Pools progressive-render phases | Pools | Median: primary data ready 432 ms; summary visible 478 ms; optional enrichment settled 691 ms | 2026-06-05 / same repeatable local directory baseline |
+| PWA cache tiers | Generated public `out/` artifact | 83-resource / 2,525,426-byte complete cache inventory; 61 resources / 945,362 bytes install-critical; 22 resources / 1,580,064 bytes cache on use | 2026-06-05 / local clean build and `measure:performance` |
 | Authored webfont / FOUT boundary | All routes | System-font-only source boundary covered by unit test; confirm no font requests in delivered page inspection | 2026-05-28 / local validation |
 
 The 2026-06-02 delivered measurements establish the initial HTTPS browser baseline. No asset-optimization follow-up is indicated until a comparable measurement demonstrates a material regression or a visitor-facing performance issue is observed.

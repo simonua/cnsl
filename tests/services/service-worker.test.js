@@ -49,6 +49,8 @@ function createWorkerHarness(precacheResources, options = {}) {
   };
   const scope = {
     PRECACHE_RESOURCES: precacheResources,
+    PRECACHE_CORE_RESOURCES: options.coreResources || precacheResources,
+    PRECACHE_OPTIONAL_RESOURCES: options.optionalResources || [],
     location: new URL(options.location || 'https://pools.longreachmarlins.org/service-worker.js'),
     clients: {
       claim: async () => undefined,
@@ -120,11 +122,15 @@ function createWorkerHarness(precacheResources, options = {}) {
 }
 
 describe('service worker cache strategy', () => {
-  it('should activate after caching the required shell when an optional resource cannot be cached', async () => {
-    const harness = createWorkerHarness([...coreResources, 'assets/images/optional.png']);
+  it('should activate without requesting optional resources during installation', async () => {
+    let optionalRequests = 0;
+    const harness = createWorkerHarness([...coreResources, 'assets/images/optional.png'], {
+      coreResources,
+      optionalResources: ['assets/images/optional.png']
+    });
     harness.setFetchImplementation(async request => {
       const url = typeof request === 'string' ? request : request.url;
-      if (url.includes('optional.png')) throw new Error('Optional resource unavailable');
+      if (url.includes('optional.png')) optionalRequests += 1;
       return new Response(url, { status: 200 });
     });
 
@@ -133,6 +139,7 @@ describe('service worker cache strategy', () => {
     assert.equal(harness.getSkipWaitingCalls(), 1);
     assert.ok([...harness.cacheRecords.keys()].some(url => url.includes('/offline.html?v=development')));
     assert.ok(![...harness.cacheRecords.keys()].some(url => url.includes('optional.png')));
+    assert.equal(optionalRequests, 0);
   });
 
   it('should reject installation when the required offline shell cannot be cached', async () => {

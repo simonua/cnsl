@@ -300,6 +300,23 @@ describe('WeatherAlertService', () => {
       assert.equal(WeatherAlertService.isWithinPoolOperatingWindow(null, now), false);
       assert.equal(WeatherAlertService.isWithinPoolOperatingWindow(poolData, now), true);
     });
+
+    it('derives a compact daily schedule equivalent to the full pool document', () => {
+      const seasonalPoolData = {
+        ...poolData,
+        seasonStartDate: '2026-05-23',
+        seasonEndDate: '2026-05-25'
+      };
+      const operatingWindows = WeatherAlertService.createOperatingWindowSchedule(seasonalPoolData);
+
+      assert.deepEqual(operatingWindows.dailyOperatingWindows, { '2026-05-24': [720, 1140] });
+      assert.deepEqual(
+        WeatherAlertService.getPoolOperatingWindow(operatingWindows, now),
+        WeatherAlertService.getPoolOperatingWindow(seasonalPoolData, now)
+      );
+      assert.throws(() => WeatherAlertService.createOperatingWindowSchedule({}), /valid season date range/);
+      assert.throws(() => WeatherAlertService.createOperatingWindowSchedule({ seasonEndDate: '2026-02-28', seasonStartDate: '2026-02-30' }), /valid season date range/);
+    });
   });
 
   describe('cache and browser fallbacks', () => {

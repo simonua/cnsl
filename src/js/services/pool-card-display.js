@@ -34,9 +34,8 @@ if (typeof window === 'undefined' || !window.PoolCardDisplay) {
       const isExpanded = model.isExpanded === true;
       const distanceHtml = PoolCardDisplay.renderDistance(model.distanceMiles);
       const statusIndicatorHtml = PoolCardDisplay.renderStatusIndicator(model.poolStatus, model.statusTooltip);
-      const contactHtml = PoolCardDisplay.renderContact(model.pool, poolName, model.mapsSearchBaseUrl);
-      const featuresHtml = PoolCardDisplay.renderFeatures(model.featureItems);
-      const hoursHtml = typeof model.hoursHtml === 'string' ? model.hoursHtml : '';
+      const isDetailsHydrated = model.isDetailsHydrated !== false;
+      const detailsHtml = isDetailsHydrated ? PoolCardDisplay.renderDetails(model) : '';
 
       return `
       <div class="pool-card ${isFavorite ? 'favorite-card' : ''}${isExpanded ? '' : ' collapsed'}" data-pool-card data-pool-id="${safePoolId}" data-pool-name="${safePoolName}" data-analytics-context="pool_details">
@@ -44,13 +43,25 @@ if (typeof window === 'undefined' || !window.PoolCardDisplay) {
           <h2><button type="button" class="pool-header__toggle" data-pool-card-action="toggle" aria-expanded="${String(isExpanded)}" aria-controls="${safeDetailsId}">${statusIndicatorHtml}${safePoolName}${isFavorite ? ' <span class="favorite-badge">Favorite pool</span>' : ''}</button></h2>
           ${distanceHtml}
         </div>
-        <div class="pool-details" id="${safeDetailsId}"${isExpanded ? '' : ' hidden'}>
-          ${contactHtml}
-          ${hoursHtml}
-          ${featuresHtml}
+        <div class="pool-details" id="${safeDetailsId}" data-pool-details-hydrated="${String(isDetailsHydrated)}"${isExpanded ? '' : ' hidden'}>
+          ${detailsHtml}
         </div>
       </div>
     `;
+    }
+
+    /**
+     * Render detail content separately so collapsed cards can hydrate on demand.
+     * @param {Object} viewModel - Display-ready pool state and trusted nested fragments
+     * @returns {string} Pool detail HTML
+     */
+    static renderDetails(viewModel) {
+      const model = viewModel || {};
+      const poolName = model.poolName || 'Unknown Pool';
+      const contactHtml = PoolCardDisplay.renderContact(model.pool, poolName, model.mapsSearchBaseUrl);
+      const featuresHtml = PoolCardDisplay.renderFeatures(model.featureItems);
+      const hoursHtml = typeof model.hoursHtml === 'string' ? model.hoursHtml : '';
+      return `${contactHtml}${hoursHtml}${featuresHtml}`;
     }
 
     /**

@@ -21,6 +21,7 @@
     "test:browser:nightly": "node scripts/run-playwright.js test",
     "validate:data": "node scripts/validate-season-data.js",
     "verify:pwa": "node scripts/verify-pwa-build.js",
+    "measure:performance": "pnpm run build && node scripts/measure-performance.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },

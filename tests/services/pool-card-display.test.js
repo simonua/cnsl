@@ -96,6 +96,18 @@ describe('PoolCardDisplay', () => {
     assert.doesNotMatch(html, /pool-hours/);
   });
 
+  it('renders a summary without detail work until hydration is requested', () => {
+    const summaryHtml = PoolCardDisplay.render({ ...viewModel, isExpanded: false, isDetailsHydrated: false });
+
+    assert.match(summaryHtml, /data-pool-details-hydrated="false"/);
+    assert.doesNotMatch(summaryHtml, /pool-contact/);
+    assert.doesNotMatch(summaryHtml, /pool-hours/);
+    assert.doesNotMatch(summaryHtml, /pool-features/);
+    assert.match(PoolCardDisplay.renderDetails(viewModel), /pool-contact/);
+    assert.match(PoolCardDisplay.renderDetails(viewModel), /pool-hours/);
+    assert.match(PoolCardDisplay.renderDetails(viewModel), /pool-features/);
+  });
+
   it('installs the display helper as a browser script global', () => {
     const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'pool-card-display.js');
     const source = fs.readFileSync(sourcePath, 'utf8');
