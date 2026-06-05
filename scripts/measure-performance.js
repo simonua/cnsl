@@ -15,9 +15,10 @@ const POOL_PHASE_MARKS = Object.freeze([
   'optional-enrichment-settled'
 ]);
 const ROUTES = [
-  { budgetBytes: 900000, budgetRequests: 55, budgetUsableMs: 2000, id: 'poolList', name: 'Pools', path: '/pools.html' },
-  { budgetBytes: 1100000, budgetRequests: 50, budgetUsableMs: 1800, id: 'teamList', name: 'Teams', path: '/teams.html' },
-  { budgetBytes: 800000, budgetRequests: 45, budgetUsableMs: 1800, id: 'meetList', name: 'Meets', path: '/meets.html' }
+  { budgetBytes: 500000, budgetRequests: 45, budgetUsableMs: 1200, name: 'Home', path: '/index.html', readySelector: '.home-view' },
+  { budgetBytes: 900000, budgetRequests: 55, budgetUsableMs: 2000, name: 'Pools', path: '/pools.html', readySelector: '#poolList[aria-busy="false"]' },
+  { budgetBytes: 1100000, budgetRequests: 50, budgetUsableMs: 1800, name: 'Teams', path: '/teams.html', readySelector: '#teamList[aria-busy="false"]' },
+  { budgetBytes: 800000, budgetRequests: 45, budgetUsableMs: 1800, name: 'Meets', path: '/meets.html', readySelector: '#meetList[aria-busy="false"]' }
 ];
 
 function median(values) {
@@ -105,7 +106,7 @@ async function measureRoute(browser, route) {
 
     const startedAt = performance.now();
     await page.goto(`${ORIGIN}${route.path}`, { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector(`#${route.id}[aria-busy="false"]`);
+    await page.waitForSelector(route.readySelector);
     const usableMs = Math.round(performance.now() - startedAt);
     await page.waitForLoadState('networkidle');
     await Promise.all(responseJobs);
@@ -193,4 +194,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { median, spread, summarizeRouteSamples };
+module.exports = { ROUTES, median, spread, summarizeRouteSamples };

@@ -1,8 +1,20 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
-const { median, spread, summarizeRouteSamples } = require('../../scripts/measure-performance.js');
+const { ROUTES, median, spread, summarizeRouteSamples } = require('../../scripts/measure-performance.js');
 
 describe('performance measurement reporting', () => {
+  it('should include Home with a visitor-ready content boundary', () => {
+    assert.deepEqual(
+      ROUTES.map(({ name, readySelector }) => ({ name, readySelector })),
+      [
+        { name: 'Home', readySelector: '.home-view' },
+        { name: 'Pools', readySelector: '#poolList[aria-busy="false"]' },
+        { name: 'Teams', readySelector: '#teamList[aria-busy="false"]' },
+        { name: 'Meets', readySelector: '#meetList[aria-busy="false"]' }
+      ]
+    );
+  });
+
   it('should calculate the existing upper median and a compact sample spread', () => {
     assert.equal(median([900, 500, 700, 600]), 700);
     assert.deepEqual(spread([900, 500, 700]), { min: 500, median: 700, max: 900 });
