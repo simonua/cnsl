@@ -242,9 +242,9 @@ Object.entries(canonicalPages).forEach(([page, canonical]) => {
     assert.ok(html.includes(`<meta property="og:url" content="${canonical}">`), `${page} must publish its canonical URL for social sharing.`);
   }
   assert.match(html, /http-equiv="Content-Security-Policy"/, `${page} must publish the shared browser security policy.`);
-  assert.doesNotMatch(html, /script-src[^;"]*'unsafe-inline'/, `${page} must not permit arbitrary inline executable scripts.`);
-  assert.match(html, /script-src[^;"]*'sha256-[A-Za-z0-9+/]+=*'/, `${page} must authorize its inline structured data with a CSP hash.`);
-  assert.match(html, /connect-src[^;"]*https:\/\/www\.google-analytics\.com/, `${page} must permit Google Analytics collection requests.`);
+  assert.match(html, /script-src[^;"]*'unsafe-inline'/, `${page} must permit Cloudflare-injected inline scripts that cannot use a nonce or stable hash.`);
+  assert.doesNotMatch(html, /script-src[^;"]*'(?:sha(?:256|384|512)-|nonce-)/, `${page} must not include a nonce or hash source that causes browsers to ignore unsafe-inline.`);
+  assert.match(html, /connect-src[^;"]*https:\/\/\*\.google-analytics\.com/, `${page} must permit Google Analytics collection requests.`);
   assert.match(html, /script-src[^;"]*https:\/\/static\.cloudflareinsights\.com/, `${page} must permit the Cloudflare Insights beacon script.`);
   assert.match(html, /connect-src[^;"]*https:\/\/cloudflareinsights\.com/, `${page} must permit Cloudflare Insights beacon reporting.`);
   assert.ok(

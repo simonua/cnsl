@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const crypto = require('node:crypto');
 const posthtml = require('posthtml');
 const appConfig = require('./src/js/config/app-config');
 const WeatherAlertService = require('./src/js/services/weather-alert-service');
@@ -142,8 +141,7 @@ const versionStaticAssetsPlugin = (tree) => {
   return tree;
 };
 
-const authorizeInlineStructuredDataPlugin = (tree) => {
-  const inlineScriptHashes = new Set();
+const validateInlineScriptsPlugin = (tree) => {
   let policyMeta = null;
 
   tree.walk(node => {
@@ -151,9 +149,6 @@ const authorizeInlineStructuredDataPlugin = (tree) => {
       if (!node.attrs || node.attrs.type !== 'application/ld+json') {
         throw new Error('Inline executable scripts are not permitted; use a same-origin script asset instead.');
       }
-      const scriptContent = Array.isArray(node.content) ? node.content.join('') : (node.content || '');
-      const digest = crypto.createHash('sha256').update(scriptContent).digest('base64');
-      inlineScriptHashes.add(`'sha256-${digest}'`);
     }
     if (node.tag === 'meta' && node.attrs && node.attrs['http-equiv'] === 'Content-Security-Policy') {
       policyMeta = node;
@@ -165,10 +160,6 @@ const authorizeInlineStructuredDataPlugin = (tree) => {
     throw new Error('Shared Content-Security-Policy metadata is missing from a rendered page.');
   }
 
-  policyMeta.attrs.content = policyMeta.attrs.content.replace(
-    '__INLINE_SCRIPT_HASHES__',
-    [...inlineScriptHashes].join(' ')
-  );
   return tree;
 };
 
@@ -322,7 +313,7 @@ const pageBuilds = files.map(file => {
     .use(extend)
     .use(includePlugin)
     .use(expressions)
-    .use(authorizeInlineStructuredDataPlugin)
+    .use(validateInlineScriptsPlugin)
     .use(versionStaticAssetsPlugin)
     .process(html)
     .then(result => {
