@@ -141,7 +141,7 @@
           }
         ],
         "regular": {
-          "season": "June 23 - July 24",
+          "season": "June 19 - July 24",
           "morning": [
             { "days": "Tuesday - Friday", "location": "Dorsey Hall Pool", "sessions": [
               { "time": "8:00 - 8:30am", "group": "8 & Under" },
@@ -706,23 +706,38 @@
       "practice": {
         "url": "https://www.gomotionapp.com/team/reccnslprp/page/practices",
         "preseason": [
-          { "period": "May 26 - June 18", "days": "Monday & Wednesday", "location": "River Hill Pool", "sessions": [
+          { "period": "May 26 - June 5", "days": "Monday & Wednesday", "location": "River Hill Pool", "sessions": [
             { "time": "5:00 - 5:30pm", "group": "New Swimmers" },
             { "time": "5:30 - 6:00pm", "group": "8 and under" },
             { "time": "6:00 - 6:30pm", "group": "9 - 10" },
             { "time": "6:30 - 7:00pm", "group": "11 and up" }
           ] },
-          { "period": "May 26 - June 18", "days": "Tuesday & Thursday", "location": "Hobbit's Glen Pool", "sessions": [
+          { "period": "May 26 - June 5", "days": "Tuesday & Thursday", "location": "Hobbit's Glen Pool", "sessions": [
             { "time": "5:00 - 5:30pm", "group": "New Swimmers" },
             { "time": "5:30 - 6:00pm", "group": "8 and under" },
             { "time": "6:00 - 6:30pm", "group": "9 - 10" },
             { "time": "6:30 - 7:00pm", "group": "11 and up" }
           ] },
-          { "period": "May 26 - June 18", "days": "Friday", "location": "Hobbit's Glen Pool", "sessions": [
+          { "period": "May 26 - June 5", "days": "Friday", "location": "Hobbit's Glen Pool", "sessions": [
             { "time": "4:00 - 4:30pm", "group": "11 and up" },
             { "time": "4:30 - 5:00pm", "group": "9 - 10" },
             { "time": "5:00 - 5:30pm", "group": "New Swimmers" },
             { "time": "5:30 - 6:00pm", "group": "8 and under" }
+          ] },
+          { "period": "June 8 - June 18", "days": "Monday & Wednesday", "location": "River Hill Pool", "sessions": [
+            { "time": "5:00 - 5:40pm", "group": "8 and under" },
+            { "time": "5:40 - 6:20pm", "group": "9 - 10" },
+            { "time": "6:20 - 7:00pm", "group": "11 and up" }
+          ] },
+          { "period": "June 8 - June 18", "days": "Tuesday & Thursday", "location": "Hobbit's Glen Pool", "sessions": [
+            { "time": "5:00 - 5:40pm", "group": "8 and under" },
+            { "time": "5:40 - 6:20pm", "group": "9 - 10" },
+            { "time": "6:20 - 7:00pm", "group": "11 and up" }
+          ] },
+          { "period": "June 8 - June 18", "days": "Friday", "location": "Hobbit's Glen Pool", "sessions": [
+            { "time": "4:00 - 4:40pm", "group": "11 and up" },
+            { "time": "4:40 - 5:20pm", "group": "9 - 10" },
+            { "time": "5:20 - 6:00pm", "group": "8 and under" }
           ] }
         ],
         "regular": {

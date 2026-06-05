@@ -1,6 +1,6 @@
 {
   "season": 2026,
-  "acceptedOn": "2026-06-04",
+  "acceptedOn": "2026-06-05",
   "documents": [
     {
       "domain": "pools",
@@ -619,7 +619,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Dorsey Search Dolphins practice schedule page",
-      "sha256": "a6fb52cbadddcd9aa4aabf90c86cfa9457076a90a03309444e2710a61083d190",
+      "sha256": "2b3fb631c569b580e212fc728643088cd6e71e4f71b8f0f5fe823b1dbdce3019",
       "sourceIds": [
         "team:dsd:practice"
       ],
@@ -667,7 +667,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Huntington Dolphins practice schedule page",
-      "sha256": "7144ea84909fa48db37da557b8d81d31d43a8d6fbcb102177a3b83a4e58b31a5",
+      "sha256": "cc3b1b3c59fdd8b79b21d01c4a984291d31ebf36507c35c2361522fd2eb360f6",
       "sourceIds": [
         "team:hd:practice"
       ],
@@ -799,7 +799,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Pointers Run Piranhas practice schedule page",
-      "sha256": "98579cb1e7a5d953de8f948f06f146d31c7a82623d093e60e6421513f5f3e059",
+      "sha256": "52e71f0c3f964e144095d6af997b0f3c73ef73b8a5db1c2c4885ea53303980ff",
       "sourceIds": [
         "team:prp:practice"
       ],
