@@ -37,6 +37,10 @@ The domain directories and JSON filenames are intentionally repetitive. Runtime 
 
 Do not assume an empty or PDF-only annual directory is application-ready. A view can load a domain for an active year only after its JSON file and schema have been created and validated.
 
+## Annual Version Boundaries
+
+Each season year begins a new major application version. Patch and minor releases remain within that season's major version: `1.x.x` corresponds to 2025, `2.x.x` to 2026, `3.x.x` to 2027, and each subsequent calendar year increments the major version by one. Therefore, activating a new season requires a major version change, while releases during an active season do not.
+
 ## Source And Generated Files
 
 - Edit source files only below `src/assets/data/<YEAR>/` when an annual data update has been explicitly requested.
