@@ -3,5 +3,11 @@
     <a href="{{ EXTERNAL_LINKS.LINKEDIN_PROFILE }}" target="_blank" rel="noopener noreferrer">Simon Kurtz</a> | 
     <time datetime="{{ APP_LAST_UPDATED_ON }}">{{ new Date(APP_LAST_UPDATED_ON).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }) }}</time> - <a href="whats-new.html#version-{{ APP_VERSION }}">{{ APP_VERSION }}</a>
   </p>
-  <p class="footer__data-freshness"><strong>Last data update:</strong> <time datetime="{{ OFFICIAL_SOURCE_CHECKED_AT }}">{{ OFFICIAL_SOURCE_CHECKED_SHORT_LABEL }}</time></p>
+  <p class="footer__data-freshness">
+    <strong>Last data update:</strong> <time datetime="{{ OFFICIAL_SOURCE_CHECKED_AT }}">{{ OFFICIAL_SOURCE_CHECKED_SHORT_LABEL }}</time>
+  </p>
+  <p class="footer__data-freshness footer__weather-freshness" id="footerWeatherFreshness" hidden>
+    <strong>Last weather update:</strong>
+    <time id="footerWeatherUpdated"></time><span id="footerWeatherNotChecked">Not checked yet</span>
+  </p>
 </footer>

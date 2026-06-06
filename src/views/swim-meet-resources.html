@@ -73,12 +73,12 @@
 
         <div class="resource-card resource-card--flyer">
           <h2>Web App Flyer</h2>
-          <a href="assets/swim-meet-resources/ca-pool-cnsl-assistant-flyer.pdf" class="resource-card__preview-link" download aria-label="Download the CA Pool and CNSL Assistant flyer (PDF)">
+          <button type="button" class="resource-card__preview-link" id="flyerPreviewButton" aria-label="Preview the CA Pool and CNSL Assistant flyer (PDF)">
             <picture>
               <source media="(max-width: 48rem)" srcset="assets/swim-meet-resources/ca-pool-cnsl-assistant-flyer-thumbnail-mobile.png" />
               <img src="assets/swim-meet-resources/ca-pool-cnsl-assistant-flyer-thumbnail.png" class="resource-card__preview" alt="Preview of the CA Pool and CNSL Assistant flyer" width="306" height="396" />
             </picture>
-          </a>
+          </button>
           <p>Download and display the CA Pool &amp; CNSL Assistant flyer to help families discover the web app and find pool, team, and meet information.</p>
           <div class="resource-actions">
             <a href="assets/swim-meet-resources/ca-pool-cnsl-assistant-flyer.pdf" class="btn-primary" download>
@@ -99,5 +99,17 @@
         </ul>
       </div>
     </div>
+
+    <dialog class="flyer-dialog" id="flyerDialog" aria-labelledby="flyerDialogTitle">
+      <div class="flyer-dialog__header">
+        <h2 id="flyerDialogTitle">Web App Flyer</h2>
+        <button type="button" class="btn-secondary flyer-dialog__close" id="flyerDialogClose">Close</button>
+      </div>
+      <iframe class="flyer-dialog__document" src="assets/swim-meet-resources/ca-pool-cnsl-assistant-flyer.pdf" title="CA Pool and CNSL Assistant flyer PDF"></iframe>
+      <p class="flyer-dialog__fallback">If the preview is unavailable, <a href="assets/swim-meet-resources/ca-pool-cnsl-assistant-flyer.pdf" download>download the flyer PDF</a>.</p>
+    </dialog>
+  </block>
+  <block name="scripts">
+    <script src="js/flyer-preview.js"></script>
   </block>
 </extends>

@@ -87,7 +87,8 @@
     const banner = document.getElementById('weatherAlert');
     const message = document.getElementById('weatherAlertMessage');
     const updated = document.getElementById('weatherAlertUpdated');
-    if (!banner || !message || !updated) return;
+    const sourceLink = document.getElementById('weatherAlertSourceLink');
+    if (!banner || !message || !updated || !sourceLink) return;
 
     notifyWeatherAlertStatus(status);
 
@@ -98,6 +99,7 @@
 
     const updatedAt = new Date(status.updatedAt);
     message.textContent = status.message;
+    sourceLink.hidden = status.source !== 'alert';
     updated.dateTime = status.updatedAt;
     updated.textContent = new Intl.DateTimeFormat('en-US', {
       hour: 'numeric',
@@ -112,6 +114,31 @@
   function notifyWeatherAlertStatus(status) {
     WeatherAlertService.setLatestStatus(status);
     window.dispatchEvent(new CustomEvent('cnsl:weather-alert-status-changed'));
+  }
+
+  function renderFooterWeatherFreshness() {
+    const freshness = document.getElementById('footerWeatherFreshness');
+    const updated = document.getElementById('footerWeatherUpdated');
+    const notChecked = document.getElementById('footerWeatherNotChecked');
+    if (!freshness || !updated || !notChecked || typeof WeatherAlertService === 'undefined') return;
+
+    const isEnabled = getWeatherRefreshMinutes() !== 0;
+    const latestStatus = WeatherAlertService.readLatestCheckedStatus();
+    freshness.hidden = !isEnabled;
+    updated.hidden = !latestStatus;
+    notChecked.hidden = Boolean(latestStatus);
+    if (!isEnabled || !latestStatus) return;
+
+    const updatedAt = new Date(latestStatus.updatedAt);
+    updated.dateTime = latestStatus.updatedAt;
+    updated.textContent = new Intl.DateTimeFormat('en-US', {
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      month: 'short',
+      timeZone: WeatherAlertService.EASTERN_TIMEZONE,
+      timeZoneName: 'short'
+    }).format(updatedAt);
   }
 
   async function refreshWeatherAlert() {
@@ -157,14 +184,20 @@
     const toggle = document.getElementById('weatherAlertToggle');
     if (toggle) toggle.addEventListener('click', toggleWeatherAlert);
 
+    renderFooterWeatherFreshness();
     refreshWeatherAlert();
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) refreshWeatherAlert();
     });
     window.addEventListener('cnsl:preferences-changed', refreshWeatherAlert);
+    window.addEventListener('cnsl:preferences-changed', renderFooterWeatherFreshness);
+    window.addEventListener('cnsl:weather-alert-status-changed', renderFooterWeatherFreshness);
     window.addEventListener('storage', event => {
       if (typeof PreferencesService !== 'undefined' && event.key === PreferencesService.STORAGE_KEY) {
         refreshWeatherAlert();
+      }
+      if (event.key === WeatherAlertService.LAST_SUCCESSFUL_CHECK_KEY) {
+        renderFooterWeatherFreshness();
       }
     });
   }

@@ -280,7 +280,11 @@ body {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0.25rem;
+  padding-inline: 1rem;
+}
+
+main.container > .container {
+  padding-inline: 0;
 }
 
 /* Header - Sticky at top */
@@ -542,14 +546,20 @@ button.home-banner__close:focus {
   font-size: 0.95rem;
   font-weight: 700;
   gap: 0.4rem;
-  grid-column: 2;
-  grid-row: 1 / span 2;
   height: var(--weather-alert-control-size);
   margin-top: 0;
   min-height: var(--weather-alert-control-size);
   padding: 0 0.8rem;
   text-decoration: none;
   white-space: nowrap;
+}
+
+.weather-alert__actions {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  grid-column: 2;
+  grid-row: 1 / span 2;
 }
 
 .weather-alert__live-indicator {
@@ -660,6 +670,13 @@ button.home-banner__close:focus {
     margin-top: 0.55rem;
     min-height: var(--weather-alert-control-size);
     padding-block: 0;
+  }
+
+  .weather-alert__actions {
+    align-items: stretch;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
   }
 
   .weather-alert__toggle {
@@ -2732,7 +2749,8 @@ button.pool-filter__clear:focus-visible {
   padding: 0.75rem;
 }
 
-.faq-item ol {
+.faq-item ol,
+.faq-item ul {
   color: var(--text-dark);
   line-height: 1.6;
   margin: 0 0 0.75rem;
@@ -3397,6 +3415,10 @@ button.pool-filter__clear:focus-visible {
   color: var(--text-dark);
 }
 
+body:has(.footer__weather-freshness:not([hidden])) {
+  --footer-height: 5.1rem;
+}
+
 .footer p {
   margin: 0;
   line-height: 1.4;
@@ -3426,6 +3448,10 @@ button.pool-filter__clear:focus-visible {
 
   .footer__data-freshness {
     font-size: 0.7rem;
+  }
+
+  body:has(.footer__weather-freshness:not([hidden])) {
+    --footer-height: 4.7rem;
   }
 }
 
@@ -4572,10 +4598,20 @@ button.pool-filter__clear:focus-visible {
 }
 
 .resource-card__preview-link {
+  appearance: none;
   align-self: center;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
   display: block;
   margin-bottom: 1rem;
   max-width: 4.8rem;
+  padding: 0;
+}
+
+.resource-card__preview-link:focus-visible {
+  outline: 3px solid var(--primary-color);
+  outline-offset: 0.2rem;
 }
 
 .resource-card__preview-link picture {
@@ -4705,6 +4741,52 @@ button.pool-filter__clear:focus-visible {
 
 .success-story strong {
   color: var(--success-text-color);
+}
+
+.flyer-dialog {
+  background: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  color: var(--text-dark);
+  height: min(90vh, 56rem);
+  max-height: 90vh;
+  max-width: 56rem;
+  padding: 0;
+  width: min(92vw, 56rem);
+}
+
+.flyer-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.65);
+}
+
+.flyer-dialog__header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+}
+
+.flyer-dialog__header h2 {
+  color: var(--primary-color);
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.flyer-dialog__close {
+  flex: 0 0 auto;
+}
+
+.flyer-dialog__document {
+  border: 0;
+  display: block;
+  height: calc(100% - 7.5rem);
+  width: 100%;
+}
+
+.flyer-dialog__fallback {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  text-align: center;
 }
 
 /* Mobile responsiveness for swim meet resources */

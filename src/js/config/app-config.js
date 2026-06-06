@@ -19,6 +19,7 @@
   const WEATHER_LOCATION_POINT = '39.2014,-76.8610';
   const WEATHER_ACTIVE_ALERTS_URL = `${WEATHER_API_BASE_URL}/alerts/active?point=${encodeURIComponent(WEATHER_LOCATION_POINT)}`;
   const WEATHER_POINT_URL = `${WEATHER_API_BASE_URL}/points/${WEATHER_LOCATION_POINT}`;
+  const WEATHER_PUBLIC_ALERTS_URL = 'https://www.weather.gov/alerts';
   const GOOGLE_MAPS_SEARCH_BASE_URL = 'https://www.google.com/maps/search/?api=1&query=';
 
   function formatOfficialSourceCheckedAt(options) {
@@ -60,6 +61,7 @@
     GOOGLE_ANALYTICS_PRIVACY_GUIDANCE: 'https://support.google.com/analytics/answer/6366371?hl=en#zippy=%2Cin-this-article',
     LINKEDIN_PROFILE: 'https://www.linkedin.com/in/simonkurtz',
     NATIONAL_WEATHER_SERVICE_ACTIVE_ALERTS: WEATHER_ACTIVE_ALERTS_URL,
+    NATIONAL_WEATHER_SERVICE_PUBLIC_ALERTS: WEATHER_PUBLIC_ALERTS_URL,
     NATIONAL_WEATHER_SERVICE_POINT: WEATHER_POINT_URL,
     OFFICIAL_CNSL_SITE: 'https://www.gomotionapp.com/team/reccnsl/page/home',
     USA_SWIMMING_RULES_POLICIES: 'https://www.usaswimming.org/resources/rules-regulations',
@@ -123,6 +125,7 @@
     WEATHER_API_BASE_URL,
     WEATHER_LOCATION_POINT,
     WEATHER_POINT_URL,
+    WEATHER_PUBLIC_ALERTS_URL,
     YEAR
   });
 
