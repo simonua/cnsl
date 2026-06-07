@@ -4640,9 +4640,13 @@ body:has(.footer__weather-freshness:not([hidden])) {
     "preview copy"
     "preview actions";
   grid-template-columns: minmax(0, 4.8rem) minmax(0, 1fr);
+  justify-self: center;
+  max-width: 40rem;
+  width: 100%;
 }
 
 .resource-card--flyer h2 {
+  font-size: 1.1rem;
   grid-area: heading;
 }
 
@@ -4651,8 +4655,10 @@ body:has(.footer__weather-freshness:not([hidden])) {
 }
 
 .resource-card--flyer .resource-card__preview-link {
+  align-self: start;
   grid-area: preview;
   margin-bottom: 0;
+  margin-top: 0.5rem;
 }
 
 .resource-card--flyer .resource-actions {
@@ -4754,6 +4760,7 @@ body:has(.footer__weather-freshness:not([hidden])) {
   border-radius: var(--border-radius);
   color: var(--text-dark);
   height: min(90vh, 56rem);
+  margin: auto;
   max-height: 90vh;
   max-width: 56rem;
   padding: 0;
