@@ -68,6 +68,7 @@
   --merchandise-bg-hover: var(--promotion-bg-hover);
   --merchandise-text: var(--promotion-text);
   --weather-info-bg: rgba(255, 255, 255, 0.8);
+  --error-soft-bg: rgba(220, 53, 69, 0.12);
   --warning-soft-bg: rgba(255, 193, 7, 0.15);
   --warning-soft-bg-muted: rgba(255, 193, 7, 0.1);
   --warning-soft-bg-strong: rgba(255, 193, 7, 0.3);
@@ -164,6 +165,7 @@
   --merchandise-bg-hover: var(--promotion-bg-hover);
   --merchandise-text: var(--promotion-text);
   --weather-info-bg: #162d3d;
+  --error-soft-bg: rgba(240, 106, 120, 0.16);
   --warning-soft-bg: rgba(241, 198, 75, 0.16);
   --warning-soft-bg-muted: rgba(241, 198, 75, 0.1);
   --warning-soft-bg-strong: rgba(241, 198, 75, 0.24);
@@ -1603,6 +1605,10 @@ nav a:focus {
   line-height: 1.2;
 }
 
+.phone-install-shortcut[hidden] {
+  display: none;
+}
+
 /* ===== Enhanced Mobile App Components ===== */
 
 /* Enhanced Cards */
@@ -1803,6 +1809,22 @@ nav a:focus {
   flex: 0 0 auto;
   padding: 0.125rem 0.375rem;
   border-radius: var(--border-radius);
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pool-header__metadata {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-left: auto;
+}
+
+.pool-opening-summary {
+  color: var(--text-muted);
   font-size: 0.8rem;
   font-weight: 600;
   white-space: nowrap;
@@ -2376,6 +2398,10 @@ button.pool-filter__clear:focus-visible {
   .quick-links-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.5rem;
+  }
+
+  .quick-links-grid--with-install {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .quick-link-card,
@@ -3095,6 +3121,10 @@ button.pool-filter__clear:focus-visible {
 .schedule-calendar .schedule-activity--event {
   background-color: var(--warning-soft-bg);
   border-left-width: 4px;
+}
+
+.schedule-calendar .schedule-activity--restricted {
+  background-color: var(--error-soft-bg);
 }
 
 .schedule-activity__link {

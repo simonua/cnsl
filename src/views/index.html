@@ -103,6 +103,9 @@
       <div class="install-app__content" id="installAppContent">
         <p class="install-app__description">Add CNSL to your Home Screen for quick access to pools, teams, and meets.</p>
         <button class="install-app__button" id="installAppButton" type="button">Install app</button>
+        <p class="install-app__instructions" id="androidInstallInstructions" hidden>
+          On Android, tap Install app, then confirm the browser prompt to add CNSL to your Home Screen.
+        </p>
         <p class="install-app__instructions" id="iosInstallInstructions" hidden>
           On iPhone or iPad, tap the Share button in your browser, choose Add to Home Screen, then tap Add. If the option is unavailable, open this page in Safari and try again.
         </p>
@@ -112,6 +115,7 @@
   </block>
 
   <block name="scripts">
+    <script src="js/services/device-platform-service.js"></script>
     <script src="js/services/release-notice-service.js"></script>
     <script src="js/services/settings-notice-service.js"></script>
     <script src="js/home-banner.js"></script>

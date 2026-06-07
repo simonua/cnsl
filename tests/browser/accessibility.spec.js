@@ -164,8 +164,9 @@ for (const theme of ['light', 'dark']) {
       });
     });
     await loadScenario(page, pageScenarios.find(scenario => scenario.name === 'home'), theme);
-    await page.getByText('Phone Install').click();
+    await page.getByRole('button', { name: 'Phone Install', exact: true }).click();
     await expect(page.locator('#iosInstallInstructions')).toBeVisible();
+    await expect(page.locator('#androidInstallInstructions')).toBeHidden();
 
     await expectNoAccessibilityViolations(page);
   });
@@ -185,8 +186,10 @@ for (const theme of ['light', 'dark']) {
       installPrompt.userChoice = Promise.resolve({ outcome: 'dismissed' });
       globalThis.dispatchEvent(installPrompt);
     });
-    await page.getByText('Phone Install').click();
+    await page.getByRole('button', { name: 'Phone Install', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Install app' })).toBeVisible();
+    await expect(page.locator('#androidInstallInstructions')).toBeVisible();
+    await expect(page.locator('#iosInstallInstructions')).toBeHidden();
 
     await expectNoAccessibilityViolations(page);
   });

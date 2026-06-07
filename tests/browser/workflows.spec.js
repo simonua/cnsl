@@ -534,6 +534,59 @@ test('[WF-RELEASE-001] release updates are announced once after a stable version
   ]);
 });
 
+test('[WF-INSTALL-001] first mobile use keeps settings and prioritizes platform install guidance', async ({ page }) => {
+  await page.setViewportSize(MOBILE_VIEWPORT);
+  await page.addInitScript(() => {
+    Object.defineProperty(globalThis.navigator, 'userAgent', {
+      configurable: true,
+      value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1'
+    });
+    localStorage.setItem('cnsl_preferences', JSON.stringify({ theme: 'dark' }));
+    localStorage.removeItem('cnsl_current_version');
+    localStorage.removeItem('cnsl_settings_notice_dismissed');
+  });
+
+  await page.goto('/index.html');
+  const currentVersion = await page.evaluate(() => globalThis.APP_VERSION);
+
+  await expect(page.locator('#releaseNotice')).toBeHidden();
+  await expect(page.locator('#settingsNotice')).toBeVisible();
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_current_version'))).toBe(currentVersion);
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')))).toEqual({ theme: 'dark' });
+
+  const shortcut = page.getByRole('button', { name: 'Phone Install', exact: true });
+  await expect(shortcut).toBeVisible();
+  await shortcut.click();
+  await expect(page.locator('#installApp')).toHaveAttribute('open', '');
+  await expect(page.locator('#iosInstallInstructions')).toBeVisible();
+  await expect(page.locator('#androidInstallInstructions')).toBeHidden();
+  await expect(page.getByRole('button', { name: 'Install app', exact: true })).toBeHidden();
+});
+
+test('[WF-INSTALL-002] Android install shortcut shows only Android guidance when installable', async ({ page }) => {
+  await page.setViewportSize(MOBILE_VIEWPORT);
+  await page.addInitScript(() => {
+    Object.defineProperty(globalThis.navigator, 'userAgent', {
+      configurable: true,
+      value: 'Mozilla/5.0 (Linux; Android 15; Mobile) AppleWebKit/537.36 Chrome/136.0 Mobile Safari/537.36'
+    });
+  });
+  await page.goto('/index.html');
+  await page.evaluate(() => {
+    const installPrompt = new Event('beforeinstallprompt', { cancelable: true });
+    installPrompt.prompt = () => {};
+    installPrompt.userChoice = Promise.resolve({ outcome: 'dismissed' });
+    globalThis.dispatchEvent(installPrompt);
+  });
+
+  const shortcut = page.getByRole('button', { name: 'Phone Install', exact: true });
+  await expect(shortcut).toBeVisible();
+  await shortcut.click();
+  await expect(page.locator('#androidInstallInstructions')).toBeVisible();
+  await expect(page.locator('#iosInstallInstructions')).toBeHidden();
+  await expect(page.getByRole('button', { name: 'Install app', exact: true })).toBeVisible();
+});
+
 test('[WF-SETTINGS-003] home page settings reminder is dismissed permanently by link or close button', async ({ page }) => {
   await initializeAnalyticsRecorder(page);
   await page.goto('/index.html');

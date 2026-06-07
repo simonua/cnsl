@@ -4,18 +4,22 @@
   const installApp = document.getElementById('installApp');
   const installAppContent = document.getElementById('installAppContent');
   const installAppButton = document.getElementById('installAppButton');
+  const installAppShortcut = document.getElementById('installAppShortcut');
+  const androidInstallInstructions = document.getElementById('androidInstallInstructions');
   const iosInstallInstructions = document.getElementById('iosInstallInstructions');
 
-  if (!installApp || !installAppContent || !installAppButton || !iosInstallInstructions) {
+  if (!installApp || !installAppContent || !installAppButton || !installAppShortcut
+    || !androidInstallInstructions || !iosInstallInstructions || !window.DevicePlatformService) {
     return;
   }
 
-  const userAgent = navigator.userAgent;
-  const isAndroid = /Android/i.test(userAgent);
-  const isIos = /iPhone|iPad|iPod/i.test(userAgent)
-    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches
-    || navigator.standalone === true;
+  const platform = window.DevicePlatformService.getPlatform(navigator);
+  const isAndroid = platform === 'android';
+  const isIos = platform === 'ios';
+  const isStandalone = window.DevicePlatformService.isStandalone(
+    window.matchMedia('(display-mode: standalone)').matches,
+    navigator.standalone
+  );
 
   if (isStandalone || (!isAndroid && !isIos)) {
     return;
@@ -23,13 +27,24 @@
 
   function showInstallApp() {
     installApp.hidden = false;
+    installAppShortcut.hidden = false;
+    installAppShortcut.closest('.quick-links-grid')?.classList.add('quick-links-grid--with-install');
   }
 
   function hideInstallApp() {
     installApp.hidden = true;
     installApp.open = false;
+    installAppShortcut.hidden = true;
+    installAppShortcut.closest('.quick-links-grid')?.classList.remove('quick-links-grid--with-install');
+    androidInstallInstructions.hidden = true;
     iosInstallInstructions.hidden = true;
   }
+
+  installAppShortcut.addEventListener('click', () => {
+    installApp.open = true;
+    installApp.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    installApp.querySelector('summary')?.focus({ preventScroll: true });
+  });
 
   installApp.addEventListener('toggle', () => {
     if (!installApp.open) {
@@ -50,6 +65,7 @@
 
   if (isIos) {
     installAppButton.hidden = true;
+    androidInstallInstructions.hidden = true;
     iosInstallInstructions.hidden = false;
     showInstallApp();
     return;
@@ -60,6 +76,9 @@
   window.addEventListener('beforeinstallprompt', event => {
     event.preventDefault();
     deferredInstallPrompt = event;
+    installAppButton.hidden = false;
+    androidInstallInstructions.hidden = false;
+    iosInstallInstructions.hidden = true;
     showInstallApp();
   });
 

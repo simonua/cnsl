@@ -54,6 +54,19 @@
     const storage = getLocalStorage();
     const releaseVersion = document.getElementById('releaseNoticeVersion');
     const bannerNames = window.cnslAnalytics && window.cnslAnalytics.bannerNames;
+    const acknowledgedVersion = window.ReleaseNoticeService
+      ? window.ReleaseNoticeService.readAcknowledgedVersion(storage, window.APP_VERSION_STORAGE_KEY)
+      : null;
+    const platform = window.DevicePlatformService
+      ? window.DevicePlatformService.getPlatform(window.navigator)
+      : 'other';
+    const isFirstMobileUse = window.DevicePlatformService
+      && window.DevicePlatformService.isMobilePlatform(platform)
+      && !window.ReleaseNoticeService.getStableVersionParts(acknowledgedVersion);
+
+    if (isFirstMobileUse) {
+      window.ReleaseNoticeService.acknowledge(storage, window.APP_VERSION_STORAGE_KEY, window.APP_VERSION);
+    }
     const banners = [
       new HomeBanner({
         noticeId: 'releaseNotice',
@@ -63,7 +76,7 @@
         shouldShow: () => Boolean(releaseVersion && window.ReleaseNoticeService)
           && window.ReleaseNoticeService.shouldShow(
             window.APP_VERSION,
-            window.ReleaseNoticeService.readAcknowledgedVersion(storage, window.APP_VERSION_STORAGE_KEY)
+            isFirstMobileUse ? window.APP_VERSION : acknowledgedVersion
           ),
         acknowledge: () => window.ReleaseNoticeService.acknowledge(storage, window.APP_VERSION_STORAGE_KEY, window.APP_VERSION),
         prepare: () => {
