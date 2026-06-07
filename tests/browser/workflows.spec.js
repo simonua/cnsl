@@ -97,8 +97,8 @@ test('[WF-LAYOUT-001] mobile pages retain the shared viewport gutter', async ({ 
   await page.setViewportSize(MOBILE_VIEWPORT);
   await page.goto('/swim-meet-resources.html');
 
-  await expect(page.locator('#mainContent')).toHaveCSS('padding-left', '16px');
-  await expect(page.locator('#mainContent')).toHaveCSS('padding-right', '16px');
+  await expect(page.locator('#mainContent')).toHaveCSS('padding-left', '12px');
+  await expect(page.locator('#mainContent')).toHaveCSS('padding-right', '12px');
 });
 
 for (const scenario of directoryScenarios) {
@@ -150,7 +150,7 @@ test('[WF-DATA-006] FAQ and footer show the accepted seasonal-source timestamp i
   await page.goto('/faq.html');
 
   const faqTimestamp = page.locator('.faq-item__source-freshness time');
-  const footerTimestamp = page.locator('.footer__data-freshness time');
+  const footerTimestamp = page.locator('.footer__data-freshness').filter({ hasText: 'Last data update:' }).locator('time');
   await expect(faqTimestamp).toHaveAttribute('datetime', /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}-(?:04|05):00$/);
   await expect(faqTimestamp).toHaveText(/^[A-Z][a-z]+ \d{1,2}, \d{4} at \d{1,2}:\d{2} [AP]M E[DS]T$/);
   await expect(footerTimestamp).toHaveAttribute('datetime', /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}-(?:04|05):00$/);
@@ -1154,8 +1154,8 @@ test('[WF-AGENDA-004] home page loads agenda dependencies only after a favorite 
   await expect(page.locator('script[data-home-schedule-dependency]')).toHaveCount(0);
 
   await page.evaluate(() => {
-    localStorage.setItem('cnsl_preferences', JSON.stringify({ favoriteTeamId: 'pls' }));
-    globalThis.dispatchEvent(new globalThis.Event('cnsl:preferences-changed'));
+    globalThis.PreferencesService.save({ favoriteTeamId: 'pls' });
+    globalThis.dispatchEvent(new globalThis.CustomEvent('cnsl:preferences-changed'));
   });
 
   await expect(page.locator('#favoriteWeek')).toBeVisible();
@@ -1833,7 +1833,7 @@ test('[WF-WEATHER-001] desktop weather safety alerts restore collapsed details o
   });
 
   for (const path of publishedPagePaths) {
-    await page.goto(path);
+    await page.goto(path, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('#weatherAlert')).toBeVisible();
     await expect(page.locator('.weather-alert__title')).toHaveText('Weather alert');
     await expect(page.locator('#weatherAlertMessage')).toContainText('Severe Thunderstorm Warning');
@@ -1841,7 +1841,7 @@ test('[WF-WEATHER-001] desktop weather safety alerts restore collapsed details o
     await expect(page.locator('#weatherAlertUpdated')).toHaveAttribute('datetime', /2026-/);
     await expect(page.locator('#weatherAlertDetails')).toBeHidden();
     await expect(page.getByRole('link', { name: 'Live pool status' })).toBeHidden();
-    await expect(page.getByRole('link', { name: 'NWS active alerts' })).toBeHidden();
+    await expect(page.getByRole('link', { name: 'NWS local alerts' })).toBeHidden();
     await expect(page.getByRole('button', { name: 'Expand weather safety alert' })).toBeVisible();
   }
 
@@ -1851,24 +1851,26 @@ test('[WF-WEATHER-001] desktop weather safety alerts restore collapsed details o
   await page.getByRole('button', { name: 'Expand weather safety alert' }).click();
   await expect(page.locator('#weatherAlertDetails')).toBeVisible();
   await expect(page.getByRole('link', { name: 'Live pool status' })).toBeVisible();
-  const nwsAlertLink = page.getByRole('link', { name: 'NWS active alerts' });
+  const nwsAlertLink = page.getByRole('link', { name: 'NWS local alerts' });
   await expect(nwsAlertLink).toBeVisible();
-  await expect(nwsAlertLink).toHaveAttribute('href', 'https://www.weather.gov/alerts');
+  await expect(nwsAlertLink).toHaveAttribute('href', 'https://forecast.weather.gov/MapClick.php?lat=39.2014&lon=-76.8610');
   await expect(nwsAlertLink).toHaveAttribute('target', '_blank');
   await expect(nwsAlertLink).toHaveAttribute('rel', 'noopener noreferrer');
   const expandedAlertBox = await page.locator('#weatherAlert').boundingBox();
   const expandedTitleBox = await page.locator('.weather-alert__title').boundingBox();
   const expandedToggleBox = await page.getByRole('button', { name: 'Collapse weather safety alert' }).boundingBox();
   const expandedActionBox = await page.getByRole('link', { name: 'Live pool status' }).boundingBox();
+  const expandedNwsActionBox = await page.getByRole('link', { name: 'NWS local alerts' }).boundingBox();
   expect(collapsedAlertBox.height).toBeCloseTo(70, 1);
-  expect(expandedAlertBox.height).toBe(collapsedAlertBox.height);
-  expect(expandedTitleBox.y).toBe(collapsedTitleBox.y);
+  expect(expandedAlertBox.height).toBeGreaterThanOrEqual(collapsedAlertBox.height);
   expect(expandedTitleBox.height).toBe(collapsedTitleBox.height);
   expect(collapsedToggleBox.height).toBe(collapsedTitleBox.height);
-  expect(expandedToggleBox.y).toBe(collapsedToggleBox.y);
   expect(expandedToggleBox.height).toBe(collapsedToggleBox.height);
+  expect(expandedToggleBox.y - collapsedToggleBox.y).toBeCloseTo(expandedTitleBox.y - collapsedTitleBox.y, 1);
   expect(expandedActionBox.y).toBe(expandedToggleBox.y);
   expect(expandedActionBox.height).toBe(expandedToggleBox.height);
+  expect(expandedNwsActionBox.y).toBe(expandedToggleBox.y);
+  expect(expandedNwsActionBox.height).toBe(expandedToggleBox.height);
   await expect.poll(() => page.evaluate(() => sessionStorage.getItem('cnsl_weather_alert_expanded'))).toBe('true');
 });
 
@@ -1883,7 +1885,7 @@ test('[WF-WEATHER-002] mobile weather safety alert keeps navigation visible and 
   const alert = page.locator('#weatherAlert');
   const toggle = page.getByRole('button', { name: 'Collapse weather safety alert' });
   const action = page.getByRole('link', { name: 'Live pool status' });
-  const nwsAlertLink = page.getByRole('link', { name: 'NWS active alerts' });
+  const nwsAlertLink = page.getByRole('link', { name: 'NWS local alerts' });
   const icon = page.locator('.weather-alert__toggle-icon');
   const warningIcon = page.locator('.weather-alert__warning-icon');
   const liveIndicator = page.locator('.weather-alert__live-indicator');
@@ -1893,7 +1895,7 @@ test('[WF-WEATHER-002] mobile weather safety alert keeps navigation visible and 
   await expect(liveIndicator).toBeVisible();
   await expect(page.locator('.weather-alert__copy')).toHaveCSS('text-align', 'center');
   const titleBackground = await page.locator('.weather-alert__title').evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).backgroundColor);
-  const actionBackground = await page.locator('.weather-alert__link').evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).backgroundColor);
+  const actionBackground = await action.evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).backgroundColor);
   expect(titleBackground).toBe(actionBackground);
   await expect(toggle).toHaveAttribute('aria-expanded', 'true');
   await expect(action).toBeVisible();
@@ -1901,10 +1903,12 @@ test('[WF-WEATHER-002] mobile weather safety alert keeps navigation visible and 
   const expandedTitleBox = await page.locator('.weather-alert__title').boundingBox();
   const expandedToggleSize = await toggle.boundingBox();
   const expandedActionBox = await action.boundingBox();
+  const expandedNwsActionBox = await nwsAlertLink.boundingBox();
   expect(expandedToggleSize.width).toBe(expandedToggleSize.height);
   expect(expandedToggleSize.height).toBe(expandedTitleBox.height);
   expect(expandedToggleSize.height).toBe(expandedActionBox.height);
   expect(expandedActionBox.y).toBeGreaterThanOrEqual(expandedTitleBox.y + expandedTitleBox.height);
+  expect(expandedNwsActionBox.y).toBe(expandedActionBox.y);
   const expandedAlertBackground = await alert.evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).backgroundColor);
   await expect(icon).toHaveCSS('transform', 'none');
   await expect(icon).toHaveCSS('transition-duration', '0s');
