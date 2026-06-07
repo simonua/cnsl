@@ -1,6 +1,32 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
-const { ROUTES, median, spread, summarizeRouteSamples } = require('../../scripts/measure-performance.js');
+const {
+  DIRECTORY_ROUTES,
+  ROUTES,
+  maximumDomainRequests,
+  median,
+  spread,
+  summarizeRouteSamples,
+  summarizeWarmSamples
+} = require('../../scripts/measure-performance.js');
+
+function createSample(overrides = {}) {
+  return {
+    annualDomainRequests: { pools: 1 },
+    cacheHits: 0,
+    decodedBytes: 800,
+    domContentLoadedMs: 150,
+    firstContentfulPaintMs: 100,
+    initiators: { script: 2 },
+    longTaskMs: 0,
+    phases: {},
+    requests: 40,
+    transferredBytes: 700,
+    usableMs: 220,
+    workerControlled: false,
+    ...overrides
+  };
+}
 
 describe('performance measurement reporting', () => {
   it('should include Home with a visitor-ready content boundary', () => {
@@ -23,34 +49,72 @@ describe('performance measurement reporting', () => {
 
   it('should report route usability separately from progressive Pools phases', () => {
     const summary = summarizeRouteSamples([
-      {
+      createSample({
         annualDomainRequests: { pools: 1, teams: 1 },
-        bytes: 800,
         phases: { 'primary-data-ready': 120, 'summary-visible': 180, 'optional-enrichment-settled': 700 },
-        requests: 40,
-        usableMs: 220
-      },
-      {
+      }),
+      createSample({
         annualDomainRequests: { pools: 1, teams: 1, meets: 1 },
-        bytes: 900,
+        decodedBytes: 900,
+        cacheHits: 3,
+        domContentLoadedMs: 140,
+        firstContentfulPaintMs: 90,
+        initiators: { fetch: 3, script: 1 },
+        longTaskMs: 10,
         phases: { 'primary-data-ready': 100, 'summary-visible': 160, 'optional-enrichment-settled': 900 },
         requests: 42,
+        transferredBytes: 800,
         usableMs: 200
-      },
-      {
+      }),
+      createSample({
         annualDomainRequests: { pools: 1, teams: 1, meets: 1 },
-        bytes: 850,
+        decodedBytes: 850,
         phases: { 'primary-data-ready': 110, 'summary-visible': 170, 'optional-enrichment-settled': 800 },
         requests: 41,
+        transferredBytes: 750,
         usableMs: 210
-      }
+      })
     ]);
 
     assert.deepEqual(summary.usableMs, { min: 200, median: 210, max: 220 });
     assert.deepEqual(summary.phases['summary-visible'], { min: 160, median: 170, max: 180 });
     assert.deepEqual(summary.phases['optional-enrichment-settled'], { min: 700, median: 800, max: 900 });
     assert.deepEqual(summary.annualDomainRequests, { pools: 1, teams: 1, meets: 1 });
-    assert.equal(summary.bytes, 850);
+    assert.equal(summary.decodedBytes, 850);
     assert.equal(summary.requests, 41);
+    assert.equal(summary.cacheHits, 0);
+    assert.deepEqual(summary.initiators, { script: 2, fetch: 3 });
+    assert.deepEqual(summary.firstContentfulPaintMs, { min: 90, median: 100, max: 100 });
+    assert.deepEqual(summary.domContentLoadedMs, { min: 140, median: 150, max: 150 });
+    assert.deepEqual(summary.longTaskMs, { min: 0, median: 0, max: 10 });
+    assert.ok(summary.phases['primary-data-ready'].median < summary.phases['summary-visible'].median);
+    assert.ok(summary.phases['summary-visible'].median < summary.phases['optional-enrichment-settled'].median);
+  });
+
+  it('should retain the maximum request count for each annual domain', () => {
+    assert.deepEqual(maximumDomainRequests([
+      { annualDomainRequests: { pools: 1, teams: 1 } },
+      { annualDomainRequests: { pools: 2, meets: 1 } }
+    ]), { pools: 2, teams: 1, meets: 1 });
+  });
+
+  it('should keep controlled first and repeat navigation evidence separate', () => {
+    const routes = Object.fromEntries(DIRECTORY_ROUTES.map(route => [route.name, {
+      first: createSample({ usableMs: 80, workerControlled: true }),
+      repeat: createSample({ cacheHits: 3, transferredBytes: 0, usableMs: 30, workerControlled: true })
+    }]));
+    const summary = summarizeWarmSamples([{
+      cacheResources: 63,
+      homeUsableMs: 45,
+      routes,
+      workerReadyMs: 100,
+      workerVersion: 'cnsl-cache-test'
+    }]);
+
+    assert.equal(summary.workerVersion, 'cnsl-cache-test');
+    assert.equal(summary.routes.Pools.controlled, true);
+    assert.equal(summary.routes.Pools.first.usableMs.median, 80);
+    assert.equal(summary.routes.Pools.repeat.usableMs.median, 30);
+    assert.equal(summary.routes.Pools.repeat.transferredBytes, 0);
   });
 });

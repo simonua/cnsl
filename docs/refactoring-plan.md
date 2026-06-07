@@ -4,57 +4,64 @@ Review date: 2026-06-07
 
 ## Scope And Validation
 
-This local audit reviewed the current clean `main` working tree for maintainability, accessibility, annual-data integrity, PWA and delivery behavior, testing and CI coverage, security hygiene, performance, and documentation drift. It inspected the recent changes since version 2.8.1, route-controller concentration, annual-data loading and request deduplication, weather refresh behavior, service-worker cache tiers, GitHub Actions controls, and the current browser accessibility architecture.
+This plan contains only actionable open work. Local refactoring decisions were evaluated with five cold and installed-navigation samples on Windows ARM64, Node.js 26.3.0, and Chromium. The performance runner now records environment context, first contentful paint, DOM readiness, long tasks, decoded and transferred bytes, request initiators, annual-data request counts, service-worker control, active-cache inventory, and first versus repeat navigation in a persistent context.
 
-Validation completed on 2026-06-07:
+Current verification:
 
 - `pnpm run lint` passed.
-- `pnpm test` passed in approximately 10.5 seconds.
-- `pnpm run validate:data` passed for 23 pools, 14 teams, 35 regular meets, 3 special meets, and 26 retained official PDFs.
-- `pnpm audit --audit-level high` reported no known vulnerabilities.
+- `pnpm test` passed all 483 tests.
 - `pnpm run build` passed and generated 10 HTML pages.
-- `pnpm run verify:pwa` passed for a 2,594,028-byte delivered artifact. The cache inventory contains 84 resources / 2,539,830 bytes, partitioned into a 62-resource / 954,855-byte install-critical core and a 22-resource / 1,584,975-byte cache-on-use optional tier.
-- `pnpm run measure:performance` passed with zero warnings across three cold runs per route. Median usable times were Home 357 ms, Pools 543 ms, Teams 596 ms, and Meets 731 ms. Pools primary data was ready at 437 ms median, its summary was visible at 466 ms, and optional enrichment settled at 531 ms. Each annual domain was requested at most once per measured directory route.
-- The light-theme Teams and Resources accessibility scans passed three times each with one worker and three workers. At maximum configured concurrency, Teams completed in 7.9-29.6 seconds and Resources in 6.6-11.9 seconds.
-- The accessibility suite now applies a bounded 90-second test timeout while workflow tests retain the global 45-second timeout. All scans share one assertion helper with the unchanged `wcag2a`, `wcag2aa`, `wcag21a`, and `wcag21aa` tags.
-- `pnpm run test:browser:nightly` passed all 113 workflow and accessibility checks on the first complete run.
-
-## Current Decisions
-
-- Do not add local-data indexes or new caching layers. Current collections are small, domain requests are deduplicated, and the fresh baseline shows no request or timing warning.
-- Do not extend progressive hydration to Teams or Meets. Current measurements do not demonstrate a visitor-facing readiness problem.
-- Keep the current PWA core/optional split and warning-only performance budgets. The install-critical tier remains below 1 MB, optional work is cache-on-use, and the repeatable baseline has zero warnings.
-- Do not split the route controllers solely by line count. `pool-browser.js` is large, but its filtering, state preservation, and progressive enrichment have focused service boundaries and currently meet measured performance and test expectations. Reassess only when a concrete change exposes coupling or regression cost.
-- Keep the 90-second timeout scoped to the accessibility suite. It provides more than three times the measured maximum scan duration under normal concurrency without slowing or weakening workflow assertions.
+- `pnpm run verify:pwa` passed with 63 install-critical resources and 22 cache-on-use resources.
+- `pnpm run measure:performance` completed five local samples per scenario. Installed first and repeat Pools, Teams, and Meets navigations were worker-controlled, transferred zero bytes, and requested each annual data domain once.
+- `pnpm run test:browser:nightly` passed 114 of 116 checks, including all automated WCAG checks. The two narrow-phone home-layout assertions also failed after restoring the original resource order, isolating them as an existing baseline mismatch rather than a regression from this work.
 
 ## Priority Matrix
 
 | Priority | Finding | Impact | Effort |
 | --- | --- | --- | --- |
-| RED - High | No demonstrated accessibility barrier, release/data-integrity risk, security exposure, or material runtime defect | - | - |
-| ORANGE - Medium | No actionable item | - | - |
-| GREEN - Low | No independently actionable cleanup or documentation item | - | - |
+| RED - High | No actionable high-priority item | - | - |
+| ORANGE - Medium | No actionable medium-priority item | - | - |
+| GREEN - Low | Capture comparable delivered-HTTPS lifecycle and navigation evidence | Medium | Low |
 
 ## High Priority
 
-No actionable high-priority item is supported by the current repository evidence.
+No actionable high-priority item is supported by current evidence.
+
+## Medium Priority
+
+No actionable medium-priority item is supported by current evidence.
 
 ## Low Priority
 
-No independently actionable low-priority item is supported by the current repository evidence.
+### Capture Delivered-HTTPS Performance Evidence
+
+**Finding:** Local production-like measurement now covers cold uncontrolled loading, worker installation and control, active-cache inventory, and persistent first and repeat navigation. It cannot reproduce CDN, Cloudflare, TLS, production cache headers, or field-device conditions. Local cold timings also retain broad variance, so they do not support tighter blocking budgets or a more complex rendering architecture.
+
+**Scoped plan:**
+
+1. Run the same five-sample scenarios against the delivered HTTPS site when Cloudflare permits automated access.
+2. Label local and delivered results separately and record runtime, device, network, cache, and worker-control context.
+3. Compare medians and upper spread for useful content, paint, worker readiness, transferred bytes, annual-data request counts, and first versus repeat directory navigation.
+4. Open a new implementation item only when delivered evidence identifies a repeatable visitor-facing regression with a proportionate fix.
+
+**Acceptance checks:**
+
+- At least five delivered samples distinguish uncontrolled first load, worker installation or activation, controlled first navigation, and repeat navigation.
+- No directory requests an annual data domain more than once per navigation.
+- Offline pages and annual data remain build-version coherent.
+- Blocking budgets are changed only after stable local and delivered variance supports human review.
 
 ## Guardrails
 
-- Do not modify `src/assets/data/` during this refactoring work. Seasonal JSON, schemas, and official PDFs remain human-reviewed source-of-truth assets.
-- If official seasonal PDFs are separately accepted or replaced, follow the season rollover workflow and refresh `.github/automation/season-data-monitor/source-state.json` with `node scripts/season-data-agent.js --initialize`.
+- Do not modify `src/assets/data/` during performance or refactoring work.
 - Never edit `out/`; it is generated by `pnpm run build`.
-- Preserve the PostHTML static-site architecture, native DOM APIs, service-worker version coherence, offline commitments, and the current PWA core/optional resource split unless new measurements support a reviewed change.
-- Do not weaken accessibility assertions, skip rules, exclude rendered regions, or treat a timeout as proof of conformance.
-- Keep performance changes measurement-led. Preserve annual-domain request deduplication, progressive Pools enrichment, focus and disclosure state, and warning-only budgets unless repeatable local and delivered-HTTPS evidence supports a change.
-- Keep analytics purpose-limited and do not introduce visitor identifiers, arbitrary URL values, saved preferences, location, or other disallowed data into telemetry.
+- Preserve the PostHTML architecture, native DOM APIs, build-version coherence, analytics privacy boundary, and current offline commitments.
+- Do not add application prefetch while the installed worker already serves destination pages and annual data without network transfer.
+- Preserve annual-domain request deduplication. Do not add indexes, parsed-data persistence, cache layers, or staged hydration without measured visitor benefit.
+- Preserve keyboard focus, disclosure state, scroll position, live-region semantics, reduced-motion behavior, and WCAG 2.0 AA behavior.
 
 ## Priority Summary
 
 - **RED - High:** No actionable item.
 - **ORANGE - Medium:** No actionable item.
-- **GREEN - Low:** No actionable item.
+- **GREEN - Low:** Capture delivered-HTTPS lifecycle and navigation evidence before changing budgets or loading architecture.
