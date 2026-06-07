@@ -8,6 +8,24 @@ const {
   setAgendaReferenceTime
 } = require('./browser-test-helpers');
 
+const ACCESSIBILITY_TEST_TIMEOUT_MS = 90000;
+const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
+
+test.setTimeout(ACCESSIBILITY_TEST_TIMEOUT_MS);
+
+async function expectNoAccessibilityViolations(page) {
+  const results = await new AxeBuilder({ page })
+    .withTags(WCAG_TAGS)
+    .analyze();
+  const violations = results.violations.map(violation => ({
+    id: violation.id,
+    impact: violation.impact,
+    targets: violation.nodes.map(node => node.target)
+  }));
+
+  expect(violations).toEqual([]);
+}
+
 const pageScenarios = [
   { reference: 'HOME', name: 'home', path: '/index.html' },
   { reference: 'POOLS', name: 'pools', path: '/pools.html', readySelector: '#poolListStatus', readyText: /Pool directory loaded/ },
@@ -56,16 +74,7 @@ for (const theme of ['light', 'dark']) {
           await expect(page.getByRole('link', { name: 'Subscribe to team events calendar' })).toBeVisible();
         }
 
-        const results = await new AxeBuilder({ page })
-          .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-          .analyze();
-        const violations = results.violations.map(violation => ({
-          id: violation.id,
-          impact: violation.impact,
-          targets: violation.nodes.map(node => node.target)
-        }));
-
-        expect(violations).toEqual([]);
+        await expectNoAccessibilityViolations(page);
       });
     }
   });
@@ -77,16 +86,7 @@ for (const theme of ['light', 'dark']) {
     await page.getByRole('button', { name: 'QR Code' }).click();
     await expect(page.getByRole('dialog', { name: 'Scan to open site' })).toBeVisible();
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-      .analyze();
-    const violations = results.violations.map(violation => ({
-      id: violation.id,
-      impact: violation.impact,
-      targets: violation.nodes.map(node => node.target)
-    }));
-
-    expect(violations).toEqual([]);
+    await expectNoAccessibilityViolations(page);
   });
 
   test(`[AX-AGENDA-001-${theme.toUpperCase()}] favorite-team agenda has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
@@ -98,16 +98,7 @@ for (const theme of ['light', 'dark']) {
     await expect(page.locator('#favoriteWeek .favorite-week__events li')).toHaveCount(3);
     await expect(page.locator('#favoriteWeekStatus')).toBeHidden();
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-      .analyze();
-    const violations = results.violations.map(violation => ({
-      id: violation.id,
-      impact: violation.impact,
-      targets: violation.nodes.map(node => node.target)
-    }));
-
-    expect(violations).toEqual([]);
+    await expectNoAccessibilityViolations(page);
   });
 
   test(`[AX-TEAMS-001-${theme.toUpperCase()}] expanded team schedules have no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
@@ -120,16 +111,7 @@ for (const theme of ['light', 'dark']) {
     await meetSchedule.locator('summary').click();
     await expect(meetSchedule.locator('.team-meets__table')).toBeVisible();
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-      .analyze();
-    const violations = results.violations.map(violation => ({
-      id: violation.id,
-      impact: violation.impact,
-      targets: violation.nodes.map(node => node.target)
-    }));
-
-    expect(violations).toEqual([]);
+    await expectNoAccessibilityViolations(page);
   });
 }
 
@@ -143,16 +125,7 @@ test('[AX-POOLS-001] location-aware pool sorting has no WCAG A or AA automated v
   await expect(page.locator('#poolSortControls')).toBeVisible();
   await page.selectOption('#poolSortOrder', 'distance');
 
-  const results = await new AxeBuilder({ page })
-    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-    .analyze();
-  const violations = results.violations.map(violation => ({
-    id: violation.id,
-    impact: violation.impact,
-    targets: violation.nodes.map(node => node.target)
-  }));
-
-  expect(violations).toEqual([]);
+  await expectNoAccessibilityViolations(page);
 });
 
 for (const theme of ['light', 'dark']) {
@@ -164,29 +137,11 @@ for (const theme of ['light', 'dark']) {
     await page.goto('/index.html');
     await expect(page.locator('#weatherAlert')).toBeVisible();
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-      .analyze();
-    const violations = results.violations.map(violation => ({
-      id: violation.id,
-      impact: violation.impact,
-      targets: violation.nodes.map(node => node.target)
-    }));
-
-    expect(violations).toEqual([]);
+    await expectNoAccessibilityViolations(page);
 
     await page.getByRole('button', { name: 'Collapse weather safety alert' }).click();
     await expect(page.getByRole('button', { name: 'Expand weather safety alert' })).toBeVisible();
-    const collapsedResults = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-      .analyze();
-    const collapsedViolations = collapsedResults.violations.map(violation => ({
-      id: violation.id,
-      impact: violation.impact,
-      targets: violation.nodes.map(node => node.target)
-    }));
-
-    expect(collapsedViolations).toEqual([]);
+    await expectNoAccessibilityViolations(page);
   });
 }
 
@@ -197,16 +152,7 @@ for (const theme of ['light', 'dark']) {
     await page.getByRole('button', { name: 'Open navigation menu' }).click();
     await expect(page.locator('#navMenu')).toHaveAttribute('aria-hidden', 'false');
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-      .analyze();
-    const violations = results.violations.map(violation => ({
-      id: violation.id,
-      impact: violation.impact,
-      targets: violation.nodes.map(node => node.target)
-    }));
-
-    expect(violations).toEqual([]);
+    await expectNoAccessibilityViolations(page);
   });
 
   test(`[AX-INSTALL-001-${theme.toUpperCase()}] expanded iOS install guidance has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
@@ -221,16 +167,7 @@ for (const theme of ['light', 'dark']) {
     await page.getByText('Phone Install').click();
     await expect(page.locator('#iosInstallInstructions')).toBeVisible();
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-      .analyze();
-    const violations = results.violations.map(violation => ({
-      id: violation.id,
-      impact: violation.impact,
-      targets: violation.nodes.map(node => node.target)
-    }));
-
-    expect(violations).toEqual([]);
+    await expectNoAccessibilityViolations(page);
   });
 
   test(`[AX-INSTALL-002-${theme.toUpperCase()}] expanded Android install action has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
@@ -251,15 +188,6 @@ for (const theme of ['light', 'dark']) {
     await page.getByText('Phone Install').click();
     await expect(page.getByRole('button', { name: 'Install app' })).toBeVisible();
 
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-      .analyze();
-    const violations = results.violations.map(violation => ({
-      id: violation.id,
-      impact: violation.impact,
-      targets: violation.nodes.map(node => node.target)
-    }));
-
-    expect(violations).toEqual([]);
+    await expectNoAccessibilityViolations(page);
   });
 }
