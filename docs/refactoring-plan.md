@@ -1,38 +1,57 @@
 # CNSL Engineering Refactoring Plan
 
-Status: No actionable performance refactoring items.
-
-Review date: 2026-06-05
+Review date: 2026-06-07
 
 ## Scope And Validation
 
-The performance follow-up completed the remaining measurement recommendations. The repeatable local report now exposes route usable-time spread, separate Pools primary-data, summary-visible, and optional-enrichment phases, maximum annual-domain request counts, and precise PWA complete-inventory, install-critical, and cache-on-use tier sizes.
+This local audit reviewed the current clean `main` working tree for maintainability, accessibility, annual-data integrity, PWA and delivery behavior, testing and CI coverage, security hygiene, performance, and documentation drift. It inspected the recent changes since version 2.8.1, route-controller concentration, annual-data loading and request deduplication, weather refresh behavior, service-worker cache tiers, GitHub Actions controls, and the current browser accessibility architecture.
 
-The completed three-run baseline reported zero warnings. Pools summary-visible median was 478 ms and optional enrichment settled at 691 ms, confirming that optional work does not delay the visible summary. PWA reporting confirms that the 83-resource / 2,525,426-byte cache inventory partitions into a 61-resource / 945,362-byte install-critical core and a 22-resource / 1,580,064-byte cache-on-use optional tier.
+Validation completed on 2026-06-07:
 
-Validation completed on 2026-06-05:
-
-- Focused performance-reporting tests passed: 2 tests, 0 failures.
 - `pnpm run lint` passed.
-- `pnpm run measure:performance` passed with zero warnings across three cold runs per route.
-- A one-run `CNSL_PERF_BUDGET_SCALE=0.1` sample emitted 11 advisory warnings and completed successfully.
-- `pnpm run verify:pwa` passed with precise inventory, core, and optional tier reporting.
+- `pnpm test` passed in approximately 10.5 seconds.
+- `pnpm run validate:data` passed for 23 pools, 14 teams, 35 regular meets, 3 special meets, and 26 retained official PDFs.
+- `pnpm audit --audit-level high` reported no known vulnerabilities.
+- `pnpm run build` passed and generated 10 HTML pages.
+- `pnpm run verify:pwa` passed for a 2,594,028-byte delivered artifact. The cache inventory contains 84 resources / 2,539,830 bytes, partitioned into a 62-resource / 954,855-byte install-critical core and a 22-resource / 1,584,975-byte cache-on-use optional tier.
+- `pnpm run measure:performance` passed with zero warnings across three cold runs per route. Median usable times were Home 357 ms, Pools 543 ms, Teams 596 ms, and Meets 731 ms. Pools primary data was ready at 437 ms median, its summary was visible at 466 ms, and optional enrichment settled at 531 ms. Each annual domain was requested at most once per measured directory route.
+- The light-theme Teams and Resources accessibility scans passed three times each with one worker and three workers. At maximum configured concurrency, Teams completed in 7.9-29.6 seconds and Resources in 6.6-11.9 seconds.
+- The accessibility suite now applies a bounded 90-second test timeout while workflow tests retain the global 45-second timeout. All scans share one assertion helper with the unchanged `wcag2a`, `wcag2aa`, `wcag21a`, and `wcag21aa` tags.
+- `pnpm run test:browser:nightly` passed all 113 workflow and accessibility checks on the first complete run.
 
 ## Current Decisions
 
-- Do not add local-data query indexes without a benchmark. Current collections remain small, direct pool and team lookups use `Map`, concurrent domain requests are deduplicated, and team practice-pool lookups already have a maintained index.
-- Do not add asynchronous or stale-while-revalidate annual-data refresh. Annual JSON remains coherent with the versioned application build, and no application workflow currently calls `DataManager.refresh()`.
-- Do not extend progressive detail hydration to Teams or Meets. Current repeatable route measurements do not demonstrate a visitor-facing need.
-- Keep the current PWA core/optional split. Do not further reduce the core tier or proactively warm optional resources until delivered-HTTPS installation evidence demonstrates a problem.
-- Keep performance budgets warning-only until repeated local and delivered-HTTPS measurements demonstrate stable blocking thresholds.
+- Do not add local-data indexes or new caching layers. Current collections are small, domain requests are deduplicated, and the fresh baseline shows no request or timing warning.
+- Do not extend progressive hydration to Teams or Meets. Current measurements do not demonstrate a visitor-facing readiness problem.
+- Keep the current PWA core/optional split and warning-only performance budgets. The install-critical tier remains below 1 MB, optional work is cache-on-use, and the repeatable baseline has zero warnings.
+- Do not split the route controllers solely by line count. `pool-browser.js` is large, but its filtering, state preservation, and progressive enrichment have focused service boundaries and currently meet measured performance and test expectations. Reassess only when a concrete change exposes coupling or regression cost.
+- Keep the 90-second timeout scoped to the accessibility suite. It provides more than three times the measured maximum scan duration under normal concurrency without slowing or weakening workflow assertions.
 
 ## Priority Matrix
 
 | Priority | Finding | Impact | Effort |
 | --- | --- | --- | --- |
-| RED - High | No actionable item | - | - |
+| RED - High | No demonstrated accessibility barrier, release/data-integrity risk, security exposure, or material runtime defect | - | - |
 | ORANGE - Medium | No actionable item | - | - |
-| GREEN - Low | No actionable item | - | - |
+| GREEN - Low | No independently actionable cleanup or documentation item | - | - |
+
+## High Priority
+
+No actionable high-priority item is supported by the current repository evidence.
+
+## Low Priority
+
+No independently actionable low-priority item is supported by the current repository evidence.
+
+## Guardrails
+
+- Do not modify `src/assets/data/` during this refactoring work. Seasonal JSON, schemas, and official PDFs remain human-reviewed source-of-truth assets.
+- If official seasonal PDFs are separately accepted or replaced, follow the season rollover workflow and refresh `.github/automation/season-data-monitor/source-state.json` with `node scripts/season-data-agent.js --initialize`.
+- Never edit `out/`; it is generated by `pnpm run build`.
+- Preserve the PostHTML static-site architecture, native DOM APIs, service-worker version coherence, offline commitments, and the current PWA core/optional resource split unless new measurements support a reviewed change.
+- Do not weaken accessibility assertions, skip rules, exclude rendered regions, or treat a timeout as proof of conformance.
+- Keep performance changes measurement-led. Preserve annual-domain request deduplication, progressive Pools enrichment, focus and disclosure state, and warning-only budgets unless repeatable local and delivered-HTTPS evidence supports a change.
+- Keep analytics purpose-limited and do not introduce visitor identifiers, arbitrary URL values, saved preferences, location, or other disallowed data into telemetry.
 
 ## Priority Summary
 
