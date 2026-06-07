@@ -1266,6 +1266,32 @@ test('[WF-POOLS-005] location distances use outlined pills and can sort nearest 
   expect(distances).toEqual([...distances].sort((first, second) => first - second));
 });
 
+test('[WF-POOLS-006] location distances recover after a transient lookup timeout', async ({ page }) => {
+  await seedPreferences(page, { locationAwarenessEnabled: true });
+  await page.addInitScript(() => {
+    let requestCount = 0;
+    Object.defineProperty(globalThis.navigator, 'geolocation', {
+      configurable: true,
+      value: {
+        getCurrentPosition(success, error) {
+          requestCount += 1;
+          sessionStorage.setItem('cnsl_location_request_count', String(requestCount));
+          if (requestCount === 1) {
+            error({ code: 3, message: 'Timed out' });
+            return;
+          }
+          success({ coords: { latitude: 39.2105, longitude: -76.8721 } });
+        }
+      }
+    });
+  });
+
+  await page.goto('/pools.html');
+
+  await expect(page.locator('.distance-badge').first()).toBeVisible();
+  await expect.poll(() => page.evaluate(() => sessionStorage.getItem('cnsl_location_request_count'))).toBe('2');
+});
+
 test('[WF-DIR-001] directory disclosures work without rendered inline event handlers', async ({ page }) => {
   await page.goto('/pools.html');
   await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');

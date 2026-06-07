@@ -7,7 +7,12 @@ let poolAvailabilityFilter = 'all';
 let poolLiveStatusRefreshTimeout = null;
 let poolLiveStatusSignature = '';
 let poolBrowserEnrichmentPromise = null;
+let poolLocationRequestInFlight = false;
 const PoolBrowserSafety = HtmlSafety;
+const POOL_LOCATION_REQUEST_OPTIONS = Object.freeze([
+  Object.freeze({ enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 }),
+  Object.freeze({ enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 })
+]);
 
 function markPoolPerformance(markName) {
   if (globalThis.performance && typeof globalThis.performance.mark === 'function') {
@@ -354,46 +359,50 @@ function refreshHydratedPoolDetails() {
  * Gets the user's current location if they grant permission
  * Gracefully handles cases where geolocation is denied or not available
  */
-function getUserLocation() {
-  if (!PreferencesService.get().locationAwarenessEnabled) {
-    return;
-  }
+function getUserLocation(attempt = 0) {
+  if (!PreferencesService.get().locationAwarenessEnabled || poolLocationRequestInFlight) return;
 
   // Check if geolocation is supported
   if (!navigator.geolocation) {
     return; // Exit function early, no location will be used
   }
-  
-  // Define options for geolocation request
-  const options = {
-    enableHighAccuracy: false, // Don't need high accuracy for distance estimates
-    timeout: 5000,           // Time to wait for location (5 seconds)
-    maximumAge: 60000        // Cache location for 1 minute
+
+  poolLocationRequestInFlight = true;
+  const requestLocation = requestAttempt => {
+    const options = POOL_LOCATION_REQUEST_OPTIONS[requestAttempt];
+
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        poolLocationRequestInFlight = false;
+        if (!PreferencesService.get().locationAwarenessEnabled) return;
+        userCoords = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        // Re-render pools with distance if we're on the pools page
+        if (document.getElementById("poolList") && poolBrowserDataManager) {
+          setupPoolSortControl();
+          const poolsManager = poolBrowserDataManager.getPools();
+          const pools = poolsManager.getAllPools();
+          const poolRecords = pools.map(pool => pool.toJSON());
+          renderPools(poolRecords);
+        }
+      },
+      error => {
+        const permissionDenied = error && error.code === 1;
+        const nextAttempt = requestAttempt + 1;
+        if (!permissionDenied && nextAttempt < POOL_LOCATION_REQUEST_OPTIONS.length
+          && PreferencesService.get().locationAwarenessEnabled) {
+          requestLocation(nextAttempt);
+          return;
+        }
+        poolLocationRequestInFlight = false;
+      },
+      options
+    );
   };
-  
-  // Request location
-  navigator.geolocation.getCurrentPosition(
-    // Success callback
-    position => {
-      userCoords = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude
-      };
-      // Re-render pools with distance if we're on the pools page
-      if (document.getElementById("poolList") && poolBrowserDataManager) {
-        setupPoolSortControl();
-        const poolsManager = poolBrowserDataManager.getPools();
-        const pools = poolsManager.getAllPools();
-        const poolRecords = pools.map(pool => pool.toJSON());
-        renderPools(poolRecords);
-      }
-    },
-    // Error callback
-    () => {
-      // Continue without location data - pools are already rendered without distances
-    },
-    options
-  );
+
+  requestLocation(attempt);
 }
 
 /**
