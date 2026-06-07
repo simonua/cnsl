@@ -62,8 +62,11 @@ if (typeof window === 'undefined' || !window.PoolHoursDisplay) {
       const statusCountdown = PoolScheduleDisplay.formatPublicStatusTransition(statusTransition);
       const statusCountdownLabel = PoolScheduleDisplay.formatPublicStatusTransition(statusTransition, { useLongUnits: true });
       const statusCountdownClass = PoolScheduleDisplay.getPublicStatusTransitionClass(statusTransition);
+      const statusAction = statusTransition && ['opens', 'closes'].includes(statusTransition.action)
+        ? statusTransition.action
+        : '';
       const statusCountdownHtml = statusCountdown
-        ? `<span class="${statusCountdownClass}" aria-label="${HtmlSafety.escapeHtml(statusCountdownLabel)}">${HtmlSafety.escapeHtml(statusCountdown)}</span>`
+        ? `<span class="${statusCountdownClass}" data-status-action="${statusAction}" aria-label="${HtmlSafety.escapeHtml(statusCountdownLabel)}">${HtmlSafety.escapeHtml(statusCountdown)}</span>`
         : '';
       const scheduleHtml = PoolScheduleDisplay.render(model.weekSchedule || [], model.scheduleOptions || {});
       const dateRangeAttributes = model.hasDateRange

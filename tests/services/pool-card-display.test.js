@@ -23,6 +23,8 @@ const viewModel = {
   isFavorite: true,
   isExpanded: true,
   distanceMiles: 1.25,
+  openingText: 'Opens in 1h 15m',
+  openingLabel: 'Opens in 1 hour 15 minutes',
   poolStatus: { color: 'green' },
   statusTooltip: 'Open <public>',
   featureItems: [
@@ -46,6 +48,8 @@ describe('PoolCardDisplay', () => {
     assert.match(html, /Bryant &lt;Woods&gt;/);
     assert.match(html, /Favorite pool/);
     assert.match(html, /1\.3 mi/);
+    assert.match(html, /pool-header__metadata/);
+    assert.match(html, /aria-label="Opens in 1 hour 15 minutes">Opens in 1h 15m/);
     assert.match(html, /Open &lt;public&gt;/);
     assert.match(html, /10400 &lt;Bryant&gt; Woods Court/);
     assert.match(html, /https:\/\/www\.google\.com\/maps\/search\/\?api=1&amp;query=Bryant%20Woods%20Pool/);
@@ -86,7 +90,29 @@ describe('PoolCardDisplay', () => {
     assert.equal(PoolCardDisplay.getStatusColor('green'), 'green');
     assert.equal(PoolCardDisplay.getStatusColor('purple'), 'gray');
     assert.equal(PoolCardDisplay.renderDistance(Number.NaN), '');
+    assert.equal(PoolCardDisplay.renderOpening('', ''), '');
     assert.match(PoolCardDisplay.render({}), /Unknown Pool/);
+  });
+
+  it('renders opening and distance metadata independently', () => {
+    const openingOnlyHtml = PoolCardDisplay.render({
+      ...viewModel,
+      distanceMiles: null,
+      isExpanded: false,
+      isDetailsHydrated: false
+    });
+    const distanceOnlyHtml = PoolCardDisplay.render({
+      ...viewModel,
+      openingText: '',
+      openingLabel: '',
+      isExpanded: false,
+      isDetailsHydrated: false
+    });
+
+    assert.match(openingOnlyHtml, /Opens in 1h 15m/);
+    assert.doesNotMatch(openingOnlyHtml, /distance-badge/);
+    assert.match(distanceOnlyHtml, /distance-badge/);
+    assert.doesNotMatch(distanceOnlyHtml, /pool-opening-summary/);
   });
 
   it('renders only explicit string nested fragments', () => {

@@ -49,6 +49,7 @@ describe('PoolHoursDisplay', () => {
     assert.match(html, /class="pool-hours"/);
     assert.match(html, /Week of June 15 - June 21/);
     assert.match(html, /aria-label="Choose a week for Long &lt;Reach&gt;"/);
+    assert.match(html, /data-status-action="opens"/);
     assert.match(html, /data-pool-id="pool&quot;&gt;&lt;script&gt;"/);
     assert.match(html, /status-green/);
     assert.match(html, /🟢 Open &lt;public&gt;/);

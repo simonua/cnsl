@@ -33,6 +33,10 @@ if (typeof window === 'undefined' || !window.PoolCardDisplay) {
       const isFavorite = model.isFavorite === true;
       const isExpanded = model.isExpanded === true;
       const distanceHtml = PoolCardDisplay.renderDistance(model.distanceMiles);
+      const openingHtml = PoolCardDisplay.renderOpening(model.openingText, model.openingLabel);
+      const metadataHtml = openingHtml || distanceHtml
+        ? `<span class="pool-header__metadata">${openingHtml}${distanceHtml}</span>`
+        : '';
       const statusIndicatorHtml = PoolCardDisplay.renderStatusIndicator(model.poolStatus, model.statusTooltip);
       const isDetailsHydrated = model.isDetailsHydrated !== false;
       const detailsHtml = isDetailsHydrated ? PoolCardDisplay.renderDetails(model) : '';
@@ -41,7 +45,7 @@ if (typeof window === 'undefined' || !window.PoolCardDisplay) {
       <div class="pool-card ${isFavorite ? 'favorite-card' : ''}${isExpanded ? '' : ' collapsed'}" data-pool-card data-pool-id="${safePoolId}" data-pool-name="${safePoolName}" data-analytics-context="pool_details">
         <div class="pool-header" data-pool-card-header>
           <h2><button type="button" class="pool-header__toggle" data-pool-card-action="toggle" aria-expanded="${String(isExpanded)}" aria-controls="${safeDetailsId}">${statusIndicatorHtml}${safePoolName}${isFavorite ? ' <span class="favorite-badge">Favorite pool</span>' : ''}</button></h2>
-          ${distanceHtml}
+          ${metadataHtml}
         </div>
         <div class="pool-details" id="${safeDetailsId}" data-pool-details-hydrated="${String(isDetailsHydrated)}"${isExpanded ? '' : ' hidden'}>
           ${detailsHtml}
@@ -204,6 +208,13 @@ if (typeof window === 'undefined' || !window.PoolCardDisplay) {
       if (!Number.isFinite(distanceMiles)) return '';
       const formattedDistance = distanceMiles.toFixed(1);
       return `<span class="distance-badge" aria-label="${formattedDistance} miles away">${formattedDistance} mi</span>`;
+    }
+
+    static renderOpening(openingText, openingLabel) {
+      if (typeof openingText !== 'string' || openingText.length === 0) return '';
+      const safeText = HtmlSafety.escapeHtml(openingText);
+      const safeLabel = HtmlSafety.escapeHtml(openingLabel || openingText);
+      return `<span class="pool-opening-summary" aria-label="${safeLabel}">${safeText}</span>`;
     }
 
     static getFeatureCategory(category) {
