@@ -162,7 +162,7 @@ assert.doesNotMatch(worker, /cacheOptionalResources/, 'Service worker installati
 
 const analytics = fs.readFileSync(path.join(outDir, 'js', 'analytics.js'), 'utf8');
 const appConfig = fs.readFileSync(path.join(outDir, 'js', 'config', 'app-config.js'), 'utf8');
-const appConfigBrowserContext = {};
+const appConfigBrowserContext = { URL };
 vm.runInNewContext(appConfig, appConfigBrowserContext);
 const nonAnalyticsBrowserCode = fs.readdirSync(path.join(outDir, 'js'), { recursive: true })
   .filter(resource => resource.endsWith('.js') && resource !== 'analytics.js')

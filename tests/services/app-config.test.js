@@ -1,11 +1,29 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const config = require('../../src/js/config/app-config.js');
+
+const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'config', 'app-config.js');
+const source = fs.readFileSync(sourcePath, 'utf8');
 
 describe('app-config', () => {
   it('publishes a public NWS link for the configured weather coordinates', () => {
     assert.equal(
       config.EXTERNAL_LINKS.NATIONAL_WEATHER_SERVICE_PUBLIC_ALERTS,
+      'https://forecast.weather.gov/MapClick.php?lat=39.2014&lon=-76.8610'
+    );
+  });
+
+  it('publishes browser configuration when evaluated with standard browser globals', () => {
+    const context = { URL };
+
+    vm.runInNewContext(source, context, { filename: sourcePath });
+
+    assert.equal(context.APP_VERSION, config.APP_VERSION);
+    assert.equal(
+      context.WEATHER_PUBLIC_ALERTS_URL,
       'https://forecast.weather.gov/MapClick.php?lat=39.2014&lon=-76.8610'
     );
   });
