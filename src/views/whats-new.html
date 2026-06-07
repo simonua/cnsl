@@ -1,20 +1,26 @@
 <extends src="base.html">
   <block name="metadata">
-    <title>{{ YEAR }} Updates | CNSL &amp; CA Pools</title>
+    <title>What's New</title>
     <meta name="description" content="See {{ YEAR }} updates to Columbia Association pool information, CNSL meets and teams, accessibility, preferences, and offline access." />
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
     <link rel="canonical" href="{{ HOME_PAGE_URL }}/whats-new.html" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="{{ YEAR }} Updates | CNSL &amp; CA Pools" />
+    <meta property="og:title" content="What's New" />
     <meta property="og:description" content="See {{ YEAR }} updates to Columbia Association pool information, CNSL meets and teams, accessibility, preferences, and offline access." />
     <meta property="og:url" content="{{ HOME_PAGE_URL }}/whats-new.html" />
-    <meta name="twitter:title" content="{{ YEAR }} Updates | CNSL &amp; CA Pools" />
+    <meta name="twitter:title" content="What's New" />
     <meta name="twitter:description" content="See {{ YEAR }} updates to Columbia Association pool information, CNSL meets and teams, accessibility, preferences, and offline access." />
   </block>
   <block name="content">
     <h1>What's New in {{ YEAR }}</h1>
     <div class="container">
       <section class="faq-list" aria-label="{{ YEAR }} highlights">
+        <article class="faq-item release-highlights">
+          <h2>Upcoming</h2>
+          <ul>
+            <li><strong>See pool distances more reliably:</strong> When an enabled location lookup is temporarily unavailable or times out, the Pools page now tries once more before continuing without distance estimates. A denied location request is never repeated.</li>
+          </ul>
+        </article>
         <article class="faq-item release-highlights" id="version-2.8.3">
           <h2>Version 2.8.3 - June 7, 2026</h2>
           <p>This update makes same-day pool planning and phone setup easier:</p>
