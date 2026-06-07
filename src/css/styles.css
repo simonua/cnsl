@@ -437,6 +437,10 @@ button.home-banner__close:focus {
 }
 
 @media (max-width: 48rem) {
+  .container {
+    padding-inline: 0.75rem;
+  }
+
   .home-banner__inner {
     align-items: center;
     gap: 0.5rem;
@@ -673,10 +677,11 @@ button.home-banner__close:focus {
   }
 
   .weather-alert__actions {
-    align-items: stretch;
+    align-items: center;
     display: flex;
-    flex-direction: column;
-    gap: 0;
+    flex-direction: row;
+    gap: 0.5rem;
+    justify-content: center;
   }
 
   .weather-alert__toggle {

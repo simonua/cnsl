@@ -19,28 +19,51 @@
   const WEATHER_LOCATION_POINT = '39.2014,-76.8610';
   const WEATHER_ACTIVE_ALERTS_URL = `${WEATHER_API_BASE_URL}/alerts/active?point=${encodeURIComponent(WEATHER_LOCATION_POINT)}`;
   const WEATHER_POINT_URL = `${WEATHER_API_BASE_URL}/points/${WEATHER_LOCATION_POINT}`;
-  const WEATHER_PUBLIC_ALERTS_URL = 'https://www.weather.gov/alerts';
+  const WEATHER_PUBLIC_FORECAST_URL = 'https://forecast.weather.gov/MapClick.php';
+  const WEATHER_PUBLIC_ZIP_FALLBACK_URL = 'https://forecast.weather.gov/zipcity.php?inputstring=21045';
   const GOOGLE_MAPS_SEARCH_BASE_URL = 'https://www.google.com/maps/search/?api=1&query=';
 
-  function formatOfficialSourceCheckedAt(options) {
-    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}-(?:04|05):00$/.test(OFFICIAL_SOURCE_CHECKED_AT)) {
+  function buildWeatherPublicAlertsUrl(locationPoint) {
+    const [latitude, longitude, ...extraParts] = locationPoint.split(',').map(value => value.trim());
+    const latitudeNumber = Number(latitude);
+    const longitudeNumber = Number(longitude);
+    if (extraParts.length > 0
+      || !Number.isFinite(latitudeNumber)
+      || !Number.isFinite(longitudeNumber)
+      || latitudeNumber < -90
+      || latitudeNumber > 90
+      || longitudeNumber < -180
+      || longitudeNumber > 180) {
+      return WEATHER_PUBLIC_ZIP_FALLBACK_URL;
+    }
+
+    const publicUrl = new URL(WEATHER_PUBLIC_FORECAST_URL);
+    publicUrl.searchParams.set('lat', latitude);
+    publicUrl.searchParams.set('lon', longitude);
+    return publicUrl.toString();
+  }
+
+  const WEATHER_PUBLIC_ALERTS_URL = buildWeatherPublicAlertsUrl(WEATHER_LOCATION_POINT);
+
+  function formatOfficialSourceCheckedAt(timestamp, options) {
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}-(?:04|05):00$/.test(timestamp)) {
       throw new Error('OFFICIAL_SOURCE_CHECKED_AT must be an ISO timestamp with an explicit Eastern UTC offset.');
     }
-    const checkedAt = new Date(OFFICIAL_SOURCE_CHECKED_AT);
+    const checkedAt = new Date(timestamp);
     if (Number.isNaN(checkedAt.getTime())) {
       throw new Error('OFFICIAL_SOURCE_CHECKED_AT must be a valid ISO timestamp with an explicit Eastern UTC offset.');
     }
     return checkedAt.toLocaleString('en-US', { ...options, timeZone: APP_TIMEZONE, timeZoneName: 'short' });
   }
 
-  const OFFICIAL_SOURCE_CHECKED_LABEL = formatOfficialSourceCheckedAt({
+  const OFFICIAL_SOURCE_CHECKED_LABEL = formatOfficialSourceCheckedAt(OFFICIAL_SOURCE_CHECKED_AT, {
     day: 'numeric',
     hour: 'numeric',
     minute: '2-digit',
     month: 'long',
     year: 'numeric'
   });
-  const OFFICIAL_SOURCE_CHECKED_SHORT_LABEL = formatOfficialSourceCheckedAt({
+  const OFFICIAL_SOURCE_CHECKED_SHORT_LABEL = formatOfficialSourceCheckedAt(OFFICIAL_SOURCE_CHECKED_AT, {
     day: 'numeric',
     hour: 'numeric',
     minute: '2-digit',
@@ -139,15 +162,15 @@
     ...RUNTIME_CONFIG
   });
 
-  function exposeConstant(name, value) {
-    if (Object.prototype.hasOwnProperty.call(globalScope, name)) {
-      if (globalScope[name] !== value) {
+  function exposeConstant(name, value, targetScope = globalScope) {
+    if (Object.prototype.hasOwnProperty.call(targetScope, name)) {
+      if (targetScope[name] !== value) {
         throw new Error(`The configured ${name} does not match the loaded application configuration.`);
       }
       return;
     }
 
-    Object.defineProperty(globalScope, name, {
+    Object.defineProperty(targetScope, name, {
       configurable: false,
       enumerable: true,
       value,
@@ -158,6 +181,11 @@
   Object.entries(RUNTIME_CONFIG).forEach(([name, value]) => exposeConstant(name, value));
 
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = APP_CONFIG;
+    module.exports = Object.freeze({
+      ...APP_CONFIG,
+      buildWeatherPublicAlertsUrl,
+      exposeConstant,
+      formatOfficialSourceCheckedAt
+    });
   }
 })(globalThis);
