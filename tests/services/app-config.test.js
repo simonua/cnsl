@@ -9,6 +9,11 @@ const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'config', 'app-
 const source = fs.readFileSync(sourcePath, 'utf8');
 
 describe('app-config', () => {
+  it('publishes the configured author identity', () => {
+    assert.equal(config.AUTHOR_NAME, 'Simon Kurtz');
+    assert.equal(config.AUTHOR_EMAIL, 'simonkurtz@gmail.com');
+  });
+
   it('publishes a public NWS link for the configured weather coordinates', () => {
     assert.equal(
       config.EXTERNAL_LINKS.NATIONAL_WEATHER_SERVICE_PUBLIC_ALERTS,

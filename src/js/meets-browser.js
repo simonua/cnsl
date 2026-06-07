@@ -87,7 +87,10 @@ async function renderMeets(meets, preserveExpansion = false) {
   const formatTeamLabel = (label, className) => {
     const displayLabel = label || (className === 'home-team' ? 'Home Team' : 'Visiting Team');
     const isFavorite = PreferencesService.teamMatchesLabel(favoriteTeam, displayLabel);
-    return `<span class="${className}${isFavorite ? ' favorite-team' : ''}">${MeetsBrowserSafety.escapeHtml(displayLabel)}</span>`;
+    const favoriteMarker = isFavorite
+      ? ' <span class="favorite-marker" role="img" aria-label="Favorite team" title="Favorite team">&#9733;</span>'
+      : '';
+    return `<span class="${className}">${MeetsBrowserSafety.escapeHtml(displayLabel)}${favoriteMarker}</span>`;
   };
   const expandedDateValues = preserveExpansion
     ? new Set(Array.from(list.querySelectorAll('.meet-date-card')).filter(card => (
@@ -264,7 +267,6 @@ async function renderMeets(meets, preserveExpansion = false) {
         meetContent = `
           <div class="meet-details${isFavoriteMeet ? ' favorite-meet' : ''}"${meetPoolAttribute}>
             <div class="meet-info">
-              ${isFavoriteMeet ? '<span class="favorite-meet__label">Favorite team meet</span>' : ''}
               <div class="meet-teams">
                 ${formatTeamLabel(meet.getHomeTeam(), 'home-team')}
                 <span class="vs">vs.</span>

@@ -302,13 +302,15 @@ function getPoolRecord(poolId) {
   return poolBrowserPools.find(pool => String(pool.id || pool.name) === String(poolId)) || null;
 }
 
-function syncPoolOpeningSummary(poolCard) {
+function syncPoolTransitionSummary(poolCard) {
   if (!poolCard) return;
-  const openingTransition = poolCard.querySelector('.pool-details [data-status-action="opens"]');
+  const pool = getPoolRecord(poolCard.dataset.poolId);
+  const poolModel = pool && poolBrowserDataManager ? poolBrowserDataManager.getPool(pool.name) : null;
+  const statusTransition = poolModel ? poolModel.getPublicStatusTransitionToday() : null;
   let metadata = poolCard.querySelector('.pool-header__metadata');
-  let summary = metadata && metadata.querySelector('.pool-opening-summary');
+  let summary = metadata && metadata.querySelector('.pool-transition-summary');
 
-  if (!openingTransition) {
+  if (!statusTransition) {
     if (summary) summary.remove();
     if (metadata && !metadata.querySelector('.distance-badge')) metadata.remove();
     return;
@@ -321,11 +323,15 @@ function syncPoolOpeningSummary(poolCard) {
   }
   if (!summary) {
     summary = document.createElement('span');
-    summary.className = 'pool-opening-summary';
+    summary.className = 'pool-transition-summary';
     metadata.prepend(summary);
   }
-  summary.textContent = openingTransition.textContent;
-  summary.setAttribute('aria-label', openingTransition.getAttribute('aria-label') || openingTransition.textContent);
+  summary.textContent = PoolScheduleDisplay.formatPublicStatusTransition(statusTransition);
+  summary.setAttribute('aria-label', PoolScheduleDisplay.formatPublicStatusTransition(statusTransition, { useLongUnits: true }));
+}
+
+function refreshPoolTransitionSummaries() {
+  document.querySelectorAll('#poolList .pool-card').forEach(syncPoolTransitionSummary);
 }
 
 function hydratePoolDetails(poolCard) {
@@ -336,7 +342,7 @@ function hydratePoolDetails(poolCard) {
   if (!pool) return details;
   details.innerHTML = PoolCardDisplay.renderDetails(createPoolDetailsViewModel(pool));
   details.dataset.poolDetailsHydrated = 'true';
-  syncPoolOpeningSummary(poolCard);
+  syncPoolTransitionSummary(poolCard);
   return details;
 }
 
@@ -348,7 +354,7 @@ function refreshHydratedPoolDetails() {
     const pool = getPoolRecord(poolCard.dataset.poolId);
     if (pool) {
       details.innerHTML = PoolCardDisplay.renderDetails(createPoolDetailsViewModel(pool));
-      syncPoolOpeningSummary(poolCard);
+      syncPoolTransitionSummary(poolCard);
     }
   });
   scrollCalendarsToToday(document.getElementById('poolList') || document);
@@ -664,13 +670,16 @@ function getPoolLiveStatusSignature(pools) {
 }
 
 /**
- * Re-render only when the current clock crosses a visible schedule or filter boundary.
+ * Refresh countdowns each minute and re-render only at schedule or filter boundaries.
  */
 function refreshPoolsForCurrentTime() {
   if (poolBrowserPools.length === 0) return;
 
   const nextSignature = getPoolLiveStatusSignature(poolBrowserPools);
-  if (nextSignature === poolLiveStatusSignature) return;
+  if (nextSignature === poolLiveStatusSignature) {
+    refreshPoolTransitionSummaries();
+    return;
+  }
 
   const focusTarget = captureFocusedPoolControl();
   renderPools(poolBrowserPools);
@@ -781,12 +790,12 @@ function renderPools(pools) {
     const poolStatus = getPoolStatus(pool);
     const tooltipText = getStatusTooltip(poolStatus.kind);
     const poolModel = poolBrowserDataManager.getPool(poolName);
-    const openingTransition = poolModel ? poolModel.getPublicStatusTransitionToday() : null;
-    const openingText = openingTransition && openingTransition.action === 'opens'
-      ? PoolScheduleDisplay.formatPublicStatusTransition(openingTransition)
+    const statusTransition = poolModel ? poolModel.getPublicStatusTransitionToday() : null;
+    const transitionText = statusTransition
+      ? PoolScheduleDisplay.formatPublicStatusTransition(statusTransition)
       : '';
-    const openingLabel = openingTransition && openingTransition.action === 'opens'
-      ? PoolScheduleDisplay.formatPublicStatusTransition(openingTransition, { useLongUnits: true })
+    const transitionLabel = statusTransition
+      ? PoolScheduleDisplay.formatPublicStatusTransition(statusTransition, { useLongUnits: true })
       : '';
     const detailsViewModel = isExpanded ? createPoolDetailsViewModel(pool) : {};
 
@@ -798,8 +807,8 @@ function renderPools(pools) {
       isFavorite,
       isExpanded,
       distanceMiles: Number.isFinite(pool.distance) ? pool.distance : null,
-      openingText,
-      openingLabel,
+      transitionText,
+      transitionLabel,
       poolStatus,
       statusTooltip: tooltipText,
       isDetailsHydrated: isExpanded,
@@ -931,7 +940,7 @@ function refreshPoolDisplay(poolId) {
       
       // Replace the entire content of the pool-hours div
       hoursElement.outerHTML = newHoursContent;
-        syncPoolOpeningSummary(poolCard);
+        syncPoolTransitionSummary(poolCard);
       
       // Re-setup event handlers for the new controls
       setupPoolNavigationHandlers();

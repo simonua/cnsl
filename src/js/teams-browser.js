@@ -459,7 +459,7 @@ function renderTeams(teams) {
         <div class="team-header" data-team-card-header>
           ${logoHtml}
           <div class="team-header-content">
-            <h2><button type="button" class="team-header__toggle" data-team-card-action="toggle" aria-expanded="${String(isExpanded)}" aria-controls="${detailsId}">${safeTeamName}${isFavorite ? ' <span class="favorite-badge">Favorite team</span>' : ''}</button></h2>
+            <h2><button type="button" class="team-header__toggle" data-team-card-action="toggle" aria-expanded="${String(isExpanded)}" aria-controls="${detailsId}">${safeTeamName}${isFavorite ? ' <span class="favorite-marker" role="img" aria-label="Favorite team" title="Favorite team">&#9733;</span>' : ''}</button></h2>
           </div>
         </div>
 

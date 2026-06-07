@@ -1823,7 +1823,7 @@ nav a:focus {
   margin-left: auto;
 }
 
-.pool-opening-summary {
+.pool-transition-summary {
   color: var(--text-muted);
   font-size: 0.8rem;
   font-weight: 600;
@@ -5169,30 +5169,25 @@ button.settings-dialog__close:focus {
   white-space: nowrap;
 }
 
+.favorite-marker {
+  color: var(--warning-color);
+  display: inline-block;
+  font-size: 1.2em;
+  line-height: 1;
+  margin-left: 0.4rem;
+  text-shadow: 0 1px 1px var(--favorite-badge-text);
+  vertical-align: -0.05em;
+}
+
 .favorite-meet {
-  background-color: var(--favorite-bg);
   border: 2px solid var(--warning-color);
   border-radius: 6px;
   padding: 0.8rem;
 }
 
-.favorite-meet__label {
-  color: var(--favorite-text);
-  display: block;
-  font-size: 0.8rem;
-  font-weight: 700;
-  margin-bottom: 0.35rem;
-  text-transform: uppercase;
-}
-
-.favorite-team {
-  color: var(--favorite-text);
-  font-weight: 700;
-}
-
 @media (max-width: 30rem) {
   .settings-dialog {
-    margin: auto 0 auto auto;
+    margin: auto;
     max-height: calc(100dvh - 1rem);
     width: calc(100% - 1rem);
   }

@@ -23,8 +23,8 @@ const viewModel = {
   isFavorite: true,
   isExpanded: true,
   distanceMiles: 1.25,
-  openingText: 'Opens in 1h 15m',
-  openingLabel: 'Opens in 1 hour 15 minutes',
+  transitionText: 'Opens in 1h 15m',
+  transitionLabel: 'Opens in 1 hour 15 minutes',
   poolStatus: { color: 'green' },
   statusTooltip: 'Open <public>',
   featureItems: [
@@ -90,12 +90,12 @@ describe('PoolCardDisplay', () => {
     assert.equal(PoolCardDisplay.getStatusColor('green'), 'green');
     assert.equal(PoolCardDisplay.getStatusColor('purple'), 'gray');
     assert.equal(PoolCardDisplay.renderDistance(Number.NaN), '');
-    assert.equal(PoolCardDisplay.renderOpening('', ''), '');
+    assert.equal(PoolCardDisplay.renderTransition('', ''), '');
     assert.match(PoolCardDisplay.render({}), /Unknown Pool/);
   });
 
-  it('renders opening and distance metadata independently', () => {
-    const openingOnlyHtml = PoolCardDisplay.render({
+  it('renders public-status transitions and distance metadata independently', () => {
+    const transitionOnlyHtml = PoolCardDisplay.render({
       ...viewModel,
       distanceMiles: null,
       isExpanded: false,
@@ -103,16 +103,23 @@ describe('PoolCardDisplay', () => {
     });
     const distanceOnlyHtml = PoolCardDisplay.render({
       ...viewModel,
-      openingText: '',
-      openingLabel: '',
+      transitionText: '',
+      transitionLabel: '',
       isExpanded: false,
       isDetailsHydrated: false
     });
 
-    assert.match(openingOnlyHtml, /Opens in 1h 15m/);
-    assert.doesNotMatch(openingOnlyHtml, /distance-badge/);
+    const closingHtml = PoolCardDisplay.render({
+      ...viewModel,
+      transitionText: 'Closes in 45 min',
+      transitionLabel: 'Closes in 45 minutes'
+    });
+
+    assert.match(transitionOnlyHtml, /Opens in 1h 15m/);
+    assert.doesNotMatch(transitionOnlyHtml, /distance-badge/);
+    assert.match(closingHtml, /aria-label="Closes in 45 minutes">Closes in 45 min/);
     assert.match(distanceOnlyHtml, /distance-badge/);
-    assert.doesNotMatch(distanceOnlyHtml, /pool-opening-summary/);
+    assert.doesNotMatch(distanceOnlyHtml, /pool-transition-summary/);
   });
 
   it('renders only explicit string nested fragments', () => {

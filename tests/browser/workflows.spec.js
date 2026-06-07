@@ -1371,6 +1371,18 @@ test('[WF-MEETS-002] favorite team matchups appear first on every meet day they 
 
   expect(favoriteDayPlacement.length).toBeGreaterThan(1);
   expect(favoriteDayPlacement.every(firstIsFavorite => firstIsFavorite)).toBe(true);
+
+  const favoriteMeet = page.locator('.favorite-meet').first();
+  const favoriteTeam = favoriteMeet.locator('.home-team, .visiting-team').filter({ has: favoriteMeet.getByRole('img', { name: 'Favorite team' }) });
+  const otherTeam = favoriteMeet.locator('.home-team, .visiting-team').filter({ hasNot: favoriteMeet.getByRole('img', { name: 'Favorite team' }) });
+  await expect(favoriteTeam.getByRole('img', { name: 'Favorite team' })).toHaveText('★');
+  await expect.poll(async () => ({
+    color: await favoriteTeam.evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).color),
+    fontWeight: await favoriteTeam.evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).fontWeight)
+  })).toEqual({
+    color: await otherTeam.evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).color),
+    fontWeight: await otherTeam.evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).fontWeight)
+  });
 });
 
 test('[WF-MEETS-003] regular meet-day labels advance from upcoming to ongoing and to the next meet after noon', async ({ page }) => {
@@ -2207,4 +2219,40 @@ test('[WF-POOLS-015] opens-soon results update when a public opening enters the 
   await page.clock.fastForward(31 * 1000);
   await expect(page.locator('#poolList .pool-card')).toHaveCount(23);
   await expect(page.locator('#poolListStatus')).toHaveText('Pool availability updated for the current time.');
+});
+
+test('[WF-POOLS-016] collapsed opening and closing countdowns update without interaction', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-05-26T14:58:30-04:00') });
+  await page.route('**/assets/data/2026/pools/pools.json*', async route => {
+    const response = await route.fetch();
+    const poolData = await response.json();
+    poolData.pools.forEach((pool, index) => {
+      pool.schedules = [{
+        startDate: '2026-05-23',
+        endDate: '2026-09-07',
+        hours: [{
+          weekDays: ['Tue'],
+          startTime: index === 0 ? '1:00PM' : '3:00PM',
+          endTime: index === 0 ? '3:00PM' : '6:00PM',
+          types: ['Rec Swim'],
+          accessStatus: 'public'
+        }]
+      }];
+      pool.scheduleOverrides = [];
+    });
+    await route.fulfill({ response, json: poolData });
+  });
+  await page.goto('/pools.html');
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+
+  const closingCard = page.locator('#poolList .pool-card').first();
+  const openingCard = page.locator('#poolList .pool-card').nth(1);
+  await expect(closingCard).toHaveClass(/collapsed/);
+  await expect(openingCard).toHaveClass(/collapsed/);
+  await expect(closingCard.locator('.pool-transition-summary')).toHaveText('Closes in 2 min');
+  await expect(openingCard.locator('.pool-transition-summary')).toHaveText('Opens in 2 min');
+
+  await page.clock.fastForward(31 * 1000);
+  await expect(closingCard.locator('.pool-transition-summary')).toHaveText('Closes in 1 min');
+  await expect(openingCard.locator('.pool-transition-summary')).toHaveText('Opens in 1 min');
 });

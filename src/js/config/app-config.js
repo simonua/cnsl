@@ -10,7 +10,8 @@
   const APP_LAST_UPDATED_ON = '2026-06-07';
   const HOME_PAGE_HOSTNAME = 'pools.longreachmarlins.org';
   const HOME_PAGE_URL = `https://${HOME_PAGE_HOSTNAME}`;
-  const CONTACT_EMAIL = 'simonkurtz@gmail.com';
+  const AUTHOR_NAME = 'Simon Kurtz';
+  const AUTHOR_EMAIL = 'simonkurtz@gmail.com';
   const SHARE_MESSAGE = `Find Columbia pools and CNSL schedules: ${HOME_PAGE_URL}`;
 
   // External services and regional behavior.
@@ -73,11 +74,11 @@
 
   // Public destinations referenced by authored site content.
   const EXTERNAL_LINKS = Object.freeze({
-    DATA_MISMATCH_EMAIL: `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Assistant App Data Mismatch')}`,
+    DATA_MISMATCH_EMAIL: `mailto:${AUTHOR_EMAIL}?subject=${encodeURIComponent('Assistant App Data Mismatch')}`,
     EMAIL_SHARE: `mailto:?subject=${encodeURIComponent('Columbia Pools and CNSL Schedules')}&body=${encodeURIComponent(SHARE_MESSAGE)}`,
     FACEBOOK_SHARE: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(HOME_PAGE_URL)}`,
-    FEATURE_REQUEST_EMAIL: `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Assistant App Feature Request')}`,
-    FEEDBACK_EMAIL: `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('CA Pool & CNSL Assistant App Feedback')}`,
+    FEATURE_REQUEST_EMAIL: `mailto:${AUTHOR_EMAIL}?subject=${encodeURIComponent('Assistant App Feature Request')}`,
+    FEEDBACK_EMAIL: `mailto:${AUTHOR_EMAIL}?subject=${encodeURIComponent('CA Pool & CNSL Assistant App Feedback')}`,
     GITHUB_DATA_DIRECTORY: 'https://github.com/simonua/cnsl/tree/main/src/assets/data',
     GITHUB_LICENSE: 'https://github.com/simonua/cnsl/blob/main/LICENSE',
     GITHUB_REPOSITORY: 'https://github.com/simonua/cnsl',
@@ -154,7 +155,8 @@
 
   const APP_CONFIG = Object.freeze({
     APP_LAST_UPDATED_ON,
-    CONTACT_EMAIL,
+    AUTHOR_EMAIL,
+    AUTHOR_NAME,
     EXTERNAL_LINKS,
     OFFICIAL_SOURCE_CHECKED_AT,
     OFFICIAL_SOURCE_CHECKED_LABEL,
