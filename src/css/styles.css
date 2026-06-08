@@ -4576,7 +4576,7 @@ body:has(.footer__weather-freshness:not([hidden])) {
   }
   
   .cnsl-link-card h2 {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
   
   .cnsl-link-card p {
@@ -4584,8 +4584,8 @@ body:has(.footer__weather-freshness:not([hidden])) {
   }
   
   .cnsl-link-btn {
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
   }
 }
 
@@ -5184,7 +5184,7 @@ button.settings-dialog__close:focus {
   line-height: 1;
   margin-left: 0.4rem;
   text-shadow: 0 1px 1px var(--favorite-badge-text);
-  vertical-align: -0.05em;
+  vertical-align: 0.09em;
 }
 
 .favorite-meet {
