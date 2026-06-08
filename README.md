@@ -12,6 +12,12 @@ A lightweight, mobile-first web app that helps Columbia Neighborhood Swim League
 
 ## Development
 
+Run the PowerShell developer menu for the usual setup, build, server, lint, test, PWA, and performance workflows:
+
+```powershell
+.\start.ps1
+```
+
 ### Setup
 
 ```bash

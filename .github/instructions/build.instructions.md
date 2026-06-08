@@ -26,7 +26,7 @@ Reuse a running `CNSL: Start Development Server` task at `http://localhost:9090/
 
 ## Dev CLI
 
-Run `.\start.ps1` (Windows) or `./start.sh` (macOS/Linux) for an interactive menu covering setup, verification, linting, and testing.
+Run `\.\start.ps1` from PowerShell for the interactive developer menu. It covers environment setup, local servers, focused and complete verification, tests, PWA checks, and performance measurement.
 
 ## Build Pipeline
 
