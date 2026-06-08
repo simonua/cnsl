@@ -170,6 +170,6 @@ Custom domain configured with GitHub DNS and secured with HTTPS.
 
 ## 👤 Maintainer
 
-Maintained by [Simon Kurtz](mailto:simonkurtz@gmail.com?cnsl)
+Maintained by [Simon Kurtz](https://pools.longreachmarlins.org/contact.html)
 
 > Community-driven. Not affiliated with Columbia Association or CNSL.

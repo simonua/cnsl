@@ -30,12 +30,12 @@ describe('FileHelper', () => {
     });
 
     it('centralizes authored share and contact destinations', () => {
-      assert.equal(AUTHOR_EMAIL, 'simonkurtz@gmail.com');
+      assert.equal(AUTHOR_EMAIL, 'simonkurtz+pool-app@gmail.com');
       assert.equal(EXTERNAL_LINKS.SMS_SHARE, 'sms:?&body=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org');
       assert.equal(EXTERNAL_LINKS.EMAIL_SHARE, 'mailto:?subject=Columbia%20Pools%20and%20CNSL%20Schedules&body=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org');
-      assert.equal(EXTERNAL_LINKS.FEEDBACK_EMAIL, 'mailto:simonkurtz@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20App%20Feedback');
-      assert.equal(EXTERNAL_LINKS.DATA_MISMATCH_EMAIL, 'mailto:simonkurtz@gmail.com?subject=Assistant%20App%20Data%20Mismatch');
-      assert.equal(EXTERNAL_LINKS.FEATURE_REQUEST_EMAIL, 'mailto:simonkurtz@gmail.com?subject=Assistant%20App%20Feature%20Request');
+      assert.equal(EXTERNAL_LINKS.AUTHOR_FEEDBACK_EMAIL_URL, 'mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Feedback');
+      assert.equal(EXTERNAL_LINKS.AUTHOR_BUG_FEATURE_EMAIL_URL, 'mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Bug%20%2F%20Feature');
+      assert.equal(EXTERNAL_LINKS.AUTHOR_DATA_EMAIL_URL, 'mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Data');
       assert.equal(EXTERNAL_LINKS.GITHUB_DATA_DIRECTORY, 'https://github.com/simonua/cnsl/tree/main/src/assets/data');
       assert.equal(EXTERNAL_LINKS.GITHUB_LICENSE, 'https://github.com/simonua/cnsl/blob/main/LICENSE');
       assert.equal(EXTERNAL_LINKS.GITHUB_REPOSITORY, 'https://github.com/simonua/cnsl');

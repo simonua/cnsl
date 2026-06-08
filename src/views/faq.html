@@ -39,7 +39,9 @@
             "name": "Why do meet locations show lane and course measurements?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Known host pools are labeled with their recorded lane count and course measurement, including lane length when available, because course setup can matter when planning heats and comparing results with yard-based times. USA Swimming publishes official competitive-swimming rules and policies separately; Columbia Association and CNSL remain the official local pool and meet sources."
+              "text": "Lane counts and course measurements can help families and teams understand a meet's setup. They also provide useful context when comparing times from meter and yard pools. This information isn't published on
+              Columbia Association's website and, therefore, is not official. However, it was collected through various swim team individuals with knowledge of the courses. For all other aspects, Columbia Association and CNSL remain the official
+              sources for local pool and meet information."
             }
           },
           {
@@ -47,7 +49,7 @@
             "name": "Can I install the app and use it offline?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Yes. This Progressive Web App can be added to a phone home screen. After its resources have loaded, key pool, team, and meet information remains available when a connection is limited or offline."
+              "text": "Yes. You can add the app to your phone or tablet's home screen. After you have opened the app online, key pool, team, and meet information remains available when your connection is limited or unavailable."
             }
           },
           {
@@ -63,7 +65,7 @@
             "name": "Where does this app get its data, and when was it checked?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Accepted {{ YEAR }} season data was last checked against its official public sources on {{ OFFICIAL_SOURCE_CHECKED_LABEL }}. Pool information is transcribed from publicly available Columbia Association publications, while team and meet information is transcribed from publicly available official CNSL publications. The app's structured annual data and retained source materials can be viewed or downloaded from its public GitHub data directory."
+              "text": "The {{ YEAR }} season information was last checked against official public sources on {{ OFFICIAL_SOURCE_CHECKED_LABEL }}. Pool information comes from Columbia Association publications, while team and meet information comes from official CNSL publications. You can view the app's annual data and saved source materials in its public GitHub data directory."
             }
           },
           {
@@ -71,7 +73,7 @@
             "name": "What if information in this app does not match an official source?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Columbia Association and CNSL control their official published information; this independent app does not. If information shown in this app does not match an official public source, email {{ AUTHOR_EMAIL }} with the source link so the app can be reviewed and updated. This app is maintained in spare time, so updates may not be immediate."
+              "text": "Please use the Contact page and include a link to the official Columbia Association or CNSL source. The app can then be reviewed and corrected. Because this community project is maintained in spare time, updates may not be immediate."
             }
           },
           {
@@ -79,7 +81,7 @@
             "name": "What data is measured or stored?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "The site does not request personally identifiable information. Preferences are stored in the visitor's browser. Analytics storage is enabled so Google Analytics can store its own first-party analytics identifier for aggregate site, visit, session, and feature usage reporting, including reviewed campaign labels for visits opened from the published flyer QR code. Advertising personalization and Google signals are disabled. App-defined measurement does not send names, contact details, account identifiers, current coordinates, saved settings values, selected pools or teams, or free-form content."
+              "text": "The app does not ask for your name, contact details, or an account. Your preferences stay in your browser. Google Analytics uses its own first-party identifier to provide combined reports about visits and general feature use. Advertising personalization and Google signals are disabled. The app does not send Google Analytics your current location, saved settings, selected pools or teams, selected filters, free-form text, or identifying details."
             }
           },
           {
@@ -95,7 +97,7 @@
             "name": "Does weather safety use my current location?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "No. Weather safety alerts use a fixed Columbia-area point representing the pool area, not the visitor's current location. The app requests active alerts and forecast metadata from the National Weather Service for that fixed point. The forecast metadata response identifies the National Weather Service forecast URL used for the near-term forecast check. Even when location awareness is enabled for pool distance estimates, the app never tracks, saves, or sends the visitor's current location."
+              "text": "No. Weather checks use one fixed location in Columbia for the pool area, not your current location. The app checks National Weather Service alerts and the near-term forecast for that location. Optional location access is used only to estimate distances to pools; the app never tracks, saves, or sends your current location."
             }
           },
           {
@@ -103,7 +105,7 @@
             "name": "Where are my preferences saved?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Settings are saved in the visitor's browser on their device and can be removed from the Settings page or by clearing this site's browser data."
+              "text": "Your settings are saved in the browser on your device. You can remove them from the Settings page or by clearing this site's browser data."
             }
           },
           {
@@ -111,7 +113,7 @@
             "name": "How can I request a feature or share feedback?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Email {{ AUTHOR_EMAIL }} with the subject Assistant App Feature Request and a brief description of what would make the app more useful."
+              "text": "Use the Contact page to share a feature request or feedback about what would make the app more useful."
             }
           },
           {
@@ -119,7 +121,7 @@
             "name": "Can I view or reuse the app source code?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Yes. The source code is public on GitHub and released under the MIT License. This permissive license permits use, copying, modification, and distribution of the app source as long as the copyright and license notices are included. Official Columbia Association and CNSL publications remain subject to their respective owners' terms."
+              "text": "Yes. The source code is public on GitHub under the MIT License. You may use, copy, change, and share the app source as long as you include its copyright and license notices. Official Columbia Association and CNSL publications remain subject to their owners' terms."
             }
           }
         ]
@@ -142,11 +144,11 @@
           </article>
           <article class="faq-item">
             <h3>Why do meet locations show lane and course measurements?</h3>
-            <p>Known host pools are labeled with their recorded lane count and course measurement, including lane length when available, because lane configuration matters when planning heats in meet-management software, and meter-course results need course context when compared with yard-based times. For competitive-swimming course terminology and rules, see <a href="{{ EXTERNAL_LINKS.USA_SWIMMING_RULES_POLICIES }}" target="_blank" rel="noopener">USA Swimming Rules &amp; Policies</a>. Columbia Association and CNSL remain the official sources for local pool and meet information.</p>
+            <p>Lane counts and course measurements can help families and teams understand a meet's setup. They also provide useful context when comparing times from meter and yard pools. For official course terminology and rules, see <a href="{{ EXTERNAL_LINKS.USA_SWIMMING_RULES_POLICIES }}" target="_blank" rel="noopener">USA Swimming Rules &amp; Policies</a>. Columbia Association and CNSL remain the official sources for local pool and meet information.</p>
           </article>
           <article class="faq-item">
             <h3>Can I install the app and use it offline?</h3>
-            <p>Yes. This site is a Progressive Web App (PWA) that can be added to your home screen. After its resources have loaded, key pool, team, and meet information remains available when your connection is limited or offline.</p>
+            <p>Yes. You can add the app to your phone or tablet's home screen. After you have opened the app online, key pool, team, and meet information remains available when your connection is limited or unavailable.</p>
             <p><strong>On iPhone or iPad:</strong></p>
             <ol>
               <li>Open this website in Safari.</li>
@@ -166,19 +168,19 @@
           <h2 id="faq-sources" class="faq-list__heading">Official Information and Corrections</h2>
           <article class="faq-item">
             <h3>Is this an official web app?</h3>
-            <p>No. This is an independent community project and is not operated by or affiliated with Columbia Association (CA) or CNSL. CA and CNSL control their official published information; I do not control or change their data. This app provides information for the {{ YEAR }} outdoor pool season, so please confirm time-sensitive plans with official CA and CNSL sources.</p>
+            <p>No. This is an independent community project. It is not operated by or affiliated with Columbia Association (CA) or CNSL. The app provides information for the {{ YEAR }} outdoor pool season, but CA and CNSL remain the official sources. Please check their publications before making time-sensitive plans.</p>
           </article>
           <article class="faq-item">
             <h3>Where does this app get its data, and when was it checked?</h3>
             <p class="faq-item__source-freshness"><strong>Season data last checked:</strong> <time datetime="{{ OFFICIAL_SOURCE_CHECKED_AT }}">{{ OFFICIAL_SOURCE_CHECKED_LABEL }}</time></p>
-            <p>Pool information is transcribed from publicly available <a href="{{ ACTIVE_SEASON.CA_POOL_SCHEDULES_URL }}" target="_blank" rel="noopener">Columbia Association (CA) publications</a>. Team and meet information is transcribed from publicly available <a href="{{ EXTERNAL_LINKS.OFFICIAL_CNSL_SITE }}" target="_blank" rel="noopener">official CNSL publications</a>. These official public sources are the source of truth for this web app.</p>
-            <p>The structured annual data used by this app and retained public source materials can be viewed or downloaded in the <a href="{{ EXTERNAL_LINKS.GITHUB_DATA_DIRECTORY }}" target="_blank" rel="noopener">public data directory on GitHub</a>.</p>
-            <p>Information shared through social media, email, messaging groups, or other community channels can be helpful, but is not treated as authoritative here unless it is reflected in an official public source.</p>
+            <p>Pool information comes from publicly available <a href="{{ ACTIVE_SEASON.CA_POOL_SCHEDULES_URL }}" target="_blank" rel="noopener">Columbia Association (CA) publications</a>. Team and meet information comes from publicly available <a href="{{ EXTERNAL_LINKS.OFFICIAL_CNSL_SITE }}" target="_blank" rel="noopener">official CNSL publications</a>. These publications are the official sources for the app.</p>
+            <p>You can view or download the app's annual data and saved source materials from the <a href="{{ EXTERNAL_LINKS.GITHUB_DATA_DIRECTORY }}" target="_blank" rel="noopener">public data directory on GitHub</a>.</p>
+            <p>Community updates shared through social media, email, or messaging groups can be helpful. The app uses them only after the information also appears in an official public source.</p>
             <p>Published details can change, so please confirm time-sensitive plans before heading out.</p>
           </article>
           <article class="faq-item">
             <h3>What if information in this app does not match an official source?</h3>
-            <p>CA and CNSL control their official published information; I do not. If information shown in this app does not match an official public CA or CNSL source, email <a href="{{ EXTERNAL_LINKS.DATA_MISMATCH_EMAIL }}">{{ AUTHOR_EMAIL }}</a> with the subject "Assistant App Data Mismatch" and a link to the official published source. I can review and update what this app displays, but I cannot change information published by CA or CNSL. This app is maintained in my spare time, so updates may not be immediate.</p>
+            <p>Please use the <a href="contact.html">Contact page</a> and include a link to the official CA or CNSL source. I can review and correct what the app displays, but I cannot change information published by CA or CNSL. Because this community project is maintained in my spare time, updates may not be immediate.</p>
           </article>
         </section>
 
@@ -186,8 +188,8 @@
           <h2 id="faq-privacy" class="faq-list__heading">Privacy and Preferences</h2>
           <article class="faq-item">
             <h3>What data is measured or stored?</h3>
-            <p>This web app does not request names, contact details, account identifiers, or other personally identifiable information. The deployed site uses Google Analytics for aggregate site, visit, session, and feature usage reporting, including reviewed campaign labels for visits opened from the published flyer QR code. Analytics storage is enabled so Google Analytics can store its own first-party analytics identifier for that reporting. Advertising personalization and Google signals are disabled.</p>
-            <p>App-defined measurement does not send visitor names, contact details, account identifiers, current coordinates, saved settings values, selected pools or teams, selected filters, free-form content, arbitrary URL query or fragment values, referrers, or outbound-link destination details. For an app-published campaign link, it may report its fixed source, medium, and campaign labels for aggregate source attribution after clearing those tags from the visible address. You can also read <a href="{{ EXTERNAL_LINKS.GOOGLE_ANALYTICS_PRIVACY_GUIDANCE }}" target="_blank" rel="noopener noreferrer">Google Analytics guidance on personally identifiable information</a>.</p>
+            <p>The app does not ask for your name, contact details, or an account. Your preferences stay in your browser. Google Analytics uses its own first-party identifier to provide combined reports about visits and general feature use. This includes a fixed campaign label when someone opens the app from its published flyer QR code. Advertising personalization and Google signals are disabled.</p>
+            <p>The app does not send Google Analytics your name, contact details, account information, current location, saved settings, selected pools or teams, selected filters, free-form text, referring page, or the links you open. Fixed labels from an app-published campaign link may be reported to show how visitors found the app. Those labels are removed from the address shown in your browser. You can also read <a href="{{ EXTERNAL_LINKS.GOOGLE_ANALYTICS_PRIVACY_GUIDANCE }}" target="_blank" rel="noopener noreferrer">Google's guidance about personally identifiable information in Analytics</a>.</p>
           </article>
           <article class="faq-item">
             <h3>Does the app use my location?</h3>
@@ -195,16 +197,16 @@
           </article>
           <article class="faq-item" id="weather-safety-location">
             <h3>Does weather safety use my current location?</h3>
-            <p>No. This app uses one fixed point in Columbia for all weather checks (<code>39.2014,-76.8610</code>), not your current location. National Weather Service links:</p>
+            <p>No. The app checks weather for one fixed location in Columbia that represents the pool area, not your current location. You can review the same National Weather Service information here:</p>
             <ul>
-              <li><a href="{{ EXTERNAL_LINKS.NATIONAL_WEATHER_SERVICE_ACTIVE_ALERTS }}" target="_blank" rel="noopener">Alerts</a></li>
-              <li><a href="{{ EXTERNAL_LINKS.NATIONAL_WEATHER_SERVICE_POINT }}" target="_blank" rel="noopener">Forecast metadata</a></li>
+              <li><a href="{{ EXTERNAL_LINKS.NATIONAL_WEATHER_SERVICE_ACTIVE_ALERTS }}" target="_blank" rel="noopener">Active weather alerts</a></li>
+              <li><a href="{{ EXTERNAL_LINKS.NATIONAL_WEATHER_SERVICE_POINT }}" target="_blank" rel="noopener">Local forecast information</a></li>
             </ul>
-            <p>The forecast metadata response identifies the National Weather Service forecast URL used for the near-term forecast check. Optional browser location awareness is separate and is used only to calculate pool distance estimates. Even when you grant location access, this app never tracks, saves, or sends your current location.</p>
+            <p>Optional location access is separate and is used only to estimate distances to pools. Even when you allow location access, the app never tracks, saves, or sends your current location.</p>
           </article>
           <article class="faq-item">
             <h3>Where are my preferences saved?</h3>
-            <p>Settings are saved in your browser on your device. Preference changes may be measured only using visible fixed choices or published directory options. You can remove your local choices from the <a href="settings.html">Settings page</a> or by clearing this site's browser data.</p>
+            <p>Your settings are saved in the browser on your device. General use of fixed settings may be included in combined analytics reports, but the app does not send your saved choices. You can remove your preferences from the <a href="settings.html">Settings page</a> or by clearing this site's browser data.</p>
           </article>
         </section>
 
@@ -212,7 +214,7 @@
           <h2 id="faq-feedback" class="faq-list__heading">Feedback and Requests</h2>
           <article class="faq-item">
             <h3>How can I request a feature or share feedback?</h3>
-            <p>Email <a href="{{ EXTERNAL_LINKS.FEATURE_REQUEST_EMAIL }}">{{ AUTHOR_EMAIL }}</a> with the subject "Assistant App Feature Request" and a brief description of what would make the app more useful for your summer swim experience.</p>
+            <p>Use the <a href="contact.html">Contact page</a> to share a feature request or feedback about what would make the app more useful for your summer swim experience.</p>
           </article>
         </section>
 
@@ -221,7 +223,7 @@
           <article class="faq-item">
             <h3>Can I view or reuse the app source code?</h3>
             <p>Yes. The app source is available in the <a href="{{ EXTERNAL_LINKS.GITHUB_REPOSITORY }}" target="_blank" rel="noopener">public GitHub repository</a> and is released under the <a href="{{ EXTERNAL_LINKS.GITHUB_LICENSE }}" target="_blank" rel="noopener">MIT License</a>.</p>
-            <p>The MIT License is permissive: it permits use, copying, modification, and distribution of the app source as long as the copyright and license notices are included. Official CA and CNSL publications, linked source materials, and third-party assets remain subject to their respective owners' terms.</p>
+            <p>You may use, copy, change, and share the app source as long as you include its copyright and license notices. Official CA and CNSL publications, linked source materials, and third-party assets remain subject to their owners' terms.</p>
           </article>
         </section>
       </div>

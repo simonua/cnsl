@@ -11,7 +11,7 @@
   const HOME_PAGE_HOSTNAME = 'pools.longreachmarlins.org';
   const HOME_PAGE_URL = `https://${HOME_PAGE_HOSTNAME}`;
   const AUTHOR_NAME = 'Simon Kurtz';
-  const AUTHOR_EMAIL = 'simonkurtz@gmail.com';
+  const AUTHOR_EMAIL = 'simonkurtz+pool-app@gmail.com';
   const SHARE_MESSAGE = `Find Columbia pools and CNSL schedules: ${HOME_PAGE_URL}`;
 
   // External services and regional behavior.
@@ -74,16 +74,17 @@
 
   // Public destinations referenced by authored site content.
   const EXTERNAL_LINKS = Object.freeze({
-    DATA_MISMATCH_EMAIL: `mailto:${AUTHOR_EMAIL}?subject=${encodeURIComponent('Assistant App Data Mismatch')}`,
+    AUTHOR_BUG_FEATURE_EMAIL_URL: `mailto:${AUTHOR_EMAIL}?subject=${encodeURIComponent('CA Pool & CNSL Assistant - Bug / Feature')}`,
+    AUTHOR_DATA_EMAIL_URL: `mailto:${AUTHOR_EMAIL}?subject=${encodeURIComponent('CA Pool & CNSL Assistant - Data')}`,
+    AUTHOR_FEEDBACK_EMAIL_URL: `mailto:${AUTHOR_EMAIL}?subject=${encodeURIComponent('CA Pool & CNSL Assistant - Feedback')}`,
     EMAIL_SHARE: `mailto:?subject=${encodeURIComponent('Columbia Pools and CNSL Schedules')}&body=${encodeURIComponent(SHARE_MESSAGE)}`,
+    AUTHOR_FACEBOOK_PROFILE_URL: 'https://www.facebook.com/simonkurtz82',
     FACEBOOK_SHARE: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(HOME_PAGE_URL)}`,
-    FEATURE_REQUEST_EMAIL: `mailto:${AUTHOR_EMAIL}?subject=${encodeURIComponent('Assistant App Feature Request')}`,
-    FEEDBACK_EMAIL: `mailto:${AUTHOR_EMAIL}?subject=${encodeURIComponent('CA Pool & CNSL Assistant App Feedback')}`,
     GITHUB_DATA_DIRECTORY: 'https://github.com/simonua/cnsl/tree/main/src/assets/data',
     GITHUB_LICENSE: 'https://github.com/simonua/cnsl/blob/main/LICENSE',
     GITHUB_REPOSITORY: 'https://github.com/simonua/cnsl',
     GOOGLE_ANALYTICS_PRIVACY_GUIDANCE: 'https://support.google.com/analytics/answer/6366371?hl=en#zippy=%2Cin-this-article',
-    LINKEDIN_PROFILE: 'https://www.linkedin.com/in/simonkurtz',
+    AUTHOR_LINKEDIN_URL: 'https://www.linkedin.com/in/simonkurtz',
     NATIONAL_WEATHER_SERVICE_ACTIVE_ALERTS: WEATHER_ACTIVE_ALERTS_URL,
     NATIONAL_WEATHER_SERVICE_PUBLIC_ALERTS: WEATHER_PUBLIC_ALERTS_URL,
     NATIONAL_WEATHER_SERVICE_POINT: WEATHER_POINT_URL,

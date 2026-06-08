@@ -11,7 +11,12 @@ const source = fs.readFileSync(sourcePath, 'utf8');
 describe('app-config', () => {
   it('publishes the configured author identity', () => {
     assert.equal(config.AUTHOR_NAME, 'Simon Kurtz');
-    assert.equal(config.AUTHOR_EMAIL, 'simonkurtz@gmail.com');
+    assert.equal(config.AUTHOR_EMAIL, 'simonkurtz+pool-app@gmail.com');
+    assert.equal(config.EXTERNAL_LINKS.AUTHOR_FEEDBACK_EMAIL_URL, 'mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Feedback');
+    assert.equal(config.EXTERNAL_LINKS.AUTHOR_BUG_FEATURE_EMAIL_URL, 'mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Bug%20%2F%20Feature');
+    assert.equal(config.EXTERNAL_LINKS.AUTHOR_DATA_EMAIL_URL, 'mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Data');
+    assert.equal(config.EXTERNAL_LINKS.AUTHOR_LINKEDIN_URL, 'https://www.linkedin.com/in/simonkurtz');
+    assert.equal(config.EXTERNAL_LINKS.AUTHOR_FACEBOOK_PROFILE_URL, 'https://www.facebook.com/simonkurtz82');
   });
 
   it('publishes a public NWS link for the configured weather coordinates', () => {
