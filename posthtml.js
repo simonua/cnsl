@@ -91,7 +91,7 @@ function copyDir(src, dest, excludePaths = [], basePath = src) {
   for (const entry of entries) {
     const srcPath = path.join(src, entry.name);
     const destPath = path.join(dest, entry.name);
-    
+
     // Get relative path from the original base path for exclusion checking
     const relativePath = path.relative(basePath, srcPath).replace(/\\/g, '/');
 
@@ -114,7 +114,7 @@ const includePlugin = (tree) => {
   tree.match({ tag: 'include' }, (node) => {
     const src = node.attrs.src;
     if (!src) return node;
-    
+
     const content = readComponent(src);
     return { content: content };
   });
@@ -313,9 +313,9 @@ const totalFiles = files.length;
 const pageBuilds = files.map(file => {
   const srcPath = path.join(srcDir, file);
   const outPath = path.join(outDir, file);
-  
+
   const html = fs.readFileSync(srcPath, 'utf8');
-  
+
   posthtml()
     .use(extend)
     .use(includePlugin)

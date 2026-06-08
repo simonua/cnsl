@@ -1,0 +1,2 @@
+# Keep text files consistent across operating systems and editors.
+* text=auto eol=lf
