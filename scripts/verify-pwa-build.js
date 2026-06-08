@@ -74,9 +74,10 @@ unpublishedAnnualEvidenceDirectories.forEach(directory => {
   assert.ok(!fs.existsSync(path.join(outDir, directory)), `Retained annual evidence must not be included in the public artifact: ${directory}`);
 });
 [
-  'assets/swim-meet-resources/Judge - Rev B 062025.pdf',
-  'assets/swim-meet-resources/Timer - Rev B 062025.pdf',
-  'assets/swim-meet-resources/Timesheet Runner - Rev B 062025.pdf'
+  'assets/swim-meet-resources/Judge - Rev C 060826.pdf',
+  'assets/swim-meet-resources/Timer - Rev C 060826.pdf',
+  'assets/swim-meet-resources/Timesheet Runner - Rev C 060826.pdf',
+  'assets/swim-meet-resources/Line-up Aid - Rev C 060826.pdf'
 ].forEach(resource => {
   assert.ok(fs.existsSync(path.join(outDir, resource)), `Visitor-facing swim meet resource must remain published: ${resource}`);
 });
@@ -273,8 +274,8 @@ assert.ok(homeHtml.includes(`href="${activeSeasonPools.caPoolDirectoryUrl}"`), '
 
 const faqHtml = fs.readFileSync(path.join(outDir, 'faq.html'), 'utf8');
 assert.ok(faqHtml.includes(`href="${activeSeasonPools.caPoolGuideUrl}"`), 'FAQ must render its official pool-source destination from active annual metadata.');
-assert.match(faqHtml, /Analytics storage is enabled so Google Analytics can store its own first-party analytics identifier/, 'FAQ must disclose the first-party Google Analytics storage used for aggregate reporting.');
-assert.match(faqHtml, /does not send visitor names, contact details, account identifiers/, 'FAQ must disclose that app-defined measurement does not send direct visitor identity fields.');
+assert.match(faqHtml, /Google Analytics uses its own first-party identifier to provide combined reports/, 'FAQ must disclose the first-party Google Analytics storage used for aggregate reporting.');
+assert.match(faqHtml, /does not send Google Analytics your name, contact details, account information/, 'FAQ must disclose that app-defined measurement does not send direct visitor identity fields.');
 
 const offlineHtml = fs.readFileSync(path.join(outDir, 'offline.html'), 'utf8');
 assert.match(offlineHtml, /<meta name="robots" content="noindex">/, 'Offline fallback must not be indexed.');
