@@ -3431,7 +3431,7 @@ button.pool-filter__clear:focus-visible {
   border-top: 1px solid var(--border-color);
   text-align: center;
   padding: 0.65rem 1rem calc(0.65rem + var(--footer-bottom-clearance));
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
   height: calc(var(--footer-height) + var(--footer-bottom-clearance));
   display: flex;
@@ -3443,7 +3443,7 @@ button.pool-filter__clear:focus-visible {
 }
 
 .footer__data-freshness {
-  font-size: 0.78rem;
+  font-size: inherit;
 }
 
 .footer__data-freshness strong {
@@ -3473,20 +3473,16 @@ body:has(.footer__weather-freshness:not([hidden])) {
 
 @media (max-width: 48rem) {
   :root {
-    --footer-height: 3.75rem;
+    --footer-height: 3.4rem;
     --footer-bottom-clearance: max(0.25rem, env(safe-area-inset-bottom, 0rem));
   }
 
   .footer {
-    padding: 0.35rem 1rem calc(0.35rem + var(--footer-bottom-clearance));
-  }
-
-  .footer__data-freshness {
-    font-size: 0.7rem;
+    padding: 0.25rem 1rem calc(0.25rem + var(--footer-bottom-clearance));
   }
 
   body:has(.footer__weather-freshness:not([hidden])) {
-    --footer-height: 4.7rem;
+    --footer-height: 4.25rem;
   }
 }
 
