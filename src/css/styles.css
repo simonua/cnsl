@@ -4847,12 +4847,29 @@ body:has(.footer__weather-freshness:not([hidden])) {
   }
 
   .resource-card--flyer {
-    align-items: stretch;
-    display: flex;
+    align-items: start;
+    column-gap: 1rem;
+    display: grid;
+    grid-template-areas:
+      "heading heading"
+      "preview copy"
+      "actions actions";
+    grid-template-columns: minmax(0, 5.5rem) minmax(0, 1fr);
+    row-gap: 0.75rem;
+  }
+
+  .resource-card--flyer h2,
+  .resource-card--flyer p {
+    margin-bottom: 0;
   }
 
   .resource-card--flyer .resource-card__preview-link {
-    margin-bottom: 1rem;
+    margin: 0.25rem 0 0;
+    max-width: 5.5rem;
+  }
+
+  .resource-card--flyer .resource-actions {
+    margin-top: 0.25rem;
   }
 
   .resource-actions {
