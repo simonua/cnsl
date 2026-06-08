@@ -20,7 +20,7 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
   static DEFAULT_TIME = '12:00am';
   static TIME_REGEX = /^(\d{1,2}):?(\d{0,2})(AM|PM)$/i;
   static DATE_ONLY_REGEX = /^(\d{4})-(\d{2})-(\d{2})$/;
-  
+
   // Cache for timezone offset calculations to improve performance
   static _timezoneOffsetCache = new Map();
   static _lastCacheCleanup = 0;
@@ -40,7 +40,7 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
   static _log(message, level = 'info', data = null) {
     const TimeIcons = typeof module !== 'undefined' && module.exports ? require('./icon-catalog.js') : IconCatalog;
     const prefix = level === 'error' ? TimeIcons.getTextGlyph('error') : level === 'warn' ? TimeIcons.getTextGlyph('warning') : TimeIcons.getTextGlyph('time');
-    
+
     if (data) {
       console[level](`${prefix} [TimeUtils] ${message}`, data);
     } else {
@@ -77,7 +77,7 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
    */
   static _validateTimeString(timeStr) {
     this._validateInput(timeStr, 'timeStr', 'string');
-    
+
     if (!this.TIME_REGEX.test(timeStr.trim())) {
       throw new Error(`TimeUtils: Invalid time format "${timeStr}". Expected format: "H:MMAM/PM" (e.g., "9:30AM", "11:00PM")`);
     }
@@ -104,7 +104,7 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
    */
   static _getTimezoneOffset(date) {
     this._cleanupCache();
-    
+
     const dateKey = date.toDateString();
     if (this._timezoneOffsetCache.has(dateKey)) {
       return this._timezoneOffsetCache.get(dateKey);
@@ -114,7 +114,7 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
       const utcTime = date.getTime() + (date.getTimezoneOffset() * 60000);
       const easternDate = new Date(utcTime + this._getEasternOffsetMs(date));
       const offset = easternDate.getTime() - date.getTime();
-      
+
       this._timezoneOffsetCache.set(dateKey, offset);
       return offset;
     } catch (error) {
@@ -136,8 +136,8 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
     const day = date.getDate();
 
     // Rough DST calculation (this could be more precise but covers most cases)
-    const isDST = (month > 2 && month < 10) || 
-                  (month === 2 && day >= 8) || 
+    const isDST = (month > 2 && month < 10) ||
+                  (month === 2 && day >= 8) ||
                   (month === 10 && day < 7);
 
     return isDST ? -4 * 3600000 : -5 * 3600000; // -4 or -5 hours in milliseconds
@@ -156,7 +156,7 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
   static getEasternTime() {
     try {
       const now = new Date();
-      
+
       // Primary method: Use Intl API for accurate timezone conversion
       try {
         // Use a more compatible approach for timezone conversion
@@ -170,34 +170,34 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
           second: '2-digit',
           hour12: false
         });
-        
+
         const parts = formatter.formatToParts(now);
         const dateObj = {};
         parts.forEach(part => {
           dateObj[part.type] = part.value;
         });
-        
+
         // Construct date string in ISO-like format
         const easternTimeString = `${dateObj.year}-${dateObj.month}-${dateObj.day}T${dateObj.hour}:${dateObj.minute}:${dateObj.second}`;
         const easternTime = new Date(easternTimeString);
-        
+
         // Validate the result
         if (isNaN(easternTime.getTime())) {
           throw new Error('Invalid date from timezone conversion');
         }
-        
+
         return easternTime;
       } catch (intlError) {
         this._log(`Intl API timezone conversion failed: ${intlError.message}`, 'warn');
-        
+
         // Fallback method: Manual offset calculation
         const offset = this._getTimezoneOffset(now);
         const easternTime = new Date(now.getTime() + offset);
-        
+
         if (isNaN(easternTime.getTime())) {
           throw new Error('Manual timezone conversion also failed', { cause: intlError });
         }
-        
+
         this._log('Using fallback timezone conversion method', 'warn');
         return easternTime;
       }
@@ -219,10 +219,10 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
   static timeStringToMinutes(timeStr) {
     try {
       this._validateTimeString(timeStr);
-      
+
       const normalizedTime = timeStr.trim().toUpperCase();
       const match = normalizedTime.match(this.TIME_REGEX);
-      
+
       if (!match) {
         throw new Error(`Invalid time format: "${timeStr}"`);
       }
@@ -250,7 +250,7 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
       }
 
       const result = adjustedHours * this.MINUTES_PER_HOUR + minutes;
-      
+
       // Validate result is within valid range
       if (result < 0 || result >= this.MINUTES_PER_DAY) {
         throw new Error(`Calculated minutes ${result} is outside valid range (0-${this.MINUTES_PER_DAY - 1})`);
@@ -273,7 +273,7 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
   static minutesToTimeString(minutes) {
     try {
       this._validateInput(minutes, 'minutes', 'number');
-      
+
       // Normalize negative values and values >= 1440 by wrapping
       let normalizedMinutes = minutes;
       if (minutes < 0) {
@@ -303,7 +303,7 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
 
       const minutePart = mins.toString().padStart(2, '0');
       const result = `${displayHours}:${minutePart}${period}`;
-      
+
       return result;
     } catch (error) {
       this._log(`Minutes to time string conversion failed for ${minutes}: ${error.message}`, 'error');
@@ -321,11 +321,11 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
       if (types === null || types === undefined) {
         return '';
       }
-      
+
       if (typeof types === 'string') {
         return types.trim();
       }
-      
+
       if (Array.isArray(types)) {
         return types
           .filter(type => type && typeof type === 'string') // Filter out invalid entries
@@ -333,7 +333,7 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
           .filter(type => type.length > 0) // Remove empty strings
           .join(', ');
       }
-      
+
       // Handle other types by converting to string
       this._log(`Unexpected activity types format: ${typeof types}`, 'warn', types);
       return String(types);
@@ -353,13 +353,13 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
       if (isNaN(easternTime.getTime())) {
         throw new Error('Invalid Eastern date');
       }
-      
+
       // Get timezone name with fallback
       let timezone = 'ET'; // Default fallback
       try {
-        const timezoneName = easternTime.toLocaleDateString('en-US', { 
-          timeZoneName: 'short', 
-          timeZone: this.TIMEZONE 
+        const timezoneName = easternTime.toLocaleDateString('en-US', {
+          timeZoneName: 'short',
+          timeZone: this.TIMEZONE
         });
         const extractedTimezone = timezoneName.split(', ')[1];
         if (extractedTimezone) {
@@ -371,7 +371,7 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
 
       const result = {
         date: `${easternTime.getFullYear()}-${String(easternTime.getMonth() + 1).padStart(2, '0')}-${String(easternTime.getDate()).padStart(2, '0')}`, // YYYY-MM-DD in Eastern wall-clock time
-        day: easternTime.toLocaleDateString('en-US', { 
+        day: easternTime.toLocaleDateString('en-US', {
           weekday: 'short'
         }),
         minutes: easternTime.getHours() * this.MINUTES_PER_HOUR + easternTime.getMinutes(),
@@ -388,7 +388,7 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
       return result;
     } catch (error) {
       this._log(`Failed to get current Eastern time info: ${error.message}`, 'error');
-      
+
       // Return safe fallback values
       const now = new Date();
       return {
@@ -414,14 +414,14 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
       if (!(date instanceof Date)) {
         throw new Error('Input must be a Date object');
       }
-      
+
       if (isNaN(date.getTime())) {
         throw new Error('Invalid Date object provided');
       }
 
-      return date.toLocaleDateString('en-US', { 
-        weekday: 'long', 
-        timeZone: this.TIMEZONE 
+      return date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        timeZone: this.TIMEZONE
       });
     } catch (error) {
       this._log(`Day name extraction failed: ${error.message}`, 'error');
@@ -493,7 +493,7 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
       if (!(date instanceof Date)) {
         throw new Error('Input must be a Date object');
       }
-      
+
       if (isNaN(date.getTime())) {
         throw new Error('Invalid Date object provided');
       }
@@ -531,13 +531,13 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
       if (!(date instanceof Date)) {
         throw new Error('Input must be a Date object');
       }
-      
+
       if (isNaN(date.getTime())) {
         throw new Error('Invalid Date object provided');
       }
 
       const minutes = date.getHours() * this.MINUTES_PER_HOUR + date.getMinutes();
-      
+
       if (minutes < 0 || minutes >= this.MINUTES_PER_DAY) {
         throw new Error(`Calculated minutes ${minutes} is outside valid range`);
       }
@@ -559,7 +559,7 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
     try {
       const minutes = this.timeStringToMinutes(timeString);
       const hour = Math.floor(minutes / this.MINUTES_PER_HOUR);
-      
+
       if (hour < 0 || hour > 23) {
         throw new Error(`Calculated hour ${hour} is outside valid range (0-23)`);
       }
@@ -586,7 +586,7 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
       this._validateInput(startTime, 'startTime', 'string');
       this._validateInput(endTime, 'endTime', 'string');
       this._validateInput(isCurrentDay, 'isCurrentDay', 'boolean');
-      
+
       if (currentMinutes !== null) {
         this._validateInput(currentMinutes, 'currentMinutes', 'number');
         if (currentMinutes < 0 || currentMinutes >= this.MINUTES_PER_DAY) {
@@ -613,7 +613,7 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
       if (startMinutes >= endMinutes) {
         // Handle overnight time slots (e.g., "11:00PM" to "6:00AM")
         this._log(`Detected overnight time slot: ${startTime}-${endTime}`, 'info');
-        
+
         if (currentMinutes === null) {
           const easternTimeInfo = this.getCurrentEasternTimeInfo();
           if (!easternTimeInfo.isValid) {
@@ -625,11 +625,11 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
 
         // For overnight slots: current time >= start OR current time < end
         const result = currentMinutes >= startMinutes || currentMinutes < endMinutes;
-        
+
         if (result) {
           this._log(`OVERNIGHT TIME SLOT MATCH! ${startTime}-${endTime} contains ${currentMinutes} minutes`);
         }
-        
+
         return result;
       }
 
@@ -695,7 +695,7 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
       // Check each time slot with validation
       for (let i = 0; i < timeSlots.length; i++) {
         const slot = timeSlots[i];
-        
+
         // Validate slot structure
         if (!slot || typeof slot !== 'object') {
           this._log(`Invalid slot at index ${i}: not an object`, 'warn');

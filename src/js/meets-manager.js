@@ -33,14 +33,14 @@ if (typeof window === 'undefined') {
       ...(meetsData && Array.isArray(meetsData.regular_meets) ? meetsData.regular_meets.map(meetData => ({ meetData, defaultTimeWindowKey: 'dualMeets' })) : []),
       ...(meetsData && Array.isArray(meetsData.special_meets) ? meetsData.special_meets.map(meetData => ({ meetData, defaultTimeWindowKey: '' })) : [])
     ];
-    
+
     if (meetsList.length > 0) {
       meetsList.forEach(({ meetData, defaultTimeWindowKey }, index) => {
         const meet = new Meet(meetData, this.meetTimes, defaultTimeWindowKey);
         const meetKey = `${meet.date}_${meet.home_team || 'special'}_${meet.visiting_team || meet.name || 'meet'}_${index}`;
         this.meets.set(meetKey, meet);
       });
-      
+
       this.lastUpdated = meetsData.lastUpdated || new Date().toISOString();
       this.dataLoaded = true;
     }
@@ -110,7 +110,7 @@ if (typeof window === 'undefined') {
   getUpcomingMeets(days = 30) {
     const today = new Date();
     const futureDate = new Date(today.getTime() + (days * 24 * 60 * 60 * 1000));
-    
+
     return this.getAllMeets().filter(meet => {
       const meetDate = new Date(meet.date);
       return meetDate >= today && meetDate <= futureDate;
@@ -125,7 +125,7 @@ if (typeof window === 'undefined') {
   getPastMeets(days = 30) {
     const today = new Date();
     const pastDate = new Date(today.getTime() - (days * 24 * 60 * 60 * 1000));
-    
+
     return this.getAllMeets().filter(meet => {
       const meetDate = new Date(meet.date);
       return meetDate < today && meetDate >= pastDate;
@@ -141,7 +141,7 @@ if (typeof window === 'undefined') {
     if (!TimeUtilsRef) {
       return [];
     }
-    
+
     const today = TimeUtilsRef.formatDate(new Date());
     return this.getMeetsByDate(today);
   }
@@ -154,7 +154,7 @@ if (typeof window === 'undefined') {
     const today = new Date();
     const weekStart = new Date(today.getTime() - (today.getDay() * 24 * 60 * 60 * 1000));
     const weekEnd = new Date(weekStart.getTime() + (7 * 24 * 60 * 60 * 1000));
-    
+
     return this.getAllMeets().filter(meet => {
       const meetDate = new Date(meet.date);
       return meetDate >= weekStart && meetDate < weekEnd;
@@ -183,7 +183,7 @@ if (typeof window === 'undefined') {
     const upcomingMeets = this.getUpcomingMeets();
     const pastMeets = this.getPastMeets();
     const todaysMeets = this.getTodaysMeets();
-    
+
     // Pool usage statistics
     const poolUsage = {};
     allMeets.forEach(meet => {
@@ -279,7 +279,7 @@ if (typeof window === 'undefined') {
     if (!TimeUtilsRef) {
       return [];
     }
-    
+
     return this.getAllMeets().map(meet => ({
       date: meet.date,
       formattedDate: TimeUtilsRef.formatDateForDisplay(new Date(meet.date)),

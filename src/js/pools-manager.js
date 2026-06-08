@@ -7,9 +7,9 @@ if (typeof window === 'undefined' || !window.PoolsManager) {
 
 // Node.js: load dependencies
 if (typeof window === 'undefined') {
-   
+
   if (typeof Pool === 'undefined') { var Pool = require('./models/pool.js'); } // eslint-disable-line no-var
-   
+
 }
 
   class PoolsManager {
@@ -26,13 +26,13 @@ if (typeof window === 'undefined') {
    */
   loadData(poolsData) {
     this.pools.clear();
-    
+
     if (poolsData && poolsData.pools) {
       poolsData.pools.forEach(poolData => {
         const pool = new Pool(poolData);
         this.pools.set(pool.getName(), pool);
       });
-      
+
       this.lastUpdated = poolsData.lastUpdated || new Date().toISOString();
       this.dataLoaded = true;
     }
@@ -177,7 +177,7 @@ if (typeof window === 'undefined') {
     const allPools = this.getAllPools();
     const openPools = this.getOpenPools();
     const closedPools = this.getClosedPools();
-    
+
     // Feature statistics
     const allFeatures = new Set();
     const allAmenities = new Set();

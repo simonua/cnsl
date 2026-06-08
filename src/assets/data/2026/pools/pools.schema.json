@@ -17,7 +17,7 @@
         },
         "seasonEndDate": {
             "type": "string",
-            "format": "date", 
+            "format": "date",
             "description": "End date of the outdoor pool season"
         },
         "caPoolDirectoryUrl": {

@@ -26,14 +26,14 @@ if (typeof window === 'undefined') {
   loadData(teamsData) {
     this.teams.clear();
     this.practiceTeamsByPool.clear();
-    
+
     if (teamsData && teamsData.teams) {
       teamsData.teams.forEach(teamData => {
         const team = new Team(teamData);
         this.teams.set(team.name, team);
       });
       this.rebuildPracticePoolIndex();
-      
+
       this.lastUpdated = teamsData.lastUpdated || new Date().toISOString();
       this.dataLoaded = true;
     }
@@ -209,7 +209,7 @@ if (typeof window === 'undefined') {
     const divisions = this.getAllDivisions();
     const coaches = this.getAllCoaches();
     const managers = this.getAllManagers();
-    
+
     // Pool distribution
     const poolDistribution = {};
     allTeams.forEach(team => {

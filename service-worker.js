@@ -55,7 +55,7 @@ async function findOfflineNavigationResponse(request) {
 
 self.addEventListener("install", event => {
   console.log(`Service Worker installing - Cache Version: ${CACHE_VERSION}`);
-  
+
   // Skip caching in development mode
   if (isDevelopment) {
     console.log('Development mode detected: Skipping cache, activating immediately');
@@ -83,7 +83,7 @@ self.addEventListener("install", event => {
 
 self.addEventListener("activate", event => {
   console.log(`Service Worker activating - Cache Version: ${CACHE_VERSION}`);
-  
+
   event.waitUntil(
     Promise.all([
       // Take control of all clients immediately
@@ -120,7 +120,7 @@ self.addEventListener("fetch", event => {
   const isLocalRequest = LOCAL_DEVELOPMENT_HOSTNAMES.includes(requestUrl.hostname)
                          || requestUrl.port === LOCAL_DEVELOPMENT_PORT
                          || LOCAL_DEVELOPMENT_HOSTNAMES.some(hostname => requestUrl.href.includes(hostname));
-  
+
   // Skip cache in development mode or for local requests - always fetch fresh
   if (isDevelopment || isLocalRequest) {
     event.respondWith(
@@ -172,7 +172,7 @@ self.addEventListener("fetch", event => {
     );
     return;
   }
-  
+
   if (isDataFile) {
     const cacheRequest = createVersionedUrl(event.request);
 
@@ -216,7 +216,7 @@ self.addEventListener("fetch", event => {
         if (response) {
           return response;
         }
-        
+
         // Not in cache, fetch from network
         return fetch(event.request)
           .then(response => {

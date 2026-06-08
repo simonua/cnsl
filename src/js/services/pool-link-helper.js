@@ -49,7 +49,7 @@ function getPoolIdFromLocation(locationName, poolsOrIndex = []) {
  */
 function getPoolDataFromLocation(locationName, dataManager, poolsOrIndex = null) {
   if (!locationName || !dataManager) return null;
-  
+
   try {
     const poolsManager = dataManager.getPools();
     const pools = poolsManager.getAllPools();
@@ -83,7 +83,7 @@ function formatPoolCourseLabel(poolData) {
  */
 function generatePoolsPageLink(poolId, displayText) {
   if (!poolId || !displayText) return displayText || '';
-  
+
   const poolUrl = `pools.html?pool=${encodeURIComponent(poolId)}`;
   return `<a href="${poolUrl}" class="location-link pool-link">${PoolLinkSafety.escapeHtml(displayText)}</a>`;
 }
@@ -123,9 +123,9 @@ function generateLinkedPoolMentions(locationText, poolsOrIndex = []) {
  */
 function generateGoogleMapsLink(poolData, displayText) {
   if (!poolData || !displayText) return displayText || '';
-  
+
   let mapsUrl = '';
-  
+
   // Use googleMapsUrl if available in new location format
   if (poolData.location && poolData.location.googleMapsUrl) {
     mapsUrl = poolData.location.googleMapsUrl;
@@ -144,13 +144,13 @@ function generateGoogleMapsLink(poolData, displayText) {
     // New format coordinates
     mapsUrl = `${globalThis.GOOGLE_MAPS_SEARCH_BASE_URL}${poolData.location.lat},${poolData.location.lng}`;
   }
-  
+
   const safeDisplayText = PoolLinkSafety.escapeHtml(displayText);
   const safeMapsUrl = PoolLinkSafety.safeHttpUrl(mapsUrl);
   if (safeMapsUrl) {
     return `<a href="${safeMapsUrl}" target="_blank" rel="noopener" class="location-link maps-link">${safeDisplayText}</a>`;
   }
-  
+
   // Fallback to generic search
   const searchQuery = encodeURIComponent(`${displayText} Columbia MD`);
   mapsUrl = `${globalThis.GOOGLE_MAPS_SEARCH_BASE_URL}${searchQuery}`;
@@ -173,17 +173,17 @@ function generateEnhancedPoolLink(locationName, dataManager, options = {}, pools
     showBothLinks = false,
     displayText = locationName
   } = options;
-  
+
   if (!locationName) return '';
-  
+
   const poolData = getPoolDataFromLocation(locationName, dataManager, poolsOrIndex);
   const pools = dataManager && dataManager.getPools ? dataManager.getPools().getAllPools() : [];
   const poolId = getPoolIdFromLocation(locationName, poolsOrIndex || pools);
-  
+
   if (poolData && poolId) {
     const poolsLink = generatePoolsPageLink(poolId, displayText);
     const mapsLink = generateGoogleMapsLink(poolData, displayText);
-    
+
     if (showBothLinks) {
       const safeMapsUrl = PoolLinkSafety.safeHttpUrl(poolData.location?.googleMapsUrl);
       const safeLocationName = PoolLinkSafety.escapeHtml(displayText);
@@ -196,7 +196,7 @@ function generateEnhancedPoolLink(locationName, dataManager, options = {}, pools
       return mapsLink;
     }
   }
-  
+
   // Fallback when pool data not found
   if (preferPoolsPage) {
     return `<a href="pools.html" class="location-link">${PoolLinkSafety.escapeHtml(displayText)}</a>`;

@@ -1,7 +1,7 @@
 /**
  * File Helper Utility
  * Provides static methods for resolving paths in the delivered application layout.
- * 
+ *
  * @author Simon Kurtz
  * @version 1.0.0
  */
@@ -17,7 +17,7 @@ if (typeof module !== 'undefined' && module.exports && typeof globalThis.YEAR ==
 // Prevent multiple declarations
 if (typeof window === 'undefined' || !window.FileHelper) {
   class FileHelper {
-  
+
   // ------------------------------
   //    DATA FILE PATH RESOLUTION
   // ------------------------------

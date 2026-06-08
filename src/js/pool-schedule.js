@@ -92,7 +92,7 @@ if (typeof window === 'undefined' || !window.PoolSchedule) {
     if (!PoolStatusRef) {
       return { kind: 'unavailable', isOpen: false, status: 'Error', color: 'gray' };
     }
-    
+
     const dayHours = this.getDayHours(dayName);
     if (!dayHours) {
       return PoolStatusRef.CLOSED;
@@ -136,7 +136,7 @@ if (typeof window === 'undefined' || !window.PoolSchedule) {
     if (!TimeUtilsRef) {
       return { kind: 'unavailable', isOpen: false, status: 'Error', color: 'gray' };
     }
-    
+
     const now = new Date();
     const dayName = TimeUtilsRef.getDayName(now);
     return this.getStatusAtTime(dayName, now);
@@ -151,13 +151,13 @@ if (typeof window === 'undefined' || !window.PoolSchedule) {
     if (!TimeUtilsRef) {
       return false;
     }
-    
+
     // Get current time in Eastern timezone
     const now = new Date();
     const easternTime = new Date(now.toLocaleString("en-US", { timeZone: TimeUtilsRef.TIMEZONE }));
     const dayName = TimeUtilsRef.getDayName(easternTime);
     const status = this.getStatusAtTime(dayName, easternTime);
-    
+
     return status.isOpen;
   }
 
@@ -171,7 +171,7 @@ if (typeof window === 'undefined' || !window.PoolSchedule) {
     if (!TimeUtilsRef) {
       return [];
     }
-    
+
     const dayHours = this.getDayHours(dayName);
     if (!dayHours || dayHours.closed) {
       return [];
@@ -187,12 +187,12 @@ if (typeof window === 'undefined' || !window.PoolSchedule) {
     if (open && close) {
       const openTime = TimeUtilsRef.parseTimeString(open);
       const closeTime = TimeUtilsRef.parseTimeString(close);
-      
+
       // Generate hourly slots between open and close
       for (let hour = openTime; hour < closeTime; hour++) {
         const startTime = `${hour}:00`;
         const endTime = `${hour + 1}:00`;
-        
+
         const PoolStatusRef = this._getPoolStatus();
         let isCurrentSlot = false;
         let status = PoolStatusRef ? PoolStatusRef.OPEN : { kind: 'open', isOpen: true, status: 'Open', color: 'green' };
@@ -200,7 +200,7 @@ if (typeof window === 'undefined' || !window.PoolSchedule) {
         if (isToday) {
           const currentHour = now.getHours();
           isCurrentSlot = (hour === currentHour);
-          
+
           if (isCurrentSlot) {
             status = this.getStatusAtTime(dayName, now);
           }
@@ -232,7 +232,7 @@ if (typeof window === 'undefined' || !window.PoolSchedule) {
     if (!PoolStatusRef) {
       return { kind: 'unavailable', isOpen: false, status: 'Error', color: 'gray' };
     }
-    
+
     // Check if current time falls within any restriction period
     for (const restriction of restrictions) {
       if (this._isTimeInRestriction(restriction, time)) {
@@ -279,7 +279,7 @@ if (typeof window === 'undefined' || !window.PoolSchedule) {
    */
   getAllDaysStatus() {
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    
+
     return days.map(dayName => ({
       day: dayName,
       hours: this.getFormattedHours(dayName),
@@ -293,8 +293,8 @@ if (typeof window === 'undefined' || !window.PoolSchedule) {
    * @returns {boolean} - True if schedule has data, false otherwise
    */
   hasScheduleData() {
-    return this.scheduleData && 
-           Object.keys(this.scheduleData).length > 0 && 
+    return this.scheduleData &&
+           Object.keys(this.scheduleData).length > 0 &&
            Object.values(this.scheduleData).some(dayData => dayData && (dayData.open || dayData.timeSlots));
   }
 }

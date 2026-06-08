@@ -14,7 +14,7 @@ function closeMenu(restoreFocus = false) {
   const footer = document.querySelector('.footer');
   const skipLink = document.querySelector('.skip-link');
   const homeLink = document.querySelector('.header a');
-  
+
   if (nav) {
     nav.classList.remove('active');
     nav.setAttribute('aria-hidden', 'true');
@@ -113,12 +113,12 @@ function containMenuFocus(event) {
 function handleStickyFooter() {
   const footer = document.querySelector('footer');
   if (!footer) return;
-  
+
   const windowHeight = window.innerHeight;
   const documentHeight = document.documentElement.scrollHeight;
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
   const scrolledToBottom = windowHeight + scrollTop >= documentHeight - 10; // 10px threshold
-  
+
   if (scrolledToBottom) {
     footer.classList.add('visible');
   } else {
@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Close menu when clicking outside of it
   document.addEventListener('click', (event) => {
     const nav = document.getElementById('navMenu');
-    
+
     if (nav && hamburger && isMenuOpen(hamburger)) {
       if (!nav.contains(event.target) && !hamburger.contains(event.target)) {
         closeMenu(true);
@@ -151,10 +151,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     containMenuFocus(event);
   });
-  
+
   // Initialize sticky footer
   handleStickyFooter();
-  
+
   // Handle scroll events for sticky footer
   let ticking = false;
   window.addEventListener('scroll', () => {
@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ticking = true;
     }
   });
-  
+
   // Handle resize events
   window.addEventListener('resize', () => {
     updateNavigationOffset();

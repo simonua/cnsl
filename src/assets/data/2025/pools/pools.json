@@ -352,7 +352,7 @@
         "mapsQuery": "Clemens Crossing Pool Columbia MD",
         "googleMapsUrl": "https://maps.app.goo.gl/nDhXsSz8vgU3NLWh6"
       },
-      "phone": "410-997-4214",      
+      "phone": "410-997-4214",
       "features": [
         "dive",
         "lap",
@@ -1141,7 +1141,7 @@
             }
           ]
         }
-      ]    
+      ]
     },
     {
       "id": "lpp",
