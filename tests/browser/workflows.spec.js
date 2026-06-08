@@ -2049,14 +2049,18 @@ test('[WF-SETTINGS-007] weather source details expose fixed Columbia-area Nation
   const nwsLinks = weatherDetails.getByRole('link');
 
   await expect(weatherDetails).toContainText('never tracks, saves, or sends your current location');
-  await expect(nwsLinks.nth(0)).toHaveText('Active weather alerts');
-  await expect(nwsLinks.nth(1)).toHaveText('Local forecast information');
+  await expect(nwsLinks.nth(0)).toHaveText('Active weather alerts (data only)');
+  await expect(nwsLinks.nth(1)).toHaveText('Local forecast information (data only)');
+  await expect(nwsLinks.nth(2)).toHaveText('Local weather information (web)');
   await expect(nwsLinks.nth(0)).toHaveAttribute('href', 'https://api.weather.gov/alerts/active?point=39.2014%2C-76.8610');
   await expect(nwsLinks.nth(1)).toHaveAttribute('href', 'https://api.weather.gov/points/39.2014,-76.8610');
+  await expect(nwsLinks.nth(2)).toHaveAttribute('href', 'https://forecast.weather.gov/MapClick.php?lat=39.2014&lon=-76.8610');
   await expect(nwsLinks.nth(0)).toHaveAttribute('target', '_blank');
   await expect(nwsLinks.nth(1)).toHaveAttribute('target', '_blank');
+  await expect(nwsLinks.nth(2)).toHaveAttribute('target', '_blank');
   await expect(nwsLinks.nth(0)).toHaveAttribute('rel', 'noopener');
   await expect(nwsLinks.nth(1)).toHaveAttribute('rel', 'noopener');
+  await expect(nwsLinks.nth(2)).toHaveAttribute('rel', 'noopener');
   await page.setViewportSize(MOBILE_VIEWPORT);
   await expect(weatherDetails.locator('ul')).toHaveCSS('padding-left', '24px');
 });
