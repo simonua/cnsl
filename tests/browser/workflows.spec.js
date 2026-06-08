@@ -293,7 +293,7 @@ test('[WF-HOME-001] season summary and sharing actions appear only on the home p
   await expect(page.getByRole('link', { name: 'Text' })).toHaveAttribute('href', 'sms:?&body=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org');
   await expect(page.getByRole('link', { name: 'Email' })).toHaveAttribute('href', 'mailto:?subject=Columbia%20Pools%20and%20CNSL%20Schedules&body=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org');
   await expect(page.getByRole('link', { name: 'Facebook (opens in new tab)' })).toHaveAttribute('href', 'https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fpools.longreachmarlins.org');
-  await expect(page.getByRole('link', { name: 'Send Feedback' })).toHaveAttribute('href', 'mailto:simonkurtz@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20App%20Feedback');
+  await expect(page.getByRole('link', { name: 'Send Feedback' })).toHaveAttribute('href', 'contact.html');
   await page.getByRole('link', { name: 'Meets' }).focus();
   await page.keyboard.press('Tab');
   await expect(page.getByRole('button', { name: 'QR Code' })).toBeFocused();
@@ -360,6 +360,15 @@ test('[WF-HOME-001] season summary and sharing actions appear only on the home p
   await expect(page.locator('.share-site')).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'Interactive CA Pool Directory' })).toBeVisible();
   await expect.poll(() => page.locator('#poolList, #seasonInfo').evaluateAll(elements => elements.map(element => element.id))).toEqual(['poolList', 'seasonInfo']);
+});
+
+test('[WF-CONTACT-001] author contact options are collected on the Contact page', async ({ page }) => {
+  await page.goto('/contact.html');
+
+  await expect(page.getByRole('heading', { level: 1, name: 'Contact' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Email Simon Kurtz' })).toHaveAttribute('href', 'mailto:simonkurtz@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20App%20Feedback');
+  await expect(page.getByRole('link', { name: 'Connect with Simon Kurtz on LinkedIn (opens in new tab)' })).toHaveAttribute('href', 'https://www.linkedin.com/in/simonkurtz');
+  await expect(page.getByRole('link', { name: 'Message Simon Kurtz on Facebook (opens in new tab)' })).toHaveAttribute('href', 'https://www.facebook.com/simonkurtz82');
 });
 
 test('[WF-ANALYTICS-001] analytics publishes a page view and public app version only after the Google tag script loads', async ({ page }) => {
