@@ -27,7 +27,7 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
     /**
      * Format a same-day public opening or closing transition for a status row.
      * @param {Object|null} transition - Public status action and positive minutes until it occurs
-     * @param {Object} options - Display formatting options
+      * @param {Object} options - Display formatting options
      * @returns {string} Display label, or an empty string without a supported transition
      */
     static formatPublicStatusTransition(transition, options = {}) {
@@ -40,13 +40,15 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
      * Format the pool-card summary for today's public availability.
      * @param {Object|null} transition - Next same-day public availability transition
      * @param {boolean} isClosedAllDay - Whether no public-use period exists today
+    * @param {boolean} isClosedForDay - Whether today's last public-use period has ended
      * @param {Object} options - Display formatting options
      * @returns {string} Display summary
      */
-    static formatPublicStatusSummary(transition, isClosedAllDay, options = {}) {
+    static formatPublicStatusSummary(transition, isClosedAllDay, isClosedForDay, options = {}) {
       const transitionText = PoolScheduleDisplay.formatPublicStatusTransition(transition, options);
       if (transitionText) return transitionText;
-      return isClosedAllDay === true ? 'Closed today' : '';
+      if (isClosedAllDay === true) return 'Closed today';
+      return isClosedForDay === true ? 'Closed for the day' : '';
     }
 
     /**

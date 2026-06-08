@@ -65,8 +65,9 @@ if (typeof window === 'undefined' || !window.PoolHoursDisplay) {
       const statusAction = statusTransition && ['opens', 'closes'].includes(statusTransition.action)
         ? statusTransition.action
         : '';
+      const statusActionClass = statusAction ? ` pool-status-countdown--${statusAction}` : '';
       const statusCountdownHtml = statusCountdown
-        ? `<span class="${statusCountdownClass}" data-status-action="${statusAction}" aria-label="${HtmlSafety.escapeHtml(statusCountdownLabel)}">${HtmlSafety.escapeHtml(statusCountdown)}</span>`
+        ? `<span class="${statusCountdownClass}${statusActionClass}" data-status-action="${statusAction}" aria-label="${HtmlSafety.escapeHtml(statusCountdownLabel)}">${HtmlSafety.escapeHtml(statusCountdown)}</span>`
         : '';
       const scheduleHtml = PoolScheduleDisplay.render(model.weekSchedule || [], model.scheduleOptions || {});
       const dateRangeAttributes = model.hasDateRange
@@ -75,7 +76,7 @@ if (typeof window === 'undefined' || !window.PoolHoursDisplay) {
 
       return `
     <div class="pool-hours">
-      <strong>${IconCatalog.render('clock')} Hours:</strong> 
+      <strong>${IconCatalog.render('clock')} Hours:</strong>
       <span class="open-status status-${statusClass} status-tooltip">
         ${safeStatusIcon} ${safeStatusText}
         <span class="tooltip-text">${safeStatusTooltip}</span>

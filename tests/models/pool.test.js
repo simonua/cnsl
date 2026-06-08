@@ -233,6 +233,30 @@ describe('Pool', () => {
 
         assert.equal(pool.getPublicStatusTransitionToday(), null);
         assert.equal(pool.isClosedToPublicAllDayToday(), true);
+        assert.equal(pool.hasPublicUseToday(), false);
+        assert.equal(pool.isClosedToPublicForDay(), false);
+      } finally {
+        TimeUtils.getCurrentEasternTimeInfo = originalGetCurrentEasternTimeInfo;
+      }
+    });
+
+    it('reports when the final public-use period today has ended', () => {
+      const originalGetCurrentEasternTimeInfo = TimeUtils.getCurrentEasternTimeInfo;
+      TimeUtils.getCurrentEasternTimeInfo = () => ({
+        date: '2026-05-26', day: 'Tue', minutes: 18 * 60, isValid: true
+      });
+
+      try {
+        const pool = new Pool(createSamplePoolData({
+          schedules: [{
+            startDate: '2026-05-23',
+            endDate: '2026-09-07',
+            hours: [{ weekDays: ['Tue'], startTime: '1:00PM', endTime: '5:00PM', types: ['Rec Swim'], accessStatus: 'public' }]
+          }]
+        }));
+
+        assert.equal(pool.isClosedToPublicForDay(), true);
+        assert.equal(pool.hasPublicUseToday(), true);
       } finally {
         TimeUtils.getCurrentEasternTimeInfo = originalGetCurrentEasternTimeInfo;
       }
@@ -286,8 +310,12 @@ describe('Pool', () => {
         closed.getCurrentStatus = () => PoolStatus.CLOSED;
         assert.equal(closed.getPublicStatusTransitionToday(), null);
         assert.equal(closed.isClosedToPublicAllDayToday(), false);
+        assert.equal(closed.hasPublicUseToday(), false);
+        assert.equal(closed.isClosedToPublicForDay(), false);
         const explicitlyClosed = new Pool(createSamplePoolData({ hours: { Monday: { closed: true } } }));
         assert.equal(explicitlyClosed.isClosedToPublicAllDayToday(), true);
+        assert.equal(explicitlyClosed.hasPublicUseToday(), false);
+        assert.equal(explicitlyClosed.isClosedToPublicForDay(), false);
       } finally {
         Object.assign(TimeUtils, original);
       }

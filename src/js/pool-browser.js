@@ -307,6 +307,7 @@ function getPoolStatusSummary(poolModel, options = {}) {
   return PoolScheduleDisplay.formatPublicStatusSummary(
     poolModel.getPublicStatusTransitionToday(),
     poolModel.isClosedToPublicAllDayToday(),
+    poolModel.isClosedToPublicForDay(),
     options
   );
 }
@@ -579,6 +580,7 @@ function handlePoolAvailabilityChange(event) {
     all: 'all pools',
     'open-now': 'pools open now',
     'opens-soon': 'pools opening within the hour',
+    'open-today': 'pools with public hours today',
     'open-next-two-hours': 'pools open for the next 2 hours'
   };
   setPoolListStatus(`Pool directory filtered to ${descriptions[poolAvailabilityFilter]}.`, false);

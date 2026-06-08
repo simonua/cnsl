@@ -367,6 +367,54 @@ if (typeof window === 'undefined') {
   }
 
   /**
+   * Check whether any published public-use period exists today.
+   * @returns {boolean} Whether the pool is open to the public at any time today
+   */
+  hasPublicUseToday() {
+    const TimeUtilsRef = this._getTimeUtils();
+    const PoolStatusRef = this._getPoolStatus();
+    if (!TimeUtilsRef || !PoolStatusRef) return false;
+
+    if (this.schedulePeriods) {
+      const easternTimeInfo = TimeUtilsRef.getCurrentEasternTimeInfo();
+      if (!easternTimeInfo.isValid) return false;
+      return this._getPeriodTimeSlotsForDate(easternTimeInfo.date, easternTimeInfo.day.substring(0, 3))
+        .some(slot => this._getPeriodSlotStatus(slot) === PoolStatusRef.OPEN);
+    }
+
+    const easternTime = TimeUtilsRef.getEasternTime();
+    const dayHours = this.schedule.getDayHours(TimeUtilsRef.getDayName(easternTime));
+    return Boolean(dayHours && !dayHours.closed
+      && typeof dayHours.open === 'string' && typeof dayHours.close === 'string');
+  }
+
+  /**
+   * Check whether today's last public-use period has ended.
+   * @returns {boolean} Whether the pool was open today but will not reopen today
+   */
+  isClosedToPublicForDay() {
+    const PoolStatusRef = this._getPoolStatus();
+    if (!PoolStatusRef || this.getCurrentStatus() !== PoolStatusRef.CLOSED) return false;
+
+    if (this.schedulePeriods) {
+      const TimeUtilsRef = this._getTimeUtils();
+      const easternTimeInfo = TimeUtilsRef && TimeUtilsRef.getCurrentEasternTimeInfo();
+      if (!easternTimeInfo || !easternTimeInfo.isValid) return false;
+      const timeSlots = this._getPeriodTimeSlotsForDate(easternTimeInfo.date, easternTimeInfo.day.substring(0, 3));
+      const hadPublicUseToday = timeSlots.some(slot => this._getPeriodSlotStatus(slot) === PoolStatusRef.OPEN);
+      return hadPublicUseToday && this.getPublicStatusTransitionToday() === null;
+    }
+
+    const TimeUtilsRef = this._getTimeUtils();
+    const easternTime = TimeUtilsRef && TimeUtilsRef.getEasternTime();
+    if (!easternTime) return false;
+    const dayHours = this.schedule.getDayHours(TimeUtilsRef.getDayName(easternTime));
+    const hadPublicUseToday = Boolean(dayHours && !dayHours.closed
+      && typeof dayHours.open === 'string' && typeof dayHours.close === 'string');
+    return hadPublicUseToday && this.getPublicStatusTransitionToday() === null;
+  }
+
+  /**
    * Find published or overriding slots for a calendar day.
    * @private
    * @param {string} dateString - Date in YYYY-MM-DD format

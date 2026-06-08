@@ -800,7 +800,7 @@ test('[WF-POOLS-014] yoga feature filter finds the pool with published yoga prog
   await expect(page.locator('#poolList .pool-card')).toContainText('Stevens Forest');
 });
 
-test('[WF-POOLS-002] pool availability filters show pools open now, opening soon, or open for the next two hours', async ({ page }) => {
+test('[WF-POOLS-002] pool availability filters show pools open now, opening soon, open today, or open for the next two hours', async ({ page }) => {
   await page.route('**/assets/data/2026/pools/pools.json*', async route => {
     const response = await route.fetch();
     const poolData = await response.json();
@@ -837,6 +837,11 @@ test('[WF-POOLS-002] pool availability filters show pools open now, opening soon
   await expect(page.locator('#poolAvailabilityFilter')).toHaveValue('opens-soon');
   await expect(page.locator('#poolFilterSummary')).toHaveText('1 / 23 pools');
   await expect(page.locator('#poolListStatus')).toHaveText('Pool directory filtered to pools opening within the hour.');
+
+  await page.keyboard.press('ArrowDown');
+  await expect(page.locator('#poolAvailabilityFilter')).toHaveValue('open-today');
+  await expect(page.locator('#poolFilterSummary')).toHaveText('23 pools');
+  await expect(page.locator('#poolListStatus')).toHaveText('Pool directory filtered to pools with public hours today.');
 
   await page.selectOption('#poolAvailabilityFilter', 'open-next-two-hours');
   await expect(page.locator('#poolFilterSummary')).toHaveText('1 / 23 pools');

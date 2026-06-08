@@ -50,6 +50,7 @@ describe('PoolHoursDisplay', () => {
     assert.match(html, /Week of June 15 - June 21/);
     assert.match(html, /aria-label="Choose a week for Long &lt;Reach&gt;"/);
     assert.match(html, /data-status-action="opens"/);
+    assert.match(html, /pool-status-countdown--opens/);
     assert.match(html, /data-pool-id="pool&quot;&gt;&lt;script&gt;"/);
     assert.match(html, /status-green/);
     assert.match(html, /🟢 Open &lt;public&gt;/);
@@ -90,6 +91,16 @@ describe('PoolHoursDisplay', () => {
     assert.match(html, /prev-week"[^>]*disabled/);
     assert.match(html, /next-week"[^>]*disabled/);
     assert.doesNotMatch(html, /data-status-action=/);
+  });
+
+  it('uses the closing action class for detailed closing countdowns', () => {
+    const html = PoolHoursDisplay.render({
+      ...viewModel,
+      statusTransition: { action: 'closes', minutes: 90 }
+    });
+
+    assert.match(html, /pool-status-countdown--closes/);
+    assert.match(html, /data-status-action="closes"/);
   });
 
   it('installs the display helper as a browser script global', () => {

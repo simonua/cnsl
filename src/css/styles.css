@@ -2936,6 +2936,14 @@ button.pool-filter__clear:focus-visible {
   padding: 0.1rem 0.35rem;
 }
 
+.pool-hours .pool-status-countdown--opens {
+  color: var(--success-text-color);
+}
+
+.pool-hours .pool-status-countdown--closes {
+  color: var(--error-text-color);
+}
+
 .pool-hours .period-info {
   font-size: 0.85rem;
   color: var(--text-muted);

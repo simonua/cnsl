@@ -153,13 +153,17 @@ describe('PoolScheduleDisplay', () => {
 
   describe('formatPublicStatusSummary', () => {
     it('shows an all-day closure when no transition exists', () => {
-      assert.equal(PoolScheduleDisplay.formatPublicStatusSummary(null, true), 'Closed today');
-      assert.equal(PoolScheduleDisplay.formatPublicStatusSummary(null, false), '');
+      assert.equal(PoolScheduleDisplay.formatPublicStatusSummary(null, true, false), 'Closed today');
+      assert.equal(PoolScheduleDisplay.formatPublicStatusSummary(null, false, false), '');
+    });
+
+    it('shows when today\'s last public-use period has ended', () => {
+      assert.equal(PoolScheduleDisplay.formatPublicStatusSummary(null, false, true), 'Closed for the day');
     });
 
     it('keeps a same-day transition more specific than an all-day closure', () => {
-      assert.equal(PoolScheduleDisplay.formatPublicStatusSummary({ action: 'opens', minutes: 15 }, true), 'Opens in 15 min');
-      assert.equal(PoolScheduleDisplay.formatPublicStatusSummary({ action: 'opens', minutes: 1 }, false, { useLongUnits: true }), 'Opens in 1 minute');
+      assert.equal(PoolScheduleDisplay.formatPublicStatusSummary({ action: 'opens', minutes: 15 }, true, true), 'Opens in 15 min');
+      assert.equal(PoolScheduleDisplay.formatPublicStatusSummary({ action: 'opens', minutes: 1 }, false, false, { useLongUnits: true }), 'Opens in 1 minute');
     });
   });
 
