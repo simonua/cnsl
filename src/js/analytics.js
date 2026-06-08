@@ -1,5 +1,10 @@
+// Publishes privacy-reviewed analytics events and exposes a minimal tracking API.
+// Event validation, page measurement, and DOM instrumentation remain closure-private.
+
 (function initializeAnalytics() {
   'use strict';
+
+  // Configuration and allowlists
 
   const FLYER_CAMPAIGN = Object.freeze({
     medium: 'qr',
@@ -53,6 +58,8 @@
     'favorite_pool', 'favorite_team', 'pool_feature_filters'
   ]);
 
+  // Private measurement and publishing helpers
+
   function getMeasuredPageParameters() {
     return {
       page_location: `${window.HOME_PAGE_URL}${window.location.pathname}`,
@@ -89,6 +96,8 @@
 
     window.gtag('event', eventName, eventParameters);
   }
+
+  // Private interaction trackers
 
   function trackBannerInteraction(bannerName, action) {
     if (!ALLOWED_BANNER_NAMES.has(bannerName) || !ALLOWED_BANNER_ACTIONS.has(action)) return;
@@ -134,35 +143,6 @@
     });
   }
 
-  function trackInteraction(interactionType, parameters = {}) {
-    switch (interactionType) {
-      case AnalyticsInteractionType.BANNER:
-        trackBannerInteraction(parameters.bannerName, parameters.action);
-        break;
-      case AnalyticsInteractionType.DIRECTORY_DETAIL_OPEN:
-        trackDirectoryDetailOpen(parameters.directoryName);
-        break;
-      case AnalyticsInteractionType.EXTERNAL_LINK:
-        trackExternalLinkInteraction(parameters.context, parameters.purpose);
-        break;
-      case AnalyticsInteractionType.FIXED_SETTING_CHANGE:
-        trackFixedSettingChange(parameters.settingName, parameters.settingValue);
-        break;
-      case AnalyticsInteractionType.INSTALL:
-        trackInstallInteraction(parameters.action);
-        break;
-      case AnalyticsInteractionType.PUBLISHED_SETTING_CHANGE:
-        trackPublishedSettingChange(parameters.settingName, parameters.selectedValues, parameters.publishedValues);
-        break;
-      case AnalyticsInteractionType.RESOURCE:
-        trackResourceInteraction(parameters.resourceName, parameters.action);
-        break;
-      case AnalyticsInteractionType.SHARE:
-        trackShareInteraction(parameters.method);
-        break;
-    }
-  }
-
   function trackPublishedSettingChange(settingName, selectedValues, publishedValues) {
     if (!ALLOWED_PUBLISHED_SETTING_NAMES.has(settingName) || !Array.isArray(selectedValues) || !(publishedValues instanceof Set)) return;
     if (selectedValues.some(value => typeof value !== 'string')) return;
@@ -193,6 +173,8 @@
       method
     });
   }
+
+  // Private DOM instrumentation
 
   function getExternalLinkContext(link) {
     const contextElement = link.closest('[data-analytics-context]');
@@ -251,7 +233,40 @@
       && window.location.hostname === window.HOME_PAGE_HOSTNAME;
   }
 
+  // Initialization
+
   const flyerCampaign = isProductionSite() ? consumeFlyerCampaign() : null;
+
+  // Public API
+
+  function trackInteraction(interactionType, parameters = {}) {
+    switch (interactionType) {
+      case AnalyticsInteractionType.BANNER:
+        trackBannerInteraction(parameters.bannerName, parameters.action);
+        break;
+      case AnalyticsInteractionType.DIRECTORY_DETAIL_OPEN:
+        trackDirectoryDetailOpen(parameters.directoryName);
+        break;
+      case AnalyticsInteractionType.EXTERNAL_LINK:
+        trackExternalLinkInteraction(parameters.context, parameters.purpose);
+        break;
+      case AnalyticsInteractionType.FIXED_SETTING_CHANGE:
+        trackFixedSettingChange(parameters.settingName, parameters.settingValue);
+        break;
+      case AnalyticsInteractionType.INSTALL:
+        trackInstallInteraction(parameters.action);
+        break;
+      case AnalyticsInteractionType.PUBLISHED_SETTING_CHANGE:
+        trackPublishedSettingChange(parameters.settingName, parameters.selectedValues, parameters.publishedValues);
+        break;
+      case AnalyticsInteractionType.RESOURCE:
+        trackResourceInteraction(parameters.resourceName, parameters.action);
+        break;
+      case AnalyticsInteractionType.SHARE:
+        trackShareInteraction(parameters.method);
+        break;
+    }
+  }
 
   window.cnslAnalytics = Object.freeze({
     bannerNames: BANNER_NAMES,

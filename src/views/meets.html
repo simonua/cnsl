@@ -1,14 +1,14 @@
 <extends src="base.html">
   <block name="metadata">
-    <title>CNSL Meets</title>
+    <title>Meets</title>
     <meta name="description" content="Check the published {{ YEAR }} Columbia Neighborhood Swim League regular and special meet schedule with pool location links in Columbia, Maryland." />
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
     <link rel="canonical" href="{{ HOME_PAGE_URL }}/meets.html" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="CNSL Meets" />
+    <meta property="og:title" content="Meets" />
     <meta property="og:description" content="Check the published {{ YEAR }} Columbia Neighborhood Swim League regular and special meet schedule with pool location links in Columbia, Maryland." />
     <meta property="og:url" content="{{ HOME_PAGE_URL }}/meets.html" />
-    <meta name="twitter:title" content="CNSL Meets" />
+    <meta name="twitter:title" content="Meets" />
     <meta name="twitter:description" content="Check the published {{ YEAR }} Columbia Neighborhood Swim League regular and special meet schedule with pool location links in Columbia, Maryland." />
     <script type="application/ld+json">
       {
@@ -34,14 +34,14 @@
           </a>
         </div>
       </div>
-      
+
       <p class="visually-hidden" id="meetListStatus" role="status" aria-live="polite">Loading meet schedule.</p>
       <div id="meetList" class="meet-list" aria-busy="true">
         <!-- Meets will be loaded dynamically via JavaScript -->
       </div>
     </div>
   </block>
-  
+
   <block name="scripts">
     <!-- Critical dependencies must load synchronously to ensure availability -->
     <script src="js/services/time-utils.js"></script>
@@ -57,7 +57,7 @@
     <script src="js/teams-manager.js"></script>
     <script src="js/meets-manager.js"></script>
     <script src="js/services/data-manager.js"></script>
-    
+
     <!-- Other services can load deferred -->
     <script src="js/services/file-helper.js" defer></script>
 
