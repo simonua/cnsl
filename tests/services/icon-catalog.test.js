@@ -11,6 +11,8 @@ describe('IconCatalog', () => {
       IconCatalog.render('pool', 'detail-item__icon'),
       '<svg class="icon detail-item__icon" aria-hidden="true" focusable="false"><use href="#icon-pool"></use></svg>'
     );
+    assert.match(IconCatalog.render('clock'), /class="icon"/);
+    assert.match(IconCatalog.render('clock', 'one two'), /class="icon one two"/);
   });
 
   it('rejects unknown icon names and unsafe class names', () => {
@@ -19,6 +21,8 @@ describe('IconCatalog', () => {
   });
 
   it('maps semantic pool status kinds to presentation glyphs', () => {
+    assert.equal(IconCatalog.getTextGlyph('warning'), '⚠️');
+    assert.equal(IconCatalog.getTextGlyph('missing'), '');
     assert.equal(IconCatalog.getPoolStatusGlyph('open'), '🟢');
     assert.equal(IconCatalog.getPoolStatusGlyph('practice-only'), '🟡');
     assert.equal(IconCatalog.getPoolStatusGlyph('closed'), '🔴');

@@ -71,6 +71,25 @@ describe('PoolHoursDisplay', () => {
     const html = PoolHoursDisplay.render({ poolStatus: { color: 'purple' }, weekSchedule: [], scheduleOptions: {} });
     assert.match(html, /status-gray/);
     assert.match(html, /class="nav-btn calendar-btn"[^]*?disabled/);
+    assert.match(html, /Choose a week for this pool/);
+    assert.match(html, /Status unknown/);
+    assert.doesNotMatch(html, /data-status-action=/);
+    assert.doesNotMatch(html, / min="| max="/);
+  });
+
+  it('renders each disabled navigation state and rejects unsupported transition actions', () => {
+    const html = PoolHoursDisplay.render({
+      ...viewModel,
+      isTodayDisabled: true,
+      isPreviousWeekDisabled: true,
+      isNextWeekDisabled: true,
+      statusTransition: { action: 'waits', minutes: 10 }
+    });
+
+    assert.match(html, /today-btn"[^>]*disabled/);
+    assert.match(html, /prev-week"[^>]*disabled/);
+    assert.match(html, /next-week"[^>]*disabled/);
+    assert.doesNotMatch(html, /data-status-action=/);
   });
 
   it('installs the display helper as a browser script global', () => {
@@ -80,10 +99,18 @@ describe('PoolHoursDisplay', () => {
       window: {},
       HtmlSafety: { escapeHtml: value => String(value).replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character])) },
       IconCatalog: { getPoolStatusGlyph: () => '⚫', render: () => '' },
-      PoolScheduleDisplay: { render: () => '', formatPublicStatusTransition: () => '', getPublicStatusTransitionClass: () => 'pool-status-countdown' }
+      PoolScheduleDisplay: {
+        render: () => '',
+        formatPublicStatusTransition: (transition, options) => options ? 'Long countdown' : 'Countdown',
+        getPublicStatusTransitionClass: () => 'pool-status-countdown'
+      }
     };
     vm.runInNewContext(source, context, { filename: sourcePath });
 
     assert.equal(typeof context.window.PoolHoursDisplay, 'function');
+    assert.match(
+      context.window.PoolHoursDisplay.render({ statusTransition: { action: 'waits' } }),
+      /data-status-action="" aria-label="Long countdown">Countdown/
+    );
   });
 });

@@ -82,6 +82,46 @@ describe('PoolHoursViewModelService', () => {
     assert.equal(viewModel.poolStatus.kind, 'unavailable');
     assert.deepEqual(viewModel.weekSchedule, []);
     assert.deepEqual(errors, [['status', 'Broken Pool'], ['week schedule', 'Broken Pool']]);
+    assert.equal(viewModel.poolId, 'Broken Pool');
+    assert.equal(viewModel.poolName, 'Broken Pool');
+    assert.equal(viewModel.hasDateRange, false);
+    assert.equal(viewModel.isTodayDisabled, true);
+    assert.equal(viewModel.isPreviousWeekDisabled, true);
+    assert.equal(viewModel.isNextWeekDisabled, true);
+    assert.equal(viewModel.minDateInputValue, '');
+    assert.equal(viewModel.maxDateInputValue, '');
+    assert.equal(viewModel.statusTooltip, 'Status unknown');
+  });
+
+  it('normalizes absent records, malformed schedules, and optional practice dependencies', () => {
+    const poolModel = {
+      name: 'Fallback Pool',
+      getCurrentStatus: () => ({ kind: 'closed' }),
+      getWeekScheduleForDate: () => null,
+      getValidDateRange: () => null,
+      getPublicStatusTransitionToday: () => null
+    };
+    const options = {
+      weekStart: new Date(2026, 5, 15),
+      timeUtils: { getCurrentEasternTimeInfo: () => ({ date: '2026-06-16' }) }
+    };
+
+    const viewModel = PoolHoursViewModelService.build(null, poolModel, options);
+    assert.equal(viewModel.poolId, undefined);
+    assert.equal(viewModel.poolName, 'this pool');
+    assert.deepEqual(viewModel.weekSchedule, []);
+    assert.equal(PoolHoursViewModelService.reportError('status', poolModel, new Error('ignored')), undefined);
+
+    const slots = PoolHoursViewModelService.enrichPracticeTeamNames(
+      [{ day: 'Mon' }, { day: 'Tue', timeSlots: [{ accessStatus: 'practice-only' }] }],
+      poolModel.name,
+      options.weekStart,
+      [],
+      options.timeUtils,
+      null
+    );
+    assert.deepEqual(slots[0].timeSlots, []);
+    assert.equal(slots[1].timeSlots[0].accessStatus, 'practice-only');
   });
 
   it('installs the service as a browser script global', () => {

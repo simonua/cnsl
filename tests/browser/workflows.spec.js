@@ -338,12 +338,14 @@ test('[WF-HOME-001] season summary and sharing actions appear only on the home p
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.at(-1))).toEqual(['event', 'ca_external_link', { link_context: 'official_information', link_purpose: 'general' }]);
 
   await page.setViewportSize(MOBILE_VIEWPORT);
-  const compactLinkLayout = await page.locator('.quick-link-card').evaluateAll(cards => cards.map(card => {
-    const bounds = card.getBoundingClientRect();
-    return { top: bounds.top, right: bounds.right, height: bounds.height };
-  }));
-  expect(new Set(compactLinkLayout.map(card => card.top)).size).toBe(1);
-  expect(compactLinkLayout.every(card => card.right <= MOBILE_VIEWPORT.width && card.height >= 44 && card.height < 80)).toBe(true);
+  const compactLinkLayout = await page.locator('.quick-link-card').evaluateAll(cards => cards
+    .filter(card => card.getClientRects().length > 0)
+    .map(card => {
+      const bounds = card.getBoundingClientRect();
+      return { left: bounds.left, top: bounds.top, right: bounds.right, height: bounds.height };
+    }));
+  expect(new Set(compactLinkLayout.map(card => Math.round(card.top))).size).toBe(1);
+  expect(compactLinkLayout.every(card => card.left >= 0 && card.right <= MOBILE_VIEWPORT.width && card.height >= 44 && card.height < 80)).toBe(true);
 
   const compactShareLayout = await page.locator('.share-site__links .share-site__link').evaluateAll(links => links.map(link => {
     const bounds = link.getBoundingClientRect();
@@ -1191,11 +1193,16 @@ test('[WF-HOME-002] home page keeps compact link actions readable on narrow phon
   await page.setViewportSize({ width: 320, height: 900 });
   await page.goto('/index.html');
 
-  const hasSingleRow = selector => page.locator(selector).evaluateAll(elements => (
-    new Set(elements.map(element => Math.round(element.getBoundingClientRect().top))).size === 1
-  ));
-
-  await expect.poll(() => hasSingleRow('.quick-links-grid .quick-link-card')).toBe(true);
+  await expect.poll(() => page.locator('.quick-links-grid .quick-link-card').evaluateAll(elements => {
+    const visibleElements = elements.filter(element => element.getClientRects().length > 0);
+    return {
+      fits: visibleElements.every(element => {
+        const bounds = element.getBoundingClientRect();
+        return bounds.left >= 0 && bounds.right <= globalThis.innerWidth && bounds.height >= 44;
+      }),
+      rows: new Set(visibleElements.map(element => Math.round(element.getBoundingClientRect().top))).size
+    };
+  })).toEqual({ fits: true, rows: 1 });
   await expect.poll(() => page.locator('.share-site__links .share-site__link').evaluateAll(elements => (
     new Set(elements.map(element => Math.round(element.getBoundingClientRect().top))).size
   ))).toBe(2);
@@ -1391,9 +1398,10 @@ test('[WF-MEETS-002] favorite team matchups appear first on every meet day they 
   expect(favoriteDayPlacement.every(firstIsFavorite => firstIsFavorite)).toBe(true);
 
   const favoriteMeet = page.locator('.favorite-meet').first();
-  const favoriteTeam = favoriteMeet.locator('.home-team, .visiting-team').filter({ has: favoriteMeet.getByRole('img', { name: 'Favorite team' }) });
-  const otherTeam = favoriteMeet.locator('.home-team, .visiting-team').filter({ hasNot: favoriteMeet.getByRole('img', { name: 'Favorite team' }) });
-  await expect(favoriteTeam.getByRole('img', { name: 'Favorite team' })).toHaveText('★');
+  const favoriteMarker = favoriteMeet.getByRole('img', { name: 'Favorite team' });
+  const favoriteTeam = favoriteMarker.locator('..');
+  const otherTeam = favoriteMeet.locator('.home-team:not(:has(.favorite-marker)), .visiting-team:not(:has(.favorite-marker))');
+  await expect(favoriteMarker).toHaveText('★');
   await expect.poll(async () => ({
     color: await favoriteTeam.evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).color),
     fontWeight: await favoriteTeam.evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).fontWeight)
@@ -1677,7 +1685,7 @@ test('[WF-POOLS-008] desktop site header remains visible while the pool director
   expect(headerTop).toBe(0);
 });
 
-test('[WF-SETTINGS-001] settings dialog is right-aligned on mobile and centered on desktop', async ({ page }) => {
+test('[WF-SETTINGS-001] settings dialog is evenly inset on mobile and centered on desktop', async ({ page }) => {
   const mobileViewport = MOBILE_VIEWPORT;
   await page.setViewportSize(mobileViewport);
   await page.goto('/settings.html');
@@ -1685,14 +1693,15 @@ test('[WF-SETTINGS-001] settings dialog is right-aligned on mobile and centered 
   await expect(dialog).toBeVisible();
   let bounds = await dialog.boundingBox();
 
-  expect(Math.abs(bounds.x + bounds.width - mobileViewport.width)).toBeLessThanOrEqual(1);
+  expect(bounds.x).toBeGreaterThanOrEqual(8);
+  expect(Math.abs(bounds.x - (mobileViewport.width - bounds.x - bounds.width))).toBeLessThanOrEqual(1);
   expect(Math.abs(bounds.y + (bounds.height / 2) - (mobileViewport.height / 2))).toBeLessThanOrEqual(1);
   await expect(page.locator('#settingsForm > .settings-group').evaluateAll(groups => groups.map(group => {
     const heading = group.querySelector(':scope > legend, :scope > .settings-label');
     return heading ? heading.textContent.trim() : '';
   }))).resolves.toEqual([
-    'Favorite pool',
-    'Favorite team',
+    'Favorite pool ★',
+    'Favorite team ★',
     'Practice groups',
     'Pool schedule view',
     'Weather safety alerts',
@@ -1923,8 +1932,8 @@ test('[WF-SETTINGS-007] weather source details expose fixed Columbia-area Nation
   const nwsLinks = weatherDetails.getByRole('link');
 
   await expect(weatherDetails).toContainText('never tracks, saves, or sends your current location');
-  await expect(nwsLinks.nth(0)).toHaveText('Alerts');
-  await expect(nwsLinks.nth(1)).toHaveText('Forecast metadata');
+  await expect(nwsLinks.nth(0)).toHaveText('Active weather alerts');
+  await expect(nwsLinks.nth(1)).toHaveText('Local forecast information');
   await expect(nwsLinks.nth(0)).toHaveAttribute('href', 'https://api.weather.gov/alerts/active?point=39.2014%2C-76.8610');
   await expect(nwsLinks.nth(1)).toHaveAttribute('href', 'https://api.weather.gov/points/39.2014,-76.8610');
   await expect(nwsLinks.nth(0)).toHaveAttribute('target', '_blank');

@@ -94,6 +94,39 @@ describe('PoolCardDisplay', () => {
     assert.match(PoolCardDisplay.render({}), /Unknown Pool/);
   });
 
+  it('normalizes partial, flat, and absent address records', () => {
+    assert.deepEqual(PoolCardDisplay.getAddressData({ location: {
+      street: '1 Main Street',
+      city: 'Columbia',
+      googleMapsUrl: 'https://example.com/map'
+    } }, 'https://maps.example/?q='), {
+      streetAddress: '1 Main Street',
+      cityStateZip: 'Columbia,',
+      mapsUrl: 'https://example.com/map'
+    });
+    assert.deepEqual(PoolCardDisplay.getAddressData({ address: 'One Address' }, null), {
+      streetAddress: 'One Address',
+      cityStateZip: '',
+      mapsUrl: 'One%20Address'
+    });
+    assert.deepEqual(PoolCardDisplay.getAddressData(null, null), {
+      streetAddress: '',
+      cityStateZip: '',
+      mapsUrl: ''
+    });
+    assert.match(PoolCardDisplay.renderContact({}, '', ''), /Address not available/);
+    assert.doesNotMatch(PoolCardDisplay.renderContact({}, '', ''), /address-section__actions/);
+  });
+
+  it('renders independent action, feature, status, and transition defaults', () => {
+    assert.match(PoolCardDisplay.renderActions({ phone: '410-555-0100' }), /Call pool pool desk/);
+    assert.match(PoolCardDisplay.renderActions({ caUrl: 'https://example.com' }, 'Example'), /Visit CA Pool Page/);
+    assert.match(PoolCardDisplay.renderFeatures([null]), /feature-pill--additional/);
+    assert.match(PoolCardDisplay.renderStatusIndicator(null, ''), /Status unknown/);
+    assert.match(PoolCardDisplay.renderTransition('Opens soon'), /aria-label="Opens soon"/);
+    assert.match(PoolCardDisplay.renderDetails(null), /Address not available/);
+  });
+
   it('renders public-status transitions and distance metadata independently', () => {
     const transitionOnlyHtml = PoolCardDisplay.render({
       ...viewModel,

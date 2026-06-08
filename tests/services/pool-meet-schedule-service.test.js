@@ -1,5 +1,8 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
 const Meet = require('../../src/js/models/meet.js');
 const Team = require('../../src/js/models/team.js');
 const PoolMeetScheduleService = require('../../src/js/services/pool-meet-schedule-service.js');
@@ -96,9 +99,52 @@ describe('PoolMeetScheduleService', () => {
 
   it('rejects unusable records and formats schedule values safely', () => {
     assert.equal(PoolMeetScheduleService.createOverride({}, null), null);
+    assert.equal(PoolMeetScheduleService.createOverride({ date: '2026-99-99' }, { startMinutes: 0, endMinutes: 1 }), null);
     assert.equal(PoolMeetScheduleService.getWeekday('bad'), null);
     assert.equal(PoolMeetScheduleService.formatScheduleTime(-1), '');
+    assert.equal(PoolMeetScheduleService.formatScheduleTime(1.5), '');
+    assert.equal(PoolMeetScheduleService.formatScheduleTime(0), '12:00am');
+    assert.equal(PoolMeetScheduleService.formatScheduleTime(12 * 60), '12:00pm');
     assert.equal(PoolMeetScheduleService.formatScheduleTime(13 * 60 + 5), '1:05pm');
     assert.equal(PoolMeetScheduleService.normalizePoolName(' Kendall Ridge Pool '), 'kendall ridge');
+    assert.equal(PoolMeetScheduleService.normalizePoolName(), '');
+  });
+
+  it('preserves non-meet records and merges generated hours into matching overrides', () => {
+    const unchanged = { hours: [{ accessStatus: 'public' }] };
+    const noHours = { name: 'No hours' };
+    assert.equal(PoolMeetScheduleService.removePublishedMeetSlots(null), null);
+    assert.equal(PoolMeetScheduleService.removePublishedMeetSlots([noHours])[0], noHours);
+    assert.equal(PoolMeetScheduleService.removePublishedMeetSlots([unchanged])[0], unchanged);
+
+    const authored = [{ startDate: '2026-06-06', endDate: '2026-06-06', reason: 'Hours', hours: [{ accessStatus: 'public' }] }];
+    const generated = [{ startDate: '2026-06-06', endDate: '2026-06-06', reason: 'Meet', hours: [{ accessStatus: 'swim-meet' }] }];
+    const merged = PoolMeetScheduleService.mergeGeneratedOverrides(authored, generated);
+    assert.equal(merged[0].reason, 'Meet');
+    assert.deepEqual(merged[0].hours.map(hour => hour.accessStatus), ['public', 'swim-meet']);
+    assert.deepEqual(PoolMeetScheduleService.removeUnconfirmedMeetPlaceholders(authored, generated), authored);
+  });
+
+  it('handles absent collections, unknown pools, and standalone special meet records', () => {
+    assert.deepEqual([...PoolMeetScheduleService.getOverridesByPool()], []);
+    const meet = {
+      date: '2026-06-06',
+      name: '',
+      getKnownTimingWindow: () => ({ startMinutes: 7 * 60, endMinutes: 12 * 60 }),
+      getTimeWindowKey: () => 'other'
+    };
+    assert.deepEqual([...PoolMeetScheduleService.getOverridesByPool([], [], [meet])], []);
+    const override = PoolMeetScheduleService.createOverride(meet, meet.getKnownTimingWindow(), 'bad id');
+    assert.equal(override.reason, 'Swim Meet');
+    assert.equal(Object.hasOwn(override.hours[0], 'meetDate'), false);
+  });
+
+  it('installs the service as a browser script global', () => {
+    const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'pool-meet-schedule-service.js');
+    const source = fs.readFileSync(sourcePath, 'utf8');
+    const context = { window: {} };
+    vm.runInNewContext(source, context, { filename: sourcePath });
+
+    assert.equal(context.window.PoolMeetScheduleService.formatScheduleTime(60), '1:00am');
   });
 });

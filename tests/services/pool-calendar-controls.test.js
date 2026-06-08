@@ -52,6 +52,26 @@ describe('PoolCalendarControls', () => {
     assert.deepEqual(calls, [['toggle', toggle]]);
   });
 
+  it('toggles an expanded card from its header and ignores unrelated clicks', () => {
+    const controls = loadControls();
+    const calls = [];
+    const toggle = { getAttribute: () => 'true' };
+    const card = { querySelector: () => toggle };
+    const target = {
+      classList: { contains: () => false },
+      closest: selector => {
+        if (selector === '[data-pool-card]') return card;
+        if (selector === '[data-pool-card-header]') return {};
+        return null;
+      }
+    };
+    controls.handleClick({ target }, createActions(calls));
+    assert.deepEqual(calls, [['toggle', toggle]]);
+
+    const unrelated = { classList: { contains: () => false }, closest: () => null };
+    assert.equal(controls.handleClick({ target: unrelated }, createActions(calls)), undefined);
+  });
+
   it('positions and opens the native week picker', () => {
     const controls = loadControls();
     let clicked = false;
@@ -113,5 +133,14 @@ describe('PoolCalendarControls', () => {
     assert.equal(picker.hidden, true);
     assert.equal(focused, true);
     assert.equal(controls.handleChange({ target: { classList: { contains: () => false } } }, createActions(calls)), undefined);
+    assert.equal(controls.handleChange({ target: { classList: { contains: () => true }, closest: () => null } }, createActions(calls)), undefined);
+
+    const pickerWithoutButton = {
+      value: '2026-06-22',
+      classList: { contains: () => true },
+      closest: () => ({ dataset: { poolId: 'bwp' }, querySelector: () => null })
+    };
+    controls.handleChange({ target: pickerWithoutButton }, createActions(calls));
+    assert.deepEqual(calls.at(-1), ['selected', 'bwp', '2026-06-22']);
   });
 });
