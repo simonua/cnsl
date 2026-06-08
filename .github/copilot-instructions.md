@@ -6,6 +6,12 @@ applyTo: "**"
 
 CNSL (Columbia Neighborhood Swim League) is a PWA for pool directories, team schedules, and meet information in Columbia, MD. It is a static site built with PostHTML, served via GitHub Pages.
 
+## Audience and Tone
+
+- Write FAQs and other visitor-facing text for parents, pool visitors, and swim team members.
+- Explain technical topics concisely in clear, understandable language, and avoid technical jargon.
+- Keep all visitor-facing language friendly and courteous.
+
 ## Architecture
 
 - **Build**: PostHTML compiles `src/views/` HTML templates into `out/`. Custom build script in `posthtml.js`.
