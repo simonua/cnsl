@@ -1,6 +1,6 @@
 {
   "season": 2026,
-  "acceptedOn": "2026-06-05",
+  "acceptedOn": "2026-06-08",
   "documents": [
     {
       "domain": "pools",
@@ -583,7 +583,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Clemens Crossing Cyclones staff page",
-      "sha256": "1787931c26714e774a87fe1e6bf8cd3856b5f599042e76d5306201a54ac19cb7",
+      "sha256": "5a9cd254f843ce33fd43f1b5d619c778bcf47b08e8e62189855d151d5aec4770",
       "sourceIds": [
         "team:ccc:staff"
       ],
@@ -667,7 +667,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Huntington Dolphins practice schedule page",
-      "sha256": "cc3b1b3c59fdd8b79b21d01c4a984291d31ebf36507c35c2361522fd2eb360f6",
+      "sha256": "ee3e8afcc041c89da875ee5caf7f131cbc37e242a634215143623487533b3aac",
       "sourceIds": [
         "team:hd:practice"
       ],
@@ -679,7 +679,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Huntington Dolphins staff page",
-      "sha256": "b31c7c7b2e720a7d01ada7b34778e3ba3bc1319efb66ad37e61a0e14f7087036",
+      "sha256": "b86f111c83f5e4d7e016e8adfaca5e23e596e5e91aa434f918cd22b03e674f1c",
       "sourceIds": [
         "team:hd:staff"
       ],
@@ -775,7 +775,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Phelps Luck Snappers practice schedule page",
-      "sha256": "773af82af025ed92a0798503b5695c22c028efe211e424883ed0287cae95e048",
+      "sha256": "ddaba2ab4b7f00d2cdb1fe4dffe0878879b9c669b82eff52507d1adf9cac4b3f",
       "sourceIds": [
         "team:pls:practice"
       ],

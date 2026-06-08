@@ -273,11 +273,11 @@
         "preseason": [
           {
             "period": "May 26 - June 19",
-            "days": "Monday - Friday",
+            "days": "Monday - Thursday",
             "location": "Huntington Pool",
             "sessions": [
-              { "time": "5:00 - 5:30pm", "group": "New Swimmers" },
-              { "time": "5:30 - 6:15pm", "group": "10 & Under" },
+              { "time": "5:00 - 5:30pm", "group": "8 & Under" },
+              { "time": "5:30 - 6:15pm", "group": "9 & 10 Age Group" },
               { "time": "6:15 - 7:00pm", "group": "11 & Older" }
             ]
           }
@@ -309,10 +309,11 @@
       },
       "staff": {
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslhd/page/system/coaches",
-        "verifiedOn": "2026-06-03",
+        "verifiedOn": "2026-06-08",
         "coaches": [
           { "name": "Brianna Dunn", "role": "Head Coach" },
-          { "name": "Sophia Maldonado Gonzalez", "role": "Assistant Coach" }
+          { "name": "Sophia Maldonado Gonzalez", "role": "Assistant Coach" },
+          { "name": "Ethan Brancazio", "role": "Assistant Coach" }
         ],
         "managers": [],
         "contacts": [],
@@ -637,13 +638,23 @@
             ]
           },
           {
-            "period": "June 8 - June 18",
+            "period": "June 8 - June 12",
             "days": "Monday - Friday",
             "location": "Phelps Luck Pool",
             "sessions": [
               { "time": "5:00 - 5:30pm", "group": "8 and under" },
-              { "time": "5:30 - 6:15pm", "group": "9 - 12" },
-              { "time": "6:15 - 7:00pm", "group": "13 and over" }
+              { "time": "5:30 - 6:15pm", "group": "9 - 10" },
+              { "time": "6:15 - 7:00pm", "group": "11 and over" }
+            ]
+          },
+          {
+            "period": "June 15 - June 18",
+            "days": "Monday - Friday",
+            "location": "Phelps Luck Pool",
+            "sessions": [
+              { "time": "5:00 - 5:30pm", "group": "8 and under" },
+              { "time": "5:30 - 6:15pm", "group": "9 - 10" },
+              { "time": "6:15 - 7:00pm", "group": "11 and over" }
             ]
           }
         ],
