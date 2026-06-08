@@ -197,6 +197,17 @@ describe('TeamScheduleService', () => {
     });
   });
 
+  describe('getPracticeRangeStatus', () => {
+    it('should distinguish past, current, and upcoming ranges', () => {
+      const range = 'June 15 - June 18';
+
+      assert.equal(TeamScheduleService.getPracticeRangeStatus(range, new Date('2026-06-08T12:00:00')), 'upcoming');
+      assert.equal(TeamScheduleService.getPracticeRangeStatus(range, new Date('2026-06-15T12:00:00')), 'current');
+      assert.equal(TeamScheduleService.getPracticeRangeStatus(range, new Date('2026-06-19T12:00:00')), 'past');
+      assert.equal(TeamScheduleService.getPracticeRangeStatus('Invalid', new Date('2026-06-08T12:00:00')), null);
+    });
+  });
+
   describe('browser registration', () => {
     it('should install the service as a browser script global', () => {
       const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'team-schedule-service.js');

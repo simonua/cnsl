@@ -81,6 +81,17 @@ if (typeof window === 'undefined' || !window.TeamScheduleService) {
       return today >= practiceRange.startDate && today <= practiceRange.endDate;
     }
 
+    static getPracticeRangeStatus(range, referenceDate = new Date()) {
+      const practiceRange = TeamScheduleService.parseSeasonRange(range);
+      if (!practiceRange) return null;
+
+      const today = new Date(referenceDate);
+      today.setHours(0, 0, 0, 0);
+      if (today < practiceRange.startDate) return 'upcoming';
+      if (today <= practiceRange.endDate) return 'current';
+      return 'past';
+    }
+
     static getCurrentPracticePhase(practice, referenceDate = new Date()) {
       if (!practice) return null;
 

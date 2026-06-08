@@ -95,24 +95,29 @@ function formatPracticePhase(title, dateRange, content, isCurrent) {
 
 function formatPreseasonPracticeSchedule(practice, isCurrent) {
   const publishedPeriods = Array.isArray(practice && practice.preseason) ? practice.preseason : [];
-  const currentPeriodIndex = isCurrent ? publishedPeriods.findIndex(period => globalThis.TeamScheduleService.isCurrentPracticeRange(period.period)) : -1;
-  const periods = publishedPeriods.map((period, index) => ({
+  const periods = publishedPeriods.map(period => ({
     ...period,
-    sessions: getVisiblePracticeSessions(period.sessions),
-    isCurrent: index === currentPeriodIndex
+    sessions: getVisiblePracticeSessions(period.sessions)
   })).filter(period => period.sessions.length > 0);
+  const statuses = periods.map(period => globalThis.TeamScheduleService.getPracticeRangeStatus(period.period));
+  const currentPeriodIndex = isCurrent ? statuses.indexOf('current') : -1;
+  const upcomingPeriodIndex = currentPeriodIndex === -1 ? statuses.indexOf('upcoming') : -1;
   if (periods.length === 0) return '';
 
-  const content = periods.map(period => `
-    <div class="practice-period${period.isCurrent ? ' practice-period--current' : ''}">
-      <strong>${TeamsBrowserSafety.escapeHtml(period.period)}${period.isCurrent ? '<span class="practice-period__badge">Current period</span>' : ''}</strong>
+  const content = periods.map((period, index) => {
+    const status = index === currentPeriodIndex ? 'current' : index === upcomingPeriodIndex ? 'upcoming' : null;
+    const badge = status ? `<span class="practice-period__badge">${status === 'current' ? 'Current' : 'Upcoming'} period</span>` : '';
+    return `
+    <div class="practice-period${status ? ` practice-period--${status}` : ''}">
+      <strong>${TeamsBrowserSafety.escapeHtml(period.period)}${badge}</strong>
       <div class="practice-details">
         <div><strong>Days:</strong> ${TeamsBrowserSafety.escapeHtml(period.days)}</div>
         <div><strong>Location:</strong> ${getEnhancedPoolLink(period.location)}</div>
         ${formatPracticeSessions(period.sessions)}
       </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
   const dateRange = `${periods[0].period.split(' - ')[0]} - ${periods[periods.length - 1].period.split(' - ')[1]}`;
   return formatPracticePhase('Pre-season practices', dateRange, content, isCurrent);
 }

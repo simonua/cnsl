@@ -843,6 +843,7 @@ test('[WF-TEAMS-002] team directory groups practice and meet disclosures in one 
   await expect(preSeason.locator('.practice-period--current')).toHaveCount(1);
   await expect(preSeason.locator('.practice-period--current')).toContainText('May 26 - May 29');
   await expect(preSeason.locator('.practice-period__badge')).toHaveText('Current period');
+  await expect(preSeason.locator('.practice-period--upcoming')).toHaveCount(0);
   const practicePanelWidth = await sundevils.locator('.practice-schedule').evaluate(element => element.getBoundingClientRect().width);
   const teamCardWidth = await sundevils.evaluate(element => element.getBoundingClientRect().width);
   expect(practicePanelWidth).toBeLessThan(teamCardWidth);
@@ -893,6 +894,23 @@ test('[WF-TEAMS-002] team directory groups practice and meet disclosures in one 
   await expect(calendarActions.locator('a')).toHaveText(['Team Calendar']);
   await expect(calendarActions.getByRole('link', { name: 'Team Calendar' })).toHaveAttribute('href', /\/page\/calendar$/);
   await expect(calendarActions.getByRole('link', { name: 'Subscribe to team events calendar' })).toHaveCount(0);
+});
+
+test('[WF-TEAMS-009] next pre-season practice period is marked upcoming between published ranges', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-05-30T12:00:00'));
+  await page.goto('/teams.html');
+  await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
+
+  const sundevils = page.locator('.team-card[data-team-id="cfhss"]');
+  await sundevils.locator('.team-header__toggle').click();
+  const preSeason = sundevils.locator('.practice-schedule__phase').filter({ hasText: 'Pre-season practices' });
+  await preSeason.locator('summary').click();
+
+  const upcomingPeriod = preSeason.locator('.practice-period--upcoming');
+  await expect(preSeason).not.toHaveClass(/practice-schedule__phase--current/);
+  await expect(upcomingPeriod).toHaveCount(1);
+  await expect(upcomingPeriod).toContainText('June 1 - June 18');
+  await expect(upcomingPeriod.locator('.practice-period__badge')).toHaveText('Upcoming period');
 });
 
 test('[WF-TEAMS-003] team directory filters regular practice times to selected practice groups', async ({ page }) => {

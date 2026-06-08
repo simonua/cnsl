@@ -4262,6 +4262,13 @@ body:has(.footer__weather-freshness:not([hidden])) {
   padding: 0.65rem 0.75rem;
 }
 
+.practice-period--upcoming {
+  background-color: var(--warning-soft-bg);
+  border: 1px solid var(--warning-color);
+  border-radius: var(--border-radius);
+  padding: 0.65rem 0.75rem;
+}
+
 .practice-period:last-child {
   margin-bottom: 0;
 }
@@ -4281,7 +4288,12 @@ body:has(.footer__weather-freshness:not([hidden])) {
   font-size: 0.75rem;
   margin-left: 0.5rem;
   padding: 0.15rem 0.45rem;
-  vertical-align: middle;
+  vertical-align: 0.13em;
+}
+
+.practice-period--upcoming .practice-period__badge {
+  background: var(--warning-color);
+  color: var(--warning-highlight-text-color);
 }
 
 .practice-details {
