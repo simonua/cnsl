@@ -1,4 +1,11 @@
 {
+  "editor.rulers": [250],
+  "editor.wordWrap": "wordWrapColumn",
+  "editor.wordWrapColumn": 250,
+  "files.trimTrailingWhitespace": true,
   "markdown.validate.enabled": true,
-  "markdownlint.run": "onType"
+  "markdownlint.run": "onType",
+  "[markdown]": {
+    "files.trimTrailingWhitespace": false
+  }
 }

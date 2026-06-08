@@ -4,6 +4,21 @@ const globals = require('globals');
 module.exports = [
   js.configs.recommended,
 
+  // Shared source-length boundary
+  {
+    files: ['**/*.js'],
+    rules: {
+      'max-len': ['error', {
+        code: 250,
+        comments: 250,
+        ignoreUrls: true,
+        ignoreStrings: true,
+        ignoreTemplateLiterals: true,
+        ignoreRegExpLiterals: true,
+      }],
+    },
+  },
+
   // Browser JS (src/js/) — jQuery globals, browser environment
   {
     files: ['src/js/**/*.js'],
