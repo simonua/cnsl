@@ -25,6 +25,7 @@ const viewModel = {
   distanceMiles: 1.25,
   transitionText: 'Opens in 1h 15m',
   transitionLabel: 'Opens in 1 hour 15 minutes',
+  transitionAction: 'opens',
   poolStatus: { color: 'green' },
   statusTooltip: 'Open <public>',
   featureItems: [
@@ -49,7 +50,7 @@ describe('PoolCardDisplay', () => {
     assert.match(html, /Favorite pool/);
     assert.match(html, /1\.3 mi/);
     assert.match(html, /pool-header__metadata/);
-    assert.match(html, /aria-label="Opens in 1 hour 15 minutes">Opens in 1h 15m/);
+    assert.match(html, /pool-transition-summary--opens" aria-label="Opens in 1 hour 15 minutes">Opens in 1h 15m/);
     assert.match(html, /Open &lt;public&gt;/);
     assert.match(html, /10400 &lt;Bryant&gt; Woods Court/);
     assert.match(html, /https:\/\/www\.google\.com\/maps\/search\/\?api=1&amp;query=Bryant%20Woods%20Pool/);
@@ -145,12 +146,20 @@ describe('PoolCardDisplay', () => {
     const closingHtml = PoolCardDisplay.render({
       ...viewModel,
       transitionText: 'Closes in 45 min',
-      transitionLabel: 'Closes in 45 minutes'
+      transitionLabel: 'Closes in 45 minutes',
+      transitionAction: 'closes'
+    });
+    const neutralHtml = PoolCardDisplay.render({
+      ...viewModel,
+      transitionText: 'Closed today',
+      transitionLabel: 'Closed today',
+      transitionAction: ''
     });
 
     assert.match(transitionOnlyHtml, /Opens in 1h 15m/);
     assert.doesNotMatch(transitionOnlyHtml, /distance-badge/);
-    assert.match(closingHtml, /aria-label="Closes in 45 minutes">Closes in 45 min/);
+    assert.match(closingHtml, /pool-transition-summary--closes" aria-label="Closes in 45 minutes">Closes in 45 min/);
+    assert.doesNotMatch(neutralHtml, /pool-transition-summary--(?:opens|closes)/);
     assert.match(distanceOnlyHtml, /distance-badge/);
     assert.doesNotMatch(distanceOnlyHtml, /pool-transition-summary/);
   });

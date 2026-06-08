@@ -151,6 +151,18 @@ describe('PoolScheduleDisplay', () => {
     });
   });
 
+  describe('formatPublicStatusSummary', () => {
+    it('shows an all-day closure when no transition exists', () => {
+      assert.equal(PoolScheduleDisplay.formatPublicStatusSummary(null, true), 'Closed today');
+      assert.equal(PoolScheduleDisplay.formatPublicStatusSummary(null, false), '');
+    });
+
+    it('keeps a same-day transition more specific than an all-day closure', () => {
+      assert.equal(PoolScheduleDisplay.formatPublicStatusSummary({ action: 'opens', minutes: 15 }, true), 'Opens in 15 min');
+      assert.equal(PoolScheduleDisplay.formatPublicStatusSummary({ action: 'opens', minutes: 1 }, false, { useLongUnits: true }), 'Opens in 1 minute');
+    });
+  });
+
   describe('getPublicStatusTransitionClass', () => {
     it('adds caution styling only for a closing transition within the next hour', () => {
       assert.equal(PoolScheduleDisplay.getPublicStatusTransitionClass({ action: 'closes', minutes: 59 }), 'pool-status-countdown pool-status-countdown--caution');

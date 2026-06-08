@@ -261,7 +261,7 @@ function formatPoolHours(pool) {
 
   const poolId = pool.id || pool.name;
   const weekStart = getPoolWeekStart(poolId);
-  
+
   const timeUtils = _getTimeUtils();
   if (!timeUtils) {
     return PoolHoursDisplay.renderTimeUtilityMessage('Time utilities not available');
@@ -302,15 +302,30 @@ function getPoolRecord(poolId) {
   return poolBrowserPools.find(pool => String(pool.id || pool.name) === String(poolId)) || null;
 }
 
+function getPoolStatusSummary(poolModel, options = {}) {
+  if (!poolModel) return '';
+  return PoolScheduleDisplay.formatPublicStatusSummary(
+    poolModel.getPublicStatusTransitionToday(),
+    poolModel.isClosedToPublicAllDayToday(),
+    options
+  );
+}
+
+function getPoolTransitionAction(poolModel) {
+  const action = poolModel?.getPublicStatusTransitionToday()?.action;
+  return ['opens', 'closes'].includes(action) ? action : '';
+}
+
 function syncPoolTransitionSummary(poolCard) {
   if (!poolCard) return;
   const pool = getPoolRecord(poolCard.dataset.poolId);
   const poolModel = pool && poolBrowserDataManager ? poolBrowserDataManager.getPool(pool.name) : null;
-  const statusTransition = poolModel ? poolModel.getPublicStatusTransitionToday() : null;
+  const summaryText = getPoolStatusSummary(poolModel);
+  const transitionAction = getPoolTransitionAction(poolModel);
   let metadata = poolCard.querySelector('.pool-header__metadata');
   let summary = metadata && metadata.querySelector('.pool-transition-summary');
 
-  if (!statusTransition) {
+  if (!summaryText) {
     if (summary) summary.remove();
     if (metadata && !metadata.querySelector('.distance-badge')) metadata.remove();
     return;
@@ -326,8 +341,9 @@ function syncPoolTransitionSummary(poolCard) {
     summary.className = 'pool-transition-summary';
     metadata.prepend(summary);
   }
-  summary.textContent = PoolScheduleDisplay.formatPublicStatusTransition(statusTransition);
-  summary.setAttribute('aria-label', PoolScheduleDisplay.formatPublicStatusTransition(statusTransition, { useLongUnits: true }));
+  summary.textContent = summaryText;
+  summary.className = `pool-transition-summary${transitionAction ? ` pool-transition-summary--${transitionAction}` : ''}`;
+  summary.setAttribute('aria-label', getPoolStatusSummary(poolModel, { useLongUnits: true }));
 }
 
 function refreshPoolTransitionSummaries() {
@@ -729,7 +745,7 @@ function handlePoolPageVisibilityChange() {
 function renderPools(pools) {
   const list = document.getElementById("poolList");
   if (!list) return;
-  
+
   // Safety check - ensure pools is an array
   if (!Array.isArray(pools) || pools.length === 0) {
     list.innerHTML = `
@@ -785,18 +801,14 @@ function renderPools(pools) {
     const isFavorite = poolName === favoritePoolName;
     const isExpanded = (isInitialRender && poolId === linkedPoolId)
       || (isFavorite ? preferences.favoritePoolExpanded : expandedPoolIds.has(poolId));
-    
+
     // Get pool status for indicator using new helper
     const poolStatus = getPoolStatus(pool);
     const tooltipText = getStatusTooltip(poolStatus.kind);
     const poolModel = poolBrowserDataManager.getPool(poolName);
-    const statusTransition = poolModel ? poolModel.getPublicStatusTransitionToday() : null;
-    const transitionText = statusTransition
-      ? PoolScheduleDisplay.formatPublicStatusTransition(statusTransition)
-      : '';
-    const transitionLabel = statusTransition
-      ? PoolScheduleDisplay.formatPublicStatusTransition(statusTransition, { useLongUnits: true })
-      : '';
+    const transitionText = getPoolStatusSummary(poolModel);
+    const transitionLabel = getPoolStatusSummary(poolModel, { useLongUnits: true });
+    const transitionAction = getPoolTransitionAction(poolModel);
     const detailsViewModel = isExpanded ? createPoolDetailsViewModel(pool) : {};
 
     return PoolCardDisplay.render({
@@ -809,6 +821,7 @@ function renderPools(pools) {
       distanceMiles: Number.isFinite(pool.distance) ? pool.distance : null,
       transitionText,
       transitionLabel,
+      transitionAction,
       poolStatus,
       statusTooltip: tooltipText,
       isDetailsHydrated: isExpanded,
@@ -915,33 +928,33 @@ function navigatePoolToToday(poolId) {
  */
 function refreshPoolDisplay(poolId) {
   if (!poolBrowserDataManager) return;
-  
+
   // Find the pool card and update just its hours section
   const escapedPoolId = window.CSS && typeof window.CSS.escape === 'function'
     ? window.CSS.escape(poolId)
     : String(poolId).replace(/[^a-zA-Z0-9_-]/g, '');
   const poolCard = escapedPoolId ? document.querySelector(`[data-pool-id="${escapedPoolId}"]`) : null;
   if (!poolCard) return;
-  
+
   const poolsManager = poolBrowserDataManager.getPools();
   const allPools = poolsManager.getAllPools();
   const pool = allPools.find(p => (p.id || p.name) === poolId);
-  
+
   if (pool) {
     const poolRecord = pool.toJSON();
-    
+
     // Find the pool-hours container in the pool card
     const poolCardContainer = poolCard.closest('.pool-card');
     const hoursElement = poolCardContainer.querySelector('.pool-hours');
-    
+
     if (hoursElement) {
       // Generate the new hours content
       const newHoursContent = formatPoolHours(poolRecord);
-      
+
       // Replace the entire content of the pool-hours div
       hoursElement.outerHTML = newHoursContent;
         syncPoolTransitionSummary(poolCard);
-      
+
       // Re-setup event handlers for the new controls
       setupPoolNavigationHandlers();
       scrollCalendarsToToday(poolCard);
@@ -956,7 +969,7 @@ function setupPoolNavigationHandlers() {
   // Remove existing handlers to prevent duplicates
   document.removeEventListener('click', handlePoolNavigationClick);
   document.removeEventListener('change', handlePoolDatePickerChange);
-  
+
   // Add new handlers
   document.addEventListener('click', handlePoolNavigationClick);
   document.addEventListener('change', handlePoolDatePickerChange);
@@ -1002,42 +1015,42 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!document.getElementById("poolList")) {
     return;
   }
-  
+
   try {
     // Initialize the data manager with the new OOP system
     await initializePoolBrowser();
 
     loadSeasonInfo();
-    
+
     // Get pools from the data manager
     const poolsManager = poolBrowserDataManager.getPools();
     const pools = poolsManager.getAllPools();
-    
+
     // Convert Pool objects to plain data records for backward compatibility.
     const poolRecords = pools.map(pool => pool.toJSON());
     poolBrowserPools = poolRecords;
     setupPoolFeatureFilters(poolRecords);
-    
+
     // Always render pools first with no location data
     renderPools(poolRecords);
     markPoolPerformance('summary-visible');
     startPoolLiveStatusUpdates();
     setPoolListStatus(`Pool directory loaded. ${poolRecords.length} pools available.`, false);
     startPoolBrowserEnrichment();
-    
+
     // Set up pool-specific navigation event handlers
     setupPoolNavigationHandlers();
-    
+
     // Handle URL parameters to show specific pool
     handlePoolUrlParameter();
-    
+
     // The preference guard prevents a browser location prompt unless it is enabled in Settings.
     try {
       getUserLocation();
     } catch (_locationError) {
       // Continue without location data - pools are already rendered
     }
-    
+
   } catch (error) {
     console.error("Failed to load pool data:", error);
     const list = document.getElementById("poolList");

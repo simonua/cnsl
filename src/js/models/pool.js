@@ -22,7 +22,7 @@ if (typeof window === 'undefined') {
     this.name = poolData.name || '';
     this.caUrl = poolData.caUrl || '';
     this.scheduleUrl = poolData.scheduleUrl || '';
-    
+
     // Handle both location formats (new location object vs legacy flat properties)
     if (poolData.location) {
       // New location format
@@ -48,7 +48,7 @@ if (typeof window === 'undefined') {
       this.lng = poolData.lng;
       this.mapsQuery = poolData.mapsQuery;
     }
-    
+
     this.phone = poolData.phone || '';
     this.website = poolData.website || '';
     this.laneCount = Number.isInteger(poolData.laneCount) && poolData.laneCount > 0 ? poolData.laneCount : null;
@@ -58,10 +58,10 @@ if (typeof window === 'undefined') {
     this.amenities = poolData.amenities || [];
     this.divingBoard = poolData.divingBoard || false;
     this.babyPool = poolData.babyPool || false;
-    
+
     // Store schedule overrides
     this.scheduleOverrides = poolData.scheduleOverrides || [];
-    
+
     // The published pool model uses dated schedule periods. Keep the day-hours shape
     // as a compatibility branch for older callers that have not been migrated yet.
     if (poolData.schedules && Array.isArray(poolData.schedules)) {
@@ -80,7 +80,7 @@ if (typeof window === 'undefined') {
       this.schedulePeriods = null;
       this.periodSchedule = null;
     }
-    
+
     this.restrictions = poolData.restrictions || [];
     this.specialEvents = poolData.specialEvents || [];
     this.lastUpdated = poolData.lastUpdated || null;
@@ -194,16 +194,16 @@ if (typeof window === 'undefined') {
     if (!PoolStatusRef) {
       return { kind: 'unavailable', isOpen: false, status: 'Error', color: 'gray' };
     }
-    
+
     if (this.schedulePeriods) {
       return this._getPeriodStatus();
     }
-    
+
     // Check if day-hours compatibility data has no schedule data
     if (!this.schedule || !this.schedule.hasScheduleData()) {
       return PoolStatusRef.SCHEDULE_NOT_FOUND;
     }
-    
+
     return this.schedule.getCurrentStatus();
   }
 
@@ -334,6 +334,36 @@ if (typeof window === 'undefined') {
       if (restrictionStart > currentMinutes && restrictionStart < closingMinutes) closingMinutes = restrictionStart;
     });
     return closingMinutes > currentMinutes ? { action, minutes: closingMinutes - currentMinutes } : null;
+  }
+
+  /**
+   * Check whether the pool has no public-use period today.
+   * @returns {boolean} Whether a valid schedule keeps the pool closed to the public all day
+   */
+  isClosedToPublicAllDayToday() {
+    const TimeUtilsRef = this._getTimeUtils();
+    const PoolStatusRef = this._getPoolStatus();
+    if (!TimeUtilsRef || !PoolStatusRef) return false;
+
+    if (this.schedulePeriods) {
+      const easternTimeInfo = TimeUtilsRef.getCurrentEasternTimeInfo();
+      if (!easternTimeInfo.isValid) return false;
+
+      const shortDay = easternTimeInfo.day.substring(0, 3);
+      const periodSchedule = this._getPeriodSchedule();
+      const hasActiveSchedule = this.schedulePeriods.some(schedule => (
+        easternTimeInfo.date >= schedule.startDate && easternTimeInfo.date <= schedule.endDate
+      ));
+      const hasOverride = Boolean(periodSchedule && periodSchedule.getOverrideForDate(easternTimeInfo.date, shortDay));
+      if (!hasActiveSchedule && !hasOverride) return false;
+
+      return this._getPeriodTimeSlotsForDate(easternTimeInfo.date, shortDay)
+        .every(slot => this._getPeriodSlotStatus(slot) !== PoolStatusRef.OPEN);
+    }
+
+    const easternTime = TimeUtilsRef.getEasternTime();
+    const dayHours = this.schedule.getDayHours(TimeUtilsRef.getDayName(easternTime));
+    return Boolean(dayHours && dayHours.closed === true);
   }
 
   /**
@@ -479,11 +509,11 @@ if (typeof window === 'undefined') {
     if (!TimeUtilsRef) {
       return [];
     }
-    
+
     const now = new Date();
     const dayName = TimeUtilsRef.getDayName(now);
     const dayHours = this.schedule.getDayHours(dayName);
-    
+
     if (!dayHours || !dayHours.restrictions) {
       return [];
     }
@@ -502,7 +532,7 @@ if (typeof window === 'undefined') {
     if (!TimeUtilsRef) {
       return [];
     }
-    
+
     const today = TimeUtilsRef.formatDate(new Date());
     return this.specialEvents.filter(event => event.date === today);
   }
@@ -514,7 +544,7 @@ if (typeof window === 'undefined') {
   getUpcomingEvents() {
     const now = new Date();
     const weekFromNow = new Date(now.getTime() + (7 * 24 * 60 * 60 * 1000));
-    
+
     return this.specialEvents.filter(event => {
       const eventDate = new Date(event.date);
       return eventDate >= now && eventDate <= weekFromNow;
@@ -529,7 +559,7 @@ if (typeof window === 'undefined') {
     const TimeUtilsRef = this._getTimeUtils();
     const status = this.getCurrentStatus();
     const todaysEvents = this.getTodaysEvents();
-    
+
     return {
       name: this.name,
       status: status.status,
@@ -579,7 +609,7 @@ if (typeof window === 'undefined') {
     };
 
     const hasMatch = Object.values(matches).some(match => match);
-    
+
     return {
       hasMatch,
       matches,
@@ -617,7 +647,7 @@ if (typeof window === 'undefined') {
     if (this.schedulePeriods) {
       result.schedules = this.schedulePeriods;
     }
-    
+
     // Include location properties for both formats
     if (this.location) {
       // New location format
@@ -628,7 +658,7 @@ if (typeof window === 'undefined') {
       if (this.lng !== undefined) result.lng = this.lng;
       if (this.mapsQuery) result.mapsQuery = this.mapsQuery;
     }
-    
+
     return result;
   }
 

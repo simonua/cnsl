@@ -1830,6 +1830,14 @@ nav a:focus {
   white-space: nowrap;
 }
 
+.pool-transition-summary--opens {
+  color: var(--success-text-color);
+}
+
+.pool-transition-summary--closes {
+  color: var(--error-text-color);
+}
+
 /* Pool Features */
 .pool-filter__quick-controls {
   display: flex;

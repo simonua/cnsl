@@ -33,7 +33,7 @@ if (typeof window === 'undefined' || !window.PoolCardDisplay) {
       const isFavorite = model.isFavorite === true;
       const isExpanded = model.isExpanded === true;
       const distanceHtml = PoolCardDisplay.renderDistance(model.distanceMiles);
-      const transitionHtml = PoolCardDisplay.renderTransition(model.transitionText, model.transitionLabel);
+      const transitionHtml = PoolCardDisplay.renderTransition(model.transitionText, model.transitionLabel, model.transitionAction);
       const metadataHtml = transitionHtml || distanceHtml
         ? `<span class="pool-header__metadata">${transitionHtml}${distanceHtml}</span>`
         : '';
@@ -210,11 +210,14 @@ if (typeof window === 'undefined' || !window.PoolCardDisplay) {
       return `<span class="distance-badge" aria-label="${formattedDistance} miles away">${formattedDistance} mi</span>`;
     }
 
-    static renderTransition(transitionText, transitionLabel) {
+    static renderTransition(transitionText, transitionLabel, transitionAction) {
       if (typeof transitionText !== 'string' || transitionText.length === 0) return '';
       const safeText = HtmlSafety.escapeHtml(transitionText);
       const safeLabel = HtmlSafety.escapeHtml(transitionLabel || transitionText);
-      return `<span class="pool-transition-summary" aria-label="${safeLabel}">${safeText}</span>`;
+      const actionClass = ['opens', 'closes'].includes(transitionAction)
+        ? ` pool-transition-summary--${transitionAction}`
+        : '';
+      return `<span class="pool-transition-summary${actionClass}" aria-label="${safeLabel}">${safeText}</span>`;
     }
 
     static getFeatureCategory(category) {

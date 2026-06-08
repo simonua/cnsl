@@ -232,6 +232,7 @@ describe('Pool', () => {
         }));
 
         assert.equal(pool.getPublicStatusTransitionToday(), null);
+        assert.equal(pool.isClosedToPublicAllDayToday(), true);
       } finally {
         TimeUtils.getCurrentEasternTimeInfo = originalGetCurrentEasternTimeInfo;
       }
@@ -284,6 +285,9 @@ describe('Pool', () => {
         const closed = new Pool(createSamplePoolData({ hours: { Tuesday: { open: '9:00AM', close: '5:00PM' } } }));
         closed.getCurrentStatus = () => PoolStatus.CLOSED;
         assert.equal(closed.getPublicStatusTransitionToday(), null);
+        assert.equal(closed.isClosedToPublicAllDayToday(), false);
+        const explicitlyClosed = new Pool(createSamplePoolData({ hours: { Monday: { closed: true } } }));
+        assert.equal(explicitlyClosed.isClosedToPublicAllDayToday(), true);
       } finally {
         Object.assign(TimeUtils, original);
       }

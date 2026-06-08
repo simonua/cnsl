@@ -37,6 +37,19 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
     }
 
     /**
+     * Format the pool-card summary for today's public availability.
+     * @param {Object|null} transition - Next same-day public availability transition
+     * @param {boolean} isClosedAllDay - Whether no public-use period exists today
+     * @param {Object} options - Display formatting options
+     * @returns {string} Display summary
+     */
+    static formatPublicStatusSummary(transition, isClosedAllDay, options = {}) {
+      const transitionText = PoolScheduleDisplay.formatPublicStatusTransition(transition, options);
+      if (transitionText) return transitionText;
+      return isClosedAllDay === true ? 'Closed today' : '';
+    }
+
+    /**
      * Map semantic public transition urgency to status-countdown presentation.
      * @param {Object|null} transition - Public status action and minutes until it occurs
      * @returns {string} CSS classes for the transition label
