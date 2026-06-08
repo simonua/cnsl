@@ -103,7 +103,7 @@
   --feature-amenities-selected-bg: #4f5d69;
   --feature-selected-text: #ffffff;
   --header-height: 4.625rem;
-  --footer-height: 4rem;
+  --footer-height: 3.5rem;
   --footer-bottom-clearance: max(0.5rem, env(safe-area-inset-bottom, 0rem));
   --border-radius: 12px;
   --transition: all 0.15s ease;
@@ -2658,24 +2658,24 @@ button.pool-filter__clear:focus-visible {
     flex-direction: column;
     gap: 0.75rem;
   }
-  
+
   .week-display {
     order: 1;
     min-width: unset;
   }
-  
+
   .nav-buttons {
     order: 2;
     flex-wrap: wrap;
     justify-content: center;
     max-width: 100%;
   }
-  
+
   .calendar-btn {
     font-size: 1rem;
     padding: 0.35rem 0.5rem;
   }
-  
+
   /* Adjust date picker positioning for mobile */
   .week-picker {
     position: relative;
@@ -2698,19 +2698,19 @@ button.pool-filter__clear:focus-visible {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     width: 100%;
   }
-  
+
   .nav-btn {
     font-size: 0.85rem;
     padding: 0.35rem 0.7rem;
     min-width: 0;
     width: 100%;
   }
-  
+
   .week-picker {
     min-width: 120px;
     font-size: 0.85rem;
   }
-  
+
   .week-display .week-text {
     font-size: 0.9rem;
   }
@@ -2819,13 +2819,13 @@ button.pool-filter__clear:focus-visible {
   .faq-list {
     padding: 0.5rem;
   }
-  
+
   .faq-item {
     padding: 1rem;
     margin-bottom: 1rem;
     border-radius: 8px;
   }
-  
+
   .faq-list__heading {
     font-size: 1.2rem;
   }
@@ -2835,7 +2835,7 @@ button.pool-filter__clear:focus-visible {
     font-size: 1.1rem;
     margin-bottom: 0.5rem;
   }
-  
+
   .faq-item p {
     font-size: 0.95rem;
   }
@@ -2845,12 +2845,12 @@ button.pool-filter__clear:focus-visible {
   .faq-list {
     padding: 0.25rem;
   }
-  
+
   .faq-item {
     padding: 0.75rem;
     margin-bottom: 0.75rem;
   }
-  
+
   .faq-list__heading {
     font-size: 1.1rem;
   }
@@ -2859,7 +2859,7 @@ button.pool-filter__clear:focus-visible {
   .faq-item h3 {
     font-size: 1rem;
   }
-  
+
   .faq-item p {
     font-size: 0.9rem;
   }
@@ -3205,7 +3205,7 @@ button.pool-filter__clear:focus-visible {
 .time-start,
 .time-end {
   width: 60px;
-  text-align: right;  
+  text-align: right;
 }
 
 .time-dash {
@@ -3331,7 +3331,7 @@ button.pool-filter__clear:focus-visible {
     font-size: 0.8rem;
     padding: 6px;
   }
-  
+
   /* Make tooltips work on touch devices */
   .status-tooltip:active .tooltip-text {
     visibility: visible;
@@ -3430,7 +3430,7 @@ button.pool-filter__clear:focus-visible {
   background-color: var(--white);
   border-top: 1px solid var(--border-color);
   text-align: center;
-  padding: 0.65rem 1rem calc(0.65rem + var(--footer-bottom-clearance));
+  padding: 0.35rem 1rem calc(0.35rem + var(--footer-bottom-clearance));
   font-size: 0.78rem;
   color: var(--text-muted);
   height: calc(var(--footer-height) + var(--footer-bottom-clearance));
@@ -3451,7 +3451,7 @@ button.pool-filter__clear:focus-visible {
 }
 
 body:has(.footer__weather-freshness:not([hidden])) {
-  --footer-height: 5.1rem;
+  --footer-height: 4.6rem;
 }
 
 .footer p {
@@ -3473,16 +3473,16 @@ body:has(.footer__weather-freshness:not([hidden])) {
 
 @media (max-width: 48rem) {
   :root {
-    --footer-height: 3.4rem;
+    --footer-height: 3rem;
     --footer-bottom-clearance: max(0.25rem, env(safe-area-inset-bottom, 0rem));
   }
 
   .footer {
-    padding: 0.25rem 1rem calc(0.25rem + var(--footer-bottom-clearance));
+    padding: 0.15rem 1rem calc(0.15rem + var(--footer-bottom-clearance));
   }
 
   body:has(.footer__weather-freshness:not([hidden])) {
-    --footer-height: 4.25rem;
+    --footer-height: 3.9rem;
   }
 }
 
@@ -3682,7 +3682,7 @@ body:has(.footer__weather-freshness:not([hidden])) {
     margin-left: 2rem;
     margin-top: 0.5rem;
   }
-  
+
   .meet-actions {
     margin-left: 2rem;
   }
@@ -4455,12 +4455,12 @@ body:has(.footer__weather-freshness:not([hidden])) {
     padding: 1.5rem 0.5rem 0.5rem;
     margin-bottom: 0.5rem;
   }
-  
+
   .welcome-title {
     font-size: 1.8rem;
     margin-bottom: 0.75rem;
   }
-  
+
   .welcome-message {
     font-size: 1rem;
     padding: 0 0.5rem;
@@ -4471,25 +4471,25 @@ body:has(.footer__weather-freshness:not([hidden])) {
   .welcome-section {
     padding: 1rem 0.25rem 0.375rem;
   }
-  
+
   .welcome-title {
     font-size: 1.6rem;
     line-height: 1.3;
   }
-  
+
   .welcome-message {
     font-size: 0.95rem;
   }
-  
+
   .season-info {
     margin-bottom: 1.5rem;
     padding: 0 0.5rem;
   }
-  
+
   .season-text {
     font-size: 0.9rem;
   }
-  
+
   .season-note {
     font-size: 0.8rem;
     display: block;
@@ -4549,17 +4549,17 @@ body:has(.footer__weather-freshness:not([hidden])) {
   .cnsl-link-card {
     padding: 1.25rem;
   }
-  
+
   .cnsl-link-card h2 {
     font-size: 1.2rem;
     margin-bottom: 0.5rem;
   }
-  
+
   .cnsl-link-card p {
     font-size: 0.95rem;
     margin-bottom: 0.75rem;
   }
-  
+
   .cnsl-link-btn {
     padding: 0.6rem 1.25rem;
     font-size: 0.95rem;
@@ -4570,19 +4570,19 @@ body:has(.footer__weather-freshness:not([hidden])) {
   .cnsl-link-section {
     margin-bottom: 1.5rem;
   }
-  
+
   .cnsl-link-card {
     padding: 1rem;
   }
-  
+
   .cnsl-link-card h2 {
     font-size: 1rem;
   }
-  
+
   .cnsl-link-card p {
     font-size: 0.9rem;
   }
-  
+
   .cnsl-link-btn {
     padding: 0.5rem 0.75rem;
     font-size: 0.8rem;
@@ -4854,20 +4854,20 @@ body:has(.footer__weather-freshness:not([hidden])) {
   .resource-card--flyer .resource-card__preview-link {
     margin-bottom: 1rem;
   }
-  
+
   .resource-actions {
     flex-direction: column;
   }
-  
+
   .btn-primary, .btn-secondary {
     justify-content: center;
     text-align: center;
   }
-  
+
   .intro-section {
     padding: 1rem;
   }
-  
+
   .success-story {
     padding: 1rem;
   }

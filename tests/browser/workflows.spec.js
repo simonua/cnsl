@@ -369,8 +369,8 @@ test('[WF-CONTACT-001] author contact options are collected on the Contact page'
   await expect(page.getByRole('link', { name: 'General feedback' })).toHaveAttribute('href', 'mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Feedback');
   await expect(page.getByRole('link', { name: 'Report a bug or request a feature' })).toHaveAttribute('href', 'mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Bug%20%2F%20Feature');
   await expect(page.getByRole('link', { name: 'Report a data issue' })).toHaveAttribute('href', 'mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Data');
-  await expect(page.getByRole('link', { name: 'Connect with Simon Kurtz on LinkedIn (opens in new tab)' })).toHaveAttribute('href', 'https://www.linkedin.com/in/simonkurtz');
-  await expect(page.getByRole('link', { name: 'Message Simon Kurtz on Facebook (opens in new tab)' })).toHaveAttribute('href', 'https://www.facebook.com/simonkurtz82');
+  await expect(page.getByRole('link', { name: 'Connect with Simon on LinkedIn (opens in new tab)' })).toHaveAttribute('href', 'https://www.linkedin.com/in/simonkurtz');
+  await expect(page.getByRole('link', { name: 'Message Simon on Facebook (opens in new tab)' })).toHaveAttribute('href', 'https://www.facebook.com/simonkurtz82');
 });
 
 test('[WF-ANALYTICS-001] analytics publishes a page view and public app version only after the Google tag script loads', async ({ page }) => {
