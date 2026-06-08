@@ -19,6 +19,7 @@
     "test": "node --test tests/services/*.test.js tests/models/*.test.js tests/managers/*.test.js tests/types/*.test.js",
     "test:coverage": "node --experimental-test-coverage --test-concurrency=1 --test-coverage-lines=100 --test-coverage-functions=100 --test-coverage-branches=95 --test-coverage-include=src/js/** --test-coverage-include=service-worker.js --test-coverage-exclude=scripts/** --test tests/services/*.test.js tests/models/*.test.js tests/managers/*.test.js tests/types/*.test.js",
     "test:browser:nightly": "node scripts/run-playwright.js test",
+    "check:data-updates": "node scripts/season-data-agent.js --season-only --report",
     "validate:data": "node scripts/validate-season-data.js",
     "verify:pwa": "node scripts/verify-pwa-build.js",
     "measure:performance": "pnpm run build && node scripts/measure-performance.js",

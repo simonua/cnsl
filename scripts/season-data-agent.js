@@ -74,6 +74,7 @@ function parseReadmePdfSources(markdown) {
         domain,
         label: path.posix.basename(localPath),
         localPath,
+        sourceIds: [`${domain}:retained-document`],
         url: match[1]
       });
     }
@@ -93,6 +94,7 @@ function addDocument(documentMap, document) {
   if (document.localPath && !existing.localPath) {
     existing.localPath = document.localPath;
   }
+  existing.sourceIds = [...new Set([...(existing.sourceIds || []), ...(document.sourceIds || [])])].sort();
 }
 
 function addPage(pageMap, sourceId, url, label, domain, fingerprint = 'visible-text') {
@@ -129,6 +131,7 @@ function collectSources({ annualReadme, meetsData, poolsData, teamsData }) {
       domain: 'pools',
       label: `${pool.name} pool schedule`,
       localPath: `pools/pool-schedules/${filename}`,
+      sourceIds: [`pool:${poolSourceId}:schedule`],
       url: pool.scheduleUrl
     });
     addPage(pageMap, `pool:${poolSourceId}:facility`, pool.caUrl, `${pool.name} facility page`, 'pools', 'pool-facility');
@@ -142,6 +145,7 @@ function collectSources({ annualReadme, meetsData, poolsData, teamsData }) {
     domain: 'meets',
     label: 'CNSL meet schedule',
     localPath: `meets/meet-schedules/${meetFilename}`,
+    sourceIds: ['meets:schedule'],
     url: meetsData.url
   });
 
@@ -263,11 +267,12 @@ function createState(season, pageObservations, documentObservations, acceptedOn)
   return {
     season,
     acceptedOn,
-    documents: documentObservations.map(({ contentLength, domain, etag, label, lastModified, localPath, remoteSha256, url }) => ({
+    documents: documentObservations.map(({ contentLength, domain, etag, label, lastModified, localPath, remoteSha256, sourceIds, url }) => ({
       domain,
       label,
       localPath,
       url,
+      sourceIds,
       etag,
       lastModified,
       contentLength,
@@ -282,6 +287,47 @@ function createState(season, pageObservations, documentObservations, acceptedOn)
       url
     }))
   };
+}
+
+function describeReviewScope(change, season) {
+  const targets = (change.sourceIds || []).map((sourceId) => {
+    const [type, identifier, role] = sourceId.split(':');
+    if (type === 'pool' && role === 'facility') {
+      return `pools[id="${identifier}"].{name,address,phone,features,caUrl}`;
+    }
+    if (type === 'pool' && role === 'schedule') {
+      return `pools[id="${identifier}"].{scheduleUrl,schedules}`;
+    }
+    if (type === 'team' && role === 'staff') {
+      return `teams[id="${identifier}"].staff`;
+    }
+    if (type === 'team' && role === 'practice') {
+      return `teams[id="${identifier}"].practice`;
+    }
+    if (sourceId === 'pools:outdoor-schedule-index') {
+      return 'caPoolGuideUrl and pools[].scheduleUrl';
+    }
+    if (sourceId === 'pools:directory') {
+      return 'caPoolDirectoryUrl and pools[].{name,address,coordinates,caUrl}';
+    }
+    if (sourceId === 'league:publication') {
+      return 'meets.url and retained meet/team document destinations';
+    }
+    if (sourceId === 'meets:schedule') {
+      return 'meet schedule fields';
+    }
+    if (sourceId.endsWith(':retained-document')) {
+      return `${type} modeled fields supported by the retained document`;
+    }
+    return sourceId;
+  });
+  const uniqueTargets = [...new Set(targets)];
+  const domainPaths = (change.domains || [change.domain])
+    .map((domain) => `src/assets/data/${season}/${domain}/${domain}.json`)
+    .join(', ');
+  return uniqueTargets.length > 0
+    ? `${domainPaths}: ${uniqueTargets.join('; ')}`
+    : domainPaths;
 }
 
 function createCandidateKey(changes) {
@@ -299,7 +345,8 @@ function formatReport({ candidateKey, changes, checkedOn, season }) {
     const evidence = change.localPath
       ? `src/assets/data/${season}/${change.localPath}`
       : '.github/automation/season-data-monitor/source-state.json';
-    return `| ${domains} | [${change.label}](${change.url}) | ${change.kind} | \`${evidence}\` |`;
+    const reviewScope = describeReviewScope(change, season);
+    return `| ${domains} | [${change.label}](${change.url}) | ${change.kind} | \`${reviewScope}\` | \`${evidence}\` |`;
   });
   const guidance = {
     meets: `- [ ] Review the official meet schedule evidence and update \`src/assets/data/${season}/meets/meets.json\` if dates, locations, or matchups changed.`,
@@ -317,8 +364,8 @@ function formatReport({ candidateKey, changes, checkedOn, season }) {
     '',
     '## Detected Changes',
     '',
-    '| Domain | Source | Change | Evidence target |',
-    '| --- | --- | --- | --- |',
+    '| Domain | Source | Change | Exact review scope | Evidence target |',
+    '| --- | --- | --- | --- | --- |',
     ...rows,
     '',
     '## Review Checklist',
@@ -525,6 +572,8 @@ async function monitorSources({
   if ((apply || report) && changes.length > 0) {
     await fs.mkdir(path.dirname(reportPath), { recursive: true });
     await fs.writeFile(reportPath, formatReport({ candidateKey, changes, checkedOn: today, season }));
+  } else if ((apply || report) && changes.length === 0) {
+    await fs.rm(reportPath, { force: true });
   }
 
   return { candidateKey, changed: changes.length > 0, changes, documentChanges, pageChanges, season, today };
@@ -578,7 +627,7 @@ async function main() {
   } else if (result.changed) {
     console.log(`Detected ${result.changes.length} candidate source difference(s) for represented-data review in the ${result.season} season.`);
     result.changes.forEach((change) => {
-      console.log(`- ${change.kind}: ${change.url}`);
+      console.log(`- ${change.kind}: ${describeReviewScope(change, result.season)} (${change.url})`);
     });
   } else {
     console.log(`No candidate source differences detected for the ${result.season} season.`);
@@ -595,6 +644,7 @@ if (require.main === module) {
 module.exports = {
   collectSources,
   createCandidateKey,
+  describeReviewScope,
   formatReport,
   isDateWithinSeason,
   monitorSources,

@@ -47,7 +47,7 @@ Commit the resulting `source-state.json` when publishing. Initialization perform
 For a local source check that does not write files, run:
 
 ```bash
-node scripts/season-data-agent.js
+pnpm run check:data-updates
 ```
 
-The command reports candidate document or webpage observations without writing evidence files. Use `--report` when generating the ignored, ephemeral candidate report supplied to a tracking issue; it is not a pull-request artifact.
+The command is the deterministic, low-cost gate for data-review work. If it reports no candidate differences, stop without loading annual domain JSON or retrieving sources for AI review. Use `--season-only --report` when generating the ignored, ephemeral candidate report supplied to a tracking issue. Each finding identifies the exact annual JSON record and modeled property group to inspect, allowing a reviewer to avoid unaffected domains and records. A clean report run removes any stale candidate report left by an earlier check. The report is not a pull-request artifact.

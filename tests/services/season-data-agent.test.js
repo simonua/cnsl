@@ -7,6 +7,7 @@ const path = require('node:path');
 const {
   collectSources,
   createCandidateKey,
+  describeReviewScope,
   formatReport,
   isDateWithinSeason,
   monitorSources,
@@ -74,12 +75,14 @@ describe('season data agent', () => {
           domain: 'meets',
           label: 'meet.pdf',
           localPath: 'meets/meet-schedules/meet.pdf',
+          sourceIds: ['meets:retained-document'],
           url: 'https://example.test/meet.pdf'
         },
         {
           domain: 'teams',
           label: 'practice.pdf',
           localPath: 'teams/team-schedules/practice.pdf',
+          sourceIds: ['teams:retained-document'],
           url: 'https://example.test/practice.pdf'
         }
       ]);
@@ -114,6 +117,10 @@ describe('season data agent', () => {
 
       assert.strictEqual(sources.documents.length, 3);
       assert.ok(sources.documents.some((source) => source.domain === 'pools'));
+      assert.deepStrictEqual(
+        sources.documents.find((source) => source.url === 'https://pools.test/Bryant_Woods.pdf').sourceIds,
+        ['pool:bwp:schedule']
+      );
       assert.ok(sources.documents.some((source) => source.domain === 'meets'));
       assert.ok(sources.documents.some((source) => source.domain === 'teams'));
       assert.ok(sources.pages.some((source) => source.url === 'https://pools.test/bryant'));
@@ -154,6 +161,7 @@ describe('season data agent', () => {
             kind: 'Official document content changed',
             label: 'Pool',
             localPath: 'pools/pool-schedules/pool.pdf',
+            sourceIds: ['pool:bwp:schedule'],
             url: 'https://pools.test/pool.pdf'
           },
           {
@@ -182,8 +190,23 @@ describe('season data agent', () => {
       assert.match(report, /FAQ and footer report data currency/);
       assert.match(report, /pnpm run validate:data/);
       assert.match(report, /Candidate key: `0123456789abcdef`/);
+      assert.match(report, /Exact review scope/);
+      assert.match(report, /pools\[id="bwp"\]\.\{scheduleUrl,schedules\}/);
       assert.match(report, /application-used official source destination requires an update/);
       assert.doesNotMatch(report, /harvested document or represented application data/);
+    });
+  });
+
+  describe('describeReviewScope', () => {
+    it('should map stable source roles to exact annual JSON records', () => {
+      assert.strictEqual(
+        describeReviewScope({ domains: ['teams'], sourceIds: ['team:lrm:staff'] }, 2026),
+        'src/assets/data/2026/teams/teams.json: teams[id="lrm"].staff'
+      );
+      assert.match(
+        describeReviewScope({ domains: ['meets', 'teams'], sourceIds: ['league:publication'] }, 2026),
+        /meets\/meets\.json, src\/assets\/data\/2026\/teams\/teams\.json/
+      );
     });
   });
 
@@ -266,9 +289,17 @@ describe('season data agent', () => {
       };
 
       try {
-        const result = await monitorSources({ fetchImplementation, repositoryRoot: root, today: '2026-06-01' });
-        assert.strictEqual(result.changed, false);
+        const staleReportPath = path.join(root, '.github', 'automation', 'season-data-monitor', 'update-report.md');
+        await fs.writeFile(staleReportPath, 'stale candidate');
+        const cleanReportResult = await monitorSources({
+          report: true,
+          fetchImplementation,
+          repositoryRoot: root,
+          today: '2026-06-01'
+        });
+        assert.strictEqual(cleanReportResult.changed, false);
         assert.strictEqual(noisyRequestCount, 2);
+        await assert.rejects(fs.readFile(staleReportPath, 'utf8'), { code: 'ENOENT' });
 
         const changedStaffFetchImplementation = async (url) => {
           let content = Buffer.from(baselineContent);

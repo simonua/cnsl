@@ -19,6 +19,8 @@ Use `publish` mode only after an explicit user request to publish, push, or open
 
 ## Decision Boundary
 
+Run `pnpm run check:data-updates` before opening broad annual files or official pages. If it reports no candidate differences, stop and report that deterministic result without loading domain JSON or browsing sources. When differences exist, use each report row's exact review scope to read only the named annual record and modeled properties, then retrieve only its listed official source. Do not scan unaffected records or domains. The monitor removes a stale generated report after a clean run so an earlier candidate cannot be mistaken for current evidence.
+
 Prepare a material update only when the official evidence requires a change to modeled application data in `src/assets/data/<YEAR>/pools/pools.json`, `meets/meets.json`, or `teams/teams.json`. A retained official PDF should be replaced in the same update when it supports that modeled-data change. The source destinations stored in annual JSON are modeled visitor-facing data: if an existing official document URL is unavailable or has been replaced by the publisher, update the applicable URL and retained evidence even when the underlying schedule values remain unchanged. Open a pull request for that update only in explicit `publish` mode.
 
 If the candidate evidence does not alter represented application data, do not edit files and do not open a pull request. Finish the agent task with a concise conclusion naming the inspected source and the reason it is non-material to the app data.
