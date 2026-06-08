@@ -57,6 +57,7 @@ For changes to views, styles, client-side interactions, content, or media:
 - Preserve sufficient color contrast, do not rely on color or sensory characteristics alone to convey meaning, and avoid content that flashes in ways that may trigger seizures.
 - Give controls accessible names, expose state and validation feedback programmatically, and announce important dynamically updated content when needed; prefer native semantics before adding ARIA.
 - Keep expand/collapse toggle indicators consistent with Weather Alert: use its filled, decorative `aria-hidden` up-triangle pattern, rotate it 180 degrees without an icon transition when collapsed, and keep it out of the control's accessible name.
+- Align inline pills, badges, stars, emoji, and icons with the text beside them from their initial implementation. Prefer baseline-aware inline alignment, verify that marker and text centers read as one horizontal row at desktop and mobile sizes, and avoid leaving markers visibly high or low beside adjacent text.
 - Provide accessible equivalents for media and time-based content when introduced, including captions or transcripts where applicable.
 - Before completing an affected site change, verify the changed workflow with keyboard-only navigation and an appropriate automated accessibility check or browser accessibility inspection; disclose any remaining limitation rather than asserting conformance without verification.
 

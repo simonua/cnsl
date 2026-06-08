@@ -29,8 +29,9 @@ If the candidate evidence does not alter represented application data, do not ed
 2. Retrieve each official candidate source listed in the review task. For PDFs, inspect the published content rather than treating a binary hash change as a data change. For pages, inspect only fields represented by the corresponding JSON, such as pool details/features, staff, or recorded practice schedules.
 3. Compare each supported value with existing annual JSON. Preserve unmodified modeled fields exactly; do not rewrite data merely to normalize formatting. For a newly transcribed or materially updated Time Trials label, normalize a source `returning/experienced` qualifier to `returning / experienced` so the visitor-facing text can wrap cleanly on narrow screens; do not open a pull request solely to restyle an unchanged existing value.
 4. For a verified material difference, update the applicable JSON. Download and retain changed official PDFs only when they are evidence for that accepted data update. Update `src/assets/data/<YEAR>/README.md` with source/check evidence and synchronize `OFFICIAL_SOURCE_CHECKED_AT` in `src/js/config/app-config.js` to the review-completion timestamp in `America/New_York`, including its explicit UTC offset.
-5. Do not change a schema unless newly published represented data cannot be expressed by the existing schema. Explain any required schema adjustment in the completion report and, in `publish` mode, in the pull request.
-6. After accepting changed page evidence, acquiring an active-season official PDF, replacing a retained document, or activating a season, run `node scripts/season-data-agent.js --initialize` so `.github/automation/season-data-monitor/source-state.json` records the reviewed page fingerprints plus each retained PDF's SHA-256 digest and available `ETag`, `Last-Modified`, and `Content-Length` response metadata. Normal monitor runs use conditional requests and fall back to full downloads when validators are unavailable. Include the refreshed baseline when publishing so the same candidate does not recur after merge.
+5. Add a concise, visitor-friendly summary of the accepted data changes to the undated `Upcoming` section in `src/views/whats-new.html`. Describe what families and visitors can now see or rely on rather than source-monitoring or implementation details. Never edit, remove, or append content to a dated release entry. Update the What's New entry in both `runlocal` and `publish` modes whenever material application data changes, and update the page's `sitemap.xml` `lastmod` value to the actual content-change date.
+6. Do not change a schema unless newly published represented data cannot be expressed by the existing schema. Explain any required schema adjustment in the completion report and, in `publish` mode, in the pull request.
+7. After accepting changed page evidence, acquiring an active-season official PDF, replacing a retained document, or activating a season, run `node scripts/season-data-agent.js --initialize` so `.github/automation/season-data-monitor/source-state.json` records the reviewed page fingerprints plus each retained PDF's SHA-256 digest and available `ETag`, `Last-Modified`, and `Content-Length` response metadata. Normal monitor runs use conditional requests and fall back to full downloads when validators are unavailable. Include the refreshed baseline when publishing so the same candidate does not recur after merge.
 
 ## Allowed Material Update Scope
 
@@ -40,6 +41,8 @@ A material-data update, and any pull request published from it, may change only:
 - Relevant `src/assets/data/<YEAR>/<domain>/<domain>.json` files and, only when justified, matching schemas
 - Official PDF evidence under the relevant active-season document directories
 - `src/js/config/app-config.js` for `OFFICIAL_SOURCE_CHECKED_AT` only
+- `src/views/whats-new.html` for the undated `Upcoming` summary only
+- `sitemap.xml` for the What's New page's `lastmod` value only
 - `.github/automation/season-data-monitor/source-state.json`
 
 Do not modify app behavior, generated `out/` content, dependencies, workflows, tests, or unrelated annual/history files as part of a data-review PR.
