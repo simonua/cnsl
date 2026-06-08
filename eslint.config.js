@@ -32,6 +32,7 @@ module.exports = [
         module: 'readonly',
         require: 'readonly',
         // App globals loaded via <script> tags
+        AnalyticsInteractionType: 'readonly',
         DataManager: 'readonly',
         getDataManager: 'readonly',
         PoolsManager: 'readonly',

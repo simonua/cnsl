@@ -5,14 +5,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Security-Policy" content=
-    "default-src 'self'; 
-    base-uri 'self'; 
-    connect-src 'self' {{ WEATHER_API_BASE_URL }} https://*.google-analytics.com https://cloudflareinsights.com; 
-    frame-src 'self'; 
-    img-src 'self' data: https://*.google-analytics.com; 
-    manifest-src 'self'; 
-    object-src 'none'; 
-    script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://static.cloudflareinsights.com; 
+    "default-src 'self';
+    base-uri 'self';
+    connect-src 'self' {{ WEATHER_API_BASE_URL }} https://*.google-analytics.com https://cloudflareinsights.com;
+    frame-src 'self';
+    img-src 'self' data: https://*.google-analytics.com;
+    manifest-src 'self';
+    object-src 'none';
+    script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://static.cloudflareinsights.com;
     style-src 'self' 'unsafe-inline'; worker-src 'self';" />
   <block name="metadata">
     <title>CA Pool &amp; CNSL Assistant</title>
@@ -48,6 +48,7 @@
   <script src="js/services/preferences-service.js"></script>
   <script src="js/services/app-storage-service.js"></script>
   <script src="js/preferences-theme.js"></script>
+  <script src="js/types/analytics-interaction-type.js"></script>
   <script src="js/analytics.js"></script>
 
   <!-- Favicons and Touch Icons -->
@@ -69,7 +70,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="CA Pool Assistant">
-  
+
   <block name="head"></block>
 </head>
 

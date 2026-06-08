@@ -77,12 +77,19 @@
 
   function trackFixedSettingChange(settingName, settingValue) {
     if (!window.cnslAnalytics) return;
-    window.cnslAnalytics.trackFixedSettingChange(settingName, settingValue);
+    window.cnslAnalytics.trackInteraction(AnalyticsInteractionType.FIXED_SETTING_CHANGE, {
+      settingName,
+      settingValue
+    });
   }
 
   function trackPublishedSettingChange(settingName, selectedValue, publishedValues) {
     if (!window.cnslAnalytics) return;
-    window.cnslAnalytics.trackPublishedSettingChange(settingName, selectedValue ? [selectedValue] : [], publishedValues);
+    window.cnslAnalytics.trackInteraction(AnalyticsInteractionType.PUBLISHED_SETTING_CHANGE, {
+      publishedValues,
+      selectedValues: selectedValue ? [selectedValue] : [],
+      settingName
+    });
   }
 
   function trackChangedFormSetting(changedField, existing, saved, publishedPoolNames, publishedTeamIds) {
@@ -112,7 +119,11 @@
     if (existing.favoritePoolExpanded !== cleared.favoritePoolExpanded) trackFixedSettingChange('favorite_pool_expanded', 'expanded');
     if (existing.favoriteTeamExpanded !== cleared.favoriteTeamExpanded) trackFixedSettingChange('favorite_team_expanded', 'expanded');
     if (existing.poolFeatureFilters.length !== cleared.poolFeatureFilters.length && window.cnslAnalytics) {
-      window.cnslAnalytics.trackPublishedSettingChange('pool_feature_filters', [], new Set());
+      window.cnslAnalytics.trackInteraction(AnalyticsInteractionType.PUBLISHED_SETTING_CHANGE, {
+        publishedValues: new Set(),
+        selectedValues: [],
+        settingName: 'pool_feature_filters'
+      });
     }
     if (existing.favoritePoolName !== cleared.favoritePoolName) trackPublishedSettingChange('favorite_pool', cleared.favoritePoolName, publishedPoolNames);
     if (existing.favoriteTeamId !== cleared.favoriteTeamId) trackPublishedSettingChange('favorite_team', cleared.favoriteTeamId, publishedTeamIds);

@@ -1,43 +1,56 @@
 (function initializeAnalytics() {
   'use strict';
 
-  const FIXED_SETTING_VALUES = Object.freeze({
-    theme: new Set(['system', 'light', 'dark']),
-    pool_schedule_layout: new Set(['list', 'calendar']),
-    location_awareness: new Set(['enabled', 'disabled']),
-    weather_refresh_minutes: new Set(['0', '5', '10']),
-    practice_groups: new Set(['changed']),
-    favorite_pool_expanded: new Set(['expanded', 'collapsed']),
-    favorite_team_expanded: new Set(['expanded', 'collapsed'])
+  const FLYER_CAMPAIGN = Object.freeze({
+    medium: 'qr',
+    name: '2026_pool_season',
+    source: 'flyer'
   });
-  const PUBLISHED_SETTING_NAMES = new Set(['favorite_pool', 'favorite_team', 'pool_feature_filters']);
+
   const BANNER_NAMES = Object.freeze({
     RELEASE_NOTICE: 'release_notice',
     SETTINGS_NOTICE: 'settings_notice'
   });
   const ALLOWED_BANNER_NAMES = new Set(Object.values(BANNER_NAMES));
-  const BANNER_ACTIONS = new Set(['view', 'open', 'dismiss']);
-  const EXTERNAL_LINK_PROTOCOLS = new Set(['http:', 'https:', 'mailto:', 'sms:', 'tel:']);
+  const ALLOWED_BANNER_ACTIONS = new Set(['dismiss', 'open', 'view']);
+
   const EXTERNAL_LINK_PURPOSES = Object.freeze({
     GENERAL: 'general',
     MERCHANDISE: 'merchandise'
   });
-  const FLYER_CAMPAIGN = Object.freeze({
-    source: 'flyer',
-    medium: 'qr',
-    name: '2026_pool_season'
-  });
-  const EXTERNAL_LINK_CONTEXTS = new Set([
-    'share', 'feedback', 'weather_status', 'pool_details', 'team_details',
-    'meet_details', 'official_information', 'project_information', 'other'
-  ]);
   const ALLOWED_EXTERNAL_LINK_PURPOSES = new Set(Object.values(EXTERNAL_LINK_PURPOSES));
+  const ALLOWED_EXTERNAL_LINK_CONTEXTS = new Set([
+    'feedback', 'meet_details', 'official_information', 'other', 'pool_details',
+    'project_information', 'share', 'team_details', 'weather_status'
+  ]);
+  const ALLOWED_EXTERNAL_LINK_PROTOCOLS = new Set(['http:', 'https:', 'mailto:', 'sms:', 'tel:']);
+
+  const ALLOWED_DIRECTORY_NAMES = new Set(['meets', 'pools', 'teams']);
+  const ALLOWED_INSTALL_ACTIONS = new Set([
+    'installed', 'instructions_open', 'prompt_accepted', 'prompt_dismissed', 'prompt_open'
+  ]);
+
   const RESOURCE_EVENT_NAMES = Object.freeze({
-    view: 'ca_resource_view',
-    download: 'ca_resource_download'
+    download: 'ca_resource_download',
+    view: 'ca_resource_view'
   });
   const ALLOWED_RESOURCE_NAMES = new Set([
-    'judge', 'timer', 'timesheet_runner', 'line_up_aid', 'web_app_flyer'
+    'judge', 'line_up_aid', 'timer', 'timesheet_runner', 'web_app_flyer'
+  ]);
+
+  const ALLOWED_SHARE_METHODS = new Set(['email', 'facebook', 'qr_code', 'text']);
+
+  const FIXED_SETTING_VALUES = Object.freeze({
+    favorite_pool_expanded: new Set(['collapsed', 'expanded']),
+    favorite_team_expanded: new Set(['collapsed', 'expanded']),
+    location_awareness: new Set(['disabled', 'enabled']),
+    pool_schedule_layout: new Set(['calendar', 'list']),
+    practice_groups: new Set(['changed']),
+    theme: new Set(['dark', 'light', 'system']),
+    weather_refresh_minutes: new Set(['0', '5', '10'])
+  });
+  const ALLOWED_PUBLISHED_SETTING_NAMES = new Set([
+    'favorite_pool', 'favorite_team', 'pool_feature_filters'
   ]);
 
   function getMeasuredPageParameters() {
@@ -77,6 +90,32 @@
     window.gtag('event', eventName, eventParameters);
   }
 
+  function trackBannerInteraction(bannerName, action) {
+    if (!ALLOWED_BANNER_NAMES.has(bannerName) || !ALLOWED_BANNER_ACTIONS.has(action)) return;
+
+    publishEvent('ca_banner_interaction', {
+      banner_name: bannerName,
+      banner_action: action
+    });
+  }
+
+  function trackDirectoryDetailOpen(directoryName) {
+    if (!ALLOWED_DIRECTORY_NAMES.has(directoryName)) return;
+
+    publishEvent('ca_directory_detail_open', {
+      directory_name: directoryName
+    });
+  }
+
+  function trackExternalLinkInteraction(context, purpose) {
+    if (!ALLOWED_EXTERNAL_LINK_CONTEXTS.has(context) || !ALLOWED_EXTERNAL_LINK_PURPOSES.has(purpose)) return;
+
+    publishEvent('ca_external_link', {
+      link_context: context,
+      link_purpose: purpose
+    });
+  }
+
   function trackFixedSettingChange(settingName, settingValue) {
     const allowedValues = FIXED_SETTING_VALUES[settingName];
     const normalizedValue = String(settingValue);
@@ -87,8 +126,45 @@
     });
   }
 
+  function trackInstallInteraction(action) {
+    if (!ALLOWED_INSTALL_ACTIONS.has(action)) return;
+
+    publishEvent('ca_install_interaction', {
+      install_action: action
+    });
+  }
+
+  function trackInteraction(interactionType, parameters = {}) {
+    switch (interactionType) {
+      case AnalyticsInteractionType.BANNER:
+        trackBannerInteraction(parameters.bannerName, parameters.action);
+        break;
+      case AnalyticsInteractionType.DIRECTORY_DETAIL_OPEN:
+        trackDirectoryDetailOpen(parameters.directoryName);
+        break;
+      case AnalyticsInteractionType.EXTERNAL_LINK:
+        trackExternalLinkInteraction(parameters.context, parameters.purpose);
+        break;
+      case AnalyticsInteractionType.FIXED_SETTING_CHANGE:
+        trackFixedSettingChange(parameters.settingName, parameters.settingValue);
+        break;
+      case AnalyticsInteractionType.INSTALL:
+        trackInstallInteraction(parameters.action);
+        break;
+      case AnalyticsInteractionType.PUBLISHED_SETTING_CHANGE:
+        trackPublishedSettingChange(parameters.settingName, parameters.selectedValues, parameters.publishedValues);
+        break;
+      case AnalyticsInteractionType.RESOURCE:
+        trackResourceInteraction(parameters.resourceName, parameters.action);
+        break;
+      case AnalyticsInteractionType.SHARE:
+        trackShareInteraction(parameters.method);
+        break;
+    }
+  }
+
   function trackPublishedSettingChange(settingName, selectedValues, publishedValues) {
-    if (!PUBLISHED_SETTING_NAMES.has(settingName) || !Array.isArray(selectedValues) || !(publishedValues instanceof Set)) return;
+    if (!ALLOWED_PUBLISHED_SETTING_NAMES.has(settingName) || !Array.isArray(selectedValues) || !(publishedValues instanceof Set)) return;
     if (selectedValues.some(value => typeof value !== 'string')) return;
 
     const normalizedValues = [...new Set(selectedValues)].sort((first, second) => first.localeCompare(second));
@@ -96,15 +172,6 @@
 
     publishEvent('ca_setting_change', {
       setting_name: settingName
-    });
-  }
-
-  function trackBannerInteraction(bannerName, action) {
-    if (!ALLOWED_BANNER_NAMES.has(bannerName) || !BANNER_ACTIONS.has(action)) return;
-
-    publishEvent('ca_banner_interaction', {
-      banner_name: bannerName,
-      banner_action: action
     });
   }
 
@@ -117,10 +184,20 @@
     });
   }
 
+  function trackShareInteraction(method) {
+    if (!ALLOWED_SHARE_METHODS.has(method)) return;
+
+    publishEvent('ca_share', {
+      content_type: 'website',
+      item_id: 'home_page',
+      method
+    });
+  }
+
   function getExternalLinkContext(link) {
     const contextElement = link.closest('[data-analytics-context]');
     const context = contextElement && contextElement.dataset.analyticsContext;
-    return EXTERNAL_LINK_CONTEXTS.has(context) ? context : 'other';
+    return ALLOWED_EXTERNAL_LINK_CONTEXTS.has(context) ? context : 'other';
   }
 
   function getExternalLinkPurpose(link) {
@@ -135,7 +212,7 @@
     try {
       const siteOrigin = new URL(window.HOME_PAGE_URL).origin;
       const destination = new URL(href, `${siteOrigin}/`);
-      return EXTERNAL_LINK_PROTOCOLS.has(destination.protocol)
+      return ALLOWED_EXTERNAL_LINK_PROTOCOLS.has(destination.protocol)
         && (destination.protocol !== 'http:' && destination.protocol !== 'https:' || destination.origin !== siteOrigin);
     } catch (_error) {
       return false;
@@ -150,22 +227,20 @@
       const clickedLink = clickedElement && clickedElement.closest('a[href]');
 
       if (shareLink) {
-        publishEvent('ca_share', {
-          method: shareLink.dataset.analyticsShareMethod,
-          content_type: 'website',
-          item_id: 'home_page'
+        trackInteraction(AnalyticsInteractionType.SHARE, {
+          method: shareLink.dataset.analyticsShareMethod
         });
       }
       if (resourceLink) {
-        trackResourceInteraction(
-          resourceLink.dataset.analyticsResourceName,
-          resourceLink.dataset.analyticsResourceAction
-        );
+        trackInteraction(AnalyticsInteractionType.RESOURCE, {
+          action: resourceLink.dataset.analyticsResourceAction,
+          resourceName: resourceLink.dataset.analyticsResourceName
+        });
       }
       if (clickedLink && isExternalLink(clickedLink)) {
-        publishEvent('ca_external_link', {
-          link_context: getExternalLinkContext(clickedLink),
-          link_purpose: getExternalLinkPurpose(clickedLink)
+        trackInteraction(AnalyticsInteractionType.EXTERNAL_LINK, {
+          context: getExternalLinkContext(clickedLink),
+          purpose: getExternalLinkPurpose(clickedLink)
         });
       }
     });
@@ -180,9 +255,7 @@
 
   window.cnslAnalytics = Object.freeze({
     bannerNames: BANNER_NAMES,
-    trackFixedSettingChange,
-    trackPublishedSettingChange,
-    trackBannerInteraction
+    trackInteraction
   });
 
   initializeClickTracking();
@@ -221,10 +294,8 @@
     });
     window.gtag('event', 'page_view', {
       page_title: document.title,
+      app_version: window.APP_VERSION,
       ...getMeasuredPageParameters()
-    });
-    window.gtag('event', 'ca_version', {
-      app_version: window.APP_VERSION
     });
     if (flyerCampaign) {
       window.gtag('event', 'ca_flyer_visit');

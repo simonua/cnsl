@@ -220,6 +220,13 @@ requiredRootStaticFiles.forEach(file => {
   console.log(`Copied static file: ${file}`);
 });
 
+const rootFaviconSource = path.join('src', 'assets', 'favicons', 'favicon.ico');
+if (!fs.existsSync(rootFaviconSource)) {
+  throw new Error(`Required favicon not found: ${rootFaviconSource}`);
+}
+fs.copyFileSync(rootFaviconSource, path.join(outDir, 'favicon.ico'));
+console.log('Copied root favicon alias: favicon.ico');
+
 function collectPrecacheResources(directory, rootDirectory = directory) {
   const resources = [];
   const entries = fs.readdirSync(directory, { withFileTypes: true });

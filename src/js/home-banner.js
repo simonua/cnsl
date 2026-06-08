@@ -13,7 +13,11 @@
     }
 
     trackInteraction(action) {
-      if (window.cnslAnalytics) window.cnslAnalytics.trackBannerInteraction(this.bannerName, action);
+      if (!window.cnslAnalytics) return;
+      window.cnslAnalytics.trackInteraction(AnalyticsInteractionType.BANNER, {
+        action,
+        bannerName: this.bannerName
+      });
     }
 
     show() {

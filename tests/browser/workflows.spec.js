@@ -473,16 +473,13 @@ test('[WF-ANALYTICS-001] analytics publishes a page view and public app version 
       ['set'],
       ['js'],
       ['config', measurementId],
-      ['event', 'page_view'],
-      ['event', 'ca_version']
+      ['event', 'page_view']
     ]
   });
-  await expect.poll(() => page.evaluate(() => Array.from(globalThis.dataLayer.at(-2))[2])).toMatchObject({
+  await expect.poll(() => page.evaluate(() => Array.from(globalThis.dataLayer.at(-1))[2])).toMatchObject({
+    app_version: appVersion,
     page_location: 'https://pools.longreachmarlins.org/index.html',
     page_referrer: ''
-  });
-  await expect.poll(() => page.evaluate(() => Array.from(globalThis.dataLayer.at(-1))[2])).toEqual({
-    app_version: appVersion
   });
   await page.unrouteAll({ behavior: 'ignoreErrors' });
 });
@@ -540,6 +537,34 @@ test('[WF-ANALYTICS-003] unrecognized campaign input is neither consumed nor cou
   await page.unrouteAll({ behavior: 'ignoreErrors' });
 });
 
+test('[WF-ANALYTICS-004] directory detail opens publish only a broad directory name', async ({ page }) => {
+  await initializeAnalyticsRecorder(page);
+
+  const scenarios = [
+    { path: '/pools.html', ready: '#poolListStatus', readyText: 'Pool directory loaded.', toggle: '.pool-header__toggle[aria-expanded="false"]' },
+    { path: '/teams.html', ready: '#teamListStatus', readyText: 'Team directory loaded.', toggle: '.team-header__toggle[aria-expanded="false"]' },
+    { path: '/meets.html', ready: '#meetListStatus', readyText: 'Meet schedule loaded.', toggle: '.meet-date-header__toggle[aria-expanded="false"]' }
+  ];
+  for (const scenario of scenarios) {
+    await page.goto(scenario.path);
+    await expect(page.locator(scenario.ready)).toContainText(scenario.readyText);
+    await page.locator(scenario.toggle).first().click();
+  }
+
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_directory_detail_open'))).toEqual([
+    ['event', 'ca_directory_detail_open', { directory_name: 'pools' }],
+    ['event', 'ca_directory_detail_open', { directory_name: 'teams' }],
+    ['event', 'ca_directory_detail_open', { directory_name: 'meets' }]
+  ]);
+  await page.evaluate(() => {
+    const interactionType = globalThis.AnalyticsInteractionType.DIRECTORY_DETAIL_OPEN;
+    globalThis.cnslAnalytics.trackInteraction(interactionType, { directoryName: 'Bryant Woods' });
+    globalThis.cnslAnalytics.trackInteraction(interactionType, { directoryName: 'cfhss' });
+    globalThis.cnslAnalytics.trackInteraction(interactionType, { directoryName: '2026-06-20' });
+  });
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_directory_detail_open'))).toHaveLength(3);
+});
+
 test('[WF-RELEASE-001] release updates are announced once after a stable version is acknowledged', async ({ page }) => {
   await initializeAnalyticsRecorder(page);
   await page.setViewportSize(MOBILE_VIEWPORT);
@@ -584,6 +609,7 @@ test('[WF-RELEASE-001] release updates are announced once after a stable version
 
 test('[WF-INSTALL-001] first mobile use keeps settings and prioritizes platform install guidance', async ({ page }) => {
   await page.setViewportSize(MOBILE_VIEWPORT);
+  await initializeAnalyticsRecorder(page);
   await page.addInitScript(() => {
     Object.defineProperty(globalThis.navigator, 'userAgent', {
       configurable: true,
@@ -609,10 +635,14 @@ test('[WF-INSTALL-001] first mobile use keeps settings and prioritizes platform 
   await expect(page.locator('#iosInstallInstructions')).toBeVisible();
   await expect(page.locator('#androidInstallInstructions')).toBeHidden();
   await expect(page.getByRole('button', { name: 'Install app', exact: true })).toBeHidden();
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_install_interaction'))).toEqual([
+    ['event', 'ca_install_interaction', { install_action: 'instructions_open' }]
+  ]);
 });
 
 test('[WF-INSTALL-002] Android install shortcut shows only Android guidance when installable', async ({ page }) => {
   await page.setViewportSize(MOBILE_VIEWPORT);
+  await initializeAnalyticsRecorder(page);
   await page.addInitScript(() => {
     Object.defineProperty(globalThis.navigator, 'userAgent', {
       configurable: true,
@@ -632,7 +662,47 @@ test('[WF-INSTALL-002] Android install shortcut shows only Android guidance when
   await shortcut.click();
   await expect(page.locator('#androidInstallInstructions')).toBeVisible();
   await expect(page.locator('#iosInstallInstructions')).toBeHidden();
-  await expect(page.getByRole('button', { name: 'Install app', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Install app', exact: true }).click();
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_install_interaction'))).toEqual([
+    ['event', 'ca_install_interaction', { install_action: 'instructions_open' }],
+    ['event', 'ca_install_interaction', { install_action: 'prompt_open' }],
+    ['event', 'ca_install_interaction', { install_action: 'prompt_dismissed' }]
+  ]);
+  await page.evaluate(() => {
+    globalThis.cnslAnalytics.trackInteraction(
+      globalThis.AnalyticsInteractionType.INSTALL,
+      { action: 'android' }
+    );
+  });
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_install_interaction'))).toHaveLength(3);
+});
+
+test('[WF-INSTALL-003] accepted browser installation publishes only coarse install stages', async ({ page }) => {
+  await page.setViewportSize(MOBILE_VIEWPORT);
+  await initializeAnalyticsRecorder(page);
+  await page.addInitScript(() => {
+    Object.defineProperty(globalThis.navigator, 'userAgent', {
+      configurable: true,
+      value: 'Mozilla/5.0 (Linux; Android 15; Mobile) AppleWebKit/537.36 Chrome/136.0 Mobile Safari/537.36'
+    });
+  });
+  await page.goto('/index.html');
+  await page.evaluate(() => {
+    const installPrompt = new Event('beforeinstallprompt', { cancelable: true });
+    installPrompt.prompt = () => {};
+    installPrompt.userChoice = Promise.resolve({ outcome: 'accepted' });
+    globalThis.dispatchEvent(installPrompt);
+  });
+
+  await page.getByRole('button', { name: 'Phone Install', exact: true }).click();
+  await page.getByRole('button', { name: 'Install app', exact: true }).click();
+  await page.evaluate(() => globalThis.dispatchEvent(new Event('appinstalled')));
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_install_interaction'))).toEqual([
+    ['event', 'ca_install_interaction', { install_action: 'instructions_open' }],
+    ['event', 'ca_install_interaction', { install_action: 'prompt_open' }],
+    ['event', 'ca_install_interaction', { install_action: 'prompt_accepted' }],
+    ['event', 'ca_install_interaction', { install_action: 'installed' }]
+  ]);
 });
 
 test('[WF-SETTINGS-003] home page settings reminder is dismissed permanently by link or close button', async ({ page }) => {

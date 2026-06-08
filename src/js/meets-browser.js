@@ -75,7 +75,7 @@ function getMeetLiveStatusSignature(meets) {
 async function renderMeets(meets, preserveExpansion = false) {
   const list = document.getElementById("meetList");
   if (!list) return;
-  
+
   // Safety check - ensure meets is an array
   if (!Array.isArray(meets) || meets.length === 0) {
     list.innerHTML = "<p>No meet information available.</p>";
@@ -103,7 +103,7 @@ async function renderMeets(meets, preserveExpansion = false) {
   const easternTimeInfo = TimeUtils.getCurrentEasternTimeInfo();
   const today = easternTimeInfo.isValid ? TimeUtils.parseDateOnly(easternTimeInfo.date) : new Date();
   today.setHours(0, 0, 0, 0);
-  
+
   // Sort meets by date
   const sortedMeets = [...meets].sort((a, b) => {
     const dateA = a.date ? TimeUtils.parseDateOnly(a.date) : new Date(0);
@@ -115,15 +115,15 @@ async function renderMeets(meets, preserveExpansion = false) {
   const meetsByDate = {};
   sortedMeets.forEach(meet => {
     if (!meet.date) return;
-    
+
     const meetDate = TimeUtils.parseDateOnly(meet.date);
-    const dateKey = meetDate.toLocaleDateString('en-US', { 
+    const dateKey = meetDate.toLocaleDateString('en-US', {
       weekday: 'long',
-      month: 'long', 
+      month: 'long',
       day: 'numeric',
       year: 'numeric'
     });
-    
+
     if (!meetsByDate[dateKey]) {
       meetsByDate[dateKey] = [];
     }
@@ -147,7 +147,7 @@ async function renderMeets(meets, preserveExpansion = false) {
 
   // Generate HTML for meets grouped by date
   let html = '';
-  
+
   Object.keys(meetsByDate).forEach((dateKey, dateIndex) => {
     const meetDate = TimeUtils.parseDateOnly(meetsByDate[dateKey][0].date);
     const meetDateValue = meetsByDate[dateKey][0].date;
@@ -155,12 +155,12 @@ async function renderMeets(meets, preserveExpansion = false) {
     const isToday = meetDate.toDateString() === today.toDateString();
     const relativeDayOffset = TimeUtils.getRelativeFutureDayOffset(meetDate, today);
     const relativeDay = TimeUtils.formatRelativeFutureDay(meetDate, today);
-    
+
     // Determine if this card should be expanded (only the next upcoming meet)
     const shouldExpand = expandedDateValues ? expandedDateValues.has(meetDateValue) : dateKey === nextUpcomingDateKey;
     const collapsedClass = shouldExpand ? '' : 'collapsed';
     const detailsId = `meet-details-${dateIndex}`;
-    
+
     // Get the meet name from the first meet on this date
     const meetName = MeetsBrowserSafety.escapeHtml(meetsByDate[dateKey][0].name || '');
     const safeDateKey = MeetsBrowserSafety.escapeHtml(dateKey);
@@ -192,7 +192,7 @@ async function renderMeets(meets, preserveExpansion = false) {
       const location = meet.location || 'TBA';
       const time = meet.getDisplayTime();
       let poolData = null;
-      
+
       // Generate enhanced location link that links to pools.html page
       let locationLink = MeetsBrowserSafety.escapeHtml(location);
       let courseLabel = '';
@@ -202,7 +202,7 @@ async function renderMeets(meets, preserveExpansion = false) {
             preferPoolsPage: true,
             showBothLinks: false
           }, meetsPoolLocationIndex);
-          
+
           // Add maps link for the maps icon
           if (typeof getPoolDataFromLocation === 'function') {
             poolData = getPoolDataFromLocation(location, meetsBrowserDataManager, meetsPoolLocationIndex);
@@ -222,7 +222,7 @@ async function renderMeets(meets, preserveExpansion = false) {
       const courseInfo = courseLabel
         ? `<span class="meet-course">${MeetsBrowserSafety.escapeHtml(courseLabel)}</span>`
         : '';
-      
+
       // Generate weather information for upcoming meets
       let weatherInfo = '';
       if (meet.weather && meet.weather.forecast && isUpcoming) {
@@ -241,7 +241,7 @@ async function renderMeets(meets, preserveExpansion = false) {
         ? MeetsBrowserSafety.escapeHtml(poolData.id)
         : '';
       const meetPoolAttribute = safeMeetPoolId ? ` data-meet-pool-id="${safeMeetPoolId}"` : '';
-      
+
       let meetContent;
       if (isSpecialMeet) {
         meetContent = `
@@ -364,6 +364,12 @@ function toggleMeetDate(header) {
   const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
   meetCard.classList.toggle('collapsed', isExpanded);
   toggleButton.setAttribute('aria-expanded', String(!isExpanded));
+  if (!isExpanded && window.cnslAnalytics) {
+    window.cnslAnalytics.trackInteraction(
+      AnalyticsInteractionType.DIRECTORY_DETAIL_OPEN,
+      { directoryName: 'meets' }
+    );
+  }
   if (details) details.hidden = isExpanded;
 }
 
@@ -406,7 +412,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const header = meetCard && meetCard.querySelector('[data-meet-card-header]');
     if (header && toggleButton && (toggleButton.getAttribute('aria-expanded') !== 'true' || event.target.closest('[data-meet-card-header]'))) toggleMeetDate(header);
   });
-  
+
   try {
     await initializeMeetsBrowser();
     const allMeets = meetsBrowserDataManager.getMeets().getAllMeets();
@@ -415,7 +421,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     handleMeetUrlParameters();
     scheduleNextMeetLiveStatusRefresh();
     setMeetListStatus(`Meet schedule loaded. ${allMeets.length} meets available.`, false);
-    
+
   } catch (error) {
     console.error("Error loading meets:", error);
     meetList.innerHTML = `<p>${IconCatalog.getTextGlyph('warning')} Meet data is currently unavailable. Please try again later.</p>`;
@@ -438,15 +444,15 @@ document.addEventListener('visibilitychange', handleMeetPageVisibilityChange);
 // eslint-disable-next-line no-unused-vars
 function generateWeatherDisplay(weather) {
   if (!weather) return '';
-  
+
   try {
     const temp = weather.temperature ? `${weather.temperature}°${weather.temperatureUnit || 'F'}` : '';
     const condition = weather.shortForecast || '';
     const wind = weather.windSpeed || '';
-    
+
     // Get weather icon or emoji based on conditions
     const weatherIcon = getWeatherIcon(condition);
-    
+
     return `
       <div class="weather-info">
         <span class="weather-icon">${weatherIcon}</span>
@@ -468,9 +474,9 @@ function generateWeatherDisplay(weather) {
  */
 function getWeatherIcon(condition) {
   if (!condition) return IconCatalog.getTextGlyph('weatherUnknown');
-  
+
   const lowerCondition = condition.toLowerCase();
-  
+
   if (lowerCondition.includes('sunny') || lowerCondition.includes('clear')) {
     return IconCatalog.getTextGlyph('weatherClear');
   } else if (lowerCondition.includes('partly cloudy') || lowerCondition.includes('partly sunny')) {

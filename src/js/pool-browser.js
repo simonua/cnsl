@@ -529,7 +529,11 @@ function handlePoolFeatureFilterChange() {
   const preferences = PreferencesService.get();
   const saved = PreferencesService.save({ ...preferences, poolFeatureFilters: selectedFeatures });
   if (saved.poolFeatureFilters.join('|') !== preferences.poolFeatureFilters.join('|') && window.cnslAnalytics) {
-    window.cnslAnalytics.trackPublishedSettingChange('pool_feature_filters', saved.poolFeatureFilters, availableFeatures);
+    window.cnslAnalytics.trackInteraction(AnalyticsInteractionType.PUBLISHED_SETTING_CHANGE, {
+      publishedValues: availableFeatures,
+      selectedValues: saved.poolFeatureFilters,
+      settingName: 'pool_feature_filters'
+    });
   }
   renderPools(poolBrowserPools);
 }
@@ -542,7 +546,11 @@ function clearPoolFeatureFilters() {
   PreferencesService.save({ ...preferences, poolFeatureFilters: [] });
   poolAvailabilityFilter = 'all';
   if (preferences.poolFeatureFilters.length > 0 && window.cnslAnalytics) {
-    window.cnslAnalytics.trackPublishedSettingChange('pool_feature_filters', [], new Set());
+    window.cnslAnalytics.trackInteraction(AnalyticsInteractionType.PUBLISHED_SETTING_CHANGE, {
+      publishedValues: new Set(),
+      selectedValues: [],
+      settingName: 'pool_feature_filters'
+    });
   }
   setupPoolFeatureFilters(poolBrowserPools);
   renderPools(poolBrowserPools);
@@ -866,10 +874,21 @@ function togglePoolCard(toggleButton) {
   const details = isExpanded ? poolCard.querySelector('.pool-details') : hydratePoolDetails(poolCard);
   poolCard.classList.toggle('collapsed', isExpanded);
   toggleButton.setAttribute('aria-expanded', String(!isExpanded));
+  if (!isExpanded && window.cnslAnalytics) {
+    window.cnslAnalytics.trackInteraction(
+      AnalyticsInteractionType.DIRECTORY_DETAIL_OPEN,
+      { directoryName: 'pools' }
+    );
+  }
   if (poolCard.dataset.poolName === PreferencesService.get().favoritePoolName) {
     const preferences = PreferencesService.get();
     PreferencesService.save({ ...preferences, favoritePoolExpanded: !isExpanded });
-    if (window.cnslAnalytics) window.cnslAnalytics.trackFixedSettingChange('favorite_pool_expanded', isExpanded ? 'collapsed' : 'expanded');
+    if (window.cnslAnalytics) {
+      window.cnslAnalytics.trackInteraction(AnalyticsInteractionType.FIXED_SETTING_CHANGE, {
+        settingName: 'favorite_pool_expanded',
+        settingValue: isExpanded ? 'collapsed' : 'expanded'
+      });
+    }
   }
   if (details) {
     details.hidden = isExpanded;

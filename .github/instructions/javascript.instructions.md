@@ -33,6 +33,8 @@ applyTo: "src/js/**/*.js"
 - Use strict equality (`===`, `!==`).
 - Use template literals for string interpolation.
 - Name classes in PascalCase, functions/variables in camelCase, constants in UPPER_SNAKE_CASE.
+- Group module-level constants by domain, keep related source and derived constants together, and alphabetize independent fixed keys or allowlist values when order has no semantic meaning.
+- Prefix validation sets with `ALLOWED_` so trust-boundary allowlists are easy to identify and audit.
 
 ## File Header Comments
 
@@ -52,4 +54,5 @@ applyTo: "src/js/**/*.js"
 - Analytics may report public page counts, reviewed fixed campaign labels on app-published inbound links, and coarse feature-use categories only; do not introduce account identifiers, contact data, coordinates, application-stored device values, selected preference values, user-entered strings, arbitrary URL query/fragment content, or referrer data.
 - Do not track selected pools, teams, filter values, themes, layouts, refresh values, or location choices; settings analytics may report the changed setting category only.
 - Keep Google tag measurement purpose-limited and reportable: grant `analytics_storage` so Google Analytics can use its own first-party analytics identifier for aggregate visit and session reporting; deny advertising storage, Google signals, and ad personalization; and strip referrers, query strings, and fragments from app-authored page measurement. An approved campaign link may map its validated, allowlisted UTM tuple to GA campaign fields after those tags are removed from the visible URL for aggregate source attribution. Do not send full tagged page locations, arbitrary campaign input, or app-authored identifiers intended to identify or profile a visitor. Do not change `analytics_storage` to denied or enable additional GA4 enhanced measurement events unless separately reviewed under this same boundary.
+- Publish feature interactions through `cnslAnalytics.trackInteraction(AnalyticsInteractionType.TYPE, parameters)`. Load shared runtime enums before their consumers, and keep event-specific validation and Google event publication private to the analytics module rather than exposing additional tracking methods.
 - Add regression coverage for every new analytics event or configuration change.

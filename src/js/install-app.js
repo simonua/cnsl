@@ -51,6 +51,13 @@
       return;
     }
 
+    if (window.cnslAnalytics) {
+      window.cnslAnalytics.trackInteraction(
+        AnalyticsInteractionType.INSTALL,
+        { action: 'instructions_open' }
+      );
+    }
+
     window.requestAnimationFrame(() => {
       const footer = document.querySelector('.footer');
       if (footer) {
@@ -89,10 +96,30 @@
 
     const installPrompt = deferredInstallPrompt;
     deferredInstallPrompt = null;
+    if (window.cnslAnalytics) {
+      window.cnslAnalytics.trackInteraction(
+        AnalyticsInteractionType.INSTALL,
+        { action: 'prompt_open' }
+      );
+    }
     installPrompt.prompt();
-    await installPrompt.userChoice;
+    const choice = await installPrompt.userChoice;
+    if (window.cnslAnalytics) {
+      window.cnslAnalytics.trackInteraction(
+        AnalyticsInteractionType.INSTALL,
+        { action: choice.outcome === 'accepted' ? 'prompt_accepted' : 'prompt_dismissed' }
+      );
+    }
     hideInstallApp();
   });
 
-  window.addEventListener('appinstalled', hideInstallApp);
+  window.addEventListener('appinstalled', () => {
+    if (window.cnslAnalytics) {
+      window.cnslAnalytics.trackInteraction(
+        AnalyticsInteractionType.INSTALL,
+        { action: 'installed' }
+      );
+    }
+    hideInstallApp();
+  });
 }());

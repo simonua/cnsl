@@ -41,7 +41,7 @@ function setTeamListStatus(message, isBusy) {
  */
 function findPoolByName(poolName) {
   if (!poolName || !teamsBrowserDataManager) return null;
-  
+
   // Use the pool link helper to get pool data
   return getPoolDataFromLocation(poolName, teamsBrowserDataManager, teamsPoolLocationIndex);
 }
@@ -54,7 +54,7 @@ function findPoolByName(poolName) {
  */
 function getEnhancedPoolLink(location, displayText = location) {
   if (!location) return '';
-  
+
   // Use the new pool link helper
   return generateEnhancedPoolLink(location, teamsBrowserDataManager, {
     preferPoolsPage: true,
@@ -290,10 +290,10 @@ function formatSchedules(team, meets) {
  */
 function createTeamLogo(teamId) {
   if (!teamId) return '';
-  
+
   const safeTeamId = String(teamId).replace(/[^a-zA-Z0-9_-]/g, '');
   if (!safeTeamId || !AVAILABLE_TEAM_LOGOS.has(safeTeamId)) return '';
-  
+
   return `
     <div class="team-logo">
       <span class="team-logo-img team-logo-img--${safeTeamId}" aria-hidden="true"></span>
@@ -385,10 +385,21 @@ function toggleTeamCard(toggleButton) {
   const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
   teamCard.classList.toggle('collapsed', isExpanded);
   toggleButton.setAttribute('aria-expanded', String(!isExpanded));
+  if (!isExpanded && window.cnslAnalytics) {
+    window.cnslAnalytics.trackInteraction(
+      AnalyticsInteractionType.DIRECTORY_DETAIL_OPEN,
+      { directoryName: 'teams' }
+    );
+  }
   if (teamCard.dataset.teamId === PreferencesService.get().favoriteTeamId) {
     const preferences = PreferencesService.get();
     PreferencesService.save({ ...preferences, favoriteTeamExpanded: !isExpanded });
-    if (window.cnslAnalytics) window.cnslAnalytics.trackFixedSettingChange('favorite_team_expanded', isExpanded ? 'collapsed' : 'expanded');
+    if (window.cnslAnalytics) {
+      window.cnslAnalytics.trackInteraction(AnalyticsInteractionType.FIXED_SETTING_CHANGE, {
+        settingName: 'favorite_team_expanded',
+        settingValue: isExpanded ? 'collapsed' : 'expanded'
+      });
+    }
   }
   if (details) details.hidden = isExpanded;
 }
@@ -400,7 +411,7 @@ function toggleTeamCard(toggleButton) {
 function renderTeams(teams) {
   const list = document.getElementById("teamList");
   if (!list) return;
-  
+
   // Safety check - ensure teams is an array
   if (!Array.isArray(teams) || teams.length === 0) {
     list.innerHTML = "<p>No team information available.</p>";
@@ -436,19 +447,19 @@ function renderTeams(teams) {
     const isExpanded = isFavorite && favoriteTeamExpanded;
     const homePools = Array.isArray(team.homePools) ? team.homePools : [];
     const homePool = homePools[0] || '';
-    
+
     // Create team logo HTML
     const logoHtml = createTeamLogo(teamId);
-    
+
     // Find pool data for the home pool using data manager
     const poolData = homePool ? findPoolByName(homePool) : null;
-    
+
     const upcomingEvents = globalThis.TeamAgendaDisplay.getUpcomingEvents(team, teamsBrowserDataManager.getMeets().getAllMeets());
     const agendaTitleId = `team-agenda-title-${String(teamId || teamName).replace(/[^a-zA-Z0-9_-]/g, '-')}`;
-    
+
     const schedulesHtml = formatSchedules(team, teamsBrowserDataManager.getMeets().getAllMeets());
     const staffHtml = formatTeamStaff(team.staff);
-    
+
     const upcomingEventsHtml = `
       <section class="favorite-week" aria-labelledby="${agendaTitleId}">
         <div class="favorite-week__heading">
@@ -458,7 +469,7 @@ function renderTeams(teams) {
         ${globalThis.TeamAgendaDisplay.renderEvents(upcomingEvents, 4, teamsPoolLocationIndex)}
       </section>
     `;
-    
+
     return `
       <div class="team-card ${isFavorite ? `favorite-card${isExpanded ? '' : ' collapsed'}` : 'collapsed'}" data-team-card data-team-id="${safeTeamId}" data-analytics-context="team_details">
         <div class="team-header" data-team-card-header>
@@ -477,10 +488,10 @@ function renderTeams(teams) {
           ` : ''}
 
           ${upcomingEventsHtml}
-          
+
           ${homePool ? `
             <div class="detail-item">
-              <strong><span class="detail-item__icon" aria-hidden="true">${IconCatalog.render('pool')}</span> Home Pool:</strong> ${poolData ? 
+              <strong><span class="detail-item__icon" aria-hidden="true">${IconCatalog.render('pool')}</span> Home Pool:</strong> ${poolData ?
                 getEnhancedPoolLink(homePool) :
                 TeamsBrowserSafety.escapeHtml(homePool)
               }
@@ -505,11 +516,11 @@ function renderTeams(teams) {
               ${eventsSubscriptionUrl ? `<a href="${eventsSubscriptionUrl}" target="_blank" rel="noopener" class="btn">${IconCatalog.render('calendar')}Subscribe<span class="visually-hidden"> to team events calendar</span></a>` : ''}
             </div>
           ` : ''}
-          
+
           ${resultsUrl ? `
             <div class="team-actions">
-              ${resultsUrl ? 
-                `<a href="${resultsUrl}" target="_blank" rel="noopener" class="btn">${IconCatalog.render('trophy')}Swim Meet Results</a>` : 
+              ${resultsUrl ?
+                `<a href="${resultsUrl}" target="_blank" rel="noopener" class="btn">${IconCatalog.render('trophy')}Swim Meet Results</a>` :
                 ''
               }
             </div>
@@ -573,7 +584,7 @@ function generateTeamLink(teamId, teamName, options = {}) {
     target = '_self',
     title = `View ${teamName} details`
   } = options;
-  
+
   if (!teamId || !teamName) {
     return TeamsBrowserSafety.escapeHtml(teamName || 'Unknown Team');
   }
@@ -582,10 +593,10 @@ function generateTeamLink(teamId, teamName, options = {}) {
   const safeTarget = target === '_blank' ? '_blank' : '_self';
   const safeTitle = TeamsBrowserSafety.escapeHtml(title);
   const safeTeamName = TeamsBrowserSafety.escapeHtml(teamName);
-  
-  return `<a href="teams.html?team=${encodeURIComponent(teamId)}" 
-             class="${safeClassName}" 
-             target="${safeTarget}" 
+
+  return `<a href="teams.html?team=${encodeURIComponent(teamId)}"
+             class="${safeClassName}"
+             target="${safeTarget}"
              title="${safeTitle}">
              ${safeTeamName}
            </a>`;
@@ -611,21 +622,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     const cardToggle = teamCard && teamCard.querySelector('[data-team-card-action="toggle"]');
     if (cardToggle && (cardToggle.getAttribute('aria-expanded') !== 'true' || event.target.closest('[data-team-card-header]'))) toggleTeamCard(cardToggle);
   });
-  
+
   try {
     // Initialize the data manager with the new OOP system
     await initializeTeamsBrowser();
-    
+
     // Get teams from the data manager
     const teamsManager = teamsBrowserDataManager.getTeams();
     const teams = teamsManager.getAllTeams();
-    
+
     renderTeams(teams);
     setTeamListStatus(`Team directory loaded. ${teams.length} teams available.`, false);
-    
+
     // Handle team URL parameter for direct linking
     handleTeamUrlParameter();
-    
+
   } catch (error) {
     console.error("Failed to load team data:", error);
     const list = document.getElementById("teamList");
