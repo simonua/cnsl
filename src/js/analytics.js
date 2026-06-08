@@ -32,6 +32,13 @@
     'meet_details', 'official_information', 'project_information', 'other'
   ]);
   const ALLOWED_EXTERNAL_LINK_PURPOSES = new Set(Object.values(EXTERNAL_LINK_PURPOSES));
+  const RESOURCE_EVENT_NAMES = Object.freeze({
+    view: 'ca_resource_view',
+    download: 'ca_resource_download'
+  });
+  const ALLOWED_RESOURCE_NAMES = new Set([
+    'judge', 'timer', 'timesheet_runner', 'line_up_aid', 'web_app_flyer'
+  ]);
 
   function getMeasuredPageParameters() {
     return {
@@ -101,6 +108,15 @@
     });
   }
 
+  function trackResourceInteraction(resourceName, action) {
+    const eventName = RESOURCE_EVENT_NAMES[action];
+    if (!ALLOWED_RESOURCE_NAMES.has(resourceName) || !eventName) return;
+
+    publishEvent(eventName, {
+      resource_name: resourceName
+    });
+  }
+
   function getExternalLinkContext(link) {
     const contextElement = link.closest('[data-analytics-context]');
     const context = contextElement && contextElement.dataset.analyticsContext;
@@ -130,6 +146,7 @@
     document.addEventListener('click', event => {
       const clickedElement = event.target instanceof Element ? event.target : null;
       const shareLink = clickedElement && clickedElement.closest('[data-analytics-share-method]');
+      const resourceLink = clickedElement && clickedElement.closest('[data-analytics-resource-name][data-analytics-resource-action]');
       const clickedLink = clickedElement && clickedElement.closest('a[href]');
 
       if (shareLink) {
@@ -138,6 +155,12 @@
           content_type: 'website',
           item_id: 'home_page'
         });
+      }
+      if (resourceLink) {
+        trackResourceInteraction(
+          resourceLink.dataset.analyticsResourceName,
+          resourceLink.dataset.analyticsResourceAction
+        );
       }
       if (clickedLink && isExternalLink(clickedLink)) {
         publishEvent('ca_external_link', {

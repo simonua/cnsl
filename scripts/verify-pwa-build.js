@@ -199,6 +199,10 @@ assert.doesNotMatch(analytics, /classList\.contains\('team-merchandise'\)/, 'Ext
 assert.match(analytics, /link_purpose:\s*getExternalLinkPurpose\(clickedLink\)/, 'External-link measurement must publish only its bounded link purpose category.');
 assert.match(analytics, /publishEvent\('ca_setting_change'/, 'Settings measurement must be owned by the analytics module.');
 assert.match(analytics, /publishEvent\('ca_banner_interaction'/, 'Banner measurement must be owned by the analytics module.');
+assert.match(analytics, /view:\s*'ca_resource_view'/, 'Resource views must use a fixed app-specific analytics event.');
+assert.match(analytics, /download:\s*'ca_resource_download'/, 'Resource downloads must use a fixed app-specific analytics event.');
+assert.match(analytics, /ALLOWED_RESOURCE_NAMES\.has\(resourceName\)/, 'Resource measurement must allowlist stable document names.');
+assert.match(analytics, /resource_name:\s*resourceName/, 'Resource measurement must publish only its reviewed stable document name.');
 assert.match(analytics, /window\.gtag\('event', 'ca_flyer_visit'\)/, 'Flyer visit measurement must use a fixed app-specific analytics event.');
 assert.match(analytics, /source:\s*'flyer'/, 'Flyer attribution must use the reviewed fixed campaign source.');
 assert.match(analytics, /medium:\s*'qr'/, 'Flyer attribution must use the reviewed fixed campaign medium.');
@@ -211,6 +215,7 @@ assert.match(analytics, /isProductionSite\(\) \? consumeFlyerCampaign\(\) : null
 assert.match(analytics, /window\.history\.replaceState\(/, 'Recognized flyer URLs must be cleaned without a navigation or referrer-producing redirect.');
 assert.doesNotMatch(analytics, /setting_value\s*:/, 'Settings measurement must not send selected preference values.');
 assert.doesNotMatch(analytics, /link_(?:url|host|destination)\s*:/, 'External-link measurement must not send destination details.');
+assert.doesNotMatch(analytics, /resource_(?:url|path|filename)\s*:/, 'Resource measurement must not send URLs, paths, or filenames.');
 assert.match(analytics, /app_version:\s*window\.APP_VERSION/, 'Version measurement must send only the configured published app version.');
 assert.match(appConfig, new RegExp(APP_VERSION.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), 'Delivered application configuration must include the published app version.');
 assert.doesNotMatch(nonAnalyticsBrowserCode, /\b(?:window\.)?gtag\s*\(/, 'Delivered browser scripts must publish measurement only through the analytics module API.');

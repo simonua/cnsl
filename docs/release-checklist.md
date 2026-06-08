@@ -74,6 +74,8 @@ Treat an HTTP `2xx` or `204` collection response as proof that Google accepted a
 | `ca_external_link` | Open one authored external link. | Allowlisted `link_context` and `link_purpose`; never a URL, label, or destination host. |
 | `ca_setting_change` | Change one available settings category. | Allowlisted `setting_name`; never the selected value. |
 | `ca_banner_interaction` | View, open, or dismiss an available notice banner. | Allowlisted `banner_name` and `banner_action`. |
+| `ca_resource_view` | Open or preview a published swim meet resource. | Allowlisted stable `resource_name`; never a URL, path, filename, or visible label. |
+| `ca_resource_download` | Download a published swim meet resource. | Allowlisted stable `resource_name`; never a URL, path, filename, or visible label. |
 
 ### Privacy Boundary
 
@@ -88,7 +90,7 @@ Treat an HTTP `2xx` or `204` collection response as proof that Google accepted a
 
 - Confirm the GA4 web data stream uses the same measurement ID as the deployed application configuration.
 - Confirm Google signals, advertising personalization, enhanced measurement, and granular location/device reporting are disabled unless a separately reviewed exception exists; confirm no linked advertising destination broadens purpose-limited usage reporting into advertising or profiling use.
-- Confirm event-scoped custom dimensions required for intended aggregate reporting are registered in GA administration. Register `app_version` before relying on a release-adoption report.
+- Confirm event-scoped custom dimensions required for intended aggregate reporting are registered in GA administration. Register `app_version` before relying on a release-adoption report, and register `resource_name` before comparing swim meet resource views or downloads by document.
 - Check the GA Realtime view or another appropriate GA report for the expected aggregate events, but record the result separately from browser transport evidence.
 - Do not treat successful browser requests as the only completion evidence. Confirm that the intended aggregate events become visible in GA reporting after the expected processing interval, and record any delay or missing report rows separately from browser transport evidence.
 - Do not change analytics storage to denied, add app-authored identifiers, or weaken the privacy boundary. Any change to the reporting model requires a separate privacy review, visitor-facing documentation update, and regression coverage.
