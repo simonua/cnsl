@@ -479,7 +479,8 @@ test('[WF-ANALYTICS-001] analytics publishes a page view and public app version 
   await expect.poll(() => page.evaluate(() => Array.from(globalThis.dataLayer.at(-1))[2])).toMatchObject({
     app_version: appVersion,
     page_location: 'https://pools.longreachmarlins.org/index.html',
-    page_referrer: ''
+    page_referrer: '',
+    page_title: 'Home'
   });
   await page.unrouteAll({ behavior: 'ignoreErrors' });
 });

@@ -67,6 +67,11 @@
     };
   }
 
+  function getMeasuredPageTitle() {
+    const analyticsPageTitle = document.querySelector('meta[name="analytics-page-title"]');
+    return analyticsPageTitle ? analyticsPageTitle.content : document.title;
+  }
+
   function consumeFlyerCampaign() {
     const landingUrl = new URL(window.location.href);
     if (landingUrl.pathname !== '/'
@@ -308,7 +313,7 @@
       ...getMeasuredCampaignParameters(flyerCampaign)
     });
     window.gtag('event', 'page_view', {
-      page_title: document.title,
+      page_title: getMeasuredPageTitle(),
       app_version: window.APP_VERSION,
       ...getMeasuredPageParameters()
     });
