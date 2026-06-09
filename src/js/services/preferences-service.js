@@ -33,7 +33,7 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
       Object.freeze({
         key: 'young-swimmers',
         label: 'Young swimmers & non-swimmers',
-        features: Object.freeze(['beach entry', 'play features', 'shallow', 'splash', 'tot lot', 'wading'])
+        features: Object.freeze(['beach entry', 'lessons', 'play features', 'shallow', 'splash', 'tot lot', 'wading'])
       }),
       Object.freeze({
         key: 'water-play',
@@ -262,19 +262,10 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
      */
     static groupPoolFeatures(features) {
       const availableFeatures = PreferencesService.normalizeFeatureFilters(features);
-      const categorizedFeatures = new Set();
-      const groups = PreferencesService.POOL_FEATURE_GROUPS.map(group => {
+      return PreferencesService.POOL_FEATURE_GROUPS.map(group => {
         const visibleFeatures = group.features.filter(feature => availableFeatures.includes(feature));
-        visibleFeatures.forEach(feature => categorizedFeatures.add(feature));
         return { key: group.key, label: group.label, features: visibleFeatures };
       }).filter(group => group.features.length > 0);
-      const additionalFeatures = availableFeatures.filter(feature => !categorizedFeatures.has(feature));
-
-      if (additionalFeatures.length > 0) {
-        groups.push({ key: 'additional', label: 'Additional features', features: additionalFeatures });
-      }
-
-      return groups;
     }
 
     /**

@@ -293,7 +293,7 @@ function createPoolDetailsViewModel(pool) {
     featureItems: sortedFeatures.map(feature => ({
       label: PoolDirectoryService.formatFeatureLabel(feature),
       category: PreferencesService.getPoolFeatureCategory(feature),
-      icon: feature === 'lessons' ? 'lessons' : ''
+      href: feature === 'lessons' ? 'lessons.html' : ''
     })),
     mapsSearchBaseUrl: globalThis.GOOGLE_MAPS_SEARCH_BASE_URL
   };
@@ -661,7 +661,7 @@ function captureFocusedPoolControl() {
   if (!poolCard) return null;
 
   const selectors = [
-    '.pool-header__toggle', '.address-link', '.ca-link', '.phone-link', '.calendar-btn',
+    '.pool-header__toggle', '.address-link', '.ca-link', '.phone-link', '.feature-pill--link', '.calendar-btn',
     '.today-btn', '.prev-week', '.next-week', '.week-picker'
   ];
   const selector = selectors.find(candidate => focusedElement.matches(candidate));

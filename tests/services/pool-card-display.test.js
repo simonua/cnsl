@@ -31,7 +31,7 @@ const viewModel = {
   featureItems: [
     { label: 'Wi-Fi', category: 'amenities' },
     { label: 'Slide <fun>', category: 'water-play' },
-    { label: 'Lessons', category: 'additional', icon: 'lessons' }
+    { label: 'Lessons', category: 'young-swimmers', href: 'lessons.html' }
   ],
   hoursHtml: '<div class="pool-hours">Hours</div>',
   mapsSearchBaseUrl: 'https://www.google.com/maps/search/?api=1&query='
@@ -60,8 +60,8 @@ describe('PoolCardDisplay', () => {
     assert.match(html, /feature-pill--amenities/);
     assert.match(html, /feature-pill--water-play/);
     assert.match(html, /Slide &lt;fun&gt;/);
-    assert.match(html, /feature-pill--with-icon/);
-    assert.match(html, /nav-menu__icon--lessons/);
+    assert.match(html, /<a class="feature-pill feature-pill--young-swimmers feature-pill--link" href="lessons\.html">Lessons<\/a>/);
+    assert.doesNotMatch(html, /nav-menu__icon--lessons/);
     assert.match(html, /<div class="pool-hours">Hours<\/div>/);
     assert.doesNotMatch(html, /<script\b/i);
   });
@@ -86,6 +86,16 @@ describe('PoolCardDisplay', () => {
     assert.doesNotMatch(html, /ca-website-section/);
     assert.doesNotMatch(html, /address-section__phone/);
     assert.match(html, /<span class="status-tbd">TBD<\/span>/);
+  });
+
+  it('links only the fixed Lessons destination from feature pills', () => {
+    const html = PoolCardDisplay.renderFeatures([
+      { label: 'Lessons', category: 'young-swimmers', href: 'javascript:alert(1)' },
+      { label: 'Lessons', category: 'young-swimmers', href: 'lessons.html' }
+    ]);
+
+    assert.doesNotMatch(html, /javascript:/);
+    assert.equal((html.match(/href="lessons\.html"/g) || []).length, 1);
   });
 
   it('normalizes categories and missing display state safely', () => {

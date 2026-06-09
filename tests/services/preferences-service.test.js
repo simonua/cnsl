@@ -140,16 +140,15 @@ describe('PreferencesService', () => {
       assert.deepEqual(PreferencesService.getPoolFeatures([{ features: null }]), []);
     });
 
-    it('groups available features by visitor need and retains new published features', () => {
+    it('groups known available features by visitor need and omits uncategorized features', () => {
       assert.deepEqual(PreferencesService.groupPoolFeatures([
-        'pool lift', 'ADA compliant', 'baseball', 'yoga', 'splash', 'lap', '8 lanes', 'meter lanes', 'yard lanes', 'wifi', 'new amenity'
+        'pool lift', 'ADA compliant', 'baseball', 'yoga', 'lessons', 'splash', 'lap', '8 lanes', 'meter lanes', 'yard lanes', 'wifi', 'new amenity'
       ]), [
         { key: 'accessibility', label: 'Accessibility & inclusion', features: ['ada compliant', 'pool lift'] },
-        { key: 'young-swimmers', label: 'Young swimmers & non-swimmers', features: ['splash'] },
+        { key: 'young-swimmers', label: 'Young swimmers & non-swimmers', features: ['lessons', 'splash'] },
         { key: 'water-play', label: 'Swimming & water play', features: ['8 lanes', 'meter lanes', 'yard lanes', 'lap'] },
         { key: 'recreation', label: 'Sports & recreation', features: ['baseball', 'yoga'] },
-        { key: 'amenities', label: 'Amenities', features: ['wifi'] },
-        { key: 'additional', label: 'Additional features', features: ['new amenity'] }
+        { key: 'amenities', label: 'Amenities', features: ['wifi'] }
       ]);
       assert.deepEqual(PreferencesService.groupPoolFeatures(['pool lift']), [
         { key: 'accessibility', label: 'Accessibility & inclusion', features: ['pool lift'] }
@@ -158,6 +157,7 @@ describe('PreferencesService', () => {
 
     it('resolves published features to stable visual categories', () => {
       assert.equal(PreferencesService.getPoolFeatureCategory('Pool Lift'), 'accessibility');
+      assert.equal(PreferencesService.getPoolFeatureCategory('Lessons'), 'young-swimmers');
       assert.equal(PreferencesService.getPoolFeatureCategory('wading'), 'young-swimmers');
       assert.equal(PreferencesService.getPoolFeatureCategory('slide'), 'water-play');
       assert.equal(PreferencesService.getPoolFeatureCategory('8 lanes'), 'water-play');

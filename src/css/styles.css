@@ -2244,9 +2244,13 @@ button.pool-filter__clear:focus-visible {
   margin: 0.2rem 0.3rem 0.2rem 0;
 }
 
-.feature-pill--with-icon {
-  align-items: center;
-  display: inline-flex;
+.feature-pill--link,
+.feature-pill--link:visited,
+.feature-pill--link:hover,
+.feature-pill--link:focus {
+  color: var(--feature-chip-text, var(--feature-amenities-text));
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
 }
 
 .pool-filter__option--accessibility,

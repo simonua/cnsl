@@ -51,17 +51,6 @@
     const details = document.createElement('div');
     details.className = 'lesson-provider-card__details';
 
-    if (provider.phone) {
-      const phoneLine = document.createElement('p');
-      const phoneHeading = document.createElement('strong');
-      phoneHeading.textContent = 'Phone: ';
-      const phoneLink = document.createElement('a');
-      phoneLink.href = HtmlSafety.safeTelephoneUrl(provider.phone);
-      phoneLink.textContent = provider.phone;
-      phoneLine.append(phoneHeading, phoneLink);
-      details.append(phoneLine);
-    }
-
     if (provider.contactName && provider.contactEmail) {
       details.append(createDetail('Program contact', provider.contactName));
       const emailLine = document.createElement('p');
@@ -73,6 +62,17 @@
       emailLink.dataset.analyticsLinkPurpose = 'provider_contact';
       emailLine.append(emailHeading, emailLink);
       details.append(emailLine);
+    }
+
+    if (provider.phone) {
+      const phoneLine = document.createElement('p');
+      const phoneHeading = document.createElement('strong');
+      phoneHeading.textContent = 'Phone: ';
+      const phoneLink = document.createElement('a');
+      phoneLink.href = HtmlSafety.safeTelephoneUrl(provider.phone);
+      phoneLink.textContent = provider.phone;
+      phoneLine.append(phoneHeading, phoneLink);
+      details.append(phoneLine);
     }
 
     const classHeading = document.createElement('h3');
