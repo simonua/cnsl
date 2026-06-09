@@ -88,9 +88,9 @@
 
       const team = PreferencesService.findFavoriteTeam(dataManager.getTeams().getAllTeams(), favoriteTeamId);
       if (!team) {
-        title.textContent = 'Favorite team unavailable';
+        title.textContent = 'Favorite team not found';
         status.hidden = false;
-        status.textContent = 'Your saved favorite team is no longer listed for this season.';
+        status.textContent = 'That team is not listed this season. Please choose another favorite on the Teams page.';
         section.hidden = false;
         return;
       }
@@ -110,9 +110,9 @@
       console.error('Failed to load favorite team schedule:', error);
       if (PreferencesService.get().favoriteTeamId !== favoriteTeamId) return;
 
-      title.textContent = 'Favorite team schedule unavailable';
+      title.textContent = 'Team schedule did not load';
       status.hidden = false;
-      status.textContent = 'Your team schedule is currently unavailable. Please try again later.';
+      status.textContent = 'Please check your connection, then refresh the page to try again.';
       section.hidden = false;
     } finally {
       if (shareSite && PreferencesService.get().favoriteTeamId === favoriteTeamId) {

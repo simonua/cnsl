@@ -201,7 +201,7 @@
           applyFormValues(form, PreferencesService.get());
         } catch (error) {
           console.error('Unable to load setting options:', error);
-          status.textContent = 'Team and pool choices are temporarily unavailable. Other settings still apply automatically.';
+          status.textContent = 'Team and pool choices did not load, but your other settings will still apply.';
         }
       })();
       return optionsPromise;
@@ -257,7 +257,7 @@
       window.applyPreferenceTheme(cleared);
       renderWeatherCheckStatus();
       preferencesChanged = preferencesChanged || JSON.stringify(existing) !== JSON.stringify(cleared);
-      status.textContent = 'All app data cleared from this device.';
+      status.textContent = 'All app data has been cleared from this device.';
     });
 
     closeButton.addEventListener('click', () => dialog.close());

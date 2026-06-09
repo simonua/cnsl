@@ -316,6 +316,10 @@ test('[WF-DATA-007-POOLS] pool summaries and requested details render before opt
     await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
     await expect(page.locator('#poolList .pool-card')).toHaveCount(23);
     await expect(page.locator('#poolList + .pool-status-legend')).toBeVisible();
+    await expect(page.locator('.pool-status-legend .pool-status-indicator')).toHaveCount(4);
+    for (const color of ['green', 'yellow', 'red', 'gray']) {
+      await expect(page.locator(`.pool-status-legend .pool-status-indicator.${color}`)).toBeVisible();
+    }
     await expect(page.locator('.pool-status-legend__item')).toHaveText([
       'Open for public use',
       'Special schedule or restrictions',
@@ -356,7 +360,7 @@ test('[WF-DATA-003] pool load failures are announced and do not leave the direct
   await page.route('**/assets/data/2026/pools/pools.json*', route => route.fulfill({ status: 503, body: '{}' }));
   await page.goto('/pools.html');
 
-  await expect(page.locator('#poolListStatus')).toHaveText('Pool information is currently unavailable. Please try again later.');
+  await expect(page.locator('#poolListStatus')).toHaveText('The pool directory did not load. Please check your connection and refresh the page to try again.');
   await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
   await expect(page.locator('#seasonInfo')).toBeHidden();
 });
@@ -365,7 +369,7 @@ test('[WF-DATA-004] malformed published pool responses are announced as unavaila
   await page.route('**/assets/data/2026/pools/pools.json*', route => route.fulfill({ json: {} }));
   await page.goto('/pools.html');
 
-  await expect(page.locator('#poolListStatus')).toHaveText('Pool information is currently unavailable. Please try again later.');
+  await expect(page.locator('#poolListStatus')).toHaveText('The pool directory did not load. Please check your connection and refresh the page to try again.');
   await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 });
 
@@ -376,8 +380,8 @@ test('[WF-OFFLINE-001] loaded directory features remain usable while offline sta
 
   await context.setOffline(true);
   await expect(page.locator('#connectivityStatus')).toBeVisible();
-  await expect(page.locator('#connectivityStatus')).toContainText('Offline mode');
-  await expect(page.locator('#connectivityStatus')).toContainText('Saved schedules remain available when previously loaded.');
+  await expect(page.locator('#connectivityStatus')).toContainText("You're offline");
+  await expect(page.locator('#connectivityStatus')).toContainText('Schedules you opened earlier are still available.');
   await page.locator('.team-card').first().locator('.team-header__toggle').click();
   await expect(page.locator('.team-card').first().locator('.team-details')).toBeVisible();
 
@@ -1474,8 +1478,8 @@ test('[WF-AGENDA-005] changing to an unavailable favorite does not display the p
   });
 
   await expect(page.locator('#favoriteWeek')).toBeVisible();
-  await expect(page.locator('#favoriteWeekTitle')).toHaveText('Favorite team unavailable');
-  await expect(page.locator('#favoriteWeekStatus')).toHaveText('Your saved favorite team is no longer listed for this season.');
+  await expect(page.locator('#favoriteWeekTitle')).toHaveText('Favorite team not found');
+  await expect(page.locator('#favoriteWeekStatus')).toHaveText('That team is not listed this season. Please choose another favorite on the Teams page.');
   await expect(page.locator('#favoriteWeek')).not.toContainText('Upcoming Snappers events');
 });
 

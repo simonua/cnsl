@@ -760,8 +760,8 @@ function renderPools(pools) {
   if (!Array.isArray(pools) || pools.length === 0) {
     list.innerHTML = `
       <div class="pool-card error">
-        <h2>${IconCatalog.getTextGlyph('warning')} No pools available</h2>
-        <p>Pool information is currently unavailable. Please try again later.</p>
+        <h2>${IconCatalog.getTextGlyph('warning')} Pool directory did not load</h2>
+        <p>Please check your connection and refresh the page to try again.</p>
       </div>
     `;
     return;
@@ -1077,9 +1077,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Failed to load pool data:", error);
     const list = document.getElementById("poolList");
     if (list) {
-      list.innerHTML = `<p>${IconCatalog.getTextGlyph('warning')} Pool data is currently unavailable. Please try again later.</p>`;
+      list.innerHTML = `<p>${IconCatalog.getTextGlyph('warning')} The pool directory did not load. Please check your connection and refresh the page to try again.</p>`;
     }
-    setPoolListStatus('Pool information is currently unavailable. Please try again later.', false);
+    setPoolListStatus('The pool directory did not load. Please check your connection and refresh the page to try again.', false);
   }
 });
 

@@ -9,6 +9,15 @@ This guide records the visual decisions for the CA Pool & CNSL Assistant. Apply 
 - Reuse established components and design tokens before introducing a new visual pattern.
 - Keep visual choices consistent across mobile and desktop layouts and in light and dark themes.
 
+## Voice And Manners
+
+- Write like a helpful local swim parent: warm, familiar, straightforward, and respectful.
+- Use first person when the maintainer is speaking and address visitors directly as `you` when guidance is clearer that way.
+- Use `please` for requests, corrections, and troubleshooting steps. Thank visitors when they share feedback, report a correction, or recommend a community resource.
+- Keep manners natural. Do not repeat `please` in every sentence or add it to concise control labels, navigation, headings, status labels, or urgent safety instructions.
+- Never blame visitors for errors or missing information. Briefly explain what happened, mention anything that still works, and offer a polite next step when one is available.
+- Preserve factual, privacy, safety, legal, and official-source boundaries, but explain them in plain language rather than sounding defensive or impersonal.
+
 ## Prose And Sections
 
 - Present ordinary introductions, explanations, invitations, and disclaimers as unframed prose.
@@ -60,3 +69,5 @@ This guide records the visual decisions for the CA Pool & CNSL Assistant. Apply 
 - Is that meaning available without relying on color or position?
 - Does the page reuse existing tokens, components, spacing, and typography?
 - Are keyboard, responsive layout, contrast, and accessible naming preserved?
+- Do requests and recovery guidance sound courteous without becoming wordy or repetitive?
+- Does the copy thank visitors where they have offered help, feedback, or a correction?

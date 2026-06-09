@@ -57,7 +57,7 @@
             "name": "Is this an official web app?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "No. It is an independent community project and is not operated by or affiliated with Columbia Association or CNSL. Please verify time-sensitive details with their official sources."
+              "text": "No. I built this as an independent community project; Columbia Association and CNSL do not operate or sponsor it. I use their publications as the official sources, so please check there before making time-sensitive plans."
             }
           },
           {
@@ -73,7 +73,7 @@
             "name": "What if information in this app does not match an official source?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Please use the Contact page and include a link to the official Columbia Association or CNSL source. The app can then be reviewed and corrected. Because this community project is maintained in spare time, updates may not be immediate."
+              "text": "Please send me a note through the Contact page and include a link to the official Columbia Association or CNSL source. Thank you for helping me keep the app accurate. I will review the difference and correct the app when needed. I maintain this community project in my spare time, so a fix may take a little while."
             }
           },
           {
@@ -81,7 +81,7 @@
             "name": "What data is measured or stored?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "The app does not ask for your name, contact details, or an account. Your preferences stay in your browser. Google Analytics uses its own first-party identifier to provide combined reports about visits and general feature use. Advertising personalization and Google signals are disabled. The app does not send Google Analytics your current location, saved settings, selected pools or teams, selected filters, free-form text, or identifying details."
+              "text": "You do not need an account or need to share your name or contact details. Your preferences stay in your browser. Google Analytics uses its own first-party identifier for combined reports about visits and general feature use, but it does not receive your location, saved settings, selected pools or teams, filters, free-form text, or identifying details from this app. Advertising personalization and Google signals are disabled."
             }
           },
           {
@@ -89,7 +89,7 @@
             "name": "Does the app use my location?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Distance estimates are off by default. If location awareness is enabled, the browser provides the current location only to calculate nearby pool distances. The app never tracks, saves, or sends the visitor's current location."
+              "text": "Distance estimates are off by default. If you turn them on, your browser shares your current location only long enough to calculate nearby pool distances. The app does not track, save, or send your location."
             }
           },
           {
@@ -97,7 +97,7 @@
             "name": "Does weather safety use my current location?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "No. Weather checks use one fixed location in Columbia for the pool area, not your current location. The app checks National Weather Service alerts and the near-term forecast for that location. Optional location access is used only to estimate distances to pools; the app never tracks, saves, or sends your current location."
+              "text": "No. Weather checks use one fixed point for the Columbia pool area, not your current location. Optional location access is separate and is used only to estimate pool distances. The app does not track, save, or send your location."
             }
           },
           {
@@ -168,20 +168,20 @@
           <h2 id="faq-sources" class="faq-list__heading">Official Information and Corrections</h2>
           <article class="faq-item">
             <h3>Is this an official web app?</h3>
-            <p>No. This is an independent community project. It is not operated by or affiliated with Columbia Association (CA) or CNSL. The app provides information for the {{ YEAR }} outdoor pool season, but CA and CNSL remain the official sources. Please check their publications before making time-sensitive plans.</p>
+            <p>No. I built this as an independent community project; Columbia Association (CA) and CNSL do not operate or sponsor it. I use their publications as the official sources for the {{ YEAR }} outdoor pool season, so please check there before making time-sensitive plans.</p>
           </article>
           <article class="faq-item">
             <h3>Where does this app get its data, and when was it checked?</h3>
             <p class="faq-item__source-freshness"><strong>Season data last checked:</strong> <time datetime="{{ OFFICIAL_SOURCE_CHECKED_AT }}">{{ OFFICIAL_SOURCE_CHECKED_LABEL }}</time></p>
             <p class="faq-item__source-freshness"><strong>Season data last updated:</strong> <time datetime="{{ OFFICIAL_SOURCE_UPDATED_AT }}">{{ OFFICIAL_SOURCE_UPDATED_LABEL }}</time></p>
-            <p>Pool information comes from publicly available <a href="{{ ACTIVE_SEASON.CA_POOL_SCHEDULES_URL }}" target="_blank" rel="noopener">Columbia Association (CA) publications</a>. Team and meet information comes from publicly available <a href="{{ EXTERNAL_LINKS.OFFICIAL_CNSL_SITE }}" target="_blank" rel="noopener">official CNSL publications</a>. These publications are the official sources for the app.</p>
+            <p>I use publicly available <a href="{{ ACTIVE_SEASON.CA_POOL_SCHEDULES_URL }}" target="_blank" rel="noopener">Columbia Association (CA) publications</a> for pool information and <a href="{{ EXTERNAL_LINKS.OFFICIAL_CNSL_SITE }}" target="_blank" rel="noopener">official CNSL publications</a> for teams and meets. Those publications are the source of truth for the app.</p>
             <p>You can view or download the app's annual data and saved source materials from the <a href="{{ EXTERNAL_LINKS.GITHUB_DATA_DIRECTORY }}" target="_blank" rel="noopener">public data directory on GitHub</a>.</p>
-            <p>Community updates shared through social media, email, or messaging groups can be helpful. The app uses them only after the information also appears in an official public source.</p>
-            <p>Published details can change, so please confirm time-sensitive plans before heading out.</p>
+            <p>Tips shared through social media, email, or team chats are helpful, too. I add those details once they also appear in an official public source.</p>
+            <p>Schedules can change, so it is always worth a quick check before heading out.</p>
           </article>
           <article class="faq-item">
             <h3>What if information in this app does not match an official source?</h3>
-            <p>Please use the <a href="contact.html">Contact page</a> and include a link to the official CA or CNSL source. I can review and correct what the app displays, but I cannot change information published by CA or CNSL. Because this community project is maintained in my spare time, updates may not be immediate.</p>
+            <p>Please send me a note through the <a href="contact.html">Contact page</a> and include a link to the official CA or CNSL source. Thank you for helping me keep the app accurate. I will review the difference and correct the app when needed, though I cannot change what CA or CNSL publishes. I maintain this project in my spare time, so a fix may take a little while.</p>
           </article>
         </section>
 
@@ -189,26 +189,26 @@
           <h2 id="faq-privacy" class="faq-list__heading">Privacy and Preferences</h2>
           <article class="faq-item">
             <h3>What data is measured or stored?</h3>
-            <p>The app does not ask for your name, contact details, or an account. Your preferences stay in your browser. Google Analytics uses its own first-party identifier to provide combined reports about visits and general feature use. This includes a fixed campaign label when someone opens the app from its published flyer QR code. Advertising personalization and Google signals are disabled.</p>
-            <p>The app does not send Google Analytics your name, contact details, account information, current location, saved settings, selected pools or teams, selected filters, free-form text, referring page, or the links you open. Fixed labels from an app-published campaign link may be reported to show how visitors found the app. Those labels are removed from the address shown in your browser. You can also read <a href="{{ EXTERNAL_LINKS.GOOGLE_ANALYTICS_PRIVACY_GUIDANCE }}" target="_blank" rel="noopener noreferrer">Google's guidance about personally identifiable information in Analytics</a>.</p>
+            <p>You do not need an account or need to share your name or contact details. Your preferences stay in your browser. Google Analytics uses its own first-party identifier to provide combined reports about visits and general feature use. A fixed campaign label is also included when someone opens the app from its published flyer QR code. Advertising personalization and Google signals are disabled.</p>
+            <p>This app does not send Google Analytics your name, contact details, account information, current location, saved choices, selected pools or teams, filters, free-form text, referring page, or the links you open. A fixed label from an app-published campaign link may show how visitors found the app, and that label is removed from the address in your browser. You can also read <a href="{{ EXTERNAL_LINKS.GOOGLE_ANALYTICS_PRIVACY_GUIDANCE }}" target="_blank" rel="noopener noreferrer">Google's guidance about personally identifiable information in Analytics</a>.</p>
           </article>
           <article class="faq-item">
             <h3>Does the app use my location?</h3>
-            <p>Distance estimates are off by default. If you turn location awareness on in <a href="settings.html">Settings</a>, your browser provides your current location only to calculate nearby pool distances. This app never tracks, saves, or sends your current location.</p>
+            <p>Distance estimates are off by default. If you turn them on in <a href="settings.html">Settings</a>, your browser shares your current location only long enough to calculate nearby pool distances. The app does not track, save, or send your location.</p>
           </article>
           <article class="faq-item" id="weather-safety-location">
             <h3>Does weather safety use my current location?</h3>
-            <p>No. The app checks weather for one fixed location in Columbia that represents the pool area, not your current location. You can review the same National Weather Service information here:</p>
+            <p>No. Weather checks use one fixed point for the Columbia pool area, not your current location. You can see the same National Weather Service information here:</p>
             <ul>
               <li><a href="{{ EXTERNAL_LINKS.NATIONAL_WEATHER_SERVICE_ACTIVE_ALERTS }}" target="_blank" rel="noopener">Active weather alerts (data only)</a></li>
               <li><a href="{{ EXTERNAL_LINKS.NATIONAL_WEATHER_SERVICE_POINT }}" target="_blank" rel="noopener">Local forecast information (data only)</a></li>
               <li><a href="{{ EXTERNAL_LINKS.NATIONAL_WEATHER_SERVICE_PUBLIC_ALERTS }}" target="_blank" rel="noopener">Local weather information (web)</a></li>
             </ul>
-            <p>Optional location access is separate and is used only to estimate distances to pools. Even when you allow location access, the app never tracks, saves, or sends your current location.</p>
+            <p>Optional location access is separate and is used only to estimate distances to pools. Even when you allow it, the app does not track, save, or send your location.</p>
           </article>
           <article class="faq-item">
             <h3>Where are my preferences saved?</h3>
-            <p>Your settings are saved in the browser on your device. General use of fixed settings may be included in combined analytics reports, but the app does not send your saved choices. You can remove your preferences from the <a href="settings.html">Settings page</a> or by clearing this site's browser data.</p>
+            <p>Your settings stay in the browser on your device. Combined analytics reports may show that a type of setting was changed, but not the choice you made. You can remove your preferences from the <a href="settings.html">Settings page</a> or by clearing this site's browser data.</p>
           </article>
         </section>
 

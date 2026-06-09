@@ -78,7 +78,7 @@ async function renderMeets(meets, preserveExpansion = false) {
 
   // Safety check - ensure meets is an array
   if (!Array.isArray(meets) || meets.length === 0) {
-    list.innerHTML = "<p>No meet information available.</p>";
+    list.innerHTML = "<p>There are no meets to show yet.</p>";
     return;
   }
 
@@ -431,8 +431,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   } catch (error) {
     console.error("Error loading meets:", error);
-    meetList.innerHTML = `<p>${IconCatalog.getTextGlyph('warning')} Meet data is currently unavailable. Please try again later.</p>`;
-    setMeetListStatus('Meet schedule is currently unavailable. Please try again later.', false);
+    meetList.innerHTML = `<p>${IconCatalog.getTextGlyph('warning')} The meet schedule did not load. Please check your connection and refresh the page to try again.</p>`;
+    setMeetListStatus('The meet schedule did not load. Please check your connection and refresh the page to try again.', false);
   }
 });
 

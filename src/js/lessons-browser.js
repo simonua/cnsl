@@ -124,9 +124,9 @@
   } catch (error) {
     console.error('[Lessons] Provider directory unavailable:', error);
     providerList.setAttribute('aria-busy', 'false');
-    providerStatus.textContent = 'Lesson provider information is currently unavailable.';
+    providerStatus.textContent = 'The lesson provider list did not load.';
     const message = document.createElement('p');
-    message.textContent = 'Lesson provider information is currently unavailable. Please try again later.';
+    message.textContent = 'The lesson provider list did not load. Please check your connection and refresh the page to try again.';
     providerList.append(message);
   }
 }());

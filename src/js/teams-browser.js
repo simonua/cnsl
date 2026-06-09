@@ -414,7 +414,7 @@ function renderTeams(teams) {
 
   // Safety check - ensure teams is an array
   if (!Array.isArray(teams) || teams.length === 0) {
-    list.innerHTML = "<p>No team information available.</p>";
+    list.innerHTML = "<p>There are no teams to show yet.</p>";
     return;
   }
 
@@ -642,9 +642,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Failed to load team data:", error);
     const list = document.getElementById("teamList");
     if (list) {
-      list.innerHTML = `<p>${IconCatalog.getTextGlyph('warning')} Team data is currently unavailable. Please try again later.</p>`;
+      list.innerHTML = `<p>${IconCatalog.getTextGlyph('warning')} The team directory did not load. Please check your connection and refresh the page to try again.</p>`;
     }
-    setTeamListStatus('Team information is currently unavailable. Please try again later.', false);
+    setTeamListStatus('The team directory did not load. Please check your connection and refresh the page to try again.', false);
   }
 });
 
