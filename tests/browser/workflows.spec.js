@@ -223,11 +223,17 @@ for (const scenario of directoryScenarios) {
       await page.goto(scenario.path, { waitUntil: 'domcontentloaded' });
       await expect(page.locator(scenario.list)).toHaveAttribute('aria-busy', 'true');
       await expect(page.locator(scenario.list)).toBeEmpty();
+      if (scenario.reference === 'POOLS') {
+        await expect(page.locator('#poolStatusLegend')).toBeHidden();
+      }
     } finally {
       resumePoolRequest();
     }
 
     await expect(page.locator(scenario.status)).toHaveText(scenario.readyText);
+    if (scenario.reference === 'POOLS') {
+      await expect(page.locator('#poolStatusLegend')).toBeVisible();
+    }
   });
 }
 

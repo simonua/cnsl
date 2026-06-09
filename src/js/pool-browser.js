@@ -840,6 +840,8 @@ function renderPools(pools) {
   }).join('');
 
   list.innerHTML = html;
+  const statusLegend = document.getElementById('poolStatusLegend');
+  if (statusLegend) statusLegend.hidden = false;
   scrollCalendarsToToday(list);
 }
 

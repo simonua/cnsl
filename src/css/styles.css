@@ -2448,19 +2448,20 @@ button.pool-filter__clear:focus-visible {
 
 .pool-status-legend {
   border-top: 1px solid var(--border-color);
-  margin-top: 1.25rem;
-  padding-top: 1rem;
+  margin: 1rem auto 0;
+  max-width: 38rem;
+  padding-top: 0.75rem;
+  width: 100%;
 }
 
 .pool-status-legend__title {
   font-size: 1rem;
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.5rem;
 }
 
 .pool-status-legend__items {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1.25rem;
+  display: grid;
+  gap: 0.25rem;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -2479,9 +2480,8 @@ button.pool-filter__clear:focus-visible {
 .pool-status-legend__note {
   color: var(--text-muted);
   font-size: 0.85rem;
-  line-height: 1.5;
-  margin: 0.75rem 0 0;
-  max-width: 54rem;
+  line-height: 1.4;
+  margin: 0.5rem 0 0;
 }
 
 /* Enhanced Quick Link Cards */
