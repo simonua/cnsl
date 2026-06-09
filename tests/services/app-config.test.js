@@ -46,13 +46,13 @@ describe('app-config', () => {
     );
   });
 
-  it('publishes independent official-source check and update timestamps with Eastern display labels', () => {
+  it('publishes independent official-source timestamps without repeated timezone labels', () => {
     assert.match(config.OFFICIAL_SOURCE_CHECKED_AT, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}-(?:04|05):00$/);
-    assert.match(config.OFFICIAL_SOURCE_CHECKED_LABEL, /^[A-Z][a-z]+ \d{1,2}, \d{4} at \d{1,2}:\d{2} [AP]M E[DS]T$/);
-    assert.match(config.OFFICIAL_SOURCE_CHECKED_SHORT_LABEL, /^[A-Z][a-z]+ \d{1,2}, \d{1,2}:\d{2} [AP]M E[DS]T$/);
+    assert.match(config.OFFICIAL_SOURCE_CHECKED_LABEL, /^[A-Z][a-z]+ \d{1,2}, \d{4} at \d{1,2}:\d{2} [AP]M$/);
+    assert.match(config.OFFICIAL_SOURCE_CHECKED_SHORT_LABEL, /^[A-Z][a-z]+ \d{1,2}, \d{1,2}:\d{2} [AP]M$/);
     assert.match(config.OFFICIAL_SOURCE_UPDATED_AT, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}-(?:04|05):00$/);
-    assert.match(config.OFFICIAL_SOURCE_UPDATED_LABEL, /^[A-Z][a-z]+ \d{1,2}, \d{4} at \d{1,2}:\d{2} [AP]M E[DS]T$/);
-    assert.match(config.OFFICIAL_SOURCE_UPDATED_SHORT_LABEL, /^[A-Z][a-z]+ \d{1,2}, \d{1,2}:\d{2} [AP]M E[DS]T$/);
+    assert.match(config.OFFICIAL_SOURCE_UPDATED_LABEL, /^[A-Z][a-z]+ \d{1,2}, \d{4} at \d{1,2}:\d{2} [AP]M$/);
+    assert.match(config.OFFICIAL_SOURCE_UPDATED_SHORT_LABEL, /^[A-Z][a-z]+ \d{1,2}, \d{1,2}:\d{2} [AP]M$/);
     assert.ok(new Date(config.OFFICIAL_SOURCE_CHECKED_AT) >= new Date(config.OFFICIAL_SOURCE_UPDATED_AT));
   });
 

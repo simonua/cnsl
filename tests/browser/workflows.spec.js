@@ -269,14 +269,14 @@ test('[WF-DATA-007] footer keeps the last weather update current while weather c
   const weatherFreshness = page.locator('#footerWeatherFreshness');
   const weatherTimestamp = page.locator('#footerWeatherUpdated');
   await expect(weatherFreshness).toBeVisible();
-  await expect(weatherTimestamp).toHaveText('June 2, 2:15 PM EDT');
+  await expect(weatherTimestamp).toHaveText('June 2, 2:15 PM');
   await expect(weatherTimestamp).toHaveAttribute('datetime', '2026-06-02T14:15:00-04:00');
 
   await page.evaluate(() => {
     localStorage.setItem('cnsl_weather_alert_last_successful_check', JSON.stringify({ updatedAt: '2026-06-02T14:20:00-04:00' }));
     globalThis.dispatchEvent(new CustomEvent('cnsl:weather-alert-status-changed'));
   });
-  await expect(weatherTimestamp).toHaveText('June 2, 2:20 PM EDT');
+  await expect(weatherTimestamp).toHaveText('June 2, 2:20 PM');
 
   for (const viewport of [{ width: 1280, height: 900 }, { width: 320, height: 640 }]) {
     await page.setViewportSize(viewport);
@@ -2103,7 +2103,7 @@ test('[WF-SETTINGS-005] weather safety alerts show the most recent check after u
   await page.goto('/settings.html');
 
   const weatherCheckStatus = page.locator('#weatherCheckStatus');
-  await expect(weatherCheckStatus).toHaveText('Most recent successful weather check: Jun 2, 2026, 2:15 PM EDT. Weather safety alerts are currently off.');
+  await expect(weatherCheckStatus).toHaveText('Most recent successful weather check: Jun 2, 2026, 2:15 PM. Weather safety alerts are currently off.');
   await expect(weatherCheckStatus.locator('time')).toHaveAttribute('datetime', '2026-06-02T14:15:00-04:00');
   await expect(weatherCheckStatus.locator('time')).toHaveCSS('display', 'block');
   await expect(weatherCheckStatus).toHaveCSS('border-left-style', 'solid');
@@ -2133,7 +2133,7 @@ test('[WF-SETTINGS-006] weather safety alerts retain the last successful check w
   });
 
   const weatherCheckStatus = page.locator('#weatherCheckStatus');
-  await expect(weatherCheckStatus).toHaveText('Weather service is temporarily unavailable. Most recent successful weather check: Jun 2, 2026, 2:15 PM EDT');
+  await expect(weatherCheckStatus).toHaveText('Weather service is temporarily unavailable. Most recent successful weather check: Jun 2, 2026, 2:15 PM');
   await expect(weatherCheckStatus.locator('time')).toHaveAttribute('datetime', '2026-06-02T14:15:00-04:00');
   await expect(page.locator('#weatherAlert')).toBeHidden();
 });

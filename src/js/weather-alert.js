@@ -104,8 +104,7 @@
     updated.textContent = new Intl.DateTimeFormat('en-US', {
       hour: 'numeric',
       minute: '2-digit',
-      timeZone: WeatherAlertService.EASTERN_TIMEZONE,
-      timeZoneName: 'short'
+      timeZone: WeatherAlertService.EASTERN_TIMEZONE
     }).format(updatedAt);
     setWeatherAlertExpanded(readSavedExpandedState());
     banner.hidden = false;
@@ -139,8 +138,7 @@
     const updatedTime = new Intl.DateTimeFormat('en-US', {
       hour: 'numeric',
       minute: '2-digit',
-      timeZone: WeatherAlertService.EASTERN_TIMEZONE,
-      timeZoneName: 'short'
+      timeZone: WeatherAlertService.EASTERN_TIMEZONE
     }).format(updatedAt);
     updated.textContent = `${updatedDate}, ${updatedTime}`;
   }

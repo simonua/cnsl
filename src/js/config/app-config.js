@@ -55,7 +55,7 @@
     if (Number.isNaN(sourceTimestamp.getTime())) {
       throw new Error('Official-source timestamps must be valid dates with an explicit Eastern UTC offset.');
     }
-    return sourceTimestamp.toLocaleString('en-US', { ...options, timeZone: APP_TIMEZONE, timeZoneName: 'short' });
+    return sourceTimestamp.toLocaleString('en-US', { ...options, timeZone: APP_TIMEZONE });
   }
 
   function formatOfficialSourceFooterTimestamp(timestamp) {
@@ -68,8 +68,7 @@
     const time = new Intl.DateTimeFormat('en-US', {
       hour: 'numeric',
       minute: '2-digit',
-      timeZone: APP_TIMEZONE,
-      timeZoneName: 'short'
+      timeZone: APP_TIMEZONE
     }).format(sourceTimestamp);
     return `${date}, ${time}`;
   }

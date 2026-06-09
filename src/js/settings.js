@@ -158,7 +158,6 @@
       minute: '2-digit',
       month: 'short',
       timeZone: WeatherAlertService.EASTERN_TIMEZONE,
-      timeZoneName: 'short',
       year: 'numeric'
     }).format(updatedAt);
     weatherCheckStatus.replaceChildren(unavailableMessage, 'Most recent successful weather check: ', time, offMessage ? `.${offMessage}` : '');

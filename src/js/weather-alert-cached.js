@@ -19,7 +19,7 @@
     message.textContent = status.message;
     updated.dateTime = status.updatedAt;
     updated.textContent = new Intl.DateTimeFormat('en-US', {
-      hour: 'numeric', minute: '2-digit', timeZone: globalThis.APP_TIMEZONE, timeZoneName: 'short'
+      hour: 'numeric', minute: '2-digit', timeZone: globalThis.APP_TIMEZONE
     }).format(updatedAt);
     banner.classList.toggle('weather-alert--collapsed', !isExpanded);
     toggle.setAttribute('aria-expanded', String(isExpanded));
