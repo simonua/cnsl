@@ -254,14 +254,14 @@ test('[WF-DATA-006] FAQ and footer distinguish seasonal-source checks from data 
   await expect(faqTimestamps).toHaveCount(2);
   for (const faqTimestamp of await faqTimestamps.all()) {
     await expect(faqTimestamp).toHaveAttribute('datetime', /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}-(?:04|05):00$/);
-    await expect(faqTimestamp).toHaveText(/^[A-Z][a-z]+ \d{1,2}, \d{4} at \d{1,2}:\d{2} [AP]M E[DS]T$/);
+    await expect(faqTimestamp).toHaveText(/^[A-Z][a-z]+ \d{1,2}, \d{4} at \d{1,2}:\d{2} [AP]M$/);
   }
   await expect(footerFreshness).toContainText('Data last checked:');
   await expect(footerFreshness).toContainText('last updated:');
   await expect(footerTimestamps).toHaveCount(2);
   for (const footerTimestamp of await footerTimestamps.all()) {
     await expect(footerTimestamp).toHaveAttribute('datetime', /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}-(?:04|05):00$/);
-    await expect(footerTimestamp).toHaveText(/^[A-Z][a-z]+ \d{1,2}, \d{1,2}:\d{2} [AP]M E[DS]T$/);
+    await expect(footerTimestamp).toHaveText(/^[A-Z][a-z]+ \d{1,2}, \d{1,2}:\d{2} [AP]M$/);
   }
 
   for (const viewport of [{ width: 1280, height: 900 }, { width: 320, height: 640 }]) {
@@ -513,10 +513,12 @@ test('[WF-SEASON-001] off-season pages replace date-sensitive content with the s
 
 test('[WF-CONTACT-001] author contact options are collected on the Contact page', async ({ page }) => {
   await page.goto('/contact.html');
+  const appVersion = await page.evaluate(() => globalThis.APP_VERSION);
+  const bugFeatureSubject = encodeURIComponent(`CA Pool & CNSL Assistant - Bug / Feature - Version ${appVersion}`);
 
   await expect(page.getByRole('heading', { level: 1, name: 'Contact' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'General feedback' })).toHaveAttribute('href', 'mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Feedback');
-  await expect(page.getByRole('link', { name: 'Report a bug or request a feature' })).toHaveAttribute('href', 'mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Bug%20%2F%20Feature');
+  await expect(page.getByRole('link', { name: 'Report a bug or request a feature' })).toHaveAttribute('href', `mailto:simonkurtz+pool-app@gmail.com?subject=${bugFeatureSubject}`);
   await expect(page.getByRole('link', { name: 'Report a data issue' })).toHaveAttribute('href', 'mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Data');
   await expect(page.getByRole('link', { name: 'Connect with Simon on LinkedIn (opens in new tab)' })).toHaveAttribute('href', 'https://www.linkedin.com/in/simonkurtz');
   await expect(page.getByRole('link', { name: 'Message Simon on Facebook (opens in new tab)' })).toHaveAttribute('href', 'https://www.facebook.com/simonkurtz82');
@@ -914,7 +916,7 @@ test('[WF-POOLS-014] yoga feature filter finds the pool with published yoga prog
   await expect(page.locator('#poolList .pool-card')).toContainText('Stevens Forest');
 });
 
-test('[WF-POOLS-018] lessons feature identifies CA outdoor lesson pools with the shared icon', async ({ page }) => {
+test('[WF-POOLS-018] lessons feature identifies CA outdoor lesson pools and links with the shared icon', async ({ page }) => {
   await page.goto('/pools.html');
   await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
 
@@ -935,7 +937,11 @@ test('[WF-POOLS-018] lessons feature identifies CA outdoor lesson pools with the
 
   const firstPool = page.locator('#poolList .pool-card').first();
   await firstPool.locator('.pool-header__toggle').click();
-  await expect(firstPool.locator('.feature-pill', { hasText: 'Lessons' }).locator('.nav-menu__icon--lessons')).toBeVisible();
+  const lessonsPill = firstPool.getByRole('link', { name: 'Lessons' });
+  const lessonsLinkIcon = lessonsPill.locator('.feature-pill__link-icon');
+  await expect(lessonsPill).toHaveAttribute('href', 'lessons.html');
+  await expect(lessonsLinkIcon).toBeVisible();
+  await expect(lessonsLinkIcon.locator('use')).toHaveAttribute('href', '#icon-link');
 });
 
 test('[WF-POOLS-002] pool availability filters show pools open now, opening soon, open today, or open for the next two hours', async ({ page }) => {
