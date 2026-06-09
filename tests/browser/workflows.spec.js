@@ -2272,7 +2272,7 @@ test('[WF-POOLS-011] team-only practice uses restricted live status and public a
   let jeffersHill = page.locator('.pool-card').filter({ hasText: 'Jeffers Hill' });
   await jeffersHill.locator('.pool-header__toggle').click();
   await expect(jeffersHill).toContainText('Clippers Practice Only');
-  await expect(jeffersHill.locator('.open-status')).toContainText('Practice Only');
+  await expect(jeffersHill.locator('.open-status')).toContainText('Closed to the public');
   await expect(jeffersHill.locator('.open-status')).toHaveClass(/status-yellow/);
 
   await page.locator('#togglePoolFeatureFilters').click();
@@ -2289,7 +2289,7 @@ test('[WF-POOLS-012] live status updates after a team-only practice period ends 
   const jeffersHill = page.locator('.pool-card').filter({ hasText: 'Jeffers Hill' });
   const toggle = jeffersHill.locator('.pool-header__toggle');
   await toggle.evaluate(button => button.click());
-  await expect(jeffersHill.locator('.open-status')).toContainText('Practice Only');
+  await expect(jeffersHill.locator('.open-status')).toContainText('Closed to the public');
   await expect(jeffersHill.locator('.open-status')).toHaveClass(/status-yellow/);
 
   await toggle.focus();

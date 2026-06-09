@@ -29,8 +29,15 @@ describe('PoolStatus', () => {
   it('defines PRACTICE_ONLY status', () => {
     assert.equal(PoolStatus.PRACTICE_ONLY.kind, 'practice-only');
     assert.equal(PoolStatus.PRACTICE_ONLY.isOpen, true);
-    assert.equal(PoolStatus.PRACTICE_ONLY.status, 'Practice Only');
+    assert.equal(PoolStatus.PRACTICE_ONLY.status, 'Closed to the public');
     assert.equal(PoolStatus.PRACTICE_ONLY.color, 'yellow');
+  });
+
+  it('defines CLOSED_TO_PUBLIC status', () => {
+    assert.equal(PoolStatus.CLOSED_TO_PUBLIC.kind, 'closed-to-public');
+    assert.equal(PoolStatus.CLOSED_TO_PUBLIC.isOpen, false);
+    assert.equal(PoolStatus.CLOSED_TO_PUBLIC.status, 'Closed to the public');
+    assert.equal(PoolStatus.CLOSED_TO_PUBLIC.color, 'red');
   });
 
   it('defines SWIM_MEET status', () => {

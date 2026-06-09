@@ -47,8 +47,8 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
     static formatPublicStatusSummary(transition, isClosedAllDay, isClosedForDay, options = {}) {
       const transitionText = PoolScheduleDisplay.formatPublicStatusTransition(transition, options);
       if (transitionText) return transitionText;
-      if (isClosedAllDay === true) return 'Closed today';
-      return isClosedForDay === true ? 'Closed for the day' : '';
+      if (isClosedAllDay === true) return 'Closed to the public';
+      return isClosedForDay === true ? 'Closed' : '';
     }
 
     /**
