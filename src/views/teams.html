@@ -24,6 +24,7 @@
   </block>
   <block name="content">
     <h1>Team Directory</h1>
+    <include src="components/off-season-message.html"></include>
     <div class="container">
       <div class="cnsl-link-section">
         <div class="cnsl-link-card">
@@ -33,9 +34,11 @@
           </a>
         </div>
       </div>
-      <p class="visually-hidden" id="teamListStatus" role="status" aria-live="polite">Loading team information.</p>
-      <div id="teamList" class="team-list" aria-busy="true">
-        <!-- Teams will be loaded dynamically via JavaScript -->
+      <div data-seasonal-content>
+        <p class="visually-hidden" id="teamListStatus" role="status" aria-live="polite">Loading team information.</p>
+        <div id="teamList" class="team-list" aria-busy="true">
+          <!-- Teams will be loaded dynamically via JavaScript -->
+        </div>
       </div>
     </div>
   </block>

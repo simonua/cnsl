@@ -400,6 +400,7 @@ function handleMeetUrlParameters() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  if (globalThis.cnslSeasonState && globalThis.cnslSeasonState.isOffSeason) return;
   // Check if we're on the meets page before fetching data
   if (!document.getElementById("meetList")) {
     return;

@@ -23,7 +23,9 @@
     </script>
   </block>
   <block name="content">
-    <h1>{{ YEAR }} Meet Schedule</h1>
+    <h1 data-seasonal-content>{{ YEAR }} Meet Schedule</h1>
+    <h1 data-off-season-content hidden>Meet Schedule</h1>
+    <include src="components/off-season-message.html"></include>
     <div class="container">
       <div class="cnsl-link-section">
         <div class="cnsl-link-card">
@@ -35,9 +37,11 @@
         </div>
       </div>
 
-      <p class="visually-hidden" id="meetListStatus" role="status" aria-live="polite">Loading meet schedule.</p>
-      <div id="meetList" class="meet-list" aria-busy="true">
-        <!-- Meets will be loaded dynamically via JavaScript -->
+      <div data-seasonal-content>
+        <p class="visually-hidden" id="meetListStatus" role="status" aria-live="polite">Loading meet schedule.</p>
+        <div id="meetList" class="meet-list" aria-busy="true">
+          <!-- Meets will be loaded dynamically via JavaScript -->
+        </div>
       </div>
     </div>
   </block>

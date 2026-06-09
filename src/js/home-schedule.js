@@ -134,6 +134,7 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
+    if (globalThis.cnslSeasonState && globalThis.cnslSeasonState.isOffSeason) return;
     initializeFavoriteWeekToggle();
     renderFavoriteWeek();
   });

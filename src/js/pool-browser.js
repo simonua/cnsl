@@ -1032,6 +1032,7 @@ function handlePoolDatePickerChange(event) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  if (globalThis.cnslSeasonState && globalThis.cnslSeasonState.isOffSeason) return;
   // Check if we're on the pools page before fetching data
   if (!document.getElementById("poolList")) {
     return;

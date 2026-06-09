@@ -81,6 +81,16 @@ for (const theme of ['light', 'dark']) {
   });
 }
 
+test('[AX-SEASON-001] off-season views have no WCAG A or AA automated violations', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-09-08T12:00:00-04:00'));
+
+  for (const path of ['/index.html', '/pools.html', '/teams.html', '/meets.html']) {
+    await page.goto(path);
+    await expect(page.locator('.off-season-message')).toBeVisible();
+    await expectNoAccessibilityViolations(page);
+  }
+});
+
 for (const theme of ['light', 'dark']) {
   test(`[AX-SHARE-001-${theme.toUpperCase()}] QR sharing dialog has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
     await loadScenario(page, pageScenarios.find(scenario => scenario.name === 'home'), theme);

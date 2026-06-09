@@ -603,6 +603,7 @@ function generateTeamLink(teamId, teamName, options = {}) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  if (globalThis.cnslSeasonState && globalThis.cnslSeasonState.isOffSeason) return;
   // Check if we're on the teams page before fetching data
   if (!document.getElementById("teamList")) {
     return;

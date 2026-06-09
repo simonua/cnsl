@@ -24,7 +24,8 @@
   </block>
   <block name="content">
     <h1>Outdoor Pool Directory</h1>
-    <div class="container container--pools">
+    <include src="components/off-season-message.html"></include>
+    <div class="container container--pools" data-seasonal-content>
       <section class="pool-filter" id="poolFeatureFilter" aria-label="Pool feature filters" hidden>
         <div class="pool-filter__header">
           <button type="button" class="pool-filter__toggle" id="togglePoolFeatureFilters" aria-expanded="false" aria-controls="poolFeatureFilterControls">
