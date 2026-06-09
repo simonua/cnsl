@@ -71,7 +71,7 @@ pnpm run verify:pwa
 
 Playwright browser verification is deferred to the `Nightly Browser Verification` GitHub Actions workflow. Each day during May, June, and July, its scheduled check runs Chromium workflow and automated WCAG A/AA checks only when a push to `main` was recorded during the preceding 24 hours. It can also be run on demand through workflow dispatch. Browser results are reported separately and do not delay or block a GitHub Pages build. Use the [Release Verification Checklist](docs/release-checklist.md) for the secure-origin installed-PWA and manual assistive-technology checks that automation cannot establish.
 
-Design and maintenance decisions are recorded in [Runtime And Stylesheet Ownership](docs/runtime-architecture.md) and [Security And Privacy Decision](docs/security-privacy.md).
+Design and maintenance decisions are recorded in the [Visual Style Guide](docs/style-guide.md), [Runtime And Stylesheet Ownership](docs/runtime-architecture.md), and [Security And Privacy Decision](docs/security-privacy.md).
 
 ### GitHub Actions Workflow
 
