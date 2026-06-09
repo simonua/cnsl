@@ -266,14 +266,14 @@ test('[WF-DATA-007] footer keeps the last weather update current while weather c
   const weatherFreshness = page.locator('#footerWeatherFreshness');
   const weatherTimestamp = page.locator('#footerWeatherUpdated');
   await expect(weatherFreshness).toBeVisible();
-  await expect(weatherTimestamp).toHaveText('Jun 2, 2:15 PM EDT');
+  await expect(weatherTimestamp).toHaveText('June 2, 2:15 PM EDT');
   await expect(weatherTimestamp).toHaveAttribute('datetime', '2026-06-02T14:15:00-04:00');
 
   await page.evaluate(() => {
     localStorage.setItem('cnsl_weather_alert_last_successful_check', JSON.stringify({ updatedAt: '2026-06-02T14:20:00-04:00' }));
     globalThis.dispatchEvent(new CustomEvent('cnsl:weather-alert-status-changed'));
   });
-  await expect(weatherTimestamp).toHaveText('Jun 2, 2:20 PM EDT');
+  await expect(weatherTimestamp).toHaveText('June 2, 2:20 PM EDT');
 
   for (const viewport of [{ width: 1280, height: 900 }, { width: 320, height: 640 }]) {
     await page.setViewportSize(viewport);

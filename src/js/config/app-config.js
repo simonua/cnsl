@@ -58,6 +58,22 @@
     return sourceTimestamp.toLocaleString('en-US', { ...options, timeZone: APP_TIMEZONE, timeZoneName: 'short' });
   }
 
+  function formatOfficialSourceFooterTimestamp(timestamp) {
+    const sourceTimestamp = new Date(timestamp);
+    const date = new Intl.DateTimeFormat('en-US', {
+      day: 'numeric',
+      month: 'long',
+      timeZone: APP_TIMEZONE
+    }).format(sourceTimestamp);
+    const time = new Intl.DateTimeFormat('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      timeZone: APP_TIMEZONE,
+      timeZoneName: 'short'
+    }).format(sourceTimestamp);
+    return `${date}, ${time}`;
+  }
+
   const OFFICIAL_SOURCE_LONG_LABEL_OPTIONS = Object.freeze({
     day: 'numeric',
     hour: 'numeric',
@@ -65,16 +81,10 @@
     month: 'long',
     year: 'numeric'
   });
-  const OFFICIAL_SOURCE_SHORT_LABEL_OPTIONS = Object.freeze({
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    month: 'short'
-  });
   const OFFICIAL_SOURCE_CHECKED_LABEL = formatOfficialSourceTimestamp(OFFICIAL_SOURCE_CHECKED_AT, OFFICIAL_SOURCE_LONG_LABEL_OPTIONS);
-  const OFFICIAL_SOURCE_CHECKED_SHORT_LABEL = formatOfficialSourceTimestamp(OFFICIAL_SOURCE_CHECKED_AT, OFFICIAL_SOURCE_SHORT_LABEL_OPTIONS);
+  const OFFICIAL_SOURCE_CHECKED_SHORT_LABEL = formatOfficialSourceFooterTimestamp(OFFICIAL_SOURCE_CHECKED_AT);
   const OFFICIAL_SOURCE_UPDATED_LABEL = formatOfficialSourceTimestamp(OFFICIAL_SOURCE_UPDATED_AT, OFFICIAL_SOURCE_LONG_LABEL_OPTIONS);
-  const OFFICIAL_SOURCE_UPDATED_SHORT_LABEL = formatOfficialSourceTimestamp(OFFICIAL_SOURCE_UPDATED_AT, OFFICIAL_SOURCE_SHORT_LABEL_OPTIONS);
+  const OFFICIAL_SOURCE_UPDATED_SHORT_LABEL = formatOfficialSourceFooterTimestamp(OFFICIAL_SOURCE_UPDATED_AT);
 
   // Public destinations referenced by authored site content.
   const EXTERNAL_LINKS = Object.freeze({

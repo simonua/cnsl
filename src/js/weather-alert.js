@@ -131,14 +131,18 @@
 
     const updatedAt = new Date(latestStatus.updatedAt);
     updated.dateTime = latestStatus.updatedAt;
-    updated.textContent = new Intl.DateTimeFormat('en-US', {
+    const updatedDate = new Intl.DateTimeFormat('en-US', {
       day: 'numeric',
+      month: 'long',
+      timeZone: WeatherAlertService.EASTERN_TIMEZONE
+    }).format(updatedAt);
+    const updatedTime = new Intl.DateTimeFormat('en-US', {
       hour: 'numeric',
       minute: '2-digit',
-      month: 'short',
       timeZone: WeatherAlertService.EASTERN_TIMEZONE,
       timeZoneName: 'short'
     }).format(updatedAt);
+    updated.textContent = `${updatedDate}, ${updatedTime}`;
   }
 
   async function refreshWeatherAlert() {
