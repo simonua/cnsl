@@ -68,6 +68,16 @@
       <div id="poolList" class="pool-list" aria-busy="true">
         <!-- Pools will be loaded dynamically via JavaScript -->
       </div>
+      <section class="pool-status-legend" aria-labelledby="poolStatusLegendTitle">
+        <h2 class="pool-status-legend__title" id="poolStatusLegendTitle">Pool status guide</h2>
+        <ul class="pool-status-legend__items">
+          <li class="pool-status-legend__item"><span class="pool-status-indicator green" aria-hidden="true"></span>Open for public use</li>
+          <li class="pool-status-legend__item"><span class="pool-status-indicator yellow" aria-hidden="true"></span>Special schedule or restrictions</li>
+          <li class="pool-status-legend__item"><span class="pool-status-indicator red" aria-hidden="true"></span>Currently closed</li>
+          <li class="pool-status-legend__item"><span class="pool-status-indicator gray" aria-hidden="true"></span>Schedule not available</li>
+        </ul>
+        <p class="pool-status-legend__note"><i>Opens in ...</i> and <i>Closes in ...</i> are quick guides based on today's published public hours. They may not reflect every schedule exception or last-minute change, so check the expanded pool details before heading out.</p>
+      </section>
       <div class="season-info" id="seasonInfo" hidden></div>
     </div>
   </block>

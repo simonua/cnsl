@@ -2446,6 +2446,44 @@ button.pool-filter__clear:focus-visible {
   font-weight: 600;
 }
 
+.pool-status-legend {
+  border-top: 1px solid var(--border-color);
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+}
+
+.pool-status-legend__title {
+  font-size: 1rem;
+  margin: 0 0 0.75rem;
+}
+
+.pool-status-legend__items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pool-status-legend__item {
+  align-items: center;
+  display: inline-flex;
+  font-size: 0.9rem;
+}
+
+.pool-status-legend__item .pool-status-indicator {
+  margin-right: 0.4rem;
+}
+
+.pool-status-legend__note {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 0.75rem 0 0;
+  max-width: 54rem;
+}
+
 /* Enhanced Quick Link Cards */
 .quick-link-card .card-content {
   align-items: center;

@@ -315,6 +315,14 @@ test('[WF-DATA-007-POOLS] pool summaries and requested details render before opt
     await page.goto('/pools.html', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
     await expect(page.locator('#poolList .pool-card')).toHaveCount(23);
+    await expect(page.locator('#poolList + .pool-status-legend')).toBeVisible();
+    await expect(page.locator('.pool-status-legend__item')).toHaveText([
+      'Open for public use',
+      'Special schedule or restrictions',
+      'Currently closed',
+      'Schedule not available'
+    ]);
+    await expect(page.locator('.pool-status-legend__note')).toContainText('quick guides based on today\'s published public hours');
     await expect(page.locator('#poolList .pool-details[data-pool-details-hydrated="false"]')).toHaveCount(23);
     await expect(page.locator('#poolList .pool-contact')).toHaveCount(0);
 
