@@ -22,7 +22,9 @@ description: "Use when working with the build pipeline, dev server, testing, lin
 | `pnpm run lint` | Run ESLint on all JS files |
 | `pnpm run lint:fix` | Auto-fix lint issues |
 
-Reuse a running `CNSL: Start Development Server` task at `http://localhost:9090/` across chat sessions rather than starting a second live-reload server for the same workspace.
+Before starting a server or test command, inspect VS Code tasks and operating-system processes, including their command lines and workspace paths, for matching work launched by another chat, agent, terminal, or parallel task. Do not start duplicate or overlapping test runs for the same relevant suite; reuse an available result or wait for the active run to finish. Leave unrelated active processes untouched.
+
+Before opening any local page, confirm that port 9090 is listening and make a lightweight HTTP request to `http://localhost:9090/`. Reuse a healthy `CNSL: Start Development Server` process across chat sessions. If a task or process is recorded but the health check fails, inspect its output and process state, then recover the shared server rather than navigating to an unavailable page or launching a competing live-reload server.
 
 ## Dev CLI
 
