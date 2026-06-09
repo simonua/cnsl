@@ -4,6 +4,8 @@ The retired seasonal monitor checked public sources that support the active `YEA
 
 ## Coverage
 
+Every deliberate source check must perform live network requests during the current run. The expected set is every official source defined by the active annual JSON and annual README that supports modeled data or an application-used official source destination. Reconcile that expected set with the URLs collected by the monitor before claiming complete coverage. Use a live `HEAD` request when current `ETag`, `Last-Modified`, or equivalent metadata is sufficient, or a conditional `GET` that may return `304 Not Modified`; fall back to `GET` and compare the relevant content fingerprint or document hash when validators are missing or unreliable. Directly request any expected source omitted by the monitor, record the omission for automation follow-up, and report the overall check as incomplete if any expected source failed or was not attempted.
+
 - Pools: each retained pool schedule PDF, the Columbia Association schedule and directory pages, and each pool facility page supplying features.
 - Meets: the retained official meet-schedule PDF and the CNSL publication page.
 - Teams: retained practice and assignment PDFs, each public staff and recorded practice-schedule page, and the CNSL publication page. Team home pages and event calendars are destinations offered by the app, not transcribed team-data evidence, and are not fingerprinted unless a recorded practice source is hosted on the home page.
@@ -51,3 +53,5 @@ pnpm run check:data-updates
 ```
 
 The command is the deterministic, low-cost gate for data-review work. If it reports no candidate differences, stop without loading annual domain JSON or retrieving sources for AI review. Use `--season-only --report` when generating the ignored, ephemeral candidate report supplied to a tracking issue. Each finding identifies the exact annual JSON record and modeled property group to inspect, allowing a reviewer to avoid unaffected domains and records. A clean report run removes any stale candidate report left by an earlier check. The report is not a pull-request artifact.
+
+The command's clean result applies only to URLs it collected. Before reporting a comprehensive online check, compare that collected list with the expected sources above and make live requests for any gaps. `pnpm run validate:data` is a separate local integrity gate and is never evidence of current network access.
