@@ -87,7 +87,7 @@
 
   // Public destinations referenced by authored site content.
   const EXTERNAL_LINKS = Object.freeze({
-    AUTHOR_BUG_FEATURE_EMAIL_URL: `mailto:${AUTHOR_EMAIL}?subject=${encodeURIComponent('CA Pool & CNSL Assistant - Bug / Feature')}`,
+    AUTHOR_BUG_FEATURE_EMAIL_URL: `mailto:${AUTHOR_EMAIL}?subject=${encodeURIComponent(`CA Pool & CNSL Assistant - Bug / Feature - Version ${APP_VERSION}`)}`,
     AUTHOR_DATA_EMAIL_URL: `mailto:${AUTHOR_EMAIL}?subject=${encodeURIComponent('CA Pool & CNSL Assistant - Data')}`,
     AUTHOR_FEEDBACK_EMAIL_URL: `mailto:${AUTHOR_EMAIL}?subject=${encodeURIComponent('CA Pool & CNSL Assistant - Feedback')}`,
     AUTHOR_LESSON_RECOMMENDATION_EMAIL_URL: `mailto:${AUTHOR_EMAIL}?subject=${encodeURIComponent('CA Pool & CNSL Assistant - Lesson Provider Recommendation')}`,
