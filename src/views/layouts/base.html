@@ -103,11 +103,14 @@
   <script src="js/navigation.js"></script>
   <script src="js/pwa.js"></script>
   <script src="js/connectivity-status.js"></script>
-  <script src="js/config/weather-operating-windows.js"></script>
-  <script src="js/services/weather-alert-service.js"></script>
-  <script src="js/weather-alert.js"></script>
 
   <block name="scripts"></block>
+
+  <!-- Weather scripts load after the current view's scripts -->
+  <script src="js/config/weather-operating-windows.js" defer></script>
+  <script src="js/services/weather-alert-service.js" defer></script>
+  <script src="js/weather-alert.js" defer></script>
+
   <script src="js/settings.js" defer></script>
 </body>
 
