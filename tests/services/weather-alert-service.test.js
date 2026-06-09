@@ -30,7 +30,7 @@ describe('WeatherAlertService', () => {
       assert.deepEqual(status, { isInclement: false });
     });
 
-    it('should show an alert for thunderstorms in the near-term forecast', () => {
+    it('should show an alert for thunderstorms later today', () => {
       const status = WeatherAlertService.evaluateStatus([], [{
         name: 'Tonight',
         startTime: '2026-05-24T18:00:00-04:00',
@@ -67,11 +67,36 @@ describe('WeatherAlertService', () => {
       assert.match(status.message, /Severe Thunderstorm Warning/);
     });
 
-    it('should ignore storm forecasts outside the next day', () => {
+    it('should ignore an active dangerous weather alert that begins tomorrow', () => {
+      const status = WeatherAlertService.evaluateStatus([{
+        properties: {
+          event: 'Severe Thunderstorm Watch',
+          onset: '2026-05-25T08:00:00-04:00',
+          expires: '2026-05-25T18:00:00-04:00'
+        }
+      }], [], now);
+
+      assert.deepEqual(status, { isInclement: false });
+    });
+
+    it('should include an active dangerous weather alert spanning the current pool day', () => {
+      const status = WeatherAlertService.evaluateStatus([{
+        properties: {
+          event: 'Severe Thunderstorm Watch',
+          onset: '2026-05-23T22:00:00-04:00',
+          expires: '2026-05-25T02:00:00-04:00'
+        }
+      }], [], now);
+
+      assert.equal(status.isInclement, true);
+      assert.equal(status.source, 'alert');
+    });
+
+    it('should ignore storm forecasts for tomorrow', () => {
       const status = WeatherAlertService.evaluateStatus([], [{
-        name: 'Tuesday',
-        startTime: '2026-05-26T12:00:00-04:00',
-        endTime: '2026-05-26T18:00:00-04:00',
+        name: 'Tomorrow',
+        startTime: '2026-05-25T08:00:00-04:00',
+        endTime: '2026-05-25T18:00:00-04:00',
         shortForecast: 'Thunderstorms Likely'
       }], now);
 

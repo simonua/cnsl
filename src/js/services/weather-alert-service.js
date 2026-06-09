@@ -12,7 +12,6 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
     static CACHE_KEY = globalThis.WEATHER_ALERT_STATUS_STORAGE_KEY;
     static LAST_SUCCESSFUL_CHECK_KEY = globalThis.WEATHER_ALERT_LAST_SUCCESSFUL_CHECK_STORAGE_KEY;
     static DEFAULT_REFRESH_MINUTES = globalThis.WEATHER_ALERT_DEFAULT_REFRESH_MINUTES;
-    static FORECAST_WINDOW_HOURS = globalThis.WEATHER_ALERT_FORECAST_WINDOW_HOURS;
     static POOL_OPENING_LEAD_MINUTES = globalThis.WEATHER_ALERT_OPENING_LEAD_MINUTES;
     static EASTERN_TIMEZONE = globalThis.APP_TIMEZONE;
     static latestStatus = null;
@@ -20,7 +19,7 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
     static FORECAST_PATTERN = /\b(?:thunderstorms?|t-?storms?|lightning|tornado(?:es)?|hail)\b/i;
 
     /**
-     * Determine whether current NWS alerts or the near-term forecast require a pool safety reminder.
+    * Determine whether current NWS alerts or today's forecast require a pool safety reminder.
      * @param {Array} alertFeatures - NWS alert GeoJSON features
      * @param {Array} forecastPeriods - NWS forecast periods
      * @param {Date} now - Evaluation time
@@ -32,7 +31,13 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
       const activeAlert = alerts.find(feature => {
         const properties = feature && feature.properties ? feature.properties : {};
         const alertText = `${properties.event || ''} ${properties.headline || ''} ${properties.description || ''}`;
-        return WeatherAlertService.ALERT_PATTERN.test(alertText);
+        return WeatherAlertService.ALERT_PATTERN.test(alertText)
+          && WeatherAlertService.isRelevantToday(
+            properties.onset || properties.effective || properties.sent,
+            properties.ends || properties.expires,
+            now,
+            false
+          );
       });
 
       if (activeAlert) {
@@ -44,17 +49,11 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
         };
       }
 
-      const forecastWindowEnd = new Date(now.getTime() + WeatherAlertService.FORECAST_WINDOW_HOURS * 60 * 60 * 1000);
       const unsafeForecast = periods.find(period => {
         if (!period) return false;
-        const startsAt = new Date(period.startTime);
-        const endsAt = new Date(period.endTime || period.startTime);
-        const isNearTerm = !Number.isNaN(startsAt.getTime())
-          && !Number.isNaN(endsAt.getTime())
-          && startsAt <= forecastWindowEnd
-          && endsAt >= now;
         const forecastText = `${period.shortForecast || ''} ${period.detailedForecast || ''}`;
-        return isNearTerm && WeatherAlertService.FORECAST_PATTERN.test(forecastText);
+        return WeatherAlertService.isRelevantToday(period.startTime, period.endTime || period.startTime, now)
+          && WeatherAlertService.FORECAST_PATTERN.test(forecastText);
       });
 
       if (unsafeForecast) {
@@ -67,6 +66,18 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
       }
 
       return { isInclement: false };
+    }
+
+    static isRelevantToday(startTime, endTime, now = new Date(), requireValidStart = true) {
+      const startsAt = new Date(startTime);
+      const endsAt = new Date(endTime);
+      const hasValidStart = !Number.isNaN(startsAt.getTime());
+      const hasValidEnd = !Number.isNaN(endsAt.getTime());
+      if (requireValidStart && !hasValidStart) return false;
+
+      const currentEasternDate = WeatherAlertService.getEasternDateContext(now).date;
+      return (!hasValidStart || WeatherAlertService.getEasternDateContext(startsAt).date <= currentEasternDate)
+        && (!hasValidEnd || endsAt >= now);
     }
 
     /**
