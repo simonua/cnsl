@@ -60,7 +60,7 @@ describe('PoolCardDisplay', () => {
     assert.match(html, /feature-pill--amenities/);
     assert.match(html, /feature-pill--water-play/);
     assert.match(html, /Slide &lt;fun&gt;/);
-    assert.match(html, /<a class="feature-pill feature-pill--young-swimmers feature-pill--link" href="lessons\.html">Lessons<\/a>/);
+    assert.match(html, /<a class="feature-pill feature-pill--young-swimmers feature-pill--link" href="lessons\.html">Lessons<svg class="feature-pill__link-icon icon" aria-hidden="true" focusable="false"><use href="#icon-link"><\/use><\/svg><\/a>/);
     assert.doesNotMatch(html, /nav-menu__icon--lessons/);
     assert.match(html, /<div class="pool-hours">Hours<\/div>/);
     assert.doesNotMatch(html, /<script\b/i);

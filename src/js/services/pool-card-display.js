@@ -180,7 +180,7 @@ if (typeof window === 'undefined' || !window.PoolCardDisplay) {
         const category = PoolCardDisplay.getFeatureCategory(item && item.category);
         const label = HtmlSafety.escapeHtml(item && item.label);
         return item && item.href === 'lessons.html'
-          ? `<a class="feature-pill feature-pill--${category} feature-pill--link" href="lessons.html">${label}</a>`
+          ? `<a class="feature-pill feature-pill--${category} feature-pill--link" href="lessons.html">${label}<svg class="feature-pill__link-icon icon" aria-hidden="true" focusable="false"><use href="#icon-link"></use></svg></a>`
           : `<span class="feature-pill feature-pill--${category}">${label}</span>`;
       }).join('');
       return `

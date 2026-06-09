@@ -2248,9 +2248,18 @@ button.pool-filter__clear:focus-visible {
 .feature-pill--link:visited,
 .feature-pill--link:hover,
 .feature-pill--link:focus {
+  align-items: center;
   color: var(--feature-chip-text, var(--feature-amenities-text));
-  text-decoration: underline;
-  text-underline-offset: 0.15em;
+  display: inline-flex;
+  gap: 0.3rem;
+  text-decoration: none;
+}
+
+.feature-pill__link-icon {
+  flex: 0 0 1rem;
+  height: 1rem;
+  stroke-width: 2.25;
+  width: 1rem;
 }
 
 .pool-filter__option--accessibility,
