@@ -235,16 +235,19 @@ test('[WF-DATA-006] FAQ and footer distinguish seasonal-source checks from data 
   await page.goto('/faq.html');
 
   const faqTimestamps = page.locator('.faq-item__source-freshness time');
-  const footerCheckedTimestamp = page.locator('.footer__data-freshness').filter({ hasText: 'Last data checked:' }).locator('time');
-  const footerUpdatedTimestamp = page.locator('.footer__data-freshness').filter({ hasText: 'Last data updated:' }).locator('time');
+  const footerFreshness = page.locator('.footer__data-freshness:not(.footer__weather-freshness)');
+  const footerTimestamps = footerFreshness.locator('time');
   await expect(faqTimestamps).toHaveCount(2);
   for (const faqTimestamp of await faqTimestamps.all()) {
     await expect(faqTimestamp).toHaveAttribute('datetime', /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}-(?:04|05):00$/);
     await expect(faqTimestamp).toHaveText(/^[A-Z][a-z]+ \d{1,2}, \d{4} at \d{1,2}:\d{2} [AP]M E[DS]T$/);
   }
-  for (const footerTimestamp of [footerCheckedTimestamp, footerUpdatedTimestamp]) {
+  await expect(footerFreshness).toContainText('Data last checked:');
+  await expect(footerFreshness).toContainText('last updated:');
+  await expect(footerTimestamps).toHaveCount(2);
+  for (const footerTimestamp of await footerTimestamps.all()) {
     await expect(footerTimestamp).toHaveAttribute('datetime', /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}-(?:04|05):00$/);
-    await expect(footerTimestamp).toHaveText(/^[A-Z][a-z]{2} \d{1,2}, \d{1,2}:\d{2} [AP]M E[DS]T$/);
+    await expect(footerTimestamp).toHaveText(/^[A-Z][a-z]+ \d{1,2}, \d{1,2}:\d{2} [AP]M E[DS]T$/);
   }
 
   for (const viewport of [{ width: 1280, height: 900 }, { width: 320, height: 640 }]) {
