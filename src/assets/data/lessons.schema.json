@@ -1,0 +1,172 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://pools.longreachmarlins.org/assets/data/lessons.schema.json",
+  "version": "V4",
+  "title": "Swim Lesson And Related Program Data Schema",
+  "description": "Schema for factual swim lesson provider and related swimming program information. Pricing and schedules are intentionally not modeled.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "providers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/Provider"
+      }
+    },
+    "relatedPrograms": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/definitions/RelatedProgram"
+      }
+    }
+  },
+  "required": ["providers", "relatedPrograms"],
+  "additionalProperties": false,
+  "definitions": {
+    "NonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "HttpsUrl": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://"
+    },
+    "Provider": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "name": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "websiteUrl": {
+          "$ref": "#/definitions/HttpsUrl"
+        },
+        "contactUrl": {
+          "$ref": "#/definitions/HttpsUrl"
+        },
+        "phone": {
+          "type": "string",
+          "pattern": "^[0-9]{3}-[0-9]{3}-[0-9]{4}$"
+        },
+        "logo": {
+          "$ref": "#/definitions/Logo"
+        },
+        "classTypes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/definitions/NonEmptyString"
+          }
+        },
+        "sourceUrl": {
+          "$ref": "#/definitions/HttpsUrl"
+        },
+        "reviewedOn": {
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "websiteUrl",
+        "logo",
+        "classTypes",
+        "sourceUrl",
+        "reviewedOn"
+      ],
+      "additionalProperties": false
+    },
+    "RelatedProgram": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "name": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "programType": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "logo": {
+          "$ref": "#/definitions/Logo"
+        },
+        "websiteUrl": {
+          "$ref": "#/definitions/HttpsUrl"
+        },
+        "informationUrl": {
+          "$ref": "#/definitions/HttpsUrl"
+        },
+        "eligibility": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "highlights": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/definitions/NonEmptyString"
+          }
+        },
+        "practiceSetting": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "summerLeagueFit": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "sourceUrl": {
+          "$ref": "#/definitions/HttpsUrl"
+        },
+        "reviewedOn": {
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "programType",
+        "logo",
+        "websiteUrl",
+        "informationUrl",
+        "eligibility",
+        "highlights",
+        "practiceSetting",
+        "summerLeagueFit",
+        "sourceUrl",
+        "reviewedOn"
+      ],
+      "additionalProperties": false
+    },
+    "Logo": {
+      "type": "object",
+      "properties": {
+        "src": {
+          "type": "string",
+          "pattern": "^assets/images/provider-logos/[a-z0-9-]+\\.(?:png|jpg)$"
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": ["src", "width", "height"],
+      "additionalProperties": false
+    }
+  }
+}

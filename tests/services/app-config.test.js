@@ -15,6 +15,7 @@ describe('app-config', () => {
     assert.equal(config.EXTERNAL_LINKS.AUTHOR_FEEDBACK_EMAIL_URL, 'mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Feedback');
     assert.equal(config.EXTERNAL_LINKS.AUTHOR_BUG_FEATURE_EMAIL_URL, 'mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Bug%20%2F%20Feature');
     assert.equal(config.EXTERNAL_LINKS.AUTHOR_DATA_EMAIL_URL, 'mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Data');
+    assert.equal(config.EXTERNAL_LINKS.AUTHOR_LESSON_RECOMMENDATION_EMAIL_URL, 'mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Lesson%20Provider%20Recommendation');
     assert.equal(config.EXTERNAL_LINKS.AUTHOR_LINKEDIN_URL, 'https://www.linkedin.com/in/simonkurtz');
     assert.equal(config.EXTERNAL_LINKS.AUTHOR_FACEBOOK_PROFILE_URL, 'https://www.facebook.com/simonkurtz82');
   });
@@ -45,10 +46,14 @@ describe('app-config', () => {
     );
   });
 
-  it('publishes an accepted official-source timestamp and Eastern display labels', () => {
+  it('publishes independent official-source check and update timestamps with Eastern display labels', () => {
     assert.match(config.OFFICIAL_SOURCE_CHECKED_AT, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}-(?:04|05):00$/);
     assert.match(config.OFFICIAL_SOURCE_CHECKED_LABEL, /^[A-Z][a-z]+ \d{1,2}, \d{4} at \d{1,2}:\d{2} [AP]M E[DS]T$/);
-    assert.match(config.OFFICIAL_SOURCE_CHECKED_SHORT_LABEL, /^[A-Z][a-z]{2} \d{1,2}, \d{4}, \d{1,2}:\d{2} [AP]M E[DS]T$/);
+    assert.match(config.OFFICIAL_SOURCE_CHECKED_SHORT_LABEL, /^[A-Z][a-z]{2} \d{1,2}, \d{1,2}:\d{2} [AP]M E[DS]T$/);
+    assert.match(config.OFFICIAL_SOURCE_UPDATED_AT, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}-(?:04|05):00$/);
+    assert.match(config.OFFICIAL_SOURCE_UPDATED_LABEL, /^[A-Z][a-z]+ \d{1,2}, \d{4} at \d{1,2}:\d{2} [AP]M E[DS]T$/);
+    assert.match(config.OFFICIAL_SOURCE_UPDATED_SHORT_LABEL, /^[A-Z][a-z]{2} \d{1,2}, \d{1,2}:\d{2} [AP]M E[DS]T$/);
+    assert.ok(new Date(config.OFFICIAL_SOURCE_CHECKED_AT) >= new Date(config.OFFICIAL_SOURCE_UPDATED_AT));
   });
 
   it('rejects a loaded browser constant that conflicts with published configuration', () => {
@@ -57,7 +62,7 @@ describe('app-config', () => {
   });
 
   it('rejects malformed and invalid official-source timestamps', () => {
-    assert.throws(() => config.formatOfficialSourceCheckedAt('xxxx-xx-xxTxx:xx:xx-04:00', {}), /must be an ISO timestamp/);
-    assert.throws(() => config.formatOfficialSourceCheckedAt('9999-99-99T99:99:99-04:00', {}), /must be a valid ISO timestamp/);
+    assert.throws(() => config.formatOfficialSourceTimestamp('xxxx-xx-xxTxx:xx:xx-04:00', {}), /must use ISO format/);
+    assert.throws(() => config.formatOfficialSourceTimestamp('9999-99-99T99:99:99-04:00', {}), /must be valid dates/);
   });
 });

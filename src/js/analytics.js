@@ -21,11 +21,15 @@
 
   const EXTERNAL_LINK_PURPOSES = Object.freeze({
     GENERAL: 'general',
-    MERCHANDISE: 'merchandise'
+    MERCHANDISE: 'merchandise',
+    PROVIDER_CONTACT: 'provider_contact',
+    PROVIDER_RECOMMENDATION: 'provider_recommendation',
+    PROVIDER_WEBSITE: 'provider_website',
+    RELATED_PROGRAM: 'related_program'
   });
   const ALLOWED_EXTERNAL_LINK_PURPOSES = new Set(Object.values(EXTERNAL_LINK_PURPOSES));
   const ALLOWED_EXTERNAL_LINK_CONTEXTS = new Set([
-    'feedback', 'meet_details', 'official_information', 'other', 'pool_details',
+    'feedback', 'lesson_resources', 'meet_details', 'official_information', 'other', 'pool_details',
     'project_information', 'share', 'team_details', 'weather_status'
   ]);
   const ALLOWED_EXTERNAL_LINK_PROTOCOLS = new Set(['http:', 'https:', 'mailto:', 'sms:', 'tel:']);

@@ -53,6 +53,7 @@ module.exports = [
         PoolMeetScheduleService: 'readonly',
         HtmlSafety: 'readonly',
         IconCatalog: 'readonly',
+        LessonProviderService: 'readonly',
         PoolStatus: 'readonly',
         PoolNames: 'readonly',
         FileHelper: 'readonly',

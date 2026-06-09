@@ -1,0 +1,62 @@
+<extends src="base.html">
+  <block name="metadata">
+    <title>Swim Lessons</title>
+    <meta name="description" content="Find links to swim lesson providers serving Columbia, Maryland, and recommend another provider for consideration." />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <link rel="canonical" href="{{ HOME_PAGE_URL }}/lessons.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Swim Lessons" />
+    <meta property="og:description" content="Find links to swim lesson providers serving Columbia, Maryland, and recommend another provider for consideration." />
+    <meta property="og:url" content="{{ HOME_PAGE_URL }}/lessons.html" />
+    <meta name="twitter:title" content="Swim Lessons" />
+    <meta name="twitter:description" content="Find links to swim lesson providers serving Columbia, Maryland, and recommend another provider for consideration." />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "Swim Lessons",
+        "url": "{{ HOME_PAGE_URL }}/lessons.html",
+        "description": "Links to swim lesson providers serving Columbia, Maryland.",
+        "isPartOf": { "@id": "{{ HOME_PAGE_URL }}/#website" },
+        "about": { "@type": "Thing", "name": "Swim lessons" }
+      }
+    </script>
+  </block>
+  <block name="content">
+    <h1>Swim Lessons</h1>
+    <div class="container">
+      <section class="prose-section" aria-labelledby="lessonsIntroductionTitle">
+        <h2 id="lessonsIntroductionTitle">Find a swim lesson provider</h2>
+        <p>This page provides links to organizations that offer swim lessons in the Columbia area. Please visit each provider's website for its current programs, availability, registration information, and fees.</p>
+      </section>
+
+      <section aria-labelledby="lessonProvidersTitle">
+        <h2 class="visually-hidden" id="lessonProvidersTitle">Lesson providers</h2>
+        <p class="visually-hidden" id="lessonProviderStatus" role="status" aria-live="polite">Loading lesson provider information.</p>
+        <div class="resources-grid lessons-provider-list" id="lessonProviderList" aria-busy="true"></div>
+      </section>
+
+      <section class="lessons-related" aria-labelledby="relatedProgramsTitle">
+        <h2 id="relatedProgramsTitle">Year-round swimming</h2>
+        <p>Families interested in swimming beyond seasonal lessons may also wish to review year-round team opportunities.</p>
+        <div class="resources-grid lessons-provider-list" id="relatedProgramList"></div>
+      </section>
+
+      <section class="prose-section" aria-labelledby="recommendProviderTitle" data-analytics-context="lesson_resources">
+        <h2 id="recommendProviderTitle">Recommend a provider</h2>
+        <p>If you know of another swim school or lesson provider serving the Columbia area, <a href="{{ EXTERNAL_LINKS.AUTHOR_LESSON_RECOMMENDATION_EMAIL_URL }}" data-analytics-link-purpose="provider_recommendation">please send me details</a>. I will be happy to review it for inclusion.</p>
+      </section>
+
+      <section class="lessons-disclaimer" aria-labelledby="lessonsDisclaimerTitle">
+        <h2 id="lessonsDisclaimerTitle"><svg class="icon icon--heading" aria-hidden="true" focusable="false"><use href="#icon-info"></use></svg> Important information</h2>
+        <p>This directory is a helpful starting point, not an endorsement or recommendation. Providers are independent, so please contact them directly to confirm program details, qualifications, availability, and costs. This app and its maintainer are not responsible for provider information or services.</p>
+      </section>
+    </div>
+  </block>
+  <block name="scripts">
+    <script src="js/services/file-helper.js"></script>
+    <script src="js/services/html-safety.js"></script>
+    <script src="js/services/lesson-provider-service.js"></script>
+    <script src="js/lessons-browser.js" defer></script>
+  </block>
+</extends>

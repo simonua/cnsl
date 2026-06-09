@@ -10,7 +10,7 @@ const {
 
 const publishedPagePaths = [
   '/index.html', '/pools.html', '/teams.html', '/meets.html', '/settings.html',
-  '/swim-meet-resources.html', '/whats-new.html', '/about.html', '/faq.html', '/offline.html'
+  '/swim-meet-resources.html', '/lessons.html', '/whats-new.html', '/about.html', '/faq.html', '/offline.html'
 ];
 
 const directoryScenarios = [
@@ -128,6 +128,56 @@ test('[WF-RESOURCES-002] resource views and downloads publish only reviewed docu
   )).length)).toBe(4);
 });
 
+test('[WF-LESSONS-001] lesson provider actions publish only reviewed categories', async ({ page }) => {
+  await initializeAnalyticsRecorder(page);
+  await page.goto('/lessons.html');
+  await expect(page.locator('#lessonProviderStatus')).toHaveText('1 lesson provider listed.');
+  await expect(page.getByRole('heading', { name: 'Columbia Association' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Class types' })).toBeVisible();
+  await expect(page.getByText('Swim team preparation')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Year-round swimming' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Columbia Clippers' })).toBeVisible();
+  await expect(page.getByText('new-swimmer tryouts are limited to swimmers age 10 and under', { exact: false })).toBeVisible();
+  await expect(page.getByText('indoor pools at Columbia Swim Center and Supreme Sports Club', { exact: false })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Program highlights' })).toBeVisible();
+  await expect(page.getByText('can complement outdoor summer-league swimming', { exact: false })).toBeVisible();
+  await expect(page.locator('.lesson-provider-card__logo img')).toHaveCount(2);
+  await expect(page.getByText('Service area:', { exact: false })).toHaveCount(0);
+  const cardLayout = await page.locator('.lesson-provider-card').evaluateAll(cards => cards.map(card => {
+    const bounds = card.getBoundingClientRect();
+    const logoBounds = card.querySelector('.lesson-provider-card__logo').getBoundingClientRect();
+    return { width: bounds.width, height: bounds.height, logoHeight: logoBounds.height };
+  }));
+  expect(cardLayout.every(card => card.width <= 448)).toBe(true);
+  expect(cardLayout.every(card => card.height >= 512)).toBe(true);
+  expect(new Set(cardLayout.map(card => Math.round(card.logoHeight))).size).toBe(1);
+
+  const lessonInformationLink = page.getByRole('link', { name: 'View lesson information (opens in new tab)' });
+  await lessonInformationLink.focus();
+  await expect(lessonInformationLink).toHaveCSS('color', 'rgb(255, 255, 255)');
+
+  const clickWithoutNavigation = locator => locator.evaluate(element => {
+    element.addEventListener('click', event => event.preventDefault(), { once: true });
+    element.click();
+  });
+
+  await clickWithoutNavigation(lessonInformationLink);
+  await clickWithoutNavigation(page.getByRole('link', { name: 'Contact provider (opens in new tab)' }));
+  await clickWithoutNavigation(page.getByRole('link', { name: 'Visit official website (opens in new tab)' }));
+  await clickWithoutNavigation(page.getByRole('link', { name: 'Review current eligibility (opens in new tab)' }));
+  await clickWithoutNavigation(page.getByRole('link', { name: 'please send me details' }));
+
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => (
+    eventArguments[1] === 'ca_external_link'
+  )))).toEqual([
+    ['event', 'ca_external_link', { link_context: 'lesson_resources', link_purpose: 'provider_website' }],
+    ['event', 'ca_external_link', { link_context: 'lesson_resources', link_purpose: 'provider_contact' }],
+    ['event', 'ca_external_link', { link_context: 'lesson_resources', link_purpose: 'related_program' }],
+    ['event', 'ca_external_link', { link_context: 'lesson_resources', link_purpose: 'related_program' }],
+    ['event', 'ca_external_link', { link_context: 'lesson_resources', link_purpose: 'provider_recommendation' }]
+  ]);
+});
+
 test('[WF-LAYOUT-001] mobile pages retain the shared viewport gutter', async ({ page }) => {
   await page.setViewportSize(MOBILE_VIEWPORT);
   await page.goto('/swim-meet-resources.html');
@@ -181,15 +231,21 @@ for (const scenario of directoryScenarios) {
   });
 }
 
-test('[WF-DATA-006] FAQ and footer show the accepted seasonal-source timestamp in Eastern time', async ({ page }) => {
+test('[WF-DATA-006] FAQ and footer distinguish seasonal-source checks from data updates', async ({ page }) => {
   await page.goto('/faq.html');
 
-  const faqTimestamp = page.locator('.faq-item__source-freshness time');
-  const footerTimestamp = page.locator('.footer__data-freshness').filter({ hasText: 'Last data update:' }).locator('time');
-  await expect(faqTimestamp).toHaveAttribute('datetime', /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}-(?:04|05):00$/);
-  await expect(faqTimestamp).toHaveText(/^[A-Z][a-z]+ \d{1,2}, \d{4} at \d{1,2}:\d{2} [AP]M E[DS]T$/);
-  await expect(footerTimestamp).toHaveAttribute('datetime', /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}-(?:04|05):00$/);
-  await expect(footerTimestamp).toHaveText(/^[A-Z][a-z]{2} \d{1,2}, \d{4}, \d{1,2}:\d{2} [AP]M E[DS]T$/);
+  const faqTimestamps = page.locator('.faq-item__source-freshness time');
+  const footerCheckedTimestamp = page.locator('.footer__data-freshness').filter({ hasText: 'Last data checked:' }).locator('time');
+  const footerUpdatedTimestamp = page.locator('.footer__data-freshness').filter({ hasText: 'Last data updated:' }).locator('time');
+  await expect(faqTimestamps).toHaveCount(2);
+  for (const faqTimestamp of await faqTimestamps.all()) {
+    await expect(faqTimestamp).toHaveAttribute('datetime', /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}-(?:04|05):00$/);
+    await expect(faqTimestamp).toHaveText(/^[A-Z][a-z]+ \d{1,2}, \d{4} at \d{1,2}:\d{2} [AP]M E[DS]T$/);
+  }
+  for (const footerTimestamp of [footerCheckedTimestamp, footerUpdatedTimestamp]) {
+    await expect(footerTimestamp).toHaveAttribute('datetime', /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}-(?:04|05):00$/);
+    await expect(footerTimestamp).toHaveText(/^[A-Z][a-z]{2} \d{1,2}, \d{1,2}:\d{2} [AP]M E[DS]T$/);
+  }
 
   for (const viewport of [{ width: 1280, height: 900 }, { width: 320, height: 640 }]) {
     await page.setViewportSize(viewport);

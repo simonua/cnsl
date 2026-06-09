@@ -33,6 +33,7 @@ const pageScenarios = [
   { reference: 'MEETS', name: 'meets', path: '/meets.html', readySelector: '#meetListStatus', readyText: /Meet schedule loaded/ },
   { reference: 'SETTINGS', name: 'settings', path: '/settings.html', readySelector: '#favoritePool:not([disabled])' },
   { reference: 'RESOURCES', name: 'resources', path: '/swim-meet-resources.html' },
+  { reference: 'LESSONS', name: 'lessons', path: '/lessons.html' },
   { reference: 'WHATS-NEW', name: 'whats new', path: '/whats-new.html' },
   { reference: 'ABOUT', name: 'about', path: '/about.html' },
   { reference: 'FAQ', name: 'faq', path: '/faq.html' },

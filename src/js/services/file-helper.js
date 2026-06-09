@@ -76,6 +76,14 @@ if (typeof window === 'undefined' || !window.FileHelper) {
   }
 
   /**
+   * Gets the non-seasonal swim lesson provider directory path.
+   * @returns {string} Full path to lessons.json
+   */
+  static getLessonsDataPath() {
+    return this.getDataFilePath('lessons.json');
+  }
+
+  /**
    * Gets the correct path for any data file
    * @param {string} filename - The data file name (e.g., 'pools.json')
    * @returns {string} Full path to the data file
@@ -217,6 +225,7 @@ if (typeof window === 'undefined' || !window.FileHelper) {
         css: this.getCssBasePath()
       },
       dataFiles: {
+        lessons: this.getLessonsDataPath(),
         pools: this.getPoolsDataPath(),
         teams: this.getTeamsDataPath(),
         meets: this.getMeetsDataPath()

@@ -19,6 +19,7 @@ const requiredArtifacts = [
   'favicon.ico',
   'google3dd9d57115818ebb.html',
   'index.html',
+  'lessons.html',
   'offline.html',
   'pools.html',
   'teams.html',
@@ -40,6 +41,7 @@ const canonicalPages = {
   'pools.html': `${siteOrigin}/pools.html`,
   'teams.html': `${siteOrigin}/teams.html`,
   'meets.html': `${siteOrigin}/meets.html`,
+  'lessons.html': `${siteOrigin}/lessons.html`,
   'faq.html': `${siteOrigin}/faq.html`,
   'settings.html': `${siteOrigin}/settings.html`,
   'whats-new.html': `${siteOrigin}/whats-new.html`,
@@ -51,9 +53,13 @@ const indexablePages = new Set([
   'pools.html',
   'teams.html',
   'meets.html',
+  'lessons.html',
   'faq.html',
   'whats-new.html',
   'about.html',
+  'assets/data/lessons.json',
+  'assets/images/provider-logos/columbia-association.png',
+  'assets/images/provider-logos/columbia-clippers.jpg',
   'swim-meet-resources.html'
 ]);
 
@@ -144,6 +150,7 @@ assert.equal(new Set(precacheResources).size, precacheResources.length, 'Precach
   `assets/data/${YEAR}/teams/teams.json`,
   `assets/data/${YEAR}/meets/meets.json`
 ].forEach(resource => assert.ok(precacheCoreResources.includes(resource), `Install-critical inventory is missing: ${resource}`));
+assert.ok(!precacheCoreResources.includes('assets/data/lessons.json'), 'The lesson provider directory must not increase the install-critical cache tier.');
 assert.ok(precacheOptionalResources.includes('assets/images/logos/team-logos@2x.png'), 'Large visual assets must remain optional during installation.');
 assert.ok(precacheOptionalResources.includes('faq.html'), 'Informational routes without an offline requirement must remain optional during installation.');
 requiredArtifacts

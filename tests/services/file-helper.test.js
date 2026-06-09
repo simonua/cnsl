@@ -50,6 +50,7 @@ describe('FileHelper', () => {
       assert.equal(FileHelper.getPoolsDataPath(), 'assets/data/2026/pools/pools.json');
       assert.equal(FileHelper.getTeamsDataPath(), 'assets/data/2026/teams/teams.json');
       assert.equal(FileHelper.getMeetsDataPath(), 'assets/data/2026/meets/meets.json');
+      assert.equal(FileHelper.getLessonsDataPath(), 'assets/data/lessons.json');
     });
 
     it('does not need DOM globals to resolve paths', () => {
@@ -71,7 +72,7 @@ describe('FileHelper', () => {
       assert.deepEqual(FileHelper.getAllPaths(), {
         layout: 'delivered',
         basePaths: { data: 'assets/data/', assets: 'assets/', images: 'assets/images/', js: 'js/', css: 'css/' },
-        dataFiles: { pools: 'assets/data/2026/pools/pools.json', teams: 'assets/data/2026/teams/teams.json', meets: 'assets/data/2026/meets/meets.json' },
+        dataFiles: { lessons: 'assets/data/lessons.json', pools: 'assets/data/2026/pools/pools.json', teams: 'assets/data/2026/teams/teams.json', meets: 'assets/data/2026/meets/meets.json' },
         assetPaths: { favicons: 'assets/favicons/', teamLogos: 'assets/images/logos/' }
       });
     });

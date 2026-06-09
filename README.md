@@ -54,6 +54,8 @@ pnpm start
 
 Pools, meets, and teams are stored beneath annual domain folders in `src/assets/data/<YEAR>/<domain>/`. The active published season is selected by `YEAR` in `src/js/config/app-config.js`.
 
+The non-seasonal swim lesson provider directory is maintained in `src/assets/data/lessons.json`. It contains factual provider and contact details but intentionally excludes pricing and schedules.
+
 See [Annual Season Assets](docs/annual-season-assets.md) for the exact PDF, JSON, and schema layout and the checklist for preparing a new season such as 2027.
 
 Automated seasonal-source monitoring has been retired and does not run from GitHub Actions. Structured JSON updates remain reviewed transcriptions of official material. Run `pnpm run validate:data` after annual-data changes to validate active schemas, references, URLs, and retained official source documents. See [Retired Seasonal Data Source Monitor](.github/automation/season-data-monitor/README.md) for retained coverage notes and local investigation guidance.

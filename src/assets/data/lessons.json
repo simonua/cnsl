@@ -1,0 +1,54 @@
+{
+  "$schema": "lessons.schema.json",
+  "providers": [
+    {
+      "id": "columbia-association",
+      "name": "Columbia Association",
+      "websiteUrl": "https://columbiaassociation.org/sports-recreation/pools/classes/",
+      "contactUrl": "https://columbiaassociation.org/contact-us/",
+      "phone": "410-715-3000",
+      "logo": {
+        "src": "assets/images/provider-logos/columbia-association.png",
+        "width": 120,
+        "height": 50
+      },
+      "classTypes": [
+        "Parent and child",
+        "Introductory swim",
+        "Stroke development",
+        "Outdoor lessons",
+        "Swim team preparation",
+        "Teen lessons",
+        "Special needs lessons",
+        "One-on-one lessons",
+        "Adult lessons"
+      ],
+      "sourceUrl": "https://columbiaassociation.org/sports-recreation/pools/classes/",
+      "reviewedOn": "2026-06-08"
+    }
+  ],
+  "relatedPrograms": [
+    {
+      "id": "columbia-clippers",
+      "name": "Columbia Clippers",
+      "programType": "Year-round swim team",
+      "logo": {
+        "src": "assets/images/provider-logos/columbia-clippers.jpg",
+        "width": 230,
+        "height": 186
+      },
+      "websiteUrl": "https://www.teamunify.com/team/mdcaa/page/home",
+      "informationUrl": "https://www.gomotionapp.com/SubTabGeneric.jsp?team=mdcaa&_stabid_=79456",
+      "eligibility": "For the 2026-2027 season, new-swimmer tryouts are limited to swimmers age 10 and under as of March 1, 2027. Swimmers transferring from another USA Swimming club use a separate inquiry process.",
+      "highlights": [
+        "Training groups range from Novice and Development through Competition, Junior, and Senior",
+        "The published meet season runs from September through August, with events for varied ages and qualifying levels",
+        "Group-based swim training, with dryland included for some groups"
+      ],
+      "practiceSetting": "The published 2025-2026 schedule lists practices at indoor pools at Columbia Swim Center and Supreme Sports Club.",
+      "summerLeagueFit": "Year-round club swimming can complement outdoor summer-league swimming through continued coached practice and competition. The Clippers are a separate USA Swimming club with their own tryout, registration, practice, and meet requirements.",
+      "sourceUrl": "https://www.gomotionapp.com/SubTabGeneric.jsp?team=mdcaa&_stabid_=79456",
+      "reviewedOn": "2026-06-08"
+    }
+  ]
+}

@@ -776,6 +776,38 @@ button.home-banner__close:focus {
   width: 1.25rem;
 }
 
+.nav-menu__icon--lessons {
+  align-items: center;
+  display: inline-flex;
+  flex-direction: column;
+  font-size: 0.62rem;
+  font-weight: 700;
+  justify-content: center;
+  line-height: 0.7rem;
+  vertical-align: middle;
+}
+
+.nav-menu__lesson-learning {
+  display: inline-block;
+  position: relative;
+  white-space: nowrap;
+}
+
+.nav-menu__lesson-apple {
+  font-size: 0.38rem;
+  position: absolute;
+  right: -0.05rem;
+  top: -0.35rem;
+  transform: rotate(8deg);
+}
+
+.nav-menu__lesson-waves {
+  color: var(--primary-light);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 0.5rem;
+}
+
 .nav-menu a:hover,
 .nav-menu a:focus,
 .nav-menu a.active {
@@ -4607,20 +4639,20 @@ body:has(.footer__weather-freshness:not([hidden])) {
 /* ==========================================================================
   Swim meet resources
   ========================================================================== */
-.intro-section {
-  background: var(--light-bg);
-  padding: 1.5rem;
-  border-radius: var(--border-radius);
+.prose-section {
   margin-bottom: 2rem;
-  border-left: 4px solid var(--primary-color);
 }
 
-.intro-section p {
+.prose-section h2 {
+  margin-bottom: 0.75rem;
+}
+
+.prose-section p {
   margin-bottom: 0.75rem;
   line-height: 1.6;
 }
 
-.intro-section p:last-child {
+.prose-section p:last-child {
   margin-bottom: 0;
 }
 
@@ -4629,6 +4661,102 @@ body:has(.footer__weather-freshness:not([hidden])) {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
+}
+
+.lessons-provider-list {
+  grid-template-columns: minmax(0, 28rem);
+  justify-content: center;
+}
+
+.lesson-provider-card {
+  min-height: 32rem;
+  width: 100%;
+}
+
+.lesson-provider-card__logo {
+  align-items: center;
+  display: flex;
+  height: 7.5rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.lesson-provider-card__logo img {
+  display: block;
+  height: auto;
+  max-height: 7rem;
+  max-width: 12rem;
+  object-fit: contain;
+  width: auto;
+}
+
+.lesson-provider-card__details {
+  margin-bottom: 1.25rem;
+}
+
+.lesson-provider-card__details p {
+  color: var(--text-dark);
+  margin: 0 0 0.5rem;
+}
+
+.lesson-provider-card h3,
+.lesson-provider-card h4 {
+  color: var(--text-dark);
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.lesson-provider-card__classes {
+  columns: 2;
+  line-height: 1.5;
+  margin: 0 0 1.5rem;
+  padding-left: 1.25rem;
+}
+
+.lesson-provider-card__highlights {
+  line-height: 1.5;
+  margin: 0 0 1.25rem;
+  padding-left: 1.25rem;
+}
+
+.lesson-provider-card__highlights li {
+  margin-bottom: 0.35rem;
+}
+
+.lesson-provider-card__classes li {
+  break-inside: avoid;
+  margin-bottom: 0.35rem;
+}
+
+.lessons-related {
+  margin-bottom: 2rem;
+}
+
+.lessons-related > p {
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.lessons-related .lesson-provider-card h3 {
+  color: var(--primary-color);
+  font-size: 1.2rem;
+}
+
+.lessons-disclaimer {
+  border-top: 1px solid var(--border-color);
+  color: var(--text-muted);
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+}
+
+.lessons-disclaimer h2 {
+  color: var(--text-dark);
+  font-size: 1.1rem;
+}
+
+.lessons-disclaimer p {
+  line-height: 1.6;
+  margin-top: 0.75rem;
 }
 
 .resource-card {
@@ -4750,9 +4878,14 @@ body:has(.footer__weather-freshness:not([hidden])) {
 }
 
 .btn-primary:hover,
-.btn-primary:visited:hover {
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary:visited:hover,
+.btn-primary:visited:focus,
+.btn-primary:visited:active {
   background: var(--accent-dark);
   color: var(--accent-text);
+  text-decoration: none;
   transform: translateY(-1px);
   box-shadow: 0 2px 8px var(--primary-soft-shadow);
 }
@@ -4891,13 +5024,17 @@ body:has(.footer__weather-freshness:not([hidden])) {
     flex-direction: column;
   }
 
+  .lesson-provider-card__classes {
+    columns: 1;
+  }
+
+  .lesson-provider-card {
+    min-height: 0;
+  }
+
   .btn-primary, .btn-secondary {
     justify-content: center;
     text-align: center;
-  }
-
-  .intro-section {
-    padding: 1rem;
   }
 
   .success-story {
