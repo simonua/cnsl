@@ -47,8 +47,12 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
     static formatPublicStatusSummary(transition, isClosedAllDay, isClosedForDay, options = {}) {
       const transitionText = PoolScheduleDisplay.formatPublicStatusTransition(transition, options);
       if (transitionText) return transitionText;
-      if (isClosedAllDay === true) return 'Closed to the public';
-      return isClosedForDay === true ? 'Closed' : '';
+
+      // Closed-state inputs remain available for schedule logic, but collapsed card titles
+      // intentionally show only actionable "Opens in" and "Closes in" countdowns.
+      void isClosedAllDay;
+      void isClosedForDay;
+      return '';
     }
 
     /**
