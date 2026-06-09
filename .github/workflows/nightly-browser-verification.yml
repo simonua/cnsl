@@ -2,6 +2,16 @@ name: Nightly Browser Verification
 
 on:
   workflow_dispatch:
+    inputs:
+      worker_count:
+        description: Playwright workers for a controlled reliability trial
+        required: true
+        default: auto
+        type: choice
+        options:
+          - auto
+          - '1'
+          - '2'
   schedule:
     # Runs daily at 05:47 UTC during May, June, and July only.
     - cron: '47 5 * 5-7 *'
@@ -83,4 +93,6 @@ jobs:
 
       - name: Run browser accessibility and workflow checks
         if: steps.decision.outputs.run_tests == 'true'
+        env:
+          CNSL_PLAYWRIGHT_WORKERS: ${{ inputs.worker_count }}
         run: pnpm run test:browser:nightly

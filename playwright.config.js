@@ -3,8 +3,14 @@ const os = require('node:os');
 
 const MIN_PLAYWRIGHT_WORKERS = 2;
 const MAX_PLAYWRIGHT_WORKERS = 3;
+const CI_WORKER_COUNTS = new Set(['1', '2']);
 
 function getPlaywrightWorkerCount() {
+  const requestedWorkerCount = process.env.CNSL_PLAYWRIGHT_WORKERS;
+  if (process.env.CI && CI_WORKER_COUNTS.has(requestedWorkerCount)) {
+    return Number(requestedWorkerCount);
+  }
+
   const availableParallelism = typeof os.availableParallelism === 'function'
     ? os.availableParallelism()
     : os.cpus().length;

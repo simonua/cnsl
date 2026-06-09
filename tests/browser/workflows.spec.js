@@ -165,7 +165,7 @@ test('[WF-LESSONS-001] lesson provider actions publish only reviewed categories'
   await clickWithoutNavigation(page.getByRole('link', { name: 'Contact provider (opens in new tab)' }));
   await clickWithoutNavigation(page.getByRole('link', { name: 'Visit official website (opens in new tab)' }));
   await clickWithoutNavigation(page.getByRole('link', { name: 'Review current eligibility (opens in new tab)' }));
-  await clickWithoutNavigation(page.getByRole('link', { name: 'please send me details' }));
+  await clickWithoutNavigation(page.getByRole('link', { name: 'please send me the details' }));
 
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => (
     eventArguments[1] === 'ca_external_link'
@@ -2040,7 +2040,7 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
   });
   await page.getByRole('button', { name: 'Clear all app data' }).click();
   await acceptedClearPrompt;
-  await expect(page.locator('#settingsStatus')).toHaveText('All app data cleared from this device.');
+  await expect(page.locator('#settingsStatus')).toHaveText('All app data has been cleared from this device.');
   await expect.poll(() => page.locator('#settingsStatus').evaluate(status => globalThis.getComputedStyle(status).textAlign)).toBe('center');
   await expect.poll(() => page.evaluate(async () => ({
     preferences: localStorage.getItem('cnsl_preferences'),
@@ -2156,7 +2156,7 @@ test('[WF-SETTINGS-007] weather source details expose fixed Columbia-area Nation
   const weatherDetails = page.locator('#weather-safety-location');
   const nwsLinks = weatherDetails.getByRole('link');
 
-  await expect(weatherDetails).toContainText('never tracks, saves, or sends your current location');
+  await expect(weatherDetails).toContainText('does not track, save, or send your location');
   await expect(nwsLinks.nth(0)).toHaveText('Active weather alerts (data only)');
   await expect(nwsLinks.nth(1)).toHaveText('Local forecast information (data only)');
   await expect(nwsLinks.nth(2)).toHaveText('Local weather information (web)');
@@ -2505,8 +2505,8 @@ test('[WF-POOLS-016] collapsed opening and closing countdowns update without int
   const openingCard = page.locator('#poolList .pool-card').nth(1);
   await expect(closingCard).toHaveClass(/collapsed/);
   await expect(openingCard).toHaveClass(/collapsed/);
-  await expect(closingCard.locator('.pool-transition-summary')).toHaveText('Closes in 2 min');
-  await expect(openingCard.locator('.pool-transition-summary')).toHaveText('Opens in 2 min');
+  await expect(closingCard.locator('.pool-transition-summary')).toHaveText('Closes in 2 mins');
+  await expect(openingCard.locator('.pool-transition-summary')).toHaveText('Opens in 2 mins');
 
   await page.clock.fastForward(31 * 1000);
   await expect(closingCard.locator('.pool-transition-summary')).toHaveText('Closes in 1 min');
