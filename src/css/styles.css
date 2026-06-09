@@ -102,6 +102,18 @@
   --feature-amenities-text: #384550;
   --feature-amenities-selected-bg: #4f5d69;
   --feature-selected-text: #ffffff;
+  --release-pool-bg: var(--feature-water-play-bg);
+  --release-pool-border: var(--feature-water-play-border);
+  --release-pool-text: var(--feature-water-play-text);
+  --release-meet-bg: var(--warning-soft-bg);
+  --release-meet-border: var(--warning-color);
+  --release-meet-text: var(--warning-text-color);
+  --release-team-bg: var(--feature-recreation-bg);
+  --release-team-border: var(--feature-recreation-border);
+  --release-team-text: var(--feature-recreation-text);
+  --release-bugfix-bg: var(--error-soft-bg);
+  --release-bugfix-border: var(--error-color);
+  --release-bugfix-text: var(--error-text-color);
   --header-height: 4.625rem;
   --footer-height: 3.75rem;
   --footer-bottom-clearance: env(safe-area-inset-bottom, 0rem);
@@ -2913,6 +2925,43 @@ button.pool-filter__clear:focus-visible {
 
 .release-highlights li:last-child {
   margin-bottom: 0;
+}
+
+.release-label {
+  display: inline-block;
+  border: 1px solid;
+  border-radius: 0.25rem;
+  margin: 0 0.35rem 0.2rem 0;
+  padding: 0.05rem 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.35;
+  vertical-align: 0.08em;
+}
+
+.release-label--pool {
+  background: var(--release-pool-bg);
+  border-color: var(--release-pool-border);
+  color: var(--release-pool-text);
+}
+
+.release-label--meet {
+  background: var(--release-meet-bg);
+  border-color: var(--release-meet-border);
+  color: var(--release-meet-text);
+}
+
+.release-label--team {
+  background: var(--release-team-bg);
+  border-color: var(--release-team-border);
+  color: var(--release-team-text);
+}
+
+.release-label--bugfix {
+  background: var(--release-bugfix-bg);
+  border-color: var(--release-bugfix-border);
+  color: var(--release-bugfix-text);
+  font-weight: 500;
 }
 
 .faq-item a {
