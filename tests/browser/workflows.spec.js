@@ -914,7 +914,7 @@ test('[WF-POOLS-014] yoga feature filter finds the pool with published yoga prog
   await expect(page.locator('#poolList .pool-card')).toContainText('Stevens Forest');
 });
 
-test('[WF-POOLS-018] lessons feature identifies CA outdoor lesson pools and links to lesson details', async ({ page }) => {
+test('[WF-POOLS-018] lessons feature identifies CA outdoor lesson pools with the shared icon', async ({ page }) => {
   await page.goto('/pools.html');
   await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
 
@@ -935,11 +935,7 @@ test('[WF-POOLS-018] lessons feature identifies CA outdoor lesson pools and link
 
   const firstPool = page.locator('#poolList .pool-card').first();
   await firstPool.locator('.pool-header__toggle').click();
-  const lessonsPill = firstPool.getByRole('link', { name: 'Lessons' });
-  await expect(lessonsPill).toHaveAttribute('href', 'lessons.html');
-  await expect(lessonsPill.locator('.nav-menu__icon--lessons')).toHaveCount(0);
-  await lessonsPill.click();
-  await expect(page).toHaveURL(/\/lessons\.html$/);
+  await expect(firstPool.locator('.feature-pill', { hasText: 'Lessons' }).locator('.nav-menu__icon--lessons')).toBeVisible();
 });
 
 test('[WF-POOLS-002] pool availability filters show pools open now, opening soon, open today, or open for the next two hours', async ({ page }) => {
