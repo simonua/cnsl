@@ -56,6 +56,12 @@ describe('PoolDirectoryService', () => {
       'open:open:false|soon:closed:true|missing:unavailable'
     );
     assert.equal(PoolDirectoryService.getLiveStatusSignature(pools, 'all', null), '');
+    assert.equal(PoolDirectoryService.getLiveStatusSignature(
+      [{ name: 'Named Pool' }],
+      'all',
+      () => ({ getCurrentStatus: () => ({ kind: 'closed' }) })
+    ), 'Named Pool:closed:');
+    assert.equal(PoolDirectoryService.getLiveStatusSignature([{ name: 'Unavailable Name' }], 'all', () => null), 'Unavailable Name:unavailable');
   });
 
   it('formats and orders feature labels through supplied groups', () => {

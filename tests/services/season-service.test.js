@@ -1,5 +1,8 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
 const { SeasonService } = require('../../src/js/services/season-service');
 
 describe('SeasonService', () => {
@@ -27,6 +30,21 @@ describe('SeasonService', () => {
       assert.equal(SeasonService.isOffSeason('2025-09-01', new Date('2026-05-22T12:00:00-04:00')), true);
       assert.equal(SeasonService.isOffSeason('2025-09-01', new Date('2025-09-01T12:00:00-04:00')), false);
       assert.equal(SeasonService.isOffSeason('2025-09-01', new Date('2026-05-23T12:00:00-04:00')), false);
+    });
+
+    it('returns false when the published season end is absent', () => {
+      assert.equal(SeasonService.isOffSeason(), false);
+    });
+  });
+
+  describe('browser registration', () => {
+    it('installs the service as a browser script global', () => {
+      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'season-service.js');
+      const source = fs.readFileSync(sourcePath, 'utf8');
+      const context = { window: {} };
+      vm.runInNewContext(source, context, { filename: sourcePath });
+
+      assert.equal(typeof context.window.SeasonService, 'function');
     });
   });
 });

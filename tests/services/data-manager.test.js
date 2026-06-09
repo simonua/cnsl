@@ -60,6 +60,8 @@ describe('DataManager', () => {
           caPoolDirectoryUrl: 'https://example.com/pools',
           caPoolGuideUrl: 'https://example.com/guide'
         });
+        await manager.refresh([]);
+        assert.equal(requestPaths.length, 6);
       } finally {
         global.fetch = originalFetch;
         global.FileHelper = originalFileHelper;

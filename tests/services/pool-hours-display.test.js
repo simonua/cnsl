@@ -76,6 +76,8 @@ describe('PoolHoursDisplay', () => {
     assert.match(html, /Status unknown/);
     assert.doesNotMatch(html, /data-status-action=/);
     assert.doesNotMatch(html, / min="| max="/);
+    assert.match(PoolHoursDisplay.render(null), /status-gray/);
+    assert.doesNotMatch(PoolHoursDisplay.render({ weekSchedule: null, scheduleOptions: null }), /data-status-action=/);
   });
 
   it('renders each disabled navigation state and rejects unsupported transition actions', () => {

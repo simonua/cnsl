@@ -40,6 +40,8 @@ describe('MeetsManager', () => {
       manager.loadData({ special_meets: [{ date: '2026-07-25', name: 'All City', location: 'Columbia' }] });
       assert.equal(manager.getMeetCount(), 1);
       assert.equal(manager.getAllMeets()[0].isSpecialMeet(), true);
+      manager.loadData({ special_meets: [{ date: '2026-07-26' }] });
+      assert.equal(manager.getMeetCount(), 1);
     });
   });
 
@@ -167,6 +169,8 @@ describe('MeetsManager', () => {
         assert.equal(summaries[1].location, 'TBD');
         assert.equal(manager.exportData().meets.length, 2);
         assert.deepEqual(manager.exportData().meetTimes, {});
+        manager.loadData({ regular_meets: [{ date: today, home_team: 'Home', visiting_team: 'Away', time: '6:00 PM' }] });
+        assert.equal(manager.getMeetsSummary()[0].time, '6:00 PM');
       } finally {
         global.TimeUtils = originalTimeUtils;
       }

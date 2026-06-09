@@ -1,5 +1,8 @@
 const { after, describe, it } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
 const activeTeamsData = require('../../src/assets/data/2026/teams/teams.json');
 const activeMeetsData = require('../../src/assets/data/2026/meets/meets.json');
 const Meet = require('../../src/js/models/meet.js');
@@ -194,6 +197,14 @@ describe('TeamAgendaDisplay', () => {
       });
 
       assert.equal(time, '8:30 AM - 11:30 AM');
+      assert.equal(TeamAgendaDisplay.getMeetDisplayTime({
+        getTimeWindowKey: () => 'dualMeets',
+        getDisplayTime: timingWindow => timingWindow.start
+      }, { meetTimeOverrides: { dualMeets: { start: '09:00', end: '11:00' } } }), '09:00');
+      assert.equal(TeamAgendaDisplay.getMeetDisplayTime({
+        getTimeWindowKey: () => 'dualMeets',
+        getDisplayTime: timingWindow => timingWindow.start
+      }, { getMeetTimeOverride: () => ({ start: '10:00', end: '11:00' }) }), '10:00');
     });
 
     it('returns no agenda without a team and selects explicit semantic practice periods', () => {
@@ -264,6 +275,46 @@ describe('TeamAgendaDisplay', () => {
         globalThis.TeamScheduleService.getUpcomingPractices = originalGetUpcoming;
         globalThis.PreferencesService.filterPracticeSessions = originalFilterSessions;
       }
+    });
+
+    it('omits practices from prior calendar days', () => {
+      const originalGetUpcoming = globalThis.TeamScheduleService.getUpcomingPractices;
+      globalThis.TeamScheduleService.getUpcomingPractices = () => [{
+        date: new Date(2026, 4, 31),
+        practicePeriod: 'morning',
+        sessions: [{ time: '8:00 - 9:00am', group: 'A' }]
+      }];
+      try {
+        assert.deepEqual(TeamAgendaDisplay.getUpcomingEvents({ practice: {} }, [], new Date(2026, 5, 1)), []);
+      } finally {
+        globalThis.TeamScheduleService.getUpcomingPractices = originalGetUpcoming;
+      }
+    });
+  });
+
+  describe('browser registration', () => {
+    it('uses browser globals and accepts a prebuilt pool index', () => {
+      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'team-agenda-display.js');
+      const source = fs.readFileSync(sourcePath, 'utf8');
+      const context = {
+        Date,
+        Map,
+        globalThis: null,
+        IconCatalog: { render: () => '' },
+        HtmlSafety: { escapeHtml: String },
+        PreferencesService: globalThis.PreferencesService,
+        TeamScheduleService: globalThis.TeamScheduleService,
+        TimeUtils,
+        createPoolLocationIndex: () => new Map(),
+        generateLinkedPoolMentions: String
+      };
+      context.globalThis = context;
+      vm.runInNewContext(source, context, { filename: sourcePath });
+
+      assert.equal(typeof context.TeamAgendaDisplay.renderEvents, 'function');
+      assert.match(context.TeamAgendaDisplay.renderEvents([{
+        date: new Date(2026, 5, 1), label: 'Practice', location: '', sessions: [], teams: ''
+      }], 3, new Map(), new Date(2026, 5, 1)), /Practice/);
     });
   });
 });

@@ -173,6 +173,24 @@ describe('PoolSchedule', () => {
       assert.equal(schedule._isTimeInRestriction({ start: '1:00PM', end: '2:00PM' }, new Date()), false);
     });
 
+    it('uses an open fallback status when only browser time utilities are available', () => {
+      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'pool-schedule.js');
+      const source = fs.readFileSync(sourcePath, 'utf8');
+      const context = {
+        console: { error: () => {} },
+        window: {},
+        TimeUtils: {
+          getDayName: () => 'Tuesday',
+          parseTimeString: value => value.startsWith('9') ? 9 : 10,
+          formatTime: value => value
+        }
+      };
+      vm.runInNewContext(source, context, { filename: sourcePath });
+      const schedule = new context.window.PoolSchedule({ Monday: { open: '9:00AM', close: '10:00AM' } });
+
+      assert.equal(schedule.getTimeSlots('Monday')[0].status, 'Open');
+    });
+
     it('closes incomplete browser schedules when status exists without time utilities', () => {
       const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'pool-schedule.js');
       const source = fs.readFileSync(sourcePath, 'utf8');

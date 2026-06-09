@@ -122,6 +122,10 @@ describe('PoolHoursViewModelService', () => {
     );
     assert.deepEqual(slots[0].timeSlots, []);
     assert.equal(slots[1].timeSlots[0].accessStatus, 'practice-only');
+    assert.deepEqual(PoolHoursViewModelService.getWeekSchedule({
+      name: 'Default Collaborator',
+      getWeekScheduleForDate: () => [{ day: 'Mon', timeSlots: [] }]
+    }, options.weekStart), [{ day: 'Mon', timeSlots: [] }]);
   });
 
   it('installs the service as a browser script global', () => {

@@ -69,6 +69,13 @@ describe('Meet', () => {
     assert.equal(new Meet({ location: '' }).occursAtPool(''), false);
   });
 
+  it('rejects malformed clock and current-time values safely', () => {
+    assert.equal(Meet.formatClockTime('25:00'), '');
+    assert.equal(meet.getLiveStatus(null), null);
+    assert.equal(meet.getLiveStatus({ date: '2026-06-13', minutes: Number.NaN }), null);
+    assert.equal(meet.matchesSearchTerm(), true);
+  });
+
   it('installs the model as a browser script global', () => {
     const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'models', 'meet.js');
     const source = fs.readFileSync(sourcePath, 'utf8');

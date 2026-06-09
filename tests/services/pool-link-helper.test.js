@@ -30,6 +30,17 @@ describe('pool-link-helper', () => {
       assert.equal(locations.get('bryant woods pool'), 'bwp');
       assert.equal(createPoolLocationIndex([{ id: 'new', name: 'New Published Pool' }]).get('new published pool'), 'new');
     });
+
+    it('uses model names and skips unusable pool records', () => {
+      const locations = createPoolLocationIndex([
+        { id: 'model', getName: () => 'Model Pool' },
+        { id: 'blank', getName: () => '' },
+        { name: 'Missing ID' }
+      ]);
+
+      assert.equal(locations.get('model pool'), 'model');
+      assert.equal(locations.has('missing id'), false);
+    });
   });
 
   describe('getPoolIdFromLocation', () => {
@@ -132,6 +143,13 @@ describe('pool-link-helper', () => {
       assert.equal(generateLinkedPoolMentions(null), '');
       assert.equal(generateLinkedPoolMentions('Remote <place>'), 'Remote &lt;place&gt;');
     });
+
+    it('accepts a prebuilt index and links multiple known mentions', () => {
+      const index = createPoolLocationIndex(publishedPools);
+      const html = generateLinkedPoolMentions('Bryant Woods at Kendall Ridge', index);
+
+      assert.equal((html.match(/pools\.html\?pool=/g) || []).length, 2);
+    });
   });
 
   describe('generateGoogleMapsLink', () => {
@@ -177,6 +195,7 @@ describe('pool-link-helper', () => {
       assert.match(generateEnhancedPoolLink('Unknown <Pool>', dataManager), /pools\.html/);
       assert.match(generateEnhancedPoolLink('Unknown Pool', dataManager, { displayText: '<Unknown>' }), /&lt;Unknown&gt;/);
       assert.match(generateEnhancedPoolLink('Unknown Pool', dataManager, { preferPoolsPage: false }), /maps\/search/);
+      assert.match(generateEnhancedPoolLink('Unknown Pool', null, { preferPoolsPage: false }), /maps\/search/);
     });
   });
 

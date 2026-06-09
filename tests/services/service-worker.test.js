@@ -115,6 +115,7 @@ function createWorkerHarness(precacheResources, options = {}) {
     deletedCaches,
     dispatch,
     getSkipWaitingCalls: () => skipWaitingCalls,
+    getStaticResourceCacheKey: resource => context.createStaticResourceCacheKey(resource),
     setFetchImplementation(implementation) {
       fetchImplementation = implementation;
     }
@@ -122,6 +123,13 @@ function createWorkerHarness(precacheResources, options = {}) {
 }
 
 describe('service worker cache strategy', () => {
+  it('normalizes unversioned request-like static resources', () => {
+    const harness = createWorkerHarness(coreResources);
+
+    assert.match(harness.getStaticResourceCacheKey({ url: 'https://pools.longreachmarlins.org/css/styles.css' }), /styles\.css\?v=development$/);
+    assert.match(harness.getStaticResourceCacheKey('css/styles.css?v=current'), /styles\.css\?v=current$/);
+  });
+
   it('should activate without requesting optional resources during installation', async () => {
     let optionalRequests = 0;
     const harness = createWorkerHarness([...coreResources, 'assets/images/optional.png'], {

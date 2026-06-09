@@ -58,6 +58,8 @@ describe('TeamScheduleService', () => {
 
     it('returns no validation errors for absent or complete practice data', () => {
       assert.deepEqual(TeamScheduleService.getValidationErrors(null), []);
+      assert.deepEqual(TeamScheduleService.getValidationErrors({}), []);
+      assert.deepEqual(TeamScheduleService.getValidationErrors({ regular: { season: 'June 19 - July 24' } }), []);
       assert.deepEqual(TeamScheduleService.getValidationErrors({
         preseason: [{ period: 'May 26 - May 29', days: 'Tuesday - Friday' }],
         regular: { season: 'June 19 - July 24', morning: [{ days: 'Monday' }], evening: [{ day: 'Friday' }] }
@@ -152,13 +154,18 @@ describe('TeamScheduleService', () => {
         TeamScheduleService.getDetailedPracticeTeamNames(teams, 'Shared', new Date('2026-06-24T12:00:00'), slot, TimeUtils),
         []
       );
+      assert.deepEqual(TeamScheduleService.getDetailedPracticeTeamNames(null, 'Shared', new Date(), slot, TimeUtils), []);
+      assert.deepEqual(TeamScheduleService.getDetailedPracticeTeamNames(teams, 'Shared', new Date(), { startTime: 'bad', endTime: 'bad' }, TimeUtils), []);
+      assert.deepEqual(TeamScheduleService.getDetailedPracticeTeamNames(teams, 'Other', new Date('2026-06-23T12:00:00'), slot, TimeUtils), []);
     });
 
     it('parses inherited meridiem session ranges and rejects invalid or reversed ranges', () => {
       assert.deepEqual(TeamScheduleService.getTimeRange('5:00 - 6:30pm', TimeUtils), { start: 1020, end: 1110 });
       assert.equal(TeamScheduleService.getTimeRange('bad', TimeUtils), null);
       assert.equal(TeamScheduleService.getTimeRange('8:00pm - 7:00pm', TimeUtils), null);
+      assert.equal(TeamScheduleService.getTimeRange('5:00 - 6:30', TimeUtils), null);
       assert.equal(TeamScheduleService.getTimeRange('5:00pm - 6:30pm', { timeStringToMinutes: () => { throw new Error('Invalid time'); } }), null);
+      assert.equal(TeamScheduleService.normalizePoolName(), '');
     });
   });
 

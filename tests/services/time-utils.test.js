@@ -40,6 +40,10 @@ describe('TimeUtils', () => {
         assert.equal(TimeUtils._timezoneOffsetCache.has('old'), false);
         assert.equal(TimeUtils._getEasternOffsetMs(new Date(2026, 6, 1)), -4 * 3600000);
         assert.equal(TimeUtils._getEasternOffsetMs(new Date(2026, 0, 1)), -5 * 3600000);
+        assert.equal(TimeUtils._getEasternOffsetMs(new Date(2026, 2, 8)), -4 * 3600000);
+        assert.equal(TimeUtils._getEasternOffsetMs(new Date(2026, 2, 7)), -5 * 3600000);
+        assert.equal(TimeUtils._getEasternOffsetMs(new Date(2026, 10, 6)), -4 * 3600000);
+        assert.equal(TimeUtils._getEasternOffsetMs(new Date(2026, 10, 7)), -5 * 3600000);
       } finally {
         TimeUtils._lastCacheCleanup = originalCleanup;
         console.info = originalInfo;
@@ -118,6 +122,7 @@ describe('TimeUtils', () => {
     it('handles lowercase am/pm', () => {
       assert.equal(TimeUtils.timeStringToMinutes('9:00am'), 540);
       assert.equal(TimeUtils.timeStringToMinutes('2:30pm'), 870);
+      assert.equal(TimeUtils.timeStringToMinutes('9AM'), 540);
     });
 
     it('throws for invalid input', () => {
@@ -491,9 +496,15 @@ describe('TimeUtils', () => {
     it('installs TimeUtils as a browser script global', () => {
       const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'time-utils.js');
       const source = fs.readFileSync(sourcePath, 'utf8');
-      const context = { window: {}, globalThis: { APP_TIMEZONE: 'America/New_York' } };
+      const context = {
+        console: { info: () => {} },
+        IconCatalog: { getTextGlyph: () => '*' },
+        window: {},
+        globalThis: { APP_TIMEZONE: 'America/New_York' }
+      };
       vm.runInNewContext(source, context, { filename: sourcePath });
       assert.equal(typeof context.window.TimeUtils, 'function');
+      assert.doesNotThrow(() => context.window.TimeUtils._log('browser'));
     });
   });
 });

@@ -1,5 +1,8 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
 const LessonProviderService = require('../../src/js/services/lesson-provider-service.js');
 
 const provider = {
@@ -7,6 +10,8 @@ const provider = {
   name: 'Example Provider',
   websiteUrl: 'https://example.com/lessons',
   contactUrl: 'https://example.com/contact',
+  contactName: 'Swim Lesson Program Supervisor',
+  contactEmail: 'lessons@example.com',
   phone: '410-555-0100',
   logo: { src: 'assets/images/provider-logos/example-provider.png', width: 120, height: 50 },
   classTypes: ['Introductory swim'],
@@ -22,8 +27,20 @@ describe('LessonProviderService', () => {
     assert.notEqual(normalized.classTypes, provider.classTypes);
   });
 
+  it('normalizes omitted optional contact details', () => {
+    const [normalized] = LessonProviderService.normalizeDocument({
+      providers: [{ ...provider, contactUrl: undefined, contactName: undefined, contactEmail: undefined, phone: undefined }]
+    });
+
+    assert.equal(normalized.contactUrl, '');
+    assert.equal(normalized.contactName, '');
+    assert.equal(normalized.contactEmail, '');
+    assert.equal(normalized.phone, '');
+  });
+
   it('rejects missing provider arrays and incomplete records', () => {
     assert.throws(() => LessonProviderService.normalizeDocument({}), /Invalid lesson provider data response/);
+    assert.throws(() => LessonProviderService.normalizeProvider(null), /Invalid lesson provider record/);
     assert.throws(() => LessonProviderService.normalizeDocument({ providers: [{ name: 'Incomplete' }] }), /Invalid lesson provider record/);
   });
 
@@ -36,6 +53,15 @@ describe('LessonProviderService', () => {
     }), /Invalid lesson provider record/);
     assert.throws(() => LessonProviderService.normalizeDocument({
       providers: [{ ...provider, phone: 'call-me' }]
+    }), /Invalid lesson provider record/);
+    assert.throws(() => LessonProviderService.normalizeDocument({
+      providers: [{ ...provider, contactEmail: 'not-an-email' }]
+    }), /Invalid lesson provider record/);
+    assert.throws(() => LessonProviderService.normalizeDocument({
+      providers: [{ ...provider, contactName: undefined }]
+    }), /Invalid lesson provider record/);
+    assert.throws(() => LessonProviderService.normalizeDocument({
+      providers: [{ ...provider, websiteUrl: 'not a URL' }]
     }), /Invalid lesson provider record/);
   });
 
@@ -66,11 +92,27 @@ describe('LessonProviderService', () => {
     assert.throws(() => LessonProviderService.normalizeRelatedPrograms({
       relatedPrograms: [{ ...relatedProgram, informationUrl: 'data:text/html,unsafe' }]
     }), /Invalid related swimming program record/);
+    assert.throws(
+      () => LessonProviderService.normalizeRelatedPrograms({}),
+      /Invalid related swimming program data response/
+    );
   });
 
   it('rejects arbitrary or incomplete logo assets', () => {
     assert.throws(() => LessonProviderService.normalizeDocument({
       providers: [{ ...provider, logo: { src: 'https://example.com/logo.png', width: 100, height: 100 } }]
     }), /Invalid lesson directory logo/);
+  });
+
+  it('installs once as a browser script global', () => {
+    const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'lesson-provider-service.js');
+    const source = fs.readFileSync(sourcePath, 'utf8');
+    const context = { URL, window: {} };
+    vm.runInNewContext(source, context, { filename: sourcePath });
+    const installedService = context.window.LessonProviderService;
+    vm.runInNewContext(source, context, { filename: sourcePath });
+
+    assert.equal(typeof installedService, 'function');
+    assert.equal(context.window.LessonProviderService, installedService);
   });
 });

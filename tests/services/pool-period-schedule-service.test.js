@@ -49,6 +49,15 @@ describe('PoolPeriodScheduleService', () => {
       assert.equal(normalized.Monday.accessStatus, 'public');
       assert.equal(normalized.Wednesday.closed, true);
       assert.deepEqual(createService({ getTimeUtils: () => null }).normalizeActiveSchedule(), {});
+      const malformed = createService({
+        schedulePeriods: [{
+          startDate: '2026-06-01',
+          endDate: '2026-06-01',
+          hours: [{}, { weekDays: ['Mon'], startTime: '1:00PM', endTime: '2:00PM' }]
+        }],
+        getTimeUtils: () => createTimeUtils({ getCurrentEasternTimeInfo: () => ({ date: '2026-06-01' }) })
+      }).normalizeActiveSchedule();
+      assert.deepEqual(malformed.Monday.activities, []);
     });
 
     it('maps public access statuses without interpreting labels', () => {
@@ -112,6 +121,7 @@ describe('PoolPeriodScheduleService', () => {
       assert.equal(service.getOverrideForDate('2026-06-01', 'Mon'), null);
       assert.deepEqual(createService({ getTimeUtils: () => null }).getTimeSlotsForDate('2026-06-01', 'Mon'), []);
       assert.equal(createService({ getTimeUtils: () => null }).getWeekScheduleForDate(new Date(2026, 5, 1))[0].timeSlots.length, 1);
+      assert.deepEqual(createService().getTimeSlotsForDate('2027-01-01', 'Fri'), []);
     });
 
     it('uses safe dependency fallbacks when no collaborators are supplied', () => {
@@ -146,6 +156,10 @@ describe('PoolPeriodScheduleService', () => {
       assert.equal(service.getValidDateRange().startDate.toISOString().slice(0, 10), '2026-06-01');
       assert.equal(createService({ schedulePeriods: [] }).getValidDateRange(), null);
       assert.equal(createService({ getTimeUtils: () => null }).getCurrentSchedulePeriod(), null);
+      assert.equal(createService({
+        schedulePeriods: [{ startDate: '2026-06-01', endDate: '2026-06-07', hours: [] }],
+        getTimeUtils: () => createTimeUtils({ getCurrentEasternTimeInfo: () => ({ date: '2026-06-01' }) })
+      }).getCurrentSchedulePeriod().name, 'Current Schedule');
     });
   });
 
@@ -159,6 +173,11 @@ describe('PoolPeriodScheduleService', () => {
       assert.equal(separate.length, 2);
       assert.deepEqual(service.getSlotsForDay(null, 'Mon'), []);
       assert.equal(service.getOverrideForDate('2026-06-02', 'Tue'), undefined);
+      assert.deepEqual(service.getRegularSlots(null, 'Mon'), []);
+      assert.deepEqual(service.getRegularSlots({ hours: [{ weekDays: ['Mon'], startTime: '1:00PM', endTime: '2:00PM' }] }, 'Mon')[0].activities, []);
+      assert.deepEqual(service.mergeScheduleWithOverride(null, 'Mon', {
+        hours: [{ weekDays: ['Mon'], startTime: '1:00PM', endTime: '2:00PM', accessStatus: 'public' }]
+      })[0].activities, []);
     });
 
     it('degrades invalid merge times without throwing', () => {

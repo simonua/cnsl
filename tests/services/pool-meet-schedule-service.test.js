@@ -137,6 +137,16 @@ describe('PoolMeetScheduleService', () => {
     const override = PoolMeetScheduleService.createOverride(meet, meet.getKnownTimingWindow(), 'bad id');
     assert.equal(override.reason, 'Swim Meet');
     assert.equal(Object.hasOwn(override.hours[0], 'meetDate'), false);
+    const ordinaryMeet = {
+      date: '2026-06-13',
+      name: '',
+      isSpecialMeet: () => false
+    };
+    assert.equal(PoolMeetScheduleService.createOverride(ordinaryMeet, { startMinutes: 420, endMinutes: 720 }, 'krp').hours[0].types[0], 'Swim Meet');
+
+    const pool = { name: 'No Meets', scheduleOverrides: null };
+    PoolMeetScheduleService.applyMeetOverrides([pool]);
+    assert.deepEqual(pool.scheduleOverrides, []);
   });
 
   it('installs the service as a browser script global', () => {

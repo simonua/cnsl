@@ -113,10 +113,25 @@ describe('WeatherAlertService', () => {
         shortForecast: 'Lightning'
       }], now);
       assert.match(forecast.message, /Near-term forecast/);
+      const detailedOnly = WeatherAlertService.evaluateStatus([], [{
+        startTime: now.toISOString(),
+        detailedForecast: 'Lightning is possible.'
+      }], now);
+      assert.equal(detailedOnly.isInclement, true);
     });
   });
 
   describe('getCurrentStatus', () => {
+    it('uses default dependencies when options are omitted', async () => {
+      assert.deepEqual(await WeatherAlertService.getCurrentStatus({ refreshMinutes: 0 }), {
+        isInclement: false,
+        reason: 'updates-disabled'
+      });
+      assert.deepEqual(await WeatherAlertService.getCurrentStatus({ latestCheckedStorage: null, refreshMinutes: 0 }), {
+        isInclement: false,
+        reason: 'updates-disabled'
+      });
+    });
     it('should retrieve the forecast used to identify storm conditions', async () => {
       const urls = [];
       const fetchImplementation = async (url) => {
@@ -277,6 +292,17 @@ describe('WeatherAlertService', () => {
       });
 
       assert.deepEqual(status, { isInclement: false, reason: 'weather-service-unavailable' });
+      const missingForecast = await WeatherAlertService.getCurrentStatus({
+        now,
+        poolData,
+        storage: null,
+        fetchImplementation: async url => {
+          if (url.includes('/alerts/active')) return { ok: true, json: async () => ({ features: [] }) };
+          if (url.includes('/points/')) return { ok: true, json: async () => ({ properties: { forecast: 'https://forecast.test/current' } }) };
+          return { ok: false };
+        }
+      });
+      assert.deepEqual(missingForecast, { isInclement: false, reason: 'weather-service-unavailable' });
     });
 
     it('uses absent pool data as outside the operating window', async () => {
@@ -324,6 +350,7 @@ describe('WeatherAlertService', () => {
       assert.equal(WeatherAlertService.getPoolOperatingWindow({ pools: [{ schedules: null, scheduleOverrides: null }] }, now), null);
       assert.equal(WeatherAlertService.isWithinPoolOperatingWindow(null, now), false);
       assert.equal(WeatherAlertService.isWithinPoolOperatingWindow(poolData, now), true);
+      assert.equal(WeatherAlertService.getPoolOperatingWindow({ pools: [{ schedules: [{ startDate: '2026-05-24', endDate: '2026-05-24', hours: null }] }] }, now), null);
     });
 
     it('derives a compact daily schedule equivalent to the full pool document', () => {
@@ -340,6 +367,7 @@ describe('WeatherAlertService', () => {
         WeatherAlertService.getPoolOperatingWindow(seasonalPoolData, now)
       );
       assert.throws(() => WeatherAlertService.createOperatingWindowSchedule({}), /valid season date range/);
+      assert.throws(() => WeatherAlertService.createOperatingWindowSchedule({ seasonStartDate: '2026-05-24' }), /valid season date range/);
       assert.throws(() => WeatherAlertService.createOperatingWindowSchedule({ seasonEndDate: '2026-02-28', seasonStartDate: '2026-02-30' }), /valid season date range/);
     });
   });
@@ -370,6 +398,10 @@ describe('WeatherAlertService', () => {
       storage.setItem(WeatherAlertService.CACHE_KEY, JSON.stringify({ refreshMinutes: 5, expiresAt: now.getTime() - 1, status: { isInclement: true } }));
       assert.equal(WeatherAlertService.readCachedStatus(storage, 5, now), null);
       assert.doesNotThrow(() => WeatherAlertService.cacheStatus(null, { isInclement: false }, 5, now));
+      const originalDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'sessionStorage');
+      delete globalThis.sessionStorage;
+      assert.equal(WeatherAlertService.getSessionStorage(), null);
+      if (originalDescriptor) Object.defineProperty(globalThis, 'sessionStorage', originalDescriptor);
       const originalSessionStorage = globalThis.sessionStorage;
       globalThis.sessionStorage = storage;
       try {
@@ -418,6 +450,7 @@ describe('WeatherAlertService', () => {
       const status = WeatherAlertService.withUpdatedAt({ isInclement: false }, now);
 
       assert.equal(WeatherAlertService.readLatestCheckedStatus(blockedRead), null);
+      assert.equal(WeatherAlertService.readLatestCheckedStatus(), null);
       assert.doesNotThrow(() => WeatherAlertService.rememberLatestCheckedStatus(status, blockedWrite));
     });
 

@@ -114,6 +114,8 @@ describe('PoolScheduleDisplay', () => {
       assert.equal(PoolScheduleDisplay.getStatusTooltip('closed-to-public'), 'Currently closed');
       assert.equal(PoolScheduleDisplay.getStatusTooltip('schedule-not-found'), 'Schedule not available');
       assert.equal(PoolScheduleDisplay.getStatusTooltip('missing'), 'Status unknown');
+      assert.equal(PoolScheduleDisplay.getStatusTooltip('closed'), 'Currently closed');
+      assert.equal(PoolScheduleDisplay.getStatusTooltip('restricted'), 'Special schedule or restrictions');
     });
   });
 
@@ -189,6 +191,21 @@ describe('PoolScheduleDisplay', () => {
       assert.equal(PoolScheduleDisplay.getTimeRangeHighlightClass('closed'), ' highlighted-time-slot-red');
       assert.equal(PoolScheduleDisplay.getTimeRangeHighlightClass('missing'), '');
       assert.match(PoolScheduleDisplay.formatTimeRange('9:00AM-5:00PM', { timeUtils: { timeStringToMinutes: () => { throw new Error('bad clock'); } } }), /time-range-container error/);
+      assert.match(PoolScheduleDisplay.formatTimeRange(null), /Invalid Time Range/);
+      assert.equal(PoolScheduleDisplay.formatTimeRange('   '), '');
+      assert.match(PoolScheduleDisplay.formatTimeRange('9:00AM-5:00PM'), /time-range-container error/);
+      assert.match(PoolScheduleDisplay.formatTimeRange('9:00AM-5:00PM', { timeUtils, currentMinutes: -1 }), /time-range-container error/);
+      assert.match(PoolScheduleDisplay.formatTimeRange('9:00AM-5:00PM', {
+        isCurrentDay: true,
+        timeUtils: { ...timeUtils, getCurrentEasternTimeInfo: () => ({ isValid: false }) }
+      }), /time-range-container/);
+      assert.match(PoolScheduleDisplay.formatTimeRange('9:00AM-5:00PM', {
+        currentMinutes: null,
+        isCurrentDay: true,
+        timeUtils
+      }), /time-range-container/);
+      assert.equal(PoolScheduleDisplay.formatPracticeTeamText('practice-only', null), '');
+      assert.equal(PoolScheduleDisplay.getMeetHref({ meetDate: '2026-06-20' }), '');
     });
 
     it('renders notes and override activity styling only when requested', () => {

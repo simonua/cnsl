@@ -102,6 +102,13 @@ describe('AppStorageService', () => {
         if (originalCachesDescriptor) Object.defineProperty(globalThis, 'caches', originalCachesDescriptor);
         else delete globalThis.caches;
       }
+      const originalCaches = globalThis.caches;
+      delete globalThis.caches;
+      try {
+        assert.equal(AppStorageService.getCacheStorage(), null);
+      } finally {
+        if (originalCaches !== undefined) globalThis.caches = originalCaches;
+      }
     });
 
     it('installs the service as a browser script global', () => {

@@ -75,6 +75,15 @@ describe('Team', () => {
     assert.equal(blankTeam.matchesSearchTerm('missing'), false);
   });
 
+  it('searches each optional legacy field and handles an absent query', () => {
+    assert.equal(new Team({ poolName: 'Legacy Pool' }).matchesSearchTerm('legacy'), true);
+    assert.equal(new Team({ coach: 'Legacy Coach' }).matchesSearchTerm('legacy'), true);
+    assert.equal(new Team({ division: 'Legacy Division' }).matchesSearchTerm('legacy'), true);
+    assert.equal(new Team().includesCoach(), false);
+    assert.equal(new Team().matchesSearchTerm(), true);
+    assert.equal(new Team().getSummary().poolName, 'Not specified');
+  });
+
   it('installs the model as a browser script global', () => {
     const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'models', 'team.js');
     const source = fs.readFileSync(sourcePath, 'utf8');

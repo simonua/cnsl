@@ -30,7 +30,8 @@ const viewModel = {
   statusTooltip: 'Open <public>',
   featureItems: [
     { label: 'Wi-Fi', category: 'amenities' },
-    { label: 'Slide <fun>', category: 'water-play' }
+    { label: 'Slide <fun>', category: 'water-play' },
+    { label: 'Lessons', category: 'additional', icon: 'lessons' }
   ],
   hoursHtml: '<div class="pool-hours">Hours</div>',
   mapsSearchBaseUrl: 'https://www.google.com/maps/search/?api=1&query='
@@ -59,6 +60,8 @@ describe('PoolCardDisplay', () => {
     assert.match(html, /feature-pill--amenities/);
     assert.match(html, /feature-pill--water-play/);
     assert.match(html, /Slide &lt;fun&gt;/);
+    assert.match(html, /feature-pill--with-icon/);
+    assert.match(html, /nav-menu__icon--lessons/);
     assert.match(html, /<div class="pool-hours">Hours<\/div>/);
     assert.doesNotMatch(html, /<script\b/i);
   });
@@ -93,6 +96,8 @@ describe('PoolCardDisplay', () => {
     assert.equal(PoolCardDisplay.renderDistance(Number.NaN), '');
     assert.equal(PoolCardDisplay.renderTransition('', ''), '');
     assert.match(PoolCardDisplay.render({}), /Unknown Pool/);
+    assert.match(PoolCardDisplay.render(null), /Unknown Pool/);
+    assert.match(PoolCardDisplay.renderDetails(null), /Address not available/);
   });
 
   it('normalizes partial, flat, and absent address records', () => {
@@ -117,6 +122,16 @@ describe('PoolCardDisplay', () => {
     });
     assert.match(PoolCardDisplay.renderContact({}, '', ''), /Address not available/);
     assert.doesNotMatch(PoolCardDisplay.renderContact({}, '', ''), /address-section__actions/);
+    assert.deepEqual(PoolCardDisplay.getAddressData({ location: { state: 'MD', zip: '21044', mapsQuery: 'Pool' } }, 'https://maps.example/?q='), {
+      streetAddress: '',
+      cityStateZip: ', MD 21044',
+      mapsUrl: 'https://maps.example/?q=Pool'
+    });
+    assert.match(PoolCardDisplay.renderContact({ location: { state: 'MD' } }, '', ''), /, MD/);
+    assert.match(PoolCardDisplay.renderContact({ address: '123 Main Street' }, '', ''), /123 Main Street/);
+    assert.deepEqual(PoolCardDisplay.getAddressData({ location: {} }, ''), {
+      streetAddress: '', cityStateZip: ',', mapsUrl: ''
+    });
   });
 
   it('renders independent action, feature, status, and transition defaults', () => {

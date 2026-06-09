@@ -64,6 +64,7 @@ test('[WF-NAV-001] navigation contains keyboard focus and restores it when dismi
 
   await expect(page.getByRole('button', { name: 'Close navigation menu' })).toBeFocused();
   await expect(page.locator('#navMenu')).toHaveAttribute('aria-hidden', 'false');
+  await expect(page.getByRole('link', { name: 'Lessons' })).toHaveAttribute('href', 'lessons.html');
   await expect(page.locator('#mainContent')).toHaveJSProperty('inert', true);
 
   await page.keyboard.press('Tab');
@@ -134,6 +135,8 @@ test('[WF-LESSONS-001] lesson provider actions publish only reviewed categories'
   await expect(page.locator('#lessonProviderStatus')).toHaveText('1 lesson provider listed.');
   await expect(page.getByRole('heading', { name: 'Columbia Association' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Class types' })).toBeVisible();
+  await expect(page.getByText('Program contact: Swim Lesson Program Supervisor')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'swim.lessons@columbiaassociation.org' })).toHaveAttribute('href', 'mailto:swim.lessons@columbiaassociation.org');
   await expect(page.getByText('Swim team preparation')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Year-round swimming' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Columbia Clippers' })).toBeVisible();
@@ -162,7 +165,7 @@ test('[WF-LESSONS-001] lesson provider actions publish only reviewed categories'
   });
 
   await clickWithoutNavigation(lessonInformationLink);
-  await clickWithoutNavigation(page.getByRole('link', { name: 'Contact provider (opens in new tab)' }));
+  await clickWithoutNavigation(page.getByRole('link', { name: 'swim.lessons@columbiaassociation.org' }));
   await clickWithoutNavigation(page.getByRole('link', { name: 'Visit official website (opens in new tab)' }));
   await clickWithoutNavigation(page.getByRole('link', { name: 'Review current eligibility (opens in new tab)' }));
   await clickWithoutNavigation(page.getByRole('link', { name: 'please send me the details' }));
@@ -904,6 +907,30 @@ test('[WF-POOLS-014] yoga feature filter finds the pool with published yoga prog
   await expect(page.locator('#poolFilterSummary')).toHaveText('1 / 23 pools');
   await expect(page.locator('#poolList .pool-card')).toHaveCount(1);
   await expect(page.locator('#poolList .pool-card')).toContainText('Stevens Forest');
+});
+
+test('[WF-POOLS-018] lessons feature identifies CA outdoor lesson pools with the shared icon', async ({ page }) => {
+  await page.goto('/pools.html');
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+
+  await page.locator('#togglePoolFeatureFilters').click();
+  await page.getByLabel('Lessons').check();
+
+  await expect(page.locator('#poolFilterSummary')).toHaveText('7 / 23 pools');
+  await expect(page.locator('#poolList .pool-card')).toHaveCount(7);
+  await expect.poll(() => page.locator('#poolList .pool-card').evaluateAll(cards => cards.map(card => card.dataset.poolName))).toEqual([
+    'Dorsey Hall',
+    'Faulkner Ridge',
+    'Hawthorn',
+    'Kendall Ridge',
+    'River Hill',
+    'Running Brook',
+    'Talbott Springs'
+  ]);
+
+  const firstPool = page.locator('#poolList .pool-card').first();
+  await firstPool.locator('.pool-header__toggle').click();
+  await expect(firstPool.locator('.feature-pill', { hasText: 'Lessons' }).locator('.nav-menu__icon--lessons')).toBeVisible();
 });
 
 test('[WF-POOLS-002] pool availability filters show pools open now, opening soon, open today, or open for the next two hours', async ({ page }) => {

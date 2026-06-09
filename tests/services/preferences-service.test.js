@@ -116,6 +116,12 @@ describe('PreferencesService', () => {
     it('keeps normal ordering when no available favorite is selected', () => {
       assert.deepEqual(sort(''), ['a', 'b', 'c']);
       assert.deepEqual(sort('missing'), ['a', 'b', 'c']);
+      assert.deepEqual(PreferencesService.sortWithFavorite(
+        [{ id: 'favorite' }, { id: 'other' }],
+        'favorite',
+        item => item.id,
+        () => 0
+      ).map(item => item.id), ['favorite', 'other']);
     });
   });
 
@@ -246,6 +252,7 @@ describe('PreferencesService', () => {
       assert.equal(PreferencesService.getPracticeSessionAgeRange('Swimmer'), null);
       assert.equal(PreferencesService.getPracticeSessionAgeRange(null), null);
       assert.deepEqual(PreferencesService.filterPracticeSessions(null, []), []);
+      assert.deepEqual(PreferencesService.filterPracticeSessions([{}], []), [{}]);
     });
   });
 
@@ -273,6 +280,7 @@ describe('PreferencesService', () => {
       assert.equal(PreferencesService.meetIncludesFavoriteTeam({ name: 'Time Trials' }, favoriteTeam), false);
       assert.equal(PreferencesService.meetIncludesFavoriteTeam({ homeTeam: 'Sundevils' }, { name: 'CHS Swim Sundevils', keywords: [null, 'sd'] }), true);
       assert.equal(PreferencesService.meetIncludesFavoriteTeam({}, null), false);
+      assert.equal(PreferencesService.teamMatchesLabel({ name: 'Marlins', keywords: null }, 'Marlins'), true);
     });
 
     it('hoists the favorite matchup while preserving the remaining meet order', () => {
@@ -286,6 +294,7 @@ describe('PreferencesService', () => {
       assert.deepEqual(PreferencesService.sortMeetsWithFavorite(meets, null), meets);
       assert.deepEqual(PreferencesService.sortMeetsWithFavorite(null, favoriteTeam), []);
       assert.deepEqual(PreferencesService.sortMeetsWithFavorite([meets[1], { home_team: 'Swansfield' }], favoriteTeam).length, 2);
+      assert.equal(PreferencesService.sortMeetsWithFavorite([meets[1], meets[0]], favoriteTeam)[0], meets[1]);
     });
 
     it('rejects missing label inputs before alias matching', () => {
