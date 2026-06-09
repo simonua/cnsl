@@ -1,6 +1,9 @@
 (function initializeServiceWorkerUpdates() {
   'use strict';
 
+  const UPDATE_CHECK_DEBOUNCE_MS = 60 * 1000;
+  const UPDATE_CHECK_STORAGE_KEY = 'cnsl_service_worker_update_checked_at';
+
   if (!('serviceWorker' in navigator)) {
     return;
   }
@@ -25,6 +28,46 @@
 
   let hasActiveController = Boolean(navigator.serviceWorker.controller);
   let refreshing = false;
+  let serviceWorkerRegistration = null;
+  let lastUpdateCheckAt = 0;
+  let updateCheckPromise = null;
+
+  try {
+    const storedUpdateCheckAt = Number(window.sessionStorage?.getItem(UPDATE_CHECK_STORAGE_KEY));
+    if (Number.isSafeInteger(storedUpdateCheckAt) && storedUpdateCheckAt > 0) {
+      lastUpdateCheckAt = storedUpdateCheckAt;
+    }
+  } catch {
+    // Continue with tab-local memory when session storage is unavailable.
+  }
+
+  function requestServiceWorkerUpdate() {
+    if (!serviceWorkerRegistration || updateCheckPromise) {
+      return updateCheckPromise;
+    }
+
+    const updateCheckAt = Date.now();
+    if (updateCheckAt >= lastUpdateCheckAt
+      && updateCheckAt - lastUpdateCheckAt < UPDATE_CHECK_DEBOUNCE_MS) {
+      return null;
+    }
+
+    lastUpdateCheckAt = updateCheckAt;
+    try {
+      window.sessionStorage?.setItem(UPDATE_CHECK_STORAGE_KEY, String(updateCheckAt));
+    } catch {
+      // The in-memory timestamp still limits checks for this document.
+    }
+
+    updateCheckPromise = Promise.resolve()
+      .then(() => serviceWorkerRegistration.update())
+      .catch(error => console.error('Service Worker update check failed:', error))
+      .finally(() => {
+        updateCheckPromise = null;
+      });
+
+    return updateCheckPromise;
+  }
 
   function updateDisplayedAppVersion(version) {
     if (typeof version !== 'string' || !/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(version)) {
@@ -56,12 +99,15 @@
     }
   });
 
+  window.addEventListener('pageshow', requestServiceWorkerUpdate);
+
   const serviceWorkerUrl = new URL('service-worker.js', window.location.href);
 
   navigator.serviceWorker.register(serviceWorkerUrl, { updateViaCache: 'none' })
     .then(registration => {
+      serviceWorkerRegistration = registration;
       registration.active?.postMessage({ type: 'GET_APP_VERSION' });
-      return registration.update();
+      return requestServiceWorkerUpdate();
     })
     .catch(error => console.error('Service Worker registration failed:', error));
 }());

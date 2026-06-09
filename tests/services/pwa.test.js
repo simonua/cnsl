@@ -12,6 +12,7 @@ function runPwa(context) {
 }
 
 function createWindow(location = {}) {
+  const sessionValues = new Map();
   return {
     LOCAL_DEVELOPMENT_HOSTNAMES: ['localhost', '127.0.0.1'],
     LOCAL_DEVELOPMENT_PORT: '9090',
@@ -22,6 +23,11 @@ function createWindow(location = {}) {
       port: '',
       reload: () => undefined,
       ...location
+    },
+    addEventListener: () => undefined,
+    sessionStorage: {
+      getItem: key => sessionValues.get(key) ?? null,
+      setItem: (key, value) => sessionValues.set(key, value)
     }
   };
 }
@@ -55,6 +61,46 @@ describe('PWA update startup', () => {
     assert.equal(updateCalls, 1);
     assert.equal(workerMessages.length, 1);
     assert.equal(workerMessages[0].type, 'GET_APP_VERSION');
+  });
+
+  it('should limit update checks to once per minute across page navigation', async () => {
+    const sharedSessionValues = new Map();
+    let currentTime = 1_000_000;
+    let updateCalls = 0;
+    const sessionStorage = {
+      getItem: key => sharedSessionValues.get(key) ?? null,
+      setItem: (key, value) => sharedSessionValues.set(key, value)
+    };
+    const navigate = async () => {
+      const window = createWindow();
+      window.sessionStorage = sessionStorage;
+      runPwa({
+        Date: { now: () => currentTime },
+        console,
+        navigator: {
+          serviceWorker: {
+            controller: {},
+            addEventListener: () => undefined,
+            register: async () => ({
+              update: async () => { updateCalls += 1; }
+            })
+          }
+        },
+        window
+      });
+      await new Promise(resolve => setImmediate(resolve));
+    };
+
+    await navigate();
+    assert.equal(updateCalls, 1);
+
+    currentTime += 30_000;
+    await navigate();
+    assert.equal(updateCalls, 1);
+
+    currentTime += 30_000;
+    await navigate();
+    assert.equal(updateCalls, 2);
   });
 
   it('should do nothing when service workers are unavailable', () => {
