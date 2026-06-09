@@ -1405,6 +1405,11 @@ button.favorite-week__toggle:focus-visible {
   stroke: none;
 }
 
+.share-site__icon--brand {
+  fill: currentColor;
+  stroke: none;
+}
+
 button.share-site__link {
   cursor: pointer;
   font: inherit;
@@ -1496,7 +1501,7 @@ button.share-qr-dialog__close:focus {
   .share-site__links {
     display: grid;
     gap: 0.5rem;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .share-site__links .share-site__link {

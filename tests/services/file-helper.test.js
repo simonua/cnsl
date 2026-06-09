@@ -33,6 +33,7 @@ describe('FileHelper', () => {
       assert.equal(AUTHOR_EMAIL, 'simonkurtz+pool-app@gmail.com');
       assert.equal(EXTERNAL_LINKS.SMS_SHARE, 'sms:?&body=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org');
       assert.equal(EXTERNAL_LINKS.EMAIL_SHARE, 'mailto:?subject=Columbia%20Pools%20and%20CNSL%20Schedules&body=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org');
+      assert.equal(EXTERNAL_LINKS.X_SHARE, 'https://x.com/intent/post?text=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org');
       assert.equal(EXTERNAL_LINKS.AUTHOR_FEEDBACK_EMAIL_URL, 'mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Feedback');
       assert.equal(EXTERNAL_LINKS.AUTHOR_BUG_FEATURE_EMAIL_URL, 'mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Bug%20%2F%20Feature');
       assert.equal(EXTERNAL_LINKS.AUTHOR_DATA_EMAIL_URL, 'mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Data');

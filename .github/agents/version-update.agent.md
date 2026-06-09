@@ -21,9 +21,10 @@ Choose the mode from the request:
 
 When the intent is unclear, use Upcoming mode and do not change published version metadata.
 
-## Immutable History
+## Published History
 
-- Treat every dated version article in `src/views/whats-new.html` as a published historical record. Never edit, remove, or append bullets to an existing dated entry.
+- Treat the wording and item membership of every dated version article in `src/views/whats-new.html` as a published historical record. Never edit, remove, or append bullets to an existing dated entry.
+- Reordering unchanged bullets in a dated article is permitted only when the user explicitly requests an importance review across published releases.
 - If the user explicitly requests a historical release-date header correction, update only the affected heading dates using verified publication dates; do not change the article copy or bullets.
 - Treat the current `APP_VERSION` and its matching dated entry as the prior published release boundary, not as a draft that can be amended.
 - Functionality not yet included in a newly published stable version belongs only in an undated `Upcoming` section above the dated articles.
@@ -53,9 +54,19 @@ In Release mode:
 
 The What's New page is for families and visitors, not an engineering changelog. Use concise benefit-oriented language and describe only observable behavior backed by the diff.
 
+Whenever an item is added to `Upcoming` or a release is versioned, reevaluate every item in the affected list and rank the items from most to least important to visitors. Apply this order of consideration:
+
+1. Safety, schedule or status correctness, and current seasonal information.
+2. Broadly used pool, meet, team, and home-page planning workflows.
+3. Meaningful reliability, accessibility, privacy, and offline improvements.
+4. Secondary or audience-specific workflows.
+5. Narrow visual, wording, or presentation polish.
+
+Use judgment when categories overlap. Do not preserve implementation order or group items mechanically by Pool, Meet, Team, and Bug fix labels. Keep the release summary aligned with the highest-ranked items.
+
 ## Verification
 
-After editing, review the diff to confirm that no previously dated entry changed, each note is evidenced, and no engineering-only note appears in What's New.
+After editing, review the diff to confirm that no previously dated wording or item membership changed, any explicitly requested historical importance review changed order only, each note is evidenced, and no engineering-only note appears in What's New.
 
 For Upcoming mode, run the focused verification required by the affected feature work and report it.
 

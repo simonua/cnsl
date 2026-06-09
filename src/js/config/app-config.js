@@ -104,7 +104,8 @@
     NATIONAL_WEATHER_SERVICE_POINT: WEATHER_POINT_URL,
     OFFICIAL_CNSL_SITE: 'https://www.gomotionapp.com/team/reccnsl/page/home',
     USA_SWIMMING_RULES_POLICIES: 'https://www.usaswimming.org/resources/rules-regulations',
-    SMS_SHARE: `sms:?&body=${encodeURIComponent(SHARE_MESSAGE)}`
+    SMS_SHARE: `sms:?&body=${encodeURIComponent(SHARE_MESSAGE)}`,
+    X_SHARE: `https://x.com/intent/post?text=${encodeURIComponent(SHARE_MESSAGE)}`
   });
 
   // Weather alert experience policy.

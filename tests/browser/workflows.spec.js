@@ -405,6 +405,7 @@ test('[WF-HOME-001] season summary and sharing actions appear only on the home p
   await expect(page.getByRole('link', { name: 'Text' })).toHaveAttribute('href', 'sms:?&body=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org');
   await expect(page.getByRole('link', { name: 'Email' })).toHaveAttribute('href', 'mailto:?subject=Columbia%20Pools%20and%20CNSL%20Schedules&body=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org');
   await expect(page.getByRole('link', { name: 'Facebook (opens in new tab)' })).toHaveAttribute('href', 'https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fpools.longreachmarlins.org');
+  await expect(page.getByRole('link', { name: 'X (opens in new tab)' })).toHaveAttribute('href', 'https://x.com/intent/post?text=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org');
   await expect(page.getByRole('link', { name: 'Send Feedback' })).toHaveAttribute('href', 'contact.html');
   await page.getByRole('link', { name: 'Meets' }).focus();
   await page.keyboard.press('Tab');
@@ -425,9 +426,11 @@ test('[WF-HOME-001] season summary and sharing actions appear only on the home p
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Facebook (opens in new tab)' })).toBeFocused();
   await page.keyboard.press('Tab');
+  await expect(page.getByRole('link', { name: 'X (opens in new tab)' })).toBeFocused();
+  await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Send Feedback' })).toBeFocused();
 
-  for (const method of ['text', 'email', 'facebook']) {
+  for (const method of ['text', 'email', 'facebook', 'x']) {
     await page.locator(`[data-analytics-share-method="${method}"] .share-site__icon`).evaluate(icon => {
       icon.parentElement.addEventListener('click', event => event.preventDefault(), { once: true });
       icon.dispatchEvent(new globalThis.MouseEvent('click', { bubbles: true, cancelable: true }));
@@ -440,6 +443,8 @@ test('[WF-HOME-001] season summary and sharing actions appear only on the home p
     ['event', 'ca_share', { method: 'email', content_type: 'website', item_id: 'home_page' }],
     ['event', 'ca_external_link', { link_context: 'share', link_purpose: 'general' }],
     ['event', 'ca_share', { method: 'facebook', content_type: 'website', item_id: 'home_page' }],
+    ['event', 'ca_external_link', { link_context: 'share', link_purpose: 'general' }],
+    ['event', 'ca_share', { method: 'x', content_type: 'website', item_id: 'home_page' }],
     ['event', 'ca_external_link', { link_context: 'share', link_purpose: 'general' }]
   ]);
 

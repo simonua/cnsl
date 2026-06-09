@@ -47,7 +47,7 @@
     'judge', 'line_up_aid', 'timer', 'timesheet_runner', 'web_app_flyer'
   ]);
 
-  const ALLOWED_SHARE_METHODS = new Set(['email', 'facebook', 'qr_code', 'text']);
+  const ALLOWED_SHARE_METHODS = new Set(['email', 'facebook', 'qr_code', 'text', 'x']);
 
   const FIXED_SETTING_VALUES = Object.freeze({
     favorite_pool_expanded: new Set(['collapsed', 'expanded']),
