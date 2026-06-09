@@ -1613,7 +1613,7 @@ test('[WF-MEETS-002] favorite team matchups appear first on every meet day they 
   });
 });
 
-test('[WF-MEETS-003] regular meet-day labels advance from upcoming to ongoing and to the next meet after noon', async ({ page }) => {
+test('[WF-MEETS-003] regular meet-day labels advance from upcoming through ongoing to completed', async ({ page }) => {
   await page.setViewportSize(MOBILE_VIEWPORT);
   await page.clock.install({ time: new Date('2026-06-13T06:59:30-04:00') });
   await page.goto('/meets.html');
@@ -1637,7 +1637,9 @@ test('[WF-MEETS-003] regular meet-day labels advance from upcoming to ongoing an
   });
   expect(mobileHeaderLayout.badgeGap).toBeGreaterThanOrEqual(7);
   expect(mobileHeaderLayout.topOffset).toBeLessThanOrEqual(1);
-  await expect(page.locator('.meet-date-card[data-meet-date="2026-06-06"] .meet-live-badge')).toHaveCount(0);
+  const completedTimeTrials = page.locator('.meet-date-card[data-meet-date="2026-06-06"] .meet-live-badge--completed');
+  await expect(completedTimeTrials).toHaveText('✓ Completed');
+  await expect(completedTimeTrials.locator('.meet-live-badge__check')).toHaveAttribute('aria-hidden', 'true');
 
   await firstDualMeet.locator('.meet-date-header__toggle').focus();
   await page.clock.fastForward(31 * 1000);
@@ -1645,7 +1647,7 @@ test('[WF-MEETS-003] regular meet-day labels advance from upcoming to ongoing an
   await expect(firstDualMeet.locator('.meet-date-header__toggle')).toBeFocused();
 
   await page.clock.fastForward((5 * 60 * 60 * 1000));
-  await expect(firstDualMeet.locator('.meet-live-badge')).toHaveCount(0);
+  await expect(firstDualMeet.locator('.meet-live-badge--completed')).toHaveText('✓ Completed');
   await expect(secondDualMeet.locator('.meet-live-badge')).toHaveText('Upcoming');
   await expect(page.locator('#meetListStatus')).toHaveText('Meet status updated for the current date and time.');
 });

@@ -151,7 +151,11 @@ async function renderMeets(meets, preserveExpansion = false) {
   Object.keys(meetsByDate).forEach((dateKey, dateIndex) => {
     const meetDate = TimeUtils.parseDateOnly(meetsByDate[dateKey][0].date);
     const meetDateValue = meetsByDate[dateKey][0].date;
-    const isUpcoming = meetDate >= today;
+    const dateLiveStatuses = meetsByDate[dateKey].map(meet => meet.getLiveStatus(easternTimeInfo));
+    const isCompleted = meetDate < today || (meetDateValue === easternTimeInfo.date
+      && dateLiveStatuses.length > 0
+      && dateLiveStatuses.every(status => status === 'concluded'));
+    const isUpcoming = !isCompleted && meetDate >= today;
     const isToday = meetDate.toDateString() === today.toDateString();
     const relativeDayOffset = TimeUtils.getRelativeFutureDayOffset(meetDate, today);
     const relativeDay = TimeUtils.formatRelativeFutureDay(meetDate, today);
@@ -165,9 +169,11 @@ async function renderMeets(meets, preserveExpansion = false) {
     const meetName = MeetsBrowserSafety.escapeHtml(meetsByDate[dateKey][0].name || '');
     const safeDateKey = MeetsBrowserSafety.escapeHtml(dateKey);
     const safeMeetDateValue = MeetsBrowserSafety.escapeHtml(meetDateValue);
-    const liveStatusBadge = liveStatusTarget && liveStatusTarget.date === meetDateValue
-      ? `<span class="meet-live-badge meet-live-badge--${liveStatusTarget.kind}">${liveStatusTarget.label}</span>`
-      : '';
+    const liveStatusBadge = isCompleted
+      ? '<span class="meet-live-badge meet-live-badge--completed"><span class="meet-live-badge__check" aria-hidden="true">&#10003;</span> Completed</span>'
+      : liveStatusTarget && liveStatusTarget.date === meetDateValue
+        ? `<span class="meet-live-badge meet-live-badge--${liveStatusTarget.kind}">${liveStatusTarget.label}</span>`
+        : '';
     const relativeDayBadge = relativeDay
       ? `<span class="meet-date-header__relative upcoming-day-pill${relativeDayOffset === 0 ? ' upcoming-day-pill--today' : relativeDayOffset === 1 ? ' upcoming-day-pill--tomorrow' : ''}">${MeetsBrowserSafety.escapeHtml(relativeDay)}</span>`
       : '';
@@ -182,7 +188,7 @@ async function renderMeets(meets, preserveExpansion = false) {
           <div class="status-container">
             ${liveStatusBadge}
             ${relativeDayBadge}
-            <span class="visually-hidden">${isToday ? 'Meet is today' : isUpcoming ? 'Upcoming meet' : 'Past meet'}</span>
+            ${isCompleted ? '' : `<span class="visually-hidden">${isToday ? 'Meet is today' : 'Upcoming meet'}</span>`}
           </div>
         </div>
         <div class="meet-date-details" id="${detailsId}"${shouldExpand ? '' : ' hidden'}>

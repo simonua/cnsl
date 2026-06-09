@@ -3653,6 +3653,16 @@ body:has(.footer__weather-freshness:not([hidden])) {
   color: var(--accent-text);
 }
 
+.meet-live-badge--completed {
+  background-color: var(--light-bg);
+  border-color: var(--success-color);
+  color: var(--text-dark);
+}
+
+.meet-live-badge__check {
+  color: var(--success-color);
+}
+
 .meet-live-badge--upcoming,
 .upcoming-day-pill--tomorrow {
   background-color: var(--light-bg);
