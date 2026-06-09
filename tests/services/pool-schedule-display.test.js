@@ -120,13 +120,13 @@ describe('PoolScheduleDisplay', () => {
   describe('formatPublicStatusTransition', () => {
     it('uses compact minute units for openings within an hour', () => {
       assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'opens', minutes: 1 }), 'Opens in 1 min');
-      assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'opens', minutes: 59 }), 'Opens in 59 min');
+      assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'opens', minutes: 59 }), 'Opens in 59 mins');
     });
 
     it('uses compact hour and minute units for later openings today', () => {
-      assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'opens', minutes: 60 }), 'Opens in 1 hr 0 min');
+      assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'opens', minutes: 60 }), 'Opens in 1 hr 0 mins');
       assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'opens', minutes: 61 }), 'Opens in 1 hr 1 min');
-      assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'opens', minutes: 122 }), 'Opens in 2 hr 2 min');
+      assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'opens', minutes: 122 }), 'Opens in 2 hrs 2 mins');
     });
 
     it('omits a countdown without a later same-day opening', () => {
@@ -136,8 +136,8 @@ describe('PoolScheduleDisplay', () => {
 
     it('uses compact units for current-day closures', () => {
       assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'closes', minutes: 1 }), 'Closes in 1 min');
-      assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'closes', minutes: 60 }), 'Closes in 1 hr 0 min');
-      assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'closes', minutes: 122 }), 'Closes in 2 hr 2 min');
+      assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'closes', minutes: 60 }), 'Closes in 1 hr 0 mins');
+      assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'closes', minutes: 122 }), 'Closes in 2 hrs 2 mins');
     });
 
     it('provides expanded units for an accessible label', () => {
@@ -162,7 +162,7 @@ describe('PoolScheduleDisplay', () => {
     });
 
     it('keeps a same-day transition more specific than an all-day closure', () => {
-      assert.equal(PoolScheduleDisplay.formatPublicStatusSummary({ action: 'opens', minutes: 15 }, true, true), 'Opens in 15 min');
+      assert.equal(PoolScheduleDisplay.formatPublicStatusSummary({ action: 'opens', minutes: 15 }, true, true), 'Opens in 15 mins');
       assert.equal(PoolScheduleDisplay.formatPublicStatusSummary({ action: 'opens', minutes: 1 }, false, false, { useLongUnits: true }), 'Opens in 1 minute');
     });
   });

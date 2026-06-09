@@ -99,14 +99,20 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
       if (!Number.isInteger(minutesUntilChange) || minutesUntilChange <= 0) return '';
 
       if (minutesUntilChange < 60) {
-        const unit = useLongUnits ? (minutesUntilChange === 1 ? 'minute' : 'minutes') : 'min';
+        const unit = minutesUntilChange === 1
+          ? (useLongUnits ? 'minute' : 'min')
+          : (useLongUnits ? 'minutes' : 'mins');
         return `${action} in ${minutesUntilChange} ${unit}`;
       }
 
       const hours = Math.floor(minutesUntilChange / 60);
       const minutes = minutesUntilChange % 60;
-      const hourUnit = useLongUnits ? (hours === 1 ? 'hour' : 'hours') : 'hr';
-      const minuteUnit = useLongUnits ? (minutes === 1 ? 'minute' : 'minutes') : 'min';
+      const hourUnit = hours === 1
+        ? (useLongUnits ? 'hour' : 'hr')
+        : (useLongUnits ? 'hours' : 'hrs');
+      const minuteUnit = minutes === 1
+        ? (useLongUnits ? 'minute' : 'min')
+        : (useLongUnits ? 'minutes' : 'mins');
       return `${action} in ${hours} ${hourUnit} ${minutes} ${minuteUnit}`;
     }
 
