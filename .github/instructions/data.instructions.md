@@ -26,7 +26,7 @@ description: "Use when working with JSON data files, schemas, or data loading. C
 - Pool facility `features` come from the official Columbia Association page stored in each pool's `caUrl`. For every season rollover, review each page's description and Amenities list, normalize useful terms into feature labels, and record the verification date in the annual README instead of copying the prior year's array without review.
 - Official public Columbia Association pages/documents are authoritative for pool data, and official public CNSL publication/team pages are authoritative for meet and team data. Do not accept social media or other community-shared information as data evidence unless it appears in an official public source.
 - When an official Time Trials label uses `returning/experienced`, transcribe that qualifier as `returning / experienced` so visitor-facing text has a natural wrapping opportunity on narrow screens while preserving the published meaning.
-- For the active season, keep the accepted official-source check date in the annual README synchronized with the date portion of `OFFICIAL_SOURCE_CHECKED_AT` in `src/js/config/app-config.js`. Record that config value as the review-completion timestamp in `America/New_York` with its explicit UTC offset; it supplies the public FAQ and footer timestamp.
+- For the active season, keep two source-review dates in the annual README synchronized with `src/js/config/app-config.js`. `OFFICIAL_SOURCE_CHECKED_AT` records every successfully completed official-source review, including a review that finds no represented change. `OFFICIAL_SOURCE_UPDATED_AT` changes only when reviewed evidence updates modeled application data or an application-used source destination. Record both as timestamps in `America/New_York` with explicit UTC offsets; they supply the public FAQ and footer timestamps.
 - Use the `cnsl-season-rollover` skill when creating, auditing, or activating annual data.
 
 ## Schema Conventions
@@ -45,3 +45,12 @@ description: "Use when working with JSON data files, schemas, or data loading. C
 - The published active season is selected by the immutable `YEAR` constant in `src/js/config/app-config.js`.
 - `DataManager` coordinates loading across all three data sources.
 - Data is cached in `localStorage` via `CacheService` with expiration.
+
+## Non-Seasonal Lesson Providers
+
+- Maintain the swim lesson provider directory in `src/assets/data/lessons.json` with its draft-07 contract in `src/assets/data/lessons.schema.json`.
+- Keep provider entries factual and source-backed: organization name, local official logo asset, public website, optional public contact URL and phone, broad class types, source URL, and review date.
+- Keep related swimming opportunities separate from lesson providers. Their entries may include factual, source-backed eligibility, training highlights, current practice setting, and a neutral explanation of how the opportunity relates to summer league, along with the program type, local official logo asset, official website/source, and review date.
+- Do not model or publish pricing, schedules, rankings, ratings, promotional claims, or inferred qualifications in the lesson provider directory.
+- Treat listing order as non-semantic. Inclusion is informational and does not constitute an endorsement.
+- Run `pnpm run validate:data` after changing either Lessons data file.

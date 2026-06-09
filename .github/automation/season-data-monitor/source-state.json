@@ -1,12 +1,15 @@
 {
   "season": 2026,
-  "acceptedOn": "2026-06-08",
+  "acceptedOn": "2026-06-09",
   "documents": [
     {
       "domain": "pools",
       "label": "Bryant Woods pool schedule",
       "localPath": "pools/pool-schedules/Bryant_Woods.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Bryant_Woods.pdf",
+      "sourceIds": [
+        "pool:bwp:schedule"
+      ],
       "etag": "\"6a07767c-6d804\"",
       "lastModified": "Fri, 15 May 2026 19:39:40 GMT",
       "contentLength": "448516",
@@ -17,6 +20,9 @@
       "label": "Clary's Forest pool schedule",
       "localPath": "pools/pool-schedules/Clarys_Forest.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Clarys_Forest.pdf",
+      "sourceIds": [
+        "pool:cfp:schedule"
+      ],
       "etag": "\"6a07767d-6d978\"",
       "lastModified": "Fri, 15 May 2026 19:39:41 GMT",
       "contentLength": "448888",
@@ -27,6 +33,9 @@
       "label": "Clemens Crossing pool schedule",
       "localPath": "pools/pool-schedules/Clemens_Crossing.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Clemens_Crossing.pdf",
+      "sourceIds": [
+        "pool:ccp:schedule"
+      ],
       "etag": "\"6a07767f-6dc38\"",
       "lastModified": "Fri, 15 May 2026 19:39:43 GMT",
       "contentLength": "449592",
@@ -37,6 +46,9 @@
       "label": "Dasher Green pool schedule",
       "localPath": "pools/pool-schedules/Dasher_Green.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Dasher_Green.pdf",
+      "sourceIds": [
+        "pool:dgp:schedule"
+      ],
       "etag": "\"6a077680-6df69\"",
       "lastModified": "Fri, 15 May 2026 19:39:44 GMT",
       "contentLength": "450409",
@@ -47,6 +59,9 @@
       "label": "Dickinson pool schedule",
       "localPath": "pools/pool-schedules/Dickinson_Pool.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Dickinson_Pool.pdf",
+      "sourceIds": [
+        "pool:dcp:schedule"
+      ],
       "etag": "\"6a077681-6d98b\"",
       "lastModified": "Fri, 15 May 2026 19:39:45 GMT",
       "contentLength": "448907",
@@ -57,6 +72,9 @@
       "label": "Dorsey Hall pool schedule",
       "localPath": "pools/pool-schedules/Dorsey_Hall.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Dorsey_Hall.pdf",
+      "sourceIds": [
+        "pool:dhp:schedule"
+      ],
       "etag": "\"6a077683-6df7e\"",
       "lastModified": "Fri, 15 May 2026 19:39:47 GMT",
       "contentLength": "450430",
@@ -67,6 +85,9 @@
       "label": "Faulkner Ridge pool schedule",
       "localPath": "pools/pool-schedules/Faulkner_Ridge.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Faulkner_Ridge.pdf",
+      "sourceIds": [
+        "pool:frp:schedule"
+      ],
       "etag": "\"6a077685-6eeaa\"",
       "lastModified": "Fri, 15 May 2026 19:39:49 GMT",
       "contentLength": "454314",
@@ -77,6 +98,9 @@
       "label": "Hawthorn pool schedule",
       "localPath": "pools/pool-schedules/Hawthorn.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Hawthorn.pdf",
+      "sourceIds": [
+        "pool:hap:schedule"
+      ],
       "etag": "\"6a077687-6d842\"",
       "lastModified": "Fri, 15 May 2026 19:39:51 GMT",
       "contentLength": "448578",
@@ -87,6 +111,9 @@
       "label": "Hobbit's Glen pool schedule",
       "localPath": "pools/pool-schedules/Hobbits_Glen.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Hobbits_Glen.pdf",
+      "sourceIds": [
+        "pool:hgp:schedule"
+      ],
       "etag": "\"6a077689-6d838\"",
       "lastModified": "Fri, 15 May 2026 19:39:53 GMT",
       "contentLength": "448568",
@@ -97,6 +124,9 @@
       "label": "Hopewell pool schedule",
       "localPath": "pools/pool-schedules/Hopewell.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Hopewell.pdf",
+      "sourceIds": [
+        "pool:hwp:schedule"
+      ],
       "etag": "\"6a07768b-6da1a\"",
       "lastModified": "Fri, 15 May 2026 19:39:55 GMT",
       "contentLength": "449050",
@@ -107,6 +137,9 @@
       "label": "Huntington pool schedule",
       "localPath": "pools/pool-schedules/Huntington.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Huntington.pdf",
+      "sourceIds": [
+        "pool:hup:schedule"
+      ],
       "etag": "\"6a07768d-6e077\"",
       "lastModified": "Fri, 15 May 2026 19:39:57 GMT",
       "contentLength": "450679",
@@ -117,6 +150,9 @@
       "label": "Jeffers Hill pool schedule",
       "localPath": "pools/pool-schedules/Jeffers_Hill.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Jeffers_Hill.pdf",
+      "sourceIds": [
+        "pool:jhp:schedule"
+      ],
       "etag": "\"6a0773e1-15055\"",
       "lastModified": "Fri, 15 May 2026 19:28:33 GMT",
       "contentLength": "86101",
@@ -127,6 +163,9 @@
       "label": "Kendall Ridge pool schedule",
       "localPath": "pools/pool-schedules/Kendall_Ridge.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Kendall_Ridge.pdf",
+      "sourceIds": [
+        "pool:krp:schedule"
+      ],
       "etag": "\"6a0773e3-1559b\"",
       "lastModified": "Fri, 15 May 2026 19:28:35 GMT",
       "contentLength": "87451",
@@ -137,6 +176,9 @@
       "label": "Locust Park pool schedule",
       "localPath": "pools/pool-schedules/Locust_Park.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Locust_Park.pdf",
+      "sourceIds": [
+        "pool:lpp:schedule"
+      ],
       "etag": "\"6a0773e5-151c3\"",
       "lastModified": "Fri, 15 May 2026 19:28:37 GMT",
       "contentLength": "86467",
@@ -147,6 +189,9 @@
       "label": "Longfellow pool schedule",
       "localPath": "pools/pool-schedules/Longfellow.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Longfellow.pdf",
+      "sourceIds": [
+        "pool:lfp:schedule"
+      ],
       "etag": "\"6a0773e7-15191\"",
       "lastModified": "Fri, 15 May 2026 19:28:39 GMT",
       "contentLength": "86417",
@@ -157,6 +202,9 @@
       "label": "MacGill's Common pool schedule",
       "localPath": "pools/pool-schedules/Macgills_Common.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Macgills_Common.pdf",
+      "sourceIds": [
+        "pool:mcp:schedule"
+      ],
       "etag": "\"6a0773e8-1517f\"",
       "lastModified": "Fri, 15 May 2026 19:28:40 GMT",
       "contentLength": "86399",
@@ -167,6 +215,9 @@
       "label": "Phelps Luck pool schedule",
       "localPath": "pools/pool-schedules/Phelps_Luck.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Phelps_Luck.pdf",
+      "sourceIds": [
+        "pool:plp:schedule"
+      ],
       "etag": "\"6a0773eb-151ed\"",
       "lastModified": "Fri, 15 May 2026 19:28:43 GMT",
       "contentLength": "86509",
@@ -177,6 +228,9 @@
       "label": "River Hill pool schedule",
       "localPath": "pools/pool-schedules/River_Hill.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/River_Hill.pdf",
+      "sourceIds": [
+        "pool:rhp:schedule"
+      ],
       "etag": "\"6a0773ec-15cb9\"",
       "lastModified": "Fri, 15 May 2026 19:28:44 GMT",
       "contentLength": "89273",
@@ -187,6 +241,9 @@
       "label": "Running Brook pool schedule",
       "localPath": "pools/pool-schedules/Running_Brook.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Running_Brook.pdf",
+      "sourceIds": [
+        "pool:rbp:schedule"
+      ],
       "etag": "\"6a0773ee-14b05\"",
       "lastModified": "Fri, 15 May 2026 19:28:46 GMT",
       "contentLength": "84741",
@@ -197,6 +254,9 @@
       "label": "Stevens Forest pool schedule",
       "localPath": "pools/pool-schedules/Stevens_Forest.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Stevens_Forest.pdf",
+      "sourceIds": [
+        "pool:sfp:schedule"
+      ],
       "etag": "\"6a0cccb9-588ac\"",
       "lastModified": "Tue, 19 May 2026 20:48:57 GMT",
       "contentLength": "362668",
@@ -207,6 +267,9 @@
       "label": "Swansfield pool schedule",
       "localPath": "pools/pool-schedules/Swansfield.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Swansfield.pdf",
+      "sourceIds": [
+        "pool:swp:schedule"
+      ],
       "etag": "\"6a0773f1-161fa\"",
       "lastModified": "Fri, 15 May 2026 19:28:49 GMT",
       "contentLength": "90618",
@@ -217,6 +280,9 @@
       "label": "Talbott Springs pool schedule",
       "localPath": "pools/pool-schedules/Talbott_Springs.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Talbott_Springs.pdf",
+      "sourceIds": [
+        "pool:tsp:schedule"
+      ],
       "etag": "\"6a0773f3-15168\"",
       "lastModified": "Fri, 15 May 2026 19:28:51 GMT",
       "contentLength": "86376",
@@ -227,6 +293,9 @@
       "label": "Thunder Hill pool schedule",
       "localPath": "pools/pool-schedules/Thunder_Hill.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Thunder_Hill.pdf",
+      "sourceIds": [
+        "pool:thp:schedule"
+      ],
       "etag": "\"6a0773f4-6552d\"",
       "lastModified": "Fri, 15 May 2026 19:28:52 GMT",
       "contentLength": "415021",
@@ -237,6 +306,10 @@
       "label": "2026-cnsl-meet-schedule--final_047535.pdf",
       "localPath": "meets/meet-schedules/2026-cnsl-meet-schedule--final_047535.pdf",
       "url": "https://www.gomotionapp.com/reccnsl/UserFiles/Image/QuickUpload/2026-cnsl-meet-schedule--final_047535.pdf",
+      "sourceIds": [
+        "meets:retained-document",
+        "meets:schedule"
+      ],
       "etag": "\"3fe5f-650105b7cdb40\"",
       "lastModified": "Wed, 22 Apr 2026 18:04:04 GMT",
       "contentLength": "261727",
@@ -247,6 +320,9 @@
       "label": "2026-cnsl-practice-schedule--final_046743.pdf",
       "localPath": "teams/team-schedules/2026-cnsl-practice-schedule--final_046743.pdf",
       "url": "https://www.gomotionapp.com/reccnsl/UserFiles/Image/QuickUpload/2026-cnsl-practice-schedule--final_046743.pdf",
+      "sourceIds": [
+        "teams:retained-document"
+      ],
       "etag": "\"24940-64c5f44f4d8c8\"",
       "lastModified": "Fri, 06 Mar 2026 18:32:02 GMT",
       "contentLength": "149824",
@@ -257,6 +333,9 @@
       "label": "2026-cnsl-team-assignments--final_059448.pdf",
       "localPath": "teams/team-schedules/2026-cnsl-team-assignments--final_059448.pdf",
       "url": "https://www.gomotionapp.com/reccnsl/UserFiles/Image/QuickUpload/2026-cnsl-team-assignments--final_059448.pdf",
+      "sourceIds": [
+        "teams:retained-document"
+      ],
       "etag": "\"d2806-64c5f58388c68\"",
       "lastModified": "Fri, 06 Mar 2026 18:37:25 GMT",
       "contentLength": "862214",
@@ -546,7 +625,7 @@
       ],
       "fingerprint": "outdoor-pool-schedules",
       "label": "Columbia Association pool schedule page",
-      "sha256": "7099673b5c9ffb5c70d73446ec3aa8d3bd160dd296e4aae8a1331dc774a0080f",
+      "sha256": "6029dc7637886e3d57e82e1295fa547d6f80d7cb5d4de48670d90021da5abd8f",
       "sourceIds": [
         "pools:outdoor-schedule-index"
       ],

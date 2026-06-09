@@ -5,7 +5,8 @@
   // Published site and active season metadata.
   const YEAR = 2026;
   const APP_TIMEZONE = 'America/New_York';
-  const OFFICIAL_SOURCE_CHECKED_AT = '2026-06-08T05:47:50-04:00';
+  const OFFICIAL_SOURCE_CHECKED_AT = '2026-06-08T20:46:07-04:00';
+  const OFFICIAL_SOURCE_UPDATED_AT = '2026-06-08T05:47:50-04:00';
   const APP_VERSION = '2.9.1';
   const APP_LAST_UPDATED_ON = '2026-06-08';
   const HOME_PAGE_HOSTNAME = 'pools.longreachmarlins.org';
@@ -46,37 +47,41 @@
 
   const WEATHER_PUBLIC_ALERTS_URL = buildWeatherPublicAlertsUrl(WEATHER_LOCATION_POINT);
 
-  function formatOfficialSourceCheckedAt(timestamp, options) {
+  function formatOfficialSourceTimestamp(timestamp, options) {
     if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}-(?:04|05):00$/.test(timestamp)) {
-      throw new Error('OFFICIAL_SOURCE_CHECKED_AT must be an ISO timestamp with an explicit Eastern UTC offset.');
+      throw new Error('Official-source timestamps must use ISO format with an explicit Eastern UTC offset.');
     }
-    const checkedAt = new Date(timestamp);
-    if (Number.isNaN(checkedAt.getTime())) {
-      throw new Error('OFFICIAL_SOURCE_CHECKED_AT must be a valid ISO timestamp with an explicit Eastern UTC offset.');
+    const sourceTimestamp = new Date(timestamp);
+    if (Number.isNaN(sourceTimestamp.getTime())) {
+      throw new Error('Official-source timestamps must be valid dates with an explicit Eastern UTC offset.');
     }
-    return checkedAt.toLocaleString('en-US', { ...options, timeZone: APP_TIMEZONE, timeZoneName: 'short' });
+    return sourceTimestamp.toLocaleString('en-US', { ...options, timeZone: APP_TIMEZONE, timeZoneName: 'short' });
   }
 
-  const OFFICIAL_SOURCE_CHECKED_LABEL = formatOfficialSourceCheckedAt(OFFICIAL_SOURCE_CHECKED_AT, {
+  const OFFICIAL_SOURCE_LONG_LABEL_OPTIONS = Object.freeze({
     day: 'numeric',
     hour: 'numeric',
     minute: '2-digit',
     month: 'long',
     year: 'numeric'
   });
-  const OFFICIAL_SOURCE_CHECKED_SHORT_LABEL = formatOfficialSourceCheckedAt(OFFICIAL_SOURCE_CHECKED_AT, {
+  const OFFICIAL_SOURCE_SHORT_LABEL_OPTIONS = Object.freeze({
     day: 'numeric',
     hour: 'numeric',
     minute: '2-digit',
-    month: 'short',
-    year: 'numeric'
+    month: 'short'
   });
+  const OFFICIAL_SOURCE_CHECKED_LABEL = formatOfficialSourceTimestamp(OFFICIAL_SOURCE_CHECKED_AT, OFFICIAL_SOURCE_LONG_LABEL_OPTIONS);
+  const OFFICIAL_SOURCE_CHECKED_SHORT_LABEL = formatOfficialSourceTimestamp(OFFICIAL_SOURCE_CHECKED_AT, OFFICIAL_SOURCE_SHORT_LABEL_OPTIONS);
+  const OFFICIAL_SOURCE_UPDATED_LABEL = formatOfficialSourceTimestamp(OFFICIAL_SOURCE_UPDATED_AT, OFFICIAL_SOURCE_LONG_LABEL_OPTIONS);
+  const OFFICIAL_SOURCE_UPDATED_SHORT_LABEL = formatOfficialSourceTimestamp(OFFICIAL_SOURCE_UPDATED_AT, OFFICIAL_SOURCE_SHORT_LABEL_OPTIONS);
 
   // Public destinations referenced by authored site content.
   const EXTERNAL_LINKS = Object.freeze({
     AUTHOR_BUG_FEATURE_EMAIL_URL: `mailto:${AUTHOR_EMAIL}?subject=${encodeURIComponent('CA Pool & CNSL Assistant - Bug / Feature')}`,
     AUTHOR_DATA_EMAIL_URL: `mailto:${AUTHOR_EMAIL}?subject=${encodeURIComponent('CA Pool & CNSL Assistant - Data')}`,
     AUTHOR_FEEDBACK_EMAIL_URL: `mailto:${AUTHOR_EMAIL}?subject=${encodeURIComponent('CA Pool & CNSL Assistant - Feedback')}`,
+    AUTHOR_LESSON_RECOMMENDATION_EMAIL_URL: `mailto:${AUTHOR_EMAIL}?subject=${encodeURIComponent('CA Pool & CNSL Assistant - Lesson Provider Recommendation')}`,
     EMAIL_SHARE: `mailto:?subject=${encodeURIComponent('Columbia Pools and CNSL Schedules')}&body=${encodeURIComponent(SHARE_MESSAGE)}`,
     AUTHOR_FACEBOOK_PROFILE_URL: 'https://www.facebook.com/simonkurtz82',
     FACEBOOK_SHARE: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(HOME_PAGE_URL)}`,
@@ -162,6 +167,9 @@
     OFFICIAL_SOURCE_CHECKED_AT,
     OFFICIAL_SOURCE_CHECKED_LABEL,
     OFFICIAL_SOURCE_CHECKED_SHORT_LABEL,
+    OFFICIAL_SOURCE_UPDATED_AT,
+    OFFICIAL_SOURCE_UPDATED_LABEL,
+    OFFICIAL_SOURCE_UPDATED_SHORT_LABEL,
     ...RUNTIME_CONFIG
   });
 
@@ -188,7 +196,7 @@
       ...APP_CONFIG,
       buildWeatherPublicAlertsUrl,
       exposeConstant,
-      formatOfficialSourceCheckedAt
+      formatOfficialSourceTimestamp
     });
   }
 })(globalThis);

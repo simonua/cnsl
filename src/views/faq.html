@@ -65,7 +65,7 @@
             "name": "Where does this app get its data, and when was it checked?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "The {{ YEAR }} season information was last checked against official public sources on {{ OFFICIAL_SOURCE_CHECKED_LABEL }}. Pool information comes from Columbia Association publications, while team and meet information comes from official CNSL publications. You can view the app's annual data and saved source materials in its public GitHub data directory."
+              "text": "The {{ YEAR }} season information was last checked against official public sources on {{ OFFICIAL_SOURCE_CHECKED_LABEL }} and last updated from those sources on {{ OFFICIAL_SOURCE_UPDATED_LABEL }}. Pool information comes from Columbia Association publications, while team and meet information comes from official CNSL publications. You can view the app's annual data and saved source materials in its public GitHub data directory."
             }
           },
           {
@@ -173,6 +173,7 @@
           <article class="faq-item">
             <h3>Where does this app get its data, and when was it checked?</h3>
             <p class="faq-item__source-freshness"><strong>Season data last checked:</strong> <time datetime="{{ OFFICIAL_SOURCE_CHECKED_AT }}">{{ OFFICIAL_SOURCE_CHECKED_LABEL }}</time></p>
+            <p class="faq-item__source-freshness"><strong>Season data last updated:</strong> <time datetime="{{ OFFICIAL_SOURCE_UPDATED_AT }}">{{ OFFICIAL_SOURCE_UPDATED_LABEL }}</time></p>
             <p>Pool information comes from publicly available <a href="{{ ACTIVE_SEASON.CA_POOL_SCHEDULES_URL }}" target="_blank" rel="noopener">Columbia Association (CA) publications</a>. Team and meet information comes from publicly available <a href="{{ EXTERNAL_LINKS.OFFICIAL_CNSL_SITE }}" target="_blank" rel="noopener">official CNSL publications</a>. These publications are the official sources for the app.</p>
             <p>You can view or download the app's annual data and saved source materials from the <a href="{{ EXTERNAL_LINKS.GITHUB_DATA_DIRECTORY }}" target="_blank" rel="noopener">public data directory on GitHub</a>.</p>
             <p>Community updates shared through social media, email, or messaging groups can be helpful. The app uses them only after the information also appears in an official public source.</p>

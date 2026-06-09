@@ -77,7 +77,7 @@ Before publishing a new active year:
 
 - Confirm all expected official PDFs exist in their annual/domain document folders.
 - Confirm the annual `README.md` lists each official download and whether a local copy was stored and transcribed.
-- Confirm the active annual `README.md` records the last accepted official-source check date and that the date portion of `OFFICIAL_SOURCE_CHECKED_AT` in `src/js/config/app-config.js` matches it. Record that config value as the review-completion timestamp in `America/New_York` with its explicit UTC offset for the FAQ and footer display.
+- Confirm the active annual `README.md` separately records the last completed official-source check and last accepted application-data update. Their dates must match `OFFICIAL_SOURCE_CHECKED_AT` and `OFFICIAL_SOURCE_UPDATED_AT` in `src/js/config/app-config.js`. Record both timestamps in `America/New_York` with explicit UTC offsets for the FAQ and footer display.
 - Confirm the annual `README.md` records when official pool-location pages were checked for `features`, and that each pool has a reviewed feature array.
 - Confirm each published JSON file has a sibling `.schema.json` file.
 - Run `pnpm run validate:data` to validate active JSON against its schemas, including ISO `YYYY-MM-DD` dates, source URLs, cross-domain references, and retained official PDF inventory.
@@ -98,7 +98,7 @@ When enabled, at the first May-to-July scheduled run for a new calendar year, th
 
 The monitor itself does not deterministically rewrite application JSON from PDF or webpage changes. Annual JSON remains a reviewed transcription of official material; the constrained seasonal reviewer performs that transcription locally only after finding a represented data difference. When explicit `publish` mode is requested, its pull request description groups verified changes by pool, team, and meet, with indented bold property bullets; raw fingerprint changes are never represented as data updates. After accepted active-season PDF acquisition, accepted PDF replacement, or activation of a new `YEAR`, run `node scripts/season-data-agent.js --initialize` and commit the generated `.github/automation/season-data-monitor/source-state.json` alongside the accepted annual baseline when publishing.
 
-When monitor findings lead to accepted active-season data changes, record the accepted source-check date in the annual README and update `OFFICIAL_SOURCE_CHECKED_AT` in `src/js/config/app-config.js` to the review-completion timestamp in `America/New_York`, including its explicit UTC offset. The FAQ and footer render that configuration value so visitors can assess the currency of the reviewed data rather than mistaking an unreviewed monitor observation for an accepted update.
+After every completed source review, record its date and evidence in the annual README, update `OFFICIAL_SOURCE_CHECKED_AT` to the review-completion timestamp in `America/New_York`, and refresh the reviewed baseline. When the review also changes modeled data or an application-used source destination, update `OFFICIAL_SOURCE_UPDATED_AT` to the same timestamp. The FAQ and footer render both values so visitors can distinguish recent verification from the last accepted data change.
 
 ### Active Data Validation Gate
 

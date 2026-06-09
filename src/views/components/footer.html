@@ -1,11 +1,14 @@
 <footer class="footer" data-analytics-context="project_information">
   <p>
     <a href="contact.html">{{ AUTHOR_NAME }}</a> |
-    <time datetime="{{ APP_LAST_UPDATED_ON }}">{{ new Date(APP_LAST_UPDATED_ON).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }) }}</time> |
+    <time datetime="{{ APP_LAST_UPDATED_ON }}">{{ new Date(APP_LAST_UPDATED_ON).toLocaleDateString('en-US', { month: 'long', day: 'numeric', timeZone: 'UTC' }) }}</time> |
     <a href="whats-new.html#version-{{ APP_VERSION }}">{{ APP_VERSION }}</a>
   </p>
   <p class="footer__data-freshness">
-    <strong>Last data update:</strong> <time datetime="{{ OFFICIAL_SOURCE_CHECKED_AT }}">{{ OFFICIAL_SOURCE_CHECKED_SHORT_LABEL }}</time>
+    <strong>Last data checked:</strong> <time datetime="{{ OFFICIAL_SOURCE_CHECKED_AT }}">{{ OFFICIAL_SOURCE_CHECKED_SHORT_LABEL }}</time>
+  </p>
+  <p class="footer__data-freshness">
+    <strong>Last data updated:</strong> <time datetime="{{ OFFICIAL_SOURCE_UPDATED_AT }}">{{ OFFICIAL_SOURCE_UPDATED_SHORT_LABEL }}</time>
   </p>
   <p class="footer__data-freshness footer__weather-freshness" id="footerWeatherFreshness" hidden>
     <strong>Last weather update:</strong>

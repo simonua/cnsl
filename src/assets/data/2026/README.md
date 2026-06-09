@@ -8,7 +8,9 @@ The 2026 folder is the active season selected by the application. Pools, meets, 
 
 Pool information is accepted only from official public Columbia Association pages and documents. Meet and team information is accepted only from official public CNSL publication and team pages. Social media posts, email threads, messaging groups, and other community-shared content are not source evidence for application data unless the information is published through an official public source.
 
-**Last accepted official-source check:** 2026-06-08. This accepted review date is published in the FAQ and footer through `OFFICIAL_SOURCE_CHECKED_AT` in `src/js/config/app-config.js`; update both records together after a reviewed official-source refresh or check changes accepted application data.
+**Last completed official-source check:** 2026-06-08. This review found no represented data change; CA's published pool-schedule short links still resolve to the unchanged retained PDFs. The date is published through `OFFICIAL_SOURCE_CHECKED_AT` in `src/js/config/app-config.js`.
+
+**Last accepted application-data update:** 2026-06-08. This date is published through `OFFICIAL_SOURCE_UPDATED_AT` in `src/js/config/app-config.js` and changes only when reviewed official evidence updates modeled data or an application-used source destination.
 
 | Domain | Local assets | Application readiness | Source status |
 | --- | --- | --- | --- |
