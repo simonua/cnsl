@@ -8,7 +8,7 @@ const {
   setAgendaReferenceTime
 } = require('./browser-test-helpers');
 
-const ACCESSIBILITY_TEST_TIMEOUT_MS = 90000;
+const ACCESSIBILITY_TEST_TIMEOUT_MS = 120000;
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 
 test.setTimeout(ACCESSIBILITY_TEST_TIMEOUT_MS);

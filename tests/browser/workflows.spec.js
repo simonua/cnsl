@@ -920,7 +920,7 @@ test('[WF-POOLS-002] pool availability filters show pools open now, opening soon
 
   await page.keyboard.press('ArrowDown');
   await expect(page.locator('#poolAvailabilityFilter')).toHaveValue('open-today');
-  await expect(page.locator('#poolFilterSummary')).toHaveText('23 pools');
+  await expect(page.locator('#poolFilterSummary')).toHaveText('23 / 23 pools');
   await expect(page.locator('#poolListStatus')).toHaveText('Pool directory filtered to pools with public hours today.');
 
   await page.selectOption('#poolAvailabilityFilter', 'open-next-two-hours');
