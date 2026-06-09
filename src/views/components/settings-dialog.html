@@ -64,6 +64,36 @@
       </fieldset>
 
       <fieldset class="settings-group">
+        <legend>Accessibility</legend>
+        <div class="settings-preference">
+          <span class="settings-sublabel" id="textSizeLabel">Text size</span>
+          <div class="settings-segmented" role="radiogroup" aria-labelledby="textSizeLabel">
+            <label><input type="radio" name="textSize" value="default"> Default</label>
+            <label><input type="radio" name="textSize" value="large"> Large</label>
+            <label><input type="radio" name="textSize" value="extra-large"> Extra large</label>
+          </div>
+        </div>
+        <div class="settings-preference">
+          <span class="settings-sublabel" id="contrastLabel">Contrast</span>
+          <div class="settings-segmented settings-segmented--two" role="radiogroup" aria-labelledby="contrastLabel">
+            <label><input type="radio" name="contrast" value="system"> Device default</label>
+            <label><input type="radio" name="contrast" value="high"> High</label>
+          </div>
+        </div>
+        <div class="settings-preference">
+          <span class="settings-sublabel" id="motionLabel">Motion</span>
+          <div class="settings-segmented settings-segmented--two" role="radiogroup" aria-labelledby="motionLabel">
+            <label><input type="radio" name="motion" value="system"> Device default</label>
+            <label><input type="radio" name="motion" value="reduced"> Reduced</label>
+          </div>
+        </div>
+        <label class="settings-checkbox settings-preference" for="underlineLinks">
+          <input type="checkbox" id="underlineLinks" name="underlineLinks">
+          <span>Underline text links</span>
+        </label>
+      </fieldset>
+
+      <fieldset class="settings-group">
         <legend>Appearance</legend>
         <div class="settings-segmented" role="radiogroup" aria-label="Appearance theme">
           <label><input type="radio" name="theme" value="system"> Device default</label>

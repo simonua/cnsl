@@ -82,6 +82,21 @@ for (const theme of ['light', 'dark']) {
   });
 }
 
+test('[AX-SETTINGS-002] accessibility preferences have no WCAG A or AA automated violations', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 780 });
+  await prepareStableWeatherResponses(page);
+  await seedPreferences(page, {
+    contrast: 'high',
+    motion: 'reduced',
+    textSize: 'extra-large',
+    underlineLinks: true
+  });
+  await page.goto('/settings.html');
+  await page.locator('#favoritePool:not([disabled])').waitFor();
+
+  await expectNoAccessibilityViolations(page);
+});
+
 test('[AX-SEASON-001] off-season views have no WCAG A or AA automated violations', async ({ page }) => {
   await page.clock.setFixedTime(new Date('2026-09-08T12:00:00-04:00'));
 

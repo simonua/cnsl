@@ -11,6 +11,10 @@ describe('PreferencesService', () => {
     it('returns device defaults when no preferences are stored', () => {
       assert.deepEqual(PreferencesService.get(createLocalStorageMock()), {
         theme: 'system',
+        textSize: 'default',
+        contrast: 'system',
+        motion: 'system',
+        underlineLinks: false,
         favoriteTeamId: '',
         favoritePoolName: '',
         favoriteTeamExpanded: true,
@@ -27,6 +31,10 @@ describe('PreferencesService', () => {
       const storage = createLocalStorageMock();
       const saved = PreferencesService.save({
         theme: 'dark',
+        textSize: 'extra-large',
+        contrast: 'high',
+        motion: 'reduced',
+        underlineLinks: true,
         favoriteTeamId: '  lrm ',
         favoritePoolName: ' Kendall Ridge ',
         favoriteTeamExpanded: false,
@@ -40,7 +48,8 @@ describe('PreferencesService', () => {
       }, storage);
 
       assert.deepEqual(saved, {
-        theme: 'dark', favoriteTeamId: 'lrm', favoritePoolName: 'Kendall Ridge', favoriteTeamExpanded: false,
+        theme: 'dark', textSize: 'extra-large', contrast: 'high', motion: 'reduced', underlineLinks: true,
+        favoriteTeamId: 'lrm', favoritePoolName: 'Kendall Ridge', favoriteTeamExpanded: false,
         favoritePoolExpanded: false, poolScheduleLayout: 'calendar',
         poolFeatureFilters: ['beach entry', 'slide'], practiceGroups: ['first-splash', '9-10', '15-18'],
         locationAwarenessEnabled: true, weatherRefreshMinutes: 10
@@ -55,7 +64,8 @@ describe('PreferencesService', () => {
 
       assert.deepEqual(PreferencesService.get(storage), PreferencesService.DEFAULT_PREFERENCES);
       assert.deepEqual(PreferencesService.normalize({ theme: 'unsupported', favoriteTeamId: 10 }), {
-        theme: 'system', favoriteTeamId: '', favoritePoolName: '', favoriteTeamExpanded: true,
+        theme: 'system', textSize: 'default', contrast: 'system', motion: 'system', underlineLinks: false,
+        favoriteTeamId: '', favoritePoolName: '', favoriteTeamExpanded: true,
         favoritePoolExpanded: true, poolScheduleLayout: 'list', poolFeatureFilters: [],
         practiceGroups: ['first-splash', '8-under', '9-10', '11-12', '13-14', '15-18'],
         locationAwarenessEnabled: false, weatherRefreshMinutes: 5
@@ -66,6 +76,27 @@ describe('PreferencesService', () => {
       assert.equal(PreferencesService.normalize({ weatherRefreshMinutes: 0 }).weatherRefreshMinutes, 0);
       assert.equal(PreferencesService.normalize({ weatherRefreshMinutes: '10' }).weatherRefreshMinutes, 10);
       assert.equal(PreferencesService.normalize({ weatherRefreshMinutes: 15 }).weatherRefreshMinutes, 5);
+    });
+
+    it('accepts only supported accessibility preferences', () => {
+      assert.deepEqual(PreferencesService.normalize({
+        textSize: 'large',
+        contrast: 'high',
+        motion: 'reduced',
+        underlineLinks: true
+      }), {
+        ...PreferencesService.DEFAULT_PREFERENCES,
+        textSize: 'large',
+        contrast: 'high',
+        motion: 'reduced',
+        underlineLinks: true
+      });
+      assert.deepEqual(PreferencesService.normalize({
+        textSize: '200%',
+        contrast: 'maximum',
+        motion: 'none',
+        underlineLinks: 'true'
+      }), PreferencesService.DEFAULT_PREFERENCES);
     });
 
     it('clears saved values from the device', () => {

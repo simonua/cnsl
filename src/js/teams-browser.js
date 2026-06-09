@@ -561,7 +561,7 @@ function handleTeamUrlParameter() {
 
   teamCard.classList.add('highlighted');
   teamCard.scrollIntoView({
-    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+    behavior: window.shouldReduceMotion() ? 'auto' : 'smooth',
     block: 'center'
   });
 

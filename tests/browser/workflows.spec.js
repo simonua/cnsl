@@ -1968,6 +1968,7 @@ test('[WF-SETTINGS-001] settings dialog is evenly inset on mobile and centered o
     'Pool schedule view',
     'Weather safety alerts',
     'Pool distance',
+    'Accessibility',
     'Appearance'
   ]);
   const closeButtonBounds = await page.getByRole('button', { name: 'Close settings' }).boundingBox();
@@ -2136,6 +2137,81 @@ test('[WF-SETTINGS-004] system theme follows OS color scheme changes while expli
   await page.getByLabel('Dark').check();
   await expect(root).toHaveAttribute('data-theme', 'dark');
   await expect(root).toHaveAttribute('data-color-scheme', 'dark');
+});
+
+test('[WF-SETTINGS-008] accessibility settings apply immediately, persist locally, and report categories only', async ({ page }) => {
+  await initializeAnalyticsRecorder(page);
+  await page.goto('/settings.html');
+  const root = page.locator('html');
+
+  await expect(page.getByLabel('Default', { exact: true })).toBeChecked();
+  await expect(page.getByRole('radiogroup', { name: 'Contrast' }).getByLabel('Device default')).toBeChecked();
+  await expect(page.getByRole('radiogroup', { name: 'Motion' }).getByLabel('Device default')).toBeChecked();
+  await expect(page.getByLabel('Underline text links')).not.toBeChecked();
+
+  await page.getByLabel('Extra large').check();
+  await page.getByRole('radiogroup', { name: 'Contrast' }).getByLabel('High').check();
+  await page.getByRole('radiogroup', { name: 'Motion' }).getByLabel('Reduced').check();
+  await page.getByLabel('Underline text links').check();
+
+  await expect(root).toHaveAttribute('data-text-size', 'extra-large');
+  await expect(root).toHaveAttribute('data-contrast', 'high');
+  await expect(root).toHaveAttribute('data-contrast-mode', 'high');
+  await expect(root).toHaveAttribute('data-motion', 'reduced');
+  await expect(root).toHaveAttribute('data-motion-mode', 'reduced');
+  await expect(root).toHaveAttribute('data-underline-links', 'true');
+  await expect(root).toHaveCSS('font-size', '20px');
+  await expect(page.getByRole('link', { name: 'View weather source details.' })).toHaveCSS('text-decoration-line', 'underline');
+  await expect.poll(() => page.locator('.settings-segmented label').first().evaluate(element => parseFloat(globalThis.getComputedStyle(element).transitionDuration))).toBeLessThanOrEqual(0.001);
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')))).toMatchObject({
+    textSize: 'extra-large',
+    contrast: 'high',
+    motion: 'reduced',
+    underlineLinks: true
+  });
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
+    ['event', 'ca_setting_change', { setting_name: 'text_size' }],
+    ['event', 'ca_setting_change', { setting_name: 'contrast' }],
+    ['event', 'ca_setting_change', { setting_name: 'motion' }],
+    ['event', 'ca_setting_change', { setting_name: 'underline_links' }]
+  ]);
+
+  await page.reload();
+  await expect(page.getByLabel('Extra large')).toBeChecked();
+  await expect(page.getByRole('radiogroup', { name: 'Contrast' }).getByLabel('High')).toBeChecked();
+  await expect(page.getByRole('radiogroup', { name: 'Motion' }).getByLabel('Reduced')).toBeChecked();
+  await expect(page.getByLabel('Underline text links')).toBeChecked();
+  await expect(root).toHaveAttribute('data-text-size', 'extra-large');
+});
+
+test('[WF-SETTINGS-009] device contrast, reduced motion, and forced colors update effective accessibility modes', async ({ page }) => {
+  await page.emulateMedia({ contrast: 'more', reducedMotion: 'reduce' });
+  await page.goto('/settings.html');
+  const root = page.locator('html');
+
+  await expect(root).toHaveAttribute('data-contrast', 'system');
+  await expect(root).toHaveAttribute('data-contrast-mode', 'high');
+  await expect(root).toHaveAttribute('data-motion', 'system');
+  await expect(root).toHaveAttribute('data-motion-mode', 'reduced');
+
+  await page.emulateMedia({ contrast: 'no-preference', reducedMotion: 'no-preference' });
+  await expect(root).toHaveAttribute('data-contrast-mode', 'default');
+  await expect(root).toHaveAttribute('data-motion-mode', 'default');
+
+  await page.emulateMedia({ forcedColors: 'active' });
+  await expect(root).toHaveAttribute('data-contrast-mode', 'high');
+  await expect(page.getByRole('link', { name: 'View weather source details.' })).toHaveCSS('text-decoration-line', 'underline');
+});
+
+test('[WF-SETTINGS-010] extra-large text reflows without page-level horizontal overflow', async ({ page }) => {
+  await page.setViewportSize(MOBILE_VIEWPORT);
+  await seedPreferences(page, { textSize: 'extra-large' });
+
+  for (const path of ['/index.html', '/pools.html', '/teams.html', '/meets.html', '/settings.html']) {
+    await page.goto(path);
+    await expect(page.locator('html')).toHaveAttribute('data-text-size', 'extra-large');
+    await expect.poll(() => page.evaluate(() => globalThis.document.documentElement.scrollWidth <= globalThis.innerWidth)).toBe(true);
+  }
 });
 
 test('[WF-SETTINGS-005] weather safety alerts show the most recent check after updates are turned off', async ({ page }) => {

@@ -211,6 +211,50 @@
   --feature-amenities-text: #d7e0e7;
   --feature-amenities-selected-bg: #455665;
   --feature-selected-text: #f1f5f8;
+  --release-bugfix-bg: #4a1f28;
+  --release-bugfix-text: #ffd9dd;
+}
+
+:root[data-contrast-mode="high"][data-color-scheme="light"] {
+  --primary-color: #004578;
+  --primary-dark: #002f52;
+  --primary-text-color: #003f70;
+  --accent-bg: #004578;
+  --accent-dark: #002f52;
+  --accent-deep: #002642;
+  --accent-text: #ffffff;
+  --light-bg: #ffffff;
+  --white: #ffffff;
+  --text-dark: #000000;
+  --text-muted: #303030;
+  --text-light: #303030;
+  --border-color: #4a4a4a;
+  --current-text: #004b43;
+  --home-meet-text: #003f70;
+  --neutral-status-color: #303030;
+  --shadow: 0 0 0 1px var(--border-color);
+  --shadow-hover: 0 0 0 2px var(--border-color);
+}
+
+:root[data-contrast-mode="high"][data-color-scheme="dark"] {
+  --primary-color: #73c9ff;
+  --primary-dark: #4eb8f5;
+  --primary-text-color: #73c9ff;
+  --accent-bg: #0067a8;
+  --accent-dark: #00558a;
+  --accent-deep: #00436e;
+  --accent-text: #ffffff;
+  --light-bg: #000000;
+  --white: #000000;
+  --text-dark: #ffffff;
+  --text-muted: #e6e6e6;
+  --text-light: #e6e6e6;
+  --border-color: #ffffff;
+  --current-text: #9cf4e8;
+  --home-meet-text: #bde5ff;
+  --neutral-status-color: #e6e6e6;
+  --shadow: 0 0 0 1px var(--border-color);
+  --shadow-hover: 0 0 0 2px var(--border-color);
 }
 
 /* ==========================================================================
@@ -250,6 +294,19 @@ html {
   scroll-behavior: smooth;
   /* Always show vertical scrollbar on desktop to prevent layout jitter */
   overflow-y: scroll;
+}
+
+html[data-text-size="large"] {
+  font-size: 112.5%;
+}
+
+html[data-text-size="extra-large"] {
+  font-size: 125%;
+}
+
+html[data-underline-links="true"] a:not(.btn) {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
 }
 
 body {
@@ -3701,6 +3758,44 @@ body:has(.footer__weather-freshness:not([hidden])) {
   }
 }
 
+:root[data-motion-mode="reduced"] *,
+:root[data-motion-mode="reduced"] *::before,
+:root[data-motion-mode="reduced"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  scroll-behavior: auto !important;
+  transition-duration: 0.01ms !important;
+}
+
+:root[data-motion-mode="reduced"] {
+  scroll-behavior: auto;
+}
+
+:root[data-motion-mode="reduced"] .header .logo:hover,
+:root[data-motion-mode="reduced"] .nav-menu a:hover,
+:root[data-motion-mode="reduced"] .nav-menu a:focus,
+:root[data-motion-mode="reduced"] .nav-menu a.active,
+:root[data-motion-mode="reduced"] .pool-card.highlighted,
+:root[data-motion-mode="reduced"] .team-card.highlighted {
+  transform: none;
+}
+
+@media (forced-colors: active) {
+  a {
+    text-decoration: underline;
+  }
+
+  .settings-segmented label:has(input:checked) {
+    border-color: Highlight;
+    border-width: 2px;
+    color: LinkText;
+  }
+
+  .settings-segmented label:has(input:focus-visible) {
+    outline-color: Highlight;
+  }
+}
+
 /* ==========================================================================
   Meets
   ========================================================================== */
@@ -5319,6 +5414,18 @@ button.settings-dialog__close:focus {
   font-size: 1rem;
   font-weight: 600;
   margin-bottom: 0.65rem;
+}
+
+.settings-preference + .settings-preference {
+  margin-top: 1rem;
+}
+
+.settings-sublabel {
+  color: var(--text-dark);
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
 }
 
 .settings-segmented {

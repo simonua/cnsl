@@ -63,6 +63,13 @@
   function applyFormValues(form, preferences) {
     const selectedTheme = form.querySelector(`input[name="theme"][value="${preferences.theme}"]`);
     if (selectedTheme) selectedTheme.checked = true;
+    const selectedTextSize = form.querySelector(`input[name="textSize"][value="${preferences.textSize}"]`);
+    if (selectedTextSize) selectedTextSize.checked = true;
+    const selectedContrast = form.querySelector(`input[name="contrast"][value="${preferences.contrast}"]`);
+    if (selectedContrast) selectedContrast.checked = true;
+    const selectedMotion = form.querySelector(`input[name="motion"][value="${preferences.motion}"]`);
+    if (selectedMotion) selectedMotion.checked = true;
+    form.elements.underlineLinks.checked = preferences.underlineLinks;
     const selectedScheduleLayout = form.querySelector(`input[name="poolScheduleLayout"][value="${preferences.poolScheduleLayout}"]`);
     if (selectedScheduleLayout) selectedScheduleLayout.checked = true;
     const selectedWeatherRefresh = form.querySelector(`input[name="weatherRefreshMinutes"][value="${preferences.weatherRefreshMinutes}"]`);
@@ -95,6 +102,14 @@
   function trackChangedFormSetting(changedField, existing, saved, publishedPoolNames, publishedTeamIds) {
     if (changedField.name === 'theme' && saved.theme !== existing.theme) {
       trackFixedSettingChange('theme', saved.theme);
+    } else if (changedField.name === 'textSize' && saved.textSize !== existing.textSize) {
+      trackFixedSettingChange('text_size', saved.textSize);
+    } else if (changedField.name === 'contrast' && saved.contrast !== existing.contrast) {
+      trackFixedSettingChange('contrast', saved.contrast);
+    } else if (changedField.name === 'motion' && saved.motion !== existing.motion) {
+      trackFixedSettingChange('motion', saved.motion);
+    } else if (changedField.name === 'underlineLinks' && saved.underlineLinks !== existing.underlineLinks) {
+      trackFixedSettingChange('underline_links', saved.underlineLinks ? 'enabled' : 'disabled');
     } else if (changedField.name === 'poolScheduleLayout' && saved.poolScheduleLayout !== existing.poolScheduleLayout) {
       trackFixedSettingChange('pool_schedule_layout', saved.poolScheduleLayout);
     } else if (changedField.name === 'locationAwarenessEnabled' && saved.locationAwarenessEnabled !== existing.locationAwarenessEnabled) {
@@ -112,6 +127,10 @@
 
   function trackClearedSettings(existing, cleared, publishedPoolNames, publishedTeamIds) {
     if (existing.theme !== cleared.theme) trackFixedSettingChange('theme', cleared.theme);
+    if (existing.textSize !== cleared.textSize) trackFixedSettingChange('text_size', cleared.textSize);
+    if (existing.contrast !== cleared.contrast) trackFixedSettingChange('contrast', cleared.contrast);
+    if (existing.motion !== cleared.motion) trackFixedSettingChange('motion', cleared.motion);
+    if (existing.underlineLinks !== cleared.underlineLinks) trackFixedSettingChange('underline_links', 'disabled');
     if (existing.poolScheduleLayout !== cleared.poolScheduleLayout) trackFixedSettingChange('pool_schedule_layout', cleared.poolScheduleLayout);
     if (existing.locationAwarenessEnabled !== cleared.locationAwarenessEnabled) trackFixedSettingChange('location_awareness', 'disabled');
     if (existing.weatherRefreshMinutes !== cleared.weatherRefreshMinutes) trackFixedSettingChange('weather_refresh_minutes', cleared.weatherRefreshMinutes);
@@ -219,11 +238,18 @@
 
     form.addEventListener('change', event => {
       const theme = form.querySelector('input[name="theme"]:checked');
+      const textSize = form.querySelector('input[name="textSize"]:checked');
+      const contrast = form.querySelector('input[name="contrast"]:checked');
+      const motion = form.querySelector('input[name="motion"]:checked');
       const poolScheduleLayout = form.querySelector('input[name="poolScheduleLayout"]:checked');
       const weatherRefreshMinutes = form.querySelector('input[name="weatherRefreshMinutes"]:checked');
       const existing = PreferencesService.get();
       const saved = PreferencesService.save({
         theme: theme ? theme.value : 'system',
+        textSize: textSize ? textSize.value : 'default',
+        contrast: contrast ? contrast.value : 'system',
+        motion: motion ? motion.value : 'system',
+        underlineLinks: form.elements.underlineLinks.checked,
         favoriteTeamId: favoriteTeam.disabled ? existing.favoriteTeamId : favoriteTeam.value,
         favoritePoolName: favoritePool.disabled ? existing.favoritePoolName : favoritePool.value,
         favoriteTeamExpanded: existing.favoriteTeamExpanded,

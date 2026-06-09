@@ -50,12 +50,16 @@
   const ALLOWED_SHARE_METHODS = new Set(['email', 'facebook', 'qr_code', 'text', 'x']);
 
   const FIXED_SETTING_VALUES = Object.freeze({
+    contrast: new Set(['high', 'system']),
     favorite_pool_expanded: new Set(['collapsed', 'expanded']),
     favorite_team_expanded: new Set(['collapsed', 'expanded']),
     location_awareness: new Set(['disabled', 'enabled']),
+    motion: new Set(['reduced', 'system']),
     pool_schedule_layout: new Set(['calendar', 'list']),
     practice_groups: new Set(['changed']),
+    text_size: new Set(['default', 'extra-large', 'large']),
     theme: new Set(['dark', 'light', 'system']),
+    underline_links: new Set(['disabled', 'enabled']),
     weather_refresh_minutes: new Set(['0', '5', '10'])
   });
   const ALLOWED_PUBLISHED_SETTING_NAMES = new Set([

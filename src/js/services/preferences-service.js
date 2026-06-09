@@ -9,6 +9,12 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
   class PreferencesService {
     static STORAGE_KEY = globalThis.PREFERENCES_STORAGE_KEY;
 
+    static CONTRASTS = ['system', 'high'];
+
+    static MOTIONS = ['system', 'reduced'];
+
+    static TEXT_SIZES = ['default', 'large', 'extra-large'];
+
     static THEMES = ['system', 'light', 'dark'];
 
     static POOL_SCHEDULE_LAYOUTS = ['list', 'calendar'];
@@ -54,6 +60,10 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
 
     static DEFAULT_PREFERENCES = Object.freeze({
       theme: 'system',
+      textSize: 'default',
+      contrast: 'system',
+      motion: 'system',
+      underlineLinks: false,
       favoriteTeamId: '',
       favoritePoolName: '',
       favoriteTeamExpanded: true,
@@ -122,6 +132,10 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
      */
     static normalize(preferences = {}) {
       const theme = PreferencesService.THEMES.includes(preferences.theme) ? preferences.theme : 'system';
+      const textSize = PreferencesService.TEXT_SIZES.includes(preferences.textSize) ? preferences.textSize : 'default';
+      const contrast = PreferencesService.CONTRASTS.includes(preferences.contrast) ? preferences.contrast : 'system';
+      const motion = PreferencesService.MOTIONS.includes(preferences.motion) ? preferences.motion : 'system';
+      const underlineLinks = preferences.underlineLinks === true;
       const favoriteTeamId = typeof preferences.favoriteTeamId === 'string' ? preferences.favoriteTeamId.trim() : '';
       const favoritePoolName = typeof preferences.favoritePoolName === 'string' ? preferences.favoritePoolName.trim() : '';
       const favoriteTeamExpanded = preferences.favoriteTeamExpanded !== false;
@@ -138,7 +152,7 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
         ? requestedWeatherRefreshMinutes
         : PreferencesService.DEFAULT_PREFERENCES.weatherRefreshMinutes;
 
-      return { theme, favoriteTeamId, favoritePoolName, favoriteTeamExpanded, favoritePoolExpanded, poolScheduleLayout, poolFeatureFilters, practiceGroups, locationAwarenessEnabled, weatherRefreshMinutes };
+      return { theme, textSize, contrast, motion, underlineLinks, favoriteTeamId, favoritePoolName, favoriteTeamExpanded, favoritePoolExpanded, poolScheduleLayout, poolFeatureFilters, practiceGroups, locationAwarenessEnabled, weatherRefreshMinutes };
     }
 
     /**

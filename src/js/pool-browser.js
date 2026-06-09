@@ -163,7 +163,7 @@ function scrollLinkedPoolIntoView(poolCard) {
   const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
   const scrollClearance = 12;
   const top = Math.max(0, window.scrollY + poolCard.getBoundingClientRect().top - headerBottom - scrollClearance);
-  const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+  const behavior = window.shouldReduceMotion() ? 'auto' : 'smooth';
   window.scrollTo({ top, behavior });
 }
 

@@ -42,7 +42,7 @@
 
   installAppShortcut.addEventListener('click', () => {
     installApp.open = true;
-    installApp.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    installApp.scrollIntoView({ behavior: window.shouldReduceMotion() ? 'auto' : 'smooth', block: 'center' });
     installApp.querySelector('summary')?.focus({ preventScroll: true });
   });
 

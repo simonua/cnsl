@@ -399,7 +399,7 @@ function handleMeetUrlParameters() {
 
   linkedMeet.classList.add('highlighted');
   linkedMeet.scrollIntoView({
-    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+    behavior: window.shouldReduceMotion() ? 'auto' : 'smooth',
     block: 'center'
   });
   setTimeout(() => linkedMeet.classList.remove('highlighted'), 3000);
