@@ -62,6 +62,19 @@
       details.append(phoneLine);
     }
 
+    if (provider.contactName && provider.contactEmail) {
+      details.append(createDetail('Program contact', provider.contactName));
+      const emailLine = document.createElement('p');
+      const emailHeading = document.createElement('strong');
+      emailHeading.textContent = 'Email: ';
+      const emailLink = document.createElement('a');
+      emailLink.href = HtmlSafety.safeMailtoUrl(provider.contactEmail);
+      emailLink.textContent = provider.contactEmail;
+      emailLink.dataset.analyticsLinkPurpose = 'provider_contact';
+      emailLine.append(emailHeading, emailLink);
+      details.append(emailLine);
+    }
+
     const classHeading = document.createElement('h3');
     classHeading.textContent = 'Class types';
     const classList = document.createElement('ul');

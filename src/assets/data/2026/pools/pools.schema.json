@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://example.com/pools.schema.json",
-    "version": "V6",
+    "version": "V7",
     "title": "Pool Data Schema",
     "description": "Schema for pool data containing schedules, features, and location information",
     "type": "object",
@@ -303,6 +303,7 @@
                 "heated",
                 "hot tub",
                 "lap",
+                "lessons",
                 "party area",
                 "picnic area",
                 "play features",

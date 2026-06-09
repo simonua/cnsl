@@ -39,10 +39,13 @@ if (typeof window === 'undefined' || !window.LessonProviderService) {
       const websiteUrl = LessonProviderService.normalizeHttpsUrl(provider.websiteUrl);
       const sourceUrl = LessonProviderService.normalizeHttpsUrl(provider.sourceUrl);
       const contactUrl = provider.contactUrl ? LessonProviderService.normalizeHttpsUrl(provider.contactUrl) : '';
+      const hasContactName = typeof provider.contactName === 'string' && provider.contactName.trim() !== '';
+      const hasContactEmail = typeof provider.contactEmail === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(provider.contactEmail);
       if (requiredStrings.some(field => typeof provider[field] !== 'string' || provider[field].trim() === '')
         || !websiteUrl
         || !sourceUrl
         || (provider.contactUrl && !contactUrl)
+        || (hasContactName !== hasContactEmail)
         || (provider.phone && !/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/.test(provider.phone))
         || !Array.isArray(provider.classTypes)
         || provider.classTypes.length === 0
@@ -56,6 +59,8 @@ if (typeof window === 'undefined' || !window.LessonProviderService) {
         logo: LessonProviderService.normalizeLogo(provider.logo),
         websiteUrl,
         contactUrl,
+        contactName: hasContactName ? provider.contactName : '',
+        contactEmail: hasContactEmail ? provider.contactEmail : '',
         phone: typeof provider.phone === 'string' ? provider.phone : '',
         classTypes: [...provider.classTypes],
         sourceUrl,

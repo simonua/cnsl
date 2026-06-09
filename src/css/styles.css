@@ -2244,6 +2244,11 @@ button.pool-filter__clear:focus-visible {
   margin: 0.2rem 0.3rem 0.2rem 0;
 }
 
+.feature-pill--with-icon {
+  align-items: center;
+  display: inline-flex;
+}
+
 .pool-filter__option--accessibility,
 .feature-pill--accessibility {
   --feature-chip-bg: var(--feature-accessibility-bg);

@@ -8,9 +8,9 @@ The 2026 folder is the active season selected by the application. Pools, meets, 
 
 Pool information is accepted only from official public Columbia Association pages and documents. Meet and team information is accepted only from official public CNSL publication and team pages. Social media posts, email threads, messaging groups, and other community-shared content are not source evidence for application data unless the information is published through an official public source.
 
-**Last completed official-source check:** 2026-06-08. This review found no represented data change; CA's published pool-schedule short links still resolve to the unchanged retained PDFs. The date is published through `OFFICIAL_SOURCE_CHECKED_AT` in `src/js/config/app-config.js`.
+**Last completed official-source check:** 2026-06-09 at 10:04 AM EDT. CA's Outdoor Swim Lessons page confirmed the seven represented lesson locations. The timestamp is published through `OFFICIAL_SOURCE_CHECKED_AT` in `src/js/config/app-config.js`.
 
-**Last accepted application-data update:** 2026-06-08. This date is published through `OFFICIAL_SOURCE_UPDATED_AT` in `src/js/config/app-config.js` and changes only when reviewed official evidence updates modeled data or an application-used source destination.
+**Last accepted application-data update:** 2026-06-09 at 10:04 AM EDT. The seven outdoor lesson locations were added to pool features. The timestamp is published through `OFFICIAL_SOURCE_UPDATED_AT` in `src/js/config/app-config.js` and changes only when reviewed official evidence updates modeled data or an application-used source destination.
 
 | Domain | Local assets | Application readiness | Source status |
 | --- | --- | --- | --- |
@@ -27,6 +27,7 @@ Pool schedule PDFs are stored in `pools/pool-schedules/`. The annual data file r
 | Columbia Association pool schedule page | [View pool schedules](https://columbiaassociation.org/sports-recreation/pools/pool-schedules/) | `pools/pools.json` and `pools/pool-schedules/` |
 | Columbia Association pool directory | [View pool directory](https://experience.arcgis.com/experience/ac58c73ab9bd4640a880c8ddf46bf198) | `pools/pools.json` |
 | Columbia Association individual pool-location pages | Official page stored as each `pools[].caUrl` | `pools[].features`, verified 2026-05-24 |
+| Columbia Association Outdoor Swim Lessons page | [View outdoor lesson information](https://columbiaassociation.org/sports-recreation/pools/classes/outdoor/) | `pools[].features`, lesson locations verified 2026-06-09 |
 
 ### Retained Pool Document Inventory
 
@@ -62,6 +63,7 @@ The 2026 CNSL downloads above were verified from the official [CNSL home page](h
 ## Transcription Notes
 
 - Missing pool facility features were completed from each official Columbia Association pool-location page on 2026-05-24, while existing CA-backed values were retained. The update combines the pages' facility descriptions and Amenities lists, normalizing terms to schema labels such as `lap`, `play features`, and `splash` while retaining specifically published amenities such as `heated`, `climbing wall`, and `sensory friendly`.
+- Columbia Association's Outdoor Swim Lessons page was reviewed on 2026-06-09 and identifies Dorsey Hall, Hawthorn, Kendall Ridge, and River Hill for morning lessons, plus Faulkner Ridge, Talbott Springs, and Running Brook for evening lessons. These locations use the normalized `lessons` feature. When the website does not answer a lesson-data question, the supplied authoritative contact is the Swim Lesson Program Supervisor at `swim.lessons@columbiaassociation.org`.
 - Stevens Forest includes the normalized `yoga` feature for visitor filtering, accepted on 2026-06-01 from the recurring `Yoga` program published in its retained official 2026 pool schedule PDF.
 - A 2026-05-24 facility-page audit corrected published location text for Bryant Woods, Dickinson, Dorsey Hall, Faulkner Ridge, Hobbit's Glen, Hopewell, Longfellow, and Swansfield, and removed an unsupported `pool lift` designation from Bryant Woods. Coordinate fields were not re-derived from facility-page map-link coordinates because the CA directory remains the recorded location source.
 - Clary's Forest, Dorsey Hall, Swansfield, and Thunder Hill facility-page monitor findings were rechecked on 2026-05-27; their supported address, phone, and amenity values remain consistent with `pools/pools.json`, so no pool transcription changed.

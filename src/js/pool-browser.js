@@ -292,7 +292,8 @@ function createPoolDetailsViewModel(pool) {
     hoursHtml: formatPoolHours(pool),
     featureItems: sortedFeatures.map(feature => ({
       label: PoolDirectoryService.formatFeatureLabel(feature),
-      category: PreferencesService.getPoolFeatureCategory(feature)
+      category: PreferencesService.getPoolFeatureCategory(feature),
+      icon: feature === 'lessons' ? 'lessons' : ''
     })),
     mapsSearchBaseUrl: globalThis.GOOGLE_MAPS_SEARCH_BASE_URL
   };

@@ -5,7 +5,8 @@
       "id": "columbia-association",
       "name": "Columbia Association",
       "websiteUrl": "https://columbiaassociation.org/sports-recreation/pools/classes/",
-      "contactUrl": "https://columbiaassociation.org/contact-us/",
+      "contactName": "Swim Lesson Program Supervisor",
+      "contactEmail": "swim.lessons@columbiaassociation.org",
       "phone": "410-715-3000",
       "logo": {
         "src": "assets/images/provider-logos/columbia-association.png",
@@ -24,7 +25,7 @@
         "Adult lessons"
       ],
       "sourceUrl": "https://columbiaassociation.org/sports-recreation/pools/classes/",
-      "reviewedOn": "2026-06-08"
+      "reviewedOn": "2026-06-09"
     }
   ],
   "relatedPrograms": [

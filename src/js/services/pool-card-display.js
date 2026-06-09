@@ -179,7 +179,11 @@ if (typeof window === 'undefined' || !window.PoolCardDisplay) {
       const pills = items.map(item => {
         const category = PoolCardDisplay.getFeatureCategory(item && item.category);
         const label = HtmlSafety.escapeHtml(item && item.label);
-        return `<span class="feature-pill feature-pill--${category}">${label}</span>`;
+        const lessonIcon = item && item.icon === 'lessons'
+          ? '<span class="nav-menu__icon nav-menu__icon--lessons" aria-hidden="true"><span class="nav-menu__lesson-learning"><span>ABC</span><span class="nav-menu__lesson-apple">🍎</span></span><span class="nav-menu__lesson-waves">≋</span></span>'
+          : '';
+        const iconClass = lessonIcon ? ' feature-pill--with-icon' : '';
+        return `<span class="feature-pill feature-pill--${category}${iconClass}">${lessonIcon}${label}</span>`;
       }).join('');
       return `
         <div class="pool-features">

@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://pools.longreachmarlins.org/assets/data/lessons.schema.json",
-  "version": "V4",
+  "version": "V5",
   "title": "Swim Lesson And Related Program Data Schema",
   "description": "Schema for factual swim lesson provider and related swimming program information. Pricing and schedules are intentionally not modeled.",
   "type": "object",
@@ -52,6 +52,13 @@
         "contactUrl": {
           "$ref": "#/definitions/HttpsUrl"
         },
+        "contactName": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "contactEmail": {
+          "type": "string",
+          "format": "email"
+        },
         "phone": {
           "type": "string",
           "pattern": "^[0-9]{3}-[0-9]{3}-[0-9]{4}$"
@@ -84,6 +91,10 @@
         "sourceUrl",
         "reviewedOn"
       ],
+      "dependencies": {
+        "contactName": ["contactEmail"],
+        "contactEmail": ["contactName"]
+      },
       "additionalProperties": false
     },
     "RelatedProgram": {
