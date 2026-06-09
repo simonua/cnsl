@@ -29,6 +29,7 @@ function createWindow(location = {}) {
 describe('PWA update startup', () => {
   it('should request a background worker update on production page startup', async () => {
     const registerCalls = [];
+    const workerMessages = [];
     let updateCalls = 0;
     const window = createWindow();
     const navigator = {
@@ -37,7 +38,10 @@ describe('PWA update startup', () => {
         addEventListener: () => undefined,
         register: async (url, options) => {
           registerCalls.push({ options, url: url.toString() });
-          return { update: async () => { updateCalls += 1; } };
+          return {
+            active: { postMessage: message => workerMessages.push(message) },
+            update: async () => { updateCalls += 1; }
+          };
         }
       }
     };
@@ -49,6 +53,8 @@ describe('PWA update startup', () => {
     assert.equal(registerCalls[0].url, 'https://pools.longreachmarlins.org/service-worker.js');
     assert.equal(registerCalls[0].options.updateViaCache, 'none');
     assert.equal(updateCalls, 1);
+    assert.equal(workerMessages.length, 1);
+    assert.equal(workerMessages[0].type, 'GET_APP_VERSION');
   });
 
   it('should do nothing when service workers are unavailable', () => {
@@ -100,7 +106,9 @@ describe('PWA update startup', () => {
     const navigator = {
       serviceWorker: {
         controller: null,
-        addEventListener: (type, listener) => { controllerChange = listener; },
+        addEventListener: (type, listener) => {
+          if (type === 'controllerchange') controllerChange = listener;
+        },
         register: async () => ({ update: async () => undefined })
       }
     };
@@ -112,6 +120,66 @@ describe('PWA update startup', () => {
     controllerChange();
 
     assert.equal(reloadCalls, 1);
+  });
+
+  it('should update the footer from a valid service worker app version', async () => {
+    let messageListener;
+    const attributes = new Map([['href', 'whats-new.html#version-2.10.0']]);
+    const versionLink = {
+      setAttribute: (name, value) => attributes.set(name, value),
+      textContent: '2.10.0'
+    };
+    const navigator = {
+      serviceWorker: {
+        controller: {},
+        addEventListener: (type, listener) => {
+          if (type === 'message') messageListener = listener;
+        },
+        register: async () => ({ update: async () => undefined })
+      }
+    };
+
+    runPwa({
+      console,
+      document: { getElementById: id => id === 'footerAppVersion' ? versionLink : null },
+      navigator,
+      window: createWindow()
+    });
+    await new Promise(resolve => setImmediate(resolve));
+    messageListener({ data: { type: 'SW_UPDATED', version: '2.11.0' } });
+
+    assert.equal(versionLink.textContent, '2.11.0');
+    assert.equal(attributes.get('href'), 'whats-new.html#version-2.11.0');
+  });
+
+  it('should ignore invalid service worker app versions', async () => {
+    let messageListener;
+    let attributeUpdates = 0;
+    const versionLink = {
+      setAttribute: () => { attributeUpdates += 1; },
+      textContent: '2.10.0'
+    };
+    const navigator = {
+      serviceWorker: {
+        controller: {},
+        addEventListener: (type, listener) => {
+          if (type === 'message') messageListener = listener;
+        },
+        register: async () => ({ update: async () => undefined })
+      }
+    };
+
+    runPwa({
+      console,
+      document: { getElementById: () => versionLink },
+      navigator,
+      window: createWindow()
+    });
+    await new Promise(resolve => setImmediate(resolve));
+    messageListener({ data: { type: 'APP_VERSION', version: 'javascript:alert(1)' } });
+
+    assert.equal(versionLink.textContent, '2.10.0');
+    assert.equal(attributeUpdates, 0);
   });
 
   it('should report worker registration failures safely', async () => {

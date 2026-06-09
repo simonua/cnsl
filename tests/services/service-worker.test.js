@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const { LOCAL_DEVELOPMENT_HOSTNAMES, LOCAL_DEVELOPMENT_PORT, PWA_CACHE_PREFIX } = require('../../src/js/config/app-config.js');
+const { APP_VERSION, LOCAL_DEVELOPMENT_HOSTNAMES, LOCAL_DEVELOPMENT_PORT, PWA_CACHE_PREFIX } = require('../../src/js/config/app-config.js');
 
 const workerSourcePath = path.join(__dirname, '..', '..', 'service-worker.js');
 const workerSource = fs.readFileSync(workerSourcePath, 'utf8');
@@ -71,6 +71,7 @@ function createWorkerHarness(precacheResources, options = {}) {
     LOCAL_DEVELOPMENT_HOSTNAMES,
     LOCAL_DEVELOPMENT_PORT,
     PWA_CACHE_PREFIX,
+    APP_VERSION,
     self: scope,
     fetch: (request, options) => fetchImplementation(request, options),
     caches: {
@@ -263,7 +264,21 @@ describe('service worker cache strategy', () => {
     assert.deepEqual(harness.deletedCaches, [`${PWA_CACHE_PREFIX}old`]);
     assert.equal(harness.clientMessages.length, 1);
     assert.equal(harness.clientMessages[0].type, 'SW_UPDATED');
-    assert.equal(harness.clientMessages[0].version, 'development');
+    assert.equal(harness.clientMessages[0].version, APP_VERSION);
+  });
+
+  it('should report the semantic app version to a requesting client', async () => {
+    const harness = createWorkerHarness(coreResources);
+    const messages = [];
+
+    await harness.dispatch('message', {
+      data: { type: 'GET_APP_VERSION' },
+      source: { postMessage: message => messages.push(message) }
+    });
+
+    assert.equal(messages.length, 1);
+    assert.equal(messages[0].type, 'APP_VERSION');
+    assert.equal(messages[0].version, APP_VERSION);
   });
 
   it('should use the minimum shell if the generated precache inventory is unavailable', async () => {

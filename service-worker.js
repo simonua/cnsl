@@ -106,7 +106,7 @@ self.addEventListener("activate", event => {
         clients.forEach(client => {
           client.postMessage({
             type: 'SW_UPDATED',
-            version: CACHE_VERSION
+            version: globalThis.APP_VERSION
           });
         });
       });
@@ -244,5 +244,11 @@ self.addEventListener("fetch", event => {
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
+  }
+  if (event.data && event.data.type === 'GET_APP_VERSION' && event.source) {
+    event.source.postMessage({
+      type: 'APP_VERSION',
+      version: globalThis.APP_VERSION
+    });
   }
 });

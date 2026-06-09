@@ -26,6 +26,24 @@
   let hasActiveController = Boolean(navigator.serviceWorker.controller);
   let refreshing = false;
 
+  function updateDisplayedAppVersion(version) {
+    if (typeof version !== 'string' || !/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(version)) {
+      return;
+    }
+
+    const versionLink = typeof document === 'undefined' ? null : document.getElementById('footerAppVersion');
+    if (!versionLink) return;
+
+    versionLink.textContent = version;
+    versionLink.setAttribute('href', `whats-new.html#version-${version}`);
+  }
+
+  navigator.serviceWorker.addEventListener('message', event => {
+    if (event.data?.type === 'APP_VERSION' || event.data?.type === 'SW_UPDATED') {
+      updateDisplayedAppVersion(event.data.version);
+    }
+  });
+
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (!hasActiveController) {
       hasActiveController = true;
@@ -41,6 +59,9 @@
   const serviceWorkerUrl = new URL('service-worker.js', window.location.href);
 
   navigator.serviceWorker.register(serviceWorkerUrl, { updateViaCache: 'none' })
-    .then(registration => registration.update())
+    .then(registration => {
+      registration.active?.postMessage({ type: 'GET_APP_VERSION' });
+      return registration.update();
+    })
     .catch(error => console.error('Service Worker registration failed:', error));
 }());
