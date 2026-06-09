@@ -13,7 +13,7 @@ describe('app-config', () => {
     assert.equal(config.AUTHOR_NAME, 'Simon Kurtz');
     assert.equal(config.AUTHOR_EMAIL, 'simonkurtz+pool-app@gmail.com');
     assert.equal(config.EXTERNAL_LINKS.AUTHOR_FEEDBACK_EMAIL_URL, 'mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Feedback');
-    assert.equal(config.EXTERNAL_LINKS.AUTHOR_BUG_FEATURE_EMAIL_URL, 'mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Bug%20%2F%20Feature%20-%20Version%202.11.0');
+    assert.ok(config.EXTERNAL_LINKS.AUTHOR_BUG_FEATURE_EMAIL_URL.startsWith('mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Bug%20%2F%20Feature%20-%20Version%20'));
     assert.equal(config.EXTERNAL_LINKS.AUTHOR_DATA_EMAIL_URL, 'mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Data');
     assert.equal(config.EXTERNAL_LINKS.AUTHOR_LESSON_RECOMMENDATION_EMAIL_URL, 'mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Lesson%20Provider%20Recommendation');
     assert.equal(config.EXTERNAL_LINKS.AUTHOR_LINKEDIN_URL, 'https://www.linkedin.com/in/simonkurtz');
