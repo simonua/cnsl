@@ -259,6 +259,8 @@ function collectPrecacheResources(directory, rootDirectory = directory) {
 }
 
 function writePwaArtifacts() {
+  fs.writeFileSync(path.join(outDir, appConfig.DEPLOYMENT_VERSION_FILE), cacheVersion);
+
   const requiredOfflineResources = [
     'index.html',
     'offline.html',

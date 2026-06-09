@@ -128,11 +128,13 @@
     WEATHER_ALERT_LAST_SUCCESSFUL_CHECK_STORAGE_KEY
   ]);
   const APP_SESSION_STORAGE_KEYS = Object.freeze([
+    'cnsl_service_worker_update_checked_at',
     WEATHER_ALERT_STATUS_STORAGE_KEY,
     WEATHER_ALERT_DISCLOSURE_STORAGE_KEY
   ]);
 
   // Offline caching and local development runtime behavior.
+  const DEPLOYMENT_VERSION_FILE = 'version.txt';
   const PWA_CACHE_PREFIX = 'cnsl-static-';
   const LOCAL_DEVELOPMENT_HOSTNAMES = Object.freeze(['localhost', '127.0.0.1']);
   const LOCAL_DEVELOPMENT_PORT = '9090';
@@ -143,6 +145,7 @@
     APP_SESSION_STORAGE_KEYS,
     APP_VERSION,
     APP_VERSION_STORAGE_KEY,
+    DEPLOYMENT_VERSION_FILE,
     GA4_MEASUREMENT_ID,
     GOOGLE_MAPS_SEARCH_BASE_URL,
     HOME_PAGE_HOSTNAME,

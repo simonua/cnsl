@@ -10,6 +10,7 @@ try {
 
 const CACHE_NAME = `${PWA_CACHE_PREFIX}${CACHE_VERSION}`;
 const OFFLINE_PAGE = 'offline.html';
+const DEPLOYMENT_VERSION_URL = new URL(globalThis.DEPLOYMENT_VERSION_FILE, APP_BASE_URL);
 
 // Check if running in development mode (localhost or port 9090)
 const isDevelopment = LOCAL_DEVELOPMENT_HOSTNAMES.includes(self.location.hostname)
@@ -142,6 +143,11 @@ self.addEventListener("fetch", event => {
   }
 
   if (requestUrl.origin !== APP_BASE_URL.origin) {
+    return;
+  }
+
+  if (requestUrl.pathname === DEPLOYMENT_VERSION_URL.pathname) {
+    event.respondWith(fetch(event.request, { cache: 'no-store' }));
     return;
   }
 

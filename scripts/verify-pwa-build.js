@@ -2,7 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 const vm = require('node:vm');
-const { APP_VERSION, GA4_MEASUREMENT_ID, HOME_PAGE_HOSTNAME, HOME_PAGE_URL, YEAR } = require('../src/js/config/app-config.js');
+const { APP_VERSION, DEPLOYMENT_VERSION_FILE, GA4_MEASUREMENT_ID, HOME_PAGE_HOSTNAME, HOME_PAGE_URL, YEAR } = require('../src/js/config/app-config.js');
 const WeatherAlertService = require('../src/js/services/weather-alert-service.js');
 
 const outDir = path.join(__dirname, '..', 'out');
@@ -16,6 +16,7 @@ const unpublishedAnnualEvidenceDirectories = [
 const requiredArtifacts = [
   'BingSiteAuth.xml',
   'CNAME',
+  DEPLOYMENT_VERSION_FILE,
   'favicon.ico',
   'google3dd9d57115818ebb.html',
   'index.html',
@@ -128,6 +129,9 @@ const calculateResourceBytes = resources => resources
 assert.ok(Array.isArray(precacheResources), 'The generated precache inventory must define an array.');
 assert.ok(Array.isArray(precacheCoreResources), 'The generated precache inventory must define a core array.');
 assert.ok(Array.isArray(precacheOptionalResources), 'The generated precache inventory must define an optional array.');
+const deploymentVersion = fs.readFileSync(path.join(outDir, DEPLOYMENT_VERSION_FILE), 'utf8');
+assert.match(deploymentVersion, /^\d{8}-\d{6}$/, 'Deployment version marker must contain one generated build identifier.');
+assert.ok(!precacheResources.includes(DEPLOYMENT_VERSION_FILE), 'Deployment version marker must never be precached.');
 assert.ok(precacheOptionalResources.length > 0, 'The generated precache inventory must stage optional resources.');
 assert.deepEqual(
   [...precacheCoreResources, ...precacheOptionalResources].sort(),
@@ -154,7 +158,7 @@ assert.ok(!precacheCoreResources.includes('assets/data/lessons.json'), 'The less
 assert.ok(precacheOptionalResources.includes('assets/images/logos/team-logos@2x.png'), 'Large visual assets must remain optional during installation.');
 assert.ok(precacheOptionalResources.includes('faq.html'), 'Informational routes without an offline requirement must remain optional during installation.');
 requiredArtifacts
-  .filter(resource => !['CNAME', 'robots.txt', 'sitemap.xml', 'precache-manifest.js', 'service-worker.js'].includes(resource))
+  .filter(resource => !['CNAME', DEPLOYMENT_VERSION_FILE, 'robots.txt', 'sitemap.xml', 'precache-manifest.js', 'service-worker.js'].includes(resource))
   .forEach(resource => assert.ok(precacheResources.includes(resource), `Precache inventory is missing: ${resource}`));
 assert.ok(!precacheResources.some(resource => resource.includes('/data/2025/')), 'Archived season data must not be precached.');
 assert.ok(!precacheResources.some(resource => /^assets\/images\/logos\/(?!team-logos@2x\.png$)[^/]+\.png$/i.test(resource)), 'Individual team logos must not be precached once the sprite is published.');

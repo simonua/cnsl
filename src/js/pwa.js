@@ -3,6 +3,7 @@
 
   const UPDATE_CHECK_DEBOUNCE_MS = 60 * 1000;
   const UPDATE_CHECK_STORAGE_KEY = 'cnsl_service_worker_update_checked_at';
+  const BUILD_VERSION_PATTERN = /^\d{8}-\d{6}$/;
 
   if (!('serviceWorker' in navigator)) {
     return;
@@ -31,6 +32,10 @@
   let serviceWorkerRegistration = null;
   let lastUpdateCheckAt = 0;
   let updateCheckPromise = null;
+  const currentScriptUrl = typeof document === 'undefined' || !document.currentScript?.src
+    ? null
+    : new URL(document.currentScript.src, window.location.href);
+  const currentBuildVersion = currentScriptUrl?.searchParams.get('v');
 
   try {
     const storedUpdateCheckAt = Number(window.sessionStorage?.getItem(UPDATE_CHECK_STORAGE_KEY));
@@ -41,9 +46,13 @@
     // Continue with tab-local memory when session storage is unavailable.
   }
 
-  function requestServiceWorkerUpdate() {
+  function checkForDeploymentUpdate() {
     if (!serviceWorkerRegistration || updateCheckPromise) {
       return updateCheckPromise;
+    }
+
+    if (!BUILD_VERSION_PATTERN.test(currentBuildVersion)) {
+      return null;
     }
 
     const updateCheckAt = Date.now();
@@ -59,9 +68,18 @@
       // The in-memory timestamp still limits checks for this document.
     }
 
-    updateCheckPromise = Promise.resolve()
-      .then(() => serviceWorkerRegistration.update())
-      .catch(error => console.error('Service Worker update check failed:', error))
+    const deploymentVersionUrl = new URL(window.DEPLOYMENT_VERSION_FILE, window.location.href);
+    updateCheckPromise = fetch(deploymentVersionUrl, { cache: 'no-store' })
+      .then(response => response.ok ? response.text() : null)
+      .then(version => {
+        const deployedBuildVersion = version?.trim();
+        if (!BUILD_VERSION_PATTERN.test(deployedBuildVersion)
+          || deployedBuildVersion === currentBuildVersion) {
+          return null;
+        }
+        return serviceWorkerRegistration.update();
+      })
+      .catch(error => console.error('Deployment version check failed:', error))
       .finally(() => {
         updateCheckPromise = null;
       });
@@ -99,7 +117,7 @@
     }
   });
 
-  window.addEventListener('pageshow', requestServiceWorkerUpdate);
+  window.addEventListener('pageshow', checkForDeploymentUpdate);
 
   const serviceWorkerUrl = new URL('service-worker.js', window.location.href);
 
@@ -107,7 +125,7 @@
     .then(registration => {
       serviceWorkerRegistration = registration;
       registration.active?.postMessage({ type: 'GET_APP_VERSION' });
-      return requestServiceWorkerUpdate();
+      return checkForDeploymentUpdate();
     })
     .catch(error => console.error('Service Worker registration failed:', error));
 }());

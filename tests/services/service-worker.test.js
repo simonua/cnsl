@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const { APP_VERSION, LOCAL_DEVELOPMENT_HOSTNAMES, LOCAL_DEVELOPMENT_PORT, PWA_CACHE_PREFIX } = require('../../src/js/config/app-config.js');
+const { APP_VERSION, DEPLOYMENT_VERSION_FILE, LOCAL_DEVELOPMENT_HOSTNAMES, LOCAL_DEVELOPMENT_PORT, PWA_CACHE_PREFIX } = require('../../src/js/config/app-config.js');
 
 const workerSourcePath = path.join(__dirname, '..', '..', 'service-worker.js');
 const workerSource = fs.readFileSync(workerSourcePath, 'utf8');
@@ -72,6 +72,7 @@ function createWorkerHarness(precacheResources, options = {}) {
     LOCAL_DEVELOPMENT_PORT,
     PWA_CACHE_PREFIX,
     APP_VERSION,
+    DEPLOYMENT_VERSION_FILE,
     self: scope,
     fetch: (request, options) => fetchImplementation(request, options),
     caches: {
@@ -254,6 +255,25 @@ describe('service worker cache strategy', () => {
     });
 
     assert.equal(await response.text(), `fresh:${requestedUrl}`);
+  });
+
+  it('should always fetch the deployment marker from the network without caching it', async () => {
+    const harness = createWorkerHarness(coreResources);
+    let fetchOptions;
+    harness.setFetchImplementation(async (request, options) => {
+      fetchOptions = options;
+      return new Response('20260609-123457\n', { status: 200 });
+    });
+
+    const response = await harness.dispatch('fetch', {
+      method: 'GET',
+      mode: 'cors',
+      url: `https://pools.longreachmarlins.org/${DEPLOYMENT_VERSION_FILE}`
+    });
+
+    assert.equal(await response.text(), '20260609-123457\n');
+    assert.equal(fetchOptions.cache, 'no-store');
+    assert.ok(![...harness.cacheRecords.keys()].some(url => url.includes(DEPLOYMENT_VERSION_FILE)));
   });
 
   it('should delete obsolete versioned caches during activation', async () => {

@@ -6,9 +6,15 @@ const vm = require('node:vm');
 
 const pwaSourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'pwa.js');
 const pwaSource = fs.readFileSync(pwaSourcePath, 'utf8');
+const CURRENT_BUILD_VERSION = '20260609-123456';
 
 function runPwa(context) {
-  vm.runInNewContext(pwaSource, { URL, Promise, ...context }, { filename: pwaSourcePath });
+  const document = {
+    currentScript: { src: `https://pools.longreachmarlins.org/js/pwa.js?v=${CURRENT_BUILD_VERSION}` },
+    ...context.document
+  };
+  const fetch = context.fetch || (async () => new Response(`${CURRENT_BUILD_VERSION}\n`, { status: 200 }));
+  vm.runInNewContext(pwaSource, { URL, Promise, Response, ...context, document, fetch }, { filename: pwaSourcePath });
 }
 
 function createWindow(location = {}) {
@@ -16,6 +22,7 @@ function createWindow(location = {}) {
   return {
     LOCAL_DEVELOPMENT_HOSTNAMES: ['localhost', '127.0.0.1'],
     LOCAL_DEVELOPMENT_PORT: '9090',
+    DEPLOYMENT_VERSION_FILE: 'version.txt',
     PWA_CACHE_PREFIX: 'cnsl-static-',
     location: {
       href: 'https://pools.longreachmarlins.org/index.html',
@@ -33,7 +40,8 @@ function createWindow(location = {}) {
 }
 
 describe('PWA update startup', () => {
-  it('should request a background worker update on production page startup', async () => {
+  it('should check the deployment marker without updating a current worker', async () => {
+    const fetchCalls = [];
     const registerCalls = [];
     const workerMessages = [];
     let updateCalls = 0;
@@ -52,13 +60,24 @@ describe('PWA update startup', () => {
       }
     };
 
-    runPwa({ console, navigator, window });
+    runPwa({
+      console,
+      fetch: async (url, options) => {
+        fetchCalls.push({ options, url: url.toString() });
+        return new Response(`${CURRENT_BUILD_VERSION}\n`, { status: 200 });
+      },
+      navigator,
+      window
+    });
     await new Promise(resolve => setImmediate(resolve));
 
     assert.equal(registerCalls.length, 1);
     assert.equal(registerCalls[0].url, 'https://pools.longreachmarlins.org/service-worker.js');
     assert.equal(registerCalls[0].options.updateViaCache, 'none');
-    assert.equal(updateCalls, 1);
+    assert.equal(fetchCalls.length, 1);
+    assert.equal(fetchCalls[0].url, 'https://pools.longreachmarlins.org/version.txt');
+    assert.equal(fetchCalls[0].options.cache, 'no-store');
+    assert.equal(updateCalls, 0);
     assert.equal(workerMessages.length, 1);
     assert.equal(workerMessages[0].type, 'GET_APP_VERSION');
   });
@@ -66,7 +85,7 @@ describe('PWA update startup', () => {
   it('should limit update checks to once per minute across page navigation', async () => {
     const sharedSessionValues = new Map();
     let currentTime = 1_000_000;
-    let updateCalls = 0;
+    let markerFetchCalls = 0;
     const sessionStorage = {
       getItem: key => sharedSessionValues.get(key) ?? null,
       setItem: (key, value) => sharedSessionValues.set(key, value)
@@ -77,12 +96,16 @@ describe('PWA update startup', () => {
       runPwa({
         Date: { now: () => currentTime },
         console,
+        fetch: async () => {
+          markerFetchCalls += 1;
+          return new Response(`${CURRENT_BUILD_VERSION}\n`, { status: 200 });
+        },
         navigator: {
           serviceWorker: {
             controller: {},
             addEventListener: () => undefined,
             register: async () => ({
-              update: async () => { updateCalls += 1; }
+              update: async () => undefined
             })
           }
         },
@@ -92,15 +115,49 @@ describe('PWA update startup', () => {
     };
 
     await navigate();
-    assert.equal(updateCalls, 1);
+    assert.equal(markerFetchCalls, 1);
 
     currentTime += 30_000;
     await navigate();
-    assert.equal(updateCalls, 1);
+    assert.equal(markerFetchCalls, 1);
 
     currentTime += 30_000;
     await navigate();
-    assert.equal(updateCalls, 2);
+    assert.equal(markerFetchCalls, 2);
+  });
+
+  it('should update the worker only for a valid different deployment marker', async () => {
+    let deployedVersion = 'not-a-build-version';
+    let updateCalls = 0;
+    const navigator = {
+      serviceWorker: {
+        controller: {},
+        addEventListener: () => undefined,
+        register: async () => ({
+          update: async () => { updateCalls += 1; }
+        })
+      }
+    };
+
+    runPwa({
+      console,
+      fetch: async () => new Response(deployedVersion, { status: 200 }),
+      navigator,
+      window: createWindow()
+    });
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(updateCalls, 0);
+
+    deployedVersion = '20260609-123457';
+    const nextWindow = createWindow();
+    runPwa({
+      console,
+      fetch: async () => new Response(deployedVersion, { status: 200 }),
+      navigator,
+      window: nextWindow
+    });
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(updateCalls, 1);
   });
 
   it('should do nothing when service workers are unavailable', () => {
