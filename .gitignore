@@ -9,6 +9,7 @@ docs/flyer/**/*.svg
 tmp
 /test-results/
 /playwright-report/
+/.playwright-mcp/
 /.github/automation/season-data-monitor/update-report.md
 /coverage
 
