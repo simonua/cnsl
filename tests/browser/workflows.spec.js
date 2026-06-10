@@ -2121,9 +2121,9 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
     ['event', 'ca_setting_change', { setting_name: 'weather_refresh_minutes' }],
     ['event', 'ca_setting_change', { setting_name: 'practice_groups' }],
     ['event', 'ca_setting_change', { setting_name: 'practice_groups' }],
-    ['event', 'ca_setting_change', { setting_name: 'favorite_pool' }],
-    ['event', 'ca_setting_change', { setting_name: 'favorite_team' }],
-    ['event', 'ca_setting_change', { setting_name: 'favorite_pool' }]
+    ['event', 'ca_setting_change', { setting_name: 'favorite_pool', selection: 'Bryant Woods' }],
+    ['event', 'ca_setting_change', { setting_name: 'favorite_team', selection: 'cfhss' }],
+    ['event', 'ca_setting_change', { setting_name: 'favorite_pool', selection: 'none' }]
   ]);
 
   await page.locator('#favoriteTeam').evaluate(select => {
@@ -2197,15 +2197,15 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
     ['event', 'ca_setting_change', { setting_name: 'weather_refresh_minutes' }],
     ['event', 'ca_setting_change', { setting_name: 'practice_groups' }],
     ['event', 'ca_setting_change', { setting_name: 'practice_groups' }],
-    ['event', 'ca_setting_change', { setting_name: 'favorite_pool' }],
-    ['event', 'ca_setting_change', { setting_name: 'favorite_team' }],
-    ['event', 'ca_setting_change', { setting_name: 'favorite_pool' }],
+    ['event', 'ca_setting_change', { setting_name: 'favorite_pool', selection: 'Bryant Woods' }],
+    ['event', 'ca_setting_change', { setting_name: 'favorite_team', selection: 'cfhss' }],
+    ['event', 'ca_setting_change', { setting_name: 'favorite_pool', selection: 'none' }],
     ['event', 'ca_setting_change', { setting_name: 'theme' }],
     ['event', 'ca_setting_change', { setting_name: 'pool_schedule_layout' }],
     ['event', 'ca_setting_change', { setting_name: 'location_awareness' }],
     ['event', 'ca_setting_change', { setting_name: 'weather_refresh_minutes' }],
     ['event', 'ca_setting_change', { setting_name: 'practice_groups' }],
-    ['event', 'ca_setting_change', { setting_name: 'favorite_team' }]
+    ['event', 'ca_setting_change', { setting_name: 'favorite_team', selection: 'none' }]
   ]);
 });
 

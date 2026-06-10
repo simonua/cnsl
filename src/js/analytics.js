@@ -64,6 +64,8 @@
   const ALLOWED_PUBLISHED_SETTING_NAMES = new Set([
     'favorite_pool', 'favorite_team', 'pool_feature_filters'
   ]);
+  const FAVORITE_SETTING_NAMES = new Set(['favorite_pool', 'favorite_team']);
+  const EMPTY_FAVORITE_SELECTION = 'none';
 
   // Private measurement and publishing helpers
 
@@ -246,9 +248,13 @@
     const normalizedValues = [...new Set(selectedValues)].sort((first, second) => first.localeCompare(second));
     if (normalizedValues.some(value => !publishedValues.has(value))) return;
 
-    publishEvent('ca_setting_change', {
-      setting_name: settingName
-    });
+    const eventParameters = { setting_name: settingName };
+    if (FAVORITE_SETTING_NAMES.has(settingName)) {
+      if (normalizedValues.length > 1) return;
+      eventParameters.selection = normalizedValues[0] || EMPTY_FAVORITE_SELECTION;
+    }
+
+    publishEvent('ca_setting_change', eventParameters);
   }
 
   /**

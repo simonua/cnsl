@@ -221,6 +221,9 @@ assert.doesNotMatch(analytics, /classList\.contains\('team-merchandise'\)/, 'Ext
 assert.match(analytics, /purpose:\s*getExternalLinkPurpose\(clickedLink\)/, 'External-link measurement must pass only its bounded link purpose category to the interaction dispatcher.');
 assert.match(analytics, /ALLOWED_SHARE_METHODS\.has\(method\)/, 'Share measurement must allowlist authored sharing methods.');
 assert.match(analytics, /publishEvent\('ca_setting_change'/, 'Settings measurement must be owned by the analytics module.');
+assert.match(analytics, /FAVORITE_SETTING_NAMES\.has\(settingName\)/, 'Favorite selection measurement must be limited to favorite setting categories.');
+assert.match(analytics, /normalizedValues\.some\(value => !publishedValues\.has\(value\)\)/, 'Published setting values must be validated against current annual data.');
+assert.match(analytics, /eventParameters\.selection = normalizedValues\[0\] \|\| EMPTY_FAVORITE_SELECTION/, 'Favorite changes must publish only one validated selection or the fixed cleared value.');
 assert.match(analytics, /publishEvent\('ca_banner_interaction'/, 'Banner measurement must be owned by the analytics module.');
 assert.match(analytics, /view:\s*'ca_resource_view'/, 'Resource views must use a fixed app-specific analytics event.');
 assert.match(analytics, /download:\s*'ca_resource_download'/, 'Resource downloads must use a fixed app-specific analytics event.');
@@ -242,7 +245,7 @@ assert.match(analytics, /campaign_name:\s*publishedCampaign\.name/, 'Reviewed ca
 assert.match(analytics, /landingUrl\.searchParams\.delete\('utm_source'\)/, 'Recognized campaign URLs must remove their campaign marker before page measurement.');
 assert.match(analytics, /isProductionSite\(\) \? consumePublishedCampaign\(\) : null/, 'Published campaign cleanup must occur only on the deployed application landing page.');
 assert.match(analytics, /window\.history\.replaceState\(/, 'Recognized campaign URLs must be cleaned without a navigation or referrer-producing redirect.');
-assert.doesNotMatch(analytics, /setting_value\s*:/, 'Settings measurement must not send selected preference values.');
+assert.doesNotMatch(analytics, /setting_value\s*:/, 'Settings measurement must not expose a general selected-value field.');
 assert.doesNotMatch(analytics, /link_(?:url|host|destination)\s*:/, 'External-link measurement must not send destination details.');
 assert.doesNotMatch(analytics, /resource_(?:url|path|filename)\s*:/, 'Resource measurement must not send URLs, paths, or filenames.');
 assert.doesNotMatch(analytics, /(?:pool|team|meet)_(?:id|name)\s*:/, 'Analytics must not send selected pool, team, or meet identities.');
