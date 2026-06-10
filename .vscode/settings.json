@@ -8,6 +8,9 @@
   "files.trimTrailingWhitespace": true,
   "markdown.validate.enabled": true,
   "markdownlint.run": "onType",
+  "[html]": {
+    "editor.wordWrap": "on"
+  },
   "[markdown]": {
     "files.trimTrailingWhitespace": false
   }
