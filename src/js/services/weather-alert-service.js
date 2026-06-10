@@ -57,11 +57,11 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
       });
 
       if (unsafeForecast) {
-        const periodName = unsafeForecast.name || 'Near-term';
+        const forecastLabel = unsafeForecast.name ? `${unsafeForecast.name}'s forecast` : 'The near-term forecast';
         return {
           isInclement: true,
           source: 'forecast',
-          message: `${periodName} forecast includes thunderstorms or lightning. Check official pool status before leaving.`
+          message: `${forecastLabel} includes thunderstorms or lightning. Check official pool status before leaving.`
         };
       }
 

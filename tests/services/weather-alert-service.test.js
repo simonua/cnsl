@@ -40,7 +40,7 @@ describe('WeatherAlertService', () => {
 
       assert.equal(status.isInclement, true);
       assert.equal(status.source, 'forecast');
-      assert.match(status.message, /thunderstorms or lightning/i);
+      assert.equal(status.message, "Tonight's forecast includes thunderstorms or lightning. Check official pool status before leaving.");
     });
 
     it('should name the storm risk when it appears only in detailed forecast text', () => {
@@ -112,7 +112,7 @@ describe('WeatherAlertService', () => {
         startTime: now.toISOString(),
         shortForecast: 'Lightning'
       }], now);
-      assert.match(forecast.message, /Near-term forecast/);
+      assert.match(forecast.message, /The near-term forecast/);
       const detailedOnly = WeatherAlertService.evaluateStatus([], [{
         startTime: now.toISOString(),
         detailedForecast: 'Lightning is possible.'
