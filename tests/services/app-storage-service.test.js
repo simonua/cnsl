@@ -3,8 +3,10 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const { createClassicScriptLoader } = require('../../scripts/lib/classic-script-loader.js');
 const { createLocalStorageMock } = require('../helpers/test-helpers.js');
-const { AppStorageService } = require('../helpers/browser-module-loader.js').loadBrowserModule('app-storage-service');
+const appStorageModule = require('../helpers/browser-module-loader.js').loadBrowserModule('app-storage-service');
+const { AppStorageService, context: appStorageContext } = appStorageModule;
 
 describe('AppStorageService', () => {
   describe('clearAppData', () => {
@@ -88,26 +90,26 @@ describe('AppStorageService', () => {
     });
 
     it('returns null when browser storage getters throw or are absent', () => {
-      const originalDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
-      const originalCachesDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'caches');
-      Object.defineProperty(globalThis, 'localStorage', { configurable: true, get: () => { throw new Error('blocked'); } });
-      Object.defineProperty(globalThis, 'caches', { configurable: true, get: () => { throw new Error('blocked'); } });
+      const originalDescriptor = Object.getOwnPropertyDescriptor(appStorageContext, 'localStorage');
+      const originalCachesDescriptor = Object.getOwnPropertyDescriptor(appStorageContext, 'caches');
+      Object.defineProperty(appStorageContext, 'localStorage', { configurable: true, get: () => { throw new Error('blocked'); } });
+      Object.defineProperty(appStorageContext, 'caches', { configurable: true, get: () => { throw new Error('blocked'); } });
       try {
         assert.equal(AppStorageService.getBrowserStorage('localStorage'), null);
         assert.equal(AppStorageService.getBrowserStorage('missingStorage'), null);
         assert.equal(AppStorageService.getCacheStorage(), null);
       } finally {
-        if (originalDescriptor) Object.defineProperty(globalThis, 'localStorage', originalDescriptor);
-        else delete globalThis.localStorage;
-        if (originalCachesDescriptor) Object.defineProperty(globalThis, 'caches', originalCachesDescriptor);
-        else delete globalThis.caches;
+        if (originalDescriptor) Object.defineProperty(appStorageContext, 'localStorage', originalDescriptor);
+        else delete appStorageContext.localStorage;
+        if (originalCachesDescriptor) Object.defineProperty(appStorageContext, 'caches', originalCachesDescriptor);
+        else delete appStorageContext.caches;
       }
-      const originalCaches = globalThis.caches;
-      delete globalThis.caches;
+      const originalCaches = appStorageContext.caches;
+      delete appStorageContext.caches;
       try {
         assert.equal(AppStorageService.getCacheStorage(), null);
       } finally {
-        if (originalCaches !== undefined) globalThis.caches = originalCaches;
+        if (originalCaches !== undefined) appStorageContext.caches = originalCaches;
       }
     });
 
@@ -119,6 +121,20 @@ describe('AppStorageService', () => {
       context.globalThis = context; context.self = context; context.window = context;
       vm.runInNewContext(source, context, { filename: sourcePath });
       assert.equal(typeof context.window.AppStorageService, 'function');
+    });
+
+    it('handles throwing platform getters in its browser realm', () => {
+      const loader = createClassicScriptLoader({
+        inject: { APP_LOCAL_STORAGE_KEYS: [], APP_SESSION_STORAGE_KEYS: [], PWA_CACHE_PREFIX: 'cnsl-' },
+        name: 'test:app-storage-throwing-getters'
+      });
+      const { context } = loader;
+      Object.defineProperty(context, 'localStorage', { configurable: true, get: () => { throw new Error('blocked'); } });
+      Object.defineProperty(context, 'caches', { configurable: true, get: () => { throw new Error('blocked'); } });
+      loader.load('services/app-storage-service.js');
+
+      assert.equal(context.AppStorageService.getBrowserStorage('localStorage'), null);
+      assert.equal(context.AppStorageService.getCacheStorage(), null);
     });
   });
 });

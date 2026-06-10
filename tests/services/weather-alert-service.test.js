@@ -3,8 +3,10 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const { createClassicScriptLoader } = require('../../scripts/lib/classic-script-loader.js');
 const { createLocalStorageMock } = require('../helpers/test-helpers.js');
-const { WeatherAlertService } = require('../helpers/browser-module-loader.js').loadBrowserModule('weather-alert-service');
+const weatherAlertModule = require('../helpers/browser-module-loader.js').loadBrowserModule('weather-alert-service');
+const { WeatherAlertService, context: weatherAlertContext } = weatherAlertModule;
 
 const now = new Date('2026-05-24T12:00:00-04:00');
 const poolData = {
@@ -466,6 +468,22 @@ describe('WeatherAlertService', () => {
       }
     });
 
+    it('returns null when browser storage access throws', () => {
+      const originalSessionDescriptor = Object.getOwnPropertyDescriptor(weatherAlertContext, 'sessionStorage');
+      const originalLocalDescriptor = Object.getOwnPropertyDescriptor(weatherAlertContext, 'localStorage');
+      Object.defineProperty(weatherAlertContext, 'sessionStorage', { configurable: true, get: () => { throw new Error('blocked'); } });
+      Object.defineProperty(weatherAlertContext, 'localStorage', { configurable: true, get: () => { throw new Error('blocked'); } });
+      try {
+        assert.equal(WeatherAlertService.getSessionStorage(), null);
+        assert.equal(WeatherAlertService.getLocalStorage(), null);
+      } finally {
+        if (originalSessionDescriptor) Object.defineProperty(weatherAlertContext, 'sessionStorage', originalSessionDescriptor);
+        else delete weatherAlertContext.sessionStorage;
+        if (originalLocalDescriptor) Object.defineProperty(weatherAlertContext, 'localStorage', originalLocalDescriptor);
+        else delete weatherAlertContext.localStorage;
+      }
+    });
+
     it('installs weather evaluation as a browser script global', () => {
       const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'weather-alert-service.js');
       const source = fs.readFileSync(sourcePath, 'utf8');
@@ -475,6 +493,17 @@ describe('WeatherAlertService', () => {
       context.window = context;
       vm.runInNewContext(source, context, { filename: sourcePath });
       assert.equal(typeof context.window.WeatherAlertService, 'function');
+    });
+
+    it('handles throwing storage getters in its browser realm', () => {
+      const loader = createClassicScriptLoader({ name: 'test:weather-alert-throwing-getters' });
+      const { context } = loader;
+      Object.defineProperty(context, 'sessionStorage', { configurable: true, get: () => { throw new Error('blocked'); } });
+      Object.defineProperty(context, 'localStorage', { configurable: true, get: () => { throw new Error('blocked'); } });
+      loader.load('services/weather-alert-service.js');
+
+      assert.equal(context.WeatherAlertService.getSessionStorage(), null);
+      assert.equal(context.WeatherAlertService.getLocalStorage(), null);
     });
 
       it('normalizes configured refresh intervals and default values', () => {

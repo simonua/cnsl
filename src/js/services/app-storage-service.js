@@ -43,19 +43,21 @@ if (typeof globalThis.AppStorageService === 'undefined') {
     }
 
     static getBrowserStorage(name) {
+      let storage = null;
       try {
-        return typeof globalThis[name] === 'undefined' ? null : globalThis[name];
-      } catch (_error) {
-        return null;
-      }
+        storage = typeof globalThis[name] === 'undefined' ? null : globalThis[name];
+      /* node:coverage ignore next */
+      } catch (_error) {} // eslint-disable-line no-empty
+      return storage;
     }
 
     static getCacheStorage() {
+      let cacheStorage = null;
       try {
-        return typeof caches === 'undefined' ? null : caches;
-      } catch (_error) {
-        return null;
-      }
+        cacheStorage = typeof caches === 'undefined' ? null : caches;
+      /* node:coverage ignore next */
+      } catch (_error) {} // eslint-disable-line no-empty
+      return cacheStorage;
     }
   }
 

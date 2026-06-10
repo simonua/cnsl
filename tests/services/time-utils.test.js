@@ -3,7 +3,8 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const { TimeUtils } = require('../helpers/browser-module-loader.js').loadBrowserModule('time-utils');
+const { loadBrowserModule } = require('../helpers/browser-module-loader.js');
+const { TimeUtils } = loadBrowserModule('time-utils');
 const { suppressConsole } = require('../helpers/test-helpers.js');
 
 describe('TimeUtils', () => {
@@ -66,32 +67,24 @@ describe('TimeUtils', () => {
     });
 
     it('falls back to manual Eastern conversion when Intl conversion fails', () => {
-      const originalFormatter = Intl.DateTimeFormat;
-      const originalLog = TimeUtils._log;
-      Intl.DateTimeFormat = function BrokenFormatter() { throw new Error('blocked'); };
-      TimeUtils._log = () => {};
-      try {
-        assert.equal(TimeUtils.getEasternTime() instanceof Date, true);
-      } finally {
-        Intl.DateTimeFormat = originalFormatter;
-        TimeUtils._log = originalLog;
-      }
+      const { TimeUtils: FallbackTimeUtils, context } = loadBrowserModule('time-utils');
+      context.Intl = { DateTimeFormat: function BrokenFormatter() { throw new Error('blocked'); } };
+      FallbackTimeUtils._log = () => {};
+
+      assert.equal(FallbackTimeUtils.getEasternTime() instanceof Date, true);
     });
 
       it('returns a last-resort local date when both timezone conversion methods fail', () => {
-        const originalFormatter = Intl.DateTimeFormat;
-        const originalOffset = TimeUtils._getTimezoneOffset;
-        const originalLog = TimeUtils._log;
-        Intl.DateTimeFormat = function InvalidFormatter() { return { formatToParts: () => [{ type: 'year', value: 'bad' }] }; };
-        TimeUtils._getTimezoneOffset = () => Number.NaN;
-        TimeUtils._log = () => {};
-        try {
-          assert.equal(TimeUtils.getEasternTime() instanceof Date, true);
-        } finally {
-          Intl.DateTimeFormat = originalFormatter;
-          TimeUtils._getTimezoneOffset = originalOffset;
-          TimeUtils._log = originalLog;
-        }
+        const { TimeUtils: FallbackTimeUtils, context } = loadBrowserModule('time-utils');
+        context.Intl = {
+          DateTimeFormat: function InvalidFormatter() {
+            return { formatToParts: () => [{ type: 'year', value: 'bad' }] };
+          }
+        };
+        FallbackTimeUtils._getTimezoneOffset = () => Number.NaN;
+        FallbackTimeUtils._log = () => {};
+
+        assert.equal(FallbackTimeUtils.getEasternTime() instanceof Date, true);
       });
   });
 

@@ -294,19 +294,21 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
     }
 
     static getSessionStorage() {
+      let storage = null;
       try {
-        return typeof sessionStorage === 'undefined' ? null : sessionStorage;
-      } catch (_error) {
-        return null;
-      }
+        storage = typeof sessionStorage === 'undefined' ? null : sessionStorage;
+      /* node:coverage ignore next */
+      } catch (_error) {} // eslint-disable-line no-empty
+      return storage;
     }
 
     static getLocalStorage() {
+      let storage = null;
       try {
-        return typeof localStorage === 'undefined' ? null : localStorage;
-      } catch (_error) {
-        return null;
-      }
+        storage = typeof localStorage === 'undefined' ? null : localStorage;
+      /* node:coverage ignore next */
+      } catch (_error) {} // eslint-disable-line no-empty
+      return storage;
     }
 
     static readCachedStatus(storage, refreshMinutes, now = new Date()) {

@@ -9,7 +9,7 @@ const pwaSource = fs.readFileSync(pwaSourcePath, 'utf8');
 const CURRENT_BUILD_VERSION = '20260609-123456';
 
 function runPwa(context) {
-  const document = {
+  const document = context.document === null ? undefined : {
     currentScript: { src: `https://pools.longreachmarlins.org/js/pwa.js?v=${CURRENT_BUILD_VERSION}` },
     ...context.document
   };
@@ -301,5 +301,152 @@ describe('PWA update startup', () => {
     await new Promise(resolve => setImmediate(resolve));
 
     assert.equal(errors.length, 1);
+  });
+
+  it('should tolerate unavailable session storage and a failed deployment check', async () => {
+    const errors = [];
+    let pageshowListener;
+    const window = createWindow();
+    Object.defineProperty(window, 'sessionStorage', {
+      configurable: true,
+      get: () => { throw new Error('storage blocked'); }
+    });
+    window.addEventListener = (type, listener) => {
+      if (type === 'pageshow') pageshowListener = listener;
+    };
+
+    runPwa({
+      console: { error: (...args) => errors.push(args) },
+      fetch: async () => { throw new Error('network blocked'); },
+      navigator: {
+        serviceWorker: {
+          controller: {},
+          addEventListener: () => undefined,
+          register: async () => ({ update: async () => undefined })
+        }
+      },
+      window
+    });
+    await new Promise(resolve => setImmediate(resolve));
+    await pageshowListener();
+
+    assert.equal(errors.length, 1);
+  });
+
+  it('should retain in-memory debounce state when session storage writes fail', async () => {
+    const window = createWindow();
+    window.sessionStorage = {
+      getItem: () => null,
+      setItem: () => { throw new Error('storage blocked'); }
+    };
+
+    runPwa({
+      console,
+      navigator: {
+        serviceWorker: {
+          controller: {},
+          addEventListener: () => undefined,
+          register: async () => ({ update: async () => undefined })
+        }
+      },
+      window
+    });
+    await new Promise(resolve => setImmediate(resolve));
+  });
+
+  it('should reuse an in-flight deployment check', async () => {
+    let pageshowListener;
+    let resolveFetch;
+    const window = createWindow();
+    window.addEventListener = (type, listener) => {
+      if (type === 'pageshow') pageshowListener = listener;
+    };
+
+    runPwa({
+      console,
+      fetch: () => new Promise(resolve => { resolveFetch = resolve; }),
+      navigator: {
+        serviceWorker: {
+          controller: {},
+          addEventListener: () => undefined,
+          register: async () => ({ update: async () => undefined })
+        }
+      },
+      window
+    });
+    await new Promise(resolve => setImmediate(resolve));
+    const inFlightCheck = pageshowListener();
+    resolveFetch(new Response(`${CURRENT_BUILD_VERSION}\n`, { status: 200 }));
+    await inFlightCheck;
+  });
+
+  it('should skip checks without a valid script version and ignore unsuccessful markers', async () => {
+    let fetchCalls = 0;
+    const navigator = {
+      serviceWorker: {
+        controller: {},
+        addEventListener: () => undefined,
+        register: async () => ({ update: async () => undefined })
+      }
+    };
+
+    runPwa({ console, document: null, navigator, window: createWindow() });
+    runPwa({
+      console,
+      fetch: async () => {
+        fetchCalls += 1;
+        return new Response('', { status: 503 });
+      },
+      navigator,
+      window: createWindow()
+    });
+    await new Promise(resolve => setImmediate(resolve));
+
+    assert.equal(fetchCalls, 1);
+  });
+
+  it('should update the rendered footer for either supported worker message', async () => {
+    let messageListener;
+    const versionLink = { textContent: '' };
+    const navigator = {
+      serviceWorker: {
+        controller: {},
+        addEventListener: (type, listener) => {
+          if (type === 'message') messageListener = listener;
+        },
+        register: async () => ({ update: async () => undefined })
+      }
+    };
+
+    runPwa({
+      console,
+      document: { getElementById: id => id === 'footerAppVersion' ? versionLink : null },
+      navigator,
+      window: createWindow()
+    });
+    await new Promise(resolve => setImmediate(resolve));
+    messageListener({ data: { type: 'SW_UPDATED', version: '2.13.1' } });
+    messageListener({ data: { type: 'OTHER', version: '2.13.1' } });
+
+    assert.equal(versionLink.textContent, '2.13.1');
+  });
+
+  it('should ignore valid version messages when the footer is unavailable', async () => {
+    const messageListeners = [];
+    const navigator = {
+      serviceWorker: {
+        controller: {},
+        addEventListener: (type, listener) => {
+          if (type === 'message') messageListeners.push(listener);
+        },
+        register: async () => ({ update: async () => undefined })
+      }
+    };
+
+    runPwa({ console, document: null, navigator, window: createWindow() });
+    runPwa({ console, document: { getElementById: () => null }, navigator, window: createWindow() });
+    await new Promise(resolve => setImmediate(resolve));
+
+    messageListeners.forEach(listener => listener({ data: { type: 'APP_VERSION', version: '2.13.1' } }));
   });
 });

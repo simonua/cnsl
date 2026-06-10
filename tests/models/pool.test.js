@@ -4,7 +4,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const { createSamplePoolData, suppressConsole } = require('../helpers/test-helpers.js');
-const { Pool, PoolStatus, PoolPeriodScheduleService, TimeUtils } = require('../helpers/browser-module-loader.js').loadBrowserModule('pool');
+const poolModule = require('../helpers/browser-module-loader.js').loadBrowserModule('pool');
+const { Pool, PoolStatus, PoolPeriodScheduleService, TimeUtils, context: poolContext } = poolModule;
 
 describe('Pool', () => {
   describe('constructor', () => {
@@ -527,6 +528,73 @@ describe('Pool', () => {
       assert.deepEqual(pool._getPeriodWeekScheduleForDate(new Date(2026, 5, 1)), []);
       assert.equal(pool._getScheduleOverrideForDate('2026-06-01', 'Mon'), null);
       assert.deepEqual(pool._mergeScheduleWithOverride({}, 'Mon', {}), []);
+    });
+
+    it('resolves lexical model dependencies when they are absent from globalThis', () => {
+      const originalGlobalThis = poolContext.globalThis;
+      poolContext.globalThis = {};
+      try {
+        const pool = new Pool(createSamplePoolData());
+        assert.equal(pool._getTimeUtils(), TimeUtils);
+        assert.equal(pool._getPoolStatus(), PoolStatus);
+      } finally {
+        poolContext.globalThis = originalGlobalThis;
+      }
+    });
+
+    it('rejects an invalid Eastern calendar date when checking tomorrow', () => {
+      const pool = new Pool(createSamplePoolData({ schedules: [] }));
+      const originalGetInfo = TimeUtils.getCurrentEasternTimeInfo;
+      TimeUtils.getCurrentEasternTimeInfo = () => ({ date: 'not-a-date', day: 'Mon', isValid: true });
+      try {
+        assert.equal(pool.hasPublicUseTomorrow(), false);
+      } finally {
+        TimeUtils.getCurrentEasternTimeInfo = originalGetInfo;
+      }
+    });
+
+    it('checks tomorrow against day-hours compatibility schedules', () => {
+      const originalGetInfo = TimeUtils.getCurrentEasternTimeInfo;
+      TimeUtils.getCurrentEasternTimeInfo = () => ({ date: '2026-06-01', day: 'Monday', isValid: true });
+      try {
+        const openTomorrow = new Pool(createSamplePoolData({
+          hours: { Tuesday: { open: '9:00AM', close: '5:00PM' } }
+        }));
+        const closedTomorrow = new Pool(createSamplePoolData({
+          hours: { Tuesday: { closed: true } }
+        }));
+        assert.equal(openTomorrow.hasPublicUseTomorrow(), true);
+        assert.equal(closedTomorrow.hasPublicUseTomorrow(), false);
+      } finally {
+        TimeUtils.getCurrentEasternTimeInfo = originalGetInfo;
+      }
+    });
+
+    it('requires both model dependencies when checking tomorrow', () => {
+      const pool = new Pool(createSamplePoolData());
+      const originalGetTimeUtils = pool._getTimeUtils;
+      const originalGetPoolStatus = pool._getPoolStatus;
+      try {
+        pool._getTimeUtils = () => null;
+        assert.equal(pool.hasPublicUseTomorrow(), false);
+        pool._getTimeUtils = originalGetTimeUtils;
+        pool._getPoolStatus = () => null;
+        assert.equal(pool.hasPublicUseTomorrow(), false);
+      } finally {
+        pool._getTimeUtils = originalGetTimeUtils;
+        pool._getPoolStatus = originalGetPoolStatus;
+      }
+    });
+
+    it('rejects invalid Eastern time information when checking tomorrow', () => {
+      const pool = new Pool(createSamplePoolData());
+      const originalGetInfo = TimeUtils.getCurrentEasternTimeInfo;
+      TimeUtils.getCurrentEasternTimeInfo = () => ({ isValid: false });
+      try {
+        assert.equal(pool.hasPublicUseTomorrow(), false);
+      } finally {
+        TimeUtils.getCurrentEasternTimeInfo = originalGetInfo;
+      }
     });
 
     it('rejects invalid and next-day period availability windows', () => {

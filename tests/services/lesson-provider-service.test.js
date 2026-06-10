@@ -147,6 +147,16 @@ describe('LessonProviderService', () => {
       }, [{ id: 'dhp', name: 'Dorsey Hall' }]),
       /Invalid outdoor swim program data response/
     );
+    assert.throws(
+      () => LessonProviderService.normalizeOutdoorSwimPrograms({
+        outdoorSwimPrograms: { ...programs, options: [null] }
+      }, []),
+      /Invalid outdoor swim program option/
+    );
+    assert.throws(
+      () => LessonProviderService.normalizeOutdoorSwimPrograms({ outdoorSwimPrograms: programs }, null),
+      /Invalid outdoor swim program location/
+    );
   });
 
   it('installs once as a browser script global', () => {

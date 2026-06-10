@@ -201,5 +201,17 @@ describe('MeetsManager', () => {
       browserManager.loadData({ regular_meets: [{ date: '2026-06-20', home_team: 'Home', visiting_team: 'Away' }] });
       assert.equal(browserManager.getTodaysMeets().length, 1);
     });
+
+    it('resolves lexical TimeUtils when it is absent from globalThis', () => {
+      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'meets-manager.js');
+      const source = fs.readFileSync(sourcePath, 'utf8');
+      const lexicalTimeUtils = { formatDate: () => '2026-06-20' };
+      const exportedGlobals = {};
+      const context = { globalThis: exportedGlobals, Meet, TimeUtils: lexicalTimeUtils };
+      vm.runInNewContext(source, context, { filename: sourcePath });
+
+      const browserManager = new exportedGlobals.MeetsManager();
+      assert.equal(browserManager._getTimeUtils(), lexicalTimeUtils);
+    });
   });
 });

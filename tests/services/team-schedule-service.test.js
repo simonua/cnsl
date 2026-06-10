@@ -160,6 +160,7 @@ describe('TeamScheduleService', () => {
       assert.equal(TeamScheduleService.getTimeRange('bad', TimeUtils), null);
       assert.equal(TeamScheduleService.getTimeRange('8:00pm - 7:00pm', TimeUtils), null);
       assert.equal(TeamScheduleService.getTimeRange('5:00 - 6:30', TimeUtils), null);
+      assert.equal(TeamScheduleService.getTimeRange('5:00pm - 6:30pm', {}), null);
       assert.equal(TeamScheduleService.getTimeRange('5:00pm - 6:30pm', { timeStringToMinutes: () => { throw new Error('Invalid time'); } }), null);
       assert.equal(TeamScheduleService.normalizePoolName(), '');
     });
