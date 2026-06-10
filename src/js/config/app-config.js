@@ -7,7 +7,7 @@
   const APP_TIMEZONE = 'America/New_York';
   const OFFICIAL_SOURCE_CHECKED_AT = '2026-06-10T17:23:50-04:00';
   const OFFICIAL_SOURCE_UPDATED_AT = '2026-06-10T06:58:35-04:00';
-  const APP_VERSION = '2.14.0';
+  const APP_VERSION = '2.15.0';
   const APP_LAST_UPDATED_ON = '2026-06-10';
   const HOME_PAGE_HOSTNAME = 'pools.longreachmarlins.org';
   const HOME_PAGE_URL = `https://${HOME_PAGE_HOSTNAME}`;
