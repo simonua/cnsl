@@ -1,4 +1,4 @@
-const { test, expect } = require('./browser-test');
+const { analyticsTest, test, expect } = require('./browser-test');
 const {
   MOBILE_VIEWPORT,
   initializeAnalyticsRecorder,

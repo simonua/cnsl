@@ -263,6 +263,10 @@
       && window.location.hostname === window.HOME_PAGE_HOSTNAME;
   }
 
+  function isAnalyticsDisabled() {
+    return window[`ga-disable-${window.GA4_MEASUREMENT_ID}`] === true;
+  }
+
   // Initialization
 
   const publishedCampaign = isProductionSite() ? consumePublishedCampaign() : null;
@@ -305,7 +309,7 @@
 
   initializeClickTracking();
 
-  if (!isProductionSite() || document.getElementById('cnslAnalyticsScript')) return;
+  if (isAnalyticsDisabled() || !isProductionSite() || document.getElementById('cnslAnalyticsScript')) return;
 
   window.dataLayer = window.dataLayer || [];
   window.gtag = window.gtag || function gtag() {
