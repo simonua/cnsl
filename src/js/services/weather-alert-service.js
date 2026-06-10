@@ -56,7 +56,11 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
       });
 
       if (unsafeForecast) {
-        const forecastLabel = unsafeForecast.name ? `${unsafeForecast.name}'s forecast` : 'The near-term forecast';
+        const forecastPeriodName = unsafeForecast.name?.replace(
+          /(?<=\s)(Morning|Afternoon|Evening|Night)\b/g,
+          periodPart => periodPart.toLowerCase()
+        );
+        const forecastLabel = forecastPeriodName ? `${forecastPeriodName}'s forecast` : 'The near-term forecast';
         const forecastText = `${unsafeForecast.shortForecast || ''} ${unsafeForecast.detailedForecast || ''}`;
         const hazardLabel = WeatherAlertService.getForecastHazardLabel(forecastText);
         return {

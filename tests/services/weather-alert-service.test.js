@@ -79,8 +79,33 @@ describe('WeatherAlertService', () => {
 
         assert.equal(status.hazardLabel, expectedHazardLabel);
         assert.deepEqual(status.hazards, expectedHazards);
-        assert.equal(status.message, `This Afternoon's forecast includes ${expectedHazardLabel}.`);
+        assert.equal(status.message, `This afternoon's forecast includes ${expectedHazardLabel}.`);
         assert.equal(status.guidance, WeatherAlertService.OFFICIAL_STATUS_GUIDANCE);
+      });
+    });
+
+    it('should sentence-case compound forecast period names', () => {
+      const cases = [
+        ['This Morning', 'This morning'],
+        ['This Afternoon', 'This afternoon'],
+        ['This Evening', 'This evening'],
+        ['Thursday Night', 'Thursday night'],
+        ['Morning', 'Morning'],
+        ['Evening', 'Evening'],
+        ['Night', 'Night'],
+        ['Today', 'Today'],
+        ['Tonight', 'Tonight'],
+        ['Overnight', 'Overnight']
+      ];
+
+      cases.forEach(([name, expectedName]) => {
+        const status = WeatherAlertService.evaluateStatus([], [{
+          name,
+          startTime: now.toISOString(),
+          detailedForecast: 'Thunderstorms are possible.'
+        }], now);
+
+        assert.equal(status.message, `${expectedName}'s forecast includes thunderstorms.`);
       });
     });
 

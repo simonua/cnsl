@@ -2432,7 +2432,7 @@ test('[WF-WEATHER-006] forecast alerts emphasize only the recognized hazard labe
       hazardLabel: 'thunderstorms and hail',
       hazards: ['thunderstorms', 'hail'],
       isInclement: true,
-      message: "This Afternoon's forecast includes thunderstorms and hail.",
+      message: "This afternoon's forecast includes thunderstorms and hail.",
       source: 'forecast',
       updatedAt: new Date().toISOString()
     };
@@ -2447,7 +2447,7 @@ test('[WF-WEATHER-006] forecast alerts emphasize only the recognized hazard labe
   await page.goto('/', { waitUntil: 'domcontentloaded' });
 
   const message = page.locator('#weatherAlertMessage');
-  await expect(message).toHaveText("This Afternoon's forecast includes ⛈️thunderstorms and 🧊hail. Check official pool status before leaving.");
+  await expect(message).toHaveText("This afternoon's forecast includes ⛈️thunderstorms and 🧊hail. Check official pool status before leaving.");
   await expect(message.locator('strong')).toHaveText(['⛈️thunderstorms', '🧊hail']);
   await expect(message.locator('strong')).toHaveCount(2);
   await expect(message.locator('.weather-alert__type-icon')).toHaveCount(2);
