@@ -103,7 +103,8 @@ if (typeof globalThis.PoolHoursViewModelService === 'undefined') {
         weekStart,
         options.practiceTeams,
         options.timeUtils,
-        options.teamScheduleService || TeamScheduleService
+        options.teamScheduleService || TeamScheduleService,
+        options.isFavoriteTeamLabel
       );
     }
 
@@ -115,9 +116,10 @@ if (typeof globalThis.PoolHoursViewModelService === 'undefined') {
      * @param {Array} practiceTeams - Teams associated with the pool
      * @param {Object} timeUtils - Time formatting and parsing dependency
      * @param {Object} teamScheduleService - Detailed practice matching dependency
+      * @param {Function} isFavoriteTeamLabel - Optional favorite-team label matcher
      * @returns {Array} Weekly schedule with practice team names attached where available
      */
-    static enrichPracticeTeamNames(weekSchedule, poolName, weekStart, practiceTeams, timeUtils, teamScheduleService) {
+    static enrichPracticeTeamNames(weekSchedule, poolName, weekStart, practiceTeams, timeUtils, teamScheduleService, isFavoriteTeamLabel) {
       return weekSchedule.map((scheduleDay, index) => {
         const scheduleDate = PoolCalendarService.addDays(weekStart, index);
         return {
@@ -125,7 +127,10 @@ if (typeof globalThis.PoolHoursViewModelService === 'undefined') {
           timeSlots: (scheduleDay.timeSlots || []).map(slot => {
             if (slot.accessStatus !== 'practice-only' || !teamScheduleService) return slot;
             const detailedNames = teamScheduleService.getDetailedPracticeTeamNames(practiceTeams, poolName, scheduleDate, slot, timeUtils);
-            return { ...slot, practiceTeamNames: detailedNames };
+            const favoritePracticeTeamNames = typeof isFavoriteTeamLabel === 'function'
+              ? detailedNames.filter(name => isFavoriteTeamLabel(name))
+              : [];
+            return { ...slot, practiceTeamNames: detailedNames, favoritePracticeTeamNames };
           })
         };
       });

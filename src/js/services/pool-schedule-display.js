@@ -232,7 +232,11 @@ if (typeof globalThis.PoolScheduleDisplay === 'undefined') {
     static renderSlot(slot, day, options, useActivityColors) {
       const timeUtils = options.timeUtils;
       const activityText = PoolScheduleDisplay.formatActivityText(slot.activities, timeUtils);
-      const practiceTeamText = PoolScheduleDisplay.formatPracticeTeamText(slot.accessStatus, slot.practiceTeamNames);
+      const practiceTeamHtml = PoolScheduleDisplay.formatPracticeTeamHtml(
+        slot.accessStatus,
+        slot.practiceTeamNames,
+        slot.favoritePracticeTeamNames
+      );
       const category = PoolScheduleDisplay.getActivityCategory(slot);
       const activityClass = useActivityColors ? ` schedule-activity schedule-activity--${category}` : '';
       const overrideClass = slot.isOverride && (slot.accessStatus !== 'public' || slot.isSpecialEvent) ? ' override-slot' : '';
@@ -244,9 +248,6 @@ if (typeof globalThis.PoolScheduleDisplay === 'undefined') {
       });
       const safeActivityText = PoolScheduleDisplay.escapeHtml(activityText);
       const restrictedClass = category === 'restricted' ? ' closed-to-public' : '';
-      const practiceTeamHtml = practiceTeamText
-        ? `<span class="schedule-activity__team-names">${PoolScheduleDisplay.escapeHtml(practiceTeamText)}</span>`
-        : '';
       const meetHref = PoolScheduleDisplay.getMeetHref(slot);
       const activityLabelHtml = meetHref
         ? `<a class="schedule-activity__link" href="${PoolScheduleDisplay.escapeHtml(meetHref)}">${safeActivityText}</a>`
@@ -336,6 +337,30 @@ if (typeof globalThis.PoolScheduleDisplay === 'undefined') {
       if (accessStatus !== 'practice-only') return '';
       const names = Array.isArray(practiceTeamNames) ? practiceTeamNames.filter(name => typeof name === 'string' && name.trim()) : [];
       return names.join(', ');
+    }
+
+    /**
+     * Render resolved practice-team names and mark the selected favorite.
+     * @param {string} accessStatus - Semantic public-access state for a schedule slot
+     * @param {string[]} practiceTeamNames - Team names resolved from published schedule details
+     * @param {string[]} favoritePracticeTeamNames - Resolved names that match the favorite team
+     * @returns {string} Escaped practice-team markup
+     */
+    static formatPracticeTeamHtml(accessStatus, practiceTeamNames = [], favoritePracticeTeamNames = []) {
+      if (accessStatus !== 'practice-only') return '';
+      const names = Array.isArray(practiceTeamNames)
+        ? practiceTeamNames.filter(name => typeof name === 'string' && name.trim())
+        : [];
+      if (names.length === 0) return '';
+
+      const favoriteNames = new Set(Array.isArray(favoritePracticeTeamNames) ? favoritePracticeTeamNames : []);
+      const items = names.map(name => {
+        const marker = favoriteNames.has(name)
+          ? '<span class="favorite-marker" role="img" aria-label="Favorite team" title="Favorite team">&#9733;</span>'
+          : '';
+        return `<span class="schedule-activity__team-name">${PoolScheduleDisplay.escapeHtml(name)}${marker}</span>`;
+      });
+      return `<span class="schedule-activity__team-names">${items.join(', ')}</span>`;
     }
 
     /**

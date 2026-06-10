@@ -242,10 +242,15 @@ describe('PoolScheduleDisplay', () => {
     it('renders resolved practice teams only for semantic practice slots', () => {
       const day = { isCurrentDay: false };
       const slot = { startTime: '5:00PM', endTime: '6:30PM', activities: ['Published Team Session'], accessStatus: 'practice-only', notes: '' };
-      const named = PoolScheduleDisplay.renderSlot({ ...slot, practiceTeamNames: ['Long Reach <Marlins>', 'Second Team'] }, day, options, false);
+      const named = PoolScheduleDisplay.renderSlot({
+        ...slot,
+        practiceTeamNames: ['Long Reach <Marlins>', 'Second Team'],
+        favoritePracticeTeamNames: ['Long Reach <Marlins>']
+      }, day, options, false);
       const misleadingLabel = PoolScheduleDisplay.renderSlot({ ...slot, activities: ['CNSL Practice Only'], accessStatus: 'public', practiceTeamNames: ['Hidden Team'] }, day, options, false);
 
-      assert.match(named, /<span class="schedule-activity__label">Published Team Session<\/span><span class="schedule-activity__team-names">Long Reach &lt;Marlins&gt;, Second Team<\/span>/);
+      assert.match(named, /<span class="schedule-activity__team-name">Long Reach &lt;Marlins&gt;<span class="favorite-marker" role="img" aria-label="Favorite team" title="Favorite team">&#9733;<\/span><\/span>, <span class="schedule-activity__team-name">Second Team<\/span>/);
+      assert.equal((named.match(/favorite-marker/g) || []).length, 1);
       assert.doesNotMatch(named, /<Marlins>/);
       assert.match(misleadingLabel, />CNSL Practice Only</);
       assert.doesNotMatch(misleadingLabel, /schedule-activity__team-names/);

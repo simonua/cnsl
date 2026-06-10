@@ -43,6 +43,7 @@ describe('PoolHoursViewModelService', () => {
       practiceTeams: [{ name: 'Barracudas' }],
       layout: 'calendar',
       teamScheduleService,
+      isFavoriteTeamLabel: name => name === 'Barracudas',
       getStatusTooltip: kind => `tooltip:${kind}`
     });
 
@@ -55,6 +56,7 @@ describe('PoolHoursViewModelService', () => {
     assert.equal(viewModel.weekStartInputValue, '2026-06-15');
     assert.equal(viewModel.statusTooltip, 'tooltip:open');
     assert.deepEqual(viewModel.weekSchedule[0].timeSlots[0].practiceTeamNames, ['Barracudas']);
+    assert.deepEqual(viewModel.weekSchedule[0].timeSlots[0].favoritePracticeTeamNames, ['Barracudas']);
     assert.equal(Object.hasOwn(viewModel.weekSchedule[0].timeSlots[1], 'practiceTeamNames'), false);
     assert.equal(viewModel.scheduleOptions.layout, 'calendar');
     assert.equal(viewModel.scheduleOptions.weekStart, weekStart);

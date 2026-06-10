@@ -277,10 +277,15 @@ function formatPoolHours(pool) {
   }
   const practiceTeams = poolBrowserDataManager.getTeams().getPracticeTeamsByPool(poolObj.name);
   const preferences = PreferencesService.get();
+  const favoriteTeam = PreferencesService.findFavoriteTeam(
+    poolBrowserDataManager.getTeams().getAllTeams(),
+    preferences.favoriteTeamId
+  );
   const viewModel = PoolHoursViewModelService.build(pool, poolObj, {
     weekStart,
     timeUtils,
     practiceTeams,
+    isFavoriteTeamLabel: label => PreferencesService.teamMatchesLabel(favoriteTeam, label),
     layout: preferences.poolScheduleLayout,
     teamScheduleService: TeamScheduleService,
     getStatusTooltip,
