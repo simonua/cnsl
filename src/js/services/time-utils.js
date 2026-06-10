@@ -5,6 +5,7 @@
 
 // Prevent multiple declarations
 if (typeof globalThis.TimeUtils === 'undefined') {
+  /** Provides validated Eastern-time and schedule-time calculations. */
   class TimeUtils {
   // ------------------------------
   //    CONSTANTS
@@ -147,7 +148,6 @@ if (typeof globalThis.TimeUtils === 'undefined') {
    * Gets the current Eastern Time (EDT/EST) as a Date object
    * Enhanced with error handling and fallback mechanisms
    * @returns {Date} Current time in Eastern timezone
-   * @throws {Error} If timezone conversion fails critically
    */
   static getEasternTime() {
     try {
@@ -264,7 +264,6 @@ if (typeof globalThis.TimeUtils === 'undefined') {
    * Enhanced with validation and error handling
    * @param {number} minutes - Minutes since midnight (0-1439)
    * @returns {string} Time string in format "H:MMam/pm"
-   * @throws {Error} If minutes is invalid
    */
   static minutesToTimeString(minutes) {
     try {
@@ -403,7 +402,6 @@ if (typeof globalThis.TimeUtils === 'undefined') {
    * Gets day name from a Date object with validation
    * @param {Date} date - Date object
    * @returns {string} Full day name (e.g., 'Monday')
-   * @throws {Error} If date is invalid
    */
   static getDayName(date) {
     try {
@@ -482,7 +480,6 @@ if (typeof globalThis.TimeUtils === 'undefined') {
    * Formats a date as YYYY-MM-DD with validation
    * @param {Date} date - Date object
    * @returns {string} Formatted date string
-   * @throws {Error} If date is invalid
    */
   static formatDate(date) {
     try {
@@ -520,7 +517,6 @@ if (typeof globalThis.TimeUtils === 'undefined') {
    * Formats time for comparison (converts to minutes) with validation
    * @param {Date} date - Date object
    * @returns {number} Minutes since midnight
-   * @throws {Error} If date is invalid
    */
   static formatTimeForComparison(date) {
     try {

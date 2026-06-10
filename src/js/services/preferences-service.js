@@ -2,6 +2,7 @@
  * Manages device-local application preferences and favorite matching.
  */
 if (typeof globalThis.PreferencesService === 'undefined') {
+  /** Normalizes, stores, and applies device-local visitor preferences. */
   class PreferencesService {
     static STORAGE_KEY = globalThis.PREFERENCES_STORAGE_KEY;
 

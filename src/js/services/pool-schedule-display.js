@@ -4,6 +4,7 @@
  */
 
 if (typeof globalThis.PoolScheduleDisplay === 'undefined') {
+  /** Formats display-ready weekly pool schedules as escaped HTML. */
   class PoolScheduleDisplay {
     static LAYOUTS = ['list', 'calendar'];
 
@@ -96,6 +97,13 @@ if (typeof globalThis.PoolScheduleDisplay === 'undefined') {
       }
     }
 
+    /**
+     * Format a positive transition countdown.
+     * @param {string} action - Visible action label
+     * @param {number} minutesUntilChange - Positive minutes until transition
+     * @param {boolean} useLongUnits - Whether to spell out time units
+     * @returns {string} Countdown label or empty string
+     */
     static formatStatusCountdown(action, minutesUntilChange, useLongUnits = false) {
       if (!Number.isInteger(minutesUntilChange) || minutesUntilChange <= 0) return '';
 
@@ -182,6 +190,11 @@ if (typeof globalThis.PoolScheduleDisplay === 'undefined') {
       return `<div class="hours-details schedule-calendar" aria-label="Weekly pool calendar">${daysHtml}</div>`;
     }
 
+    /**
+     * Check whether a daily schedule contains a swim meet.
+     * @param {Object|null} schedule - Daily schedule
+     * @returns {boolean} Whether it contains a meet
+     */
     static hasSwimMeet(schedule) {
       return Boolean(schedule && Array.isArray(schedule.timeSlots)
         && schedule.timeSlots.some(slot => slot.accessStatus === 'swim-meet'));
@@ -257,6 +270,12 @@ if (typeof globalThis.PoolScheduleDisplay === 'undefined') {
       return timeUtils.formatActivityTypes(activities);
     }
 
+    /**
+     * Format and optionally highlight a schedule time range.
+     * @param {string} timeRange - Start and end time separated by a hyphen
+     * @param {Object} options - Time and highlighting dependencies
+     * @returns {string} Time-range HTML
+     */
     static formatTimeRange(timeRange, options = {}) {
       const fallback = value => `<span class="time-range-container error">${PoolScheduleDisplay.escapeHtml(value || 'Invalid Time Range')}</span>`;
       try {
@@ -289,6 +308,11 @@ if (typeof globalThis.PoolScheduleDisplay === 'undefined') {
       }
     }
 
+    /**
+     * Map status to its active-time highlight class.
+     * @param {string} statusKind - Semantic pool status
+     * @returns {string} Highlight CSS class
+     */
     static getTimeRangeHighlightClass(statusKind) {
       const classes = {
         open: ' highlighted-time-slot-green',
@@ -327,23 +351,45 @@ if (typeof globalThis.PoolScheduleDisplay === 'undefined') {
       return 'restricted';
     }
 
+    /**
+     * Build a meet details URL from validated slot metadata.
+     * @param {Object} slot - Schedule slot
+     * @returns {string} Validated meet details URL
+     */
     static getMeetHref(slot = {}) {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(slot.meetDate || '')) return '';
       if (!/^[a-zA-Z0-9_-]+$/.test(slot.meetPoolId || '')) return '';
       return `meets.html?date=${encodeURIComponent(slot.meetDate)}&pool=${encodeURIComponent(slot.meetPoolId)}`;
     }
 
+    /**
+     * Format a schedule day heading.
+     * @param {Object} day - Display-ready day
+     * @returns {string} Day heading text
+     */
     static renderHeading(day) {
       const overrideMark = day.schedule && day.schedule.hasOverrides ? ' Special schedule' : '';
       return `${day.day} (${day.monthDay})${overrideMark}`;
     }
 
+    /**
+     * Check whether two dates share a local calendar day.
+     * @param {Date} first - First date
+     * @param {Date} second - Second date
+     * @returns {boolean} Whether dates share a calendar day
+     */
     static isSameDate(first, second) {
       return first.getFullYear() === second.getFullYear()
         && first.getMonth() === second.getMonth()
         && first.getDate() === second.getDate();
     }
 
+    /**
+     * Escape text for generated schedule markup.
+     * @param {*} value - Value to escape
+     * @returns {string} HTML-escaped text
+     * @private
+     */
     static escapeHtml(value) {
       return String(value).replace(/[&<>'"]/g, character => ({
         '&': '&amp;',

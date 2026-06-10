@@ -45,6 +45,11 @@
     // Continue with tab-local memory when session storage is unavailable.
   }
 
+  /**
+   * Checks the deployed build marker and requests a service-worker update when needed.
+   * @returns {Promise<*>|null} Active update check, or null when no check is needed
+   * @private
+   */
   function checkForDeploymentUpdate() {
     if (!serviceWorkerRegistration || updateCheckPromise) {
       return updateCheckPromise;
@@ -86,6 +91,11 @@
     return updateCheckPromise;
   }
 
+  /**
+   * Updates the footer after validating a service-worker application version.
+   * @param {string} version - Semantic application version from the service worker
+   * @private
+   */
   function updateDisplayedAppVersion(version) {
     if (typeof version !== 'string' || !/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(version)) {
       return;

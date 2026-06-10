@@ -2,6 +2,7 @@
  * Renders pool directory cards from display-ready state.
  */
 if (typeof globalThis.PoolCardDisplay === 'undefined') {
+  /** Renders display-ready pool directory card state as escaped HTML. */
   class PoolCardDisplay {
     static FEATURE_CATEGORIES = Object.freeze([
       'accessibility',
@@ -201,12 +202,24 @@ if (typeof globalThis.PoolCardDisplay === 'undefined') {
     </span><span class="visually-hidden">${safeTooltip}: </span>`;
     }
 
+    /**
+     * Render a formatted distance badge.
+     * @param {number} distanceMiles - Distance in miles
+     * @returns {string} Distance badge HTML
+     */
     static renderDistance(distanceMiles) {
       if (!Number.isFinite(distanceMiles)) return '';
       const formattedDistance = distanceMiles.toFixed(1);
       return `<span class="distance-badge" aria-label="${formattedDistance} miles away">${formattedDistance} mi</span>`;
     }
 
+    /**
+     * Render a pool availability transition summary.
+     * @param {string} transitionText - Visible transition text
+     * @param {string} transitionLabel - Accessible transition label
+     * @param {string} transitionAction - Semantic transition action
+     * @returns {string} Transition HTML
+     */
     static renderTransition(transitionText, transitionLabel, transitionAction) {
       if (typeof transitionText !== 'string' || transitionText.length === 0) return '';
       const safeText = HtmlSafety.escapeHtml(transitionText);
@@ -217,10 +230,20 @@ if (typeof globalThis.PoolCardDisplay === 'undefined') {
       return `<span class="pool-transition-summary${actionClass}" aria-label="${safeLabel}">${safeText}</span>`;
     }
 
+    /**
+     * Validate a feature category.
+     * @param {string} category - Candidate feature category
+     * @returns {string} Supported category
+     */
     static getFeatureCategory(category) {
       return PoolCardDisplay.FEATURE_CATEGORIES.includes(category) ? category : 'additional';
     }
 
+    /**
+     * Validate a status color.
+     * @param {string} color - Candidate status color
+     * @returns {string} Supported status color
+     */
     static getStatusColor(color) {
       return PoolCardDisplay.STATUS_COLORS.includes(color) ? color : 'gray';
     }

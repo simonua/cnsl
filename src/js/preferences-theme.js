@@ -6,6 +6,11 @@
   const increasedContrast = window.matchMedia('(prefers-contrast: more)');
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
+  /**
+   * Applies saved visual preferences and relevant system media settings.
+   * @param {Object} preferences - Saved application preferences
+   * @private
+   */
   function applyPreferenceTheme(preferences) {
     const selectedTheme = preferences && preferences.theme ? preferences.theme : 'system';
     const selectedContrast = preferences && preferences.contrast ? preferences.contrast : 'system';

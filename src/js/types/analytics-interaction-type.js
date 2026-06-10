@@ -1,6 +1,7 @@
 (function initializeAnalyticsInteractionType(globalScope) {
   'use strict';
 
+  /** @type {Readonly<Record<string, string>>} */
   const AnalyticsInteractionType = Object.freeze({
     BANNER: 'banner',
     DIRECTORY_DETAIL_OPEN: 'directory_detail_open',

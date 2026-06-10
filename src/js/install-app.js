@@ -25,12 +25,20 @@
     return;
   }
 
+  /**
+   * Reveals the platform-specific install guidance and quick link.
+   * @private
+   */
   function showInstallApp() {
     installApp.hidden = false;
     installAppShortcut.hidden = false;
     installAppShortcut.closest('.quick-links-grid')?.classList.add('quick-links-grid--with-install');
   }
 
+  /**
+   * Hides and resets the install guidance and quick link.
+   * @private
+   */
   function hideInstallApp() {
     installApp.hidden = true;
     installApp.open = false;

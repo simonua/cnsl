@@ -38,7 +38,7 @@ function closeMenu(restoreFocus = false) {
 }
 
 /**
- * Toggles the mobile navigation menu visibility
+ * Updates the mobile navigation offset to clear the fixed header.
  */
 function updateNavigationOffset() {
   const nav = document.getElementById('navMenu');
@@ -49,10 +49,18 @@ function updateNavigationOffset() {
   nav.style.setProperty('--nav-top-offset', `${headerBottom}px`);
 }
 
+/**
+ * Determines whether the mobile navigation menu is expanded.
+ * @param {Element|null} hamburger - Navigation menu button
+ * @returns {boolean} Whether the menu is expanded
+ */
 function isMenuOpen(hamburger = document.querySelector('.hamburger')) {
   return hamburger?.getAttribute('aria-expanded') === 'true';
 }
 
+/**
+ * Toggles the mobile navigation menu and surrounding inert state.
+ */
 function toggleMenu() {
   const nav = document.getElementById('navMenu');
   const hamburger = document.querySelector('.hamburger');

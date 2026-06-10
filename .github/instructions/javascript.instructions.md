@@ -42,6 +42,20 @@ applyTo: "src/js/**/*.js"
 - Group module-level constants by domain, keep related source and derived constants together, and alphabetize independent fixed keys or allowlist values when order has no semantic meaning.
 - Prefix validation sets with `ALLOWED_` so trust-boundary allowlists are easy to identify and audit.
 
+## JSDoc And Code Clarity
+
+- Give every named class, constructor, class method, and named function a directly associated `/** ... */` JSDoc block. This includes closure-private named helpers in browser entry scripts; anonymous callbacks and the IIFE wrapper expression itself do not need JSDoc.
+- Start each JSDoc block with a concise behavioral summary that explains responsibility or contract. Do not merely restate the symbol name or narrate its implementation line by line.
+- Document every declared parameter with the exact parameter name, including defaulted, optional, rest, destructured, callback, and options-object parameters. Describe meaningful option properties when callers need them to use the API correctly.
+- Add `@returns` to every function or method that returns a value. Use `Promise<T>` for async results and omit `@returns` for functions that intentionally return no value unless an explicit `void` contract prevents ambiguity.
+- Add `@throws` only when callers can observe an intentional thrown error. Do not document errors that are caught internally or invent guarantees that the implementation does not enforce.
+- Mark underscore-prefixed and clearly internal class or closure helpers with `@private`. Do not mark a symbol private when another delivered script consumes it through the classic-script global boundary.
+- Prefer existing typedefs, literal unions, DOM types, and named record shapes from `src/js/types/`. Use an honest broad type such as `Object`, `Array`, or `*` when no stable narrower contract exists; do not invent undefined type names merely to appear precise.
+- Keep JSDoc synchronized when signatures, return shapes, async behavior, semantic states, or thrown errors change. A behavior change is incomplete when its documentation still describes the old contract.
+- Use descriptive names and small, cohesive functions so control flow is understandable without explanatory comments. Extract complex domain decisions into models or services instead of compensating for tangled code with long comments.
+- Reserve inline comments for non-obvious constraints, compatibility boundaries, trust decisions, or algorithmic intent. Remove stale, redundant, banner-style, and line-by-line narration when nearby names and JSDoc already make the code clear.
+- Keep abstraction boundaries visible: models represent domain data, services own reusable behavior, managers coordinate collections, and browser entry points translate semantic state into DOM presentation. Do not hide cross-layer work behind vague helpers such as `processData` or `handleStuff`.
+
 ## Constant Ownership
 
 - Do not use raw string or numeric literals as application-owned state, actions, modes, categories, result kinds, event names, or other behavior-bearing values. Give each such value one semantic owner and reference that owner in producers, consumers, validation, rendering maps, and tests.

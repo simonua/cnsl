@@ -14,6 +14,10 @@ const POOL_LOCATION_REQUEST_OPTIONS = Object.freeze([
   Object.freeze({ enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 })
 ]);
 
+/**
+ * Records a pool-directory performance milestone when the Performance API is available.
+ * @param {string} markName - Pool milestone name
+ */
 function markPoolPerformance(markName) {
   if (globalThis.performance && typeof globalThis.performance.mark === 'function') {
     globalThis.performance.mark(`cnsl:pools:${markName}`);
@@ -88,6 +92,7 @@ function getStatusTooltip(statusKind) {
 
 /**
  * Initialize the pool browser with data manager
+ * @returns {Promise<void>} Promise settled after primary pool data initializes
  */
 async function initializePoolBrowser() {
   if (!poolBrowserDataManager) {
@@ -97,6 +102,10 @@ async function initializePoolBrowser() {
   }
 }
 
+/**
+ * Starts optional team and meet enrichment once and refreshes hydrated details afterward.
+ * @returns {Promise<void>} Promise settled after optional enrichment attempts complete
+ */
 function startPoolBrowserEnrichment() {
   if (poolBrowserEnrichmentPromise) return poolBrowserEnrichmentPromise;
 
@@ -283,6 +292,11 @@ function formatPoolHours(pool) {
   return PoolHoursDisplay.render(viewModel);
 }
 
+/**
+ * Builds the display model for an expanded pool card.
+ * @param {PoolRecord} pool - Published pool record
+ * @returns {Object} Pool details display model
+ */
 function createPoolDetailsViewModel(pool) {
   const features = PreferencesService.getFilterablePoolFeatures(pool);
   const sortedFeatures = PoolDirectoryService.sortFeaturesForDisplay(features, PreferencesService.groupPoolFeatures);
@@ -299,10 +313,21 @@ function createPoolDetailsViewModel(pool) {
   };
 }
 
+/**
+ * Finds a rendered pool record by its stable card identifier.
+ * @param {string} poolId - Pool card identifier
+ * @returns {PoolRecord|null} Matching pool record, or null
+ */
 function getPoolRecord(poolId) {
   return poolBrowserPools.find(pool => String(pool.id || pool.name) === String(poolId)) || null;
 }
 
+/**
+ * Formats the next public-use transition for a pool model.
+ * @param {Pool|null} poolModel - Pool domain model
+ * @param {Object} [options] - Status-summary formatting options
+ * @returns {string} Public-use transition summary
+ */
 function getPoolStatusSummary(poolModel, options = {}) {
   if (!poolModel) return '';
   return PoolScheduleDisplay.formatPublicStatusSummary(
@@ -313,11 +338,20 @@ function getPoolStatusSummary(poolModel, options = {}) {
   );
 }
 
+/**
+ * Gets a validated transition action from a pool model.
+ * @param {Pool|null} poolModel - Pool domain model
+ * @returns {string} Valid transition action, or an empty string
+ */
 function getPoolTransitionAction(poolModel) {
   const action = poolModel?.getPublicStatusTransitionToday()?.action;
   return PoolTransitionAction.isValid(action) ? action : '';
 }
 
+/**
+ * Synchronizes one pool card's live transition summary.
+ * @param {Element} poolCard - Pool card to update
+ */
 function syncPoolTransitionSummary(poolCard) {
   if (!poolCard) return;
   const pool = getPoolRecord(poolCard.dataset.poolId);
@@ -348,10 +382,18 @@ function syncPoolTransitionSummary(poolCard) {
   summary.setAttribute('aria-label', getPoolStatusSummary(poolModel, { useLongUnits: true }));
 }
 
+/**
+ * Refreshes live transition summaries without replacing pool cards.
+ */
 function refreshPoolTransitionSummaries() {
   document.querySelectorAll('#poolList .pool-card').forEach(syncPoolTransitionSummary);
 }
 
+/**
+ * Renders deferred details for an expanded pool card.
+ * @param {Element} poolCard - Pool card to hydrate
+ * @returns {Element|null} Pool details element, when present
+ */
 function hydratePoolDetails(poolCard) {
   const details = poolCard && poolCard.querySelector('.pool-details');
   if (!details || details.dataset.poolDetailsHydrated === 'true') return details;
@@ -364,6 +406,9 @@ function hydratePoolDetails(poolCard) {
   return details;
 }
 
+/**
+ * Re-renders details that were already hydrated after optional data enrichment.
+ */
 function refreshHydratedPoolDetails() {
   const focusTarget = captureFocusedPoolControl();
   document.querySelectorAll('#poolList .pool-card').forEach(poolCard => {
@@ -382,6 +427,7 @@ function refreshHydratedPoolDetails() {
 /**
  * Gets the user's current location if they grant permission
  * Gracefully handles cases where geolocation is denied or not available
+ * @param {number} [attempt] - Geolocation request option index
  */
 function getUserLocation(attempt = 0) {
   if (!PreferencesService.get().locationAwarenessEnabled || poolLocationRequestInFlight) return;
@@ -392,6 +438,11 @@ function getUserLocation(attempt = 0) {
   }
 
   poolLocationRequestInFlight = true;
+  /**
+   * Requests geolocation and retries with the next configured option when appropriate.
+   * @param {number} requestAttempt - Geolocation request option index
+   * @private
+   */
   const requestLocation = requestAttempt => {
     const options = POOL_LOCATION_REQUEST_OPTIONS[requestAttempt];
 
@@ -494,6 +545,10 @@ function setupPoolFeatureFilters(pools) {
   setupPoolAvailabilityControl();
 }
 
+/**
+ * Expands the filter controls when the noninteractive filter surface is selected.
+ * @param {Event} event - Delegated filter-surface click event
+ */
 function handlePoolFeatureFilterSurfaceClick(event) {
   const controls = document.getElementById('poolFeatureFilterControls');
   const target = event.target;
@@ -791,6 +846,13 @@ function renderPools(pools) {
     `;
     return;
   }
+  /**
+   * Compares pool records by display name.
+   * @param {PoolRecord} firstPool - First pool record
+   * @param {PoolRecord} secondPool - Second pool record
+   * @returns {number} Locale comparison result
+   * @private
+   */
   const comparePools = (firstPool, secondPool) => {
     const firstName = (firstPool && firstPool.name) ? firstPool.name : '';
     const secondName = (secondPool && secondPool.name) ? secondPool.name : '';
@@ -1000,6 +1062,9 @@ function setupPoolNavigationHandlers() {
   document.addEventListener('change', handlePoolDatePickerChange);
 }
 
+/**
+ * Applies changed preferences and requests location when newly enabled.
+ */
 function refreshPoolsForPreferences() {
   if (!document.getElementById('poolList') || poolBrowserPools.length === 0) return;
 

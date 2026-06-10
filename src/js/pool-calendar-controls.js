@@ -4,7 +4,16 @@
  */
 
 if (typeof globalThis.PoolCalendarControls === 'undefined') {
+  /**
+   * Routes delegated pool-calendar interactions to directory navigation actions.
+   */
   class PoolCalendarControls {
+    /**
+     * Handles pool-card disclosure and week-navigation clicks.
+     * @param {Event} event - Delegated click event
+     * @param {Object} actions - Pool calendar action callbacks
+     * @returns {*} Result returned by the selected action, when applicable
+     */
     static handleClick(event, actions) {
       const target = event.target;
       const disclosureButton = target.closest('[data-pool-card-action="toggle"]');
@@ -23,6 +32,11 @@ if (typeof globalThis.PoolCalendarControls === 'undefined') {
       if (target.classList.contains('calendar-btn')) PoolCalendarControls.showPicker(target, navigation);
     }
 
+    /**
+     * Applies a selected week and restores focus to the calendar button.
+     * @param {Event} event - Delegated date-picker change event
+     * @param {Object} actions - Pool calendar action callbacks
+     */
     static handleChange(event, actions) {
       const picker = event.target;
       if (!picker.classList.contains('week-picker')) return;
@@ -37,6 +51,11 @@ if (typeof globalThis.PoolCalendarControls === 'undefined') {
       }
     }
 
+    /**
+     * Positions, opens, and focuses a pool week picker.
+     * @param {Element} button - Calendar button that opened the picker
+     * @param {Element} navigation - Pool week-navigation container
+     */
     static showPicker(button, navigation) {
       const picker = navigation.querySelector('.week-picker');
       if (!picker) return;

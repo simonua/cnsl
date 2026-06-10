@@ -2,6 +2,7 @@
  * Evaluates National Weather Service data for outdoor pool safety notices.
  */
 if (typeof globalThis.WeatherAlertService === 'undefined') {
+  /** Evaluates, fetches, and caches weather safety status for pool operating hours. */
   class WeatherAlertService {
     static BASE_URL = globalThis.WEATHER_API_BASE_URL;
     static COLUMBIA_MD_POINT = globalThis.WEATHER_LOCATION_POINT;
@@ -64,6 +65,14 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
       return { isInclement: false };
     }
 
+    /**
+     * Check whether a weather interval is relevant to the current Eastern date.
+     * @param {*} startTime - Candidate interval start
+     * @param {*} endTime - Candidate interval end
+     * @param {Date} now - Evaluation instant
+     * @param {boolean} requireValidStart - Whether an invalid start rejects the interval
+     * @returns {boolean} Whether the interval remains relevant
+     */
     static isRelevantToday(startTime, endTime, now = new Date(), requireValidStart = true) {
       const startsAt = new Date(startTime);
       const endsAt = new Date(endTime);
@@ -137,19 +146,36 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
       return status;
     }
 
+    /**
+     * Store the latest weather status in memory.
+     * @param {Object|null} status - Latest weather status
+     * @returns {void}
+     */
     static setLatestStatus(status) {
       WeatherAlertService.latestStatus = status;
     }
 
+    /** @returns {Object|null} Latest in-memory weather status */
     static getLatestStatus() {
       return WeatherAlertService.latestStatus;
     }
 
+    /**
+     * Normalize a requested weather refresh interval.
+     * @param {*} value - Candidate refresh interval
+     * @returns {number} Supported interval in minutes
+     */
     static normalizeRefreshMinutes(value) {
       const refreshMinutes = Number(value);
       return globalThis.WEATHER_ALERT_REFRESH_MINUTES_OPTIONS.includes(refreshMinutes) ? refreshMinutes : WeatherAlertService.DEFAULT_REFRESH_MINUTES;
     }
 
+    /**
+     * Attach an update timestamp to a weather status.
+     * @param {Object} status - Weather status
+     * @param {Date} now - Update instant
+     * @returns {Object} Status with timestamp
+     */
     static withUpdatedAt(status, now) {
       return { ...status, updatedAt: now.toISOString() };
     }
@@ -190,6 +216,13 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
       return WeatherAlertService.getPoolOperatingWindowForContext(poolData, context);
     }
 
+    /**
+     * Derive a daily operating window from published pool schedules.
+     * @param {Object} poolData - Active annual pools data
+     * @param {Object} context - Eastern date, weekday, and minute context
+     * @returns {Object|null} Daily operating window
+     * @private
+     */
     static getPoolOperatingWindowForContext(poolData, context) {
       if (!poolData || !Array.isArray(poolData.pools)) return null;
 
@@ -223,6 +256,12 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
       };
     }
 
+    /**
+     * Precompute daily operating windows for a full pool season.
+     * @param {Object} poolData - Active annual pools data
+     * @returns {Object} Daily operating windows keyed by date
+     * @throws {Error} When the season date range is invalid
+     */
     static createOperatingWindowSchedule(poolData) {
       const startDate = poolData && poolData.seasonStartDate;
       const endDate = poolData && poolData.seasonEndDate;
@@ -246,6 +285,13 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
       return { dailyOperatingWindows };
     }
 
+    /**
+     * Check whether an hours record contains pool activity on a weekday.
+     * @param {Object} hours - Published pool hours record
+     * @param {string} day - Short weekday name
+     * @returns {boolean} Whether activity is scheduled
+     * @private
+     */
     static isActivityScheduledForDay(hours, day) {
       if (!hours || !Array.isArray(hours.weekDays) || !hours.weekDays.includes(day)
         || typeof hours.startTime !== 'string' || typeof hours.endTime !== 'string') {
@@ -256,6 +302,12 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
       return activities.length === 0 || !activities.every(activity => /closed|maintenance/i.test(activity));
     }
 
+    /**
+     * Convert an instant to Eastern calendar and minute context.
+     * @param {Date} now - Instant to convert
+     * @returns {Object} Eastern date, weekday, and minutes after midnight
+     * @private
+     */
     static getEasternDateContext(now) {
       const parts = new Intl.DateTimeFormat('en-US', {
         day: '2-digit',
@@ -275,6 +327,12 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
       };
     }
 
+    /**
+     * Convert a schedule time to minutes after midnight.
+     * @param {string} timeString - Time in h:mmam or h:mmpm format
+     * @returns {number} Minutes after midnight, or NaN when invalid
+     * @private
+     */
     static timeStringToMinutes(timeString) {
       const match = timeString.trim().match(/^(\d{1,2}):(\d{2})(am|pm)$/i);
       if (!match) return NaN;
@@ -284,6 +342,13 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
       return hour * 60 + Number(match[2]);
     }
 
+    /**
+     * Fetch and parse a JSON resource without propagating request failures.
+     * @param {string} url - Resource URL
+     * @param {Function} fetchImplementation - Fetch-compatible function
+     * @returns {Promise<Object|null>} Parsed data, or null when unavailable
+     * @private
+     */
     static async fetchJson(url, fetchImplementation) {
       try {
         const response = await fetchImplementation(url, { headers: { Accept: 'application/geo+json' } });
@@ -293,6 +358,11 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
       }
     }
 
+    /**
+     * Get session storage when browser access is available.
+     * @returns {Storage|null} Session storage or null
+     * @private
+     */
     static getSessionStorage() {
       let storage = null;
       try {
@@ -302,6 +372,11 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
       return storage;
     }
 
+    /**
+     * Get local storage when browser access is available.
+     * @returns {Storage|null} Local storage or null
+     * @private
+     */
     static getLocalStorage() {
       let storage = null;
       try {
@@ -311,11 +386,23 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
       return storage;
     }
 
+    /**
+     * Read a fresh cached weather status.
+     * @param {Storage|null} storage - Browser storage or a compatible substitute
+     * @param {number} refreshMinutes - Expected refresh interval
+     * @param {Date} now - Cache evaluation time
+     * @returns {Object|null} Cached status
+     */
     static readCachedStatus(storage, refreshMinutes, now = new Date()) {
       const cached = WeatherAlertService.readCachedStatusEntry(storage, refreshMinutes, now);
       return cached ? cached.status : null;
     }
 
+    /**
+     * Read the latest successful weather-check timestamp.
+     * @param {Storage|null} storage - Browser storage or a compatible substitute
+     * @returns {Object|null} Latest timestamp record
+     */
     static readLatestCheckedStatus(storage = WeatherAlertService.getLocalStorage()) {
       if (!storage) return null;
       try {
@@ -327,6 +414,13 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
       }
     }
 
+    /**
+     * Persist a newer successful weather-check timestamp.
+     * @param {Object} status - Weather status with update timestamp
+     * @param {Storage|null} storage - Browser storage or a compatible substitute
+     * @returns {void}
+     * @private
+     */
     static rememberLatestCheckedStatus(status, storage = WeatherAlertService.getLocalStorage()) {
       if (!storage || !status || typeof status.isInclement !== 'boolean' || typeof status.updatedAt !== 'string') return;
       const updatedAt = new Date(status.updatedAt);
@@ -342,6 +436,14 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
       }
     }
 
+    /**
+     * Read and validate a complete weather cache entry.
+     * @param {Storage|null} storage - Browser storage or a compatible substitute
+     * @param {number} refreshMinutes - Expected refresh interval
+     * @param {Date} now - Cache evaluation time
+     * @returns {Object|null} Fresh cache entry
+     * @private
+     */
     static readCachedStatusEntry(storage, refreshMinutes, now = new Date()) {
       if (!storage) return null;
       try {
@@ -352,6 +454,16 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
       }
     }
 
+    /**
+     * Persist a weather status and its latest successful check time.
+     * @param {Storage|null} storage - Session storage or a compatible substitute
+     * @param {Object} status - Weather status to cache
+     * @param {number} refreshMinutes - Cache lifetime in minutes
+     * @param {Date} now - Cache write time
+     * @param {Storage|null} latestCheckedStorage - Storage for latest-check metadata
+     * @returns {void}
+     * @private
+     */
     static cacheStatus(storage, status, refreshMinutes, now = new Date(), latestCheckedStorage = WeatherAlertService.getLocalStorage()) {
       WeatherAlertService.rememberLatestCheckedStatus(status, latestCheckedStorage);
       if (!storage) return;

@@ -2,10 +2,16 @@
  * Reusable presentation calculations for the pool directory route.
  */
 if (typeof globalThis.PoolDirectoryService === 'undefined') {
+  /** Calculates pool directory filtering, distance, and feature presentation state. */
   class PoolDirectoryService {
     static AVAILABILITY_FILTERS = Object.freeze(['all', 'open-now', 'opens-soon', 'open-today', 'open-tomorrow', 'open-next-two-hours']);
     static OPENING_SOON_MINUTES = 60;
 
+    /**
+     * Check whether a value is a supported availability filter.
+     * @param {*} value - Candidate filter
+     * @returns {boolean} Whether the filter is supported
+     */
     static isAvailabilityFilter(value) {
       return PoolDirectoryService.AVAILABILITY_FILTERS.includes(value);
     }
@@ -58,6 +64,12 @@ if (typeof globalThis.PoolDirectoryService === 'undefined') {
       }).join('|');
     }
 
+    /**
+     * Calculate great-circle distance between two coordinates.
+     * @param {Object} firstCoordinates - First latitude and longitude
+     * @param {Object} secondCoordinates - Second latitude and longitude
+     * @returns {number} Distance in miles
+     */
     static calculateDistance(firstCoordinates, secondCoordinates) {
       const earthRadiusMiles = 3958.8;
       const firstLatitude = firstCoordinates.lat * Math.PI / 180;
@@ -71,6 +83,11 @@ if (typeof globalThis.PoolDirectoryService === 'undefined') {
       return earthRadiusMiles * (2 * Math.atan2(Math.sqrt(arc), Math.sqrt(1 - arc)));
     }
 
+    /**
+     * Format a normalized feature for display.
+     * @param {string} feature - Normalized feature label
+     * @returns {string} Display label
+     */
     static formatFeatureLabel(feature) {
       const labels = {
         'ada compliant': 'ADA compliant',
@@ -83,12 +100,24 @@ if (typeof globalThis.PoolDirectoryService === 'undefined') {
       return feature.charAt(0).toUpperCase() + feature.slice(1);
     }
 
+    /**
+     * Sort features within their visitor-oriented groups.
+     * @param {Array} features - Feature labels
+     * @param {Function} groupFeatures - Feature grouping callback
+     * @returns {Array} Ordered feature labels
+     */
     static sortFeaturesForDisplay(features, groupFeatures) {
       return groupFeatures(features).flatMap(group => [...group.features].sort((first, second) => (
         PoolDirectoryService.formatFeatureLabel(first).localeCompare(PoolDirectoryService.formatFeatureLabel(second))
       )));
     }
 
+    /**
+     * Add calculated distances to pools with valid coordinates.
+     * @param {Array} pools - Pool records
+     * @param {Object|null} userCoordinates - Visitor latitude and longitude
+     * @returns {Array} Pool records with available distances
+     */
     static addDistances(pools, userCoordinates) {
       if (!userCoordinates) return pools;
 

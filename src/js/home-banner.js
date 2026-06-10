@@ -1,7 +1,22 @@
 (function initializeHomeBanners() {
   'use strict';
 
+  /**
+   * Controls the visibility, acknowledgement, and analytics for a home-page banner.
+   * @private
+   */
   class HomeBanner {
+    /**
+     * Creates a banner controller from element identifiers and banner callbacks.
+     * @param {Object} options - Banner configuration
+     * @param {string} options.noticeId - Banner container element identifier
+     * @param {string} options.linkId - Banner link element identifier
+     * @param {string} options.closeButtonId - Dismiss button element identifier
+     * @param {string} options.bannerName - Analytics banner name
+     * @param {Function} options.shouldShow - Determines whether the banner should be shown
+     * @param {Function} options.acknowledge - Records acknowledgement of the banner
+     * @param {Function} [options.prepare] - Prepares banner content before display
+     */
     constructor({ noticeId, linkId, closeButtonId, bannerName, shouldShow, acknowledge, prepare }) {
       this.noticeId = noticeId;
       this.linkId = linkId;
@@ -12,6 +27,11 @@
       this.prepare = prepare;
     }
 
+    /**
+     * Publishes a banner interaction when analytics is available.
+     * @param {string} action - Banner interaction action
+     * @private
+     */
     trackInteraction(action) {
       if (!window.cnslAnalytics) return;
       window.cnslAnalytics.trackInteraction(AnalyticsInteractionType.BANNER, {
@@ -20,6 +40,9 @@
       });
     }
 
+    /**
+     * Displays the banner when eligible and binds its acknowledgement controls.
+     */
     show() {
       const notice = document.getElementById(this.noticeId);
       const link = document.getElementById(this.linkId);
@@ -30,6 +53,10 @@
       notice.hidden = false;
       this.trackInteraction('view');
 
+      /**
+       * Records acknowledgement and hides this banner instance.
+       * @private
+       */
       const acknowledgeAndHide = () => {
         this.acknowledge();
         notice.hidden = true;
@@ -46,6 +73,11 @@
     }
   }
 
+  /**
+   * Gets browser local storage without propagating storage-access errors.
+   * @returns {Storage|null} Available local storage, or null when access is blocked
+   * @private
+   */
   function getLocalStorage() {
     try {
       return window.localStorage;
@@ -54,6 +86,10 @@
     }
   }
 
+  /**
+   * Builds and displays the eligible home-page banners.
+   * @private
+   */
   function showHomeBanners() {
     const storage = getLocalStorage();
     const releaseVersion = document.getElementById('releaseNoticeVersion');

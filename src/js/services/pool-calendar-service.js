@@ -2,6 +2,7 @@
  * Provides date-only calendar calculations used by pool schedule navigation.
  */
 if (typeof globalThis.PoolCalendarService === 'undefined') {
+  /** Provides date-only calculations for pool schedule navigation. */
   class PoolCalendarService {
     /**
      * Return the Monday for the week containing a date.

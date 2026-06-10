@@ -28,6 +28,12 @@
   const assetVersion = controllerSource ? controllerSource.searchParams.get('v') : '';
   let dependenciesPromise;
 
+  /**
+   * Applies the controller asset version to a lazily loaded dependency URL.
+   * @param {string} source - Relative dependency source
+   * @returns {string} Versioned dependency URL or the unchanged relative source
+   * @private
+   */
   function getDependencySource(source) {
     if (!assetVersion) return source;
 
@@ -36,6 +42,12 @@
     return dependencySource.toString();
   }
 
+  /**
+   * Appends a classic script dependency and resolves after it loads.
+   * @param {string} source - Relative dependency source
+   * @returns {Promise<void>} Promise settled when the script loads or fails
+   * @private
+   */
   function loadScript(source) {
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
@@ -47,6 +59,11 @@
     });
   }
 
+  /**
+   * Loads the favorite-team agenda dependencies once in their required order.
+   * @returns {Promise<void>} Promise settled when all dependencies have loaded
+   * @private
+   */
   function loadAgendaDependencies() {
     if (!dependenciesPromise) {
       dependenciesPromise = AGENDA_DEPENDENCIES.reduce(
@@ -57,6 +74,11 @@
     return dependenciesPromise;
   }
 
+  /**
+   * Renders upcoming events for the currently selected favorite team.
+   * @returns {Promise<void>} Promise settled after the favorite-team section is updated
+   * @private
+   */
   async function renderFavoriteWeek() {
     const section = document.getElementById('favoriteWeek');
     const title = document.getElementById('favoriteWeekTitle');
@@ -121,6 +143,10 @@
     }
   }
 
+  /**
+   * Binds the favorite-team agenda disclosure control.
+   * @private
+   */
   function initializeFavoriteWeekToggle() {
     const toggle = document.getElementById('favoriteWeekToggle');
     const content = document.getElementById('favoriteWeekContent');

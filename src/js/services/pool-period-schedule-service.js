@@ -4,6 +4,7 @@
  */
 
 if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
+  /** Resolves published schedule periods and overrides into daily pool availability. */
   class PoolPeriodScheduleService {
     static DAY_NAMES = Object.freeze({
       Mon: 'Monday',
@@ -15,6 +16,11 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
       Sun: 'Sunday'
     });
 
+    /**
+     * Format a local date without UTC conversion.
+     * @param {Date} date - Local date
+     * @returns {string} ISO date-only value
+     */
     static getLocalDateString(date) {
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -22,6 +28,10 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
       return `${year}-${month}-${day}`;
     }
 
+    /**
+     * Create a period schedule resolver.
+     * @param {Object} options - Schedule records and dependency callbacks
+     */
     constructor(options = {}) {
       this.schedulePeriods = Array.isArray(options.schedulePeriods) ? options.schedulePeriods : [];
       this.scheduleOverrides = Array.isArray(options.scheduleOverrides) ? options.scheduleOverrides : [];
@@ -30,6 +40,7 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
       this.getPoolStatus = typeof options.getPoolStatus === 'function' ? options.getPoolStatus : () => null;
     }
 
+    /** @returns {Object} Active schedule normalized by full weekday name */
     normalizeActiveSchedule() {
       const timeUtils = this.getTimeUtils();
       if (!timeUtils) return {};
@@ -60,6 +71,7 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
       return normalizedSchedule;
     }
 
+    /** @returns {Object} Current semantic pool status */
     getCurrentStatus() {
       const poolStatus = this.getPoolStatus();
       if (!poolStatus) return { kind: 'unavailable', isOpen: false, status: 'Error', color: 'gray' };
@@ -71,6 +83,12 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
       return this.getStatusAtMinutes(this.getTimeSlotsForDate(current.date, current.day.substring(0, 3)), current.minutes);
     }
 
+    /**
+     * Get effective slots for one date and weekday.
+     * @param {string} dateString - ISO calendar date
+     * @param {string} shortDay - Short weekday name
+     * @returns {Array} Effective time slots
+     */
     getTimeSlotsForDate(dateString, shortDay) {
       const activeSchedule = this.schedulePeriods.find(schedule => dateString >= schedule.startDate && dateString <= schedule.endDate);
       if (!this.getTimeUtils()) return [];
@@ -81,6 +99,11 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
       return this.sortSlots(activeSchedule.hours.filter(hour => Array.isArray(hour.weekDays) && hour.weekDays.includes(shortDay)));
     }
 
+    /**
+     * Map a slot's access state to pool status.
+     * @param {Object} slot - Schedule slot
+     * @returns {Object} Semantic pool status
+     */
     getSlotStatus(slot) {
       const poolStatus = this.getPoolStatus();
       if (!poolStatus) return { isOpen: false, color: 'gray' };
@@ -94,6 +117,12 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
       }
     }
 
+    /**
+     * Resolve status at a minute within effective slots.
+     * @param {Array} timeSlots - Effective schedule slots
+     * @param {number} currentMinutes - Minutes after midnight
+     * @returns {Object} Semantic pool status
+     */
     getStatusAtMinutes(timeSlots, currentMinutes) {
       const poolStatus = this.getPoolStatus();
       const timeUtils = this.getTimeUtils();
@@ -111,6 +140,11 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
       return poolStatus.CLOSED;
     }
 
+    /**
+     * Build a seven-day effective schedule.
+     * @param {Date} weekStartDate - First displayed day
+     * @returns {Array} Seven daily schedule records
+     */
     getWeekScheduleForDate(weekStartDate) {
       return Object.keys(PoolPeriodScheduleService.DAY_NAMES).map((shortDay, index) => {
         const targetDate = new Date(weekStartDate);
@@ -132,6 +166,13 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
       });
     }
 
+    /**
+     * Find an override covering a date and weekday.
+     * @param {string} dateString - ISO calendar date
+     * @param {string} shortDay - Short weekday name
+     * @returns {Object|null} Matching override
+     * @private
+     */
     getOverrideForDate(dateString, shortDay) {
       if (!Array.isArray(this.scheduleOverrides)) return null;
       return this.scheduleOverrides.find(override => (
@@ -142,6 +183,14 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
       ));
     }
 
+    /**
+     * Overlay override slots on a regular daily schedule.
+     * @param {Object|null} activeSchedule - Active schedule period
+     * @param {string} shortDay - Short weekday name
+     * @param {Object} override - Dated schedule override
+     * @returns {Array} Merged effective slots
+     * @private
+     */
     mergeScheduleWithOverride(activeSchedule, shortDay, override) {
       const regularSlots = this.getRegularSlots(activeSchedule, shortDay);
       const overrideSlots = this.getSlotsForDay(override.hours, shortDay).map(hour => ({
@@ -181,6 +230,7 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
       }));
     }
 
+    /** @returns {Object|null} Current schedule-period summary */
     getCurrentSchedulePeriod() {
       const timeUtils = this.getTimeUtils();
       if (!timeUtils) return null;
@@ -193,6 +243,7 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
       } : null;
     }
 
+    /** @returns {Object|null} Earliest and latest schedule dates */
     getValidDateRange() {
       if (this.schedulePeriods.length === 0) return null;
       const dates = this.schedulePeriods.map(schedule => ({ start: new Date(schedule.startDate), end: new Date(schedule.endDate) }));
@@ -202,6 +253,13 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
       };
     }
 
+    /**
+     * Select hours applying to one weekday.
+     * @param {Array} hours - Published hours
+     * @param {string} shortDay - Short weekday
+     * @returns {Array} Matching hours
+     * @private
+     */
     getSlotsForDay(hours, shortDay) {
       return Array.isArray(hours) ? hours.filter(hour => (
         Array.isArray(hour.weekDays)
@@ -211,6 +269,13 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
       )) : [];
     }
 
+    /**
+     * Normalize regular slots for one weekday.
+     * @param {Object|null} activeSchedule - Active period
+     * @param {string} shortDay - Short weekday
+     * @returns {Array} Regular slots
+     * @private
+     */
     getRegularSlots(activeSchedule, shortDay) {
       return this.sortSlots(this.getSlotsForDay(activeSchedule && activeSchedule.hours, shortDay).map(hour => ({
         startTime: hour.startTime,
@@ -223,6 +288,12 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
       })));
     }
 
+    /**
+     * Sort schedule slots by start time.
+     * @param {Array} slots - Schedule slots
+     * @returns {Array} Slots ordered by start time
+     * @private
+     */
     sortSlots(slots) {
       const timeUtils = this.getTimeUtils();
       if (!timeUtils) return slots;
@@ -232,6 +303,12 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
       });
     }
 
+    /**
+     * Add minute boundaries to a schedule slot.
+     * @param {Object} slot - Schedule slot
+     * @returns {Object} Slot with minute boundaries
+     * @private
+     */
     withMinutes(slot) {
       const timeUtils = this.getTimeUtils();
       if (!timeUtils || typeof slot.startTime !== 'string' || typeof slot.endTime !== 'string') {
@@ -250,6 +327,13 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
       }
     }
 
+    /**
+     * Remove an overlapping override interval from a regular slot.
+     * @param {Object} regularSlot - Regular slot with minute boundaries
+     * @param {Object} overrideSlot - Override slot with minute boundaries
+     * @returns {Array} Remaining regular slot segments
+     * @private
+     */
     subtractOverride(regularSlot, overrideSlot) {
       if (overrideSlot.startMinutes <= regularSlot.startMinutes && overrideSlot.endMinutes >= regularSlot.endMinutes) return [];
       if (overrideSlot.endMinutes <= regularSlot.startMinutes || overrideSlot.startMinutes >= regularSlot.endMinutes) return [regularSlot];

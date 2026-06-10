@@ -8,6 +8,11 @@ if (typeof globalThis.getPoolIdFromLocation === 'undefined') {
 const PoolLinkSafety = globalThis.HtmlSafety;
 const PoolLinkIcons = globalThis.IconCatalog;
 
+/**
+ * Build a case-insensitive index of published pool locations.
+ * @param {Array} pools - Pool models or records
+ * @returns {Map<string, string>} Pool identifiers keyed by location labels
+ */
 function createPoolLocationIndex(pools = []) {
   const poolLocations = new Map();
   pools.forEach(pool => {
@@ -22,6 +27,7 @@ function createPoolLocationIndex(pools = []) {
 /**
  * Find pool ID from location name
  * @param {string} locationName - The location name from meets data
+ * @param {Array|Map<string, string>} poolsOrIndex - Pool records or a prepared location index
  * @returns {string|null} - Pool ID or null if not found
  */
 function getPoolIdFromLocation(locationName, poolsOrIndex = []) {
@@ -37,6 +43,7 @@ function getPoolIdFromLocation(locationName, poolsOrIndex = []) {
  * Get pool data from data manager by location name
  * @param {string} locationName - The location name from meets data
  * @param {Object} dataManager - The data manager instance
+ * @param {Array|Map<string, string>|null} poolsOrIndex - Pool records or a prepared location index
  * @returns {Object|null} - Pool object or null if not found
  */
 function getPoolDataFromLocation(locationName, dataManager, poolsOrIndex = null) {
@@ -83,6 +90,7 @@ function generatePoolsPageLink(poolId, displayText) {
 /**
  * Link every recognizable pool mentioned in published location text.
  * @param {string} locationText - Location text that may contain pool names
+ * @param {Array|Map<string, string>} poolsOrIndex - Pool records or a prepared location index
  * @returns {string} - Safe HTML containing deep links for known pools
  */
 function generateLinkedPoolMentions(locationText, poolsOrIndex = []) {
@@ -157,6 +165,7 @@ function generateGoogleMapsLink(poolData, displayText) {
  * @param {boolean} options.preferPoolsPage - Whether to prefer pools.html link over maps
  * @param {boolean} options.showBothLinks - Whether to show both pools.html and maps links
  * @param {string} [options.displayText] - Optional visible link label while resolving the published location
+ * @param {Array|Map<string, string>|null} poolsOrIndex - Pool records or a prepared location index
  * @returns {string} - HTML link(s) for the pool
  */
 function generateEnhancedPoolLink(locationName, dataManager, options = {}, poolsOrIndex = null) {

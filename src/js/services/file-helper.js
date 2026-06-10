@@ -12,6 +12,7 @@
 
 // Prevent multiple declarations
 if (typeof globalThis.FileHelper === 'undefined') {
+  /** Resolves delivered asset paths and loads JSON resources. */
   class FileHelper {
 
   // ------------------------------
@@ -29,6 +30,7 @@ if (typeof globalThis.FileHelper === 'undefined') {
   /**
    * Gets the active season year used for published seasonal data.
    * @returns {number} Active season year
+    * @throws {Error} When the application year configuration is unavailable
    */
   static getSeasonYear() {
     if (typeof globalThis.YEAR !== 'number') {
@@ -185,9 +187,10 @@ if (typeof globalThis.FileHelper === 'undefined') {
   // ------------------------------
 
   /**
-  * Load a JSON file from the delivered application layout.
-  * @param {string} filePath - Path to the JSON file
+   * Load a JSON file from the delivered application layout.
+   * @param {string} filePath - Path to the JSON file
    * @returns {Promise<Object>} Promise that resolves with JSON data
+   * @throws {Error} When the request fails or returns a non-success response
    */
   static async loadJsonFile(filePath) {
     try {

@@ -5,7 +5,9 @@
 // Prevent multiple declarations
 if (typeof globalThis.MeetsManager === 'undefined') {
 
+  /** Coordinates the published meet collection and meet-level queries. */
   class MeetsManager {
+  /** Creates an empty meet collection manager. */
   constructor() {
     /** @type {Map<string, Meet>} */
     this.meets = new Map();
@@ -58,6 +60,10 @@ if (typeof globalThis.MeetsManager === 'undefined') {
     return this.meets.size;
   }
 
+  /**
+   * Gets defensive copies of the published meet timing windows.
+   * @returns {Object<string, MeetTimingWindow>} Timing windows keyed by event category
+   */
   getMeetTimes() {
     return Object.fromEntries(Object.entries(this.meetTimes).map(([key, timingWindow]) => [key, { ...timingWindow }]));
   }

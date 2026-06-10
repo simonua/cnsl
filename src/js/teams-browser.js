@@ -13,6 +13,7 @@ const AVAILABLE_TEAM_LOGOS = new Set([
 
 /**
  * Initialize the teams browser with data manager
+ * @returns {Promise<void>} Promise settled after team dependencies initialize
  */
 async function initializeTeamsBrowser() {
   if (!teamsBrowserDataManager) {
@@ -63,10 +64,20 @@ function getEnhancedPoolLink(location, displayText = location) {
   }, teamsPoolLocationIndex);
 }
 
+/**
+ * Filters practice sessions to the visitor's selected practice groups.
+ * @param {Array} sessions - Published practice sessions
+ * @returns {Array} Visible practice sessions
+ */
 function getVisiblePracticeSessions(sessions) {
   return PreferencesService.filterPracticeSessions(sessions, PreferencesService.get().practiceGroups);
 }
 
+/**
+ * Formats practice sessions as escaped schedule rows.
+ * @param {Array} sessions - Visible practice sessions
+ * @returns {string} Practice-session HTML
+ */
 function formatPracticeSessions(sessions) {
   return `<div class="sessions">${sessions.map(session => `
     <div class="session-item">
@@ -76,6 +87,14 @@ function formatPracticeSessions(sessions) {
   `).join('')}</div>`;
 }
 
+/**
+ * Formats a collapsible practice phase.
+ * @param {string} title - Phase heading
+ * @param {string} dateRange - Published phase date range
+ * @param {string} content - Phase body HTML
+ * @param {boolean} isCurrent - Whether this is the current phase
+ * @returns {string} Practice-phase HTML
+ */
 function formatPracticePhase(title, dateRange, content, isCurrent) {
   const currentClass = isCurrent ? ' practice-schedule__phase--current' : '';
   const currentBadge = isCurrent ? '<span class="practice-schedule__badge">Current schedule</span>' : '';
@@ -93,6 +112,12 @@ function formatPracticePhase(title, dateRange, content, isCurrent) {
   `;
 }
 
+/**
+ * Formats visible pre-season practice periods.
+ * @param {Object} practice - Published team practice data
+ * @param {boolean} isCurrent - Whether pre-season is current
+ * @returns {string} Pre-season practice HTML
+ */
 function formatPreseasonPracticeSchedule(practice, isCurrent) {
   const publishedPeriods = Array.isArray(practice && practice.preseason) ? practice.preseason : [];
   const periods = publishedPeriods.map(period => ({
@@ -124,6 +149,12 @@ function formatPreseasonPracticeSchedule(practice, isCurrent) {
   return formatPracticePhase('Pre-season practices', dateRange, content, isCurrent);
 }
 
+/**
+ * Formats visible in-season morning and evening practices.
+ * @param {Object} practice - Published team practice data
+ * @param {boolean} isCurrent - Whether the regular season is current
+ * @returns {string} In-season practice HTML
+ */
 function formatInSeasonPracticeSchedule(practice, isCurrent) {
   const inSeasonSchedule = practice && practice.regular;
   if (!inSeasonSchedule) return '';
@@ -170,6 +201,11 @@ function formatInSeasonPracticeSchedule(practice, isCurrent) {
   return formatPracticePhase('In-season practices', inSeasonSchedule.season, content, isCurrent);
 }
 
+/**
+ * Formats all available practice phases for a team.
+ * @param {Object} practice - Published team practice data
+ * @returns {string} Practice schedule HTML
+ */
 function formatPracticeSchedules(practice) {
   const currentPhase = globalThis.TeamScheduleService.getCurrentPracticePhase(practice);
   const preSeasonHtml = formatPreseasonPracticeSchedule(practice, currentPhase === 'preseason');
@@ -179,6 +215,11 @@ function formatPracticeSchedules(practice) {
   return `${preSeasonHtml}${inSeasonHtml}`;
 }
 
+/**
+ * Formats a meet date for the team schedule.
+ * @param {string} dateValue - Meet date in YYYY-MM-DD format
+ * @returns {string} Escaped display date
+ */
 function formatMeetDate(dateValue) {
   const date = new Date(`${dateValue}T12:00:00`);
   if (Number.isNaN(date.getTime())) return TeamsBrowserSafety.escapeHtml(dateValue || 'Date unavailable');
@@ -189,6 +230,11 @@ function formatMeetDate(dateValue) {
   }));
 }
 
+/**
+ * Formats a meet timing window for responsive display.
+ * @param {string} time - Displayable meet time range
+ * @returns {string} Escaped meet-time HTML
+ */
 function formatMeetTime(time) {
   const timeParts = String(time || '').split(' - ');
   if (timeParts.length !== 2) return TeamsBrowserSafety.escapeHtml(time);
@@ -198,20 +244,41 @@ function formatMeetTime(time) {
   return `<span class="team-meets__time-start">${startTime} -</span><span class="team-meets__time-end"> ${endTime}</span>`;
 }
 
+/**
+ * Formats a matchup label and emphasizes the selected team.
+ * @param {string} label - Published team label
+ * @param {Object} team - Team represented by the card
+ * @returns {string} Escaped matchup label HTML
+ */
 function formatMeetTeamLabel(label, team) {
   const safeLabel = TeamsBrowserSafety.escapeHtml(label);
   return PreferencesService.teamMatchesLabel(team, label) ? `<strong>${safeLabel}</strong>` : safeLabel;
 }
 
+/**
+ * Removes a trailing pool suffix from a meet location label.
+ * @param {*} location - Published meet location
+ * @returns {string} Normalized location label
+ */
 function formatMeetLocationLabel(location) {
   return typeof location === 'string' ? location.replace(/\s+Pool\s*$/i, '').trim() : '';
 }
 
+/**
+ * Formats a compact team-meet name.
+ * @param {string} meetName - Published meet name
+ * @returns {string} Escaped compact meet name
+ */
 function formatTeamMeetName(meetName) {
   const displayName = String(meetName || 'Meet').replace(/^Dual Meet\s+(#\d+)$/i, 'Dual $1');
   return TeamsBrowserSafety.escapeHtml(displayName);
 }
 
+/**
+ * Determines whether a known pool course differs from the standard course.
+ * @param {Object|null} poolData - Matched pool data
+ * @returns {boolean} Whether the known course is nonstandard
+ */
 function hasNonstandardMeetCourse(poolData) {
   const hasKnownCourse = Number.isInteger(poolData?.laneCount)
     && Number.isFinite(poolData?.laneLength)
@@ -223,6 +290,12 @@ function hasNonstandardMeetCourse(poolData) {
   );
 }
 
+/**
+ * Formats meets involving a team as a schedule table.
+ * @param {Object} team - Team represented by the card
+ * @param {Array} meets - Available meet models
+ * @returns {string} Team meet schedule HTML
+ */
 function formatMeetsSchedule(team, meets) {
   const teamMeets = Array.isArray(meets) ? meets.filter(meet => (
     meet && (!(meet.home_team || meet.visiting_team)
@@ -277,6 +350,12 @@ function formatMeetsSchedule(team, meets) {
   `;
 }
 
+/**
+ * Combines practice and meet schedule sections for a team.
+ * @param {Object} team - Team represented by the card
+ * @param {Array} meets - Available meet models
+ * @returns {string} Combined schedule HTML
+ */
 function formatSchedules(team, meets) {
   const practiceScheduleHtml = formatPracticeSchedules(team.practice);
   const meetsScheduleHtml = formatMeetsSchedule(team, meets);
@@ -311,7 +390,20 @@ function createTeamLogo(teamId) {
 function formatTeamStaff(staff) {
   if (!staff) return '';
 
+  /**
+   * Compares staff records by display name.
+   * @param {Object} first - First staff record
+   * @param {Object} second - Second staff record
+   * @returns {number} Locale comparison result
+   * @private
+   */
   const compareByName = (first, second) => first.name.localeCompare(second.name, undefined, { sensitivity: 'base' });
+  /**
+   * Ranks coaching roles for display order.
+   * @param {Object} member - Coaching staff record
+   * @returns {number} Coaching role rank
+   * @private
+   */
   const getCoachRank = member => {
     const role = member.role.toLowerCase();
     if (role.includes('head coach')) return 0;
@@ -326,15 +418,41 @@ function formatTeamStaff(staff) {
     first.label.localeCompare(second.label, undefined, { sensitivity: 'base' })
   )) : [];
   const mailIcon = IconCatalog.render('mail', 'team-staff__mail-icon');
+  /**
+   * Selects shared contacts for a staff audience.
+   * @param {string} audience - Staff audience identifier
+   * @returns {Array} Matching shared contacts
+   * @private
+   */
   const getAudienceContacts = audience => contacts.filter(contact => contact.audience === audience);
+  /**
+   * Formats a safe email icon link.
+   * @param {string} email - Published email address
+   * @param {string} label - Accessible link label
+   * @returns {string} Email link HTML, or an empty string
+   * @private
+   */
   const formatEmail = (email, label) => {
     const emailUrl = TeamsBrowserSafety.safeMailtoUrl(email);
     const safeLabel = TeamsBrowserSafety.escapeHtml(label);
     return emailUrl ? `<a class="team-staff__email" href="${emailUrl}" aria-label="${safeLabel}" title="${safeLabel}">${mailIcon}</a>` : '';
   };
+  /**
+   * Formats direct and shared email links for one staff member.
+   * @param {Object} member - Staff member record
+   * @param {string} audience - Staff audience identifier
+   * @returns {string} Staff email-links HTML
+   * @private
+   */
   const formatMemberEmails = (member, audience) => {
     const emailLinks = [];
     const usedEmails = new Set();
+    /**
+     * Adds one safe email link unless its address has already been used.
+     * @param {string} email - Published email address
+     * @param {string} label - Accessible link label
+     * @private
+     */
     const addEmailLink = (email, label) => {
       if (!email || usedEmails.has(email.toLowerCase())) return;
 
@@ -349,10 +467,24 @@ function formatTeamStaff(staff) {
 
     return emailLinks.length > 0 ? `<span class="team-staff__email-links">${emailLinks.join('')}</span>` : '';
   };
+  /**
+   * Formats fallback shared contacts for a staff audience.
+   * @param {string} audience - Staff audience identifier
+   * @returns {string} Shared email-links HTML
+   * @private
+   */
   const formatAudienceEmails = audience => {
     const emailLinks = getAudienceContacts(audience).map(contact => formatEmail(contact.email, `Email ${contact.label}`)).join('');
     return emailLinks ? `<span class="team-staff__email-links team-staff__email-links--fallback">${emailLinks}</span>` : '';
   };
+  /**
+   * Formats a staff audience list or its empty-state contact.
+   * @param {Array} members - Staff members to display
+   * @param {string} audience - Staff audience identifier
+   * @param {string} emptyMessage - Message shown when no names are published
+   * @returns {string} Staff list HTML
+   * @private
+   */
   const formatMembers = (members, audience, emptyMessage) => {
     if (members.length === 0) return `<p class="team-staff__empty">${emptyMessage}${formatAudienceEmails(audience)}</p>`;
 
@@ -423,6 +555,13 @@ function renderTeams(teams) {
   const preferences = PreferencesService.get();
   const favoriteTeamId = preferences.favoriteTeamId;
   const favoriteTeamExpanded = preferences.favoriteTeamExpanded;
+  /**
+   * Compares team records by display name.
+    * @param {Object} a - First team record
+    * @param {Object} b - Second team record
+   * @returns {number} Locale comparison result
+   * @private
+   */
   const compareTeams = (a, b) => {
     const nameA = (a && a.name) ? a.name : '';
     const nameB = (b && b.name) ? b.name : '';
@@ -535,6 +674,9 @@ function renderTeams(teams) {
     list.innerHTML = html;
 }
 
+  /**
+   * Re-renders teams after saved preferences change.
+   */
 function refreshTeamsForPreferences() {
   if (!teamsBrowserDataManager || !document.getElementById('teamList')) return;
   renderTeams(teamsBrowserDataManager.getTeams().getAllTeams());

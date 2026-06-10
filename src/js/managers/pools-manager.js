@@ -5,7 +5,9 @@
 // Prevent multiple declarations
 if (typeof globalThis.PoolsManager === 'undefined') {
 
+  /** Coordinates the published pool collection and pool-level queries. */
   class PoolsManager {
+  /** Creates an empty pool collection manager. */
   constructor() {
     /** @type {Map<string, Pool>} */
     this.pools = new Map();

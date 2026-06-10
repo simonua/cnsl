@@ -37,14 +37,30 @@ if (typeof globalThis.IconCatalog === 'undefined') {
     unavailable: 'statusUnavailable'
   });
 
+  /**
+   * Get a project-owned text glyph by semantic name.
+   * @param {string} name - Glyph name
+   * @returns {string} Glyph text, or an empty string when unknown
+   */
   function getTextGlyph(name) {
     return TEXT_GLYPHS[name] || '';
   }
 
+  /**
+   * Get the decorative glyph for a semantic pool status.
+   * @param {string} kind - Pool status kind
+   * @returns {string} Status glyph text
+   */
   function getPoolStatusGlyph(kind) {
     return getTextGlyph(STATUS_GLYPH_NAMES[kind] || 'statusUnavailable');
   }
 
+  /**
+   * Render a project-owned SVG icon reference.
+   * @param {string} name - Registered icon name
+   * @param {string} className - Optional safe CSS class names
+   * @returns {string} SVG markup, or an empty string when invalid
+   */
   function render(name, className = '') {
     if (!ICON_NAMES.has(name)) return '';
     if (className && !/^[a-zA-Z0-9_-]+(?: [a-zA-Z0-9_-]+)*$/.test(className)) return '';

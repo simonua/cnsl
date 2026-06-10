@@ -2,6 +2,7 @@
  * Expands published recurring team practices into calendar-day schedule blocks.
  */
 if (typeof globalThis.TeamScheduleService === 'undefined') {
+  /** Expands recurring team practices into dated schedule entries. */
   class TeamScheduleService {
     static WEEKDAYS = Object.freeze(['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']);
     static PRACTICE_PERIODS = Object.freeze({
@@ -10,6 +11,12 @@ if (typeof globalThis.TeamScheduleService === 'undefined') {
       OTHER: 'other'
     });
 
+    /**
+     * Parse a published practice season range.
+     * @param {string} range - Published month-and-day range
+     * @param {number} year - Season year
+     * @returns {Object|null} Inclusive start and end dates
+     */
     static parseSeasonRange(range, year = globalThis.YEAR) {
       if (typeof range !== 'string' || !year) return null;
 
@@ -25,6 +32,11 @@ if (typeof globalThis.TeamScheduleService === 'undefined') {
       return { startDate: dates[0], endDate: dates[1] };
     }
 
+    /**
+     * Parse weekday names and ranges from published text.
+     * @param {string} description - Published weekday description
+     * @returns {string[]} Matched weekday names
+     */
     static parseWeekdays(description) {
       if (typeof description !== 'string') return [];
 
@@ -39,6 +51,12 @@ if (typeof globalThis.TeamScheduleService === 'undefined') {
       return foundDays;
     }
 
+    /**
+     * Collect rendering errors in published practice data.
+     * @param {Object} practice - Published practice schedule
+     * @param {number} year - Season year
+     * @returns {string[]} Validation messages
+     */
     static getValidationErrors(practice, year = globalThis.YEAR) {
       if (!practice) return [];
 
@@ -72,6 +90,12 @@ if (typeof globalThis.TeamScheduleService === 'undefined') {
       return errors;
     }
 
+    /**
+     * Check whether a practice range contains a reference date.
+     * @param {string} range - Published date range
+     * @param {Date} referenceDate - Date to test
+     * @returns {boolean} Whether range is current
+     */
     static isCurrentPracticeRange(range, referenceDate = new Date()) {
       const practiceRange = TeamScheduleService.parseSeasonRange(range);
       if (!practiceRange) return false;
@@ -97,6 +121,12 @@ if (typeof globalThis.TeamScheduleService === 'undefined') {
       return PracticeRangeStatus.PAST;
     }
 
+    /**
+     * Determine the current practice phase.
+     * @param {Object} practice - Published practice schedule
+     * @param {Date} referenceDate - Date to classify
+     * @returns {string|null} Preseason, regular, or null
+     */
     static getCurrentPracticePhase(practice, referenceDate = new Date()) {
       if (!practice) return null;
 
@@ -106,6 +136,12 @@ if (typeof globalThis.TeamScheduleService === 'undefined') {
       return null;
     }
 
+    /**
+     * Normalize recurring practice definitions into calendar patterns.
+     * @param {Object} practice - Published practice schedule
+     * @param {number} year - Season year
+     * @returns {Array} Recurring practice patterns
+     */
     static getPracticePatterns(practice, year = globalThis.YEAR) {
       if (!practice) return [];
 
@@ -147,6 +183,13 @@ if (typeof globalThis.TeamScheduleService === 'undefined') {
       return patterns;
     }
 
+    /**
+     * Expand recurring practices into upcoming dates.
+     * @param {Object} practice - Published practice schedule
+     * @param {Date} startDate - First date to include
+     * @param {number} dayCount - Number of calendar days to inspect
+     * @returns {Array} Dated practices
+     */
     static getUpcomingPractices(practice, startDate = new Date(), dayCount = 7) {
       const rangeStart = new Date(startDate);
       rangeStart.setHours(0, 0, 0, 0);
@@ -172,6 +215,15 @@ if (typeof globalThis.TeamScheduleService === 'undefined') {
       return results;
     }
 
+    /**
+     * Resolve teams practicing during a pool schedule slot.
+     * @param {Array} teams - Team models
+     * @param {string} poolName - Pool name
+     * @param {Date} date - Schedule date
+     * @param {Object} slot - Pool schedule slot
+     * @param {Object} timeUtils - Time parsing dependency
+     * @returns {string[]} Matching team names
+     */
     static getDetailedPracticeTeamNames(teams, poolName, date, slot, timeUtils) {
       if (!Array.isArray(teams) || typeof poolName !== 'string' || !(date instanceof Date) || !slot || !timeUtils) return [];
 
@@ -188,10 +240,21 @@ if (typeof globalThis.TeamScheduleService === 'undefined') {
       })).map(team => team.shortName || team.name);
     }
 
+    /**
+     * Normalize a pool label for matching.
+     * @param {string} poolName - Pool label
+     * @returns {string} Comparable pool name
+     */
     static normalizePoolName(poolName) {
       return String(poolName || '').replace(/\s+Pool\s*$/i, '').trim();
     }
 
+    /**
+     * Parse a displayed time range into minute boundaries.
+     * @param {string} timeRange - Displayed practice time range
+     * @param {Object} timeUtils - Time parsing dependency
+     * @returns {Object|null} Start and end minutes
+     */
     static getTimeRange(timeRange, timeUtils) {
       if (typeof timeRange !== 'string' || !timeUtils || typeof timeUtils.timeStringToMinutes !== 'function') return null;
 
@@ -209,6 +272,12 @@ if (typeof globalThis.TeamScheduleService === 'undefined') {
       }
     }
 
+    /**
+     * Classify sessions as morning, evening, or other.
+     * @param {Array} sessions - Published practice sessions
+     * @param {Object} timeUtils - Time parsing dependency
+     * @returns {string} Practice period key
+     */
     static getPracticePeriod(sessions, timeUtils = globalThis.TimeUtils) {
       if (!Array.isArray(sessions) || sessions.length === 0) return TeamScheduleService.PRACTICE_PERIODS.OTHER;
 

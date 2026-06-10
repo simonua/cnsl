@@ -5,6 +5,7 @@ if (typeof globalThis.PoolHoursViewModelService === 'undefined') {
   const PoolCalendarService = globalThis.PoolCalendarService;
   const TeamScheduleService = globalThis.TeamScheduleService;
 
+  /** Builds display-ready state for pool hours and weekly schedules. */
   class PoolHoursViewModelService {
     /**
      * Build the display model for one pool's selected schedule week.
@@ -130,6 +131,15 @@ if (typeof globalThis.PoolHoursViewModelService === 'undefined') {
       });
     }
 
+    /**
+     * Report a pool-hours operation failure through an optional callback.
+     * @param {string} operation - Failed operation name
+     * @param {Pool} poolModel - Pool model involved
+     * @param {Error} error - Reported error
+     * @param {Function} onError - Optional error callback
+     * @returns {void}
+     * @private
+     */
     static reportError(operation, poolModel, error, onError) {
       if (typeof onError === 'function') onError(operation, poolModel.name, error);
     }

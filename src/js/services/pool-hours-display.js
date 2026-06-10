@@ -2,6 +2,7 @@
  * Renders the pool-hours presentation from a display-ready view model.
  */
 if (typeof globalThis.PoolHoursDisplay === 'undefined') {
+  /** Renders display-ready pool hours and weekly schedule state. */
   class PoolHoursDisplay {
     /**
      * Render a simple hours-state message.

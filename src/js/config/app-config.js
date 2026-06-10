@@ -25,6 +25,11 @@
   const WEATHER_PUBLIC_ZIP_FALLBACK_URL = 'https://forecast.weather.gov/zipcity.php?inputstring=21045';
   const GOOGLE_MAPS_SEARCH_BASE_URL = 'https://www.google.com/maps/search/?api=1&query=';
 
+  /**
+   * Builds the public National Weather Service forecast URL for a coordinate pair.
+   * @param {string} locationPoint - Latitude and longitude separated by a comma
+   * @returns {string} Coordinate forecast URL, or the ZIP-code fallback for invalid coordinates
+   */
   function buildWeatherPublicAlertsUrl(locationPoint) {
     const [latitude, longitude, ...extraParts] = locationPoint.split(',').map(value => value.trim());
     const latitudeNumber = Number(latitude);
@@ -47,6 +52,13 @@
 
   const WEATHER_PUBLIC_ALERTS_URL = buildWeatherPublicAlertsUrl(WEATHER_LOCATION_POINT);
 
+  /**
+   * Formats a validated Eastern-offset official-source timestamp.
+   * @param {string} timestamp - ISO timestamp with an explicit Eastern UTC offset
+   * @param {Intl.DateTimeFormatOptions} options - Locale formatting options
+   * @returns {string} Localized timestamp in the application timezone
+   * @throws {Error} If the timestamp format or date value is invalid
+   */
   function formatOfficialSourceTimestamp(timestamp, options) {
     if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}-(?:04|05):00$/.test(timestamp)) {
       throw new Error('Official-source timestamps must use ISO format with an explicit Eastern UTC offset.');
@@ -58,6 +70,11 @@
     return sourceTimestamp.toLocaleString('en-US', { ...options, timeZone: APP_TIMEZONE });
   }
 
+  /**
+   * Formats an official-source timestamp for the compact footer label.
+   * @param {string} timestamp - Date-compatible timestamp
+   * @returns {string} Month, day, and time in the application timezone
+   */
   function formatOfficialSourceFooterTimestamp(timestamp) {
     const sourceTimestamp = new Date(timestamp);
     const date = new Intl.DateTimeFormat('en-US', {
@@ -189,6 +206,13 @@
     ...RUNTIME_CONFIG
   });
 
+  /**
+   * Defines an immutable global constant or verifies an existing matching value.
+   * @param {string} name - Global property name
+   * @param {*} value - Constant value to expose
+   * @param {Object} targetScope - Object that receives the constant
+   * @throws {Error} If the target already has a different value for the name
+   */
   function exposeConstant(name, value, targetScope = globalScope) {
     if (Object.prototype.hasOwnProperty.call(targetScope, name)) {
       if (targetScope[name] !== value) {

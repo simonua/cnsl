@@ -7,7 +7,9 @@ if (typeof globalThis.DataManager === 'undefined') {
   /** @type {ReadonlyArray<AnnualDataDomain>} */
   const DATA_DOMAINS = Object.freeze(['pools', 'teams', 'meets']);
 
+  /** Coordinates loading and access for annual data domains. */
   class DataManager {
+  /** Creates an unloaded data manager. */
   constructor() {
     /** @type {PoolsManager|null} */
     this.poolsManager = null;
@@ -173,16 +175,25 @@ if (typeof globalThis.DataManager === 'undefined') {
   }
 
   /**
-   * Property getters for direct access (used by search engine and copilot)
+   * Get the pools manager through the direct-access property.
+   * @returns {PoolsManager} Pools manager instance
    */
   get pools() {
     return this.getPools();
   }
 
+  /**
+   * Get the teams manager through the direct-access property.
+   * @returns {TeamsManager} Teams manager instance
+   */
   get teams() {
     return this.getTeams();
   }
 
+  /**
+   * Get the meets manager through the direct-access property.
+   * @returns {MeetsManager} Meets manager instance
+   */
   get meets() {
     return this.getMeets();
   }
@@ -207,6 +218,7 @@ if (typeof globalThis.DataManager === 'undefined') {
 
   /**
    * Check if all data is loaded
+    * @param {AnnualDataDomain[]} requiredDomains - Domains that must be loaded
    * @returns {boolean} - True if all managers have data loaded
    */
   isInitialized(requiredDomains = DATA_DOMAINS) {
@@ -215,7 +227,8 @@ if (typeof globalThis.DataManager === 'undefined') {
 
   /**
    * Refresh all data
-   * @returns {Promise} - Promise that resolves when data is refreshed
+    * @param {AnnualDataDomain[]} requiredDomains - Domains to reload
+    * @returns {Promise<void>} Promise that resolves when data is refreshed
    */
   async refresh(requiredDomains = [...this.loadedDomains]) {
     const domains = requiredDomains.length > 0 ? requiredDomains : DATA_DOMAINS;
@@ -249,7 +262,8 @@ function getDataManager() {
 
 /**
  * Initialize the global DataManager (for backward compatibility)
- * @returns {Promise} - Promise that resolves when data is loaded
+ * @param {AnnualDataDomain[]} requiredDomains - Annual data domains needed by the caller
+ * @returns {Promise<void>} Promise that resolves when data is loaded
  */
 async function initializeDataManager(requiredDomains) {
   const manager = getDataManager();

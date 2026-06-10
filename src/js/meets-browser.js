@@ -13,6 +13,7 @@ const MeetsBrowserSafety = HtmlSafety;
 
 /**
  * Initialize the meets browser with data manager
+ * @returns {Promise<void>} Promise settled after meet dependencies initialize
  */
 async function initializeMeetsBrowser() {
   if (!meetsBrowserDataManager) {
@@ -71,6 +72,8 @@ function getMeetLiveStatusSignature(meets) {
 /**
  * Renders the list of meets in the #meetList element
  * @param {Array} meets - Array of meet objects
+ * @param {boolean} [preserveExpansion] - Whether to retain expanded meet dates
+ * @returns {Promise<void>} Promise settled after the meet list is rendered
  */
 async function renderMeets(meets, preserveExpansion = false) {
   const list = document.getElementById("meetList");
@@ -84,6 +87,13 @@ async function renderMeets(meets, preserveExpansion = false) {
 
   const favoriteTeamId = PreferencesService.get().favoriteTeamId;
   const favoriteTeam = PreferencesService.findFavoriteTeam(meetsBrowserDataManager.getTeams().getAllTeams(), favoriteTeamId);
+  /**
+   * Formats a meet team label and marks the selected favorite team.
+   * @param {string} label - Published team label
+   * @param {string} className - CSS class for the team role
+   * @returns {string} Escaped team-label HTML
+   * @private
+   */
   const formatTeamLabel = (label, className) => {
     const displayLabel = label || (className === 'home-team' ? 'Home Team' : 'Visiting Team');
     const isFavorite = PreferencesService.teamMatchesLabel(favoriteTeam, displayLabel);
@@ -310,6 +320,9 @@ async function renderMeets(meets, preserveExpansion = false) {
   list.innerHTML = html;
 }
 
+/**
+ * Re-renders meets after favorite-team preferences change.
+ */
 function refreshMeetsForPreferences() {
   if (!meetsBrowserDataManager || !document.getElementById('meetList')) return;
   renderMeets(meetsBrowserMeets, true);
@@ -349,6 +362,9 @@ function scheduleNextMeetLiveStatusRefresh() {
   }, delayMilliseconds);
 }
 
+/**
+ * Pauses live updates while hidden and catches up when the page becomes visible.
+ */
 function handleMeetPageVisibilityChange() {
   if (document.hidden) {
     if (meetLiveStatusRefreshTimeout !== null) window.clearTimeout(meetLiveStatusRefreshTimeout);
@@ -379,6 +395,9 @@ function toggleMeetDate(header) {
   if (details) details.hidden = isExpanded;
 }
 
+/**
+ * Expands and highlights a meet selected by validated URL parameters.
+ */
 function handleMeetUrlParameters() {
   const urlParams = new URLSearchParams(window.location.search);
   const meetDate = urlParams.get('date');

@@ -67,6 +67,11 @@
 
   // Private measurement and publishing helpers
 
+  /**
+   * Builds privacy-limited page location and referrer parameters.
+   * @returns {Object} Approved page measurement parameters
+   * @private
+   */
   function getMeasuredPageParameters() {
     return {
       page_location: `${window.HOME_PAGE_URL}${window.location.pathname}`,
@@ -74,11 +79,21 @@
     };
   }
 
+  /**
+   * Gets the reviewed analytics page title or falls back to the document title.
+   * @returns {string} Page title used for analytics measurement
+   * @private
+   */
   function getMeasuredPageTitle() {
     const analyticsPageTitle = document.querySelector('meta[name="analytics-page-title"]');
     return analyticsPageTitle ? analyticsPageTitle.content : document.title;
   }
 
+  /**
+   * Validates and removes an approved campaign tuple from the landing URL.
+   * @returns {Object|null} Matched published campaign, or null when none is valid
+   * @private
+   */
   function consumePublishedCampaign() {
     const landingUrl = new URL(window.location.href);
     if (landingUrl.pathname !== '/') return null;
@@ -97,6 +112,12 @@
     return campaign;
   }
 
+  /**
+   * Maps an approved campaign to Google Analytics campaign fields.
+   * @param {Object|null} publishedCampaign - Validated published campaign
+   * @returns {Object} Approved campaign measurement parameters
+   * @private
+   */
   function getMeasuredCampaignParameters(publishedCampaign) {
     if (!publishedCampaign) return {};
 
@@ -107,12 +128,22 @@
     };
   }
 
+  /**
+   * Publishes an event through the configured Google tag function.
+   * @param {string} eventName - Approved analytics event name
+   * @param {Object} [eventParameters] - Privacy-reviewed event parameters
+   * @private
+   */
   function publishEvent(eventName, eventParameters = {}) {
     if (typeof window.gtag !== 'function') return;
 
     window.gtag('event', eventName, eventParameters);
   }
 
+  /**
+   * Publishes the application version once for the current browser session.
+   * @private
+   */
   function publishVersionOncePerSession() {
     try {
       if (window.sessionStorage.getItem(window.ANALYTICS_VERSION_REPORTED_STORAGE_KEY)) return;
@@ -129,6 +160,12 @@
 
   // Private interaction trackers
 
+  /**
+   * Publishes a validated banner interaction.
+   * @param {string} bannerName - Approved banner name
+   * @param {string} action - Approved banner action
+   * @private
+   */
   function trackBannerInteraction(bannerName, action) {
     if (!ALLOWED_BANNER_NAMES.has(bannerName) || !ALLOWED_BANNER_ACTIONS.has(action)) return;
 
@@ -138,6 +175,11 @@
     });
   }
 
+  /**
+   * Publishes a validated directory detail-open interaction.
+   * @param {string} directoryName - Approved directory name
+   * @private
+   */
   function trackDirectoryDetailOpen(directoryName) {
     if (!ALLOWED_DIRECTORY_NAMES.has(directoryName)) return;
 
@@ -146,6 +188,12 @@
     });
   }
 
+  /**
+   * Publishes a validated external-link interaction.
+   * @param {string} context - Approved link context
+   * @param {string} purpose - Approved link purpose
+   * @private
+   */
   function trackExternalLinkInteraction(context, purpose) {
     if (!ALLOWED_EXTERNAL_LINK_CONTEXTS.has(context) || !ALLOWED_EXTERNAL_LINK_PURPOSES.has(purpose)) return;
 
@@ -155,6 +203,12 @@
     });
   }
 
+  /**
+   * Publishes a setting change after validating its fixed value.
+   * @param {string} settingName - Approved fixed setting name
+   * @param {*} settingValue - Candidate fixed setting value
+   * @private
+   */
   function trackFixedSettingChange(settingName, settingValue) {
     const allowedValues = FIXED_SETTING_VALUES[settingName];
     const normalizedValue = String(settingValue);
@@ -165,6 +219,11 @@
     });
   }
 
+  /**
+   * Publishes a validated install interaction.
+   * @param {string} action - Approved install action
+   * @private
+   */
   function trackInstallInteraction(action) {
     if (!ALLOWED_INSTALL_ACTIONS.has(action)) return;
 
@@ -173,6 +232,13 @@
     });
   }
 
+  /**
+   * Publishes a setting change after validating values against annual data.
+   * @param {string} settingName - Approved published setting name
+   * @param {Array} selectedValues - Selected annual-data values
+   * @param {Set<string>} publishedValues - Allowed annual-data values
+   * @private
+   */
   function trackPublishedSettingChange(settingName, selectedValues, publishedValues) {
     if (!ALLOWED_PUBLISHED_SETTING_NAMES.has(settingName) || !Array.isArray(selectedValues) || !(publishedValues instanceof Set)) return;
     if (selectedValues.some(value => typeof value !== 'string')) return;
@@ -185,6 +251,12 @@
     });
   }
 
+  /**
+   * Publishes a validated resource view or download interaction.
+   * @param {string} resourceName - Approved resource name
+   * @param {string} action - Resource action mapped to an event name
+   * @private
+   */
   function trackResourceInteraction(resourceName, action) {
     const eventName = RESOURCE_EVENT_NAMES[action];
     if (!ALLOWED_RESOURCE_NAMES.has(resourceName) || !eventName) return;
@@ -194,6 +266,11 @@
     });
   }
 
+  /**
+   * Publishes a validated site-sharing interaction.
+   * @param {string} method - Approved sharing method
+   * @private
+   */
   function trackShareInteraction(method) {
     if (!ALLOWED_SHARE_METHODS.has(method)) return;
 
@@ -206,17 +283,35 @@
 
   // Private DOM instrumentation
 
+  /**
+   * Resolves an approved analytics context for an external link.
+   * @param {Element} link - External link element
+   * @returns {string} Approved link context
+   * @private
+   */
   function getExternalLinkContext(link) {
     const contextElement = link.closest('[data-analytics-context]');
     const context = contextElement && contextElement.dataset.analyticsContext;
     return ALLOWED_EXTERNAL_LINK_CONTEXTS.has(context) ? context : 'other';
   }
 
+  /**
+   * Resolves an approved analytics purpose for an external link.
+   * @param {Element} link - External link element
+   * @returns {string} Approved link purpose
+   * @private
+   */
   function getExternalLinkPurpose(link) {
     const purpose = link.dataset.analyticsLinkPurpose || EXTERNAL_LINK_PURPOSES.GENERAL;
     return ALLOWED_EXTERNAL_LINK_PURPOSES.has(purpose) ? purpose : EXTERNAL_LINK_PURPOSES.GENERAL;
   }
 
+  /**
+   * Determines whether a link targets an approved external destination.
+   * @param {Element} link - Candidate link element
+   * @returns {boolean} Whether the link is external to the application
+   * @private
+   */
   function isExternalLink(link) {
     const href = link.getAttribute('href');
     if (!href) return false;
@@ -231,6 +326,10 @@
     }
   }
 
+  /**
+   * Binds delegated analytics tracking for approved link interactions.
+   * @private
+   */
   function initializeClickTracking() {
     document.addEventListener('click', event => {
       const clickedElement = event.target instanceof Element ? event.target : null;
@@ -258,11 +357,21 @@
     });
   }
 
+  /**
+   * Determines whether the page is running on the production HTTPS host.
+   * @returns {boolean} Whether analytics may run on this host
+   * @private
+   */
   function isProductionSite() {
     return window.location.protocol === 'https:'
       && window.location.hostname === window.HOME_PAGE_HOSTNAME;
   }
 
+  /**
+   * Determines whether Google Analytics is disabled for this property.
+   * @returns {boolean} Whether analytics has been disabled
+   * @private
+   */
   function isAnalyticsDisabled() {
     return window[`ga-disable-${window.GA4_MEASUREMENT_ID}`] === true;
   }
@@ -273,6 +382,11 @@
 
   // Public API
 
+  /**
+   * Routes an interaction through its event-specific validation boundary.
+   * @param {string} interactionType - Semantic analytics interaction type
+   * @param {Object} [parameters] - Interaction-specific candidate parameters
+   */
   function trackInteraction(interactionType, parameters = {}) {
     switch (interactionType) {
       case AnalyticsInteractionType.BANNER:
@@ -312,6 +426,10 @@
   if (isAnalyticsDisabled() || !isProductionSite() || document.getElementById('cnslAnalyticsScript')) return;
 
   window.dataLayer = window.dataLayer || [];
+  /**
+   * Queues Google tag commands until the analytics library is available.
+   * @private
+   */
   window.gtag = window.gtag || function gtag() {
     window.dataLayer.push(arguments);
   };

@@ -2,6 +2,7 @@
  * Tracks per-pool schedule week state for pool directory navigation.
  */
 if (typeof globalThis.PoolWeekStateService === 'undefined') {
+  /** Stores selected pool schedule weeks for the current page lifetime. */
   class PoolWeekStateService {
     static weekStarts = new Map();
 

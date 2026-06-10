@@ -6,6 +6,13 @@
   const relatedProgramList = document.getElementById('relatedProgramList');
   if (!providerList || !providerStatus || !relatedProgramList) return;
 
+  /**
+   * Creates a labeled text detail for a lesson card.
+   * @param {string} label - Detail label
+   * @param {string} value - Detail value
+   * @returns {HTMLParagraphElement} Labeled detail element
+   * @private
+   */
   function createDetail(label, value) {
     const detail = document.createElement('p');
     const heading = document.createElement('strong');
@@ -14,6 +21,14 @@
     return detail;
   }
 
+  /**
+   * Creates an analytics-labeled link that opens in a new tab.
+   * @param {string} label - Visible link label
+   * @param {string} url - External destination URL
+   * @param {string} purpose - Approved analytics link purpose
+   * @returns {HTMLAnchorElement} External link element
+   * @private
+   */
   function createExternalLink(label, url, purpose) {
     const link = document.createElement('a');
     link.className = 'btn-primary';
@@ -29,6 +44,12 @@
     return link;
   }
 
+  /**
+   * Creates a decorative provider or program logo stage.
+   * @param {Object} logo - Normalized logo data
+   * @returns {HTMLDivElement} Logo container element
+   * @private
+   */
   function createLogo(logo) {
     const stage = document.createElement('div');
     stage.className = 'lesson-provider-card__logo';
@@ -41,6 +62,12 @@
     return stage;
   }
 
+  /**
+   * Creates the outdoor CA pool lesson comparison section.
+   * @param {Object} programs - Normalized outdoor program data
+   * @returns {HTMLElement} Outdoor lesson section
+   * @private
+   */
   function createOutdoorPrograms(programs) {
     const section = document.createElement('section');
     section.className = 'lesson-provider-card__outdoor';
@@ -80,6 +107,13 @@
     return section;
   }
 
+  /**
+   * Renders a lesson provider card and optional outdoor-program details.
+   * @param {Object} provider - Normalized lesson provider
+   * @param {Object|null} outdoorPrograms - Normalized outdoor program data
+   * @returns {HTMLElement} Lesson provider card
+   * @private
+   */
   function renderProvider(provider, outdoorPrograms) {
     const card = document.createElement('article');
     card.className = 'resource-card lesson-provider-card';
@@ -141,6 +175,12 @@
     return card;
   }
 
+  /**
+   * Renders a related aquatic program card.
+   * @param {Object} program - Normalized related program
+   * @returns {HTMLElement} Related program card
+   * @private
+   */
   function renderRelatedProgram(program) {
     const card = document.createElement('article');
     card.className = 'resource-card lesson-provider-card';

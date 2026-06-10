@@ -2,7 +2,14 @@
  * Validates maintained lesson-provider records for safe directory rendering.
  */
 if (typeof globalThis.LessonProviderService === 'undefined') {
+  /** Validates and normalizes lesson-provider directory data. */
   class LessonProviderService {
+    /**
+     * Validate and copy provider logo metadata.
+     * @param {Object} logo - Candidate logo record
+     * @returns {Object} Normalized logo metadata
+     * @throws {Error} When the logo record is invalid
+     */
     static normalizeLogo(logo) {
       if (!logo || typeof logo !== 'object'
         || !/^assets\/images\/provider-logos\/[a-z0-9-]+\.(?:png|jpg)$/.test(logo.src)
@@ -13,6 +20,11 @@ if (typeof globalThis.LessonProviderService === 'undefined') {
       return { src: logo.src, width: logo.width, height: logo.height };
     }
 
+    /**
+     * Normalize an absolute HTTPS URL.
+     * @param {*} value - Candidate URL
+     * @returns {string} Normalized URL, or an empty string when invalid
+     */
     static normalizeHttpsUrl(value) {
       try {
         const url = new URL(String(value));
@@ -22,6 +34,12 @@ if (typeof globalThis.LessonProviderService === 'undefined') {
       }
     }
 
+    /**
+     * Normalize all lesson providers in a directory document.
+     * @param {Object} documentData - Candidate lesson directory document
+     * @returns {Array} Normalized provider records
+     * @throws {Error} When the document is invalid
+     */
     static normalizeDocument(documentData) {
       if (!documentData || !Array.isArray(documentData.providers)) {
         throw new Error('Invalid lesson provider data response.');
@@ -30,6 +48,12 @@ if (typeof globalThis.LessonProviderService === 'undefined') {
       return documentData.providers.map(provider => LessonProviderService.normalizeProvider(provider));
     }
 
+    /**
+     * Validate and normalize one lesson provider.
+     * @param {Object} provider - Candidate provider record
+     * @returns {Object} Normalized provider record
+     * @throws {Error} When the provider is invalid
+     */
     static normalizeProvider(provider) {
       if (!provider || typeof provider !== 'object') {
         throw new Error('Invalid lesson provider record.');
@@ -68,6 +92,12 @@ if (typeof globalThis.LessonProviderService === 'undefined') {
       };
     }
 
+    /**
+     * Validate and normalize related aquatic programs.
+     * @param {Object} documentData - Candidate lesson directory document
+     * @returns {Array} Normalized related programs
+     * @throws {Error} When a program record is invalid
+     */
     static normalizeRelatedPrograms(documentData) {
       if (!documentData || !Array.isArray(documentData.relatedPrograms)) {
         throw new Error('Invalid related swimming program data response.');
@@ -108,6 +138,13 @@ if (typeof globalThis.LessonProviderService === 'undefined') {
       });
     }
 
+    /**
+     * Validate and normalize outdoor swim programs against published pools.
+     * @param {Object} documentData - Candidate lesson directory document
+     * @param {Array} pools - Published pool records
+     * @returns {Object} Normalized outdoor swim program data
+     * @throws {Error} When program or location data is invalid
+     */
     static normalizeOutdoorSwimPrograms(documentData, pools) {
       const programs = documentData && documentData.outdoorSwimPrograms;
       const availablePools = Array.isArray(pools) ? pools : [];

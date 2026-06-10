@@ -2,7 +2,13 @@
  * Removes browser-persisted state created by this application without clearing unrelated origin data.
  */
 if (typeof globalThis.AppStorageService === 'undefined') {
+  /** Manages application-owned browser storage and cache entries. */
   class AppStorageService {
+    /**
+     * Remove all application-owned local, session, and cache data.
+     * @param {Object} options - Optional browser storage implementations
+     * @returns {Promise<void>} Promise that resolves after cache deletion completes
+     */
     static async clearAppData(options = {}) {
       const localStorageImplementation = Object.prototype.hasOwnProperty.call(options, 'localStorage')
         ? options.localStorage
@@ -19,6 +25,13 @@ if (typeof globalThis.AppStorageService === 'undefined') {
       await AppStorageService.deleteCaches(cacheStorageImplementation, globalThis.PWA_CACHE_PREFIX);
     }
 
+    /**
+     * Remove a list of keys from a storage implementation.
+     * @param {Storage|null} storage - Browser storage or a compatible substitute
+     * @param {Array} keys - Keys to remove
+     * @returns {void}
+     * @private
+     */
     static removeKeys(storage, keys) {
       if (!storage || !Array.isArray(keys)) return;
       keys.forEach(key => {
@@ -30,6 +43,13 @@ if (typeof globalThis.AppStorageService === 'undefined') {
       });
     }
 
+    /**
+     * Delete application caches whose names start with the configured prefix.
+     * @param {CacheStorage|null} cacheStorage - Browser cache storage or a compatible substitute
+     * @param {string} cachePrefix - Application cache-name prefix
+     * @returns {Promise<void>} Promise that resolves after matching caches are deleted
+     * @private
+     */
     static async deleteCaches(cacheStorage, cachePrefix) {
       if (!cacheStorage || !cachePrefix) return;
       try {
@@ -42,6 +62,12 @@ if (typeof globalThis.AppStorageService === 'undefined') {
       }
     }
 
+    /**
+     * Get a browser storage implementation when access is available.
+     * @param {string} name - Global storage property name
+     * @returns {Storage|null} Browser storage or null when unavailable
+     * @private
+     */
     static getBrowserStorage(name) {
       let storage = null;
       try {
@@ -51,6 +77,11 @@ if (typeof globalThis.AppStorageService === 'undefined') {
       return storage;
     }
 
+    /**
+     * Get browser cache storage when access is available.
+     * @returns {CacheStorage|null} Browser cache storage or null when unavailable
+     * @private
+     */
     static getCacheStorage() {
       let cacheStorage = null;
       try {

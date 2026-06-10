@@ -7,6 +7,7 @@
 /** @typedef {'upcoming'|'current'|'past'} PracticeRangeStatusValue */
 
 if (typeof globalThis.MeetLiveStatus === 'undefined') {
+  /** Defines live-state values for regular meets with known timing windows. */
   class MeetLiveStatus {
     /** @type {MeetLiveStatusValue} */
     static UPCOMING = 'upcoming';
@@ -15,6 +16,11 @@ if (typeof globalThis.MeetLiveStatus === 'undefined') {
     /** @type {MeetLiveStatusValue} */
     static CONCLUDED = 'concluded';
 
+    /**
+     * Checks whether a value is a supported meet live state.
+     * @param {*} value - Value to validate
+     * @returns {boolean} Whether the value is a meet live state
+     */
     static isValid(value) {
       return value === MeetLiveStatus.UPCOMING
         || value === MeetLiveStatus.ONGOING
@@ -22,17 +28,24 @@ if (typeof globalThis.MeetLiveStatus === 'undefined') {
     }
   }
 
+  /** Defines actions for the next public pool-access transition. */
   class PoolTransitionAction {
     /** @type {PoolTransitionActionValue} */
     static OPENS = 'opens';
     /** @type {PoolTransitionActionValue} */
     static CLOSES = 'closes';
 
+    /**
+     * Checks whether a value is a supported pool transition action.
+     * @param {*} value - Value to validate
+     * @returns {boolean} Whether the value is a pool transition action
+     */
     static isValid(value) {
       return value === PoolTransitionAction.OPENS || value === PoolTransitionAction.CLOSES;
     }
   }
 
+  /** Defines temporal states for a published practice date range. */
   class PracticeRangeStatus {
     /** @type {PracticeRangeStatusValue} */
     static UPCOMING = 'upcoming';
@@ -41,6 +54,11 @@ if (typeof globalThis.MeetLiveStatus === 'undefined') {
     /** @type {PracticeRangeStatusValue} */
     static PAST = 'past';
 
+    /**
+     * Checks whether a value is a supported practice-range state.
+     * @param {*} value - Value to validate
+     * @returns {boolean} Whether the value is a practice-range state
+     */
     static isValid(value) {
       return value === PracticeRangeStatus.UPCOMING
         || value === PracticeRangeStatus.CURRENT

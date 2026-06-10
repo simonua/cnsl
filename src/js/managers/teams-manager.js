@@ -5,7 +5,9 @@
 // Prevent multiple declarations
 if (typeof globalThis.TeamsManager === 'undefined') {
 
+  /** Coordinates the published team collection and team-level queries. */
   class TeamsManager {
+  /** Creates an empty team collection manager. */
   constructor() {
     /** @type {Map<string, Team>} */
     this.teams = new Map();
@@ -99,6 +101,7 @@ if (typeof globalThis.TeamsManager === 'undefined') {
     return [...(this.practiceTeamsByPool.get(poolName) || [])];
   }
 
+  /** Rebuilds the practice-pool lookup from the current team collection. */
   rebuildPracticePoolIndex() {
     this.practiceTeamsByPool.clear();
     this.getAllTeams().forEach(team => {

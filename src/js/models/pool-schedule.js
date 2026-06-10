@@ -5,7 +5,14 @@
 // Prevent multiple declarations
 if (typeof globalThis.PoolSchedule === 'undefined') {
 
+  /**
+   * Provides status, restriction, and display helpers for a day-hours pool schedule.
+   */
   class PoolSchedule {
+  /**
+   * Creates a schedule wrapper for day-keyed pool hours.
+   * @param {Object} scheduleData - Day-keyed hours and restriction data
+   */
   constructor(scheduleData) {
     this.scheduleData = scheduleData || {};
   }

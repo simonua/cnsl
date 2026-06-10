@@ -6,8 +6,12 @@
 // Prevent multiple declarations
 if (typeof globalThis.Pool === 'undefined') {
 
+  /**
+   * Represents a pool and exposes directory, schedule, status, and event helpers.
+   */
   class Pool {
   /**
+   * Creates a pool from published annual data or the supported day-hours format.
    * @param {PoolRecord} poolData - Published pool record or a supported day-hours equivalent
    */
   constructor(poolData) {
@@ -108,8 +112,7 @@ if (typeof globalThis.Pool === 'undefined') {
   /**
    * Normalize the active published schedule period into the day-hours collaborator.
    * @private
-    * @param {PoolScheduleRecord[]} schedules - Schedule records with date ranges
-   * @returns {Object} - Normalized schedule format for current date
+    * @returns {Object|null} Period schedule collaborator, or null for day-hours schedules
    */
   _getPeriodSchedule() {
     if (!this.periodSchedule) return null;

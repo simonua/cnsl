@@ -14,12 +14,22 @@
     { source: 'js/services/data-manager.js', ready: () => Boolean(window.DataManager) }
   ];
 
+  /**
+   * Loads one settings dependency unless its global is already ready.
+   * @param {Object} dependency - Dependency source and readiness test
+   * @returns {Promise<void>} Promise settled after dependency initialization
+   * @private
+   */
   function loadScript(dependency) {
     if (dependency.ready()) return Promise.resolve();
 
     return new Promise((resolve, reject) => {
       const existing = Array.from(document.scripts).find(script => script.getAttribute('src') === dependency.source);
       const script = existing || document.createElement('script');
+      /**
+       * Resolves after verifying that the loaded dependency initialized.
+       * @private
+       */
       const handleLoad = () => {
         if (dependency.ready()) {
           resolve();
@@ -27,6 +37,10 @@
           reject(new Error(`Settings dependency did not initialize: ${dependency.source}`));
         }
       };
+      /**
+       * Rejects when the dependency script cannot be loaded.
+       * @private
+       */
       const handleError = () => reject(new Error(`Unable to load settings dependency: ${dependency.source}`));
 
       script.addEventListener('load', handleLoad, { once: true });
@@ -38,12 +52,26 @@
     });
   }
 
+  /**
+   * Loads all data dependencies in their required order.
+   * @returns {Promise<void>} Promise settled after all dependencies initialize
+   * @private
+   */
   async function ensureDataDependencies() {
     for (const dependency of dependencyScripts) {
       await loadScript(dependency);
     }
   }
 
+  /**
+   * Populates a favorite selector from normalized domain items.
+   * @param {HTMLSelectElement} select - Select element to populate
+   * @param {Array} items - Domain items used for options
+   * @param {string} emptyText - Label for the empty option
+   * @param {Function} getValue - Extracts an option value
+   * @param {Function} getLabel - Extracts an option label
+   * @private
+   */
   function populateSelect(select, items, emptyText, getValue, getLabel) {
     select.innerHTML = '';
     const noFavoriteOption = document.createElement('option');
@@ -60,6 +88,12 @@
     select.disabled = false;
   }
 
+  /**
+   * Applies saved preference values to the settings form.
+   * @param {HTMLFormElement} form - Settings form
+   * @param {Object} preferences - Saved preferences
+   * @private
+   */
   function applyFormValues(form, preferences) {
     const selectedTheme = form.querySelector(`input[name="theme"][value="${preferences.theme}"]`);
     if (selectedTheme) selectedTheme.checked = true;
@@ -82,6 +116,12 @@
     form.elements.locationAwarenessEnabled.checked = preferences.locationAwarenessEnabled;
   }
 
+  /**
+   * Publishes an analytics event for a changed fixed setting.
+   * @param {string} settingName - Approved setting name
+   * @param {*} settingValue - New fixed setting value
+   * @private
+   */
   function trackFixedSettingChange(settingName, settingValue) {
     if (!window.cnslAnalytics) return;
     window.cnslAnalytics.trackInteraction(AnalyticsInteractionType.FIXED_SETTING_CHANGE, {
@@ -90,6 +130,13 @@
     });
   }
 
+  /**
+   * Publishes an analytics event for a changed annual-data setting.
+   * @param {string} settingName - Approved setting name
+   * @param {string} selectedValue - Selected annual-data value
+   * @param {Set<string>} publishedValues - Allowed annual-data values
+   * @private
+   */
   function trackPublishedSettingChange(settingName, selectedValue, publishedValues) {
     if (!window.cnslAnalytics) return;
     window.cnslAnalytics.trackInteraction(AnalyticsInteractionType.PUBLISHED_SETTING_CHANGE, {
@@ -99,6 +146,15 @@
     });
   }
 
+  /**
+   * Tracks the setting represented by a changed form control.
+   * @param {Element} changedField - Changed form control
+   * @param {Object} existing - Preferences before the change
+   * @param {Object} saved - Preferences after the change
+   * @param {Set<string>} publishedPoolNames - Published pool names
+   * @param {Set<string>} publishedTeamIds - Published team identifiers
+   * @private
+   */
   function trackChangedFormSetting(changedField, existing, saved, publishedPoolNames, publishedTeamIds) {
     if (changedField.name === 'theme' && saved.theme !== existing.theme) {
       trackFixedSettingChange('theme', saved.theme);
@@ -125,6 +181,14 @@
     }
   }
 
+  /**
+   * Tracks settings changed by clearing all stored application data.
+   * @param {Object} existing - Preferences before clearing
+   * @param {Object} cleared - Default preferences after clearing
+   * @param {Set<string>} publishedPoolNames - Published pool names
+   * @param {Set<string>} publishedTeamIds - Published team identifiers
+   * @private
+   */
   function trackClearedSettings(existing, cleared, publishedPoolNames, publishedTeamIds) {
     if (existing.theme !== cleared.theme) trackFixedSettingChange('theme', cleared.theme);
     if (existing.textSize !== cleared.textSize) trackFixedSettingChange('text_size', cleared.textSize);
@@ -148,10 +212,18 @@
     if (existing.favoriteTeamId !== cleared.favoriteTeamId) trackPublishedSettingChange('favorite_team', cleared.favoriteTeamId, publishedTeamIds);
   }
 
+  /**
+   * Notifies browser controllers that saved preferences changed.
+   * @private
+   */
   function notifyPreferencesChanged() {
     window.dispatchEvent(new CustomEvent('cnsl:preferences-changed', { detail: { source: 'settings-dialog' } }));
   }
 
+  /**
+   * Renders the latest successful weather-check status in settings.
+   * @private
+   */
   function renderWeatherCheckStatus() {
     const weatherCheckStatus = document.getElementById('weatherCheckStatus');
     if (!weatherCheckStatus || typeof WeatherAlertService === 'undefined') return;
@@ -200,6 +272,11 @@
     applyFormValues(form, PreferencesService.get());
     renderWeatherCheckStatus();
 
+    /**
+     * Loads and populates favorite team and pool options once.
+     * @returns {Promise<void>} Promise settled after options load or fail
+     * @private
+     */
     async function loadFavoriteOptions() {
       if (optionsPromise) return optionsPromise;
 
@@ -225,6 +302,11 @@
       return optionsPromise;
     }
 
+    /**
+     * Opens the settings dialog and preserves the appropriate return-focus target.
+     * @param {Element} trigger - Element that requested the dialog
+     * @private
+     */
     function openSettingsDialog(trigger) {
       if (typeof window.closeMenu === 'function') window.closeMenu(false);
       restoreFocusTo = trigger && trigger.closest('#navMenu') ? document.querySelector('.hamburger') : trigger;
