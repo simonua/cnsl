@@ -3,28 +3,29 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const { AUTHOR_EMAIL, EXTERNAL_LINKS, HOME_PAGE_HOSTNAME, HOME_PAGE_URL, YEAR } = require('../../src/js/config/app-config.js');
-const FileHelper = require('../../src/js/services/file-helper.js');
+const fileHelperModule = require('../helpers/browser-module-loader.js').loadBrowserModule('file-helper', { exports: ['AppConfig', 'FileHelper'] });
+const { AUTHOR_EMAIL, EXTERNAL_LINKS, HOME_PAGE_HOSTNAME, HOME_PAGE_URL, YEAR } = fileHelperModule.AppConfig;
+const { FileHelper, context: browserContext, toHostValue } = fileHelperModule;
 
 describe('FileHelper', () => {
   describe('active season configuration', () => {
     it('exposes the immutable 2026 YEAR constant globally', () => {
-      const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'YEAR');
+      const descriptor = Object.getOwnPropertyDescriptor(browserContext, 'YEAR');
 
       assert.equal(YEAR, 2026);
-      assert.equal(globalThis.YEAR, YEAR);
+      assert.equal(browserContext.YEAR, YEAR);
       assert.equal(descriptor.writable, false);
       assert.equal(FileHelper.getSeasonYear(), YEAR);
     });
 
     it('exposes the immutable HTTPS home-page configuration globally', () => {
-      const hostnameDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'HOME_PAGE_HOSTNAME');
-      const urlDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'HOME_PAGE_URL');
+      const hostnameDescriptor = Object.getOwnPropertyDescriptor(browserContext, 'HOME_PAGE_HOSTNAME');
+      const urlDescriptor = Object.getOwnPropertyDescriptor(browserContext, 'HOME_PAGE_URL');
 
       assert.equal(HOME_PAGE_HOSTNAME, 'pools.longreachmarlins.org');
       assert.equal(HOME_PAGE_URL, 'https://pools.longreachmarlins.org');
-      assert.equal(globalThis.HOME_PAGE_HOSTNAME, HOME_PAGE_HOSTNAME);
-      assert.equal(globalThis.HOME_PAGE_URL, HOME_PAGE_URL);
+      assert.equal(browserContext.HOME_PAGE_HOSTNAME, HOME_PAGE_HOSTNAME);
+      assert.equal(browserContext.HOME_PAGE_URL, HOME_PAGE_URL);
       assert.equal(hostnameDescriptor.writable, false);
       assert.equal(urlDescriptor.writable, false);
     });
@@ -89,7 +90,7 @@ describe('FileHelper', () => {
       };
       try {
         assert.deepEqual(await FileHelper.loadJsonFile('assets/data/example.json'), { filePath: 'assets/data/example.json' });
-        assert.deepEqual(requestOptions, { cache: 'no-cache' });
+        assert.deepEqual(toHostValue(requestOptions), { cache: 'no-cache' });
       } finally {
         global.fetch = originalFetch;
       }
@@ -113,20 +114,15 @@ describe('FileHelper', () => {
     it('registers globally and rejects season paths when YEAR is not configured', () => {
       const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'file-helper.js');
       const source = fs.readFileSync(sourcePath, 'utf8');
-      const context = { window: {}, globalThis: {} };
+      const context = {};
+      context.globalThis = context;
+      context.self = context;
+      context.window = context;
       vm.runInNewContext(source, context, { filename: sourcePath });
 
       assert.equal(typeof context.window.FileHelper, 'function');
       assert.throws(() => context.window.FileHelper.getSeasonYear(), /YEAR configuration is not loaded/);
     });
 
-    it('loads application configuration when required directly without YEAR', () => {
-      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'file-helper.js');
-      const source = fs.readFileSync(sourcePath, 'utf8');
-      const context = { module: { exports: {} }, globalThis: {}, require: () => { context.globalThis.YEAR = 2026; } };
-      vm.runInNewContext(source, context, { filename: sourcePath });
-
-      assert.equal(context.module.exports.getSeasonYear(), 2026);
-    });
   });
 });

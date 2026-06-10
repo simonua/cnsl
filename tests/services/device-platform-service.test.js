@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const DevicePlatformService = require('../../src/js/services/device-platform-service.js');
+const { DevicePlatformService } = require('../helpers/browser-module-loader.js').loadBrowserModule('device-platform-service');
 
 describe('DevicePlatformService', () => {
   it('detects Android and iOS devices from browser capabilities', () => {
@@ -29,6 +29,8 @@ describe('DevicePlatformService', () => {
     const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'device-platform-service.js');
     const source = fs.readFileSync(sourcePath, 'utf8');
     const context = { window: {} };
+    Object.assign(context, context.globalThis || {}, context.window || {});
+    context.globalThis = context; context.self = context; context.window = context;
     vm.runInNewContext(source, context, { filename: sourcePath });
 
     assert.equal(context.window.DevicePlatformService.getPlatform(), 'other');

@@ -1,11 +1,7 @@
 /**
  * Evaluates National Weather Service data for outdoor pool safety notices.
  */
-if (typeof module !== 'undefined' && module.exports && typeof globalThis.WEATHER_API_BASE_URL === 'undefined') {
-  require('../config/app-config.js');
-}
-
-if (typeof window === 'undefined' || !window.WeatherAlertService) {
+if (typeof globalThis.WeatherAlertService === 'undefined') {
   class WeatherAlertService {
     static BASE_URL = globalThis.WEATHER_API_BASE_URL;
     static COLUMBIA_MD_POINT = globalThis.WEATHER_LOCATION_POINT;
@@ -369,11 +365,5 @@ if (typeof window === 'undefined' || !window.WeatherAlertService) {
     }
   }
 
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = WeatherAlertService;
-  }
-
-  if (typeof window !== 'undefined') {
-    window.WeatherAlertService = WeatherAlertService;
-  }
+  globalThis.WeatherAlertService = WeatherAlertService;
 }

@@ -3,7 +3,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
-const config = require('../../src/js/config/app-config.js');
+const { AppConfig: config } = require('../helpers/browser-module-loader.js').loadBrowserModule('app-config');
 
 const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'config', 'app-config.js');
 const source = fs.readFileSync(sourcePath, 'utf8');

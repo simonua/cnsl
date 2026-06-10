@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const { createLocalStorageMock } = require('../helpers/test-helpers.js');
-const WeatherAlertService = require('../../src/js/services/weather-alert-service.js');
+const { WeatherAlertService } = require('../helpers/browser-module-loader.js').loadBrowserModule('weather-alert-service');
 
 const now = new Date('2026-05-24T12:00:00-04:00');
 const poolData = {
@@ -469,7 +469,10 @@ describe('WeatherAlertService', () => {
     it('installs weather evaluation as a browser script global', () => {
       const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'weather-alert-service.js');
       const source = fs.readFileSync(sourcePath, 'utf8');
-      const context = { window: {}, globalThis: {} };
+      const context = {};
+      context.globalThis = context;
+      context.self = context;
+      context.window = context;
       vm.runInNewContext(source, context, { filename: sourcePath });
       assert.equal(typeof context.window.WeatherAlertService, 'function');
     });

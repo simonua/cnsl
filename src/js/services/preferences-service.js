@@ -1,11 +1,7 @@
 /**
  * Manages device-local application preferences and favorite matching.
  */
-if (typeof module !== 'undefined' && module.exports && typeof globalThis.PREFERENCES_STORAGE_KEY === 'undefined') {
-  require('../config/app-config.js');
-}
-
-if (typeof window === 'undefined' || !window.PreferencesService) {
+if (typeof globalThis.PreferencesService === 'undefined') {
   class PreferencesService {
     static STORAGE_KEY = globalThis.PREFERENCES_STORAGE_KEY;
 
@@ -403,11 +399,5 @@ if (typeof window === 'undefined' || !window.PreferencesService) {
     }
   }
 
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = PreferencesService;
-  }
-
-  if (typeof window !== 'undefined') {
-    window.PreferencesService = PreferencesService;
-  }
+  globalThis.PreferencesService = PreferencesService;
 }

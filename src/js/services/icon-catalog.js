@@ -1,7 +1,7 @@
 /**
  * Project-owned icon references for generated markup and intentional text glyphs.
  */
-if (typeof window === 'undefined' || !window.IconCatalog) {
+if (typeof globalThis.IconCatalog === 'undefined') {
   const ICON_NAMES = new Set([
     'book-open', 'calendar', 'clipboard-list', 'clock', 'facebook', 'globe',
     'home', 'info', 'mail', 'map', 'map-pin', 'message-circle', 'moon',
@@ -54,10 +54,5 @@ if (typeof window === 'undefined' || !window.IconCatalog) {
 
   const IconCatalog = Object.freeze({ getPoolStatusGlyph, getTextGlyph, render });
 
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = IconCatalog;
-  }
-  if (typeof window !== 'undefined') {
-    window.IconCatalog = IconCatalog;
-  }
+  globalThis.IconCatalog = IconCatalog;
 }

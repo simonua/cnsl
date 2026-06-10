@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const LessonProviderService = require('../../src/js/services/lesson-provider-service.js');
+const { LessonProviderService } = require('../helpers/browser-module-loader.js').loadBrowserModule('lesson-provider-service');
 
 const provider = {
   id: 'example-provider',
@@ -153,6 +153,8 @@ describe('LessonProviderService', () => {
     const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'lesson-provider-service.js');
     const source = fs.readFileSync(sourcePath, 'utf8');
     const context = { URL, window: {} };
+    Object.assign(context, context.globalThis || {}, context.window || {});
+    context.globalThis = context; context.self = context; context.window = context;
     vm.runInNewContext(source, context, { filename: sourcePath });
     const installedService = context.window.LessonProviderService;
     vm.runInNewContext(source, context, { filename: sourcePath });

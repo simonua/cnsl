@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const { APP_VERSION, DEPLOYMENT_VERSION_FILE, LOCAL_DEVELOPMENT_HOSTNAMES, LOCAL_DEVELOPMENT_PORT, PWA_CACHE_PREFIX } = require('../../src/js/config/app-config.js');
+const { APP_VERSION, DEPLOYMENT_VERSION_FILE, LOCAL_DEVELOPMENT_HOSTNAMES, LOCAL_DEVELOPMENT_PORT, PWA_CACHE_PREFIX } = require('../../scripts/adapters/app-config.js');
 
 const workerSourcePath = path.join(__dirname, '..', '..', 'service-worker.js');
 const workerSource = fs.readFileSync(workerSourcePath, 'utf8');

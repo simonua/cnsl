@@ -3,12 +3,8 @@
  * Enhanced with comprehensive error handling and validation
  */
 
-if (typeof module !== 'undefined' && module.exports && typeof globalThis.APP_TIMEZONE === 'undefined') {
-  require('../config/app-config.js');
-}
-
 // Prevent multiple declarations
-if (typeof window === 'undefined' || !window.TimeUtils) {
+if (typeof globalThis.TimeUtils === 'undefined') {
   class TimeUtils {
   // ------------------------------
   //    CONSTANTS
@@ -38,7 +34,7 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
    * @param {Object} data - Additional data to log
    */
   static _log(message, level = 'info', data = null) {
-    const TimeIcons = typeof module !== 'undefined' && module.exports ? require('./icon-catalog.js') : IconCatalog;
+    const TimeIcons = globalThis.IconCatalog;
     const prefix = level === 'error' ? TimeIcons.getTextGlyph('error') : level === 'warn' ? TimeIcons.getTextGlyph('warning') : TimeIcons.getTextGlyph('time');
 
     if (data) {
@@ -785,13 +781,5 @@ if (typeof window === 'undefined' || !window.TimeUtils) {
   }
 }
 
-// Register the class globally
-if (typeof window !== 'undefined') {
-  window.TimeUtils = TimeUtils;
-}
-
-// Export for Node.js compatibility
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = TimeUtils;
-}
+globalThis.TimeUtils = TimeUtils;
 }

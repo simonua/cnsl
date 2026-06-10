@@ -206,13 +206,10 @@
   }
 
   Object.entries(RUNTIME_CONFIG).forEach(([name, value]) => exposeConstant(name, value));
-
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = Object.freeze({
-      ...APP_CONFIG,
-      buildWeatherPublicAlertsUrl,
-      exposeConstant,
-      formatOfficialSourceTimestamp
-    });
-  }
+  exposeConstant('AppConfig', Object.freeze({
+    ...APP_CONFIG,
+    buildWeatherPublicAlertsUrl,
+    exposeConstant,
+    formatOfficialSourceTimestamp
+  }));
 })(globalThis);

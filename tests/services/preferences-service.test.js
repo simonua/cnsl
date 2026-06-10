@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const { createLocalStorageMock } = require('../helpers/test-helpers.js');
-const PreferencesService = require('../../src/js/services/preferences-service.js');
+const { PreferencesService } = require('../helpers/browser-module-loader.js').loadBrowserModule('preferences-service');
 
 describe('PreferencesService', () => {
   describe('get and save', () => {
@@ -340,6 +340,8 @@ describe('PreferencesService', () => {
       const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'preferences-service.js');
       const source = fs.readFileSync(sourcePath, 'utf8');
       const context = { window: {}, globalThis: { PREFERENCES_STORAGE_KEY: 'prefs', WEATHER_ALERT_REFRESH_MINUTES_OPTIONS: [0, 5], WEATHER_ALERT_DEFAULT_REFRESH_MINUTES: 5 } };
+      Object.assign(context, context.globalThis || {}, context.window || {});
+      context.globalThis = context; context.self = context; context.window = context;
       vm.runInNewContext(source, context, { filename: sourcePath });
       assert.equal(typeof context.window.PreferencesService, 'function');
     });

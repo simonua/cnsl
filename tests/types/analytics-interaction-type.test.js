@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const { AnalyticsInteractionType } = require('../../src/js/types/analytics-interaction-type.js');
+const { AnalyticsInteractionType } = require('../helpers/browser-module-loader.js').loadBrowserModule('analytics-interaction-type');
 
 describe('AnalyticsInteractionType', () => {
   it('defines the supported interaction categories as an immutable enum', () => {
@@ -23,7 +23,10 @@ describe('AnalyticsInteractionType', () => {
   it('installs the enum as a browser global', () => {
     const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'types', 'analytics-interaction-type.js');
     const source = fs.readFileSync(sourcePath, 'utf8');
-    const context = { window: {} };
+    const context = {};
+    context.globalThis = context;
+    context.self = context;
+    context.window = context;
     vm.runInNewContext(source, context, { filename: sourcePath });
     assert.equal(context.window.AnalyticsInteractionType.DIRECTORY_DETAIL_OPEN, 'directory_detail_open');
   });

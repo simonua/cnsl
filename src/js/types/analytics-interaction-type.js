@@ -12,9 +12,5 @@
     SHARE: 'share'
   });
 
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { AnalyticsInteractionType };
-  } else {
-    globalScope.AnalyticsInteractionType = AnalyticsInteractionType;
-  }
-}(typeof window !== 'undefined' ? window : globalThis));
+  globalScope.AnalyticsInteractionType = AnalyticsInteractionType;
+}(globalThis));

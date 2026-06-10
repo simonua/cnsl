@@ -1,7 +1,7 @@
 /**
  * Encodes maintained or externally supplied values before they enter generated markup.
  */
-if (typeof window === 'undefined' || !window.HtmlSafety) {
+if (typeof globalThis.HtmlSafety === 'undefined') {
   class HtmlSafety {
     static escapeHtml(value) {
       if (value === null || value === undefined) return '';
@@ -42,11 +42,5 @@ if (typeof window === 'undefined' || !window.HtmlSafety) {
     }
   }
 
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = HtmlSafety;
-  }
-
-  if (typeof window !== 'undefined') {
-    window.HtmlSafety = HtmlSafety;
-  }
+  globalThis.HtmlSafety = HtmlSafety;
 }

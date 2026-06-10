@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const { createLocalStorageMock } = require('../helpers/test-helpers.js');
-const AppStorageService = require('../../src/js/services/app-storage-service.js');
+const { AppStorageService } = require('../helpers/browser-module-loader.js').loadBrowserModule('app-storage-service');
 
 describe('AppStorageService', () => {
   describe('clearAppData', () => {
@@ -115,6 +115,8 @@ describe('AppStorageService', () => {
       const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'app-storage-service.js');
       const source = fs.readFileSync(sourcePath, 'utf8');
       const context = { window: {}, globalThis: { APP_LOCAL_STORAGE_KEYS: [], APP_SESSION_STORAGE_KEYS: [], PWA_CACHE_PREFIX: 'cnsl-' } };
+      Object.assign(context, context.globalThis || {}, context.window || {});
+      context.globalThis = context; context.self = context; context.window = context;
       vm.runInNewContext(source, context, { filename: sourcePath });
       assert.equal(typeof context.window.AppStorageService, 'function');
     });

@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const TimeUtils = require('../../src/js/services/time-utils.js');
+const { TimeUtils } = require('../helpers/browser-module-loader.js').loadBrowserModule('time-utils');
 const { suppressConsole } = require('../helpers/test-helpers.js');
 
 describe('TimeUtils', () => {
@@ -499,9 +499,11 @@ describe('TimeUtils', () => {
       const context = {
         console: { info: () => {} },
         IconCatalog: { getTextGlyph: () => '*' },
-        window: {},
-        globalThis: { APP_TIMEZONE: 'America/New_York' }
+        APP_TIMEZONE: 'America/New_York'
       };
+      context.globalThis = context;
+      context.self = context;
+      context.window = context;
       vm.runInNewContext(source, context, { filename: sourcePath });
       assert.equal(typeof context.window.TimeUtils, 'function');
       assert.doesNotThrow(() => context.window.TimeUtils._log('browser'));

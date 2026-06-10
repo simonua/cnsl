@@ -1,11 +1,7 @@
 /**
  * Removes browser-persisted state created by this application without clearing unrelated origin data.
  */
-if (typeof module !== 'undefined' && module.exports && typeof globalThis.APP_LOCAL_STORAGE_KEYS === 'undefined') {
-  require('../config/app-config.js');
-}
-
-if (typeof window === 'undefined' || !window.AppStorageService) {
+if (typeof globalThis.AppStorageService === 'undefined') {
   class AppStorageService {
     static async clearAppData(options = {}) {
       const localStorageImplementation = Object.prototype.hasOwnProperty.call(options, 'localStorage')
@@ -63,11 +59,5 @@ if (typeof window === 'undefined' || !window.AppStorageService) {
     }
   }
 
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = AppStorageService;
-  }
-
-  if (typeof window !== 'undefined') {
-    window.AppStorageService = AppStorageService;
-  }
+  globalThis.AppStorageService = AppStorageService;
 }

@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const { createLocalStorageMock } = require('../helpers/test-helpers.js');
-const ReleaseNoticeService = require('../../src/js/services/release-notice-service.js');
+const { ReleaseNoticeService } = require('../helpers/browser-module-loader.js').loadBrowserModule('release-notice-service');
 
 describe('ReleaseNoticeService', () => {
   describe('getStableVersionParts', () => {
@@ -90,6 +90,8 @@ describe('ReleaseNoticeService', () => {
       const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'release-notice-service.js');
       const source = fs.readFileSync(sourcePath, 'utf8');
       const context = { window: {} };
+      Object.assign(context, context.globalThis || {}, context.window || {});
+      context.globalThis = context; context.self = context; context.window = context;
       vm.runInNewContext(source, context, { filename: sourcePath });
       assert.equal(typeof context.window.ReleaseNoticeService, 'function');
     });

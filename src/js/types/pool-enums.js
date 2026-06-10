@@ -3,7 +3,7 @@
  */
 
 // Prevent multiple declarations
-if (typeof window === 'undefined' || !window.PoolStatus) {
+if (typeof globalThis.PoolStatus === 'undefined') {
   class PoolStatus {
     static OPEN = Object.freeze({ kind: 'open', isOpen: true, status: 'Open Now', color: 'green' });
     static CLOSED = Object.freeze({ kind: 'closed', isOpen: false, status: 'Closed', color: 'red' });
@@ -15,13 +15,5 @@ if (typeof window === 'undefined' || !window.PoolStatus) {
     static SCHEDULE_NOT_FOUND = Object.freeze({ kind: 'schedule-not-found', isOpen: false, status: 'Schedule TBD', color: 'gray' });
   }
 
-  // Export for Node.js compatibility
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { PoolStatus };
-  }
-
-  // Add to global window if available (browser compatibility)
-  if (typeof window !== 'undefined') {
-    window.PoolStatus = PoolStatus;
-  }
+  globalThis.PoolStatus = PoolStatus;
 }

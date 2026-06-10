@@ -1,7 +1,7 @@
 /**
  * Validates maintained lesson-provider records for safe directory rendering.
  */
-if (typeof window === 'undefined' || !window.LessonProviderService) {
+if (typeof globalThis.LessonProviderService === 'undefined') {
   class LessonProviderService {
     static normalizeLogo(logo) {
       if (!logo || typeof logo !== 'object'
@@ -150,6 +150,5 @@ if (typeof window === 'undefined' || !window.LessonProviderService) {
     }
   }
 
-  if (typeof module !== 'undefined' && module.exports) module.exports = LessonProviderService;
-  if (typeof window !== 'undefined') window.LessonProviderService = LessonProviderService;
+  globalThis.LessonProviderService = LessonProviderService;
 }

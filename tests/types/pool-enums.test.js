@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const { PoolStatus } = require('../../src/js/types/pool-enums.js');
+const { PoolStatus } = require('../helpers/browser-module-loader.js').loadBrowserModule('pool-enums');
 
 describe('PoolStatus', () => {
   it('defines OPEN status', () => {
@@ -72,7 +72,10 @@ describe('browser registration', () => {
   it('installs pool statuses as browser globals', () => {
     const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'types', 'pool-enums.js');
     const source = fs.readFileSync(sourcePath, 'utf8');
-    const context = { window: {} };
+    const context = {};
+    context.globalThis = context;
+    context.self = context;
+    context.window = context;
     vm.runInNewContext(source, context, { filename: sourcePath });
     assert.equal(context.window.PoolNames, undefined);
     assert.equal(typeof context.window.PoolStatus, 'function');

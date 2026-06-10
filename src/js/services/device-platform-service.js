@@ -3,7 +3,7 @@
  * Accepts browser capability values explicitly so detection remains testable.
  */
 
-if (typeof window === 'undefined' || !window.DevicePlatformService) {
+if (typeof globalThis.DevicePlatformService === 'undefined') {
   class DevicePlatformService {
     static getPlatform(navigatorLike = {}) {
       const userAgent = String(navigatorLike.userAgent || '');
@@ -24,10 +24,5 @@ if (typeof window === 'undefined' || !window.DevicePlatformService) {
     }
   }
 
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = DevicePlatformService;
-  }
-  if (typeof window !== 'undefined') {
-    window.DevicePlatformService = DevicePlatformService;
-  }
+  globalThis.DevicePlatformService = DevicePlatformService;
 }

@@ -1,7 +1,7 @@
 /**
  * Remembers whether the first-visit Settings reminder was dismissed on this device.
  */
-if (typeof window === 'undefined' || !window.SettingsNoticeService) {
+if (typeof globalThis.SettingsNoticeService === 'undefined') {
   class SettingsNoticeService {
     static shouldShow(storage, storageKey) {
       if (!storage || !storageKey) return true;
@@ -23,11 +23,5 @@ if (typeof window === 'undefined' || !window.SettingsNoticeService) {
     }
   }
 
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = SettingsNoticeService;
-  }
-
-  if (typeof window !== 'undefined') {
-    window.SettingsNoticeService = SettingsNoticeService;
-  }
+  globalThis.SettingsNoticeService = SettingsNoticeService;
 }

@@ -57,5 +57,4 @@ class SeasonService {
   }
 }
 
-if (typeof window !== 'undefined') window.SeasonService = SeasonService;
-if (typeof module !== 'undefined') module.exports = { SeasonService };
+globalThis.SeasonService = SeasonService;

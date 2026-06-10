@@ -1,7 +1,7 @@
 /**
  * Determines whether a stable release announcement needs to be shown on this device.
  */
-if (typeof window === 'undefined' || !window.ReleaseNoticeService) {
+if (typeof globalThis.ReleaseNoticeService === 'undefined') {
   class ReleaseNoticeService {
     static getStableVersionParts(version) {
       const match = typeof version === 'string'
@@ -57,11 +57,5 @@ if (typeof window === 'undefined' || !window.ReleaseNoticeService) {
     }
   }
 
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = ReleaseNoticeService;
-  }
-
-  if (typeof window !== 'undefined') {
-    window.ReleaseNoticeService = ReleaseNoticeService;
-  }
+  globalThis.ReleaseNoticeService = ReleaseNoticeService;
 }

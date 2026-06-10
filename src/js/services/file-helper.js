@@ -10,12 +10,8 @@
 //    FILE HELPER CLASS
 // ------------------------------
 
-if (typeof module !== 'undefined' && module.exports && typeof globalThis.YEAR === 'undefined') {
-  require('../config/app-config.js');
-}
-
 // Prevent multiple declarations
-if (typeof window === 'undefined' || !window.FileHelper) {
+if (typeof globalThis.FileHelper === 'undefined') {
   class FileHelper {
 
   // ------------------------------
@@ -239,13 +235,5 @@ if (typeof window === 'undefined' || !window.FileHelper) {
 
   }
 
-  // Make FileHelper available globally
-  if (typeof window !== 'undefined') {
-    window.FileHelper = FileHelper;
-  }
-
-  // Export for Node.js compatibility
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = FileHelper;
-  }
+  globalThis.FileHelper = FileHelper;
 }
