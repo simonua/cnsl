@@ -1,67 +1,32 @@
 # CNSL Engineering Refactoring Plan
 
-Review date: 2026-06-07
+Review date: 2026-06-10
 
 ## Scope And Validation
 
-This plan contains only actionable open work. Local refactoring decisions were evaluated with five cold and installed-navigation samples on Windows ARM64, Node.js 26.3.0, and Chromium. The performance runner now records environment context, first contentful paint, DOM readiness, long tasks, decoded and transferred bytes, request initiators, annual-data request counts, service-worker control, active-cache inventory, and first versus repeat navigation in a persistent context.
+This run-local audit reviewed the current staged and unstaged working tree for maintainability, accessibility, annual-data integrity, PWA and delivery behavior, test and CI coverage, security and privacy hygiene, performance, and documentation drift. The active JavaScript diff adds JSDoc contracts to existing manager and semantic-type boundaries without changing runtime logic. The completed release-checklist update was also reviewed against the current performance harness. No application, configuration, workflow, dependency, generated output, or annual source-data file was changed by this audit.
 
 Current verification:
 
 - `pnpm run lint` passed.
-- `pnpm test` passed all 483 tests.
-- `pnpm run build` passed and generated 10 HTML pages.
-- `pnpm run verify:pwa` passed with 63 install-critical resources and 22 cache-on-use resources.
-- `pnpm run measure:performance` completed five local samples per scenario. Installed first and repeat Pools, Teams, and Meets navigations were worker-controlled, transferred zero bytes, and requested each annual data domain once.
-- `pnpm run test:browser:nightly` passed 114 of 116 checks, including all automated WCAG checks. The two narrow-phone home-layout assertions also failed after restoring the original resource order, isolating them as an existing baseline mismatch rather than a regression from this work.
+- `pnpm test` passed all 573 tests in 202 suites.
+- `pnpm run validate:data` passed for 23 pools, 14 teams, 35 regular meets, 3 special meets, 26 retained official PDFs, and the lessons data.
+- `pnpm run build` passed and generated 12 HTML pages.
+- `pnpm run verify:pwa` passed for 3,007,672 delivered bytes. The cache inventory contains 97 resources / 2,937,316 bytes: 69 install-critical resources / 1,076,783 bytes and 28 cache-on-use resources / 1,860,533 bytes.
+- `pnpm run measure:performance` completed five cold and installed-navigation samples per route with zero warnings. Cold usable medians were 402 ms for Home, 722 ms for Pools, 643 ms for Teams, and 501 ms for Meets. Pools phases reached primary data at 479 ms, visible summary at 637 ms, and settled optional enrichment at 716 ms. Every directory requested each annual domain once. All installed first and repeat directory navigations were worker-controlled and transferred zero bytes; repeat medians were 402 ms for Pools, 306 ms for Teams, and 227 ms for Meets.
+- VS Code reported no diagnostics for the changed manager and semantic-type files.
+- The latest available `pnpm run test:browser:nightly` invocation exited successfully before this audit. It was not rerun because the current application diff changes documentation comments only and introduces no delivered behavior, rendering, interaction, or accessibility change.
 
-## Priority Matrix
+## Audit Result
 
-| Priority | Finding | Impact | Effort |
-| --- | --- | --- | --- |
-| RED - High | No actionable high-priority item | - | - |
-| ORANGE - Medium | No actionable medium-priority item | - | - |
-| GREEN - Low | Capture comparable delivered-HTTPS lifecycle and navigation evidence | Medium | Low |
+There are no active refactoring recommendations. Current evidence does not demonstrate an accessibility barrier, data-integrity or release risk, security exposure, runtime defect, maintainability issue, or repeatable performance regression that warrants implementation work. The PostHTML and classic-script architecture remains explicit, the new contracts preserve existing semantic ownership, annual-domain requests remain deduplicated, the PWA core remains below its advisory byte and resource budgets, and installed repeat navigation continues to transfer zero bytes.
 
-## High Priority
-
-No actionable high-priority item is supported by current evidence.
-
-## Medium Priority
-
-No actionable medium-priority item is supported by current evidence.
-
-## Low Priority
-
-### Capture Delivered-HTTPS Performance Evidence
-
-**Finding:** Local production-like measurement now covers cold uncontrolled loading, worker installation and control, active-cache inventory, and persistent first and repeat navigation. It cannot reproduce CDN, Cloudflare, TLS, production cache headers, or field-device conditions. Local cold timings also retain broad variance, so they do not support tighter blocking budgets or a more complex rendering architecture.
-
-**Scoped plan:**
-
-1. Run the same five-sample scenarios against the delivered HTTPS site when Cloudflare permits automated access.
-2. Label local and delivered results separately and record runtime, device, network, cache, and worker-control context.
-3. Compare medians and upper spread for useful content, paint, worker readiness, transferred bytes, annual-data request counts, and first versus repeat directory navigation.
-4. Open a new implementation item only when delivered evidence identifies a repeatable visitor-facing regression with a proportionate fix.
-
-**Acceptance checks:**
-
-- At least five delivered samples distinguish uncontrolled first load, worker installation or activation, controlled first navigation, and repeat navigation.
-- No directory requests an annual data domain more than once per navigation.
-- Offline pages and annual data remain build-version coherent.
-- Blocking budgets are changed only after stable local and delivered variance supports human review.
+Delivered-HTTPS, installed-PWA update, assistive-technology, analytics-reportability, and field-device checks remain manual release evidence. Performance budgets should remain advisory until comparable local and delivered samples demonstrate stable variance and a repeatable visitor-facing regression.
 
 ## Guardrails
 
-- Do not modify `src/assets/data/` during performance or refactoring work.
+- Do not modify `src/assets/data/` during performance or general refactoring work. Seasonal sources require the annual-data workflow and human review.
 - Never edit `out/`; it is generated by `pnpm run build`.
-- Preserve the PostHTML architecture, native DOM APIs, build-version coherence, analytics privacy boundary, and current offline commitments.
-- Do not add application prefetch while the installed worker already serves destination pages and annual data without network transfer.
-- Preserve annual-domain request deduplication. Do not add indexes, parsed-data persistence, cache layers, or staged hydration without measured visitor benefit.
-- Preserve keyboard focus, disclosure state, scroll position, live-region semantics, reduced-motion behavior, and WCAG 2.0 AA behavior.
-
-## Priority Summary
-
-- **RED - High:** No actionable item.
-- **ORANGE - Medium:** No actionable item.
-- **GREEN - Low:** Capture delivered-HTTPS lifecycle and navigation evidence before changing budgets or loading architecture.
+- Preserve the PostHTML architecture, native DOM APIs, classic browser-script boundary, build-version coherence, analytics privacy boundary, and current offline commitments unless measured evidence supports a separately reviewed decision.
+- Preserve annual-domain request deduplication. Do not add indexes, parsed-data persistence, cache layers, prefetch, staged hydration, bundling, or blocking performance thresholds without measured visitor benefit and human review.
+- Preserve keyboard focus, disclosure state, scroll position, live-region semantics, reduced-motion behavior, and WCAG 2.0 AA behavior in later implementation work.
