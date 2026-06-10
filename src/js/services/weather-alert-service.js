@@ -13,7 +13,6 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
     static EASTERN_TIMEZONE = globalThis.APP_TIMEZONE;
     static latestStatus = null;
     static ALERT_PATTERN = /\b(?:thunderstorms?|t-?storms?|lightning|tornado(?:es)?|flash flood|flood warning|hurricane|tropical storm|extreme wind|high wind warning|hail)\b/i;
-    static FORECAST_PATTERN = /\b(?:thunderstorms?|t-?storms?|lightning|tornado(?:es)?|hail)\b/i;
 
     /**
     * Determine whether current NWS alerts or today's forecast require a pool safety reminder.
@@ -41,7 +40,7 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
         const eventName = activeAlert.properties.event || 'hazardous weather';
         return {
           isInclement: true,
-          source: 'alert',
+          source: WeatherAlertSource.ALERT,
           message: `Active National Weather Service alert: ${eventName}. Check official pool status before leaving.`
         };
       }
@@ -50,19 +49,36 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
         if (!period) return false;
         const forecastText = `${period.shortForecast || ''} ${period.detailedForecast || ''}`;
         return WeatherAlertService.isRelevantToday(period.startTime, period.endTime || period.startTime, now)
-          && WeatherAlertService.FORECAST_PATTERN.test(forecastText);
+          && WeatherHazard.findAll(forecastText).length > 0;
       });
 
       if (unsafeForecast) {
         const forecastLabel = unsafeForecast.name ? `${unsafeForecast.name}'s forecast` : 'The near-term forecast';
+        const forecastText = `${unsafeForecast.shortForecast || ''} ${unsafeForecast.detailedForecast || ''}`;
+        const hazardLabel = WeatherAlertService.getForecastHazardLabel(forecastText);
         return {
+          hazardLabel,
           isInclement: true,
-          source: 'forecast',
-          message: `${forecastLabel} includes thunderstorms or lightning. Check official pool status before leaving.`
+          source: WeatherAlertSource.FORECAST,
+          message: `${forecastLabel} includes ${hazardLabel}. Check official pool status before leaving.`
         };
       }
 
       return { isInclement: false };
+    }
+
+    /**
+     * Describe the recognized hazards present in forecast text.
+     * @param {string} forecastText - Combined short and detailed forecast text
+     * @returns {string} Human-readable hazard list
+     * @private
+     */
+    static getForecastHazardLabel(forecastText) {
+      const hazards = WeatherHazard.findAll(forecastText);
+
+      if (hazards.length === 0) return '';
+      if (hazards.length === 1) return hazards[0];
+      return `${hazards.slice(0, -1).join(', ')} and ${hazards.at(-1)}`;
     }
 
     /**

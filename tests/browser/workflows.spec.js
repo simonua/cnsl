@@ -1,4 +1,5 @@
 const { analyticsTest, test, expect } = require('./browser-test');
+const AppConfig = require('../../scripts/adapters/app-config.js');
 const {
   MOBILE_VIEWPORT,
   initializeAnalyticsRecorder,
@@ -2419,6 +2420,35 @@ test('[WF-WEATHER-001] desktop weather safety alerts restore collapsed details o
   expect(expandedNwsActionBox.y).toBe(expandedToggleBox.y);
   expect(expandedNwsActionBox.height).toBe(expandedToggleBox.height);
   await expect.poll(() => page.evaluate(() => sessionStorage.getItem('cnsl_weather_alert_expanded'))).toBe('true');
+});
+
+test('[WF-WEATHER-006] forecast alerts emphasize only the recognized hazard label', async ({ page }) => {
+  await page.addInitScript(refreshMinutes => {
+    const status = {
+      hazardLabel: 'thunderstorms and hail',
+      isInclement: true,
+      message: "This Afternoon's forecast includes thunderstorms and hail. Check official pool status before leaving.",
+      source: 'forecast',
+      updatedAt: new Date().toISOString()
+    };
+    sessionStorage.setItem('cnsl_weather_alert_status', JSON.stringify({
+      expiresAt: Date.now() + 60_000,
+      refreshMinutes,
+      status
+    }));
+    sessionStorage.setItem('cnsl_weather_alert_expanded', 'false');
+  }, AppConfig.WEATHER_ALERT_DEFAULT_REFRESH_MINUTES);
+
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+
+  const message = page.locator('#weatherAlertMessage');
+  await expect(message).toHaveText("This Afternoon's forecast includes thunderstorms and hail. Check official pool status before leaving.");
+  await expect(message.locator('strong')).toHaveText('thunderstorms and hail');
+  await expect(message.locator('strong')).toHaveCount(1);
+  await expect(page.locator('#weatherAlertUpdated')).toHaveAttribute('datetime', /.+/);
+  await expect(page.getByRole('link', { name: 'NWS local alerts' })).toBeHidden();
+  await expect(page.getByRole('button', { name: 'Expand weather safety alert' })).toBeVisible();
+  await expect(page.locator('#weatherAlertDetails')).toBeHidden();
 });
 
 test('[WF-WEATHER-002] mobile weather safety alert keeps navigation visible and collapses with a stable arrow control', async ({ page }) => {

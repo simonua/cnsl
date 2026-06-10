@@ -58,17 +58,8 @@
    * @private
    */
   function setWeatherAlertExpanded(isExpanded, shouldSave = false) {
-    const banner = document.getElementById('weatherAlert');
-    const toggle = document.getElementById('weatherAlertToggle');
-    if (!banner || !toggle) return;
-
-    const actionLabel = `${isExpanded ? 'Collapse' : 'Expand'} weather safety alert`;
-    banner.classList.toggle('weather-alert--collapsed', !isExpanded);
-    toggle.hidden = false;
-    toggle.setAttribute('aria-expanded', String(isExpanded));
-    toggle.setAttribute('aria-label', actionLabel);
-    toggle.title = actionLabel;
-    if (shouldSave) saveExpandedState(isExpanded);
+    const didRender = WeatherAlertDisplay.setExpanded(isExpanded);
+    if (didRender && shouldSave) saveExpandedState(isExpanded);
   }
 
   /**
@@ -129,10 +120,7 @@
    */
   function renderWeatherAlert(status) {
     const banner = document.getElementById('weatherAlert');
-    const message = document.getElementById('weatherAlertMessage');
-    const updated = document.getElementById('weatherAlertUpdated');
-    const sourceLink = document.getElementById('weatherAlertSourceLink');
-    if (!banner || !message || !updated || !sourceLink) return;
+    if (!banner) return;
 
     notifyWeatherAlertStatus(status);
 
@@ -141,17 +129,7 @@
       return;
     }
 
-    const updatedAt = new Date(status.updatedAt);
-    message.textContent = status.message;
-    sourceLink.hidden = status.source !== 'alert';
-    updated.dateTime = status.updatedAt;
-    updated.textContent = new Intl.DateTimeFormat('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      timeZone: WeatherAlertService.EASTERN_TIMEZONE
-    }).format(updatedAt);
-    setWeatherAlertExpanded(readSavedExpandedState());
-    banner.hidden = false;
+    WeatherAlertDisplay.render(status, readSavedExpandedState(), WeatherAlertService.EASTERN_TIMEZONE);
   }
 
   /**

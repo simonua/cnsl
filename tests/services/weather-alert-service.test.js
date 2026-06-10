@@ -6,7 +6,7 @@ const vm = require('node:vm');
 const { createClassicScriptLoader } = require('../../scripts/lib/classic-script-loader.js');
 const { createLocalStorageMock } = require('../helpers/test-helpers.js');
 const weatherAlertModule = require('../helpers/browser-module-loader.js').loadBrowserModule('weather-alert-service');
-const { WeatherAlertService, context: weatherAlertContext } = weatherAlertModule;
+const { WeatherAlertService, WeatherAlertSource, context: weatherAlertContext } = weatherAlertModule;
 
 const now = new Date('2026-05-24T12:00:00-04:00');
 const poolData = {
@@ -41,8 +41,9 @@ describe('WeatherAlertService', () => {
       }], now);
 
       assert.equal(status.isInclement, true);
-      assert.equal(status.source, 'forecast');
-      assert.equal(status.message, "Tonight's forecast includes thunderstorms or lightning. Check official pool status before leaving.");
+      assert.equal(status.source, WeatherAlertSource.FORECAST);
+      assert.equal(status.hazardLabel, 'thunderstorms');
+      assert.equal(status.message, "Tonight's forecast includes thunderstorms. Check official pool status before leaving.");
     });
 
     it('should name the storm risk when it appears only in detailed forecast text', () => {
@@ -55,8 +56,28 @@ describe('WeatherAlertService', () => {
       }], now);
 
       assert.equal(status.isInclement, true);
-      assert.match(status.message, /thunderstorms or lightning/i);
+      assert.match(status.message, /includes thunderstorms/i);
       assert.doesNotMatch(status.message, /Patchy Fog/);
+    });
+
+    it('should name each recognized forecast hazard without echoing forecast prose', () => {
+      const cases = [
+        ['Lightning is possible near the pools.', 'lightning'],
+        ['A tornado may develop this afternoon.', 'tornadoes'],
+        ['Severe storms may produce hail.', 'hail'],
+        ['Thunderstorms may produce frequent lightning and hail.', 'thunderstorms, lightning and hail']
+      ];
+
+      cases.forEach(([detailedForecast, expectedHazards]) => {
+        const status = WeatherAlertService.evaluateStatus([], [{
+          name: 'This Afternoon',
+          startTime: now.toISOString(),
+          detailedForecast
+        }], now);
+
+        assert.equal(status.hazardLabel, expectedHazards);
+        assert.equal(status.message, `This Afternoon's forecast includes ${expectedHazards}. Check official pool status before leaving.`);
+      });
     });
 
     it('should prioritize an active dangerous weather alert', () => {
@@ -65,7 +86,7 @@ describe('WeatherAlertService', () => {
       }], [], now);
 
       assert.equal(status.isInclement, true);
-      assert.equal(status.source, 'alert');
+      assert.equal(status.source, WeatherAlertSource.ALERT);
       assert.match(status.message, /Severe Thunderstorm Warning/);
     });
 
@@ -91,7 +112,7 @@ describe('WeatherAlertService', () => {
       }], [], now);
 
       assert.equal(status.isInclement, true);
-      assert.equal(status.source, 'alert');
+      assert.equal(status.source, WeatherAlertSource.ALERT);
     });
 
     it('should ignore storm forecasts for tomorrow', () => {
@@ -120,6 +141,50 @@ describe('WeatherAlertService', () => {
         detailedForecast: 'Lightning is possible.'
       }], now);
       assert.equal(detailedOnly.isInclement, true);
+    });
+  });
+
+  describe('getForecastHazardLabel', () => {
+    it('should return an empty label when no recognized hazard is present', () => {
+      assert.equal(WeatherAlertService.getForecastHazardLabel('Light rain and patchy fog'), '');
+    });
+
+    it('should normalize every accepted forecast hazard token', () => {
+      const cases = [
+        ['thunderstorm', 'thunderstorms'],
+        ['thunderstorms', 'thunderstorms'],
+        ['tstorm', 'thunderstorms'],
+        ['tstorms', 'thunderstorms'],
+        ['t-storm', 'thunderstorms'],
+        ['t-storms', 'thunderstorms'],
+        ['LIGHTNING', 'lightning'],
+        ['tornado', 'tornadoes'],
+        ['tornadoes', 'tornadoes'],
+        ['Hail', 'hail']
+      ];
+
+      cases.forEach(([forecastText, expectedLabel]) => {
+        assert.equal(WeatherAlertService.getForecastHazardLabel(forecastText), expectedLabel);
+      });
+    });
+
+    it('should format every multi-hazard list condition in semantic order', () => {
+      const cases = [
+        ['Thunderstorms with lightning', 'thunderstorms and lightning'],
+        ['Hail and tornadoes with thunderstorms', 'thunderstorms, tornadoes and hail'],
+        ['Hail, tornado, lightning, and t-storms', 'thunderstorms, lightning, tornadoes and hail']
+      ];
+
+      cases.forEach(([forecastText, expectedLabel]) => {
+        assert.equal(WeatherAlertService.getForecastHazardLabel(forecastText), expectedLabel);
+      });
+    });
+
+    it('should include each hazard only once when forecast sections repeat it', () => {
+      assert.equal(
+        WeatherAlertService.getForecastHazardLabel('Thunderstorms likely. Detailed forecast: thunderstorms possible.'),
+        'thunderstorms'
+      );
     });
   });
 
@@ -158,7 +223,7 @@ describe('WeatherAlertService', () => {
       const status = await WeatherAlertService.getCurrentStatus({ fetchImplementation, now, poolData, storage: null });
 
       assert.equal(status.isInclement, true);
-      assert.equal(status.source, 'forecast');
+      assert.equal(status.source, WeatherAlertSource.FORECAST);
       assert.equal(status.updatedAt, now.toISOString());
       assert.equal(urls.length, 3);
     });
