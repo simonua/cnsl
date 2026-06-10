@@ -219,6 +219,11 @@ assert.match(analytics, /link\.dataset\.analyticsLinkPurpose/, 'External-link pu
 assert.match(analytics, /ALLOWED_EXTERNAL_LINK_PURPOSES\.has\(purpose\)/, 'External-link purpose measurement must allowlist explicit semantic metadata.');
 assert.doesNotMatch(analytics, /classList\.contains\('team-merchandise'\)/, 'External-link purpose measurement must not derive categories from styling classes.');
 assert.match(analytics, /purpose:\s*getExternalLinkPurpose\(clickedLink\)/, 'External-link measurement must pass only its bounded link purpose category to the interaction dispatcher.');
+assert.match(analytics, /const EXTERNAL_LINK_DESTINATIONS = Object\.freeze\(/, 'External-link destinations must use one fixed category map.');
+assert.match(analytics, /const ALLOWED_EXTERNAL_LINK_DESTINATIONS = new Set\(Object\.values\(EXTERNAL_LINK_DESTINATIONS\)\)/, 'External-link destination measurement must derive its allowlist from the fixed category map.');
+assert.match(analytics, /destination:\s*getExternalLinkDestination\(clickedLink\)/, 'External-link measurement must resolve a bounded destination category instead of publishing the URL.');
+assert.match(analytics, /ALLOWED_EXTERNAL_LINK_DESTINATIONS\.has\(destination\)/, 'External-link destination measurement must allowlist the resolved category before publication.');
+assert.match(analytics, /link_destination:\s*destination/, 'External-link measurement must publish only its validated destination category.');
 assert.match(analytics, /ALLOWED_SHARE_METHODS\.has\(method\)/, 'Share measurement must allowlist authored sharing methods.');
 assert.match(analytics, /publishEvent\('ca_setting_change'/, 'Settings measurement must be owned by the analytics module.');
 assert.match(analytics, /FAVORITE_SETTING_NAMES\.has\(settingName\)/, 'Favorite selection measurement must be limited to favorite setting categories.');
@@ -246,7 +251,7 @@ assert.match(analytics, /landingUrl\.searchParams\.delete\('utm_source'\)/, 'Rec
 assert.match(analytics, /isProductionSite\(\) \? consumePublishedCampaign\(\) : null/, 'Published campaign cleanup must occur only on the deployed application landing page.');
 assert.match(analytics, /window\.history\.replaceState\(/, 'Recognized campaign URLs must be cleaned without a navigation or referrer-producing redirect.');
 assert.doesNotMatch(analytics, /setting_value\s*:/, 'Settings measurement must not expose a general selected-value field.');
-assert.doesNotMatch(analytics, /link_(?:url|host|destination)\s*:/, 'External-link measurement must not send destination details.');
+assert.doesNotMatch(analytics, /link_(?:url|host)\s*:/, 'External-link measurement must not send raw URL or host details.');
 assert.doesNotMatch(analytics, /resource_(?:url|path|filename)\s*:/, 'Resource measurement must not send URLs, paths, or filenames.');
 assert.doesNotMatch(analytics, /(?:pool|team|meet)_(?:id|name)\s*:/, 'Analytics must not send selected pool, team, or meet identities.');
 assert.doesNotMatch(analytics, /(?:latitude|longitude|coordinates|user_agent|platform)\s*:/, 'Analytics must not send location or device-identifying values.');
