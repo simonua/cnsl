@@ -541,7 +541,7 @@ test('[WF-CONTACT-001] author contact options are collected on the Contact page'
   await expect(page.getByRole('link', { name: 'Message Simon on Facebook (opens in new tab)' })).toHaveAttribute('href', 'https://www.facebook.com/simonkurtz82');
 });
 
-test('[WF-ANALYTICS-001] analytics publishes a page view and public app version once per session after the Google tag script loads', async ({ page }) => {
+analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and public app version once per session after the Google tag script loads', async ({ page }) => {
   let releaseTagScript;
   let reportTagScriptRequest;
   let tagScriptRequestCount = 0;
@@ -634,7 +634,7 @@ test('[WF-ANALYTICS-001] analytics publishes a page view and public app version 
   await page.unrouteAll({ behavior: 'ignoreErrors' });
 });
 
-test('[WF-ANALYTICS-002] flyer QR campaign visits publish reviewed attribution and clear their landing tags', async ({ page }) => {
+analyticsTest('[WF-ANALYTICS-002] flyer QR campaign visits publish reviewed attribution and clear their landing tags', async ({ page }) => {
   await page.route('https://www.googletagmanager.com/**', route => route.fulfill({
     contentType: 'application/javascript',
     body: 'globalThis.cnslTagScriptLoaded = true;'
@@ -664,7 +664,7 @@ test('[WF-ANALYTICS-002] flyer QR campaign visits publish reviewed attribution a
   await page.unrouteAll({ behavior: 'ignoreErrors' });
 });
 
-test('[WF-ANALYTICS-003] unrecognized campaign input is neither consumed nor counted', async ({ page }) => {
+analyticsTest('[WF-ANALYTICS-003] unrecognized campaign input is neither consumed nor counted', async ({ page }) => {
   await page.route('https://www.googletagmanager.com/**', route => route.fulfill({
     contentType: 'application/javascript',
     body: 'globalThis.cnslTagScriptLoaded = true;'
@@ -687,7 +687,7 @@ test('[WF-ANALYTICS-003] unrecognized campaign input is neither consumed nor cou
   await page.unrouteAll({ behavior: 'ignoreErrors' });
 });
 
-test('[WF-ANALYTICS-006] app QR campaign visits publish reviewed attribution without counting as flyer visits', async ({ page }) => {
+analyticsTest('[WF-ANALYTICS-006] app QR campaign visits publish reviewed attribution without counting as flyer visits', async ({ page }) => {
   await page.route('https://www.googletagmanager.com/**', route => route.fulfill({
     contentType: 'application/javascript',
     body: 'globalThis.cnslTagScriptLoaded = true;'
@@ -741,9 +741,17 @@ test('[WF-ANALYTICS-004] directory detail opens publish only a broad directory n
 });
 
 test('[WF-ANALYTICS-005] browser verification blocks Google Analytics collection', async ({ page }) => {
-  await page.goto('/index.html');
+  await page.route('https://pools.longreachmarlins.org/**', async route => {
+    const requestedUrl = new URL(route.request().url());
+    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    await route.fulfill({ response });
+  });
+
+  await page.goto('https://pools.longreachmarlins.org/index.html', { waitUntil: 'domcontentloaded' });
   const measurementId = await page.evaluate(() => globalThis.GA4_MEASUREMENT_ID);
   await expect(page.evaluate(id => globalThis[`ga-disable-${id}`], measurementId)).resolves.toBe(true);
+  await expect(page.locator('#cnslAnalyticsScript')).toHaveCount(0);
+  await expect(page.evaluate(() => globalThis.dataLayer)).resolves.toBeUndefined();
   await expect(page.goto('https://www.google-analytics.com/g/collect?v=2')).rejects.toThrow(/ERR_BLOCKED_BY_CLIENT/);
 });
 
