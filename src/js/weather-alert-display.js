@@ -21,7 +21,7 @@ if (typeof globalThis.WeatherAlertDisplay === 'undefined') {
 
       WeatherAlertDisplay.renderMessage(message, status);
       sourceLink.hidden = status.source !== WeatherAlertSource.ALERT;
-  const updatedAt = new Date(status.updatedAt);
+        const updatedAt = new Date(status.updatedAt);
       updated.dateTime = status.updatedAt;
       updated.textContent = new Intl.DateTimeFormat('en-US', {
         hour: 'numeric',
@@ -59,22 +59,80 @@ if (typeof globalThis.WeatherAlertDisplay === 'undefined') {
      * @returns {void}
      */
     static renderMessage(message, status) {
+      const guidance = document.createElement('span');
+      guidance.className = 'weather-alert__guidance';
+      guidance.textContent = status.guidance || '';
+      const guidanceContent = status.guidance ? [' ', guidance] : [];
+
+      if (status.source === WeatherAlertSource.ALERT && typeof status.alertLabel === 'string') {
+        const alertIndex = status.message.indexOf(status.alertLabel);
+        if (alertIndex !== -1) {
+          const alertType = WeatherAlertDisplay.createWeatherType(status.alertLabel, 'warning');
+          message.replaceChildren(
+            status.message.slice(0, alertIndex),
+            alertType,
+            status.message.slice(alertIndex + status.alertLabel.length),
+            ...guidanceContent
+          );
+          return;
+        }
+      }
+
       const hazardLabel = status.source === WeatherAlertSource.FORECAST && typeof status.hazardLabel === 'string'
         ? status.hazardLabel
         : '';
+      const hazards = Array.isArray(status.hazards) ? status.hazards.filter(WeatherHazard.isValid) : [];
       const hazardIndex = hazardLabel ? status.message.indexOf(hazardLabel) : -1;
-      if (hazardIndex === -1) {
-        message.textContent = status.message;
+      if (hazardIndex === -1 || hazards.length === 0) {
+        message.replaceChildren(status.message, ...guidanceContent);
         return;
       }
 
-      const hazard = document.createElement('strong');
-      hazard.textContent = hazardLabel;
+      const hazardList = document.createElement('span');
+      hazards.forEach((hazard, index) => {
+        if (index > 0) hazardList.append(index === hazards.length - 1 ? ' and ' : ', ');
+        hazardList.append(WeatherAlertDisplay.createWeatherType(hazard, WeatherAlertDisplay.getHazardGlyphName(hazard)));
+      });
       message.replaceChildren(
         status.message.slice(0, hazardIndex),
-        hazard,
-        status.message.slice(hazardIndex + hazardLabel.length)
+        hazardList,
+        status.message.slice(hazardIndex + hazardLabel.length),
+        ...guidanceContent
       );
+    }
+
+    /**
+     * Creates a bold weather type with a decorative icon.
+     * @param {string} label - Controlled weather type label
+     * @param {string} glyphName - Project-owned glyph name
+     * @returns {HTMLElement} Weather type element
+     * @private
+     */
+    static createWeatherType(label, glyphName) {
+      const weatherType = document.createElement('strong');
+      weatherType.className = 'weather-alert__type';
+      const icon = document.createElement('span');
+      icon.className = 'weather-alert__type-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      icon.textContent = IconCatalog.getTextGlyph(glyphName);
+      weatherType.append(icon, label);
+      return weatherType;
+    }
+
+    /**
+     * Gets the project-owned glyph name for a forecast hazard.
+     * @param {WeatherHazardValue} hazard - Semantic forecast hazard
+     * @returns {string} Icon catalog glyph name
+     * @private
+     */
+    static getHazardGlyphName(hazard) {
+      const glyphNames = {
+        [WeatherHazard.HAIL]: 'weatherHail',
+        [WeatherHazard.LIGHTNING]: 'weatherLightning',
+        [WeatherHazard.THUNDERSTORMS]: 'weatherStorm',
+        [WeatherHazard.TORNADOES]: 'weatherTornado'
+      };
+      return glyphNames[hazard] || 'warning';
     }
   }
 

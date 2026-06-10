@@ -590,6 +590,23 @@ button.home-banner__close:focus {
   margin: 0;
 }
 
+.weather-alert__guidance {
+  display: block;
+}
+
+.weather-alert__type {
+  align-items: baseline;
+  display: inline-flex;
+  gap: 0.25rem;
+}
+
+.weather-alert__type-icon {
+  align-self: center;
+  display: inline-block;
+  font-size: 1.05em;
+  line-height: 1;
+}
+
 .weather-alert__details {
   align-items: center;
   display: grid;

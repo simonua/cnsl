@@ -43,7 +43,9 @@ describe('WeatherAlertService', () => {
       assert.equal(status.isInclement, true);
       assert.equal(status.source, WeatherAlertSource.FORECAST);
       assert.equal(status.hazardLabel, 'thunderstorms');
-      assert.equal(status.message, "Tonight's forecast includes thunderstorms. Check official pool status before leaving.");
+      assert.deepEqual(status.hazards, ['thunderstorms']);
+      assert.equal(status.message, "Tonight's forecast includes thunderstorms.");
+      assert.equal(status.guidance, WeatherAlertService.OFFICIAL_STATUS_GUIDANCE);
     });
 
     it('should name the storm risk when it appears only in detailed forecast text', () => {
@@ -62,21 +64,23 @@ describe('WeatherAlertService', () => {
 
     it('should name each recognized forecast hazard without echoing forecast prose', () => {
       const cases = [
-        ['Lightning is possible near the pools.', 'lightning'],
-        ['A tornado may develop this afternoon.', 'tornadoes'],
-        ['Severe storms may produce hail.', 'hail'],
-        ['Thunderstorms may produce frequent lightning and hail.', 'thunderstorms, lightning and hail']
+        ['Lightning is possible near the pools.', 'lightning', ['lightning']],
+        ['A tornado may develop this afternoon.', 'tornadoes', ['tornadoes']],
+        ['Severe storms may produce hail.', 'hail', ['hail']],
+        ['Thunderstorms may produce frequent lightning and hail.', 'thunderstorms, lightning and hail', ['thunderstorms', 'lightning', 'hail']]
       ];
 
-      cases.forEach(([detailedForecast, expectedHazards]) => {
+      cases.forEach(([detailedForecast, expectedHazardLabel, expectedHazards]) => {
         const status = WeatherAlertService.evaluateStatus([], [{
           name: 'This Afternoon',
           startTime: now.toISOString(),
           detailedForecast
         }], now);
 
-        assert.equal(status.hazardLabel, expectedHazards);
-        assert.equal(status.message, `This Afternoon's forecast includes ${expectedHazards}. Check official pool status before leaving.`);
+        assert.equal(status.hazardLabel, expectedHazardLabel);
+        assert.deepEqual(status.hazards, expectedHazards);
+        assert.equal(status.message, `This Afternoon's forecast includes ${expectedHazardLabel}.`);
+        assert.equal(status.guidance, WeatherAlertService.OFFICIAL_STATUS_GUIDANCE);
       });
     });
 
@@ -87,6 +91,8 @@ describe('WeatherAlertService', () => {
 
       assert.equal(status.isInclement, true);
       assert.equal(status.source, WeatherAlertSource.ALERT);
+      assert.equal(status.alertLabel, 'Severe Thunderstorm Warning');
+      assert.equal(status.guidance, WeatherAlertService.OFFICIAL_STATUS_GUIDANCE);
       assert.match(status.message, /Severe Thunderstorm Warning/);
     });
 

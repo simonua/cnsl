@@ -2393,6 +2393,9 @@ test('[WF-WEATHER-001] desktop weather safety alerts restore collapsed details o
     await expect(page.getByRole('button', { name: 'Expand weather safety alert' })).toBeVisible();
   }
 
+  await expect(page.locator('#weatherAlertMessage .weather-alert__type-icon')).toHaveText('⚠️');
+  await expect(page.locator('#weatherAlertMessage .weather-alert__guidance')).toHaveText('Check official pool status before leaving.');
+  await expect(page.locator('#weatherAlertMessage .weather-alert__guidance')).toHaveCSS('display', 'block');
   const collapsedAlertBox = await page.locator('#weatherAlert').boundingBox();
   const collapsedTitleBox = await page.locator('.weather-alert__title').boundingBox();
   const collapsedToggleBox = await page.getByRole('button', { name: 'Expand weather safety alert' }).boundingBox();
@@ -2425,9 +2428,11 @@ test('[WF-WEATHER-001] desktop weather safety alerts restore collapsed details o
 test('[WF-WEATHER-006] forecast alerts emphasize only the recognized hazard label', async ({ page }) => {
   await page.addInitScript(refreshMinutes => {
     const status = {
+      guidance: 'Check official pool status before leaving.',
       hazardLabel: 'thunderstorms and hail',
+      hazards: ['thunderstorms', 'hail'],
       isInclement: true,
-      message: "This Afternoon's forecast includes thunderstorms and hail. Check official pool status before leaving.",
+      message: "This Afternoon's forecast includes thunderstorms and hail.",
       source: 'forecast',
       updatedAt: new Date().toISOString()
     };
@@ -2442,9 +2447,13 @@ test('[WF-WEATHER-006] forecast alerts emphasize only the recognized hazard labe
   await page.goto('/', { waitUntil: 'domcontentloaded' });
 
   const message = page.locator('#weatherAlertMessage');
-  await expect(message).toHaveText("This Afternoon's forecast includes thunderstorms and hail. Check official pool status before leaving.");
-  await expect(message.locator('strong')).toHaveText('thunderstorms and hail');
-  await expect(message.locator('strong')).toHaveCount(1);
+  await expect(message).toHaveText("This Afternoon's forecast includes ⛈️thunderstorms and 🧊hail. Check official pool status before leaving.");
+  await expect(message.locator('strong')).toHaveText(['⛈️thunderstorms', '🧊hail']);
+  await expect(message.locator('strong')).toHaveCount(2);
+  await expect(message.locator('.weather-alert__type-icon')).toHaveCount(2);
+  await expect(message.locator('.weather-alert__type-icon').nth(0)).toHaveAttribute('aria-hidden', 'true');
+  await expect(message.locator('.weather-alert__guidance')).toHaveText('Check official pool status before leaving.');
+  await expect(message.locator('.weather-alert__guidance')).toHaveCSS('display', 'block');
   await expect(page.locator('#weatherAlertUpdated')).toHaveAttribute('datetime', /.+/);
   await expect(page.getByRole('link', { name: 'NWS local alerts' })).toBeHidden();
   await expect(page.getByRole('button', { name: 'Expand weather safety alert' })).toBeVisible();

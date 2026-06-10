@@ -29,6 +29,13 @@ describe('IconCatalog', () => {
     assert.equal(IconCatalog.getPoolStatusGlyph('unknown'), '⚫');
   });
 
+  it('provides a distinct presentation glyph for every weather hazard', () => {
+    assert.equal(IconCatalog.getTextGlyph('weatherStorm'), '⛈️');
+    assert.equal(IconCatalog.getTextGlyph('weatherLightning'), '⚡');
+    assert.equal(IconCatalog.getTextGlyph('weatherTornado'), '🌪️');
+    assert.equal(IconCatalog.getTextGlyph('weatherHail'), '🧊');
+  });
+
   it('installs the catalog as a browser script global', () => {
     const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'icon-catalog.js');
     const source = fs.readFileSync(sourcePath, 'utf8');

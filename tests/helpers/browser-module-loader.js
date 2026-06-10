@@ -43,7 +43,7 @@ const BROWSER_MODULE_MANIFESTS = Object.freeze({
   'team-schedule-service': { scripts: [CONFIG, ICONS, TIME, SCHEDULE_STATE, 'services/team-schedule-service.js'], exports: ['TeamScheduleService', 'TimeUtils'] },
   'teams-manager': { scripts: ['models/team.js', 'managers/teams-manager.js'], exports: ['Team', 'TeamsManager'] },
   'time-utils': { scripts: [CONFIG, ICONS, TIME], exports: ['TimeUtils'] },
-  'weather-alert-display': { scripts: [WEATHER_SOURCE, 'weather-alert-display.js'], exports: ['WeatherAlertDisplay', 'WeatherAlertSource'], realmExports: ['WeatherAlertDisplay', 'WeatherAlertSource'] },
+  'weather-alert-display': { scripts: [WEATHER_HAZARD, WEATHER_SOURCE, ICONS, 'weather-alert-display.js'], exports: ['WeatherAlertDisplay', 'WeatherAlertSource'], realmExports: ['WeatherAlertDisplay', 'WeatherAlertSource'] },
   'weather-alert-service': { scripts: [CONFIG, WEATHER_HAZARD, WEATHER_SOURCE, 'services/weather-alert-service.js'], exports: ['WeatherAlertService', 'WeatherAlertSource', 'WeatherHazard'], realmExports: ['WeatherAlertSource', 'WeatherHazard'] },
   'weather-alert-source': { scripts: [WEATHER_SOURCE], exports: ['WeatherAlertSource'], realmExports: ['WeatherAlertSource'] },
   'weather-hazard': { scripts: [WEATHER_HAZARD], exports: ['WeatherHazard'], realmExports: ['WeatherHazard'] }

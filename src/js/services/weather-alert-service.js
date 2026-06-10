@@ -4,6 +4,7 @@
 if (typeof globalThis.WeatherAlertService === 'undefined') {
   /** Evaluates, fetches, and caches weather safety status for pool operating hours. */
   class WeatherAlertService {
+    static OFFICIAL_STATUS_GUIDANCE = 'Check official pool status before leaving.';
     static BASE_URL = globalThis.WEATHER_API_BASE_URL;
     static COLUMBIA_MD_POINT = globalThis.WEATHER_LOCATION_POINT;
     static CACHE_KEY = globalThis.WEATHER_ALERT_STATUS_STORAGE_KEY;
@@ -39,9 +40,11 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
       if (activeAlert) {
         const eventName = activeAlert.properties.event || 'hazardous weather';
         return {
+          alertLabel: eventName,
+          guidance: WeatherAlertService.OFFICIAL_STATUS_GUIDANCE,
           isInclement: true,
           source: WeatherAlertSource.ALERT,
-          message: `Active National Weather Service alert: ${eventName}. Check official pool status before leaving.`
+          message: `Active National Weather Service alert: ${eventName}.`
         };
       }
 
@@ -57,10 +60,12 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
         const forecastText = `${unsafeForecast.shortForecast || ''} ${unsafeForecast.detailedForecast || ''}`;
         const hazardLabel = WeatherAlertService.getForecastHazardLabel(forecastText);
         return {
+          guidance: WeatherAlertService.OFFICIAL_STATUS_GUIDANCE,
           hazardLabel,
+          hazards: WeatherHazard.findAll(forecastText),
           isInclement: true,
           source: WeatherAlertSource.FORECAST,
-          message: `${forecastLabel} includes ${hazardLabel}. Check official pool status before leaving.`
+          message: `${forecastLabel} includes ${hazardLabel}.`
         };
       }
 
