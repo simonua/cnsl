@@ -231,12 +231,12 @@ assert.match(analytics, /window\.gtag\('event', 'ca_flyer_visit'\)/, 'Flyer visi
 assert.match(analytics, /source:\s*'flyer'/, 'Flyer attribution must use the reviewed fixed campaign source.');
 assert.match(analytics, /medium:\s*'qr'/, 'Flyer attribution must use the reviewed fixed campaign medium.');
 assert.match(analytics, /name:\s*'2026_pool_season'/, 'Flyer attribution must use the reviewed fixed campaign name.');
-assert.match(analytics, /campaign_source:\s*flyerCampaign\.source/, 'Reviewed flyer attribution must be mapped to standard GA campaign source measurement.');
-assert.match(analytics, /campaign_medium:\s*flyerCampaign\.medium/, 'Reviewed flyer attribution must be mapped to standard GA campaign medium measurement.');
-assert.match(analytics, /campaign_name:\s*flyerCampaign\.name/, 'Reviewed flyer attribution must be mapped to standard GA campaign name measurement.');
-assert.match(analytics, /landingUrl\.searchParams\.delete\('utm_source'\)/, 'Recognized flyer URLs must remove their campaign marker before page measurement.');
-assert.match(analytics, /isProductionSite\(\) \? consumeFlyerCampaign\(\) : null/, 'Flyer campaign cleanup must occur only on the deployed application landing page.');
-assert.match(analytics, /window\.history\.replaceState\(/, 'Recognized flyer URLs must be cleaned without a navigation or referrer-producing redirect.');
+assert.match(analytics, /campaign_source:\s*publishedCampaign\.source/, 'Reviewed campaign attribution must be mapped to standard GA campaign source measurement.');
+assert.match(analytics, /campaign_medium:\s*publishedCampaign\.medium/, 'Reviewed campaign attribution must be mapped to standard GA campaign medium measurement.');
+assert.match(analytics, /campaign_name:\s*publishedCampaign\.name/, 'Reviewed campaign attribution must be mapped to standard GA campaign name measurement.');
+assert.match(analytics, /landingUrl\.searchParams\.delete\('utm_source'\)/, 'Recognized campaign URLs must remove their campaign marker before page measurement.');
+assert.match(analytics, /isProductionSite\(\) \? consumePublishedCampaign\(\) : null/, 'Published campaign cleanup must occur only on the deployed application landing page.');
+assert.match(analytics, /window\.history\.replaceState\(/, 'Recognized campaign URLs must be cleaned without a navigation or referrer-producing redirect.');
 assert.doesNotMatch(analytics, /setting_value\s*:/, 'Settings measurement must not send selected preference values.');
 assert.doesNotMatch(analytics, /link_(?:url|host|destination)\s*:/, 'External-link measurement must not send destination details.');
 assert.doesNotMatch(analytics, /resource_(?:url|path|filename)\s*:/, 'Resource measurement must not send URLs, paths, or filenames.');
