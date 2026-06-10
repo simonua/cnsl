@@ -6,11 +6,10 @@
 
   // Configuration and allowlists
 
-  const FLYER_CAMPAIGN = Object.freeze({
-    medium: 'qr',
-    name: '2026_pool_season',
-    source: 'flyer'
-  });
+  const PUBLISHED_CAMPAIGNS = Object.freeze([
+    Object.freeze({ medium: 'qr', name: '2026_pool_season', source: 'app' }),
+    Object.freeze({ medium: 'qr', name: '2026_pool_season', source: 'flyer' })
+  ]);
 
   const BANNER_NAMES = Object.freeze({
     RELEASE_NOTICE: 'release_notice',
@@ -80,27 +79,31 @@
     return analyticsPageTitle ? analyticsPageTitle.content : document.title;
   }
 
-  function consumeFlyerCampaign() {
+  function consumePublishedCampaign() {
     const landingUrl = new URL(window.location.href);
-    if (landingUrl.pathname !== '/'
-      || landingUrl.searchParams.get('utm_source') !== FLYER_CAMPAIGN.source
-      || landingUrl.searchParams.get('utm_medium') !== FLYER_CAMPAIGN.medium
-      || landingUrl.searchParams.get('utm_campaign') !== FLYER_CAMPAIGN.name) return null;
+    if (landingUrl.pathname !== '/') return null;
+
+    const campaign = PUBLISHED_CAMPAIGNS.find(publishedCampaign => (
+      landingUrl.searchParams.get('utm_source') === publishedCampaign.source
+      && landingUrl.searchParams.get('utm_medium') === publishedCampaign.medium
+      && landingUrl.searchParams.get('utm_campaign') === publishedCampaign.name
+    ));
+    if (!campaign) return null;
 
     landingUrl.searchParams.delete('utm_source');
     landingUrl.searchParams.delete('utm_medium');
     landingUrl.searchParams.delete('utm_campaign');
     window.history.replaceState(window.history.state, '', `${landingUrl.pathname}${landingUrl.search}${landingUrl.hash}`);
-    return FLYER_CAMPAIGN;
+    return campaign;
   }
 
-  function getMeasuredCampaignParameters(flyerCampaign) {
-    if (!flyerCampaign) return {};
+  function getMeasuredCampaignParameters(publishedCampaign) {
+    if (!publishedCampaign) return {};
 
     return {
-      campaign_source: flyerCampaign.source,
-      campaign_medium: flyerCampaign.medium,
-      campaign_name: flyerCampaign.name
+      campaign_source: publishedCampaign.source,
+      campaign_medium: publishedCampaign.medium,
+      campaign_name: publishedCampaign.name
     };
   }
 
@@ -248,7 +251,7 @@
 
   // Initialization
 
-  const flyerCampaign = isProductionSite() ? consumeFlyerCampaign() : null;
+  const publishedCampaign = isProductionSite() ? consumePublishedCampaign() : null;
 
   // Public API
 
@@ -318,14 +321,14 @@
       allow_ad_personalization_signals: false,
       ignore_referrer: true,
       send_page_view: false,
-      ...getMeasuredCampaignParameters(flyerCampaign)
+      ...getMeasuredCampaignParameters(publishedCampaign)
     });
     window.gtag('event', 'page_view', {
       page_title: getMeasuredPageTitle(),
       app_version: window.APP_VERSION,
       ...getMeasuredPageParameters()
     });
-    if (flyerCampaign) {
+    if (publishedCampaign?.source === 'flyer') {
       window.gtag('event', 'ca_flyer_visit');
     }
   }, { once: true });

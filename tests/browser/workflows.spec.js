@@ -654,6 +654,31 @@ test('[WF-ANALYTICS-003] unrecognized campaign input is neither consumed nor cou
   await page.unrouteAll({ behavior: 'ignoreErrors' });
 });
 
+test('[WF-ANALYTICS-006] app QR campaign visits publish reviewed attribution without counting as flyer visits', async ({ page }) => {
+  await page.route('https://www.googletagmanager.com/**', route => route.fulfill({
+    contentType: 'application/javascript',
+    body: 'globalThis.cnslTagScriptLoaded = true;'
+  }));
+  await page.route('https://pools.longreachmarlins.org/**', async route => {
+    const requestedUrl = new URL(route.request().url());
+    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    await route.fulfill({ response });
+  });
+
+  await page.goto('https://pools.longreachmarlins.org/?utm_source=app&utm_medium=qr&utm_campaign=2026_pool_season', { waitUntil: 'domcontentloaded' });
+  await expect(page).toHaveURL('https://pools.longreachmarlins.org/');
+
+  const measurementCommands = await page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList)));
+  expect(JSON.stringify(measurementCommands)).not.toContain('utm_source=app');
+  expect(measurementCommands.find(argumentsList => argumentsList[0] === 'config')[2]).toMatchObject({
+    campaign_source: 'app',
+    campaign_medium: 'qr',
+    campaign_name: '2026_pool_season'
+  });
+  expect(measurementCommands.filter(argumentsList => argumentsList[1] === 'ca_flyer_visit')).toEqual([]);
+  await page.unrouteAll({ behavior: 'ignoreErrors' });
+});
+
 test('[WF-ANALYTICS-004] directory detail opens publish only a broad directory name', async ({ page }) => {
   await initializeAnalyticsRecorder(page);
 
