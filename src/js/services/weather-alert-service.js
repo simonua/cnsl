@@ -4,7 +4,7 @@
 if (typeof globalThis.WeatherAlertService === 'undefined') {
   /** Evaluates, fetches, and caches weather safety status for pool operating hours. */
   class WeatherAlertService {
-    static OFFICIAL_STATUS_GUIDANCE = 'Check official pool status before leaving.';
+    static OFFICIAL_STATUS_GUIDANCE = 'Check live pool status before leaving.';
     static BASE_URL = globalThis.WEATHER_API_BASE_URL;
     static COLUMBIA_MD_POINT = globalThis.WEATHER_LOCATION_POINT;
     static CACHE_KEY = globalThis.WEATHER_ALERT_STATUS_STORAGE_KEY;

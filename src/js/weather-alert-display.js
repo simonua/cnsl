@@ -59,7 +59,9 @@ if (typeof globalThis.WeatherAlertDisplay === 'undefined') {
      * @returns {void}
      */
     static renderMessage(message, status) {
-      const guidance = WeatherAlertDisplay.createGuidance(status.guidance || '');
+      const guidance = document.createElement('span');
+      guidance.className = 'weather-alert__guidance';
+      guidance.textContent = status.guidance || '';
       const guidanceContent = status.guidance ? [' ', guidance] : [];
 
       if (status.source === WeatherAlertSource.ALERT && typeof status.alertLabel === 'string') {
@@ -97,36 +99,6 @@ if (typeof globalThis.WeatherAlertDisplay === 'undefined') {
         status.message.slice(hazardIndex + hazardLabel.length),
         ...guidanceContent
       );
-    }
-
-    /**
-     * Creates guidance with the official pool status phrase linked to the CA directory.
-     * @param {string} guidanceText - Visitor-facing weather guidance
-     * @returns {HTMLElement} Weather guidance element
-     * @private
-     */
-    static createGuidance(guidanceText) {
-      const guidance = document.createElement('span');
-      guidance.className = 'weather-alert__guidance';
-      const linkText = 'official pool status';
-      const linkIndex = guidanceText.indexOf(linkText);
-      const directoryLink = document.getElementById('weatherAlertPoolDirectoryLink');
-      if (linkIndex === -1 || !directoryLink) {
-        guidance.textContent = guidanceText;
-        return guidance;
-      }
-
-      const statusLink = document.createElement('a');
-      statusLink.href = directoryLink.href;
-      statusLink.target = directoryLink.target;
-      statusLink.rel = directoryLink.rel;
-      statusLink.textContent = linkText;
-      guidance.append(
-        guidanceText.slice(0, linkIndex),
-        statusLink,
-        guidanceText.slice(linkIndex + linkText.length)
-      );
-      return guidance;
     }
 
     /**
