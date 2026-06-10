@@ -32,6 +32,54 @@
     'project_information', 'share', 'team_details', 'weather_status'
   ]);
   const ALLOWED_EXTERNAL_LINK_PROTOCOLS = new Set(['http:', 'https:', 'mailto:', 'sms:', 'tel:']);
+  const EXTERNAL_LINK_DESTINATIONS = Object.freeze({
+    COLUMBIA_ASSOCIATION: 'columbia_association',
+    COLUMBIA_ASSOCIATION_REGISTRATION: 'columbia_association_registration',
+    EMAIL: 'email',
+    FACEBOOK: 'facebook',
+    GITHUB: 'github',
+    GO_MOTION: 'go_motion',
+    GOOGLE_ANALYTICS_HELP: 'google_analytics_help',
+    GOOGLE_MAPS: 'google_maps',
+    LINKEDIN: 'linkedin',
+    LONG_REACH_MARLINS: 'long_reach_marlins',
+    NATIONAL_WEATHER_SERVICE: 'national_weather_service',
+    OTHER: 'other',
+    PHONE_CALL: 'phone_call',
+    SPIRIT_SALE: 'spirit_sale',
+    TEAM_UNIFY: 'team_unify',
+    TEXT_MESSAGE: 'text_message',
+    USA_SWIMMING: 'usa_swimming',
+    X: 'x'
+  });
+  const ALLOWED_EXTERNAL_LINK_DESTINATIONS = new Set(Object.values(EXTERNAL_LINK_DESTINATIONS));
+  const EXTERNAL_LINK_HOST_DESTINATIONS = Object.freeze({
+    'api.weather.gov': EXTERNAL_LINK_DESTINATIONS.NATIONAL_WEATHER_SERVICE,
+    'columbiaassn.clubautomation.com': EXTERNAL_LINK_DESTINATIONS.COLUMBIA_ASSOCIATION_REGISTRATION,
+    'columbiaassociation.org': EXTERNAL_LINK_DESTINATIONS.COLUMBIA_ASSOCIATION,
+    'experience.arcgis.com': EXTERNAL_LINK_DESTINATIONS.COLUMBIA_ASSOCIATION,
+    'forecast.weather.gov': EXTERNAL_LINK_DESTINATIONS.NATIONAL_WEATHER_SERVICE,
+    'github.com': EXTERNAL_LINK_DESTINATIONS.GITHUB,
+    'maps.app.goo.gl': EXTERNAL_LINK_DESTINATIONS.GOOGLE_MAPS,
+    'support.google.com': EXTERNAL_LINK_DESTINATIONS.GOOGLE_ANALYTICS_HELP,
+    'www.columbiaassociation.org': EXTERNAL_LINK_DESTINATIONS.COLUMBIA_ASSOCIATION,
+    'www.facebook.com': EXTERNAL_LINK_DESTINATIONS.FACEBOOK,
+    'www.gomotionapp.com': EXTERNAL_LINK_DESTINATIONS.GO_MOTION,
+    'www.google.com': EXTERNAL_LINK_DESTINATIONS.GOOGLE_MAPS,
+    'www.linkedin.com': EXTERNAL_LINK_DESTINATIONS.LINKEDIN,
+    'www.longreachmarlins.org': EXTERNAL_LINK_DESTINATIONS.LONG_REACH_MARLINS,
+    'www.teamunify.com': EXTERNAL_LINK_DESTINATIONS.TEAM_UNIFY,
+    'www.usaswimming.org': EXTERNAL_LINK_DESTINATIONS.USA_SWIMMING,
+    'x.com': EXTERNAL_LINK_DESTINATIONS.X
+  });
+  const EXTERNAL_LINK_HOST_SUFFIX_DESTINATIONS = Object.freeze([
+    Object.freeze({ destination: EXTERNAL_LINK_DESTINATIONS.SPIRIT_SALE, suffix: '.spiritsale.com' })
+  ]);
+  const EXTERNAL_LINK_PROTOCOL_DESTINATIONS = Object.freeze({
+    'mailto:': EXTERNAL_LINK_DESTINATIONS.EMAIL,
+    'sms:': EXTERNAL_LINK_DESTINATIONS.TEXT_MESSAGE,
+    'tel:': EXTERNAL_LINK_DESTINATIONS.PHONE_CALL
+  });
 
   const ALLOWED_DIRECTORY_NAMES = new Set(['meets', 'pools', 'teams']);
   const ALLOWED_INSTALL_ACTIONS = new Set([
@@ -194,14 +242,18 @@
    * Publishes a validated external-link interaction.
    * @param {string} context - Approved link context
    * @param {string} purpose - Approved link purpose
+   * @param {string} destination - Approved destination label
    * @private
    */
-  function trackExternalLinkInteraction(context, purpose) {
-    if (!ALLOWED_EXTERNAL_LINK_CONTEXTS.has(context) || !ALLOWED_EXTERNAL_LINK_PURPOSES.has(purpose)) return;
+  function trackExternalLinkInteraction(context, purpose, destination) {
+    if (!ALLOWED_EXTERNAL_LINK_CONTEXTS.has(context)
+      || !ALLOWED_EXTERNAL_LINK_PURPOSES.has(purpose)
+      || !ALLOWED_EXTERNAL_LINK_DESTINATIONS.has(destination)) return;
 
     publishEvent('ca_external_link', {
       link_context: context,
-      link_purpose: purpose
+      link_purpose: purpose,
+      link_destination: destination
     });
   }
 
@@ -313,6 +365,27 @@
   }
 
   /**
+   * Resolves a privacy-safe destination label without reporting the link URL.
+   * @param {Element} link - External link element
+   * @returns {string} Approved destination label
+   * @private
+   */
+  function getExternalLinkDestination(link) {
+    try {
+      const siteOrigin = new URL(window.HOME_PAGE_URL).origin;
+      const destination = new URL(link.getAttribute('href'), `${siteOrigin}/`);
+      const hostname = destination.hostname.toLowerCase();
+      const suffixDestination = EXTERNAL_LINK_HOST_SUFFIX_DESTINATIONS.find(mapping => hostname.endsWith(mapping.suffix));
+      return EXTERNAL_LINK_PROTOCOL_DESTINATIONS[destination.protocol]
+        || EXTERNAL_LINK_HOST_DESTINATIONS[hostname]
+        || suffixDestination?.destination
+        || EXTERNAL_LINK_DESTINATIONS.OTHER;
+    } catch (_error) {
+      return EXTERNAL_LINK_DESTINATIONS.OTHER;
+    }
+  }
+
+  /**
    * Determines whether a link targets an approved external destination.
    * @param {Element} link - Candidate link element
    * @returns {boolean} Whether the link is external to the application
@@ -357,6 +430,7 @@
       if (clickedLink && isExternalLink(clickedLink)) {
         trackInteraction(AnalyticsInteractionType.EXTERNAL_LINK, {
           context: getExternalLinkContext(clickedLink),
+          destination: getExternalLinkDestination(clickedLink),
           purpose: getExternalLinkPurpose(clickedLink)
         });
       }
@@ -402,7 +476,7 @@
         trackDirectoryDetailOpen(parameters.directoryName);
         break;
       case AnalyticsInteractionType.EXTERNAL_LINK:
-        trackExternalLinkInteraction(parameters.context, parameters.purpose);
+        trackExternalLinkInteraction(parameters.context, parameters.purpose, parameters.destination);
         break;
       case AnalyticsInteractionType.FIXED_SETTING_CHANGE:
         trackFixedSettingChange(parameters.settingName, parameters.settingValue);

@@ -193,14 +193,14 @@ test('[WF-LESSONS-001] lesson provider actions publish only reviewed categories'
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => (
     eventArguments[1] === 'ca_external_link'
   )))).toEqual([
-    ['event', 'ca_external_link', { link_context: 'lesson_resources', link_purpose: 'provider_website' }],
-    ['event', 'ca_external_link', { link_context: 'lesson_resources', link_purpose: 'provider_website' }],
-    ['event', 'ca_external_link', { link_context: 'lesson_resources', link_purpose: 'provider_website' }],
-    ['event', 'ca_external_link', { link_context: 'lesson_resources', link_purpose: 'provider_website' }],
-    ['event', 'ca_external_link', { link_context: 'lesson_resources', link_purpose: 'provider_contact' }],
-    ['event', 'ca_external_link', { link_context: 'lesson_resources', link_purpose: 'related_program' }],
-    ['event', 'ca_external_link', { link_context: 'lesson_resources', link_purpose: 'related_program' }],
-    ['event', 'ca_external_link', { link_context: 'lesson_resources', link_purpose: 'provider_recommendation' }]
+    ['event', 'ca_external_link', { link_context: 'lesson_resources', link_purpose: 'provider_website', link_destination: 'columbia_association' }],
+    ['event', 'ca_external_link', { link_context: 'lesson_resources', link_purpose: 'provider_website', link_destination: 'columbia_association_registration' }],
+    ['event', 'ca_external_link', { link_context: 'lesson_resources', link_purpose: 'provider_website', link_destination: 'columbia_association' }],
+    ['event', 'ca_external_link', { link_context: 'lesson_resources', link_purpose: 'provider_website', link_destination: 'columbia_association' }],
+    ['event', 'ca_external_link', { link_context: 'lesson_resources', link_purpose: 'provider_contact', link_destination: 'email' }],
+    ['event', 'ca_external_link', { link_context: 'lesson_resources', link_purpose: 'related_program', link_destination: 'team_unify' }],
+    ['event', 'ca_external_link', { link_context: 'lesson_resources', link_purpose: 'related_program', link_destination: 'go_motion' }],
+    ['event', 'ca_external_link', { link_context: 'lesson_resources', link_purpose: 'provider_recommendation', link_destination: 'email' }]
   ]);
 });
 
@@ -465,20 +465,20 @@ test('[WF-HOME-001] season summary and sharing actions appear only on the home p
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_share' || eventArguments[1] === 'ca_external_link'))).toEqual([
     ['event', 'ca_share', { method: 'qr_code', content_type: 'website', item_id: 'home_page' }],
     ['event', 'ca_share', { method: 'text', content_type: 'website', item_id: 'home_page' }],
-    ['event', 'ca_external_link', { link_context: 'share', link_purpose: 'general' }],
+    ['event', 'ca_external_link', { link_context: 'share', link_purpose: 'general', link_destination: 'text_message' }],
     ['event', 'ca_share', { method: 'email', content_type: 'website', item_id: 'home_page' }],
-    ['event', 'ca_external_link', { link_context: 'share', link_purpose: 'general' }],
+    ['event', 'ca_external_link', { link_context: 'share', link_purpose: 'general', link_destination: 'email' }],
     ['event', 'ca_share', { method: 'facebook', content_type: 'website', item_id: 'home_page' }],
-    ['event', 'ca_external_link', { link_context: 'share', link_purpose: 'general' }],
+    ['event', 'ca_external_link', { link_context: 'share', link_purpose: 'general', link_destination: 'facebook' }],
     ['event', 'ca_share', { method: 'x', content_type: 'website', item_id: 'home_page' }],
-    ['event', 'ca_external_link', { link_context: 'share', link_purpose: 'general' }]
+    ['event', 'ca_external_link', { link_context: 'share', link_purpose: 'general', link_destination: 'x' }]
   ]);
 
   await page.locator('a.directory-link').evaluate(link => {
     link.addEventListener('click', event => event.preventDefault(), { once: true });
     link.dispatchEvent(new globalThis.MouseEvent('click', { bubbles: true, cancelable: true }));
   });
-  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.at(-1))).toEqual(['event', 'ca_external_link', { link_context: 'official_information', link_purpose: 'general' }]);
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.at(-1))).toEqual(['event', 'ca_external_link', { link_context: 'official_information', link_purpose: 'general', link_destination: 'columbia_association' }]);
 
   await page.setViewportSize(MOBILE_VIEWPORT);
   const compactLinkLayout = await page.locator('.quick-link-card').evaluateAll(cards => cards
@@ -739,6 +739,48 @@ test('[WF-ANALYTICS-004] directory detail opens publish only a broad directory n
     globalThis.cnslAnalytics.trackInteraction(interactionType, { directoryName: '2026-06-20' });
   });
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_directory_detail_open'))).toHaveLength(3);
+});
+
+test('[WF-ANALYTICS-007] external links publish fixed destinations without URL details', async ({ page }) => {
+  await initializeAnalyticsRecorder(page);
+  await page.goto('/pools.html');
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+
+  const poolCard = page.locator('[data-pool-card]').first();
+  const toggle = poolCard.locator('.pool-header__toggle');
+  if (await toggle.getAttribute('aria-expanded') === 'false') await toggle.click();
+
+  const clickWithoutNavigation = locator => locator.evaluate(link => {
+    link.addEventListener('click', event => event.preventDefault(), { once: true });
+    link.click();
+  });
+  await clickWithoutNavigation(poolCard.locator('.phone-link'));
+  await clickWithoutNavigation(poolCard.locator('.address-link'));
+  await poolCard.evaluate(card => {
+    const unknownLink = globalThis.document.createElement('a');
+    unknownLink.href = 'https://unreviewed.example/private?token=secret#details';
+    unknownLink.textContent = 'Unknown destination';
+    unknownLink.addEventListener('click', event => event.preventDefault(), { once: true });
+    card.append(unknownLink);
+    unknownLink.click();
+  });
+
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_external_link'))).toEqual([
+    ['event', 'ca_external_link', { link_context: 'pool_details', link_purpose: 'general', link_destination: 'phone_call' }],
+    ['event', 'ca_external_link', { link_context: 'pool_details', link_purpose: 'general', link_destination: 'google_maps' }],
+    ['event', 'ca_external_link', { link_context: 'pool_details', link_purpose: 'general', link_destination: 'other' }]
+  ]);
+  await page.evaluate(() => {
+    globalThis.cnslAnalytics.trackInteraction(globalThis.AnalyticsInteractionType.EXTERNAL_LINK, {
+      context: 'pool_details',
+      destination: 'https://unreviewed.example/private?token=secret',
+      purpose: 'general'
+    });
+  });
+  const externalEvents = await page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_external_link'));
+  expect(externalEvents).toHaveLength(3);
+  expect(JSON.stringify(externalEvents)).not.toContain('secret');
+  expect(JSON.stringify(externalEvents)).not.toContain('410-');
 });
 
 test('[WF-ANALYTICS-005] browser verification blocks Google Analytics collection', async ({ page }) => {
@@ -1308,7 +1350,7 @@ test('[WF-TEAMS-004] published Long Reach merchandise and booster actions appear
     link.click();
   });
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.at(-1))).toEqual([
-    'event', 'ca_external_link', { link_context: 'team_details', link_purpose: 'merchandise' }
+    'event', 'ca_external_link', { link_context: 'team_details', link_purpose: 'merchandise', link_destination: 'spirit_sale' }
   ]);
   await merchandiseLink.evaluate(link => {
     link.closest('[data-team-card]').dataset.analyticsContext = 'injected_context';
@@ -1317,7 +1359,7 @@ test('[WF-TEAMS-004] published Long Reach merchandise and booster actions appear
     link.click();
   });
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.at(-1))).toEqual([
-    'event', 'ca_external_link', { link_context: 'other', link_purpose: 'general' }
+    'event', 'ca_external_link', { link_context: 'other', link_purpose: 'general', link_destination: 'spirit_sale' }
   ]);
   await expect(marlins.locator('.team-header__toggle')).toHaveAttribute('aria-expanded', 'true');
 
@@ -2454,6 +2496,11 @@ test('[WF-WEATHER-006] forecast alerts emphasize only the recognized hazard labe
   await expect(message.locator('.weather-alert__type-icon').nth(0)).toHaveAttribute('aria-hidden', 'true');
   await expect(message.locator('.weather-alert__guidance')).toHaveText('Check official pool status before leaving.');
   await expect(message.locator('.weather-alert__guidance')).toHaveCSS('display', 'block');
+  const officialStatusLink = message.locator('.weather-alert__guidance a');
+  await expect(officialStatusLink).toHaveText('official pool status');
+  await expect(officialStatusLink).toHaveAttribute('href', 'https://experience.arcgis.com/experience/ac58c73ab9bd4640a880c8ddf46bf198');
+  await expect(officialStatusLink).toHaveAttribute('target', '_blank');
+  await expect(officialStatusLink).toHaveAttribute('rel', 'noopener noreferrer');
   await expect(page.locator('#weatherAlertUpdated')).toHaveAttribute('datetime', /.+/);
   await expect(page.getByRole('link', { name: 'NWS local alerts' })).toBeHidden();
   await expect(page.getByRole('button', { name: 'Expand weather safety alert' })).toBeVisible();
