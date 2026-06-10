@@ -91,11 +91,14 @@
       return;
     }
 
+    if (version !== window.APP_VERSION) {
+      return;
+    }
+
     const versionLink = typeof document === 'undefined' ? null : document.getElementById('footerAppVersion');
     if (!versionLink) return;
 
     versionLink.textContent = version;
-    versionLink.setAttribute('href', `whats-new.html#version-${version}`);
   }
 
   navigator.serviceWorker.addEventListener('message', event => {

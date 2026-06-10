@@ -25,6 +25,7 @@ function createWindow(location = {}) {
     DEPLOYMENT_VERSION_FILE: 'version.txt',
     PWA_CACHE_PREFIX: 'cnsl-static-',
     SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY: 'cnsl_service_worker_update_checked_at',
+    APP_VERSION: '2.13.1',
     location: {
       href: 'https://pools.longreachmarlins.org/index.html',
       hostname: 'pools.longreachmarlins.org',
@@ -226,12 +227,12 @@ describe('PWA update startup', () => {
     assert.equal(reloadCalls, 1);
   });
 
-  it('should update the footer from a valid service worker app version', async () => {
+  it('should preserve the rendered footer when an older service worker reports its version', async () => {
     let messageListener;
-    const attributes = new Map([['href', 'whats-new.html#version-2.10.0']]);
+    const attributes = new Map([['href', 'whats-new.html']]);
     const versionLink = {
       setAttribute: (name, value) => attributes.set(name, value),
-      textContent: '2.10.0'
+      textContent: '2.13.1'
     };
     const navigator = {
       serviceWorker: {
@@ -250,10 +251,10 @@ describe('PWA update startup', () => {
       window: createWindow()
     });
     await new Promise(resolve => setImmediate(resolve));
-    messageListener({ data: { type: 'SW_UPDATED', version: '2.11.0' } });
+    messageListener({ data: { type: 'APP_VERSION', version: '2.13.0' } });
 
-    assert.equal(versionLink.textContent, '2.11.0');
-    assert.equal(attributes.get('href'), 'whats-new.html#version-2.11.0');
+    assert.equal(versionLink.textContent, '2.13.1');
+    assert.equal(attributes.get('href'), 'whats-new.html');
   });
 
   it('should ignore invalid service worker app versions', async () => {
@@ -261,7 +262,7 @@ describe('PWA update startup', () => {
     let attributeUpdates = 0;
     const versionLink = {
       setAttribute: () => { attributeUpdates += 1; },
-      textContent: '2.10.0'
+      textContent: '2.13.1'
     };
     const navigator = {
       serviceWorker: {
@@ -282,7 +283,7 @@ describe('PWA update startup', () => {
     await new Promise(resolve => setImmediate(resolve));
     messageListener({ data: { type: 'APP_VERSION', version: 'javascript:alert(1)' } });
 
-    assert.equal(versionLink.textContent, '2.10.0');
+    assert.equal(versionLink.textContent, '2.13.1');
     assert.equal(attributeUpdates, 0);
   });
 

@@ -8,6 +8,14 @@ const annualDataSourceDir = './src/assets/data';
 const activeSeason = String(appConfig.YEAR);
 const activeSeasonPoolsPath = path.join(annualDataSourceDir, activeSeason, 'pools', 'pools.json');
 const activeSeasonPools = JSON.parse(fs.readFileSync(activeSeasonPoolsPath, 'utf8'));
+const whatsNewSource = fs.readFileSync('./src/views/whats-new.html', 'utf8');
+
+function createAppVersionWhatsNewUrl() {
+  const releaseAnchor = `version-${appConfig.APP_VERSION}`;
+  return whatsNewSource.includes(`id="${releaseAnchor}"`)
+    ? `whats-new.html#${releaseAnchor}`
+    : 'whats-new.html';
+}
 
 function formatSeasonDate(dateString) {
   const date = new Date(`${dateString}T00:00:00Z`);
@@ -43,7 +51,8 @@ function createActiveSeasonTemplateMetadata() {
 }
 
 const ACTIVE_SEASON = createActiveSeasonTemplateMetadata();
-const templateLocals = { ...appConfig, ACTIVE_SEASON };
+const APP_VERSION_WHATS_NEW_URL = createAppVersionWhatsNewUrl();
+const templateLocals = { ...appConfig, ACTIVE_SEASON, APP_VERSION_WHATS_NEW_URL };
 const expressions = require('posthtml-expressions')({ locals: templateLocals });
 require('posthtml-include')({ root: './src/views' });
 const extend = require('posthtml-extend')({
