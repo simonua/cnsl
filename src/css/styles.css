@@ -5509,8 +5509,9 @@ button.settings-dialog__close:focus {
 
 .settings-group {
   border: none;
-  margin: 0 0 1.25rem;
-  padding: 0;
+  border-bottom: 1px solid var(--border-color);
+  margin: 0 0 1rem;
+  padding: 0 0 1rem;
 }
 
 .settings-group legend,
