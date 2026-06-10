@@ -1,7 +1,7 @@
 /**
  * Expands published recurring team practices into calendar-day schedule blocks.
  */
-if (typeof window === 'undefined' || !window.TeamScheduleService) {
+if (typeof globalThis.TeamScheduleService === 'undefined') {
   class TeamScheduleService {
     static WEEKDAYS = Object.freeze(['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']);
     static PRACTICE_PERIODS = Object.freeze({
@@ -81,15 +81,20 @@ if (typeof window === 'undefined' || !window.TeamScheduleService) {
       return today >= practiceRange.startDate && today <= practiceRange.endDate;
     }
 
+    /**
+     * @param {string} range - Published practice date range
+     * @param {Date} referenceDate - Date used to classify the range
+     * @returns {PracticeRangeStatusValue|null} Semantic range state
+     */
     static getPracticeRangeStatus(range, referenceDate = new Date()) {
       const practiceRange = TeamScheduleService.parseSeasonRange(range);
       if (!practiceRange) return null;
 
       const today = new Date(referenceDate);
       today.setHours(0, 0, 0, 0);
-      if (today < practiceRange.startDate) return 'upcoming';
-      if (today <= practiceRange.endDate) return 'current';
-      return 'past';
+      if (today < practiceRange.startDate) return PracticeRangeStatus.UPCOMING;
+      if (today <= practiceRange.endDate) return PracticeRangeStatus.CURRENT;
+      return PracticeRangeStatus.PAST;
     }
 
     static getCurrentPracticePhase(practice, referenceDate = new Date()) {
@@ -215,11 +220,5 @@ if (typeof window === 'undefined' || !window.TeamScheduleService) {
     }
   }
 
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { TeamScheduleService };
-  }
-
-  if (typeof window !== 'undefined') {
-    window.TeamScheduleService = TeamScheduleService;
-  }
+  globalThis.TeamScheduleService = TeamScheduleService;
 }

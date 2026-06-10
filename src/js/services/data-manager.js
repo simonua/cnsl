@@ -3,7 +3,7 @@
  */
 
 // Prevent multiple declarations
-if (typeof window === 'undefined' || !window.DataManager) {
+if (typeof globalThis.DataManager === 'undefined') {
   /** @type {ReadonlyArray<AnnualDataDomain>} */
   const DATA_DOMAINS = Object.freeze(['pools', 'teams', 'meets']);
 
@@ -256,14 +256,8 @@ async function initializeDataManager(requiredDomains) {
   return manager.initialize(requiredDomains);
 }
 
-// Export for Node.js compatibility
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { DataManager, getDataManager, initializeDataManager };
-}
-
-// Make sure it's available globally
-if (typeof window !== 'undefined') {
-  window.DataManager = DataManager;
-}
+globalThis.DataManager = DataManager;
+globalThis.getDataManager = getDataManager;
+globalThis.initializeDataManager = initializeDataManager;
 
 }

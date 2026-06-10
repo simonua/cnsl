@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const { createSampleMeetsData } = require('../helpers/test-helpers.js');
-const Meet = require('../../src/js/models/meet.js');
+const { Meet } = require('../helpers/browser-module-loader.js').loadBrowserModule('meet');
 
 describe('Meet', () => {
   const sampleMeetsData = createSampleMeetsData();
@@ -80,6 +80,8 @@ describe('Meet', () => {
     const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'models', 'meet.js');
     const source = fs.readFileSync(sourcePath, 'utf8');
     const context = { window: {} };
+    Object.assign(context, context.globalThis || {}, context.window || {});
+    context.globalThis = context; context.self = context; context.window = context;
     vm.runInNewContext(source, context, { filename: sourcePath });
 
     assert.equal(typeof context.window.Meet, 'function');

@@ -1,43 +1,31 @@
-const { after, describe, it } = require('node:test');
+const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const activeTeamsData = require('../../src/assets/data/2026/teams/teams.json');
 const activeMeetsData = require('../../src/assets/data/2026/meets/meets.json');
-const Meet = require('../../src/js/models/meet.js');
-const TimeUtils = require('../../src/js/services/time-utils');
-const { TeamScheduleService: PublishedTeamScheduleService } = require('../../src/js/services/team-schedule-service');
+const teamAgendaModule = require('../helpers/browser-module-loader.js').loadBrowserModule('team-agenda-display');
+const { Meet, TimeUtils, TeamScheduleService: PublishedTeamScheduleService } = teamAgendaModule;
+const testContext = teamAgendaModule.context;
 
-globalThis.HtmlSafety = {
+testContext.HtmlSafety = {
   escapeHtml: value => String(value)
 };
-globalThis.generateLinkedPoolMentions = location => String(location);
-globalThis.createPoolLocationIndex = pools => pools;
-globalThis.PreferencesService = {
+testContext.generateLinkedPoolMentions = location => String(location);
+testContext.createPoolLocationIndex = pools => pools;
+testContext.PreferencesService = {
   get: () => ({ practiceGroups: [] }),
   filterPracticeSessions: sessions => sessions,
   meetIncludesFavoriteTeam: () => false
 };
-globalThis.TimeUtils = TimeUtils;
-globalThis.TeamScheduleService = {
+testContext.TimeUtils = TimeUtils;
+testContext.TeamScheduleService = {
   getUpcomingPractices: () => [],
   getTimeRange: PublishedTeamScheduleService.getTimeRange
 };
 
-require('../../src/js/services/team-agenda-display.js');
-
-const { TeamAgendaDisplay } = globalThis;
-
-after(() => {
-  delete globalThis.HtmlSafety;
-  delete globalThis.generateLinkedPoolMentions;
-  delete globalThis.createPoolLocationIndex;
-  delete globalThis.PreferencesService;
-  delete globalThis.TimeUtils;
-  delete globalThis.TeamScheduleService;
-  delete globalThis.TeamAgendaDisplay;
-});
+const { TeamAgendaDisplay } = teamAgendaModule;
 
 describe('TeamAgendaDisplay', () => {
   describe('getTitle', () => {
@@ -165,8 +153,8 @@ describe('TeamAgendaDisplay', () => {
     });
 
     it('selects the first qualifying meet after sorting and applies fallback fields', () => {
-      const originalIncludesTeam = globalThis.PreferencesService.meetIncludesFavoriteTeam;
-      globalThis.PreferencesService.meetIncludesFavoriteTeam = meet => meet.homeTeam === 'Marlins';
+      const originalIncludesTeam = testContext.PreferencesService.meetIncludesFavoriteTeam;
+      testContext.PreferencesService.meetIncludesFavoriteTeam = meet => meet.homeTeam === 'Marlins';
       try {
         const events = TeamAgendaDisplay.getUpcomingEvents({ practice: {}, timeTrialsPool: '' }, [
           { date: '', name: 'Missing Date' },
@@ -181,7 +169,7 @@ describe('TeamAgendaDisplay', () => {
         assert.equal(events[0].time, 'Time not published');
         assert.equal(events[0].teams, '');
       } finally {
-        globalThis.PreferencesService.meetIncludesFavoriteTeam = originalIncludesTeam;
+        testContext.PreferencesService.meetIncludesFavoriteTeam = originalIncludesTeam;
       }
     });
 
@@ -208,8 +196,8 @@ describe('TeamAgendaDisplay', () => {
     });
 
     it('returns no agenda without a team and selects explicit semantic practice periods', () => {
-      const originalGetUpcoming = globalThis.TeamScheduleService.getUpcomingPractices;
-      globalThis.TeamScheduleService.getUpcomingPractices = () => [
+      const originalGetUpcoming = testContext.TeamScheduleService.getUpcomingPractices;
+      testContext.TeamScheduleService.getUpcomingPractices = () => [
         { date: new Date(2026, 5, 1), label: 'Evening copy', practicePeriod: 'morning', location: 'Pool', sessions: [{ time: 'Noon', group: 'A' }] },
         { date: new Date(2026, 5, 1), label: 'Morning copy', practicePeriod: 'evening', location: 'Pool', sessions: [{ time: 'Noon', group: 'B' }] },
         { date: new Date(2026, 5, 1), label: 'Practice', practicePeriod: 'other', location: 'Pool', sessions: [{ time: '8:00am', group: 'C' }] }
@@ -218,26 +206,26 @@ describe('TeamAgendaDisplay', () => {
         assert.deepEqual(TeamAgendaDisplay.getUpcomingEvents(null, []), []);
         assert.deepEqual(TeamAgendaDisplay.getUpcomingEvents({ practice: {} }, [], new Date(2026, 5, 1)).map(event => event.label), ['Next morning practice', 'Next evening practice']);
       } finally {
-        globalThis.TeamScheduleService.getUpcomingPractices = originalGetUpcoming;
+        testContext.TeamScheduleService.getUpcomingPractices = originalGetUpcoming;
       }
     });
 
     it('ignores visible practice labels when semantic periods are absent', () => {
-      const originalGetUpcoming = globalThis.TeamScheduleService.getUpcomingPractices;
-      globalThis.TeamScheduleService.getUpcomingPractices = () => [
+      const originalGetUpcoming = testContext.TeamScheduleService.getUpcomingPractices;
+      testContext.TeamScheduleService.getUpcomingPractices = () => [
         { date: new Date(2026, 5, 1), label: 'Morning Practice', location: 'Pool', sessions: [{ time: 'Noon', group: 'A' }] },
         { date: new Date(2026, 5, 2), label: 'Evening Practice', location: 'Pool', sessions: [{ time: 'Noon', group: 'B' }] }
       ];
       try {
         assert.deepEqual(TeamAgendaDisplay.getUpcomingEvents({ practice: {} }, [], new Date(2026, 5, 1)), []);
       } finally {
-        globalThis.TeamScheduleService.getUpcomingPractices = originalGetUpcoming;
+        testContext.TeamScheduleService.getUpcomingPractices = originalGetUpcoming;
       }
     });
 
     it('selects the next same-period practice once todays visible session has ended', () => {
-      const originalGetUpcoming = globalThis.TeamScheduleService.getUpcomingPractices;
-      globalThis.TeamScheduleService.getUpcomingPractices = () => [
+      const originalGetUpcoming = testContext.TeamScheduleService.getUpcomingPractices;
+      testContext.TeamScheduleService.getUpcomingPractices = () => [
         { date: new Date(2026, 4, 29), label: 'Evening Practice', practicePeriod: 'evening', location: 'First Pool', sessions: [{ time: '6:30 - 7:00pm', group: 'A' }] },
         { date: new Date(2026, 5, 1), label: 'Evening Practice', practicePeriod: 'evening', location: 'Next Pool', sessions: [{ time: '5:00 - 6:00pm', group: 'A' }] }
       ];
@@ -248,38 +236,38 @@ describe('TeamAgendaDisplay', () => {
         assert.equal(beforeEnd[0].location, 'First Pool');
         assert.equal(atEnd[0].location, 'Next Pool');
       } finally {
-        globalThis.TeamScheduleService.getUpcomingPractices = originalGetUpcoming;
+        testContext.TeamScheduleService.getUpcomingPractices = originalGetUpcoming;
       }
     });
 
     it('omits a practice with no morning or evening scheduling signal', () => {
-      const originalGetUpcoming = globalThis.TeamScheduleService.getUpcomingPractices;
-      globalThis.TeamScheduleService.getUpcomingPractices = () => [
+      const originalGetUpcoming = testContext.TeamScheduleService.getUpcomingPractices;
+      testContext.TeamScheduleService.getUpcomingPractices = () => [
         { date: new Date(2026, 5, 1), label: 'Morning Practice', practicePeriod: 'other', location: 'Pool', sessions: [{ time: '8:00am', group: 'A' }] }
       ];
       try {
         assert.deepEqual(TeamAgendaDisplay.getUpcomingEvents({ practice: {} }, [], new Date(2026, 5, 1)), []);
       } finally {
-        globalThis.TeamScheduleService.getUpcomingPractices = originalGetUpcoming;
+        testContext.TeamScheduleService.getUpcomingPractices = originalGetUpcoming;
       }
     });
 
     it('omits practice groups hidden by user preferences and accepts non-array meet input', () => {
-      const originalGetUpcoming = globalThis.TeamScheduleService.getUpcomingPractices;
-      const originalFilterSessions = globalThis.PreferencesService.filterPracticeSessions;
-      globalThis.TeamScheduleService.getUpcomingPractices = () => [{ date: new Date(2026, 5, 1), label: 'Morning Practice', practicePeriod: 'morning', location: 'Pool', sessions: [{ time: '8:00am', group: 'A' }] }];
-      globalThis.PreferencesService.filterPracticeSessions = () => [];
+      const originalGetUpcoming = testContext.TeamScheduleService.getUpcomingPractices;
+      const originalFilterSessions = testContext.PreferencesService.filterPracticeSessions;
+      testContext.TeamScheduleService.getUpcomingPractices = () => [{ date: new Date(2026, 5, 1), label: 'Morning Practice', practicePeriod: 'morning', location: 'Pool', sessions: [{ time: '8:00am', group: 'A' }] }];
+      testContext.PreferencesService.filterPracticeSessions = () => [];
       try {
         assert.deepEqual(TeamAgendaDisplay.getUpcomingEvents({ practice: {} }, null, new Date(2026, 5, 1)), []);
       } finally {
-        globalThis.TeamScheduleService.getUpcomingPractices = originalGetUpcoming;
-        globalThis.PreferencesService.filterPracticeSessions = originalFilterSessions;
+        testContext.TeamScheduleService.getUpcomingPractices = originalGetUpcoming;
+        testContext.PreferencesService.filterPracticeSessions = originalFilterSessions;
       }
     });
 
     it('omits practices from prior calendar days', () => {
-      const originalGetUpcoming = globalThis.TeamScheduleService.getUpcomingPractices;
-      globalThis.TeamScheduleService.getUpcomingPractices = () => [{
+      const originalGetUpcoming = testContext.TeamScheduleService.getUpcomingPractices;
+      testContext.TeamScheduleService.getUpcomingPractices = () => [{
         date: new Date(2026, 4, 31),
         practicePeriod: 'morning',
         sessions: [{ time: '8:00 - 9:00am', group: 'A' }]
@@ -287,7 +275,7 @@ describe('TeamAgendaDisplay', () => {
       try {
         assert.deepEqual(TeamAgendaDisplay.getUpcomingEvents({ practice: {} }, [], new Date(2026, 5, 1)), []);
       } finally {
-        globalThis.TeamScheduleService.getUpcomingPractices = originalGetUpcoming;
+        testContext.TeamScheduleService.getUpcomingPractices = originalGetUpcoming;
       }
     });
   });
@@ -302,8 +290,8 @@ describe('TeamAgendaDisplay', () => {
         globalThis: null,
         IconCatalog: { render: () => '' },
         HtmlSafety: { escapeHtml: String },
-        PreferencesService: globalThis.PreferencesService,
-        TeamScheduleService: globalThis.TeamScheduleService,
+        PreferencesService: testContext.PreferencesService,
+        TeamScheduleService: testContext.TeamScheduleService,
         TimeUtils,
         createPoolLocationIndex: () => new Map(),
         generateLinkedPoolMentions: String

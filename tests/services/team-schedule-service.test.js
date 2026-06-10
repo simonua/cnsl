@@ -3,11 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const TimeUtils = require('../../src/js/services/time-utils');
-
-globalThis.YEAR = 2026;
-globalThis.TimeUtils = TimeUtils;
-const { TeamScheduleService } = require('../../src/js/services/team-schedule-service');
+const { TeamScheduleService, TimeUtils } = require('../helpers/browser-module-loader.js').loadBrowserModule('team-schedule-service');
 
 describe('TeamScheduleService', () => {
   describe('parseWeekdays', () => {
@@ -219,7 +215,10 @@ describe('TeamScheduleService', () => {
     it('should install the service as a browser script global', () => {
       const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'team-schedule-service.js');
       const source = fs.readFileSync(sourcePath, 'utf8');
-      const context = { window: {} };
+      const context = {};
+      context.globalThis = context;
+      context.self = context;
+      context.window = context;
       vm.runInNewContext(source, context, { filename: sourcePath });
 
       assert.equal(typeof context.window.TeamScheduleService, 'function');

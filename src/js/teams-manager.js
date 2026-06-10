@@ -3,11 +3,7 @@
  */
 
 // Prevent multiple declarations
-if (typeof window === 'undefined' || !window.TeamsManager) {
-
-if (typeof window === 'undefined') {
-  if (typeof Team === 'undefined') { var Team = require('./models/team.js'); } // eslint-disable-line no-var
-}
+if (typeof globalThis.TeamsManager === 'undefined') {
 
   class TeamsManager {
   constructor() {
@@ -331,14 +327,6 @@ if (typeof window === 'undefined') {
   }
 }
 
-// Export for Node.js compatibility
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = TeamsManager;
-}
-
-// Make sure it's available globally
-if (typeof window !== 'undefined') {
-  window.TeamsManager = TeamsManager;
-}
+globalThis.TeamsManager = TeamsManager;
 
 }

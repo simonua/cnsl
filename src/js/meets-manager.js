@@ -3,11 +3,7 @@
  */
 
 // Prevent multiple declarations
-if (typeof window === 'undefined' || !window.MeetsManager) {
-
-if (typeof window === 'undefined') {
-  if (typeof Meet === 'undefined') { var Meet = require('./models/meet.js'); } // eslint-disable-line no-var
-}
+if (typeof globalThis.MeetsManager === 'undefined') {
 
   class MeetsManager {
   constructor() {
@@ -299,9 +295,7 @@ if (typeof window === 'undefined') {
    * @returns {Object|null} - TimeUtils object or null if not available
    */
   _getTimeUtils() {
-    if (typeof window !== 'undefined' && window.TimeUtils) {
-      return window.TimeUtils;
-    }
+    if (globalThis.TimeUtils) return globalThis.TimeUtils;
     if (typeof TimeUtils !== 'undefined') {
       return TimeUtils;
     }
@@ -310,14 +304,6 @@ if (typeof window === 'undefined') {
   }
 }
 
-// Export for Node.js compatibility
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = MeetsManager;
-}
-
-// Make sure it's available globally
-if (typeof window !== 'undefined') {
-  window.MeetsManager = MeetsManager;
-}
+globalThis.MeetsManager = MeetsManager;
 
 }

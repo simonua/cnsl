@@ -8,9 +8,7 @@
     evening: 'moon',
     event: 'swimmer'
   });
-  const TeamAgendaIcons = typeof module !== 'undefined' && module.exports
-    ? require('./icon-catalog.js')
-    : globalThis.IconCatalog;
+  const TeamAgendaIcons = globalThis.IconCatalog;
 
   function startOfDay(value) {
     const date = new Date(value);

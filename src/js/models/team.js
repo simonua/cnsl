@@ -1,7 +1,7 @@
 /**
  * Individual swim team record with reusable team-level behavior.
  */
-if (typeof window === 'undefined' || !window.Team) {
+if (typeof globalThis.Team === 'undefined') {
   class Team {
     /**
      * @param {TeamRecord} teamData - Published annual team record
@@ -115,11 +115,5 @@ if (typeof window === 'undefined' || !window.Team) {
     }
   }
 
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = Team;
-  }
-
-  if (typeof window !== 'undefined') {
-    window.Team = Team;
-  }
+  globalThis.Team = Team;
 }

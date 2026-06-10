@@ -1,7 +1,7 @@
 /**
  * Individual swim meet record with published-schema interpretation.
  */
-if (typeof window === 'undefined' || !window.Meet) {
+if (typeof globalThis.Meet === 'undefined') {
   class Meet {
     /**
      * @param {MeetRecord} meetData - Published annual meet record
@@ -105,7 +105,8 @@ if (typeof window === 'undefined' || !window.Meet) {
     /**
      * Classify a regular dual meet at the supplied Eastern date and time.
      * @param {{ date: string, minutes: number, isValid?: boolean }} easternTimeInfo - Current Eastern wall-clock value
-     * @returns {'upcoming'|'ongoing'|'concluded'|null} Current live state, or null for special meets/invalid time
+      * @param {MeetTimingWindow|null} overrideTimingWindow - Optional team-specific published window
+      * @returns {MeetLiveStatusValue|null} Current live state, or null for special meets/invalid time
      */
     getLiveStatus(easternTimeInfo, overrideTimingWindow = null) {
       const timingWindow = this.getKnownTimingWindow(overrideTimingWindow);
@@ -113,11 +114,11 @@ if (typeof window === 'undefined' || !window.Meet) {
       if (typeof easternTimeInfo.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(easternTimeInfo.date) || !/^\d{4}-\d{2}-\d{2}$/.test(this.date)) return null;
       if (!Number.isFinite(easternTimeInfo.minutes)) return null;
 
-      if (this.date < easternTimeInfo.date) return 'concluded';
-      if (this.date > easternTimeInfo.date) return 'upcoming';
-      if (easternTimeInfo.minutes < timingWindow.startMinutes) return 'upcoming';
-      if (easternTimeInfo.minutes < timingWindow.endMinutes) return 'ongoing';
-      return 'concluded';
+      if (this.date < easternTimeInfo.date) return MeetLiveStatus.CONCLUDED;
+      if (this.date > easternTimeInfo.date) return MeetLiveStatus.UPCOMING;
+      if (easternTimeInfo.minutes < timingWindow.startMinutes) return MeetLiveStatus.UPCOMING;
+      if (easternTimeInfo.minutes < timingWindow.endMinutes) return MeetLiveStatus.ONGOING;
+      return MeetLiveStatus.CONCLUDED;
     }
 
     matchesSearchTerm(searchTerm) {
@@ -127,11 +128,5 @@ if (typeof window === 'undefined' || !window.Meet) {
     }
   }
 
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = Meet;
-  }
-
-  if (typeof window !== 'undefined') {
-    window.Meet = Meet;
-  }
+  globalThis.Meet = Meet;
 }

@@ -4,8 +4,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const { createSampleMeetsData, suppressConsole } = require('../helpers/test-helpers.js');
-const Meet = require('../../src/js/models/meet.js');
-const MeetsManager = require('../../src/js/meets-manager.js');
+const meetsManagerModule = require('../helpers/browser-module-loader.js').loadBrowserModule('meets-manager');
+const { Meet, MeetsManager, context: meetsManagerContext } = meetsManagerModule;
 
 describe('MeetsManager', () => {
   let manager;
@@ -153,9 +153,9 @@ describe('MeetsManager', () => {
     });
 
     it('uses TimeUtils for today and display summaries', () => {
-      const originalTimeUtils = global.TimeUtils;
+      const originalTimeUtils = meetsManagerContext.TimeUtils;
       const today = new Date().toISOString().split('T')[0];
-      global.TimeUtils = {
+      meetsManagerContext.TimeUtils = {
         formatDate: () => today,
         formatDateForDisplay: date => `display:${date.toISOString().split('T')[0]}`
       };
@@ -172,7 +172,7 @@ describe('MeetsManager', () => {
         manager.loadData({ regular_meets: [{ date: today, home_team: 'Home', visiting_team: 'Away', time: '6:00 PM' }] });
         assert.equal(manager.getMeetsSummary()[0].time, '6:00 PM');
       } finally {
-        global.TimeUtils = originalTimeUtils;
+        meetsManagerContext.TimeUtils = originalTimeUtils;
       }
     });
   });
@@ -192,6 +192,8 @@ describe('MeetsManager', () => {
       const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'meets-manager.js');
       const source = fs.readFileSync(sourcePath, 'utf8');
       const context = { window: { TimeUtils: { formatDate: () => '2026-06-20' } }, Meet };
+      Object.assign(context, context.globalThis || {}, context.window || {});
+      context.globalThis = context; context.self = context; context.window = context;
       vm.runInNewContext(source, context, { filename: sourcePath });
 
       assert.equal(typeof context.window.MeetsManager, 'function');

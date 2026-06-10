@@ -5,11 +5,8 @@ const path = require('node:path');
 const vm = require('node:vm');
 const { createSampleMeetsData, createSamplePoolsManagerData, createSampleTeamsData } = require('../helpers/test-helpers.js');
 
-global.PoolsManager = require('../../src/js/pools-manager.js');
-global.TeamsManager = require('../../src/js/teams-manager.js');
-global.MeetsManager = require('../../src/js/meets-manager.js');
-
-const { DataManager, getDataManager, initializeDataManager } = require('../../src/js/services/data-manager.js');
+const dataManagerModule = require('../helpers/browser-module-loader.js').loadBrowserModule('data-manager');
+const { DataManager, getDataManager, initializeDataManager } = dataManagerModule;
 
 describe('DataManager', () => {
   describe('initialize', () => {
@@ -194,6 +191,8 @@ describe('DataManager', () => {
       const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'data-manager.js');
       const source = fs.readFileSync(sourcePath, 'utf8');
       const context = { window: {} };
+      Object.assign(context, context.globalThis || {}, context.window || {});
+      context.globalThis = context; context.self = context; context.window = context;
       vm.runInNewContext(source, context, { filename: sourcePath });
       assert.equal(typeof context.window.DataManager, 'function');
     });
