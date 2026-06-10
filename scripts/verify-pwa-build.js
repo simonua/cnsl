@@ -176,6 +176,7 @@ assert.doesNotMatch(worker, /cacheOptionalResources/, 'Service worker installati
 const analytics = fs.readFileSync(path.join(outDir, 'js', 'analytics.js'), 'utf8');
 const analyticsInteractionType = fs.readFileSync(path.join(outDir, 'js', 'types', 'analytics-interaction-type.js'), 'utf8');
 const appConfig = fs.readFileSync(path.join(outDir, 'js', 'config', 'app-config.js'), 'utf8');
+const pwa = fs.readFileSync(path.join(outDir, 'js', 'pwa.js'), 'utf8');
 const appConfigBrowserContext = { URL };
 vm.runInNewContext(appConfig, appConfigBrowserContext);
 const nonAnalyticsBrowserCode = fs.readdirSync(path.join(outDir, 'js'), { recursive: true })
@@ -201,7 +202,11 @@ assert.match(analytics, /page_location:\s*`\$\{window\.HOME_PAGE_URL\}\$\{window
 assert.match(analytics, /page_referrer:\s*''/, 'Analytics must not send page referrers.');
 assert.match(analytics, /window\.gtag\('event', 'page_view'/, 'Sanitized page measurement must use the GA4 page_view event recognized by standard reports.');
 assert.doesNotMatch(analytics, /window\.gtag\('event', 'ca_page_view'/, 'Page measurement must not be renamed to a custom event that standard GA4 page reporting ignores.');
-assert.doesNotMatch(analytics, /window\.gtag\('event', 'ca_version'/, 'App version measurement must remain on page_view instead of duplicating each load as a custom event.');
+assert.match(analytics, /publishEvent\('ca_version',[\s\S]*app_version:\s*window\.APP_VERSION/, 'App version measurement must use the configured published version in its dedicated event.');
+assert.match(analytics, /window\.sessionStorage\.getItem\(window\.ANALYTICS_VERSION_REPORTED_STORAGE_KEY\)/, 'App version measurement must check its configured session marker before publication.');
+assert.match(analytics, /window\.sessionStorage\.setItem\(window\.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, 'true'\)/, 'App version measurement must set its configured session marker before publication.');
+assert.doesNotMatch(analytics, /cnsl_analytics_version_reported/, 'Analytics must use the session storage key from application configuration.');
+assert.doesNotMatch(pwa, /cnsl_service_worker_update_checked_at/, 'The PWA consumer must use its session storage key from application configuration.');
 assert.match(analyticsInteractionType, /const AnalyticsInteractionType = Object\.freeze\(/, 'Analytics interaction types must use one immutable shared enum.');
 assert.match(analytics, /case AnalyticsInteractionType\.BANNER:/, 'The analytics dispatcher must use the shared interaction type enum.');
 assert.match(analytics, /trackInteraction\s*\n?\s*}\);/, 'The analytics module must expose one public interaction tracking entry point.');
@@ -242,7 +247,7 @@ assert.doesNotMatch(analytics, /link_(?:url|host|destination)\s*:/, 'External-li
 assert.doesNotMatch(analytics, /resource_(?:url|path|filename)\s*:/, 'Resource measurement must not send URLs, paths, or filenames.');
 assert.doesNotMatch(analytics, /(?:pool|team|meet)_(?:id|name)\s*:/, 'Analytics must not send selected pool, team, or meet identities.');
 assert.doesNotMatch(analytics, /(?:latitude|longitude|coordinates|user_agent|platform)\s*:/, 'Analytics must not send location or device-identifying values.');
-assert.match(analytics, /window\.gtag\('event', 'page_view',[\s\S]*app_version:\s*window\.APP_VERSION/, 'Page measurement must include only the configured published app version for release-adoption reporting.');
+assert.doesNotMatch(analytics, /window\.gtag\('event', 'page_view',[\s\S]*app_version:/, 'Recurring page measurement must not duplicate app version reporting.');
 assert.match(appConfig, new RegExp(APP_VERSION.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), 'Delivered application configuration must include the published app version.');
 assert.doesNotMatch(nonAnalyticsBrowserCode, /\b(?:window\.)?gtag\s*\(/, 'Delivered browser scripts must publish measurement only through the analytics module API.');
 assert.ok(appEventNames.length > 0, 'The delivered application must declare its expected analytics events.');

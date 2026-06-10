@@ -33,10 +33,24 @@ describe('app-config', () => {
     vm.runInNewContext(source, context, { filename: sourcePath });
 
     assert.equal(context.APP_VERSION, config.APP_VERSION);
+    assert.equal(context.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, config.ANALYTICS_VERSION_REPORTED_STORAGE_KEY);
+    assert.equal(context.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY, config.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY);
     assert.equal(
       context.WEATHER_PUBLIC_ALERTS_URL,
       'https://forecast.weather.gov/MapClick.php?lat=39.2014&lon=-76.8610'
     );
+  });
+
+  it('publishes named app-owned session storage keys', () => {
+    assert.equal(config.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, 'cnsl_analytics_version_reported');
+    assert.equal(config.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY, 'cnsl_service_worker_update_checked_at');
+    assert.deepEqual(config.APP_SESSION_STORAGE_KEYS, [
+      config.ANALYTICS_VERSION_REPORTED_STORAGE_KEY,
+      config.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY,
+      config.WEATHER_ALERT_STATUS_STORAGE_KEY,
+      config.WEATHER_ALERT_DISCLOSURE_STORAGE_KEY
+    ]);
+    assert.equal(Object.isFrozen(config.APP_SESSION_STORAGE_KEYS), true);
   });
 
   it('falls back to the Columbia ZIP code when weather coordinates are invalid', () => {

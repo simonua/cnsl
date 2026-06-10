@@ -113,6 +113,20 @@
     window.gtag('event', eventName, eventParameters);
   }
 
+  function publishVersionOncePerSession() {
+    try {
+      if (window.sessionStorage.getItem(window.ANALYTICS_VERSION_REPORTED_STORAGE_KEY)) return;
+
+      window.sessionStorage.setItem(window.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, 'true');
+    } catch (_error) {
+      return;
+    }
+
+    publishEvent('ca_version', {
+      app_version: window.APP_VERSION
+    });
+  }
+
   // Private interaction trackers
 
   function trackBannerInteraction(bannerName, action) {
@@ -323,9 +337,9 @@
       send_page_view: false,
       ...getMeasuredCampaignParameters(publishedCampaign)
     });
+    publishVersionOncePerSession();
     window.gtag('event', 'page_view', {
       page_title: getMeasuredPageTitle(),
-      app_version: window.APP_VERSION,
       ...getMeasuredPageParameters()
     });
     if (publishedCampaign?.source === 'flyer') {

@@ -2,7 +2,6 @@
   'use strict';
 
   const UPDATE_CHECK_DEBOUNCE_MS = 60 * 1000;
-  const UPDATE_CHECK_STORAGE_KEY = 'cnsl_service_worker_update_checked_at';
   const BUILD_VERSION_PATTERN = /^\d{8}-\d{6}$/;
 
   if (!('serviceWorker' in navigator)) {
@@ -38,7 +37,7 @@
   const currentBuildVersion = currentScriptUrl?.searchParams.get('v');
 
   try {
-    const storedUpdateCheckAt = Number(window.sessionStorage?.getItem(UPDATE_CHECK_STORAGE_KEY));
+    const storedUpdateCheckAt = Number(window.sessionStorage?.getItem(window.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY));
     if (Number.isSafeInteger(storedUpdateCheckAt) && storedUpdateCheckAt > 0) {
       lastUpdateCheckAt = storedUpdateCheckAt;
     }
@@ -63,7 +62,7 @@
 
     lastUpdateCheckAt = updateCheckAt;
     try {
-      window.sessionStorage?.setItem(UPDATE_CHECK_STORAGE_KEY, String(updateCheckAt));
+      window.sessionStorage?.setItem(window.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY, String(updateCheckAt));
     } catch {
       // The in-memory timestamp still limits checks for this document.
     }

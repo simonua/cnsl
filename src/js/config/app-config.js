@@ -115,8 +115,10 @@
   const WEATHER_ALERT_MOBILE_MEDIA_QUERY = '(max-width: 48rem)';
 
   // Device-local preference and presentation state keys.
+  const ANALYTICS_VERSION_REPORTED_STORAGE_KEY = 'cnsl_analytics_version_reported';
   const PREFERENCES_STORAGE_KEY = 'cnsl_preferences';
   const APP_VERSION_STORAGE_KEY = 'cnsl_current_version';
+  const SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY = 'cnsl_service_worker_update_checked_at';
   const SETTINGS_NOTICE_DISMISSED_STORAGE_KEY = 'cnsl_settings_notice_dismissed';
   const WEATHER_ALERT_LAST_SUCCESSFUL_CHECK_STORAGE_KEY = 'cnsl_weather_alert_last_successful_check';
   const WEATHER_ALERT_STATUS_STORAGE_KEY = 'cnsl_weather_alert_status';
@@ -128,7 +130,8 @@
     WEATHER_ALERT_LAST_SUCCESSFUL_CHECK_STORAGE_KEY
   ]);
   const APP_SESSION_STORAGE_KEYS = Object.freeze([
-    'cnsl_service_worker_update_checked_at',
+    ANALYTICS_VERSION_REPORTED_STORAGE_KEY,
+    SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY,
     WEATHER_ALERT_STATUS_STORAGE_KEY,
     WEATHER_ALERT_DISCLOSURE_STORAGE_KEY
   ]);
@@ -140,6 +143,7 @@
   const LOCAL_DEVELOPMENT_PORT = '9090';
 
   const RUNTIME_CONFIG = Object.freeze({
+    ANALYTICS_VERSION_REPORTED_STORAGE_KEY,
     APP_TIMEZONE,
     APP_LOCAL_STORAGE_KEYS,
     APP_SESSION_STORAGE_KEYS,
@@ -154,6 +158,7 @@
     LOCAL_DEVELOPMENT_PORT,
     PREFERENCES_STORAGE_KEY,
     PWA_CACHE_PREFIX,
+    SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY,
     SETTINGS_NOTICE_DISMISSED_STORAGE_KEY,
     WEATHER_ALERT_DEFAULT_REFRESH_MINUTES,
     WEATHER_ALERT_DISCLOSURE_STORAGE_KEY,

@@ -36,6 +36,15 @@ applyTo: "src/js/**/*.js"
 - Group module-level constants by domain, keep related source and derived constants together, and alphabetize independent fixed keys or allowlist values when order has no semantic meaning.
 - Prefix validation sets with `ALLOWED_` so trust-boundary allowlists are easy to identify and audit.
 
+## Constant Ownership
+
+- Keep a constant module-local when only one script owns the value or when the value is an implementation detail, such as a debounce duration, validation pattern, private allowlist, or DOM selector.
+- Define a constant once in `src/js/config/app-config.js` when multiple delivered scripts, the service worker, generated views, tests, or cleanup registries share the same value. Export it through `RUNTIME_CONFIG` when browser runtime code consumes it.
+- Do not repeat a shared string, storage key, route, filename, duration, or other fixed value in consumers. Reference the named configuration constant and derive related collections, such as `APP_LOCAL_STORAGE_KEYS` and `APP_SESSION_STORAGE_KEYS`, from those constants.
+- Use descriptive `UPPER_SNAKE_CASE` names that identify both purpose and kind, such as `SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY`. Avoid vague aliases that merely rename an exported constant inside a consumer.
+- Browser scripts should read exported runtime constants from `window` or `globalThis`; Node code should import them from `src/js/config/app-config.js`. Add a bare script global to `eslint.config.js` only when direct global access is intentional and established by the surrounding module.
+- Add focused regression coverage when introducing or moving a shared constant. Verify its exported value, its membership in any derived registry, and consumer use when duplicated literals would create behavioral drift.
+
 ## File Header Comments
 
 - Leave at least one empty line between a top-of-file comment and the first statement.

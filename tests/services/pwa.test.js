@@ -24,6 +24,7 @@ function createWindow(location = {}) {
     LOCAL_DEVELOPMENT_PORT: '9090',
     DEPLOYMENT_VERSION_FILE: 'version.txt',
     PWA_CACHE_PREFIX: 'cnsl-static-',
+    SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY: 'cnsl_service_worker_update_checked_at',
     location: {
       href: 'https://pools.longreachmarlins.org/index.html',
       hostname: 'pools.longreachmarlins.org',

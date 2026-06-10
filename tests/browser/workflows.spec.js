@@ -541,17 +541,21 @@ test('[WF-CONTACT-001] author contact options are collected on the Contact page'
   await expect(page.getByRole('link', { name: 'Message Simon on Facebook (opens in new tab)' })).toHaveAttribute('href', 'https://www.facebook.com/simonkurtz82');
 });
 
-test('[WF-ANALYTICS-001] analytics publishes a page view and public app version only after the Google tag script loads', async ({ page }) => {
+test('[WF-ANALYTICS-001] analytics publishes a page view and public app version once per session after the Google tag script loads', async ({ page }) => {
   let releaseTagScript;
   let reportTagScriptRequest;
+  let tagScriptRequestCount = 0;
   const tagScriptRequested = new Promise(resolve => {
     reportTagScriptRequest = resolve;
   });
   await page.route('https://www.googletagmanager.com/**', async route => {
+    tagScriptRequestCount += 1;
     reportTagScriptRequest();
-    await new Promise(release => {
-      releaseTagScript = release;
-    });
+    if (tagScriptRequestCount === 1) {
+      await new Promise(release => {
+        releaseTagScript = release;
+      });
+    }
     await route.fulfill({
       contentType: 'application/javascript',
       body: 'globalThis.cnslTagScriptLoaded = true;'
@@ -606,15 +610,27 @@ test('[WF-ANALYTICS-001] analytics publishes a page view and public app version 
       ['set'],
       ['js'],
       ['config', measurementId],
+      ['event', 'ca_version'],
       ['event', 'page_view']
     ]
   });
-  await expect.poll(() => page.evaluate(() => Array.from(globalThis.dataLayer.at(-1))[2])).toMatchObject({
-    app_version: appVersion,
+  await expect.poll(() => page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
+    .toContainEqual(['event', 'ca_version', { app_version: appVersion }]);
+  await expect.poll(() => page.evaluate(() => Array.from(globalThis.dataLayer.at(-1))[2])).toEqual({
     page_location: 'https://pools.longreachmarlins.org/index.html',
     page_referrer: '',
     page_title: 'Home'
   });
+
+  await page.goto('https://pools.longreachmarlins.org/settings.html', { waitUntil: 'domcontentloaded' });
+  await expect.poll(() => page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
+    .toContainEqual(['event', 'page_view', {
+      page_location: 'https://pools.longreachmarlins.org/settings.html',
+      page_referrer: '',
+      page_title: 'Settings'
+    }]);
+  await expect.poll(() => page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
+    .not.toContainEqual(['event', 'ca_version', { app_version: appVersion }]);
   await page.unrouteAll({ behavior: 'ignoreErrors' });
 });
 
