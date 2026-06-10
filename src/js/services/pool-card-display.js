@@ -1,12 +1,7 @@
 /**
  * Renders pool directory cards from display-ready state.
  */
-if (typeof window === 'undefined') {
-  if (typeof HtmlSafety === 'undefined') { var HtmlSafety = require('./html-safety.js'); } // eslint-disable-line no-var
-  if (typeof IconCatalog === 'undefined') { var IconCatalog = require('./icon-catalog.js'); } // eslint-disable-line no-var
-}
-
-if (typeof window === 'undefined' || !window.PoolCardDisplay) {
+if (typeof globalThis.PoolCardDisplay === 'undefined') {
   class PoolCardDisplay {
     static FEATURE_CATEGORIES = Object.freeze([
       'accessibility',
@@ -21,7 +16,7 @@ if (typeof window === 'undefined' || !window.PoolCardDisplay) {
 
     /**
      * Render a pool directory card.
-     * @param {Object} viewModel - Display-ready pool state and trusted nested fragments
+      * @param {Object} viewModel - Display-ready pool state and trusted nested fragments
      * @returns {string} Pool card HTML
      */
     static render(viewModel) {
@@ -56,7 +51,7 @@ if (typeof window === 'undefined' || !window.PoolCardDisplay) {
 
     /**
      * Render detail content separately so collapsed cards can hydrate on demand.
-     * @param {Object} viewModel - Display-ready pool state and trusted nested fragments
+      * @param {Object} viewModel - Display-ready pool state and trusted nested fragments
      * @returns {string} Pool detail HTML
      */
     static renderDetails(viewModel) {
@@ -70,7 +65,7 @@ if (typeof window === 'undefined' || !window.PoolCardDisplay) {
 
     /**
      * Render the contact section and published pool actions.
-     * @param {Object} pool - Published pool record
+      * @param {Object} pool - Published pool record
      * @param {string} poolName - Visible pool name
      * @param {string} mapsSearchBaseUrl - Approved Google Maps search base URL
      * @returns {string} Contact HTML
@@ -102,7 +97,7 @@ if (typeof window === 'undefined' || !window.PoolCardDisplay) {
 
     /**
      * Normalize supported location shapes into one address presentation record.
-     * @param {Object} pool - Published pool record
+      * @param {Object} pool - Published pool record
      * @param {string} mapsSearchBaseUrl - Approved Google Maps search base URL
      * @returns {{streetAddress: string, cityStateZip: string, mapsUrl: string}} Normalized address data
      */
@@ -132,7 +127,7 @@ if (typeof window === 'undefined' || !window.PoolCardDisplay) {
 
     /**
      * Render public contact actions for a pool.
-     * @param {Object} pool - Published pool record
+      * @param {Object} pool - Published pool record
      * @param {string} poolName - Visible pool name
      * @returns {string} Actions HTML
      */
@@ -163,7 +158,7 @@ if (typeof window === 'undefined' || !window.PoolCardDisplay) {
 
     /**
      * Render sorted feature pills or the retained TBD fallback.
-     * @param {Array} featureItems - Sorted display feature records
+      * @param {Array} featureItems - Sorted display feature records
      * @returns {string} Features HTML
      */
     static renderFeatures(featureItems) {
@@ -194,7 +189,7 @@ if (typeof window === 'undefined' || !window.PoolCardDisplay) {
 
     /**
      * Render the decorative live-status indicator and its text equivalent.
-     * @param {Object} poolStatus - Current pool status
+      * @param {Object} poolStatus - Current pool status
      * @param {string} statusTooltip - Accessible status explanation
      * @returns {string} Status indicator HTML
      */
@@ -216,7 +211,7 @@ if (typeof window === 'undefined' || !window.PoolCardDisplay) {
       if (typeof transitionText !== 'string' || transitionText.length === 0) return '';
       const safeText = HtmlSafety.escapeHtml(transitionText);
       const safeLabel = HtmlSafety.escapeHtml(transitionLabel || transitionText);
-      const actionClass = ['opens', 'closes'].includes(transitionAction)
+      const actionClass = PoolTransitionAction.isValid(transitionAction)
         ? ` pool-transition-summary--${transitionAction}`
         : '';
       return `<span class="pool-transition-summary${actionClass}" aria-label="${safeLabel}">${safeText}</span>`;
@@ -231,10 +226,5 @@ if (typeof window === 'undefined' || !window.PoolCardDisplay) {
     }
   }
 
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = PoolCardDisplay;
-  }
-  if (typeof window !== 'undefined') {
-    window.PoolCardDisplay = PoolCardDisplay;
-  }
+  globalThis.PoolCardDisplay = PoolCardDisplay;
 }

@@ -3,7 +3,8 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const PoolHoursDisplay = require('../../src/js/services/pool-hours-display.js');
+const { PoolHoursDisplay, context } = require('../helpers/browser-module-loader.js').loadBrowserModule('pool-hours-display');
+const { PoolTransitionAction } = context;
 
 const timeUtils = {
   formatActivityTypes: activities => activities.join(', '),
@@ -109,7 +110,7 @@ describe('PoolHoursDisplay', () => {
     const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'pool-hours-display.js');
     const source = fs.readFileSync(sourcePath, 'utf8');
     const context = {
-      window: {},
+      PoolTransitionAction,
       HtmlSafety: { escapeHtml: value => String(value).replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character])) },
       IconCatalog: { getPoolStatusGlyph: () => '⚫', render: () => '' },
       PoolScheduleDisplay: {
@@ -118,6 +119,9 @@ describe('PoolHoursDisplay', () => {
         getPublicStatusTransitionClass: () => 'pool-status-countdown'
       }
     };
+    context.globalThis = context;
+    context.self = context;
+    context.window = context;
     vm.runInNewContext(source, context, { filename: sourcePath });
 
     assert.equal(typeof context.window.PoolHoursDisplay, 'function');

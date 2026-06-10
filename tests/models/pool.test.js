@@ -4,11 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const { createSamplePoolData, suppressConsole } = require('../helpers/test-helpers.js');
-const { PoolStatus } = require('../../src/js/types/pool-enums.js');
-const TimeUtils = require('../../src/js/services/time-utils.js');
-const PoolPeriodScheduleService = require('../../src/js/services/pool-period-schedule-service.js');
-global.PoolStatus = PoolStatus;
-const Pool = require('../../src/js/models/pool.js');
+const { Pool, PoolStatus, PoolPeriodScheduleService, TimeUtils } = require('../helpers/browser-module-loader.js').loadBrowserModule('pool');
 
 describe('Pool', () => {
   describe('constructor', () => {
@@ -426,7 +422,7 @@ describe('Pool', () => {
         assert.equal(pool.isClosedToPublicAllDayToday(), true);
         const mergeResult = [{ startTime: '1:00PM' }];
         pool.periodSchedule.mergeScheduleWithOverride = () => mergeResult;
-        assert.equal(pool._mergeScheduleWithOverride({}, 'Mon', {}), mergeResult);
+        assert.deepEqual(pool._mergeScheduleWithOverride({}, 'Mon', {}), mergeResult);
       } finally {
         TimeUtils.getCurrentEasternTimeInfo = originalGetInfo;
       }
@@ -736,6 +732,8 @@ describe('Pool', () => {
       const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'models', 'pool.js');
       const source = fs.readFileSync(sourcePath, 'utf8');
       const context = { window: {}, PoolSchedule: class {}, PoolPeriodScheduleService, TimeUtils, PoolStatus };
+      Object.assign(context, context.globalThis || {}, context.window || {});
+      context.globalThis = context; context.self = context; context.window = context;
       vm.runInNewContext(source, context, { filename: sourcePath });
       assert.equal(typeof context.window.Pool, 'function');
     });
@@ -748,6 +746,8 @@ describe('Pool', () => {
         hasScheduleData() { return false; }
       }
       const context = { window: { TimeUtils, PoolStatus }, PoolSchedule: ScheduleStub, PoolPeriodScheduleService, console: { error: () => {} } };
+      Object.assign(context, context.globalThis || {}, context.window || {});
+      context.globalThis = context; context.self = context; context.window = context;
       vm.runInNewContext(source, context, { filename: sourcePath });
       const pool = new context.window.Pool({ hours: {} });
       assert.equal(pool._getTimeUtils(), context.window.TimeUtils);

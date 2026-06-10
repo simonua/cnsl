@@ -3,7 +3,7 @@
  * Keeps period selection, dated overrides, and access-status resolution outside the Pool model and display layer.
  */
 
-if (typeof window === 'undefined' || !window.PoolPeriodScheduleService) {
+if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
   class PoolPeriodScheduleService {
     static DAY_NAMES = Object.freeze({
       Mon: 'Monday',
@@ -267,6 +267,5 @@ if (typeof window === 'undefined' || !window.PoolPeriodScheduleService) {
     }
   }
 
-  if (typeof module !== 'undefined' && module.exports) module.exports = PoolPeriodScheduleService;
-  if (typeof window !== 'undefined') window.PoolPeriodScheduleService = PoolPeriodScheduleService;
+  globalThis.PoolPeriodScheduleService = PoolPeriodScheduleService;
 }

@@ -3,7 +3,7 @@
  * Consumes display-ready schedule state and emits escaped markup without owning pool business rules.
  */
 
-if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
+if (typeof globalThis.PoolScheduleDisplay === 'undefined') {
   class PoolScheduleDisplay {
     static LAYOUTS = ['list', 'calendar'];
 
@@ -31,8 +31,8 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
      * @returns {string} Display label, or an empty string without a supported transition
      */
     static formatPublicStatusTransition(transition, options = {}) {
-      if (!transition || !['opens', 'closes'].includes(transition.action)) return '';
-      const actionLabel = transition.action === 'opens' ? 'Opens' : 'Closes';
+      if (!transition || !PoolTransitionAction.isValid(transition.action)) return '';
+      const actionLabel = transition.action === PoolTransitionAction.OPENS ? 'Opens' : 'Closes';
       return PoolScheduleDisplay.formatStatusCountdown(actionLabel, transition.minutes, options.useLongUnits === true);
     }
 
@@ -62,7 +62,7 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
      */
     static getPublicStatusTransitionClass(transition) {
       const isImminentClosing = transition
-        && transition.action === 'closes'
+        && transition.action === PoolTransitionAction.CLOSES
         && Number.isInteger(transition.minutes)
         && transition.minutes > 0
         && transition.minutes < 60;
@@ -355,11 +355,5 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
     }
   }
 
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = PoolScheduleDisplay;
-  }
-
-  if (typeof window !== 'undefined') {
-    window.PoolScheduleDisplay = PoolScheduleDisplay;
-  }
+  globalThis.PoolScheduleDisplay = PoolScheduleDisplay;
 }

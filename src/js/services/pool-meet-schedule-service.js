@@ -3,7 +3,7 @@
  * Keeps cross-domain schedule enrichment separate from published pool source data.
  */
 
-if (typeof window === 'undefined' || !window.PoolMeetScheduleService) {
+if (typeof globalThis.PoolMeetScheduleService === 'undefined') {
   class PoolMeetScheduleService {
     static GENERATED_SOURCE = 'cnsl-meet';
     static WEEKDAYS = Object.freeze(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
@@ -135,6 +135,5 @@ if (typeof window === 'undefined' || !window.PoolMeetScheduleService) {
     }
   }
 
-  if (typeof module !== 'undefined' && module.exports) module.exports = PoolMeetScheduleService;
-  if (typeof window !== 'undefined') window.PoolMeetScheduleService = PoolMeetScheduleService;
+  globalThis.PoolMeetScheduleService = PoolMeetScheduleService;
 }

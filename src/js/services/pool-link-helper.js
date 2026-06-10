@@ -2,19 +2,11 @@
  * Pool Link Helper - Utilities for linking to pools from various pages
  */
 
-if (typeof module !== 'undefined' && module.exports && typeof globalThis.GOOGLE_MAPS_SEARCH_BASE_URL === 'undefined') {
-  require('../config/app-config.js');
-}
-
 // Prevent multiple declarations
-if (typeof window === 'undefined' || !window.getPoolIdFromLocation) {
+if (typeof globalThis.getPoolIdFromLocation === 'undefined') {
 
-const PoolLinkSafety = typeof module !== 'undefined' && module.exports
-  ? require('./html-safety.js')
-  : HtmlSafety;
-const PoolLinkIcons = typeof module !== 'undefined' && module.exports
-  ? require('./icon-catalog.js')
-  : IconCatalog;
+const PoolLinkSafety = globalThis.HtmlSafety;
+const PoolLinkIcons = globalThis.IconCatalog;
 
 function createPoolLocationIndex(pools = []) {
   const poolLocations = new Map();
@@ -207,30 +199,13 @@ function generateEnhancedPoolLink(locationName, dataManager, options = {}, pools
   }
 }
 
-// Export for Node.js compatibility
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    createPoolLocationIndex,
-    getPoolIdFromLocation,
-    getPoolDataFromLocation,
-    formatPoolCourseLabel,
-    generatePoolsPageLink,
-    generateLinkedPoolMentions,
-    generateGoogleMapsLink,
-    generateEnhancedPoolLink
-  };
-}
-
-// Make functions available globally
-if (typeof window !== 'undefined') {
-  window.getPoolIdFromLocation = getPoolIdFromLocation;
-  window.createPoolLocationIndex = createPoolLocationIndex;
-  window.getPoolDataFromLocation = getPoolDataFromLocation;
-  window.formatPoolCourseLabel = formatPoolCourseLabel;
-  window.generatePoolsPageLink = generatePoolsPageLink;
-  window.generateLinkedPoolMentions = generateLinkedPoolMentions;
-  window.generateGoogleMapsLink = generateGoogleMapsLink;
-  window.generateEnhancedPoolLink = generateEnhancedPoolLink;
-}
+globalThis.getPoolIdFromLocation = getPoolIdFromLocation;
+globalThis.createPoolLocationIndex = createPoolLocationIndex;
+globalThis.getPoolDataFromLocation = getPoolDataFromLocation;
+globalThis.formatPoolCourseLabel = formatPoolCourseLabel;
+globalThis.generatePoolsPageLink = generatePoolsPageLink;
+globalThis.generateLinkedPoolMentions = generateLinkedPoolMentions;
+globalThis.generateGoogleMapsLink = generateGoogleMapsLink;
+globalThis.generateEnhancedPoolLink = generateEnhancedPoolLink;
 
 }

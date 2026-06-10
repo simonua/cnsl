@@ -4,14 +4,7 @@
  */
 
 // Prevent multiple declarations
-if (typeof window === 'undefined' || !window.Pool) {
-
-// Node.js: load dependencies
-if (typeof window === 'undefined') {
-  if (typeof PoolSchedule === 'undefined') { var PoolSchedule = require('../pool-schedule.js'); } // eslint-disable-line no-var
-  if (typeof TimeUtils === 'undefined') { var TimeUtils = require('../services/time-utils.js'); } // eslint-disable-line no-var
-  if (typeof PoolPeriodScheduleService === 'undefined') { var PoolPeriodScheduleService = require('../services/pool-period-schedule-service.js'); } // eslint-disable-line no-var
-}
+if (typeof globalThis.Pool === 'undefined') {
 
   class Pool {
   /**
@@ -92,12 +85,8 @@ if (typeof window === 'undefined') {
    * @returns {Object|null} - TimeUtils object or null if not available
    */
   _getTimeUtils() {
-    if (typeof window !== 'undefined' && window.TimeUtils) {
-      return window.TimeUtils;
-    }
-    if (typeof TimeUtils !== 'undefined') {
-      return TimeUtils;
-    }
+    if (globalThis.TimeUtils) return globalThis.TimeUtils;
+    if (typeof TimeUtils !== 'undefined') return TimeUtils;
     console.error('TimeUtils is not available');
     return null;
   }
@@ -108,9 +97,7 @@ if (typeof window === 'undefined') {
    * @returns {Object|null} - PoolStatus object or null if not available
    */
   _getPoolStatus() {
-    if (typeof window !== 'undefined' && window.PoolStatus) {
-      return window.PoolStatus;
-    }
+    if (globalThis.PoolStatus) return globalThis.PoolStatus;
     if (typeof PoolStatus !== 'undefined') {
       return PoolStatus;
     }
@@ -269,12 +256,12 @@ if (typeof window === 'undefined') {
     if (!Number.isFinite(durationMinutes) || durationMinutes < 0) return false;
 
     const transition = this.getPublicStatusTransitionToday();
-    return transition !== null && transition.action === 'opens' && transition.minutes <= durationMinutes;
+    return transition !== null && transition.action === PoolTransitionAction.OPENS && transition.minutes <= durationMinutes;
   }
 
   /**
    * Return the next same-day transition in public-use availability.
-   * @returns {{ action: string, minutes: number }|null} Next public opening or closing transition
+    * @returns {{ action: PoolTransitionActionValue, minutes: number }|null} Next public opening or closing transition
    */
   getPublicStatusTransitionToday() {
     const TimeUtilsRef = this._getTimeUtils();
@@ -283,8 +270,8 @@ if (typeof window === 'undefined') {
 
     const currentStatus = this.getCurrentStatus();
     const action = currentStatus === PoolStatusRef.CLOSED
-      ? 'opens'
-      : currentStatus === PoolStatusRef.OPEN ? 'closes' : null;
+      ? PoolTransitionAction.OPENS
+      : currentStatus === PoolStatusRef.OPEN ? PoolTransitionAction.CLOSES : null;
     if (!action) return null;
 
     if (this.schedulePeriods) {
@@ -292,7 +279,7 @@ if (typeof window === 'undefined') {
       if (!easternTimeInfo.isValid) return null;
 
       const timeSlots = this._getPeriodTimeSlotsForDate(easternTimeInfo.date, easternTimeInfo.day.substring(0, 3));
-      if (action === 'opens') {
+      if (action === PoolTransitionAction.OPENS) {
         for (const slot of timeSlots) {
           if (this._getPeriodSlotStatus(slot) !== PoolStatusRef.OPEN || typeof slot.startTime !== 'string') continue;
           const startMinutes = TimeUtilsRef.timeStringToMinutes(slot.startTime);
@@ -320,7 +307,7 @@ if (typeof window === 'undefined') {
     const dayHours = this.schedule.getDayHours(dayName);
     const currentMinutes = TimeUtilsRef.formatTimeForComparison(easternTime);
 
-    if (action === 'opens') {
+    if (action === PoolTransitionAction.OPENS) {
       if (!dayHours || dayHours.closed || typeof dayHours.open !== 'string') return null;
       const openingMinutes = TimeUtilsRef.timeStringToMinutes(dayHours.open);
       return openingMinutes > currentMinutes ? { action, minutes: openingMinutes - currentMinutes } : null;
@@ -758,14 +745,6 @@ if (typeof window === 'undefined') {
   }
 }
 
-// Export for Node.js compatibility
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = Pool;
-}
-
-// Make sure it's available globally
-if (typeof window !== 'undefined') {
-  window.Pool = Pool;
-}
+globalThis.Pool = Pool;
 
 }

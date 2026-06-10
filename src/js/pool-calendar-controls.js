@@ -3,7 +3,7 @@
  * Routes delegated pool-card events into the schedule navigation actions supplied by the directory controller.
  */
 
-if (typeof window === 'undefined' || !window.PoolCalendarControls) {
+if (typeof globalThis.PoolCalendarControls === 'undefined') {
   class PoolCalendarControls {
     static handleClick(event, actions) {
       const target = event.target;
@@ -52,5 +52,5 @@ if (typeof window === 'undefined' || !window.PoolCalendarControls) {
     }
   }
 
-  if (typeof window !== 'undefined') window.PoolCalendarControls = PoolCalendarControls;
+  globalThis.PoolCalendarControls = PoolCalendarControls;
 }

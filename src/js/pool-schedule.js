@@ -3,13 +3,7 @@
  */
 
 // Prevent multiple declarations
-if (typeof window === 'undefined' || !window.PoolSchedule) {
-  const NodeTimeUtils = typeof module !== 'undefined' && module.exports
-    ? require('./services/time-utils.js')
-    : null;
-  const NodePoolStatus = typeof module !== 'undefined' && module.exports
-    ? require('./types/pool-enums.js').PoolStatus
-    : null;
+if (typeof globalThis.PoolSchedule === 'undefined') {
 
   class PoolSchedule {
   constructor(scheduleData) {
@@ -25,9 +19,6 @@ if (typeof window === 'undefined' || !window.PoolSchedule) {
     if (typeof globalThis !== 'undefined' && globalThis.TimeUtils) {
       return globalThis.TimeUtils;
     }
-    if (NodeTimeUtils) {
-      return NodeTimeUtils;
-    }
     console.error('TimeUtils is not available');
     return null;
   }
@@ -40,9 +31,6 @@ if (typeof window === 'undefined' || !window.PoolSchedule) {
   _getPoolStatus() {
     if (typeof globalThis !== 'undefined' && globalThis.PoolStatus) {
       return globalThis.PoolStatus;
-    }
-    if (NodePoolStatus) {
-      return NodePoolStatus;
     }
     console.error('PoolStatus is not available');
     return null;
@@ -299,14 +287,6 @@ if (typeof window === 'undefined' || !window.PoolSchedule) {
   }
 }
 
-// Export for Node.js compatibility
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = PoolSchedule;
-}
-
-// Make sure it's available globally
-if (typeof window !== 'undefined') {
-  window.PoolSchedule = PoolSchedule;
-}
+globalThis.PoolSchedule = PoolSchedule;
 
 }

@@ -4,9 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const { createSamplePoolsManagerData, suppressConsole } = require('../helpers/test-helpers.js');
-const { PoolStatus } = require('../../src/js/types/pool-enums.js');
-global.PoolStatus = PoolStatus;
-const PoolsManager = require('../../src/js/pools-manager.js');
+const { PoolStatus, PoolsManager } = require('../helpers/browser-module-loader.js').loadBrowserModule('pools-manager');
 
 describe('PoolsManager', () => {
   let manager;
@@ -182,6 +180,8 @@ describe('PoolsManager', () => {
       const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'pools-manager.js');
       const source = fs.readFileSync(sourcePath, 'utf8');
       const context = { window: {}, Pool: class {} };
+      Object.assign(context, context.globalThis || {}, context.window || {});
+      context.globalThis = context; context.self = context; context.window = context;
       vm.runInNewContext(source, context, { filename: sourcePath });
       assert.equal(typeof context.window.PoolsManager, 'function');
     });

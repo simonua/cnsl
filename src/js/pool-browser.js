@@ -29,7 +29,7 @@ function markPoolPerformance(markName) {
  * @returns {object|null} TimeUtils class or null if not available
  */
 function _getTimeUtils() {
-  return (typeof window !== 'undefined' && window.TimeUtils) ? window.TimeUtils : null;
+  return globalThis.TimeUtils || null;
 }
 
 // ------------------------------
@@ -315,7 +315,7 @@ function getPoolStatusSummary(poolModel, options = {}) {
 
 function getPoolTransitionAction(poolModel) {
   const action = poolModel?.getPublicStatusTransitionToday()?.action;
-  return ['opens', 'closes'].includes(action) ? action : '';
+  return PoolTransitionAction.isValid(action) ? action : '';
 }
 
 function syncPoolTransitionSummary(poolCard) {

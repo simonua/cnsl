@@ -3,8 +3,8 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const PoolSchedule = require('../../src/js/pool-schedule.js');
-const { PoolStatus } = require('../../src/js/types/pool-enums.js');
+const poolScheduleModule = require('../helpers/browser-module-loader.js').loadBrowserModule('pool-schedule');
+const { PoolSchedule, PoolStatus, context: poolScheduleContext } = poolScheduleModule;
 
 describe('PoolSchedule', () => {
   describe('constructor', () => {
@@ -127,8 +127,8 @@ describe('PoolSchedule', () => {
     });
 
     it('returns a status entry for every day and exposes the current status helper', () => {
-      const originalTimeUtils = globalThis.TimeUtils;
-      globalThis.TimeUtils = {
+      const originalTimeUtils = poolScheduleContext.TimeUtils;
+      poolScheduleContext.TimeUtils = {
         TIMEZONE: 'America/New_York',
         getDayName: () => 'Monday',
         formatTime: value => value,
@@ -141,7 +141,7 @@ describe('PoolSchedule', () => {
         assert.equal(schedule.getAllDaysStatus().length, 7);
         assert.equal(schedule.getCurrentStatus(), PoolStatus.OPEN);
       } finally {
-        globalThis.TimeUtils = originalTimeUtils;
+        poolScheduleContext.TimeUtils = originalTimeUtils;
       }
     });
   });
@@ -150,8 +150,10 @@ describe('PoolSchedule', () => {
     it('installs PoolSchedule as a browser script global', () => {
       const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'pool-schedule.js');
       const source = fs.readFileSync(sourcePath, 'utf8');
-      const context = { window: {}, globalThis: { PoolStatus, TimeUtils: {} } };
-      context.globalThis.window = context.window;
+      const context = { PoolStatus, TimeUtils: {} };
+      context.globalThis = context;
+      context.self = context;
+      context.window = context;
       vm.runInNewContext(source, context, { filename: sourcePath });
 
       assert.equal(typeof context.window.PoolSchedule, 'function');
@@ -160,7 +162,10 @@ describe('PoolSchedule', () => {
     it('returns safe fallback values when browser dependencies are unavailable', () => {
       const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'pool-schedule.js');
       const source = fs.readFileSync(sourcePath, 'utf8');
-      const context = { window: {}, console: { error: () => {} } };
+      const context = { console: { error: () => {} } };
+      context.globalThis = context;
+      context.self = context;
+      context.window = context;
       vm.runInNewContext(source, context, { filename: sourcePath });
       const schedule = new context.window.PoolSchedule({ Monday: { open: '9:00AM', close: '5:00PM' } });
 
@@ -178,13 +183,15 @@ describe('PoolSchedule', () => {
       const source = fs.readFileSync(sourcePath, 'utf8');
       const context = {
         console: { error: () => {} },
-        window: {},
         TimeUtils: {
           getDayName: () => 'Tuesday',
           parseTimeString: value => value.startsWith('9') ? 9 : 10,
           formatTime: value => value
         }
       };
+      context.globalThis = context;
+      context.self = context;
+      context.window = context;
       vm.runInNewContext(source, context, { filename: sourcePath });
       const schedule = new context.window.PoolSchedule({ Monday: { open: '9:00AM', close: '10:00AM' } });
 
@@ -194,7 +201,10 @@ describe('PoolSchedule', () => {
     it('closes incomplete browser schedules when status exists without time utilities', () => {
       const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'pool-schedule.js');
       const source = fs.readFileSync(sourcePath, 'utf8');
-      const context = { window: {}, PoolStatus, console: { error: () => {} } };
+      const context = { PoolStatus, console: { error: () => {} } };
+      context.globalThis = context;
+      context.self = context;
+      context.window = context;
       vm.runInNewContext(source, context, { filename: sourcePath });
       const schedule = new context.window.PoolSchedule({ Monday: { closed: true }, Tuesday: { open: '9:00AM' }, Wednesday: { open: '9:00AM', close: '5:00PM' } });
       assert.equal(schedule.getStatusAtTime('Missing').status, PoolStatus.CLOSED.status);

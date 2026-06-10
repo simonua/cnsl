@@ -1,7 +1,7 @@
 /**
  * Reusable presentation calculations for the pool directory route.
  */
-if (typeof window === 'undefined' || !window.PoolDirectoryService) {
+if (typeof globalThis.PoolDirectoryService === 'undefined') {
   class PoolDirectoryService {
     static AVAILABILITY_FILTERS = Object.freeze(['all', 'open-now', 'opens-soon', 'open-today', 'open-tomorrow', 'open-next-two-hours']);
     static OPENING_SOON_MINUTES = 60;
@@ -106,11 +106,5 @@ if (typeof window === 'undefined' || !window.PoolDirectoryService) {
     }
   }
 
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = PoolDirectoryService;
-  }
-
-  if (typeof window !== 'undefined') {
-    window.PoolDirectoryService = PoolDirectoryService;
-  }
+  globalThis.PoolDirectoryService = PoolDirectoryService;
 }

@@ -1,7 +1,7 @@
 /**
  * Provides date-only calendar calculations used by pool schedule navigation.
  */
-if (typeof window === 'undefined' || !window.PoolCalendarService) {
+if (typeof globalThis.PoolCalendarService === 'undefined') {
   class PoolCalendarService {
     /**
      * Return the Monday for the week containing a date.
@@ -87,10 +87,5 @@ if (typeof window === 'undefined' || !window.PoolCalendarService) {
     }
   }
 
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = PoolCalendarService;
-  }
-  if (typeof window !== 'undefined') {
-    window.PoolCalendarService = PoolCalendarService;
-  }
+  globalThis.PoolCalendarService = PoolCalendarService;
 }

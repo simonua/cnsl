@@ -1,13 +1,7 @@
 /**
  * Renders the pool-hours presentation from a display-ready view model.
  */
-if (typeof window === 'undefined') {
-  if (typeof HtmlSafety === 'undefined') { var HtmlSafety = require('./html-safety.js'); } // eslint-disable-line no-var
-  if (typeof IconCatalog === 'undefined') { var IconCatalog = require('./icon-catalog.js'); } // eslint-disable-line no-var
-  if (typeof PoolScheduleDisplay === 'undefined') { var PoolScheduleDisplay = require('./pool-schedule-display.js'); } // eslint-disable-line no-var
-}
-
-if (typeof window === 'undefined' || !window.PoolHoursDisplay) {
+if (typeof globalThis.PoolHoursDisplay === 'undefined') {
   class PoolHoursDisplay {
     /**
      * Render a simple hours-state message.
@@ -43,7 +37,7 @@ if (typeof window === 'undefined' || !window.PoolHoursDisplay) {
 
     /**
      * Render the full pool-hours panel.
-     * @param {Object} viewModel - Display-ready pool hours state and schedule options
+    * @param {Object} viewModel - Display-ready pool hours state and schedule options
      * @returns {string} Pool hours HTML
      */
     static render(viewModel) {
@@ -62,7 +56,7 @@ if (typeof window === 'undefined' || !window.PoolHoursDisplay) {
       const statusCountdown = PoolScheduleDisplay.formatPublicStatusTransition(statusTransition);
       const statusCountdownLabel = PoolScheduleDisplay.formatPublicStatusTransition(statusTransition, { useLongUnits: true });
       const statusCountdownClass = PoolScheduleDisplay.getPublicStatusTransitionClass(statusTransition);
-      const statusAction = statusTransition && ['opens', 'closes'].includes(statusTransition.action)
+      const statusAction = statusTransition && PoolTransitionAction.isValid(statusTransition.action)
         ? statusTransition.action
         : '';
       const statusActionClass = statusAction ? ` pool-status-countdown--${statusAction}` : '';
@@ -111,10 +105,5 @@ if (typeof window === 'undefined' || !window.PoolHoursDisplay) {
     }
   }
 
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = PoolHoursDisplay;
-  }
-  if (typeof window !== 'undefined') {
-    window.PoolHoursDisplay = PoolHoursDisplay;
-  }
+  globalThis.PoolHoursDisplay = PoolHoursDisplay;
 }

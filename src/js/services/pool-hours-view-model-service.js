@@ -1,12 +1,10 @@
 /**
  * Builds display-ready pool hours state without touching browser DOM APIs.
  */
-if (typeof window === 'undefined') {
-  if (typeof PoolCalendarService === 'undefined') { var PoolCalendarService = require('./pool-calendar-service.js'); } // eslint-disable-line no-var
-  if (typeof TeamScheduleService === 'undefined') { var TeamScheduleService = require('./team-schedule-service.js').TeamScheduleService; } // eslint-disable-line no-var
-}
+if (typeof globalThis.PoolHoursViewModelService === 'undefined') {
+  const PoolCalendarService = globalThis.PoolCalendarService;
+  const TeamScheduleService = globalThis.TeamScheduleService;
 
-if (typeof window === 'undefined' || !window.PoolHoursViewModelService) {
   class PoolHoursViewModelService {
     /**
      * Build the display model for one pool's selected schedule week.
@@ -137,10 +135,5 @@ if (typeof window === 'undefined' || !window.PoolHoursViewModelService) {
     }
   }
 
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = PoolHoursViewModelService;
-  }
-  if (typeof window !== 'undefined') {
-    window.PoolHoursViewModelService = PoolHoursViewModelService;
-  }
+  globalThis.PoolHoursViewModelService = PoolHoursViewModelService;
 }

@@ -12,7 +12,7 @@ const {
   generatePoolsPageLink,
   generateLinkedPoolMentions,
   generateEnhancedPoolLink
-} = require('../../src/js/services/pool-link-helper.js');
+} = require('../helpers/browser-module-loader.js').loadBrowserModule('pool-link-helper');
 
 const publishedPools = [
   { id: 'bwp', name: 'Bryant Woods' },
@@ -204,6 +204,8 @@ describe('pool-link-helper', () => {
       const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'pool-link-helper.js');
       const source = fs.readFileSync(sourcePath, 'utf8');
       const context = { window: {}, HtmlSafety: { escapeHtml: String, safeHttpUrl: String }, IconCatalog: { render: () => '' } };
+      Object.assign(context, context.globalThis || {}, context.window || {});
+      context.globalThis = context; context.self = context; context.window = context;
       vm.runInNewContext(source, context, { filename: sourcePath });
       assert.equal(typeof context.window.generateEnhancedPoolLink, 'function');
       assert.equal(typeof context.window.createPoolLocationIndex, 'function');

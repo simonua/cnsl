@@ -3,9 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const Meet = require('../../src/js/models/meet.js');
-const Team = require('../../src/js/models/team.js');
-const PoolMeetScheduleService = require('../../src/js/services/pool-meet-schedule-service.js');
+const { Meet, Team, PoolMeetScheduleService, toHostValue } = require('../helpers/browser-module-loader.js').loadBrowserModule('pool-meet-schedule-service');
 
 const meetTimes = {
   dualMeets: { start: '07:00', end: '12:00' },
@@ -23,10 +21,10 @@ describe('PoolMeetScheduleService', () => {
 
     PoolMeetScheduleService.applyMeetOverrides(pools, teams, meets);
 
-    assert.deepEqual(pools[0].scheduleOverrides.map(override => ({
+    assert.deepEqual(toHostValue(pools[0].scheduleOverrides.map(override => ({
       date: override.startDate,
       hours: override.hours[0]
-    })), [{
+    }))), [{
       date: '2026-06-20',
       hours: { weekDays: ['Sat'], types: ['Dual Meet #2'], accessStatus: 'swim-meet', startTime: '7:00am', endTime: '12:00pm', meetDate: '2026-06-20', meetPoolId: 'krp' }
     }, {
@@ -81,12 +79,12 @@ describe('PoolMeetScheduleService', () => {
 
     PoolMeetScheduleService.applyMeetOverrides(pools, teams, meets);
 
-    assert.deepEqual(pools[0].schedulePeriods[0].hours.map(hour => hour.accessStatus), ['public']);
-    assert.deepEqual(pools[0].scheduleOverrides.map(override => ({
+    assert.deepEqual(toHostValue(pools[0].schedulePeriods[0].hours.map(hour => hour.accessStatus)), ['public']);
+    assert.deepEqual(toHostValue(pools[0].scheduleOverrides.map(override => ({
       date: override.startDate,
       reason: override.reason,
       accessStatuses: override.hours.map(hour => hour.accessStatus)
-    })), [{
+    }))), [{
       date: '2026-06-06',
       reason: 'Time Trials',
       accessStatuses: ['public', 'swim-meet']
@@ -146,13 +144,15 @@ describe('PoolMeetScheduleService', () => {
 
     const pool = { name: 'No Meets', scheduleOverrides: null };
     PoolMeetScheduleService.applyMeetOverrides([pool]);
-    assert.deepEqual(pool.scheduleOverrides, []);
+    assert.deepEqual(toHostValue(pool.scheduleOverrides), []);
   });
 
   it('installs the service as a browser script global', () => {
     const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'pool-meet-schedule-service.js');
     const source = fs.readFileSync(sourcePath, 'utf8');
     const context = { window: {} };
+    Object.assign(context, context.globalThis || {}, context.window || {});
+    context.globalThis = context; context.self = context; context.window = context;
     vm.runInNewContext(source, context, { filename: sourcePath });
 
     assert.equal(context.window.PoolMeetScheduleService.formatScheduleTime(60), '1:00am');

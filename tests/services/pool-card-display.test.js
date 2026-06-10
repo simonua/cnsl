@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const PoolCardDisplay = require('../../src/js/services/pool-card-display.js');
+const { PoolCardDisplay } = require('../helpers/browser-module-loader.js').loadBrowserModule('pool-card-display');
 
 const viewModel = {
   pool: {
@@ -218,6 +218,8 @@ describe('PoolCardDisplay', () => {
       HtmlSafety: { escapeHtml: value => String(value).replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character])), safeHttpUrl: () => '', safeTelephoneUrl: () => '' },
       IconCatalog: { render: () => '' }
     };
+    Object.assign(context, context.globalThis || {}, context.window || {});
+    context.globalThis = context; context.self = context; context.window = context;
     vm.runInNewContext(source, context, { filename: sourcePath });
 
     assert.equal(typeof context.window.PoolCardDisplay, 'function');

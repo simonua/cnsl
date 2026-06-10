@@ -1,11 +1,7 @@
 /**
  * Tracks per-pool schedule week state for pool directory navigation.
  */
-if (typeof window === 'undefined') {
-  if (typeof PoolCalendarService === 'undefined') { var PoolCalendarService = require('./pool-calendar-service.js'); } // eslint-disable-line no-var
-}
-
-if (typeof window === 'undefined' || !window.PoolWeekStateService) {
+if (typeof globalThis.PoolWeekStateService === 'undefined') {
   class PoolWeekStateService {
     static weekStarts = new Map();
 
@@ -72,10 +68,5 @@ if (typeof window === 'undefined' || !window.PoolWeekStateService) {
     }
   }
 
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = PoolWeekStateService;
-  }
-  if (typeof window !== 'undefined') {
-    window.PoolWeekStateService = PoolWeekStateService;
-  }
+  globalThis.PoolWeekStateService = PoolWeekStateService;
 }

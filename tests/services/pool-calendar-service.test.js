@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const PoolCalendarService = require('../../src/js/services/pool-calendar-service.js');
+const { PoolCalendarService } = require('../helpers/browser-module-loader.js').loadBrowserModule('pool-calendar-service');
 
 describe('PoolCalendarService', () => {
   describe('getMondayOfWeek', () => {
@@ -52,6 +52,8 @@ describe('PoolCalendarService', () => {
     const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'pool-calendar-service.js');
     const source = fs.readFileSync(sourcePath, 'utf8');
     const context = { window: {} };
+    Object.assign(context, context.globalThis || {}, context.window || {});
+    context.globalThis = context; context.self = context; context.window = context;
     vm.runInNewContext(source, context, { filename: sourcePath });
 
     assert.equal(typeof context.window.PoolCalendarService, 'function');

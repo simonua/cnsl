@@ -3,14 +3,7 @@
  */
 
 // Prevent multiple declarations
-if (typeof window === 'undefined' || !window.PoolsManager) {
-
-// Node.js: load dependencies
-if (typeof window === 'undefined') {
-
-  if (typeof Pool === 'undefined') { var Pool = require('./models/pool.js'); } // eslint-disable-line no-var
-
-}
+if (typeof globalThis.PoolsManager === 'undefined') {
 
   class PoolsManager {
   constructor() {
@@ -278,14 +271,6 @@ if (typeof window === 'undefined') {
 
 }
 
-// Export for Node.js compatibility
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = PoolsManager;
-}
-
-// Make sure it's available globally
-if (typeof window !== 'undefined') {
-  window.PoolsManager = PoolsManager;
-}
+globalThis.PoolsManager = PoolsManager;
 
 }

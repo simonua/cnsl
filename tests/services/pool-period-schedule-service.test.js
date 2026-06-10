@@ -4,9 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const { suppressConsole } = require('../helpers/test-helpers.js');
-const { PoolStatus } = require('../../src/js/types/pool-enums.js');
-const TimeUtils = require('../../src/js/services/time-utils.js');
-const PoolPeriodScheduleService = require('../../src/js/services/pool-period-schedule-service.js');
+const { PoolStatus, TimeUtils, PoolPeriodScheduleService } = require('../helpers/browser-module-loader.js').loadBrowserModule('pool-period-schedule-service');
 
 const schedules = [{
   name: 'Summer',
@@ -192,6 +190,8 @@ describe('PoolPeriodScheduleService', () => {
     const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'pool-period-schedule-service.js');
     const source = fs.readFileSync(sourcePath, 'utf8');
     const context = { window: {} };
+    Object.assign(context, context.globalThis || {}, context.window || {});
+    context.globalThis = context; context.self = context; context.window = context;
     vm.runInNewContext(source, context, { filename: sourcePath });
     assert.equal(typeof context.window.PoolPeriodScheduleService, 'function');
   });

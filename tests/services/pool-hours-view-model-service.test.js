@@ -3,8 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const PoolHoursViewModelService = require('../../src/js/services/pool-hours-view-model-service.js');
-const PoolCalendarService = require('../../src/js/services/pool-calendar-service.js');
+const { PoolHoursViewModelService, PoolCalendarService } = require('../helpers/browser-module-loader.js').loadBrowserModule('pool-hours-view-model-service');
 
 describe('PoolHoursViewModelService', () => {
   it('builds the display model and enriches only semantic practice slots', () => {
@@ -132,6 +131,8 @@ describe('PoolHoursViewModelService', () => {
     const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'pool-hours-view-model-service.js');
     const source = fs.readFileSync(sourcePath, 'utf8');
     const context = { window: {}, PoolCalendarService, TeamScheduleService: {} };
+    Object.assign(context, context.globalThis || {}, context.window || {});
+    context.globalThis = context; context.self = context; context.window = context;
     vm.runInNewContext(source, context, { filename: sourcePath });
 
     assert.equal(typeof context.window.PoolHoursViewModelService, 'function');
