@@ -123,6 +123,15 @@ describe('PoolHoursViewModelService', () => {
     );
     assert.deepEqual(slots[0].timeSlots, []);
     assert.equal(slots[1].timeSlots[0].accessStatus, 'practice-only');
+    const unmatchedFavoriteSlots = PoolHoursViewModelService.enrichPracticeTeamNames(
+      [{ day: 'Mon', timeSlots: [{ accessStatus: 'practice-only' }] }],
+      poolModel.name,
+      options.weekStart,
+      [],
+      options.timeUtils,
+      { getDetailedPracticeTeamNames: () => ['Fallback Team'] }
+    );
+    assert.deepEqual(unmatchedFavoriteSlots[0].timeSlots[0].favoritePracticeTeamNames, []);
     assert.deepEqual(PoolHoursViewModelService.getWeekSchedule({
       name: 'Default Collaborator',
       getWeekScheduleForDate: () => [{ day: 'Mon', timeSlots: [] }]

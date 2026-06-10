@@ -146,7 +146,9 @@ describe('PoolScheduleDisplay', () => {
     it('provides expanded units for an accessible label', () => {
       assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'closes', minutes: 121 }, { useLongUnits: true }), 'Closes in 2 hours 1 minute');
       assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'opens', minutes: 1 }, { useLongUnits: true }), 'Opens in 1 minute');
+      assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'opens', minutes: 2 }, { useLongUnits: true }), 'Opens in 2 minutes');
       assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'opens', minutes: 61 }, { useLongUnits: true }), 'Opens in 1 hour 1 minute');
+      assert.equal(PoolScheduleDisplay.formatPublicStatusTransition({ action: 'opens', minutes: 122 }, { useLongUnits: true }), 'Opens in 2 hours 2 minutes');
     });
 
     it('omits a countdown without a current-day public closure', () => {
@@ -254,6 +256,14 @@ describe('PoolScheduleDisplay', () => {
       assert.doesNotMatch(named, /<Marlins>/);
       assert.match(misleadingLabel, />CNSL Practice Only</);
       assert.doesNotMatch(misleadingLabel, /schedule-activity__team-names/);
+    });
+
+    it('normalizes absent and invalid practice-team collections', () => {
+      assert.equal(PoolScheduleDisplay.formatPracticeTeamText('public', ['Hidden Team']), '');
+      assert.equal(PoolScheduleDisplay.formatPracticeTeamText('practice-only', ['First Team', '', null]), 'First Team');
+      assert.equal(PoolScheduleDisplay.formatPracticeTeamHtml('practice-only', null), '');
+      assert.equal(PoolScheduleDisplay.formatPracticeTeamHtml('practice-only', ['', null]), '');
+      assert.match(PoolScheduleDisplay.formatPracticeTeamHtml('practice-only', ['First Team'], null), /First Team/);
     });
 
     it('installs the display service as a browser script global', () => {

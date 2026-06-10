@@ -31,6 +31,17 @@ applyTo: "src/js/**/*.js"
 - **Managers** (`src/js/managers/`): Orchestrators that coordinate services and models (e.g., `PoolsManager`).
 - **Browser entry points** (`src/js/`): Route controllers, shared shell controllers, and focused UI controllers loaded directly by views or other entry points.
 
+## Sibling And Alternate-Path Ownership
+
+- Treat files that implement the same visitor-visible behavior through different paths as one review constellation even when their names, timing, or entry points differ. Common constellations include cached/live, initial/update, synchronous/deferred, desktop/mobile, route-specific directory controllers, manager families, source/generated forms, and browser/build/test adapters.
+- Before adding a helper or changing a contract, search sibling files for the same DOM updates, normalization, validation, accessibility state, timestamp formatting, timer-boundary calculation, loading/error state, cache interpretation, collection loading, or rendering map. Review all matching paths together so one cannot silently drift.
+- Extract the smallest stable responsibility that must remain identical. Prefer a semantic type for values and validation, a DOM-free service for domain calculations, a focused browser display/controller for shared DOM behavior, a time utility for scheduling math, or a narrow adapter for a genuine runtime boundary. Keep orchestration and path-specific eligibility in the entry point that owns that lifecycle.
+- Multiple entry points are appropriate when they have different load timing, runtime, trust boundary, performance role, or domain rules. For example, an early cached renderer and a deferred live controller should stay separate but call the same stateless display contract. Do not merge files merely because their names or method shapes are similar.
+- Do not introduce inheritance, a generic base manager/controller, or a broad utility solely to remove a few similar lines. Extract only when the shared code represents one behavioral contract, prevents likely drift, or already has multiple real consumers. Prefer composition and explicit delegation over parameter-heavy abstractions.
+- When one member of a sibling family changes, inspect the others before completion. Either update them to use the same owner or document through code structure and tests why the behavior is domain-specific; do not rely on a prose comment to excuse otherwise identical implementations.
+- Preserve performance characteristics while consolidating paths. Shared code must not turn pre-paint work into deferred work, cause hidden views to render eagerly, add duplicate requests, or make route-specific dependencies load globally without measured justification.
+- Test the extracted contract directly and retain integration coverage for each materially different entry path. Include accessibility state and trust-boundary behavior when the shared contract renders external data or controls interactive UI.
+
 ## Style Rules
 
 - Target ECMAScript 2023 (`ES2023`) for delivered JavaScript, Node scripts, tests, and the service worker. Keep `jsconfig.json` `target`/`lib` and every `eslint.config.js` `ecmaVersion` aligned to that baseline.
