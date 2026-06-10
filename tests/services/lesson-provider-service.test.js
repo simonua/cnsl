@@ -104,6 +104,51 @@ describe('LessonProviderService', () => {
     }), /Invalid lesson directory logo/);
   });
 
+  it('normalizes CA outdoor swim programs with resolved pool names', () => {
+    const documentData = {
+      outdoorSwimPrograms: {
+        sourceUrl: 'https://example.com/outdoor',
+        registrationUrl: 'https://example.com/register',
+        reviewedOn: '2026-06-10',
+        options: [{
+          name: 'Morning lesson camps',
+          schedule: '10:00am - 12:00pm',
+          cadence: 'Five-day sessions',
+          locations: [{ poolId: 'dhp', days: 'Monday - Friday' }]
+        }],
+        bring: ['Goggles'],
+        weatherPolicy: 'Lessons continue in light rain.',
+        alternative: { name: 'Personal Swim Training', url: 'https://example.com/training' }
+      }
+    };
+
+    const normalized = LessonProviderService.normalizeOutdoorSwimPrograms(documentData, [{ id: 'dhp', name: 'Dorsey Hall' }]);
+    assert.equal(normalized.options[0].locations[0].poolName, 'Dorsey Hall');
+    assert.notEqual(normalized.bring, documentData.outdoorSwimPrograms.bring);
+  });
+
+  it('rejects unsafe or unresolved outdoor swim program data', () => {
+    const programs = {
+      sourceUrl: 'https://example.com/outdoor',
+      registrationUrl: 'https://example.com/register',
+      reviewedOn: '2026-06-10',
+      options: [{ name: 'Morning', schedule: 'Morning', cadence: 'Weekly', locations: [{ poolId: 'missing', days: 'Monday' }] }],
+      bring: ['Towel'],
+      weatherPolicy: 'Light rain is permitted.',
+      alternative: { name: 'Training', url: 'https://example.com/training' }
+    };
+    assert.throws(
+      () => LessonProviderService.normalizeOutdoorSwimPrograms({ outdoorSwimPrograms: programs }, []),
+      /Invalid outdoor swim program location/
+    );
+    assert.throws(
+      () => LessonProviderService.normalizeOutdoorSwimPrograms({
+        outdoorSwimPrograms: { ...programs, sourceUrl: 'javascript:alert(1)', options: [{ ...programs.options[0], locations: [{ poolId: 'dhp', days: 'Monday' }] }] }
+      }, [{ id: 'dhp', name: 'Dorsey Hall' }]),
+      /Invalid outdoor swim program data response/
+    );
+  });
+
   it('installs once as a browser script global', () => {
     const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'lesson-provider-service.js');
     const source = fs.readFileSync(sourcePath, 'utf8');

@@ -28,6 +28,40 @@
       "reviewedOn": "2026-06-09"
     }
   ],
+  "outdoorSwimPrograms": {
+    "sourceUrl": "https://columbiaassociation.org/sports-recreation/pools/classes/outdoor/",
+    "registrationUrl": "https://columbiaassn.clubautomation.com/calendar/programs?calendars%5B%5D=51&facilities%5B%5D=3",
+    "reviewedOn": "2026-06-10",
+    "options": [
+      {
+        "name": "Morning lesson camps",
+        "schedule": "10:00am - 12:00pm",
+        "cadence": "Week by week in five-day sessions, beginning June 22",
+        "locations": [
+          { "poolId": "dhp", "days": "Monday - Friday" },
+          { "poolId": "hap", "days": "Monday - Friday" },
+          { "poolId": "krp", "days": "Monday - Friday" },
+          { "poolId": "rhp", "days": "Monday - Friday" }
+        ]
+      },
+      {
+        "name": "Evening lesson series",
+        "schedule": "Evenings",
+        "cadence": "One day each week for six weeks",
+        "locations": [
+          { "poolId": "frp", "days": "Monday" },
+          { "poolId": "tsp", "days": "Tuesday or Thursday" },
+          { "poolId": "rbp", "days": "Wednesday" }
+        ]
+      }
+    ],
+    "bring": ["Sunscreen", "Goggles", "Towel"],
+    "weatherPolicy": "Lessons continue in light rain. CA sends an email and phone call if severe weather requires a cancellation.",
+    "alternative": {
+      "name": "Personal Swim Training",
+      "url": "https://columbiaassociation.org/sports-recreation/pools/classes/personal-swim-training/"
+    }
+  },
   "relatedPrograms": [
     {
       "id": "columbia-clippers",

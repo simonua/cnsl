@@ -133,7 +133,17 @@ test('[WF-LESSONS-001] lesson provider actions publish only reviewed categories'
   await initializeAnalyticsRecorder(page);
   await page.goto('/lessons.html');
   await expect(page.locator('#lessonProviderStatus')).toHaveText('1 lesson provider listed.');
-  await expect(page.getByRole('heading', { name: 'Columbia Association' })).toBeVisible();
+  const caCard = page.locator('.lesson-provider-card--featured');
+  await expect(caCard.getByRole('heading', { name: 'Columbia Association' })).toBeVisible();
+  await expect(caCard.getByRole('heading', { name: 'Outdoor lessons at CA pools' })).toBeVisible();
+  await expect(caCard.getByRole('heading', { name: 'Morning lesson camps' })).toBeVisible();
+  await expect(caCard.getByText('Dorsey Hall: Monday - Friday')).toBeVisible();
+  await expect(caCard.getByRole('heading', { name: 'Evening lesson series' })).toBeVisible();
+  await expect(caCard.getByText('Talbott Springs: Tuesday or Thursday')).toBeVisible();
+  await expect(caCard.getByText('Please bring: Sunscreen, Goggles, Towel')).toBeVisible();
+  await expect(caCard.getByText('Lessons continue in light rain.', { exact: false })).toBeVisible();
+  await expect(caCard.getByRole('link', { name: 'View current outdoor classes (opens in new tab)' })).toHaveAttribute('href', /clubautomation\.com/);
+  await expect(caCard.getByRole('link', { name: 'Explore Personal Swim Training (opens in new tab)' })).toHaveAttribute('href', /personal-swim-training/);
   await expect(page.getByRole('heading', { name: 'Class types' })).toBeVisible();
   await expect(page.getByText('Program contact: Swim Lesson Program Supervisor')).toBeVisible();
   await expect(page.getByRole('link', { name: 'swim.lessons@columbiaassociation.org' })).toHaveAttribute('href', 'mailto:swim.lessons@columbiaassociation.org');
@@ -156,7 +166,8 @@ test('[WF-LESSONS-001] lesson provider actions publish only reviewed categories'
     const logoBounds = card.querySelector('.lesson-provider-card__logo').getBoundingClientRect();
     return { width: bounds.width, height: bounds.height, logoHeight: logoBounds.height };
   }));
-  expect(cardLayout.every(card => card.width <= 448)).toBe(true);
+  expect(cardLayout[0].width).toBeLessThanOrEqual(832);
+  expect(cardLayout.slice(1).every(card => card.width <= 448)).toBe(true);
   expect(cardLayout.every(card => card.height >= 512)).toBe(true);
   expect(new Set(cardLayout.map(card => Math.round(card.logoHeight))).size).toBe(1);
 
@@ -170,6 +181,9 @@ test('[WF-LESSONS-001] lesson provider actions publish only reviewed categories'
   });
 
   await clickWithoutNavigation(lessonInformationLink);
+  await clickWithoutNavigation(caCard.getByRole('link', { name: 'View current outdoor classes (opens in new tab)' }));
+  await clickWithoutNavigation(caCard.getByRole('link', { name: 'Explore Personal Swim Training (opens in new tab)' }));
+  await clickWithoutNavigation(caCard.getByRole('link', { name: 'Review CA outdoor lesson details (opens in new tab)' }));
   await clickWithoutNavigation(page.getByRole('link', { name: 'swim.lessons@columbiaassociation.org' }));
   await clickWithoutNavigation(page.getByRole('link', { name: 'Visit official website (opens in new tab)' }));
   await clickWithoutNavigation(page.getByRole('link', { name: 'Review current eligibility (opens in new tab)' }));
@@ -178,6 +192,9 @@ test('[WF-LESSONS-001] lesson provider actions publish only reviewed categories'
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => (
     eventArguments[1] === 'ca_external_link'
   )))).toEqual([
+    ['event', 'ca_external_link', { link_context: 'lesson_resources', link_purpose: 'provider_website' }],
+    ['event', 'ca_external_link', { link_context: 'lesson_resources', link_purpose: 'provider_website' }],
+    ['event', 'ca_external_link', { link_context: 'lesson_resources', link_purpose: 'provider_website' }],
     ['event', 'ca_external_link', { link_context: 'lesson_resources', link_purpose: 'provider_website' }],
     ['event', 'ca_external_link', { link_context: 'lesson_resources', link_purpose: 'provider_contact' }],
     ['event', 'ca_external_link', { link_context: 'lesson_resources', link_purpose: 'related_program' }],

@@ -55,3 +55,7 @@ pnpm run check:data-updates
 The command is the deterministic, low-cost gate for data-review work. If it reports no candidate differences, stop without loading annual domain JSON or retrieving sources for AI review. Use `--season-only --report` when generating the ignored, ephemeral candidate report supplied to a tracking issue. Each finding identifies the exact annual JSON record and modeled property group to inspect, allowing a reviewer to avoid unaffected domains and records. A clean report run removes any stale candidate report left by an earlier check. The report is not a pull-request artifact.
 
 The command's clean result applies only to URLs it collected. Before reporting a comprehensive online check, compare that collected list with the expected sources above and make live requests for any gaps. `pnpm run validate:data` is a separate local integrity gate and is never evidence of current network access.
+
+## Check Log
+
+Append every completed online source review to [`check-log.md`](check-log.md). Use the review-completion timestamp in `America/New_York` with an explicit UTC offset, record the active season and source counts, and state whether the overall check was complete. Preserve prior entries; `update-report.md` remains an ephemeral candidate report and is not the historical audit log.

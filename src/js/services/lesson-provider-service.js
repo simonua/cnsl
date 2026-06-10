@@ -107,6 +107,47 @@ if (typeof window === 'undefined' || !window.LessonProviderService) {
         };
       });
     }
+
+    static normalizeOutdoorSwimPrograms(documentData, pools) {
+      const programs = documentData && documentData.outdoorSwimPrograms;
+      const availablePools = Array.isArray(pools) ? pools : [];
+      const poolNames = new Map(availablePools.map(pool => [pool.id, pool.name]));
+      const sourceUrl = LessonProviderService.normalizeHttpsUrl(programs && programs.sourceUrl);
+      const registrationUrl = LessonProviderService.normalizeHttpsUrl(programs && programs.registrationUrl);
+      const alternativeUrl = LessonProviderService.normalizeHttpsUrl(programs && programs.alternative && programs.alternative.url);
+      const validText = value => typeof value === 'string' && value.trim() !== '';
+      if (!programs || !sourceUrl || !registrationUrl || !alternativeUrl
+        || !validText(programs.reviewedOn) || !validText(programs.weatherPolicy)
+        || !programs.alternative || !validText(programs.alternative.name)
+        || !Array.isArray(programs.bring) || programs.bring.length === 0 || programs.bring.some(item => !validText(item))
+        || !Array.isArray(programs.options) || programs.options.length === 0) {
+        throw new Error('Invalid outdoor swim program data response.');
+      }
+
+      const options = programs.options.map(option => {
+        if (!option || !validText(option.name) || !validText(option.schedule) || !validText(option.cadence)
+          || !Array.isArray(option.locations) || option.locations.length === 0) {
+          throw new Error('Invalid outdoor swim program option.');
+        }
+        const locations = option.locations.map(location => {
+          if (!location || !poolNames.has(location.poolId) || !validText(location.days)) {
+            throw new Error('Invalid outdoor swim program location.');
+          }
+          return { poolId: location.poolId, poolName: poolNames.get(location.poolId), days: location.days };
+        });
+        return { name: option.name, schedule: option.schedule, cadence: option.cadence, locations };
+      });
+
+      return {
+        sourceUrl,
+        registrationUrl,
+        reviewedOn: programs.reviewedOn,
+        options,
+        bring: [...programs.bring],
+        weatherPolicy: programs.weatherPolicy,
+        alternative: { name: programs.alternative.name, url: alternativeUrl }
+      };
+    }
   }
 
   if (typeof module !== 'undefined' && module.exports) module.exports = LessonProviderService;

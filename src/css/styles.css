@@ -4912,14 +4912,21 @@ body:has(.footer__weather-freshness:not([hidden])) {
   margin-bottom: 2rem;
 }
 
+/* ==========================================================================
+  Lessons
+  ========================================================================== */
 .lessons-provider-list {
-  grid-template-columns: minmax(0, 28rem);
+  grid-template-columns: minmax(0, 52rem);
   justify-content: center;
 }
 
 .lesson-provider-card {
   min-height: 32rem;
   width: 100%;
+}
+
+.lesson-provider-card--featured {
+  min-height: 0;
 }
 
 .lesson-provider-card__logo {
@@ -4977,6 +4984,73 @@ body:has(.footer__weather-freshness:not([hidden])) {
   margin-bottom: 0.35rem;
 }
 
+.lesson-provider-card--featured .lesson-provider-card__classes {
+  columns: auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.lesson-provider-card__outdoor {
+  border-top: 1px solid var(--border-color);
+  margin-top: 0.25rem;
+  padding-top: 1.25rem;
+}
+
+.lesson-provider-card__outdoor > h3 {
+  color: var(--primary-color);
+  font-size: 1.2rem;
+}
+
+.lesson-provider-card__outdoor > p,
+.lesson-provider-card__outdoor-option p,
+.lesson-provider-card__outdoor-guidance p {
+  line-height: 1.5;
+}
+
+.lesson-provider-card__outdoor-options {
+  display: grid;
+  gap: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 1.25rem 0;
+}
+
+.lesson-provider-card__outdoor-option {
+  padding-right: 1.5rem;
+}
+
+.lesson-provider-card__outdoor-option + .lesson-provider-card__outdoor-option {
+  border-left: 1px solid var(--border-color);
+  padding-left: 1.5rem;
+  padding-right: 0;
+}
+
+.lesson-provider-card__outdoor-option h4 {
+  color: var(--text-dark);
+  font-size: 1.05rem;
+  margin-bottom: 0.5rem;
+}
+
+.lesson-provider-card__outdoor-option ul {
+  line-height: 1.5;
+  margin: 0.75rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.lesson-provider-card__outdoor-guidance {
+  background-color: var(--light-bg);
+  border-radius: var(--border-radius);
+  margin-bottom: 1.25rem;
+  padding: 1rem;
+}
+
+.lesson-provider-card__outdoor-guidance p {
+  margin: 0 0 0.5rem;
+}
+
+.lesson-provider-card__outdoor-guidance p:last-child {
+  margin-bottom: 0;
+}
+
 .lessons-related {
   margin-bottom: 2rem;
 }
@@ -4989,6 +5063,30 @@ body:has(.footer__weather-freshness:not([hidden])) {
 .lessons-related .lesson-provider-card h3 {
   color: var(--primary-color);
   font-size: 1.2rem;
+}
+
+.lessons-related .lessons-provider-list {
+  grid-template-columns: minmax(0, 28rem);
+}
+
+@media (max-width: 40rem) {
+  .lesson-provider-card--featured .lesson-provider-card__classes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .lesson-provider-card__outdoor-options {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .lesson-provider-card__outdoor-option {
+    padding: 0 0 1.25rem;
+  }
+
+  .lesson-provider-card__outdoor-option + .lesson-provider-card__outdoor-option {
+    border-left: 0;
+    border-top: 1px solid var(--border-color);
+    padding: 1.25rem 0 0;
+  }
 }
 
 .lessons-disclaimer {

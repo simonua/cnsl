@@ -118,7 +118,7 @@ function addPage(pageMap, sourceId, url, label, domain, fingerprint = 'visible-t
   pageMap.set(url, { domains: [domain], fingerprint, label, sourceIds: [sourceId], url });
 }
 
-function collectSources({ annualReadme, meetsData, poolsData, teamsData }) {
+function collectSources({ annualReadme, lessonsData, meetsData, poolsData, teamsData }) {
   const documentMap = new Map();
   const pageMap = new Map();
 
@@ -139,6 +139,9 @@ function collectSources({ annualReadme, meetsData, poolsData, teamsData }) {
 
   addPage(pageMap, 'pools:outdoor-schedule-index', poolsData.caPoolGuideUrl, 'Columbia Association pool schedule page', 'pools', 'outdoor-pool-schedules');
   addPage(pageMap, 'pools:directory', poolsData.caPoolDirectoryUrl, 'Columbia Association pool directory', 'pools');
+  if (lessonsData.outdoorSwimPrograms && lessonsData.outdoorSwimPrograms.sourceUrl) {
+    addPage(pageMap, 'lessons:outdoor-swim-programs', lessonsData.outdoorSwimPrograms.sourceUrl, 'Columbia Association outdoor swim lessons page', 'lessons');
+  }
 
   const meetFilename = decodeURIComponent(path.posix.basename(new URL(meetsData.url).pathname));
   addDocument(documentMap, {
@@ -316,6 +319,9 @@ function describeReviewScope(change, season) {
     if (sourceId === 'meets:schedule') {
       return 'meet schedule fields';
     }
+    if (sourceId === 'lessons:outdoor-swim-programs') {
+      return 'outdoorSwimPrograms';
+    }
     if (sourceId.endsWith(':retained-document')) {
       return `${type} modeled fields supported by the retained document`;
     }
@@ -323,7 +329,7 @@ function describeReviewScope(change, season) {
   });
   const uniqueTargets = [...new Set(targets)];
   const domainPaths = (change.domains || [change.domain])
-    .map((domain) => `src/assets/data/${season}/${domain}/${domain}.json`)
+    .map((domain) => domain === 'lessons' ? 'src/assets/data/lessons.json' : `src/assets/data/${season}/${domain}/${domain}.json`)
     .join(', ');
   return uniqueTargets.length > 0
     ? `${domainPaths}: ${uniqueTargets.join('; ')}`
@@ -349,6 +355,7 @@ function formatReport({ candidateKey, changes, checkedOn, season }) {
     return `| ${domains} | [${change.label}](${change.url}) | ${change.kind} | \`${reviewScope}\` | \`${evidence}\` |`;
   });
   const guidance = {
+    lessons: '- [ ] Review the published outdoor lesson details and update `src/assets/data/lessons.json` if represented planning information changed.',
     meets: `- [ ] Review the official meet schedule evidence and update \`src/assets/data/${season}/meets/meets.json\` if dates, locations, or matchups changed.`,
     pools: `- [ ] Review pool schedules, directory entries, and facility amenities; update \`src/assets/data/${season}/pools/pools.json\` if published values changed.`,
     teams: `- [ ] Review published coach and manager details and changed recorded practice schedules; update \`src/assets/data/${season}/teams/teams.json\` only when supported data changed.`
@@ -417,8 +424,9 @@ async function monitorSources({
   const dataRoot = path.join(repositoryRoot, 'src', 'assets', 'data', String(season));
   const statePath = path.join(repositoryRoot, '.github', 'automation', 'season-data-monitor', 'source-state.json');
   const reportPath = path.join(repositoryRoot, '.github', 'automation', 'season-data-monitor', 'update-report.md');
-  const [annualReadme, meetsData, poolsData, teamsData] = await Promise.all([
+  const [annualReadme, lessonsData, meetsData, poolsData, teamsData] = await Promise.all([
     fs.readFile(path.join(dataRoot, 'README.md'), 'utf8'),
+    readJson(path.join(repositoryRoot, 'src', 'assets', 'data', 'lessons.json')),
     readJson(path.join(dataRoot, 'meets', 'meets.json')),
     readJson(path.join(dataRoot, 'pools', 'pools.json')),
     readJson(path.join(dataRoot, 'teams', 'teams.json'))
@@ -436,7 +444,7 @@ async function monitorSources({
     throw new Error(`The source fingerprint baseline is for ${state.season}, but active season is ${season}. Reinitialize it after season rollover review.`);
   }
 
-  const sources = collectSources({ annualReadme, meetsData, poolsData, teamsData });
+  const sources = collectSources({ annualReadme, lessonsData, meetsData, poolsData, teamsData });
   async function observePage(source) {
     const { content } = await request(source.url, fetchImplementation);
     return { ...source, sha256: sha256(normalizePageContent(content.toString('utf8'), source.fingerprint)) };

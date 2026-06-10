@@ -41,10 +41,50 @@
     return stage;
   }
 
-  function renderProvider(provider) {
+  function createOutdoorPrograms(programs) {
+    const section = document.createElement('section');
+    section.className = 'lesson-provider-card__outdoor';
+    const sectionHeading = document.createElement('h3');
+    sectionHeading.textContent = 'Outdoor lessons at CA pools';
+    const introduction = document.createElement('p');
+    introduction.textContent = 'Compare CA\'s morning camp format and evening lesson series.';
+    const options = document.createElement('div');
+    options.className = 'lesson-provider-card__outdoor-options';
+
+    programs.options.forEach(option => {
+      const item = document.createElement('section');
+      item.className = 'lesson-provider-card__outdoor-option';
+      const heading = document.createElement('h4');
+      heading.textContent = option.name;
+      const schedule = createDetail('Schedule', `${option.schedule}; ${option.cadence}`);
+      const locations = document.createElement('ul');
+      locations.setAttribute('aria-label', `${option.name} locations`);
+      option.locations.forEach(location => {
+        const locationItem = document.createElement('li');
+        const poolName = document.createElement('strong');
+        poolName.textContent = location.poolName;
+        locationItem.append(poolName, document.createTextNode(`: ${location.days}`));
+        locations.append(locationItem);
+      });
+      item.append(heading, schedule, locations);
+      options.append(item);
+    });
+
+    const guidance = document.createElement('div');
+    guidance.className = 'lesson-provider-card__outdoor-guidance';
+    guidance.append(
+      createDetail('Please bring', programs.bring.join(', ')),
+      createDetail('Weather', programs.weatherPolicy)
+    );
+    section.append(sectionHeading, introduction, options, guidance);
+    return section;
+  }
+
+  function renderProvider(provider, outdoorPrograms) {
     const card = document.createElement('article');
     card.className = 'resource-card lesson-provider-card';
     card.dataset.analyticsContext = 'lesson_resources';
+    if (outdoorPrograms) card.classList.add('lesson-provider-card--featured');
 
     const heading = document.createElement('h2');
     heading.textContent = provider.name;
@@ -87,10 +127,17 @@
 
     const actions = document.createElement('div');
     actions.className = 'resource-actions';
+    if (outdoorPrograms) {
+      actions.append(createExternalLink('View current outdoor classes', outdoorPrograms.registrationUrl, 'provider_website'));
+      actions.append(createExternalLink(`Explore ${outdoorPrograms.alternative.name}`, outdoorPrograms.alternative.url, 'provider_website'));
+      actions.append(createExternalLink('Review CA outdoor lesson details', outdoorPrograms.sourceUrl, 'provider_website'));
+    }
     if (provider.websiteUrl) actions.append(createExternalLink('View lesson information', provider.websiteUrl, 'provider_website'));
     if (provider.contactUrl) actions.append(createExternalLink('Contact provider', provider.contactUrl, 'provider_contact'));
 
-    card.append(createLogo(provider.logo), heading, details, classHeading, classList, actions);
+    card.append(createLogo(provider.logo), heading, details, classHeading, classList);
+    if (outdoorPrograms) card.append(createOutdoorPrograms(outdoorPrograms));
+    card.append(actions);
     return card;
   }
 
@@ -127,10 +174,17 @@
   }
 
   try {
-    const documentData = await FileHelper.loadJsonFile(FileHelper.getLessonsDataPath());
+    const [documentData, poolsData] = await Promise.all([
+      FileHelper.loadJsonFile(FileHelper.getLessonsDataPath()),
+      FileHelper.loadJsonFile(FileHelper.getPoolsDataPath())
+    ]);
     const providers = LessonProviderService.normalizeDocument(documentData);
     const relatedPrograms = LessonProviderService.normalizeRelatedPrograms(documentData);
-    providers.forEach(provider => providerList.append(renderProvider(provider)));
+    const outdoorPrograms = LessonProviderService.normalizeOutdoorSwimPrograms(documentData, poolsData.pools);
+    providers.forEach(provider => providerList.append(renderProvider(
+      provider,
+      provider.id === 'columbia-association' ? outdoorPrograms : null
+    )));
     relatedPrograms.forEach(program => relatedProgramList.append(renderRelatedProgram(program)));
     providerList.setAttribute('aria-busy', 'false');
     providerStatus.textContent = `${providers.length} lesson provider${providers.length === 1 ? '' : 's'} listed.`;

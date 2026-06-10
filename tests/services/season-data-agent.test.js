@@ -93,6 +93,9 @@ describe('season data agent', () => {
     it('should discover pool, meet, and team sources from active annual data', () => {
       const sources = collectSources({
         annualReadme: '[CNSL home page](https://league.test/home)\n| Team | [Download PDF](https://league.test/practice.pdf) | `teams/team-schedules/practice.pdf` | now |',
+        lessonsData: {
+          outdoorSwimPrograms: { sourceUrl: 'https://pools.test/outdoor-lessons' }
+        },
         meetsData: { url: 'https://league.test/meet.pdf' },
         poolsData: {
           caPoolDirectoryUrl: 'https://pools.test/directory',
@@ -124,6 +127,14 @@ describe('season data agent', () => {
       assert.ok(sources.documents.some((source) => source.domain === 'meets'));
       assert.ok(sources.documents.some((source) => source.domain === 'teams'));
       assert.ok(sources.pages.some((source) => source.url === 'https://pools.test/bryant'));
+      assert.deepStrictEqual(
+        sources.pages.find((source) => source.url === 'https://pools.test/outdoor-lessons').sourceIds,
+        ['lessons:outdoor-swim-programs']
+      );
+      assert.deepStrictEqual(
+        sources.pages.find((source) => source.url === 'https://pools.test/outdoor-lessons').domains,
+        ['lessons']
+      );
       assert.strictEqual(sources.pages.find((source) => source.url === 'https://pools.test/bryant').fingerprint, 'pool-facility');
       assert.ok(sources.pages.some((source) => source.url === 'https://team.test/practices'));
       assert.ok(!sources.pages.some((source) => source.url === 'https://team.test/home'));
@@ -249,6 +260,7 @@ describe('season data agent', () => {
       ]);
       await Promise.all([
         fs.writeFile(path.join(root, 'src', 'js', 'config', 'app-config.js'), 'const YEAR = 2026;\n'),
+        fs.writeFile(path.join(root, 'src', 'assets', 'data', 'lessons.json'), '{}'),
         fs.writeFile(path.join(dataRoot, 'README.md'), '[CNSL home page](https://league.test/home)\n| Practice | [Download PDF](https://league.test/practice.pdf) | `teams/team-schedules/practice.pdf` | now |\n'),
         fs.writeFile(path.join(dataRoot, 'pools', 'pools.json'), JSON.stringify({
           caPoolDirectoryUrl: 'https://pools.test/directory',

@@ -53,6 +53,6 @@ description: "Use when working with JSON data files, schemas, or data loading. C
 - Maintain the swim lesson provider directory in `src/assets/data/lessons.json` with its draft-07 contract in `src/assets/data/lessons.schema.json`.
 - Keep provider entries factual and source-backed: organization name, local official logo asset, public website, optional public contact URL and phone, broad class types, source URL, and review date.
 - Keep related swimming opportunities separate from lesson providers. Their entries may include factual, source-backed eligibility, training highlights, current practice setting, and a neutral explanation of how the opportunity relates to summer league, along with the program type, local official logo asset, official website/source, and review date.
-- Do not model or publish pricing, schedules, rankings, ratings, promotional claims, or inferred qualifications in the lesson provider directory.
+- Do not model or publish pricing, rankings, ratings, promotional claims, or inferred qualifications in the lesson provider directory. Source-backed outdoor lesson schedules may be modeled in the Lessons data when they support visitor planning; reference active annual pool IDs rather than duplicating pool records.
 - Treat listing order as non-semantic. Inclusion is informational and does not constitute an endorsement.
 - Run `pnpm run validate:data` after changing either Lessons data file.
