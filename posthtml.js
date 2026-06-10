@@ -1,8 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 const posthtml = require('posthtml');
-const appConfig = require('./src/js/config/app-config');
-const WeatherAlertService = require('./src/js/services/weather-alert-service');
+const { copyBrowserJavaScript } = require('./scripts/validate-browser-javascript');
+const appConfig = require('./scripts/adapters/app-config.js');
+const WeatherAlertService = require('./scripts/adapters/weather-alert-service.js');
 const annualDataSourceDir = './src/assets/data';
 const activeSeason = String(appConfig.YEAR);
 const activeSeasonPoolsPath = path.join(annualDataSourceDir, activeSeason, 'pools', 'pools.json');
@@ -199,7 +200,7 @@ copyDir('./src/css', path.join(outDir, 'css'));
 
 // Copy JS directory
 console.log(`⚙️ [${timestamp()}] Copying JS directory...`);
-copyDir('./src/js', path.join(outDir, 'js'));
+copyBrowserJavaScript('./src/js', path.join(outDir, 'js'));
 
 function writeWeatherOperatingWindowsArtifact() {
   const operatingWindows = WeatherAlertService.createOperatingWindowSchedule(activeSeasonPools);

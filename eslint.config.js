@@ -23,14 +23,12 @@ module.exports = [
   {
     files: ['src/js/**/*.js'],
     languageOptions: {
-      ecmaVersion: 2022,
+      ecmaVersion: 2023,
       sourceType: 'script',
       globals: {
         ...globals.browser,
         $: 'readonly',
         jQuery: 'readonly',
-        module: 'readonly',
-        require: 'readonly',
         // App globals loaded via <script> tags
         AnalyticsInteractionType: 'readonly',
         DataManager: 'readonly',
@@ -43,6 +41,7 @@ module.exports = [
         Meet: 'readonly',
         PoolSchedule: 'readonly',
         PoolScheduleDisplay: 'readonly',
+        PoolPeriodScheduleService: 'readonly',
         PoolHoursDisplay: 'readonly',
         PoolHoursViewModelService: 'readonly',
         PoolCardDisplay: 'readonly',
@@ -55,6 +54,9 @@ module.exports = [
         IconCatalog: 'readonly',
         LessonProviderService: 'readonly',
         PoolStatus: 'readonly',
+        MeetLiveStatus: 'readonly',
+        PoolTransitionAction: 'readonly',
+        PracticeRangeStatus: 'readonly',
         PoolNames: 'readonly',
         FileHelper: 'readonly',
         CacheService: 'readonly',
@@ -78,6 +80,14 @@ module.exports = [
       'no-console': 'off',
       'no-undef': 'error',
       'no-redeclare': ['error', { builtinGlobals: false }],
+      'no-restricted-globals': ['error', 'exports', 'module', 'process', 'require', '__dirname', '__filename'],
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "UnaryExpression[operator='typeof'] > Identifier[name='window']",
+          message: 'Browser source must not contain Node-environment window guards.'
+        }
+      ],
       'eqeqeq': ['error', 'always'],
       'no-var': 'warn',
       'prefer-const': 'warn',
@@ -88,7 +98,7 @@ module.exports = [
   {
     files: ['posthtml.js', 'posthtml.config.js', 'playwright.config.js', 'browser-sync.config.js', 'eslint.config.js', 'scripts/**/*.js', 'test-*.js', 'tests/**/*.js'],
     languageOptions: {
-      ecmaVersion: 2022,
+      ecmaVersion: 2023,
       sourceType: 'commonjs',
       globals: {
         ...globals.node,
@@ -104,7 +114,7 @@ module.exports = [
   {
     files: ['service-worker.js'],
     languageOptions: {
-      ecmaVersion: 2022,
+      ecmaVersion: 2023,
       sourceType: 'script',
       globals: {
         ...globals.serviceworker,

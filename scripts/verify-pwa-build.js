@@ -2,8 +2,8 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 const vm = require('node:vm');
-const { APP_VERSION, DEPLOYMENT_VERSION_FILE, GA4_MEASUREMENT_ID, HOME_PAGE_HOSTNAME, HOME_PAGE_URL, YEAR } = require('../src/js/config/app-config.js');
-const WeatherAlertService = require('../src/js/services/weather-alert-service.js');
+const { APP_VERSION, DEPLOYMENT_VERSION_FILE, GA4_MEASUREMENT_ID, HOME_PAGE_HOSTNAME, HOME_PAGE_URL, YEAR } = require('./adapters/app-config.js');
+const WeatherAlertService = require('./adapters/weather-alert-service.js');
 
 const outDir = path.join(__dirname, '..', 'out');
 const siteOrigin = HOME_PAGE_URL;
@@ -105,7 +105,7 @@ vm.runInNewContext(fs.readFileSync(weatherOperatingWindowsPath, 'utf8'), weather
 assert.ok(fs.statSync(weatherOperatingWindowsPath).size <= 10 * 1024, 'Generated weather operating windows must remain no larger than 10 KB.');
 assert.deepEqual(
   JSON.parse(JSON.stringify(weatherOperatingWindowsContext.WEATHER_OPERATING_WINDOWS)),
-  WeatherAlertService.createOperatingWindowSchedule(activeSeasonPools),
+  JSON.parse(JSON.stringify(WeatherAlertService.createOperatingWindowSchedule(activeSeasonPools))),
   'Generated weather operating windows must match the active annual pools source.'
 );
 const formatSeasonDate = dateString => new Date(`${dateString}T00:00:00Z`).toLocaleDateString('en-US', {

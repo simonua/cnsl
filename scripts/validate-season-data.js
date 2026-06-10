@@ -5,7 +5,7 @@ const path = require('node:path');
 const Ajv = require('ajv');
 const addFormats = require('ajv-formats');
 const { parseReadmePdfSources } = require('./season-data-agent');
-const { TeamScheduleService } = require('../src/js/services/team-schedule-service');
+const TeamScheduleService = require('./adapters/team-schedule-service.js');
 
 const DOMAINS = Object.freeze(['pools', 'meets', 'teams']);
 const REPOSITORY_ROOT = path.resolve(__dirname, '..');

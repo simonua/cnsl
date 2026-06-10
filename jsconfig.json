@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "checkJs": false,
-    "target": "ES2022",
+    "target": "ES2023",
     "module": "commonjs",
-    "lib": ["ES2022", "DOM"]
+    "lib": ["ES2023", "DOM"]
   },
   "include": ["src/js/**/*.js"],
   "exclude": ["node_modules", "out", "test-results"]
