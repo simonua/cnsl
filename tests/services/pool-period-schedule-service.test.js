@@ -65,6 +65,7 @@ describe('PoolPeriodScheduleService', () => {
       assert.equal(service.getSlotStatus({ accessStatus: 'public', types: ['Closed-looking label'] }), PoolStatus.OPEN);
       assert.equal(service.getSlotStatus({ accessStatus: 'closed-to-public' }), PoolStatus.CLOSED_TO_PUBLIC);
       assert.equal(service.getSlotStatus({ accessStatus: 'practice-only' }), PoolStatus.PRACTICE_ONLY);
+      assert.equal(service.getSlotStatus({ accessStatus: 'special-event' }), PoolStatus.SPECIAL_EVENT);
       assert.equal(service.getSlotStatus({ accessStatus: 'swim-meet' }), PoolStatus.SWIM_MEET);
       assert.equal(service.getSlotStatus({}), PoolStatus.RESTRICTED);
       assert.equal(createService({ getPoolStatus: () => null }).getSlotStatus({}).isOpen, false);
@@ -81,20 +82,15 @@ describe('PoolPeriodScheduleService', () => {
       ]);
     });
 
-    it('marks public overrides as special events only when they introduce different activities', () => {
+    it('uses declarative access status instead of activity labels for special events', () => {
       const service = createService();
-      const activeSchedule = { hours: [{ weekDays: ['Mon'], startTime: '1:00PM', endTime: '5:00PM', types: ['Rec Swim'], accessStatus: 'public' }] };
-      const party = service.mergeScheduleWithOverride(activeSchedule, 'Mon', {
-        reason: 'Village event',
-        hours: [{ weekDays: ['Mon'], startTime: '3:00PM', endTime: '5:00PM', types: ['Pool Party'], accessStatus: 'public' }]
-      });
-      const adjustedHours = service.mergeScheduleWithOverride(activeSchedule, 'Mon', {
-        reason: 'Holiday hours',
-        hours: [{ weekDays: ['Mon'], startTime: '1:00PM', endTime: '4:00PM', types: ['Rec Swim'], accessStatus: 'public' }]
+      const specialEvent = service.mergeScheduleWithOverride(schedules[0], 'Mon', {
+        reason: 'Masters only',
+        hours: [{ weekDays: ['Mon'], startTime: '3:00PM', endTime: '5:00PM', types: ['Unrecognized label'], accessStatus: 'special-event', isSpecialEvent: true }]
       });
 
-      assert.equal(party.find(slot => slot.isOverride).isSpecialEvent, true);
-      assert.equal(adjustedHours.find(slot => slot.isOverride).isSpecialEvent, false);
+      assert.equal(specialEvent.find(slot => slot.isOverride).accessStatus, 'special-event');
+      assert.equal(specialEvent.find(slot => slot.isOverride).isSpecialEvent, true);
     });
 
     it('projects regular weekly slots into the display shape', () => {

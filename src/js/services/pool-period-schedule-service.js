@@ -88,6 +88,7 @@ if (typeof window === 'undefined' || !window.PoolPeriodScheduleService) {
         case 'public': return poolStatus.OPEN;
         case 'closed-to-public': return poolStatus.CLOSED_TO_PUBLIC;
         case 'practice-only': return poolStatus.PRACTICE_ONLY;
+        case 'special-event': return poolStatus.SPECIAL_EVENT;
         case 'swim-meet': return poolStatus.SWIM_MEET;
         default: return poolStatus.RESTRICTED;
       }
@@ -143,19 +144,15 @@ if (typeof window === 'undefined' || !window.PoolPeriodScheduleService) {
 
     mergeScheduleWithOverride(activeSchedule, shortDay, override) {
       const regularSlots = this.getRegularSlots(activeSchedule, shortDay);
-      const regularPublicActivities = new Set(regularSlots
-        .filter(slot => slot.accessStatus === 'public')
-        .flatMap(slot => slot.activities));
       const overrideSlots = this.getSlotsForDay(override.hours, shortDay).map(hour => ({
         startTime: hour.startTime,
         endTime: hour.endTime,
         activities: hour.types || [],
         notes: hour.notes || '',
         accessStatus: hour.accessStatus,
+        isSpecialEvent: hour.isSpecialEvent === true,
         isOverride: true,
         overrideReason: override.reason || null,
-        isSpecialEvent: hour.accessStatus === 'public'
-          && (hour.types || []).some(activity => !regularPublicActivities.has(activity)),
         meetDate: hour.meetDate || '',
         meetPoolId: hour.meetPoolId || ''
       }));
@@ -176,9 +173,9 @@ if (typeof window === 'undefined' || !window.PoolPeriodScheduleService) {
         activities: slot.activities,
         notes: slot.notes,
         accessStatus: slot.accessStatus,
+        isSpecialEvent: slot.isSpecialEvent,
         isOverride: slot.isOverride,
         overrideReason: slot.overrideReason,
-        isSpecialEvent: slot.isSpecialEvent,
         meetDate: slot.meetDate,
         meetPoolId: slot.meetPoolId
       }));
@@ -221,6 +218,7 @@ if (typeof window === 'undefined' || !window.PoolPeriodScheduleService) {
         activities: hour.types || [],
         notes: hour.notes || '',
         accessStatus: hour.accessStatus,
+        isSpecialEvent: hour.isSpecialEvent === true,
         isOverride: false
       })));
     }

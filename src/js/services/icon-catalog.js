@@ -32,6 +32,7 @@ if (typeof window === 'undefined' || !window.IconCatalog) {
     'practice-only': 'statusRestricted',
     restricted: 'statusRestricted',
     'schedule-not-found': 'statusUnavailable',
+    'special-event': 'statusRestricted',
     'swim-meet': 'statusRestricted',
     unavailable: 'statusUnavailable'
   });

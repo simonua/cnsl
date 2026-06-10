@@ -85,6 +85,7 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
           return 'Currently closed';
         case 'restricted':
         case 'practice-only':
+        case 'special-event':
         case 'swim-meet':
           return 'Special schedule or restrictions';
         case 'schedule-not-found':
@@ -293,6 +294,7 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
         open: ' highlighted-time-slot-green',
         restricted: ' highlighted-time-slot-yellow',
         'practice-only': ' highlighted-time-slot-yellow',
+        'special-event': ' highlighted-time-slot-yellow',
         'swim-meet': ' highlighted-time-slot-yellow',
         closed: ' highlighted-time-slot-red',
         'closed-to-public': ' highlighted-time-slot-red'
@@ -320,7 +322,7 @@ if (typeof window === 'undefined' || !window.PoolScheduleDisplay) {
     static getActivityCategory(slot = {}) {
       if (slot.isSpecialEvent) return 'event';
       if (slot.accessStatus === 'swim-meet') return 'event';
-      if (slot.accessStatus === 'practice-only') return 'team';
+      if (slot.accessStatus === 'practice-only' || slot.accessStatus === 'special-event') return 'event';
       if (slot.accessStatus === 'public') return 'public';
       return 'restricted';
     }

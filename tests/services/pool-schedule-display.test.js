@@ -98,9 +98,10 @@ describe('PoolScheduleDisplay', () => {
   describe('getActivityCategory', () => {
     it('categorizes operating slots from semantic access status rather than labels', () => {
       assert.equal(PoolScheduleDisplay.getActivityCategory({ accessStatus: 'public' }), 'public');
-      assert.equal(PoolScheduleDisplay.getActivityCategory({ accessStatus: 'practice-only' }), 'team');
-      assert.equal(PoolScheduleDisplay.getActivityCategory({ accessStatus: 'swim-meet' }), 'event');
       assert.equal(PoolScheduleDisplay.getActivityCategory({ accessStatus: 'public', isSpecialEvent: true }), 'event');
+      assert.equal(PoolScheduleDisplay.getActivityCategory({ accessStatus: 'swim-meet' }), 'event');
+      assert.equal(PoolScheduleDisplay.getActivityCategory({ accessStatus: 'special-event' }), 'event');
+      assert.equal(PoolScheduleDisplay.getActivityCategory({ accessStatus: 'practice-only' }), 'event');
       assert.equal(PoolScheduleDisplay.getActivityCategory({ accessStatus: 'closed-to-public' }), 'restricted');
       assert.equal(PoolScheduleDisplay.getActivityCategory({ accessStatus: 'public', activities: ['CNSL Practice Only'] }), 'public');
       assert.equal(PoolScheduleDisplay.getActivityCategory({ accessStatus: 'public', isOverride: true }), 'public');
@@ -111,6 +112,7 @@ describe('PoolScheduleDisplay', () => {
     it('maps semantic current status to explanatory copy independent of color', () => {
       assert.equal(PoolScheduleDisplay.getStatusTooltip('open'), 'Open for public use');
       assert.equal(PoolScheduleDisplay.getStatusTooltip('practice-only'), 'Special schedule or restrictions');
+      assert.equal(PoolScheduleDisplay.getStatusTooltip('special-event'), 'Special schedule or restrictions');
       assert.equal(PoolScheduleDisplay.getStatusTooltip('closed-to-public'), 'Currently closed');
       assert.equal(PoolScheduleDisplay.getStatusTooltip('schedule-not-found'), 'Schedule not available');
       assert.equal(PoolScheduleDisplay.getStatusTooltip('missing'), 'Status unknown');

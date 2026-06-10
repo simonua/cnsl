@@ -2601,7 +2601,7 @@ test('[WF-POOLS-014] semantic practice status drives detail and calendar styling
   await jeffersHill.locator('.pool-header__toggle').click();
   const marlinsName = jeffersHill.locator('.schedule-activity__team-names').filter({ hasText: 'Marlins' }).first();
   await expect(marlinsName).toBeVisible();
-  await expect(marlinsName.locator('xpath=..')).toHaveClass(/schedule-activity--team/);
+  await expect(marlinsName.locator('xpath=..')).toHaveClass(/schedule-activity--event/);
   await expect(marlinsName.locator('xpath=..')).toContainText('Published Team Session');
 });
 
@@ -2636,6 +2636,24 @@ test('[WF-POOLS-015] opens-soon results update when a public opening enters the 
   await page.clock.fastForward(31 * 1000);
   await expect(page.locator('#poolList .pool-card')).toHaveCount(23);
   await expect(page.locator('#poolListStatus')).toHaveText('Pool availability updated for the current time.');
+});
+
+test('[WF-POOLS-019] Masters-only hours are a special event instead of a public opening', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-06-10T06:30:00-04:00'));
+  await seedPreferences(page, { poolScheduleLayout: 'calendar' });
+  await page.goto('/pools.html');
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+
+  let talbottSprings = page.locator('.pool-card').filter({ hasText: 'Talbott Springs' });
+  await talbottSprings.locator('.pool-header__toggle').click();
+  await expect(talbottSprings.locator('.open-status')).toContainText('Special Event');
+  await expect(talbottSprings.locator('.open-status')).toHaveClass(/status-yellow/);
+  await expect(talbottSprings.locator('.schedule-activity--event').filter({ hasText: 'Masters Swim' })).toHaveCount(3);
+
+  await page.locator('#togglePoolFeatureFilters').click();
+  await page.selectOption('#poolAvailabilityFilter', 'open-now');
+  talbottSprings = page.locator('.pool-card').filter({ hasText: 'Talbott Springs' });
+  await expect(talbottSprings).toHaveCount(0);
 });
 
 test('[WF-POOLS-016] collapsed opening and closing countdowns update without interaction', async ({ page }) => {

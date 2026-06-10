@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://example.com/pools.schema.json",
-    "version": "V7",
+    "version": "V8",
     "title": "Pool Data Schema",
     "description": "Schema for pool data containing schedules, features, and location information",
     "type": "object",
@@ -217,6 +217,10 @@
                     "$ref": "#/definitions/AccessStatusType",
                     "description": "Semantic public-access status used for live pool availability and indicators"
                 },
+                "isSpecialEvent": {
+                    "type": "boolean",
+                    "description": "Whether the published activity should be presented as a special event"
+                },
                 "notes": {
                     "type": "string"
                 }
@@ -342,6 +346,7 @@
                 "closed-to-public",
                 "practice-only",
                 "public",
+                "special-event",
                 "swim-meet"
             ]
         },

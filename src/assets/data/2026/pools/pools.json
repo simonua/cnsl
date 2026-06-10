@@ -972,6 +972,7 @@
                 "Special Event"
               ],
               "accessStatus": "public",
+              "isSpecialEvent": true,
               "startTime": "7:00am",
               "endTime": "12:00pm"
             }
@@ -1009,6 +1010,7 @@
                 "Special Event"
               ],
               "accessStatus": "public",
+              "isSpecialEvent": true,
               "startTime": "7:00am",
               "endTime": "12:00pm"
             }
@@ -1373,6 +1375,7 @@
                 "Pool Party"
               ],
               "accessStatus": "public",
+              "isSpecialEvent": true,
               "startTime": "6:00pm",
               "endTime": "9:00pm"
             }
@@ -1663,6 +1666,7 @@
                 "Pool Party"
               ],
               "accessStatus": "public",
+              "isSpecialEvent": true,
               "startTime": "6:00pm",
               "endTime": "9:00pm"
             }
@@ -2136,6 +2140,7 @@
                 "Pool Party"
               ],
               "accessStatus": "public",
+              "isSpecialEvent": true,
               "startTime": "6:00pm",
               "endTime": "9:00pm"
             }
@@ -2597,6 +2602,7 @@
                 "Special Event"
               ],
               "accessStatus": "public",
+              "isSpecialEvent": true,
               "startTime": "5:30pm",
               "endTime": "7:30pm"
             }
@@ -2634,6 +2640,7 @@
                 "Pool Party"
               ],
               "accessStatus": "public",
+              "isSpecialEvent": true,
               "startTime": "6:00pm",
               "endTime": "8:00pm"
             }
@@ -2872,6 +2879,7 @@
                 "Pool Party"
               ],
               "accessStatus": "public",
+              "isSpecialEvent": true,
               "startTime": "6:00pm",
               "endTime": "8:00pm"
             }
@@ -4802,6 +4810,7 @@
                 "Pool Party"
               ],
               "accessStatus": "public",
+              "isSpecialEvent": true,
               "startTime": "6:00pm",
               "endTime": "8:30pm"
             }
@@ -5494,6 +5503,7 @@
                 "Pool Party"
               ],
               "accessStatus": "public",
+              "isSpecialEvent": true,
               "startTime": "6:00pm",
               "endTime": "8:00pm"
             }
@@ -6799,6 +6809,7 @@
                 "Pool Party"
               ],
               "accessStatus": "public",
+              "isSpecialEvent": true,
               "startTime": "6:00pm",
               "endTime": "8:00pm"
             }
@@ -8162,6 +8173,7 @@
                 "Pool Party"
               ],
               "accessStatus": "public",
+              "isSpecialEvent": true,
               "startTime": "6:00pm",
               "endTime": "9:00pm"
             }
@@ -8459,7 +8471,7 @@
               "types": [
                 "Masters Swim"
               ],
-              "accessStatus": "public",
+              "accessStatus": "special-event",
               "startTime": "10:15am",
               "endTime": "11:30am",
               "notes": "Two lanes"
@@ -8688,6 +8700,7 @@
                 "Pool Party"
               ],
               "accessStatus": "public",
+              "isSpecialEvent": true,
               "startTime": "6:00pm",
               "endTime": "8:00pm"
             }
@@ -8784,7 +8797,7 @@
               "types": [
                 "Masters Swim"
               ],
-              "accessStatus": "public",
+              "accessStatus": "special-event",
               "startTime": "5:30am",
               "endTime": "7:00am"
             },
@@ -8846,7 +8859,7 @@
               "types": [
                 "Masters Swim"
               ],
-              "accessStatus": "public",
+              "accessStatus": "special-event",
               "startTime": "5:30am",
               "endTime": "7:00am"
             },
