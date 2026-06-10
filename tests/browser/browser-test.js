@@ -5,11 +5,6 @@ const GOOGLE_ANALYTICS_REQUEST = /^https:\/\/(?:www\.googletagmanager\.com|(?:[a
 
 const test = base.extend({
   blockGoogleAnalytics: [async ({ context }, use) => {
-    if (process.env.CNSL_BLOCK_GOOGLE_ANALYTICS !== 'true') {
-      await use();
-      return;
-    }
-
     await context.addInitScript(measurementId => {
       globalThis[`ga-disable-${measurementId}`] = true;
     }, GA4_MEASUREMENT_ID);

@@ -724,9 +724,7 @@ test('[WF-ANALYTICS-004] directory detail opens publish only a broad directory n
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_directory_detail_open'))).toHaveLength(3);
 });
 
-test('[WF-ANALYTICS-005] nightly verification blocks Google Analytics collection', async ({ page }) => {
-  test.skip(process.env.CNSL_BLOCK_GOOGLE_ANALYTICS !== 'true', 'Only applies to analytics-isolated browser runs.');
-
+test('[WF-ANALYTICS-005] browser verification blocks Google Analytics collection', async ({ page }) => {
   await page.goto('/index.html');
   const measurementId = await page.evaluate(() => globalThis.GA4_MEASUREMENT_ID);
   await expect(page.evaluate(id => globalThis[`ga-disable-${id}`], measurementId)).resolves.toBe(true);

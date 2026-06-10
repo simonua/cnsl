@@ -94,6 +94,5 @@ jobs:
       - name: Run browser accessibility and workflow checks
         if: steps.decision.outputs.run_tests == 'true'
         env:
-          CNSL_BLOCK_GOOGLE_ANALYTICS: 'true'
           CNSL_PLAYWRIGHT_WORKERS: ${{ inputs.worker_count }}
         run: pnpm run test:browser:nightly
