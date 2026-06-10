@@ -11,6 +11,10 @@ applyTo: "src/js/**/*.js"
 - Use the singleton pattern for managers: expose a `getXxxManager()` factory that caches the instance.
 - Standardize on `getDataManager()` for DataManager access — never `new DataManager()` directly.
 - Route templates list first-load dependencies explicitly. Optional interaction-driven dependencies may be loaded lazily when the loading boundary and resulting workflow are covered by browser tests.
+- Treat `src/js/` as browser application code. New runtime dependencies must come from explicit script order and `globalThis`, never from `require()`, `module.exports`, `process`, `__dirname`, or another Node.js API.
+- Do not add test-only behavior to a delivered browser module. Put fixtures, adapters, loaders, mocks, and export shims under `tests/`; put build-time Node.js code under `scripts/`.
+- The build must parse and validate every source script before copying it byte-for-byte. Never weaken or bypass that guard to make a test pass.
+- Build-time Node consumers must import a narrow adapter under `scripts/adapters/`; they must not directly require a browser source file.
 
 ## DOM APIs
 
@@ -29,6 +33,8 @@ applyTo: "src/js/**/*.js"
 
 ## Style Rules
 
+- Target ECMAScript 2023 (`ES2023`) for delivered JavaScript, Node scripts, tests, and the service worker. Keep `jsconfig.json` `target`/`lib` and every `eslint.config.js` `ecmaVersion` aligned to that baseline.
+- Browser JavaScript is delivered without transpilation. Do not use syntax or APIs newer than ES2023 unless the browser-support baseline is reviewed, runtime compatibility is verified, and the JavaScript and ESLint configuration are upgraded together.
 - Prefer `const` over `let`. Never use `var`.
 - Use strict equality (`===`, `!==`).
 - Use template literals for string interpolation.
@@ -38,12 +44,18 @@ applyTo: "src/js/**/*.js"
 
 ## Constant Ownership
 
+- Do not use raw string or numeric literals as application-owned state, actions, modes, categories, result kinds, event names, or other behavior-bearing values. Give each such value one semantic owner and reference that owner in producers, consumers, validation, rendering maps, and tests.
+- Use an immutable enum in `src/js/types/` for a closed set of related runtime values that crosses module boundaries or drives branching, such as statuses, actions, and modes. Use a named module-local constant for a single-file implementation value and shared configuration for a fixed value consumed across broader application boundaries.
+- Type enum values and the objects that carry them with JSDoc literal unions, typedefs, or named shapes. Prefer validation helpers on the semantic owner over rebuilding literal arrays or allowlists in each consumer.
+- Keep semantic values separate from their labels, CSS classes, colors, icons, and accessibility copy. Map enum or constant values to presentation only at the rendering boundary; never infer semantic state by reading presentation values back.
 - Keep a constant module-local when only one script owns the value or when the value is an implementation detail, such as a debounce duration, validation pattern, private allowlist, or DOM selector.
 - Define a constant once in `src/js/config/app-config.js` when multiple delivered scripts, the service worker, generated views, tests, or cleanup registries share the same value. Export it through `RUNTIME_CONFIG` when browser runtime code consumes it.
 - Do not repeat a shared string, storage key, route, filename, duration, or other fixed value in consumers. Reference the named configuration constant and derive related collections, such as `APP_LOCAL_STORAGE_KEYS` and `APP_SESSION_STORAGE_KEYS`, from those constants.
 - Use descriptive `UPPER_SNAKE_CASE` names that identify both purpose and kind, such as `SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY`. Avoid vague aliases that merely rename an exported constant inside a consumer.
 - Browser scripts should read exported runtime constants from `window` or `globalThis`; Node code should import them from `src/js/config/app-config.js`. Add a bare script global to `eslint.config.js` only when direct global access is intentional and established by the surrounding module.
 - Add focused regression coverage when introducing or moving a shared constant. Verify its exported value, its membership in any derived registry, and consumer use when duplicated literals would create behavioral drift.
+
+Hard-coded literals remain appropriate when they are not application-owned semantics: one-off visitor-facing copy, DOM selectors and attribute names, standardized browser or language values, external protocol tokens, and values read from annual data or its schemas. Do not create aliases that only rename these values without adding ownership, typing, validation, or drift prevention.
 
 ## File Header Comments
 
@@ -54,7 +66,7 @@ applyTo: "src/js/**/*.js"
 ## Testability
 
 - Keep DOM-free logic in services/models so it can be tested with Node.js.
-- Export via `if (typeof module !== 'undefined') module.exports = { ... }` for Node.js test access.
+- Test browser modules through `tests/helpers/browser-module-loader.js` and its explicit dependency manifests. Use fresh realms and explicit injection or bridging for test dependencies; do not add CommonJS exports or Node.js dependency branches for test access.
 - Services and models must not reference `$`, `document`, or `window` directly.
 - Published annual pool/team/meet names and schema enum vocabularies come from annual data and schemas; do not mirror them in JavaScript enums for validation or behavior.
 

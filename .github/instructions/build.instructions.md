@@ -34,7 +34,8 @@ Run `\.\start.ps1` from PowerShell for the interactive developer menu. It covers
 
 1. `rimraf out` — Clean output directory
 2. `node posthtml.js` — Custom build script that:
-   - Copies `src/assets/`, `src/css/`, `src/js/` to `out/`
+   - Copies `src/assets/` and `src/css/` to `out/`
+   - Parses `src/js/` with Acorn, rejects CommonJS, Node.js runtime code, and Node-environment guards, then copies validated scripts byte-for-byte to `out/js/`
    - Copies required root static files (`manifest.webmanifest`, `browserconfig.xml`, `BingSiteAuth.xml`, `google3dd9d57115818ebb.html`, `robots.txt`, `sitemap.xml`, `LICENSE`, and `CNAME`)
    - Generates a precache inventory from the delivered artifact and updates `service-worker.js` with a build cache version
    - Processes HTML with PostHTML (extend + include plugins)
@@ -46,13 +47,14 @@ Run `\.\start.ps1` from PowerShell for the interactive developer menu. It covers
 - `out/` is the build output directory (gitignored).
 - Never edit files in `out/` — they are overwritten on every build.
 - GitHub Pages serves from the `out/` directory (or configured branch).
+- Published `out/js/` assets must never contain `require()`, `module.exports`, `process`, `__dirname`, test harnesses, fixtures, mocks, or other Node.js/test-only code.
 - `pnpm run verify:pwa` validates generated offline/cache, manifest, canonical, and crawler artifacts after a build.
 
 ## Testing
 
 - Tests are in `tests/` using Node.js built-in test runner.
 - Test files follow the pattern `tests/**/*.test.js`.
-- Services and models export via `module.exports` for Node.js test access.
+- Test-only loaders, manifests, fixtures, and mocks belong under `tests/` and must not be copied into `out/`. Narrow adapters for genuine build-time Node consumers belong under `scripts/adapters/`.
 - `pnpm run test:coverage` still executes tests that import `scripts/**`, but reports only delivered application JavaScript (`src/js/**` and `service-worker.js`) and excludes maintenance/validation implementations.
 - Choose local checks by affected behavior while iterating; do not run the complete test suite for a documentation-only change or an isolated edit already covered by one focused test file.
 - Run `pnpm run lint` whenever executable JavaScript, JavaScript configuration, build scripts, or automation scripts change; combine it with the focused behavior check below when applicable.
