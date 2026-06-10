@@ -1131,6 +1131,10 @@ main h1 {
   transition: var(--transition);
 }
 
+.directory-link .icon {
+  margin-right: 0.35rem;
+}
+
 .directory-link:hover,
 .directory-link:focus {
   color: var(--white);
@@ -2470,6 +2474,10 @@ button.pool-filter__clear:focus-visible {
   font-weight: 600;
   font-family: monospace;
   font-size: 1rem;
+}
+
+.phone-link .icon {
+  margin-right: 0.35rem;
 }
 
 .phone-link:hover,

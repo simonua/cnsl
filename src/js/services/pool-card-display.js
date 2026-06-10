@@ -154,7 +154,7 @@ if (typeof window === 'undefined' || !window.PoolCardDisplay) {
       const phoneHtml = phoneUrl
         ? `<div class="address-section__phone">
           <a href="${phoneUrl}" class="phone-link" aria-label="Call ${safePoolName} pool desk at ${HtmlSafety.escapeHtml(safePool.phone)}">
-            ${IconCatalog.render('phone')} ${HtmlSafety.escapeHtml(safePool.phone)}
+            ${IconCatalog.render('phone')}${HtmlSafety.escapeHtml(safePool.phone)}
           </a>
         </div>`
         : '';

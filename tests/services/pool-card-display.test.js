@@ -145,7 +145,9 @@ describe('PoolCardDisplay', () => {
   });
 
   it('renders independent action, feature, status, and transition defaults', () => {
-    assert.match(PoolCardDisplay.renderActions({ phone: '410-555-0100' }), /Call pool pool desk/);
+    const phoneActionsHtml = PoolCardDisplay.renderActions({ phone: '410-555-0100' });
+    assert.match(phoneActionsHtml, /Call pool pool desk/);
+    assert.match(phoneActionsHtml, /<\/svg>410-555-0100/);
     assert.match(PoolCardDisplay.renderActions({ caUrl: 'https://example.com' }, 'Example'), /Visit CA Pool Page/);
     assert.match(PoolCardDisplay.renderFeatures([null]), /feature-pill--additional/);
     assert.match(PoolCardDisplay.renderStatusIndicator(null, ''), /Status unknown/);
