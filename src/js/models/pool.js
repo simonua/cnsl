@@ -389,6 +389,35 @@ if (typeof window === 'undefined') {
   }
 
   /**
+   * Check whether any published public-use period exists tomorrow.
+   * @returns {boolean} Whether the pool is open to the public at any time tomorrow
+   */
+  hasPublicUseTomorrow() {
+    const TimeUtilsRef = this._getTimeUtils();
+    const PoolStatusRef = this._getPoolStatus();
+    if (!TimeUtilsRef || !PoolStatusRef) return false;
+
+    const easternTimeInfo = TimeUtilsRef.getCurrentEasternTimeInfo();
+    if (!easternTimeInfo.isValid) return false;
+
+    const dateParts = easternTimeInfo.date.match(TimeUtilsRef.DATE_ONLY_REGEX);
+    if (!dateParts) return false;
+    const tomorrow = new Date(Date.UTC(Number(dateParts[1]), Number(dateParts[2]) - 1, Number(dateParts[3]) + 1));
+    const tomorrowDate = tomorrow.toISOString().slice(0, 10);
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const tomorrowDay = dayNames[tomorrow.getUTCDay()];
+
+    if (this.schedulePeriods) {
+      return this._getPeriodTimeSlotsForDate(tomorrowDate, tomorrowDay.substring(0, 3))
+        .some(slot => this._getPeriodSlotStatus(slot) === PoolStatusRef.OPEN);
+    }
+
+    const dayHours = this.schedule.getDayHours(tomorrowDay);
+    return Boolean(dayHours && !dayHours.closed
+      && typeof dayHours.open === 'string' && typeof dayHours.close === 'string');
+  }
+
+  /**
    * Check whether today's last public-use period has ended.
    * @returns {boolean} Whether the pool was open today but will not reopen today
    */

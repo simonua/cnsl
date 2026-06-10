@@ -10,12 +10,14 @@ describe('PoolDirectoryService', () => {
     assert.equal(PoolDirectoryService.isAvailabilityFilter('open-now'), true);
     assert.equal(PoolDirectoryService.isAvailabilityFilter('opens-soon'), true);
     assert.equal(PoolDirectoryService.isAvailabilityFilter('open-today'), true);
+    assert.equal(PoolDirectoryService.isAvailabilityFilter('open-tomorrow'), true);
     assert.equal(PoolDirectoryService.isAvailabilityFilter('unknown'), false);
   });
 
   it('matches semantic pool availability rules without inspecting presentation state', () => {
     const model = {
       hasPublicUseToday: () => true,
+      hasPublicUseTomorrow: () => false,
       opensWithinNextMinutes: minutes => minutes === PoolDirectoryService.OPENING_SOON_MINUTES,
       isOpenForNextMinutes: minutes => minutes === undefined
     };
@@ -24,6 +26,7 @@ describe('PoolDirectoryService', () => {
     assert.equal(PoolDirectoryService.matchesAvailabilityFilter(model, 'open-now'), true);
     assert.equal(PoolDirectoryService.matchesAvailabilityFilter(model, 'opens-soon'), true);
     assert.equal(PoolDirectoryService.matchesAvailabilityFilter(model, 'open-today'), true);
+    assert.equal(PoolDirectoryService.matchesAvailabilityFilter(model, 'open-tomorrow'), false);
     assert.equal(PoolDirectoryService.matchesAvailabilityFilter(model, 'open-next-two-hours'), false);
     assert.equal(PoolDirectoryService.matchesAvailabilityFilter(null, 'open-now'), false);
   });
@@ -34,12 +37,14 @@ describe('PoolDirectoryService', () => {
       ['Open', {
         getCurrentStatus: () => ({ kind: 'open' }),
         hasPublicUseToday: () => true,
+        hasPublicUseTomorrow: () => false,
         isOpenForNextMinutes: minutes => minutes === undefined,
         opensWithinNextMinutes: () => false
       }],
       ['Soon', {
         getCurrentStatus: () => ({ kind: 'closed' }),
         hasPublicUseToday: () => true,
+        hasPublicUseTomorrow: () => true,
         isOpenForNextMinutes: () => false,
         opensWithinNextMinutes: minutes => minutes === PoolDirectoryService.OPENING_SOON_MINUTES
       }]

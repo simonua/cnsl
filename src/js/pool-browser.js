@@ -582,6 +582,7 @@ function handlePoolAvailabilityChange(event) {
     'open-now': 'pools open now',
     'opens-soon': 'pools opening within the hour',
     'open-today': 'pools with public hours today',
+    'open-tomorrow': 'pools with public hours tomorrow',
     'open-next-two-hours': 'pools open for the next 2 hours'
   };
   setPoolListStatus(`Pool directory filtered to ${descriptions[poolAvailabilityFilter]}.`, false);

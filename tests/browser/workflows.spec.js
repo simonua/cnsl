@@ -953,7 +953,7 @@ test('[WF-POOLS-018] lessons feature identifies CA outdoor lesson pools and link
   await expect(lessonsLinkIcon.locator('use')).toHaveAttribute('href', '#icon-link');
 });
 
-test('[WF-POOLS-002] pool availability filters show pools open now, opening soon, open today, or open for the next two hours', async ({ page }) => {
+test('[WF-POOLS-002] pool availability filters show pools open now, opening soon, today, tomorrow, or for the next two hours', async ({ page }) => {
   await page.route('**/assets/data/2026/pools/pools.json*', async route => {
     const response = await route.fetch();
     const poolData = await response.json();
@@ -962,7 +962,7 @@ test('[WF-POOLS-002] pool availability filters show pools open now, opening soon
         startDate: '2026-05-23',
         endDate: '2026-09-07',
         hours: [{
-          weekDays: ['Tue'],
+          weekDays: index === 2 ? ['Tue', 'Wed'] : ['Tue'],
           startTime: index === 1 ? '3:45PM' : '1:00PM',
           endTime: index < 2 ? '6:00PM' : '4:00PM',
           types: ['Rec Swim'],
@@ -995,6 +995,14 @@ test('[WF-POOLS-002] pool availability filters show pools open now, opening soon
   await expect(page.locator('#poolAvailabilityFilter')).toHaveValue('open-today');
   await expect(page.locator('#poolFilterSummary')).toHaveText('23 / 23 pools');
   await expect(page.locator('#poolListStatus')).toHaveText('Pool directory filtered to pools with public hours today.');
+
+  await page.keyboard.press('ArrowDown');
+  await expect(page.locator('#poolAvailabilityFilter')).toHaveValue('open-next-two-hours');
+
+  await page.keyboard.press('ArrowDown');
+  await expect(page.locator('#poolAvailabilityFilter')).toHaveValue('open-tomorrow');
+  await expect(page.locator('#poolFilterSummary')).toHaveText('1 / 23 pools');
+  await expect(page.locator('#poolListStatus')).toHaveText('Pool directory filtered to pools with public hours tomorrow.');
 
   await page.selectOption('#poolAvailabilityFilter', 'open-next-two-hours');
   await expect(page.locator('#poolFilterSummary')).toHaveText('1 / 23 pools');

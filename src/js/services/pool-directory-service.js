@@ -3,7 +3,7 @@
  */
 if (typeof window === 'undefined' || !window.PoolDirectoryService) {
   class PoolDirectoryService {
-    static AVAILABILITY_FILTERS = Object.freeze(['all', 'open-now', 'opens-soon', 'open-today', 'open-next-two-hours']);
+    static AVAILABILITY_FILTERS = Object.freeze(['all', 'open-now', 'opens-soon', 'open-today', 'open-tomorrow', 'open-next-two-hours']);
     static OPENING_SOON_MINUTES = 60;
 
     static isAvailabilityFilter(value) {
@@ -20,6 +20,7 @@ if (typeof window === 'undefined' || !window.PoolDirectoryService) {
       if (!poolModel) return false;
       if (filter === 'opens-soon') return poolModel.opensWithinNextMinutes(PoolDirectoryService.OPENING_SOON_MINUTES);
       if (filter === 'open-today') return poolModel.hasPublicUseToday();
+      if (filter === 'open-tomorrow') return poolModel.hasPublicUseTomorrow();
       if (filter === 'open-next-two-hours') return poolModel.isOpenForNextMinutes(120);
       return filter === 'all' || poolModel.isOpenForNextMinutes();
     }

@@ -240,13 +240,14 @@ describe('Pool', () => {
           schedules: [{
             startDate: '2026-05-23',
             endDate: '2026-09-07',
-            hours: [{ weekDays: ['Wed'], startTime: '12:00PM', endTime: '7:00PM', types: ['Rec Swim'] }]
+            hours: [{ weekDays: ['Wed'], startTime: '12:00PM', endTime: '7:00PM', types: ['Rec Swim'], accessStatus: 'public' }]
           }]
         }));
 
         assert.equal(pool.getPublicStatusTransitionToday(), null);
         assert.equal(pool.isClosedToPublicAllDayToday(), true);
         assert.equal(pool.hasPublicUseToday(), false);
+        assert.equal(pool.hasPublicUseTomorrow(), true);
         assert.equal(pool.isClosedToPublicForDay(), false);
       } finally {
         TimeUtils.getCurrentEasternTimeInfo = originalGetCurrentEasternTimeInfo;
