@@ -44,14 +44,14 @@ function getMeetLiveStatusTarget(meets) {
   if (!easternTimeInfo.isValid) return null;
 
   const orderedMeets = [...meets].sort((first, second) => first.date.localeCompare(second.date));
-  const ongoingMeet = orderedMeets.find(meet => meet.getLiveStatus(easternTimeInfo) === 'ongoing');
-  if (ongoingMeet) return { date: ongoingMeet.date, kind: 'ongoing', label: 'Ongoing' };
+  const ongoingMeet = orderedMeets.find(meet => meet.getLiveStatus(easternTimeInfo) === MeetLiveStatus.ONGOING);
+  if (ongoingMeet) return { date: ongoingMeet.date, kind: MeetLiveStatus.ONGOING, label: 'Ongoing' };
 
   if (orderedMeets.some(meet => meet.date === easternTimeInfo.date && meet.getLiveStatus(easternTimeInfo) === null)) return null;
 
-  const upcomingMeet = orderedMeets.find(meet => meet.getLiveStatus(easternTimeInfo) === 'upcoming'
+  const upcomingMeet = orderedMeets.find(meet => meet.getLiveStatus(easternTimeInfo) === MeetLiveStatus.UPCOMING
     || (meet.getLiveStatus(easternTimeInfo) === null && meet.date > easternTimeInfo.date));
-  return upcomingMeet ? { date: upcomingMeet.date, kind: 'upcoming', label: 'Upcoming' } : null;
+  return upcomingMeet ? { date: upcomingMeet.date, kind: MeetLiveStatus.UPCOMING, label: 'Upcoming' } : null;
 }
 
 /**
@@ -154,7 +154,7 @@ async function renderMeets(meets, preserveExpansion = false) {
     const dateLiveStatuses = meetsByDate[dateKey].map(meet => meet.getLiveStatus(easternTimeInfo));
     const isCompleted = meetDate < today || (meetDateValue === easternTimeInfo.date
       && dateLiveStatuses.length > 0
-      && dateLiveStatuses.every(status => status === 'concluded'));
+      && dateLiveStatuses.every(status => status === MeetLiveStatus.CONCLUDED));
     const isUpcoming = !isCompleted && meetDate >= today;
     const isToday = meetDate.toDateString() === today.toDateString();
     const relativeDayOffset = TimeUtils.getRelativeFutureDayOffset(meetDate, today);
