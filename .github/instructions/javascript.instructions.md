@@ -24,12 +24,12 @@ applyTo: "src/js/**/*.js"
 
 ## Code Organization
 
-- **Models** (`src/js/models/`): Data classes (e.g., `Pool`). No DOM access.
+- **Models** (`src/js/models/`): Data classes and domain value objects (e.g., `Pool`, `PoolSchedule`). No DOM access.
 - **Services** (`src/js/services/`): Reusable logic (e.g., `TimeUtils`, `CacheService`). No DOM access.
 - **Types** (`src/js/types/`): Immutable runtime state/constants (e.g., `PoolStatus`), not seasonal source vocabularies.
 - **Config** (`src/js/config/`): Configuration values.
-- **Managers** (`src/js/`): Orchestrators that coordinate services and models (e.g., `PoolsManager`).
-- **Browsers** (`src/js/`): UI rendering modules that read from managers and write to the DOM.
+- **Managers** (`src/js/managers/`): Orchestrators that coordinate services and models (e.g., `PoolsManager`).
+- **Browser entry points** (`src/js/`): Route controllers, shared shell controllers, and focused UI controllers loaded directly by views or other entry points.
 
 ## Style Rules
 

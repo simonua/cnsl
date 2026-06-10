@@ -148,7 +148,7 @@ describe('PoolSchedule', () => {
 
   describe('browser registration', () => {
     it('installs PoolSchedule as a browser script global', () => {
-      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'pool-schedule.js');
+      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'models', 'pool-schedule.js');
       const source = fs.readFileSync(sourcePath, 'utf8');
       const context = { PoolStatus, TimeUtils: {} };
       context.globalThis = context;
@@ -160,7 +160,7 @@ describe('PoolSchedule', () => {
     });
 
     it('returns safe fallback values when browser dependencies are unavailable', () => {
-      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'pool-schedule.js');
+      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'models', 'pool-schedule.js');
       const source = fs.readFileSync(sourcePath, 'utf8');
       const context = { console: { error: () => {} } };
       context.globalThis = context;
@@ -179,7 +179,7 @@ describe('PoolSchedule', () => {
     });
 
     it('uses an open fallback status when only browser time utilities are available', () => {
-      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'pool-schedule.js');
+      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'models', 'pool-schedule.js');
       const source = fs.readFileSync(sourcePath, 'utf8');
       const context = {
         console: { error: () => {} },
@@ -199,7 +199,7 @@ describe('PoolSchedule', () => {
     });
 
     it('closes incomplete browser schedules when status exists without time utilities', () => {
-      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'pool-schedule.js');
+      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'models', 'pool-schedule.js');
       const source = fs.readFileSync(sourcePath, 'utf8');
       const context = { PoolStatus, console: { error: () => {} } };
       context.globalThis = context;

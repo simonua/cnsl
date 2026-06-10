@@ -11,9 +11,9 @@ CNSL will retain its lightweight PostHTML build with native browser JavaScript l
 | Concern | Owner | Rule |
 | --- | --- | --- |
 | Shared shell behavior | Shared layout scripts: preferences theme, deployed-site analytics, navigation, PWA, weather alert | Every page may load these through the base layout; they must not depend on a route controller. |
-| Annual-data acquisition | `getDataManager()` and its managers | Routes use the singleton; do not issue competing initial annual JSON loads. |
+| Annual-data acquisition | `getDataManager()` and `src/js/managers/` | Routes use the singleton; do not issue competing initial annual JSON loads. |
 | DOM-free reusable behavior | `src/js/services/`, `models/`, and `types/` | Keep testable without `window` or `document` where practical; export for Node tests. |
-| Route display and interaction | One `*-browser.js` or `settings.js` entry script per route | Route templates list first-load dependencies in order, then load only their entry script. Optional dependencies may be loaded after an interaction when browser-tested. |
+| Route display and interaction | Browser entry scripts in `src/js/` | Route templates list first-load dependencies in order, then load only their entry script. Optional dependencies may be loaded after an interaction when browser-tested. |
 | Future/experimental features | Documentation or a separately reviewed implementation | Do not ship placeholder controls or source files in `src/js/`; shipped code is supported code. |
 
 Dependencies needed for first display remain explicit in each PostHTML route template. A new shared dependency belongs in the base layout only when multiple routes need it on first load; otherwise it belongs beside the route that uses it. Interaction-driven optional features may fetch their declared dependencies lazily to avoid loading unused annual-data behavior, as the home agenda and settings selection workflows do; browser coverage must protect that boundary and any reordering or removal of page scripts.

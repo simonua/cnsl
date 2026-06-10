@@ -189,7 +189,7 @@ describe('MeetsManager', () => {
 
   describe('browser registration', () => {
     it('installs the manager and resolves browser TimeUtils as script globals', () => {
-      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'meets-manager.js');
+      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'managers', 'meets-manager.js');
       const source = fs.readFileSync(sourcePath, 'utf8');
       const context = { window: { TimeUtils: { formatDate: () => '2026-06-20' } }, Meet };
       Object.assign(context, context.globalThis || {}, context.window || {});
@@ -203,7 +203,7 @@ describe('MeetsManager', () => {
     });
 
     it('resolves lexical TimeUtils when it is absent from globalThis', () => {
-      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'meets-manager.js');
+      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'managers', 'meets-manager.js');
       const source = fs.readFileSync(sourcePath, 'utf8');
       const lexicalTimeUtils = { formatDate: () => '2026-06-20' };
       const exportedGlobals = {};

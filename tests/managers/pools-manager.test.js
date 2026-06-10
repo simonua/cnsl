@@ -177,7 +177,7 @@ describe('PoolsManager', () => {
 
   describe('browser registration', () => {
     it('installs the manager as a browser script global', () => {
-      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'pools-manager.js');
+      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'managers', 'pools-manager.js');
       const source = fs.readFileSync(sourcePath, 'utf8');
       const context = { window: {}, Pool: class {} };
       Object.assign(context, context.globalThis || {}, context.window || {});

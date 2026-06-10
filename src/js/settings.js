@@ -4,12 +4,12 @@
   const dependencyScripts = [
     { source: 'js/services/time-utils.js', ready: () => Boolean(window.TimeUtils) },
     { source: 'js/types/pool-enums.js', ready: () => Boolean(window.PoolStatus) },
-    { source: 'js/pool-schedule.js', ready: () => Boolean(window.PoolSchedule) },
+    { source: 'js/models/pool-schedule.js', ready: () => Boolean(window.PoolSchedule) },
     { source: 'js/services/pool-period-schedule-service.js', ready: () => Boolean(window.PoolPeriodScheduleService) },
     { source: 'js/models/pool.js', ready: () => Boolean(window.Pool) },
-    { source: 'js/pools-manager.js', ready: () => Boolean(window.PoolsManager) },
+    { source: 'js/managers/pools-manager.js', ready: () => Boolean(window.PoolsManager) },
     { source: 'js/models/team.js', ready: () => Boolean(window.Team) },
-    { source: 'js/teams-manager.js', ready: () => Boolean(window.TeamsManager) },
+    { source: 'js/managers/teams-manager.js', ready: () => Boolean(window.TeamsManager) },
     { source: 'js/services/file-helper.js', ready: () => Boolean(window.FileHelper) },
     { source: 'js/services/data-manager.js', ready: () => Boolean(window.DataManager) }
   ];
