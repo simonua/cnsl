@@ -1,4 +1,4 @@
-const { test, expect } = require('@playwright/test');
+const { test, expect } = require('./browser-test');
 const {
   MOBILE_VIEWPORT,
   initializeAnalyticsRecorder,
@@ -680,6 +680,15 @@ test('[WF-ANALYTICS-004] directory detail opens publish only a broad directory n
     globalThis.cnslAnalytics.trackInteraction(interactionType, { directoryName: '2026-06-20' });
   });
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_directory_detail_open'))).toHaveLength(3);
+});
+
+test('[WF-ANALYTICS-005] nightly verification blocks Google Analytics collection', async ({ page }) => {
+  test.skip(process.env.CNSL_BLOCK_GOOGLE_ANALYTICS !== 'true', 'Only applies to analytics-isolated browser runs.');
+
+  await page.goto('/index.html');
+  const measurementId = await page.evaluate(() => globalThis.GA4_MEASUREMENT_ID);
+  await expect(page.evaluate(id => globalThis[`ga-disable-${id}`], measurementId)).resolves.toBe(true);
+  await expect(page.goto('https://www.google-analytics.com/g/collect?v=2')).rejects.toThrow(/ERR_BLOCKED_BY_CLIENT/);
 });
 
 test('[WF-RELEASE-001] release updates are announced once after a stable version is acknowledged', async ({ page }) => {

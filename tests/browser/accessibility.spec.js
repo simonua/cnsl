@@ -1,4 +1,4 @@
-const { test, expect } = require('@playwright/test');
+const { test, expect } = require('./browser-test');
 const AxeBuilder = require('@axe-core/playwright').default;
 const {
   MOBILE_VIEWPORT,
