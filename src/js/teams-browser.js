@@ -714,38 +714,6 @@ function handleTeamUrlParameter() {
   }, 3000);
 }
 
-/**
- * Generate a link to a specific team using URL parameters
- * @param {string} teamId - Team ID to link to
- * @param {string} teamName - Team name for display text
- * @param {Object} options - Link options
- * @returns {string} - HTML link to teams page with team parameter
- */
-// eslint-disable-next-line no-unused-vars
-function generateTeamLink(teamId, teamName, options = {}) {
-  const {
-    className = 'team-link',
-    target = '_self',
-    title = `View ${teamName} details`
-  } = options;
-
-  if (!teamId || !teamName) {
-    return TeamsBrowserSafety.escapeHtml(teamName || 'Unknown Team');
-  }
-
-  const safeClassName = String(className).replace(/[^a-zA-Z0-9_ -]/g, '');
-  const safeTarget = target === '_blank' ? '_blank' : '_self';
-  const safeTitle = TeamsBrowserSafety.escapeHtml(title);
-  const safeTeamName = TeamsBrowserSafety.escapeHtml(teamName);
-
-  return `<a href="teams.html?team=${encodeURIComponent(teamId)}"
-             class="${safeClassName}"
-             target="${safeTarget}"
-             title="${safeTitle}">
-             ${safeTeamName}
-           </a>`;
-}
-
 document.addEventListener("DOMContentLoaded", async () => {
   if (globalThis.cnslSeasonState && globalThis.cnslSeasonState.isOffSeason) return;
   // Check if we're on the teams page before fetching data

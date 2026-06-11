@@ -199,12 +199,8 @@ function loadSeasonInfo() {
   }
 }
 
-// ------------------------------
-//    COMPATIBILITY FUNCTIONS
-// ------------------------------
-
 /**
- * Compatibility wrapper for pool status - uses the Pool class method
+ * Normalize the current pool status for card rendering.
  * @param {Object} pool - Pool data object
  * @returns {Object} - Status object with semantic kind, isOpen, status, and color
  */
@@ -236,17 +232,6 @@ function getPoolStatus(pool) {
     status: status.status,
     color: status.color || 'red'
   };
-}
-
-/**
- * Compatibility wrapper for checking if a pool is open
- * @param {Object} pool - Pool data object
- * @returns {boolean} - True if pool is open
- */
-// eslint-disable-next-line no-unused-vars
-function isPoolOpen(pool) {
-  const status = getPoolStatus(pool);
-  return status.kind === 'open';
 }
 
 /**
@@ -881,7 +866,6 @@ function renderPools(pools) {
     const isExpanded = (isInitialRender && poolId === linkedPoolId)
       || (isFavorite ? preferences.favoritePoolExpanded : expandedPoolIds.has(poolId));
 
-    // Get pool status for indicator using new helper
     const poolStatus = getPoolStatus(pool);
     const tooltipText = getStatusTooltip(poolStatus.kind);
     const poolModel = poolBrowserDataManager.getPool(poolName);

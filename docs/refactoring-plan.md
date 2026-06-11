@@ -10,37 +10,7 @@ The repository-wide audit reviewed source, views, styles, assets, annual-data or
 
 | Priority | Finding | Impact | Effort |
 | --- | --- | --- | --- |
-| **ORANGE - Medium** | Remove proven unused browser helpers and their residual configuration/styles | Medium | Low |
-
-## Medium Priority
-
-### Remove Proven Unused Browser Helpers And Residual Surface
-
-**Finding:** Three delivered route scripts retain helper paths with no tracked caller. They are explicitly lint-suppressed or labeled compatibility code, increasing shipped bytes and preserving misleading APIs. Exact symbol checks found declarations only for `generateTeamLink` and `generateWeatherDisplay`; `getWeatherIcon` is reachable only from the dead weather renderer; the route-level `isPoolOpen` wrapper has no caller. These are distinct from the live `PoolSchedule.isPoolOpen` model method.
-
-**Repository evidence:**
-
-- [src/js/teams-browser.js](../src/js/teams-browser.js) declares lint-suppressed `generateTeamLink`, with no other tracked occurrence.
-- [src/js/meets-browser.js](../src/js/meets-browser.js) declares lint-suppressed `generateWeatherDisplay`; its `getWeatherIcon` helper is called only by that renderer. Live meet-card weather markup uses `weather-info` and `weather-temp` directly.
-- [src/js/pool-browser.js](../src/js/pool-browser.js) labels `isPoolOpen` a compatibility wrapper and suppresses its unused-variable warning; no tracked caller exists.
-- [eslint.config.js](../eslint.config.js) still declares route-level `getPoolStatus` and `isPoolOpen` globals even though templates and scripts do not consume them.
-- [src/css/styles.css](../src/css/styles.css) retains `weather-icon`, `weather-condition`, and `weather-wind` selectors used only by the dead renderer. `weather-info`, `weather-temp`, and their color custom property remain live and must stay.
-- [src/js/services/icon-catalog.js](../src/js/services/icon-catalog.js) has weather glyphs mostly reachable only through the dead helper, but `weatherStorm` remains live in [src/js/weather-alert-display.js](../src/js/weather-alert-display.js); icon cleanup must therefore be key-specific.
-
-**Scoped plan:** Remove `generateTeamLink`, route-level `isPoolOpen`, `generateWeatherDisplay`, and `getWeatherIcon`. Remove only globals, CSS selectors, icon keys, and tests proven to become unreferenced after those deletions. Preserve live model methods, status rendering, meet temperature markup, weather-alert glyphs, and shared CSS tokens. Do not combine this cleanup with route-controller extraction unless separate duplication or change-pressure evidence emerges.
-
-**Acceptance checks:**
-
-- Exact symbol searches return no obsolete helper declarations or stale ESLint globals.
-- The browser JavaScript validator and `pnpm run lint` pass without replacement suppressions.
-- `pnpm run test:coverage` retains 100% line, branch, and function coverage for delivered JavaScript.
-- `pnpm run build` and `pnpm run verify:pwa` pass; meet temperature and pool status output remain unchanged.
-
-## Roadmap
-
-| Phase | Work | Completion evidence |
-| --- | --- | --- |
-| 1 | Remove proven unused route helpers and residual surface | Full JS coverage, lint, build, and PWA verification |
+| **GREEN - None** | No actionable refactoring items remain | None | None |
 
 ## Guardrails
 
@@ -53,5 +23,5 @@ The repository-wide audit reviewed source, views, styles, assets, annual-data or
 ## Priority Summary
 
 - **RED - High:** No actionable high-priority items remain.
-- **ORANGE - Medium:** Remove proven dead route helpers and their narrowly associated surface.
+- **ORANGE - Medium:** No actionable medium-priority items remain.
 - **GREEN - Low:** No actionable low-priority items remain.

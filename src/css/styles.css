@@ -2685,24 +2685,9 @@ button.pool-filter__clear:focus-visible {
   font-size: 0.85rem;
 }
 
-.weather-icon {
-  font-size: 1.1rem;
-  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
-}
-
 .weather-temp {
   font-weight: 600;
   color: var(--primary-color);
-}
-
-.weather-condition {
-  color: var(--text-dark);
-  flex: 1;
-}
-
-.weather-wind {
-  color: var(--text-muted);
-  font-size: 0.8rem;
 }
 
 /* Hide weather info for past meets */

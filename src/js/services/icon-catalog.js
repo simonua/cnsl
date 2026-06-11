@@ -16,17 +16,10 @@ if (typeof globalThis.IconCatalog === 'undefined') {
     statusUnavailable: '⚫',
     time: '🕐',
     warning: '⚠️',
-    weatherClear: '☀️',
-    weatherCloudy: '☁️',
-    weatherFog: '🌫️',
     weatherHail: '🧊',
     weatherLightning: '⚡',
-    weatherPartlyCloudy: '⛅',
-    weatherRain: '🌧️',
-    weatherSnow: '❄️',
     weatherStorm: '⛈️',
-    weatherTornado: '🌪️',
-    weatherUnknown: '🌤️'
+    weatherTornado: '🌪️'
   });
   const STATUS_GLYPH_NAMES = Object.freeze({
     closed: 'statusClosed',
