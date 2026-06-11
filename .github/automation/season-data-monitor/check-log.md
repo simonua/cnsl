@@ -31,3 +31,17 @@ Checked the 135-source inventory:
 - The Long Reach merchandise store returned HTTP 403 and displayed `Request Blocked`; the availability exception allowed the review to complete without treating that response as an official-data failure.
 
 The monitor detected no candidate source differences. No modeled data or application-used destination changed, so `OFFICIAL_SOURCE_UPDATED_AT` remains unchanged.
+
+## 2026-06-11T18:08:10-04:00
+
+**Active season:** 2026
+
+**Result:** Complete under the existing explicit maintainer exception for merchandise-store and booster-site availability.
+
+Checked the 135-source inventory:
+
+- 76 modeled-evidence sources were reached by `pnpm run check:data-updates`.
+- 56 uncovered application-used destinations were reached separately with live GET requests.
+- 3 application-used destinations retained their availability exception: the Long Reach and Phelps Luck merchandise stores and the Long Reach booster site.
+
+The monitor detected no candidate source differences, and all required uncovered destinations were reachable. No modeled data or application-used destination changed, so `OFFICIAL_SOURCE_UPDATED_AT` remains unchanged.
