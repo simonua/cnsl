@@ -147,15 +147,28 @@
   }
 
   /**
+   * Resolves a stored team identifier to its published team name for analytics.
+   * @param {string} teamId - Stored favorite team identifier
+   * @param {Map<string, string>} publishedTeamNamesById - Published team names keyed by identifier
+   * @returns {string} Published team name, empty selection, or the unrecognized value for rejection
+   * @private
+   */
+  function getFavoriteTeamAnalyticsValue(teamId, publishedTeamNamesById) {
+    if (!teamId) return '';
+    return publishedTeamNamesById.get(teamId) || teamId;
+  }
+
+  /**
    * Tracks the setting represented by a changed form control.
    * @param {Element} changedField - Changed form control
    * @param {Object} existing - Preferences before the change
    * @param {Object} saved - Preferences after the change
    * @param {Set<string>} publishedPoolNames - Published pool names
-   * @param {Set<string>} publishedTeamIds - Published team identifiers
+  * @param {Set<string>} publishedTeamNames - Published team names
+  * @param {Map<string, string>} publishedTeamNamesById - Published team names keyed by identifier
    * @private
    */
-  function trackChangedFormSetting(changedField, existing, saved, publishedPoolNames, publishedTeamIds) {
+  function trackChangedFormSetting(changedField, existing, saved, publishedPoolNames, publishedTeamNames, publishedTeamNamesById) {
     if (changedField.name === 'theme' && saved.theme !== existing.theme) {
       trackFixedSettingChange('theme', saved.theme);
     } else if (changedField.name === 'textSize' && saved.textSize !== existing.textSize) {
@@ -177,7 +190,8 @@
     } else if (changedField.name === 'favoritePool' && saved.favoritePoolName !== existing.favoritePoolName) {
       trackPublishedSettingChange('favorite_pool', saved.favoritePoolName, publishedPoolNames);
     } else if (changedField.name === 'favoriteTeam' && saved.favoriteTeamId !== existing.favoriteTeamId) {
-      trackPublishedSettingChange('favorite_team', saved.favoriteTeamId, publishedTeamIds);
+      const teamName = getFavoriteTeamAnalyticsValue(saved.favoriteTeamId, publishedTeamNamesById);
+      trackPublishedSettingChange('favorite_team', teamName, publishedTeamNames);
     }
   }
 
@@ -186,10 +200,10 @@
    * @param {Object} existing - Preferences before clearing
    * @param {Object} cleared - Default preferences after clearing
    * @param {Set<string>} publishedPoolNames - Published pool names
-   * @param {Set<string>} publishedTeamIds - Published team identifiers
+  * @param {Set<string>} publishedTeamNames - Published team names
    * @private
    */
-  function trackClearedSettings(existing, cleared, publishedPoolNames, publishedTeamIds) {
+  function trackClearedSettings(existing, cleared, publishedPoolNames, publishedTeamNames) {
     if (existing.theme !== cleared.theme) trackFixedSettingChange('theme', cleared.theme);
     if (existing.textSize !== cleared.textSize) trackFixedSettingChange('text_size', cleared.textSize);
     if (existing.contrast !== cleared.contrast) trackFixedSettingChange('contrast', cleared.contrast);
@@ -209,7 +223,7 @@
       });
     }
     if (existing.favoritePoolName !== cleared.favoritePoolName) trackPublishedSettingChange('favorite_pool', cleared.favoritePoolName, publishedPoolNames);
-    if (existing.favoriteTeamId !== cleared.favoriteTeamId) trackPublishedSettingChange('favorite_team', cleared.favoriteTeamId, publishedTeamIds);
+    if (existing.favoriteTeamId !== cleared.favoriteTeamId) trackPublishedSettingChange('favorite_team', cleared.favoriteTeamId, publishedTeamNames);
   }
 
   /**
@@ -263,7 +277,8 @@
     const favoritePool = document.getElementById('favoritePool');
     const status = document.getElementById('settingsStatus');
     const closeButton = document.getElementById('closeSettings');
-    const publishedTeamIds = new Set();
+    const publishedTeamNames = new Set();
+    const publishedTeamNamesById = new Map();
     const publishedPoolNames = new Set();
     let optionsPromise = null;
     let restoreFocusTo = null;
@@ -288,7 +303,10 @@
           const teams = dataManager.getTeams().getAllTeams().sort((first, second) => first.name.localeCompare(second.name));
           const pools = dataManager.getPools().getAllPools().sort((first, second) => first.getName().localeCompare(second.getName()));
 
-          teams.forEach(team => publishedTeamIds.add(team.id));
+          teams.forEach(team => {
+            publishedTeamNames.add(team.name);
+            publishedTeamNamesById.set(team.id, team.name);
+          });
           pools.forEach(pool => publishedPoolNames.add(pool.getName()));
 
           populateSelect(favoriteTeam, teams, 'No favorite team', team => team.id, team => team.name);
@@ -342,7 +360,7 @@
         locationAwarenessEnabled: form.elements.locationAwarenessEnabled.checked,
         weatherRefreshMinutes: weatherRefreshMinutes ? Number(weatherRefreshMinutes.value) : existing.weatherRefreshMinutes
       });
-      trackChangedFormSetting(event.target, existing, saved, publishedPoolNames, publishedTeamIds);
+      trackChangedFormSetting(event.target, existing, saved, publishedPoolNames, publishedTeamNames, publishedTeamNamesById);
       window.applyPreferenceTheme(saved);
       renderWeatherCheckStatus();
       preferencesChanged = preferencesChanged || JSON.stringify(existing) !== JSON.stringify(saved);
@@ -359,7 +377,7 @@
       const existing = PreferencesService.get();
       await window.AppStorageService.clearAppData();
       const cleared = PreferencesService.get();
-      trackClearedSettings(existing, cleared, publishedPoolNames, publishedTeamIds);
+      trackClearedSettings(existing, cleared, publishedPoolNames, publishedTeamNames);
       applyFormValues(form, cleared);
       window.applyPreferenceTheme(cleared);
       renderWeatherCheckStatus();

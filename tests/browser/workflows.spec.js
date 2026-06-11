@@ -2165,7 +2165,7 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
     ['event', 'ca_setting_change', { setting_name: 'practice_groups' }],
     ['event', 'ca_setting_change', { setting_name: 'practice_groups' }],
     ['event', 'ca_setting_change', { setting_name: 'favorite_pool', selection: 'Bryant Woods' }],
-    ['event', 'ca_setting_change', { setting_name: 'favorite_team', selection: 'cfhss' }],
+    ['event', 'ca_setting_change', { setting_name: 'favorite_team', selection: 'CHS Swim Sundevils' }],
     ['event', 'ca_setting_change', { setting_name: 'favorite_pool', selection: 'none' }]
   ]);
 
@@ -2241,7 +2241,7 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
     ['event', 'ca_setting_change', { setting_name: 'practice_groups' }],
     ['event', 'ca_setting_change', { setting_name: 'practice_groups' }],
     ['event', 'ca_setting_change', { setting_name: 'favorite_pool', selection: 'Bryant Woods' }],
-    ['event', 'ca_setting_change', { setting_name: 'favorite_team', selection: 'cfhss' }],
+    ['event', 'ca_setting_change', { setting_name: 'favorite_team', selection: 'CHS Swim Sundevils' }],
     ['event', 'ca_setting_change', { setting_name: 'favorite_pool', selection: 'none' }],
     ['event', 'ca_setting_change', { setting_name: 'theme' }],
     ['event', 'ca_setting_change', { setting_name: 'pool_schedule_layout' }],
