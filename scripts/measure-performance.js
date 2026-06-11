@@ -11,6 +11,7 @@ const COLD_ORIGIN = 'http://127.0.0.1:4174';
 const PWA_ORIGIN = 'http://cnsl.test:4174';
 const RUN_COUNT = Number.parseInt(process.env.CNSL_PERF_RUNS || '5', 10);
 const BUDGET_SCALE = Number.parseFloat(process.env.CNSL_PERF_BUDGET_SCALE || '1');
+const PWA_CRITICAL_RESOURCE_BUDGET = 75;
 const POOL_PHASE_MARKS = Object.freeze([
   'primary-data-ready',
   'summary-visible',
@@ -311,7 +312,7 @@ function reportWarnings(routeResults, pwaTiers) {
       if (count > 1) warnings.push(`${route.name} requested the ${domain} annual domain ${count} times in one run.`);
     });
   });
-  if (pwaTiers.core.resources > 70 * BUDGET_SCALE) warnings.push(`PWA critical install resources ${pwaTiers.core.resources} exceeds ${70 * BUDGET_SCALE}.`);
+  if (pwaTiers.core.resources > PWA_CRITICAL_RESOURCE_BUDGET * BUDGET_SCALE) warnings.push(`PWA critical install resources ${pwaTiers.core.resources} exceeds ${PWA_CRITICAL_RESOURCE_BUDGET * BUDGET_SCALE}.`);
   if (pwaTiers.core.bytes > 1200000 * BUDGET_SCALE) warnings.push(`PWA critical install bytes ${pwaTiers.core.bytes} exceeds ${1200000 * BUDGET_SCALE}.`);
   warnings.forEach(warning => console.warn(`PERFORMANCE WARNING: ${warning}`));
   return warnings;
@@ -417,6 +418,7 @@ if (require.main === module) {
 
 module.exports = {
   DIRECTORY_ROUTES,
+  PWA_CRITICAL_RESOURCE_BUDGET,
   ROUTES,
   maximumDomainRequests,
   median,

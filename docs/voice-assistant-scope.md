@@ -33,7 +33,7 @@ This is a future design scope, not a currently delivered feature. Earlier unpubl
 
 - A browser `SpeechRecognition` implementation is not inherently device-only. Some browsers may process recognition through a vendor service. A strict no-external-processing promise requires verified offline recognition support or disabling voice recognition where that guarantee cannot be made.
 - Browser speech synthesis may use installed local voices, but the privacy guarantee should be validated for supported platforms before labeling it device-only.
-- The existing pool feature search code expects legacy boolean feature properties while the active annual schema stores feature strings. Amenity answers must normalize against the current string list before they are exposed as supported voice results.
+- The existing pool directory already filters the active annual schema's amenity strings. Voice amenity aliases must normalize to that same string-based foundation so typed, filtered, and spoken results cannot drift.
 - Existing search currently displays broad meet and practice links rather than resolving relative dates and selected favorites. The intent scope below describes target behavior, not a claim that every intent is already implemented.
 
 ## Shared Answer Semantics

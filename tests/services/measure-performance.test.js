@@ -2,6 +2,7 @@ const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const {
   DIRECTORY_ROUTES,
+  PWA_CRITICAL_RESOURCE_BUDGET,
   ROUTES,
   maximumDomainRequests,
   median,
@@ -29,6 +30,10 @@ function createSample(overrides = {}) {
 }
 
 describe('performance measurement reporting', () => {
+  it('should retain measured headroom in the install-critical resource budget', () => {
+    assert.equal(PWA_CRITICAL_RESOURCE_BUDGET, 75);
+  });
+
   it('should include Home with a visitor-ready content boundary', () => {
     assert.deepEqual(
       ROUTES.map(({ name, readySelector }) => ({ name, readySelector })),

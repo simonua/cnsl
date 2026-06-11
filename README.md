@@ -73,7 +73,7 @@ pnpm run verify:pwa
 
 Playwright browser verification is deferred to the `Nightly Browser Verification` GitHub Actions workflow. Each day during May, June, and July, its scheduled check runs Chromium workflow and automated WCAG A/AA checks only when a push to `main` was recorded during the preceding 24 hours. It can also be run on demand through workflow dispatch. Browser results are reported separately and do not delay or block a GitHub Pages build. Use the [Release Verification Checklist](docs/release-checklist.md) for the secure-origin installed-PWA and manual assistive-technology checks that automation cannot establish.
 
-Design and maintenance decisions are recorded in the [Visual Style Guide](docs/style-guide.md), [Runtime And Stylesheet Ownership](docs/runtime-architecture.md), and [Security And Privacy Decision](docs/security-privacy.md).
+Design and maintenance decisions are recorded in the [Visual Style Guide](docs/style-guide.md), [Runtime And Stylesheet Ownership](docs/runtime-architecture.md), [Security And Privacy Decision](docs/security-privacy.md), and retained [Voice Assistant Question Scope](docs/voice-assistant-scope.md).
 
 ### GitHub Actions Workflow
 
@@ -128,28 +128,22 @@ The separation of `automation/` from `agents/` keeps retained automation support
 
 ```text
 /CNSL
-├── index.html                 # Season overview homepage (generated)
-├── pools.html                 # Pool directory with filters (generated)
-├── teams.html                 # Team cards and practice info (generated)
-├── meets.html                 # Meet schedule with closures (generated)
-├── faq.html                   # CNSL documents and policies (generated)
 ├── src/
 │   ├── views/                 # Source HTML files
 │   │   ├── components/        # Reusable HTML components
 │   │   └── layouts/           # HTML layout templates
 │   ├── css/
 │   │   └── styles.css         # Site-wide responsive and accessible styles
-│   └── js/
-│       ├── pool-browser.js    # Pool browser functionality
-│       ├── teams-browser.js   # Team browser functionality
-│       └── meets-browser.js   # Meet schedule functionality
+│   ├── js/                    # Browser controllers, models, services, and types
+│   └── assets/                # Images, annual data, and visitor resources
+├── scripts/                   # Build, validation, and measurement tools
+├── tests/                     # Unit and browser verification
+├── docs/                      # Maintenance and product decision records
+├── out/                       # Generated deployment output (gitignored)
 ├── manifest.webmanifest       # PWA configuration
 ├── service-worker.js          # Offline asset caching
 ├── robots.txt / sitemap.xml   # Published crawler metadata
-├── README.md                  # Project overview and data sources
-└── assets/
-    ├── images/                # Logos and icons
-    └── data/                  # JSON for pools, teams, and meets
+└── README.md                  # Project overview and data sources
 ```
 
 ---

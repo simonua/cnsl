@@ -20,7 +20,7 @@ New revision folders contain the following finished distribution files when a QR
 | `ca-pool-cnsl-assistant-flyer.pdf` | Ready-to-print US Letter PDF distributed to printers or volunteers. |
 | `ca-pool-cnsl-assistant-qr.svg` | Reviewed high-contrast QR asset for placement or reuse with the printed flyer. |
 
-The initial `2026-05-31` revision retains its HTML source and PNG preview for now. These files are legacy artifacts: do not regenerate, revise, or add them to newer flyer revisions unless this decision is intentionally revisited. Its reviewed QR SVG is copied into the `2026-06-01` revision for reuse with the updated PDF.
+The initial `2026-05-31` revision retains its finished PDF and reviewed QR SVG. Its reviewed QR SVG is copied into the `2026-06-01` revision for reuse with the updated PDF. Working HTML sources and PNG previews are not committed revision artifacts.
 
 The `2026-06-01` PDF uses illustrative stock photos from Pexels for general pool play and a swim race: [people and children in a pool by Willian Justen de Vasconcellos](https://www.pexels.com/photo/people-and-children-in-pool-19821197/) and [people doing a swim race by Jim De Ramos](https://www.pexels.com/photo/people-doing-swim-race-1263349/). Pexels lists these as free stock photos and permits their use in print marketing materials under the [Pexels License](https://www.pexels.com/license/). The water-play photo is the official [CA Pools-8 image from the Columbia Association Pools page](https://columbiaassociation.org/sports-recreation/pools/), credited to Columbia Association in the flyer footer.
 
