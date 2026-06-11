@@ -15,8 +15,9 @@
     script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://static.cloudflareinsights.com;
     style-src 'self' 'unsafe-inline'; worker-src 'self';" />
   <block name="metadata">
-    <title>CA Pool &amp; CNSL Assistant</title>
-    <meta name="description" content="Find Columbia Association outdoor pools, CNSL swim teams, and meet schedules for summer swimming in Columbia, Maryland." />
+    <title>CA Outdoor Pools &amp; CNSL Swim Teams</title>
+    <meta name="description" content="Find Columbia Association outdoor pools and CNSL swim teams for summer swimming in Columbia, Maryland." />
+    <meta name="robots" content="noindex, follow" />
     <link rel="canonical" href="{{ HOME_PAGE_URL }}/" />
   </block>
   <meta property="og:site_name" content="CA Pool &amp; CNSL Assistant" />
@@ -36,7 +37,11 @@
       "@id": "{{ HOME_PAGE_URL }}/#website",
       "url": "{{ HOME_PAGE_URL }}/",
       "name": "CA Pool & CNSL Assistant",
-      "description": "Columbia Association outdoor pool, CNSL team, and swim meet information for Columbia, Maryland.",
+      "description": "Columbia Association outdoor pool and Columbia Neighborhood Swim League team information for Columbia, Maryland.",
+      "about": [
+        { "@type": "Thing", "name": "Columbia Association outdoor pools" },
+        { "@type": "SportsOrganization", "name": "Columbia Neighborhood Swim League" }
+      ],
       "inLanguage": "en-US"
     }
   </script>

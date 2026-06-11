@@ -191,14 +191,16 @@
   }
 
   /**
-   * Publishes the application version once for the current browser session.
+   * Publishes each application version once for the current browser session.
    * @private
    */
-  function publishVersionOncePerSession() {
-    try {
-      if (window.sessionStorage.getItem(window.ANALYTICS_VERSION_REPORTED_STORAGE_KEY)) return;
+  function publishVersionWhenChanged() {
+    if (typeof window.gtag !== 'function') return;
 
-      window.sessionStorage.setItem(window.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, 'true');
+    try {
+      if (window.sessionStorage.getItem(window.ANALYTICS_VERSION_REPORTED_STORAGE_KEY) === window.APP_VERSION) return;
+
+      window.sessionStorage.setItem(window.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, window.APP_VERSION);
     } catch (_error) {
       return;
     }
@@ -539,11 +541,11 @@
       send_page_view: false,
       ...getMeasuredCampaignParameters(publishedCampaign)
     });
-    publishVersionOncePerSession();
     window.gtag('event', 'page_view', {
       page_title: getMeasuredPageTitle(),
       ...getMeasuredPageParameters()
     });
+    publishVersionWhenChanged();
     if (publishedCampaign?.source === 'flyer') {
       window.gtag('event', 'ca_flyer_visit');
     }

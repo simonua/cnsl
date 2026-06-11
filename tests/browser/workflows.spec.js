@@ -542,7 +542,7 @@ test('[WF-CONTACT-001] author contact options are collected on the Contact page'
   await expect(page.getByRole('link', { name: 'Message Simon on Facebook (opens in new tab)' })).toHaveAttribute('href', 'https://www.facebook.com/simonkurtz82');
 });
 
-analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and public app version once per session after the Google tag script loads', async ({ page }) => {
+analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and each public app version once per session after the Google tag script loads', async ({ page }) => {
   let releaseTagScript;
   let reportTagScriptRequest;
   let tagScriptRequestCount = 0;
@@ -611,13 +611,18 @@ analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and public app
       ['set'],
       ['js'],
       ['config', measurementId],
-      ['event', 'ca_version'],
-      ['event', 'page_view']
+      ['event', 'page_view'],
+      ['event', 'ca_version']
     ]
   });
   await expect.poll(() => page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
     .toContainEqual(['event', 'ca_version', { app_version: appVersion }]);
-  await expect.poll(() => page.evaluate(() => Array.from(globalThis.dataLayer.at(-1))[2])).toEqual({
+  await expect.poll(() => page.evaluate(() => sessionStorage.getItem(globalThis.ANALYTICS_VERSION_REPORTED_STORAGE_KEY)))
+    .toBe(appVersion);
+  await expect.poll(() => page.evaluate(() => {
+    const pageViewCommand = globalThis.dataLayer.find(argumentsList => argumentsList[1] === 'page_view');
+    return Array.from(pageViewCommand)[2];
+  })).toEqual({
     page_location: 'https://pools.longreachmarlins.org/index.html',
     page_referrer: '',
     page_title: 'Home'
@@ -632,6 +637,18 @@ analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and public app
     }]);
   await expect.poll(() => page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
     .not.toContainEqual(['event', 'ca_version', { app_version: appVersion }]);
+
+  await page.evaluate(() => {
+    sessionStorage.setItem(
+      globalThis.ANALYTICS_VERSION_REPORTED_STORAGE_KEY,
+      `${globalThis.APP_VERSION}-previous`
+    );
+  });
+  await page.goto('https://pools.longreachmarlins.org/contact.html', { waitUntil: 'domcontentloaded' });
+  await expect.poll(() => page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
+    .toContainEqual(['event', 'ca_version', { app_version: appVersion }]);
+  await expect.poll(() => page.evaluate(() => sessionStorage.getItem(globalThis.ANALYTICS_VERSION_REPORTED_STORAGE_KEY)))
+    .toBe(appVersion);
   await page.unrouteAll({ behavior: 'ignoreErrors' });
 });
 

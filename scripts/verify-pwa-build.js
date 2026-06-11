@@ -39,30 +39,19 @@ const requiredArtifacts = [
 ];
 const canonicalPages = {
   'index.html': `${siteOrigin}/`,
-  'pools.html': `${siteOrigin}/pools.html`,
-  'teams.html': `${siteOrigin}/teams.html`,
-  'meets.html': `${siteOrigin}/meets.html`,
-  'lessons.html': `${siteOrigin}/lessons.html`,
-  'faq.html': `${siteOrigin}/faq.html`,
-  'settings.html': `${siteOrigin}/settings.html`,
-  'whats-new.html': `${siteOrigin}/whats-new.html`,
-  'about.html': `${siteOrigin}/about.html`,
-  'swim-meet-resources.html': `${siteOrigin}/swim-meet-resources.html`
+  'pools.html': `${siteOrigin}/`,
+  'teams.html': `${siteOrigin}/`,
+  'meets.html': `${siteOrigin}/`,
+  'lessons.html': `${siteOrigin}/`,
+  'faq.html': `${siteOrigin}/`,
+  'settings.html': `${siteOrigin}/`,
+  'whats-new.html': `${siteOrigin}/`,
+  'about.html': `${siteOrigin}/`,
+  'contact.html': `${siteOrigin}/`,
+  'offline.html': `${siteOrigin}/`,
+  'swim-meet-resources.html': `${siteOrigin}/`
 };
-const indexablePages = new Set([
-  'index.html',
-  'pools.html',
-  'teams.html',
-  'meets.html',
-  'lessons.html',
-  'faq.html',
-  'whats-new.html',
-  'about.html',
-  'assets/data/lessons.json',
-  'assets/images/provider-logos/columbia-association.png',
-  'assets/images/provider-logos/columbia-clippers.jpg',
-  'swim-meet-resources.html'
-]);
+const indexablePages = new Set(['index.html']);
 
 assert.ok(fs.existsSync(outDir), 'Build output is missing. Run pnpm run build before verifying the PWA artifact.');
 requiredArtifacts.forEach(resource => {
@@ -204,7 +193,7 @@ assert.match(analytics, /window\.gtag\('event', 'page_view'/, 'Sanitized page me
 assert.doesNotMatch(analytics, /window\.gtag\('event', 'ca_page_view'/, 'Page measurement must not be renamed to a custom event that standard GA4 page reporting ignores.');
 assert.match(analytics, /publishEvent\('ca_version',[\s\S]*app_version:\s*window\.APP_VERSION/, 'App version measurement must use the configured published version in its dedicated event.');
 assert.match(analytics, /window\.sessionStorage\.getItem\(window\.ANALYTICS_VERSION_REPORTED_STORAGE_KEY\)/, 'App version measurement must check its configured session marker before publication.');
-assert.match(analytics, /window\.sessionStorage\.setItem\(window\.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, 'true'\)/, 'App version measurement must set its configured session marker before publication.');
+assert.match(analytics, /window\.sessionStorage\.setItem\(window\.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, window\.APP_VERSION\)/, 'App version measurement must store the reported app version before publication.');
 assert.doesNotMatch(analytics, /cnsl_analytics_version_reported/, 'Analytics must use the session storage key from application configuration.');
 assert.doesNotMatch(pwa, /cnsl_service_worker_update_checked_at/, 'The PWA consumer must use its session storage key from application configuration.');
 assert.match(analyticsInteractionType, /const AnalyticsInteractionType = Object\.freeze\(/, 'Analytics interaction types must use one immutable shared enum.');
@@ -267,10 +256,15 @@ Object.entries(canonicalPages).forEach(([page, canonical]) => {
   const canonicalLinks = html.match(/<link rel="canonical" href="[^"]+">/g) || [];
   const pageTitle = html.match(/<title>([^<]+)<\/title>/)?.[1];
   const pageDescription = html.match(/<meta name="description" content="([^"]+)">/)?.[1];
+  const structuredDataBlocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
   assert.deepEqual(canonicalLinks, [`<link rel="canonical" href="${canonical}">`], `${page} must publish its one canonical URL.`);
   assert.equal((html.match(/<title>/g) || []).length, 1, `${page} must publish one title.`);
   assert.ok(pageTitle && pageTitle.length <= 55, `${page} must publish a concise title of at most 55 characters.`);
   assert.ok(pageDescription, `${page} must publish a meta description.`);
+  assert.ok(structuredDataBlocks.length > 0, `${page} must publish structured website data.`);
+  structuredDataBlocks.forEach(([, structuredData]) => {
+    assert.doesNotThrow(() => JSON.parse(structuredData), `${page} must publish valid JSON-LD.`);
+  });
   assert.ok(html.includes(`<meta property="og:image" content="${socialPreviewImage}">`), `${page} must publish its absolute Open Graph image URL.`);
   assert.match(html, /<meta property="og:image:type" content="image\/jpeg">/, `${page} must identify the social preview image type.`);
   assert.match(html, /<meta property="og:image:width" content="230">/, `${page} must identify the social preview image width.`);
@@ -285,6 +279,8 @@ Object.entries(canonicalPages).forEach(([page, canonical]) => {
     assert.ok(html.includes(`<meta property="og:description" content="${pageDescription}">`), `${page} must align its Open Graph description with its search description.`);
     assert.ok(html.includes(`<meta name="twitter:description" content="${pageDescription}">`), `${page} must align its Twitter description with its search description.`);
     assert.ok(html.includes(`<meta property="og:url" content="${canonical}">`), `${page} must publish its canonical URL for social sharing.`);
+  } else {
+    assert.match(html, /<meta name="robots" content="noindex, follow">/, `${page} must stay out of search results while allowing link discovery.`);
   }
   assert.match(html, /http-equiv="Content-Security-Policy"/, `${page} must publish the shared browser security policy.`);
   assert.match(html, /script-src[^;"]*'unsafe-inline'/, `${page} must permit Cloudflare-injected inline scripts that cannot use a nonce or stable hash.`);
@@ -312,6 +308,9 @@ const settingsHtml = fs.readFileSync(path.join(outDir, 'settings.html'), 'utf8')
 assert.doesNotMatch(settingsHtml, /name="analyticsEnabled"/, 'Settings must not expose a removed analytics-consent choice.');
 
 const homeHtml = fs.readFileSync(path.join(outDir, 'index.html'), 'utf8');
+assert.match(homeHtml, /<title>CA Outdoor Pools &amp; CNSL Swim Teams<\/title>/, 'Home search title must emphasize CA outdoor pools and CNSL swim teams.');
+assert.match(homeHtml, /<meta name="description" content="[^"]*Columbia Association outdoor pool[^"]*CNSL swim teams[^"]*">/, 'Home search description must explain its CA outdoor pool and CNSL swim team coverage.');
+assert.match(homeHtml, /<h1 class="welcome-title">Columbia Association Outdoor Pools &amp; CNSL Swim Teams<\/h1>/, 'Home heading must clearly identify its primary pool and swim team topics.');
 assert.ok(homeHtml.includes(`href="${activeSeasonPools.caPoolGuideUrl}"`), 'Home page must render its official pool-schedule destination from active annual metadata.');
 assert.ok(homeHtml.includes(`datetime="${activeSeasonPools.seasonStartDate}">${formatSeasonDate(activeSeasonPools.seasonStartDate)}</time>`), 'Home page must render the active annual season start date.');
 assert.ok(homeHtml.includes(`datetime="${activeSeasonPools.seasonEndDate}">${formatSeasonDate(activeSeasonPools.seasonEndDate)}</time>`), 'Home page must render the active annual season end date.');
@@ -323,17 +322,16 @@ assert.match(faqHtml, /Google Analytics uses its own first-party identifier to p
 assert.match(faqHtml, /does not send Google Analytics your name, contact details, account information/, 'FAQ must disclose that app-defined measurement does not send direct visitor identity fields.');
 
 const offlineHtml = fs.readFileSync(path.join(outDir, 'offline.html'), 'utf8');
-assert.match(offlineHtml, /<meta name="robots" content="noindex">/, 'Offline fallback must not be indexed.');
+assert.match(offlineHtml, /<meta name="robots" content="noindex, follow">/, 'Offline fallback must not be indexed.');
 assert.match(offlineHtml, /id="connectivityStatus"/, 'Offline fallback must include shared offline connection status.');
 assert.match(offlineHtml, /js\/connectivity-status\.js\?v=/, 'Offline fallback must load shared offline connection-status handling.');
 
 const sitemap = fs.readFileSync(path.join(outDir, 'sitemap.xml'), 'utf8');
 assert.equal((sitemap.match(/<\?xml/g) || []).length, 1, 'Sitemap must contain one XML document.');
 assert.equal((sitemap.match(/<urlset/g) || []).length, 1, 'Sitemap must contain one URL set.');
-assert.doesNotMatch(sitemap, /offline\.html|settings\.html/, 'Noindex pages must not appear in the sitemap.');
-Object.entries(canonicalPages)
-  .filter(([page]) => page !== 'settings.html')
-  .forEach(([, canonical]) => assert.match(sitemap, new RegExp(canonical.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `Sitemap is missing ${canonical}.`));
+assert.equal((sitemap.match(/<url>/g) || []).length, 1, 'Sitemap must contain only the indexable home page.');
+assert.match(sitemap, new RegExp(`<loc>${siteOrigin.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/<\\/loc>`), 'Sitemap must publish the canonical home page.');
+assert.doesNotMatch(sitemap, /\.html<\/loc>/, 'Noindex subpages must not appear in the sitemap.');
 
 const robots = fs.readFileSync(path.join(outDir, 'robots.txt'), 'utf8');
 assert.doesNotMatch(robots, /Disallow: \/offline\.html/, 'Crawler rules must allow discovery of the offline noindex directive.');

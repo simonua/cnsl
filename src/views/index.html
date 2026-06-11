@@ -1,24 +1,26 @@
 <extends src="base.html">
   <block name="metadata">
-    <title>CA Pool &amp; CNSL Assistant</title>
+    <title>CA Outdoor Pools &amp; CNSL Swim Teams</title>
     <meta name="analytics-page-title" content="Home" />
-    <meta name="description" content="Find Columbia Association outdoor pools, CNSL swim teams, and meet schedules for the {{ YEAR }} summer swim season in Columbia, Maryland." />
+    <meta name="description" content="Find Columbia Association outdoor pool hours, locations, and features plus CNSL swim teams, practices, and meet schedules in Columbia, Maryland." />
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
     <link rel="canonical" href="{{ HOME_PAGE_URL }}/" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="CA Pool &amp; CNSL Assistant" />
-    <meta property="og:description" content="Find Columbia Association outdoor pools, CNSL swim teams, and meet schedules for the {{ YEAR }} summer swim season in Columbia, Maryland." />
+    <meta property="og:title" content="CA Outdoor Pools &amp; CNSL Swim Teams" />
+    <meta property="og:description" content="Find Columbia Association outdoor pool hours, locations, and features plus CNSL swim teams, practices, and meet schedules in Columbia, Maryland." />
     <meta property="og:url" content="{{ HOME_PAGE_URL }}/" />
-    <meta name="twitter:title" content="CA Pool &amp; CNSL Assistant" />
-    <meta name="twitter:description" content="Find Columbia Association outdoor pools, CNSL swim teams, and meet schedules for the {{ YEAR }} summer swim season in Columbia, Maryland." />
+    <meta name="twitter:title" content="CA Outdoor Pools &amp; CNSL Swim Teams" />
+    <meta name="twitter:description" content="Find Columbia Association outdoor pool hours, locations, and features plus CNSL swim teams, practices, and meet schedules in Columbia, Maryland." />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "WebApplication",
         "@id": "{{ HOME_PAGE_URL }}/#app",
-        "name": "CA Pool & CNSL Assistant",
+        "name": "CA Outdoor Pools & CNSL Swim Teams",
+        "alternateName": "CA Pool & CNSL Assistant",
         "url": "{{ HOME_PAGE_URL }}/",
-        "description": "Find Columbia Association outdoor pools, CNSL swim teams, and meet schedules for the {{ YEAR }} summer swim season in Columbia, Maryland.",
+        "description": "Find Columbia Association outdoor pool hours, locations, and features plus Columbia Neighborhood Swim League teams, practices, and meet schedules in Columbia, Maryland.",
+        "keywords": "Columbia Association outdoor pools, CA outdoor pools, CNSL swim teams, Columbia Neighborhood Swim League, Columbia Maryland swimming",
         "applicationCategory": "SportsApplication",
         "operatingSystem": "Any",
         "isAccessibleForFree": true,
@@ -26,7 +28,11 @@
         "areaServed": {
           "@type": "City",
           "name": "Columbia, Maryland"
-        }
+        },
+        "about": [
+          { "@type": "Thing", "name": "Columbia Association outdoor pools" },
+          { "@type": "SportsOrganization", "name": "Columbia Neighborhood Swim League" }
+        ]
       }
     </script>
   </block>
@@ -38,9 +44,9 @@
     <include src="components/off-season-message.html"></include>
     <div class="home-view" data-seasonal-content>
     <div class="welcome-section">
-      <h1 class="welcome-title">Welcome to the<br/>{{ YEAR }} Outdoor Pool Season</h1>
+      <h1 class="welcome-title">Columbia Association Outdoor Pools &amp; CNSL Swim Teams</h1>
       <p class="welcome-message">
-        Find Columbia Association (CA) outdoor pools and Columbia Neighborhood Swim League (CNSL) team and meet schedules in one place.<br>
+        Find {{ YEAR }} hours, locations, and features for Columbia Association (CA) outdoor pools, plus Columbia Neighborhood Swim League (CNSL) swim teams, practice schedules, and meet information in Columbia, Maryland.
       </p>
     </div>
     <div class="season-info">

@@ -3171,20 +3171,20 @@ button.pool-filter__clear:focus-visible {
   white-space: nowrap;
 }
 
-.pool-hours .pool-status-countdown--caution {
-  background-color: var(--warning-soft-bg);
-  border-radius: 0.25rem;
-  color: var(--warning-text-color);
-  font-weight: 600;
-  padding: 0.1rem 0.35rem;
-}
-
 .pool-hours .pool-status-countdown--opens {
   color: var(--success-text-color);
 }
 
 .pool-hours .pool-status-countdown--closes {
   color: var(--error-text-color);
+}
+
+.pool-hours .pool-status-countdown--caution {
+  background-color: var(--warning-soft-bg);
+  border-radius: 0.25rem;
+  color: var(--warning-text-color);
+  font-weight: 600;
+  padding: 0.1rem 0.35rem;
 }
 
 .pool-hours .period-info {
