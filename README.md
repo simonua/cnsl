@@ -58,7 +58,7 @@ The non-seasonal swim lesson provider directory is maintained in `src/assets/dat
 
 See [Annual Season Assets](docs/annual-season-assets.md) for the exact PDF, JSON, and schema layout and the checklist for preparing a new season such as 2027.
 
-Automated seasonal-source monitoring has been retired and does not run from GitHub Actions. Structured JSON updates remain reviewed transcriptions of official material. Run `pnpm run validate:data` after annual-data changes to validate active schemas, references, URLs, and retained official source documents. See [Retired Seasonal Data Source Monitor](.github/automation/season-data-monitor/README.md) for retained coverage notes and local investigation guidance.
+The scheduled seasonal-source GitHub Actions workflow has been retired, but deliberate source reviews remain required. Begin each review with `pnpm run check:data-updates`, reconcile its collected URLs with every official source defined by the active annual JSON and annual README, and directly request any uncovered source. Record every successfully completed review in the source check log, update the matching source-review timestamps, and refresh the accepted baseline with `node scripts/season-data-agent.js --initialize`. Structured JSON updates remain reviewed transcriptions of official material. Run `pnpm run validate:data` after annual-data changes as a separate integrity check; it does not prove that current online sources were reviewed. See [Seasonal Data Source Review](.github/automation/season-data-monitor/README.md) for the complete coverage and evidence requirements.
 
 ### Verification
 
@@ -98,14 +98,14 @@ Workflow configurations are located in `.github/workflows/build-deploy.yml` and 
 Repository automation and Copilot configuration is kept in `.github/`:
 
 - `.github/agents/` contains discoverable GitHub Copilot custom agent profiles.
-- `.github/automation/` contains retained notes and reviewed state for retired automations.
+- `.github/automation/` contains retained automation notes and reviewed state for deliberate local workflows whose scheduled GitHub Actions definitions have been retired.
 - `.github/instructions/`, `.github/skills/`, and `.github/copilot-instructions.md` contain repository-specific Copilot guidance.
 - `.github/workflows/` contains GitHub Actions definitions; `.github/dependabot.yml` configures dependency update checks.
 
-Retired automation references:
+Automation references:
 
 - [Refactoring Audit](.github/automation/refactoring-audit/README.md) retains design notes for the retired assessment driven by the `refactoring-auditor` custom agent.
-- [Seasonal Data Source Monitor](.github/automation/season-data-monitor/README.md) retains source-monitoring notes and its reviewed fingerprint baseline; no Actions workflow invokes it.
+- [Seasonal Data Source Review](.github/automation/season-data-monitor/README.md) documents the required deliberate local review and retains its reviewed fingerprint baseline; no Actions workflow invokes it.
 
 The separation of `automation/` from `agents/` keeps retained automation support files from being discovered as custom agent profiles.
 

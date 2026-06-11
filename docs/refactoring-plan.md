@@ -10,30 +10,7 @@ The repository-wide audit reviewed source, views, styles, assets, annual-data or
 
 | Priority | Finding | Impact | Effort |
 | --- | --- | --- | --- |
-| **RED - High** | Align seasonal-source documentation with the mandatory live review workflow | High | Low |
 | **ORANGE - Medium** | Remove proven unused browser helpers and their residual configuration/styles | Medium | Low |
-
-## High Priority
-
-### Align Seasonal-Source Documentation With The Mandatory Live Review Workflow
-
-**Finding:** The root contributor guidance calls seasonal-source monitoring retired and directs annual changes to local schema validation, but current repository instructions require every seasonal-source review to begin with live `pnpm run check:data-updates` requests, reconcile all official source coverage, record successful completion, and refresh the reviewed baseline. This contradiction can cause a maintainer to substitute offline validation for required current-source evidence.
-
-**Repository evidence:**
-
-- [README.md](../README.md) states that automated seasonal-source monitoring is retired and mentions only `pnpm run validate:data` in its annual-data workflow.
-- [.github/copilot-instructions.md](../.github/copilot-instructions.md) defines live source requests, review timestamps, check-log evidence, and baseline initialization as critical requirements.
-- [.github/automation/season-data-monitor/README.md](../.github/automation/season-data-monitor/README.md) distinguishes the retired scheduled GitHub workflow from the supported deliberate local monitor and documents `pnpm run check:data-updates`.
-- [package.json](../package.json) exposes `check:data-updates`, while [scripts/season-data-agent.js](../scripts/season-data-agent.js), its reviewed state, and its unit tests remain active.
-
-**Scoped plan:** Rewrite the README wording to say that only the scheduled GitHub Actions monitor is retired. Document the mandatory deliberate local source-review command, live coverage reconciliation, check-log and timestamp evidence, and the separate role of `validate:data`. Link to the detailed operational contract in the existing automation README rather than duplicating every step.
-
-**Acceptance checks:**
-
-- README guidance no longer describes the local source-review capability itself as retired.
-- README guidance does not imply that `validate:data` proves online source currency.
-- The documented command and evidence steps agree with the critical repository instructions and seasonal-monitor README.
-- Focused Markdown lint passes.
 
 ## Medium Priority
 
@@ -63,8 +40,7 @@ The repository-wide audit reviewed source, views, styles, assets, annual-data or
 
 | Phase | Work | Completion evidence |
 | --- | --- | --- |
-| 1 | Correct seasonal-source contributor guidance | Focused Markdown review and lint; no annual-data edits |
-| 2 | Remove proven unused route helpers and residual surface | Full JS coverage, lint, build, and PWA verification |
+| 1 | Remove proven unused route helpers and residual surface | Full JS coverage, lint, build, and PWA verification |
 
 ## Guardrails
 
@@ -76,6 +52,6 @@ The repository-wide audit reviewed source, views, styles, assets, annual-data or
 
 ## Priority Summary
 
-- **RED - High:** Correct the contributor-facing seasonal-source workflow so offline validation cannot be mistaken for the mandatory live source review.
+- **RED - High:** No actionable high-priority items remain.
 - **ORANGE - Medium:** Remove proven dead route helpers and their narrowly associated surface.
 - **GREEN - Low:** No actionable low-priority items remain.

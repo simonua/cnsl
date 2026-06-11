@@ -1,6 +1,6 @@
-# Retired Seasonal Data Source Monitor
+# Seasonal Data Source Review
 
-The retired seasonal monitor checked public sources that support the active `YEAR` data set while the pool season was underway. Its scheduled run occurred daily at 05:17 UTC during May, June, and July only. It discovered source URLs from the active annual JSON and README rather than carrying a separate list that could drift. Its GitHub Actions workflow definition has been removed, so no push, schedule, or manual dispatch can start it.
+The retired scheduled seasonal monitor checked public sources that support the active `YEAR` data set while the pool season was underway. Its scheduled run occurred daily at 05:17 UTC during May, June, and July only. It discovered source URLs from the active annual JSON and README rather than carrying a separate list that could drift. Its GitHub Actions workflow definition has been removed, so no push, schedule, or manual dispatch can start it. The deliberate local review documented below remains required.
 
 ## Coverage
 
