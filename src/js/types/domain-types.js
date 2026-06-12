@@ -100,6 +100,22 @@
  */
 
 /**
+ * @typedef {Object} HomeMeetRoleGuide
+ * @property {string} [arrivalTime]
+ * @property {string} [arrivalGuidance]
+ * @property {string} [warmupTime]
+ */
+
+/**
+ * @typedef {Object} HomeMeetGuide
+ * @property {string} poolId
+ * @property {Object} source
+ * @property {Object} [general]
+ * @property {HomeMeetRoleGuide|null} homeTeam
+ * @property {HomeMeetRoleGuide|null} visitingTeam
+ */
+
+/**
  * @typedef {Object} TeamRecord
  * @property {string} id
  * @property {string} name
@@ -113,6 +129,7 @@
  * @property {string[]} homePools
  * @property {string} timeTrialsPool
  * @property {{dualMeets?: MeetTimingWindow, timeTrials?: MeetTimingWindow}} [meetTimeOverrides]
+ * @property {HomeMeetGuide[]} [homeMeetGuides]
  * @property {string[]} practicePools
  * @property {TeamStaffRecord} staff
  * @property {Object} [practice]
@@ -150,6 +167,8 @@
  * @typedef {Object} MeetTimingWindow
  * @property {string} start Time in 24-hour `HH:mm` format.
  * @property {string} end Time in 24-hour `HH:mm` format.
+ * @property {string} [relayCheckInDeadline] Relay check-in deadline in 24-hour `HH:mm` format.
+ * @property {string} [firstSwimTime] First event time in 24-hour `HH:mm` format.
  */
 
 /**

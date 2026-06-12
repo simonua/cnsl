@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://example.com/meets.schema.json",
-  "version": "V2",
+  "version": "V3",
   "title": "Meet Data Schema",
   "description": "Schema for meet data containing regular and special meets",
   "type": "object",
@@ -77,13 +77,32 @@
       "type": "object",
       "properties": {
         "dualMeets": {
-          "$ref": "#/definitions/TimingWindow"
+          "$ref": "#/definitions/DualMeetTimingWindow"
         },
         "timeTrials": {
           "$ref": "#/definitions/TimingWindow"
         }
       },
       "required": ["dualMeets", "timeTrials"],
+      "additionalProperties": false
+    },
+    "DualMeetTimingWindow": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "$ref": "#/definitions/ClockTime"
+        },
+        "end": {
+          "$ref": "#/definitions/ClockTime"
+        },
+        "relayCheckInDeadline": {
+          "$ref": "#/definitions/ClockTime"
+        },
+        "firstSwimTime": {
+          "$ref": "#/definitions/ClockTime"
+        }
+      },
+      "required": ["start", "end", "relayCheckInDeadline", "firstSwimTime"],
       "additionalProperties": false
     },
     "TimingWindow": {

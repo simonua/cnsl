@@ -29,6 +29,7 @@ describe('MeetDayGuideService', () => {
       assert.equal(guide.pool.id, 'frp');
       assert.equal(guide.poolAddress, '10518 Marble Faun Court, Columbia, MD 21044');
       assert.equal(guide.roleGuide.reservedParking, 'Six spaces near the pool entrance are reserved for coaches and managers.');
+      assert.equal(guide.meet.timingWindow.relayCheckInDeadline, '07:55');
       assert.equal(guide.homeTeam.homeMeetGuides[0].homeTeam, null);
     });
 
@@ -61,7 +62,7 @@ describe('MeetDayGuideService', () => {
             helpfulNotes: ['Check assignments before arriving.'],
             swimmerCheckInLocation: 'at the large pavilion',
             volunteerCheckInLocation: 'at the volunteer table',
-            warmups: { start: '07:00', end: '07:20' }
+            warmupTime: '07:00'
           }
         }]
       };
@@ -120,9 +121,11 @@ describe('MeetDayGuideService', () => {
       assert.match(html, /7:00 AM - 12:00 PM/);
       assert.match(html, /10518 Marble Faun Court, Columbia, MD 21044/);
       assert.match(html, /6-lane \/ 25-meter \(may mean more heats &amp; longer meet time\)/);
-      assert.match(html, /Arrive by 7:00 AM/);
+      assert.match(html, /Arrive by 7:15 AM/);
       assert.match(html, /Please allow enough time to park, set up, check in, and be ready for warm-ups\./);
       assert.match(html, /Start at 7:30 AM/);
+      assert.match(html, /By 7:55 AM/);
+      assert.match(html, /Starts at 8:00 AM/);
       assert.match(html, /Please park by the neighborhood center behind the pool\./);
       assert.match(html, /Six spaces near the pool entrance are reserved for coaches and managers\./);
       assert.match(html, /Please set up behind the wading pool, just to the right from the entrance\. If more space is needed, please use the area outside the side gates\./);
@@ -163,7 +166,7 @@ describe('MeetDayGuideService', () => {
         role: MeetTeamRole.HOME,
         roleGuide: {
           arrivalTime: '06:30', clerkGuidance: 'The clerk of course checks in by the office.', helpfulNotes: ['Check assignments.'],
-          swimmerCheckInLocation: 'at the large pavilion', volunteerCheckInLocation: 'at the volunteer table', warmups: { start: '07:00', end: '07:20' }
+          swimmerCheckInLocation: 'at the large pavilion', volunteerCheckInLocation: 'at the volunteer table', warmupTime: '07:00'
         },
         team: { meetTimeOverrides: {} },
         visitingTeam: { name: 'Visitor Team', shortName: 'Visitors' }
@@ -173,7 +176,8 @@ describe('MeetDayGuideService', () => {
       assert.match(html, /Home meet/);
       assert.match(html, /Hosts host Visitors/);
       assert.match(html, /Arrive by 6:30 AM/);
-      assert.match(html, /7:00 AM to 7:20 AM/);
+      assert.match(html, /Start at 7:00 AM/);
+      assert.match(html, /Starts at 8:00 AM/);
       assert.match(html, /Swimmers check in at the large pavilion\./);
       assert.match(html, /Volunteers check in at the volunteer table\./);
       assert.match(html, /The clerk of course checks in by the office\./);
@@ -194,6 +198,16 @@ describe('MeetDayGuideService', () => {
       assert.equal(MeetDayGuideService.renderGuide(null), '');
       assert.doesNotMatch(html, /<script>|<Home>|<Visitor>|<Pool>|<Address>|<Time>/);
       assert.match(html, /&lt;Home&gt;|&lt;Visitor&gt;/);
+
+      const plainRecordHtml = MeetDayGuideService.renderGuide({
+        date: '2026-06-20', dayLabel: 'Today', generalGuide: null,
+        homeTeam: null, visitingTeam: null,
+        meet: { homeTeam: 'Home', awayTeam: 'Visitor', location: 'Pool', timingWindow: { relayCheckInDeadline: '07:55', firstSwimTime: '08:00' } },
+        pool: null, poolAddress: '', role: MeetTeamRole.AWAY, roleGuide: null,
+        team: {}
+      });
+      assert.match(plainRecordHtml, /By 7:55 AM/);
+      assert.match(plainRecordHtml, /Starts at 8:00 AM/);
     });
   });
 
@@ -201,8 +215,7 @@ describe('MeetDayGuideService', () => {
     it('formats fallback guide values and optional concessions fields', () => {
       assert.equal(MeetDayGuideService.formatClockTime('bad'), 'bad');
       assert.equal(MeetDayGuideService.formatClockTime(), '');
-      assert.equal(MeetDayGuideService.formatWarmups({ warmups: { start: '07:00' } }), 'Start at 7:00 AM');
-      assert.equal(MeetDayGuideService.formatWarmups({ warmupsStartAt: '07:30' }), 'Start at 7:30 AM');
+      assert.equal(MeetDayGuideService.formatWarmups({ warmupTime: '07:30' }), 'Start at 7:30 AM');
       assert.equal(MeetDayGuideService.formatWarmups(null), '');
       assert.deepEqual(MeetDayGuideService.getParkingLines(null, null), []);
       assert.deepEqual(MeetDayGuideService.getParkingLines(null, {

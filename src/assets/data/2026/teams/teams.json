@@ -38,12 +38,9 @@
             "arrivalTime": "07:10",
             "familySetupLocation": "on the right side from the pool entrance, near the slide",
             "swimmerCheckInLocation": "on the visiting-team side of the pool",
-            "warmups": {
-              "start": "07:30"
-            },
+            "warmupTime": "07:30",
             "helpfulNotes": [
-              "Please check in swimmers by 7:55 AM; swimmers not checked in by then may be removed from relays.",
-              "Please mark each swimmer with their event, heat, and lane before arrival.",
+              "Please mark each swimmer with their event, heat, and lane (E/H/L) before arrival.",
               "Please tell team managers or check-in volunteers before leaving early if a swimmer is in a relay."
             ]
           }
@@ -249,10 +246,7 @@
             "reservedParking": "Four spaces in the pool parking lot are reserved for coaches and managers.",
             "familySetupLocation": "on the right side of the pool at the shallow end",
             "clerkGuidance": "The host team will reserve a table for your clerk of course.",
-            "warmups": {
-              "start": "07:25",
-              "end": "07:45"
-            },
+            "warmupTime": "07:25",
             "helpfulNotes": [
               "Swimmer seeding is near the diving well."
             ]
@@ -456,11 +450,8 @@
             "arrivalTime": "06:50",
             "familySetupLocation": "on the right side from the pool entrance",
             "swimmerCheckInLocation": "at the check-in table under the large pavilion",
-            "warmups": {
-              "start": "07:00"
-            },
+            "warmupTime": "07:00",
             "helpfulNotes": [
-              "Please check in swimmers by 7:55 AM; swimmers not checked in by then may be removed from relays.",
               "Please mark each swimmer with their event, heat, and lane before arrival.",
               "Please tell team managers or check-in volunteers before leaving early if a swimmer is in a relay."
             ]
@@ -994,9 +985,7 @@
             "familySetupLocation": "behind the wading pool, just to the right from the entrance. If more space is needed, please use the area outside the side gates",
             "clerkGuidance": "Your team's clerk of course will have a table behind the wading pool.",
             "checkInGuidance": "Please check in after setting up. The host team did not provide a check-in location.",
-            "warmups": {
-              "start": "07:30"
-            }
+            "warmupTime": "07:30"
           }
         }
       ],

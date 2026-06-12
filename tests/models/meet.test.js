@@ -38,6 +38,8 @@ describe('Meet', () => {
   it('uses the approved standard dual-meet window for live timing status', () => {
     const regularMeet = new Meet({ date: '2026-06-13', home_team: 'Home', visiting_team: 'Away' }, sampleMeetsData.meetTimes, 'dualMeets');
     assert.equal(regularMeet.getDisplayTime(), '7:00 AM - 12:00 PM');
+    assert.equal(regularMeet.getRelayCheckInDeadlineDisplayTime(), '7:55 AM');
+    assert.equal(regularMeet.getFirstSwimDisplayTime(), '8:00 AM');
     assert.equal(regularMeet.getLiveStatus({ date: '2026-06-13', minutes: 419, isValid: true }), 'upcoming');
     assert.equal(regularMeet.getLiveStatus({ date: '2026-06-13', minutes: 420, isValid: true }), 'ongoing');
     assert.equal(regularMeet.getLiveStatus({ date: '2026-06-13', minutes: 719, isValid: true }), 'ongoing');
@@ -50,6 +52,8 @@ describe('Meet', () => {
   it('uses published Time Trials timing and accepts a team override window', () => {
     const timeTrials = new Meet({ date: '2026-06-06', timeWindowKey: 'timeTrials' }, sampleMeetsData.meetTimes);
     assert.equal(timeTrials.getDisplayTime(), '7:00 AM - 12:00 PM');
+    assert.equal(timeTrials.getRelayCheckInDeadlineDisplayTime(), '');
+    assert.equal(timeTrials.getFirstSwimDisplayTime(), '');
     assert.equal(timeTrials.getLiveStatus({ date: '2026-06-06', minutes: 419, isValid: true }), 'upcoming');
     assert.equal(timeTrials.getLiveStatus({ date: '2026-06-06', minutes: 420, isValid: true }), 'ongoing');
     assert.equal(timeTrials.getDisplayTime({ start: '08:30', end: '11:30' }), '8:30 AM - 11:30 AM');

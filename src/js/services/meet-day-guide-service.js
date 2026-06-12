@@ -152,18 +152,15 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
     }
 
     /**
-     * Formats a warm-up window or start time.
+     * Formats a published warm-up start time.
      * @param {Object|null} roleGuide - Role-specific host guidance
      * @returns {string} Warm-up guidance
      * @private
      */
     static formatWarmups(roleGuide) {
-      const warmups = roleGuide?.warmups;
-      if (warmups?.start && warmups?.end) {
-        return `${MeetDayGuideService.formatClockTime(warmups.start)} to ${MeetDayGuideService.formatClockTime(warmups.end)}`;
-      }
-      const start = warmups?.start || roleGuide?.warmupsStartAt;
-      return start ? `Start at ${MeetDayGuideService.formatClockTime(start)}` : '';
+      return roleGuide?.warmupTime
+        ? `Start at ${MeetDayGuideService.formatClockTime(roleGuide.warmupTime)}`
+        : '';
     }
 
     /**
@@ -286,6 +283,12 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
         : roleGuide?.arrivalGuidance ? 'Arrive early' : roleGuide ? 'Arrival time not provided' : '';
       const arrivalDetail = roleGuide?.arrivalGuidance
         || (roleGuide ? 'Please allow enough time to get settled before warm-ups.' : '');
+      const relayCheckInDeadline = typeof meet.getRelayCheckInDeadlineDisplayTime === 'function'
+        ? meet.getRelayCheckInDeadlineDisplayTime()
+        : MeetDayGuideService.formatClockTime(meet.timingWindow?.relayCheckInDeadline);
+      const firstSwimTime = typeof meet.getFirstSwimDisplayTime === 'function'
+        ? meet.getFirstSwimDisplayTime()
+        : MeetDayGuideService.formatClockTime(meet.timingWindow?.firstSwimTime);
       const setupLines = [];
       if (roleGuide?.familySetupLocation) setupLines.push(`Please set up ${roleGuide.familySetupLocation}.`);
       const concessions = generalGuide?.concessions;
@@ -308,6 +311,8 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
           <dl>
             ${MeetDayGuideService.renderTimingFact('Team arrival', arrivalPrimary, arrivalDetail)}
             ${MeetDayGuideService.renderTimingFact('Warm-ups', MeetDayGuideService.formatWarmups(roleGuide), '')}
+            ${MeetDayGuideService.renderTimingFact('Relay check-in', relayCheckInDeadline ? `By ${relayCheckInDeadline}` : '', '')}
+            ${MeetDayGuideService.renderTimingFact('First swim', firstSwimTime ? `Starts at ${firstSwimTime}` : '', '')}
           </dl>
         </section>
         <dl class="my-meet-day__facts">

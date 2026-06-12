@@ -97,6 +97,22 @@ if (typeof globalThis.Meet === 'undefined') {
     }
 
     /**
+     * Formats the published first-swim time for meet-day planning.
+     * @returns {string} Twelve-hour first-swim time, or an empty string when unavailable
+     */
+    getFirstSwimDisplayTime() {
+      return Meet.formatClockTime(this.timingWindow?.firstSwimTime);
+    }
+
+    /**
+     * Formats the published relay check-in deadline for meet-day planning.
+     * @returns {string} Twelve-hour relay check-in deadline, or an empty string when unavailable
+     */
+    getRelayCheckInDeadlineDisplayTime() {
+      return Meet.formatClockTime(this.timingWindow?.relayCheckInDeadline);
+    }
+
+    /**
      * Converts a 24-hour clock value to minutes after midnight.
      * @param {string} value - Time in `HH:mm` format
      * @returns {number|null} Minute of day, or null for an invalid value

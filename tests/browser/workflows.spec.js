@@ -1693,8 +1693,10 @@ test('[WF-AGENDA-007] home page follows the My Meet Day experimental opt-in', as
   await expect(meetDay).toContainText('Faulkner Ridge Pool');
   await expect(meetDay).toContainText('10518 Marble Faun Court, Columbia, MD 21044');
   await expect(meetDay).toContainText('6-lane / 25-meter (may mean more heats & longer meet time)');
-  await expect(meetDay).toContainText('Arrive by 7:00 AM');
+  await expect(meetDay).toContainText('Arrive by 7:15 AM');
   await expect(meetDay).toContainText('Start at 7:30 AM');
+  await expect(meetDay).toContainText('By 7:55 AM');
+  await expect(meetDay).toContainText('Starts at 8:00 AM');
   await expect(meetDay).toContainText('Please park by the neighborhood center behind the pool.');
   await expect(meetDay).toContainText('Six spaces near the pool entrance are reserved for coaches and managers.');
   await expect(meetDay).toContainText('Please set up behind the wading pool, just to the right from the entrance. If more space is needed, please use the area outside the side gates.');
@@ -1733,8 +1735,10 @@ test('[WF-AGENDA-008] dedicated My Meet Day route loads only after the experimen
   await expect(page.locator('#myMeetDay')).toBeVisible();
   await expect(page.locator('#myMeetDay')).toContainText('Marlins visit Watercats');
   await expect(page.locator('#myMeetDay')).toContainText('in 2 days');
-  await expect(page.locator('#myMeetDay')).toContainText('Arrive by 7:00 AM');
+  await expect(page.locator('#myMeetDay')).toContainText('Arrive by 7:15 AM');
   await expect(page.locator('#myMeetDay')).toContainText('Start at 7:30 AM');
+  await expect(page.locator('#myMeetDay')).toContainText('By 7:55 AM');
+  await expect(page.locator('#myMeetDay')).toContainText('Starts at 8:00 AM');
   await expect(page.locator('#myMeetDay')).toContainText('Please park by the neighborhood center behind the pool.');
   await expect(page.locator('#myMeetDay')).toContainText('Six spaces near the pool entrance are reserved for coaches and managers.');
   await expect(page.locator('#myMeetDay')).toContainText('Please set up behind the wading pool, just to the right from the entrance. If more space is needed, please use the area outside the side gates.');

@@ -2,7 +2,7 @@
   "$schema": "meets.schema.json",
   "url": "https://www.gomotionapp.com/reccnsl/UserFiles/Image/QuickUpload/2026-cnsl-meet-schedule--final_047535.pdf",
   "meetTimes": {
-    "dualMeets": { "start": "07:00", "end": "12:00" },
+    "dualMeets": { "start": "07:00", "end": "12:00", "relayCheckInDeadline": "07:55", "firstSwimTime": "08:00" },
     "timeTrials": { "start": "07:00", "end": "12:00" }
   },
   "regular_meets": [
