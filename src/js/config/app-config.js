@@ -16,7 +16,10 @@
   const SHARE_MESSAGE = `Find Columbia pools and CNSL schedules: ${HOME_PAGE_URL}`;
 
   // Visitor-facing feature availability.
-  const MY_MEET_DAY_ENABLED = false;
+  const EXPERIMENTAL_FEATURE_IDS = Object.freeze({
+    MY_MEET_DAY: 'my-meet-day'
+  });
+  const EXPERIMENTAL_SETTINGS_URL = 'assets/experimental-settings.json';
   const MY_MEET_DAY_LOOKAHEAD_DAYS = 2;
   const TEAM_AGENDA_DEPENDENCIES = Object.freeze([
     'js/services/html-safety.js',
@@ -191,13 +194,14 @@
     APP_VERSION,
     APP_VERSION_STORAGE_KEY,
     DEPLOYMENT_VERSION_FILE,
+    EXPERIMENTAL_FEATURE_IDS,
+    EXPERIMENTAL_SETTINGS_URL,
     GA4_MEASUREMENT_ID,
     GOOGLE_MAPS_SEARCH_BASE_URL,
     HOME_PAGE_HOSTNAME,
     HOME_PAGE_URL,
     LOCAL_DEVELOPMENT_HOSTNAMES,
     LOCAL_DEVELOPMENT_PORT,
-    MY_MEET_DAY_ENABLED,
     MY_MEET_DAY_LOOKAHEAD_DAYS,
     PREFERENCES_STORAGE_KEY,
     PWA_CACHE_PREFIX,

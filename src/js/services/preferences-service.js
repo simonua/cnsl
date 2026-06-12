@@ -61,6 +61,7 @@ if (typeof globalThis.PreferencesService === 'undefined') {
       contrast: 'system',
       motion: 'system',
       underlineLinks: false,
+      experimentalFeatures: Object.freeze([]),
       favoriteTeamId: '',
       favoritePoolName: '',
       favoriteTeamExpanded: true,
@@ -133,6 +134,7 @@ if (typeof globalThis.PreferencesService === 'undefined') {
       const contrast = PreferencesService.CONTRASTS.includes(preferences.contrast) ? preferences.contrast : 'system';
       const motion = PreferencesService.MOTIONS.includes(preferences.motion) ? preferences.motion : 'system';
       const underlineLinks = preferences.underlineLinks === true;
+      const experimentalFeatures = PreferencesService.normalizeExperimentalFeatures(preferences.experimentalFeatures);
       const favoriteTeamId = typeof preferences.favoriteTeamId === 'string' ? preferences.favoriteTeamId.trim() : '';
       const favoritePoolName = typeof preferences.favoritePoolName === 'string' ? preferences.favoritePoolName.trim() : '';
       const favoriteTeamExpanded = preferences.favoriteTeamExpanded !== false;
@@ -149,7 +151,35 @@ if (typeof globalThis.PreferencesService === 'undefined') {
         ? requestedWeatherRefreshMinutes
         : PreferencesService.DEFAULT_PREFERENCES.weatherRefreshMinutes;
 
-      return { theme, textSize, contrast, motion, underlineLinks, favoriteTeamId, favoritePoolName, favoriteTeamExpanded, favoritePoolExpanded, poolScheduleLayout, poolFeatureFilters, practiceGroups, locationAwarenessEnabled, weatherRefreshMinutes };
+      return {
+        theme,
+        textSize,
+        contrast,
+        motion,
+        underlineLinks,
+        experimentalFeatures,
+        favoriteTeamId,
+        favoritePoolName,
+        favoriteTeamExpanded,
+        favoritePoolExpanded,
+        poolScheduleLayout,
+        poolFeatureFilters,
+        practiceGroups,
+        locationAwarenessEnabled,
+        weatherRefreshMinutes
+      };
+    }
+
+    /**
+     * Retains unique application-owned experimental feature identifiers.
+     * @param {Array} featureIds - Candidate experimental feature identifiers
+     * @returns {Array} Ordered valid feature identifiers
+     */
+    static normalizeExperimentalFeatures(featureIds) {
+      if (!Array.isArray(featureIds)) return [];
+
+      const selectedFeatureIds = new Set(featureIds.filter(featureId => typeof featureId === 'string'));
+      return Object.values(globalThis.EXPERIMENTAL_FEATURE_IDS).filter(featureId => selectedFeatureIds.has(featureId));
     }
 
     /**

@@ -102,6 +102,23 @@
         </div>
       </fieldset>
 
+      <details class="settings-group settings-experiments" id="experimentalFeatures">
+        <summary class="settings-label">
+          <span class="settings-experiments__heading"><span>Experimental Features</span><span class="experimental-badge">Experimental</span></span>
+          <span class="settings-experiments__count" id="experimentalFeaturesCount" aria-live="polite">0/0 enabled</span>
+          <span class="settings-experiments__toggle-icon" aria-hidden="true">&#9650;</span>
+        </summary>
+        <div class="settings-experiments__content">
+          <p class="settings-experiments__disclaimer">Experimental features may change or provide incomplete information. Please do not rely on them as your only source, and validate all information with your team and official sources.</p>
+          <fieldset class="settings-experiments__options">
+            <legend class="visually-hidden">Available experimental features</legend>
+            <div id="experimentalFeatureOptions" aria-live="polite">
+              <p class="settings-hint settings-hint--flush">Loading experimental features...</p>
+            </div>
+          </fieldset>
+        </div>
+      </details>
+
       <div class="settings-actions">
         <button class="btn settings-clear" id="clearSettings" type="button">Clear all app data</button>
       </div>

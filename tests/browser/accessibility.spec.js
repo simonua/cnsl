@@ -32,7 +32,7 @@ const pageScenarios = [
   { reference: 'POOLS', name: 'pools', path: '/pools.html', readySelector: '#poolListStatus', readyText: /Pool directory loaded/ },
   { reference: 'TEAMS', name: 'teams', path: '/teams.html', readySelector: '#teamListStatus', readyText: /Team directory loaded/ },
   { reference: 'MEETS', name: 'meets', path: '/meets.html', readySelector: '#meetListStatus', readyText: /Meet schedule loaded/ },
-  { reference: 'MY-MEET-DAY', name: 'my meet day', path: '/my-meet-day.html', readySelector: '#myMeetDayNoFavorite' },
+  { reference: 'MY-MEET-DAY', name: 'my meet day', path: '/my-meet-day.html', readySelector: '#myMeetDayDisabled' },
   { reference: 'SETTINGS', name: 'settings', path: '/settings.html', readySelector: '#favoritePool:not([disabled])' },
   { reference: 'RESOURCES', name: 'resources', path: '/swim-meet-resources.html' },
   { reference: 'LESSONS', name: 'lessons', path: '/lessons.html' },
@@ -94,6 +94,7 @@ test('[AX-SETTINGS-002] accessibility preferences have no WCAG A or AA automated
   });
   await page.goto('/settings.html');
   await page.locator('#favoritePool:not([disabled])').waitFor();
+  await page.locator('#experimentalFeatures summary').click();
 
   await expectNoAccessibilityViolations(page);
 });
@@ -132,15 +133,11 @@ for (const theme of ['light', 'dark']) {
   test(`[AX-AGENDA-002-${theme.toUpperCase()}] My Meet Day has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
     await page.clock.setFixedTime(new Date('2026-06-12T12:00:00-04:00'));
     await prepareStableWeatherResponses(page);
-    await seedPreferences(page, { theme, favoriteTeamId: 'lrm' });
+    await seedPreferences(page, { experimentalFeatures: ['my-meet-day'], theme, favoriteTeamId: 'lrm' });
     await page.goto('/index.html');
     const meetDay = page.locator('#myMeetDay');
-    if (await page.evaluate(() => globalThis.MY_MEET_DAY_ENABLED)) {
-      await expect(meetDay).toBeVisible();
-      await expect(meetDay).toContainText('Away meet');
-    } else {
-      await expect(meetDay).toBeHidden();
-    }
+    await expect(meetDay).toBeVisible();
+    await expect(meetDay).toContainText('Away meet');
 
     await expectNoAccessibilityViolations(page);
   });
@@ -148,7 +145,7 @@ for (const theme of ['light', 'dark']) {
   test(`[AX-AGENDA-003-${theme.toUpperCase()}] dedicated My Meet Day route has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
     await page.clock.setFixedTime(new Date('2026-06-12T12:00:00-04:00'));
     await prepareStableWeatherResponses(page);
-    await seedPreferences(page, { theme, favoriteTeamId: 'lrm' });
+    await seedPreferences(page, { experimentalFeatures: ['my-meet-day'], theme, favoriteTeamId: 'lrm' });
     await page.goto('/my-meet-day.html');
     await expect(page.locator('#myMeetDay')).toBeVisible();
 

@@ -250,6 +250,10 @@ function collectPrecacheResources(directory, rootDirectory = directory) {
 
     const relativePath = path.relative(rootDirectory, entryPath).replace(/\\/g, '/');
     if (['LICENSE', 'robots.txt', 'sitemap.xml', 'service-worker.js', 'precache-manifest.js'].includes(relativePath)) continue;
+    if (relativePath === appConfig.EXPERIMENTAL_SETTINGS_URL) {
+      resources.push(relativePath);
+      continue;
+    }
     if (relativePath.startsWith('assets/data/')) {
       if ([
         `assets/data/${appConfig.YEAR}/pools/pools.json`,
@@ -278,6 +282,7 @@ function writePwaArtifacts() {
     'teams.html',
     'meets.html',
     'css/styles.css',
+    appConfig.EXPERIMENTAL_SETTINGS_URL,
     'manifest.webmanifest',
     `assets/data/${appConfig.YEAR}/pools/pools.json`,
     `assets/data/${appConfig.YEAR}/teams/teams.json`,
@@ -287,6 +292,7 @@ function writePwaArtifacts() {
   const installCriticalPages = new Set(['index.html', 'offline.html', 'pools.html', 'teams.html', 'meets.html', 'settings.html']);
   const coreResources = resources.filter(resource => resource === './'
     || installCriticalPages.has(resource)
+    || resource === appConfig.EXPERIMENTAL_SETTINGS_URL
     || /\.(?:css|js|webmanifest)$/i.test(resource)
     || resource.startsWith(`assets/data/${appConfig.YEAR}/`));
   const optionalResources = resources.filter(resource => !coreResources.includes(resource));

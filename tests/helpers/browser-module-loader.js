@@ -13,6 +13,7 @@ const BROWSER_MODULE_MANIFESTS = Object.freeze({
   'app-storage-service': { scripts: [CONFIG, 'services/app-storage-service.js'], exports: ['AppStorageService'] },
   'data-manager': { scripts: [CONFIG, ICONS, TIME, 'types/pool-enums.js', SCHEDULE_STATE, 'models/pool-schedule.js', 'services/pool-period-schedule-service.js', 'models/pool.js', 'models/team.js', 'models/meet.js', 'managers/pools-manager.js', 'managers/teams-manager.js', 'managers/meets-manager.js', 'services/data-manager.js'], exports: ['DataManager', 'getDataManager', 'initializeDataManager'] },
   'device-platform-service': { scripts: ['services/device-platform-service.js'], exports: ['DevicePlatformService'] },
+  'experimental-features-service': { scripts: [CONFIG, 'services/preferences-service.js', 'services/experimental-features-service.js'], exports: ['ExperimentalFeaturesService', 'PreferencesService'] },
   'file-helper': { scripts: [CONFIG, 'services/file-helper.js'], exports: ['FileHelper'] },
   'html-safety': { scripts: ['services/html-safety.js'], exports: ['HtmlSafety'] },
   'icon-catalog': { scripts: [ICONS], exports: ['IconCatalog'] },

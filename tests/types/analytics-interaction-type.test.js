@@ -10,6 +10,7 @@ describe('AnalyticsInteractionType', () => {
     assert.deepEqual(Object.keys(AnalyticsInteractionType), [
       'BANNER',
       'DIRECTORY_DETAIL_OPEN',
+      'EXPERIMENTAL_FEATURE_CHANGE',
       'EXTERNAL_LINK',
       'FIXED_SETTING_CHANGE',
       'INSTALL',

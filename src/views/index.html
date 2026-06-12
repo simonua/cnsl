@@ -58,8 +58,8 @@
       </p>
     </div>
     <include src="components/quick-links.html"></include>
-    <section class="my-meet-day" id="myMeetDay" aria-labelledby="myMeetDayTitle" hidden>
-      <h2 id="myMeetDayTitle">My Meet Day</h2>
+    <section class="my-meet-day" id="myMeetDay" aria-labelledby="myMeetDayTitle" data-experimental-feature="{{ EXPERIMENTAL_FEATURE_IDS.MY_MEET_DAY }}" hidden>
+      <h2 class="experimental-heading" id="myMeetDayTitle"><span>My Meet Day</span><span class="experimental-badge">Experimental</span></h2>
       <div id="myMeetDayContent"></div>
     </section>
     <section class="favorite-week" id="favoriteWeek" aria-labelledby="favoriteWeekTitle" hidden>

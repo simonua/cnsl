@@ -89,6 +89,20 @@
   }
 
   /**
+   * Updates the Experimental Features summary from currently rendered options.
+   * @param {HTMLFormElement} form - Settings form containing experimental feature switches
+   * @private
+   */
+  function updateExperimentalFeaturesCount(form) {
+    const count = document.getElementById('experimentalFeaturesCount');
+    if (!count) return;
+
+    const featureToggles = form.querySelectorAll('input[name="experimentalFeatures"]');
+    const enabledCount = Array.from(featureToggles).filter(featureToggle => featureToggle.checked).length;
+    count.textContent = `${enabledCount}/${featureToggles.length} enabled`;
+  }
+
+  /**
    * Applies saved preference values to the settings form.
    * @param {HTMLFormElement} form - Settings form
    * @param {Object} preferences - Saved preferences
@@ -104,6 +118,11 @@
     const selectedMotion = form.querySelector(`input[name="motion"][value="${preferences.motion}"]`);
     if (selectedMotion) selectedMotion.checked = true;
     form.elements.underlineLinks.checked = preferences.underlineLinks;
+    form.querySelectorAll('input[name="experimentalFeatures"]').forEach(featureToggle => {
+      featureToggle.checked = preferences.experimentalFeatures.includes(featureToggle.value);
+      const state = featureToggle.closest('.settings-experiment')?.querySelector('.settings-switch__state');
+      if (state) state.textContent = featureToggle.checked ? 'On' : 'Off';
+    });
     const selectedScheduleLayout = form.querySelector(`input[name="poolScheduleLayout"][value="${preferences.poolScheduleLayout}"]`);
     if (selectedScheduleLayout) selectedScheduleLayout.checked = true;
     const selectedWeatherRefresh = form.querySelector(`input[name="weatherRefreshMinutes"][value="${preferences.weatherRefreshMinutes}"]`);
@@ -114,6 +133,7 @@
     form.elements.favoriteTeam.value = preferences.favoriteTeamId;
     form.elements.favoritePool.value = preferences.favoritePoolName;
     form.elements.locationAwarenessEnabled.checked = preferences.locationAwarenessEnabled;
+    updateExperimentalFeaturesCount(form);
   }
 
   /**
@@ -143,6 +163,20 @@
       publishedValues,
       selectedValues: selectedValue ? [selectedValue] : [],
       settingName
+    });
+  }
+
+  /**
+   * Publishes an analytics event for a reviewed experimental feature change.
+   * @param {string} featureId - Application-owned experimental feature identifier
+   * @param {boolean} enabled - Whether the visitor enabled the feature
+   * @private
+   */
+  function trackExperimentalFeatureChange(featureId, enabled) {
+    if (!window.cnslAnalytics) return;
+    window.cnslAnalytics.trackInteraction(AnalyticsInteractionType.EXPERIMENTAL_FEATURE_CHANGE, {
+      action: enabled ? 'enabled' : 'disabled',
+      featureId
     });
   }
 
@@ -179,6 +213,9 @@
       trackFixedSettingChange('motion', saved.motion);
     } else if (changedField.name === 'underlineLinks' && saved.underlineLinks !== existing.underlineLinks) {
       trackFixedSettingChange('underline_links', saved.underlineLinks ? 'enabled' : 'disabled');
+    } else if (changedField.name === 'experimentalFeatures'
+      && saved.experimentalFeatures.join('|') !== existing.experimentalFeatures.join('|')) {
+      trackExperimentalFeatureChange(changedField.value, saved.experimentalFeatures.includes(changedField.value));
     } else if (changedField.name === 'poolScheduleLayout' && saved.poolScheduleLayout !== existing.poolScheduleLayout) {
       trackFixedSettingChange('pool_schedule_layout', saved.poolScheduleLayout);
     } else if (changedField.name === 'locationAwarenessEnabled' && saved.locationAwarenessEnabled !== existing.locationAwarenessEnabled) {
@@ -209,6 +246,9 @@
     if (existing.contrast !== cleared.contrast) trackFixedSettingChange('contrast', cleared.contrast);
     if (existing.motion !== cleared.motion) trackFixedSettingChange('motion', cleared.motion);
     if (existing.underlineLinks !== cleared.underlineLinks) trackFixedSettingChange('underline_links', 'disabled');
+    existing.experimentalFeatures
+      .filter(featureId => !cleared.experimentalFeatures.includes(featureId))
+      .forEach(featureId => trackExperimentalFeatureChange(featureId, false));
     if (existing.poolScheduleLayout !== cleared.poolScheduleLayout) trackFixedSettingChange('pool_schedule_layout', cleared.poolScheduleLayout);
     if (existing.locationAwarenessEnabled !== cleared.locationAwarenessEnabled) trackFixedSettingChange('location_awareness', 'disabled');
     if (existing.weatherRefreshMinutes !== cleared.weatherRefreshMinutes) trackFixedSettingChange('weather_refresh_minutes', cleared.weatherRefreshMinutes);
@@ -280,9 +320,98 @@
     const publishedTeamNames = new Set();
     const publishedTeamNamesById = new Map();
     const publishedPoolNames = new Set();
+    let experimentalOptionsPromise = null;
     let optionsPromise = null;
     let restoreFocusTo = null;
     let preferencesChanged = false;
+
+    /**
+     * Creates one accessible left-to-right experimental feature switch.
+     * @param {Object} feature - Validated feature metadata
+     * @returns {HTMLElement} Rendered feature option
+     * @private
+     */
+    function createExperimentalFeatureOption(feature) {
+      const option = document.createElement('div');
+      option.className = 'settings-experiment';
+
+      const copy = document.createElement('div');
+      copy.className = 'settings-experiment__copy';
+      const heading = document.createElement('div');
+      heading.className = 'settings-experiment__heading';
+      const label = document.createElement('strong');
+      label.textContent = feature.label;
+      const badge = document.createElement('span');
+      badge.className = 'experimental-badge';
+      badge.textContent = 'Experimental';
+      heading.append(label, badge);
+
+      const description = document.createElement('p');
+      description.className = 'settings-experiment__description';
+      description.id = `experimental-${feature.id}-description`;
+      description.textContent = feature.description;
+      copy.append(heading, description);
+
+      const switchLabel = document.createElement('label');
+      switchLabel.className = 'settings-switch';
+      const accessibleLabel = document.createElement('span');
+      accessibleLabel.className = 'visually-hidden';
+      accessibleLabel.textContent = `Enable ${feature.label}`;
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.name = 'experimentalFeatures';
+      input.value = feature.id;
+      input.setAttribute('aria-describedby', description.id);
+      const track = document.createElement('span');
+      track.className = 'settings-switch__track';
+      track.setAttribute('aria-hidden', 'true');
+      const thumb = document.createElement('span');
+      thumb.className = 'settings-switch__thumb';
+      track.appendChild(thumb);
+      const state = document.createElement('span');
+      state.className = 'settings-switch__state';
+      state.setAttribute('aria-hidden', 'true');
+      state.textContent = 'Off';
+      switchLabel.append(accessibleLabel, input, track, state);
+
+      option.append(copy, switchLabel);
+      return option;
+    }
+
+    /**
+     * Loads and renders currently available experimental feature options once.
+     * @returns {Promise<void>} Promise settled after options render or fail
+     * @private
+     */
+    async function loadExperimentalOptions() {
+      if (experimentalOptionsPromise) return experimentalOptionsPromise;
+
+      experimentalOptionsPromise = (async () => {
+        const options = document.getElementById('experimentalFeatureOptions');
+        if (!options) return;
+
+        try {
+          const features = (await globalThis.ExperimentalFeaturesService.load()).filter(feature => feature.available);
+          if (features.length === 0) {
+            options.replaceChildren();
+            const emptyMessage = document.createElement('p');
+            emptyMessage.className = 'settings-hint settings-hint--flush';
+            emptyMessage.textContent = 'No experimental features are currently available.';
+            options.appendChild(emptyMessage);
+          } else {
+            options.replaceChildren(...features.map(createExperimentalFeatureOption));
+          }
+          applyFormValues(form, PreferencesService.get());
+        } catch (error) {
+          console.error('Unable to load experimental features:', error);
+          const errorMessage = document.createElement('p');
+          errorMessage.className = 'settings-hint settings-hint--flush';
+          errorMessage.textContent = 'Experimental features are temporarily unavailable.';
+          options.replaceChildren(errorMessage);
+        }
+      })();
+      return experimentalOptionsPromise;
+    }
 
     applyFormValues(form, PreferencesService.get());
     renderWeatherCheckStatus();
@@ -334,6 +463,7 @@
       if (!dialog.open) dialog.showModal();
       closeButton.focus();
       loadFavoriteOptions();
+      loadExperimentalOptions();
     }
 
     form.addEventListener('change', event => {
@@ -350,6 +480,7 @@
         contrast: contrast ? contrast.value : 'system',
         motion: motion ? motion.value : 'system',
         underlineLinks: form.elements.underlineLinks.checked,
+        experimentalFeatures: Array.from(form.querySelectorAll('input[name="experimentalFeatures"]:checked'), featureToggle => featureToggle.value),
         favoriteTeamId: favoriteTeam.disabled ? existing.favoriteTeamId : favoriteTeam.value,
         favoritePoolName: favoritePool.disabled ? existing.favoritePoolName : favoritePool.value,
         favoriteTeamExpanded: existing.favoriteTeamExpanded,
@@ -361,6 +492,11 @@
         weatherRefreshMinutes: weatherRefreshMinutes ? Number(weatherRefreshMinutes.value) : existing.weatherRefreshMinutes
       });
       trackChangedFormSetting(event.target, existing, saved, publishedPoolNames, publishedTeamNames, publishedTeamNamesById);
+      if (event.target.name === 'experimentalFeatures') {
+        const switchState = event.target.closest('.settings-experiment')?.querySelector('.settings-switch__state');
+        if (switchState) switchState.textContent = saved.experimentalFeatures.includes(event.target.value) ? 'On' : 'Off';
+        updateExperimentalFeaturesCount(form);
+      }
       window.applyPreferenceTheme(saved);
       renderWeatherCheckStatus();
       preferencesChanged = preferencesChanged || JSON.stringify(existing) !== JSON.stringify(saved);

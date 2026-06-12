@@ -14,10 +14,15 @@
   </block>
 
   <block name="content">
-    <h1>My Meet Day</h1>
+    <h1 class="experimental-heading"><span>My Meet Day</span><span class="experimental-badge">Experimental</span></h1>
     <include src="components/off-season-message.html"></include>
     <div class="my-meet-day-view" data-seasonal-content>
       <p class="visually-hidden" id="myMeetDayStatus" role="status" aria-live="polite">Loading meet-day details.</p>
+
+      <div class="my-meet-day-view__state experimental-surface" id="myMeetDayDisabled" hidden>
+        <p>My Meet Day is an experimental feature and is off on this device.</p>
+        <a class="directory-link" href="settings.html">Open Experimental Features</a>
+      </div>
 
       <div class="my-meet-day-view__state" id="myMeetDayNoFavorite" hidden>
         <p>Please choose a favorite team to see its meet-day details.</p>

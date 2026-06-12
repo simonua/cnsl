@@ -3,9 +3,7 @@
   <a href="pools.html"><span class="nav-menu__icon" aria-hidden="true">🏊</span>Pools</a>
   <a href="teams.html"><span class="nav-menu__icon" aria-hidden="true">👕</span>Teams</a>
   <a href="meets.html"><span class="nav-menu__icon" aria-hidden="true">📅</span>Meets</a>
-  <if condition="MY_MEET_DAY_ENABLED">
-    <a href="my-meet-day.html"><span class="nav-menu__icon" aria-hidden="true">📣</span>My Meet Day</a>
-  </if>
+  <a href="my-meet-day.html" data-experimental-feature="{{ EXPERIMENTAL_FEATURE_IDS.MY_MEET_DAY }}" hidden><span class="nav-menu__icon" aria-hidden="true">📣</span>My Meet Day <span class="experimental-badge">Experimental</span></a>
   <a href="swim-meet-resources.html"><span class="nav-menu__icon" aria-hidden="true">📋</span>Resources</a>
   <a href="lessons.html"><span class="nav-menu__icon nav-menu__icon--lessons" aria-hidden="true"><span class="nav-menu__lesson-learning"><span>ABC</span><span class="nav-menu__lesson-apple">🍎</span></span><span class="nav-menu__lesson-waves">≋</span></span>Lessons</a>
   <a href="settings.html"><span class="nav-menu__icon" aria-hidden="true">⚙️</span>Settings</a>

@@ -85,6 +85,8 @@
   const ALLOWED_INSTALL_ACTIONS = new Set([
     'installed', 'instructions_open', 'prompt_accepted', 'prompt_dismissed', 'prompt_open'
   ]);
+  const ALLOWED_EXPERIMENTAL_FEATURE_ACTIONS = new Set(['disabled', 'enabled']);
+  const ALLOWED_EXPERIMENTAL_FEATURE_IDS = new Set(Object.values(globalThis.EXPERIMENTAL_FEATURE_IDS));
 
   const RESOURCE_EVENT_NAMES = Object.freeze({
     download: 'ca_resource_download',
@@ -237,6 +239,21 @@
 
     publishEvent('ca_directory_detail_open', {
       directory_name: directoryName
+    });
+  }
+
+  /**
+   * Publishes a reviewed experimental feature state change.
+   * @param {string} featureId - Application-owned experimental feature identifier
+   * @param {string} action - Enabled or disabled action
+   * @private
+   */
+  function trackExperimentalFeatureChange(featureId, action) {
+    if (!ALLOWED_EXPERIMENTAL_FEATURE_IDS.has(featureId) || !ALLOWED_EXPERIMENTAL_FEATURE_ACTIONS.has(action)) return;
+
+    publishEvent('ca_experimental_feature_change', {
+      feature_action: action,
+      feature_name: featureId
     });
   }
 
@@ -476,6 +493,9 @@
         break;
       case AnalyticsInteractionType.DIRECTORY_DETAIL_OPEN:
         trackDirectoryDetailOpen(parameters.directoryName);
+        break;
+      case AnalyticsInteractionType.EXPERIMENTAL_FEATURE_CHANGE:
+        trackExperimentalFeatureChange(parameters.featureId, parameters.action);
         break;
       case AnalyticsInteractionType.EXTERNAL_LINK:
         trackExternalLinkInteraction(parameters.context, parameters.purpose, parameters.destination);

@@ -59,6 +59,33 @@ function isMenuOpen(hamburger = document.querySelector('.hamburger')) {
 }
 
 /**
+ * Applies configured device opt-ins to experimental navigation destinations.
+ * @returns {Promise<void>} Promise settled after experimental links are updated
+ */
+async function updateExperimentalNavigation() {
+  const experimentalLinks = document.querySelectorAll('#navMenu [data-experimental-feature]');
+  if (experimentalLinks.length === 0) return;
+
+  experimentalLinks.forEach(link => {
+    link.hidden = true;
+  });
+
+  try {
+    const configuredFeatures = await globalThis.ExperimentalFeaturesService.load();
+    const availableFeatureIds = new Set(configuredFeatures
+      .filter(feature => feature.available)
+      .map(feature => feature.id));
+    const selectedFeatureIds = new Set(PreferencesService.get().experimentalFeatures);
+    experimentalLinks.forEach(link => {
+      link.hidden = !availableFeatureIds.has(link.dataset.experimentalFeature)
+        || !selectedFeatureIds.has(link.dataset.experimentalFeature);
+    });
+  } catch (error) {
+    console.error('Unable to update experimental navigation:', error);
+  }
+}
+
+/**
  * Toggles the mobile navigation menu and surrounding inert state.
  */
 function toggleMenu() {
@@ -138,6 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const hamburger = document.querySelector('.hamburger');
   const overlay = document.getElementById('navOverlay');
   updateNavigationOffset();
+  updateExperimentalNavigation();
   if (hamburger) hamburger.addEventListener('click', toggleMenu);
   if (overlay) overlay.addEventListener('click', () => closeMenu(true));
 
@@ -180,4 +208,5 @@ document.addEventListener('DOMContentLoaded', () => {
     updateNavigationOffset();
     handleStickyFooter();
   });
+  window.addEventListener('cnsl:preferences-changed', updateExperimentalNavigation);
 });

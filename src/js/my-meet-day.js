@@ -5,6 +5,7 @@
 
 (function initializeMyMeetDayView() {
   const VIEW_STATE_IDS = Object.freeze([
+    'myMeetDayDisabled',
     'myMeetDayNoFavorite',
     'myMeetDayNoMeet',
     'myMeetDayTeamUnavailable',
@@ -92,6 +93,22 @@
   }
 
   /**
+   * Resolves whether this device opted into the configured My Meet Day experiment.
+   * @returns {Promise<boolean>} Whether the experimental route may load its data
+   * @private
+   */
+  async function isMyMeetDayEnabled() {
+    try {
+      return await globalThis.ExperimentalFeaturesService.isEnabled(
+        globalThis.EXPERIMENTAL_FEATURE_IDS.MY_MEET_DAY
+      );
+    } catch (error) {
+      console.error('Unable to load My Meet Day availability:', error);
+      return false;
+    }
+  }
+
+  /**
    * Loads annual data and renders the current favorite team's guide.
    * @returns {Promise<void>} Promise settled after the route state is updated
    * @private
@@ -104,6 +121,10 @@
 
     resetView();
     status.textContent = 'Loading meet-day details.';
+    if (!await isMyMeetDayEnabled()) {
+      showState('myMeetDayDisabled', 'My Meet Day is off on this device. Open Experimental Features in Settings to enable it.');
+      return;
+    }
     const favoriteTeamId = globalThis.PreferencesService.get().favoriteTeamId;
     if (!favoriteTeamId) {
       showState('myMeetDayNoFavorite', 'Choose a favorite team to see meet-day details.');

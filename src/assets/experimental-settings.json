@@ -1,0 +1,10 @@
+{
+  "features": [
+    {
+      "id": "my-meet-day",
+      "label": "My Meet Day",
+      "description": "See personalized details for your favorite team's next meet, including key times and host-pool guidance when available.",
+      "available": true
+    }
+  ]
+}

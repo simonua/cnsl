@@ -15,6 +15,7 @@ describe('PreferencesService', () => {
         contrast: 'system',
         motion: 'system',
         underlineLinks: false,
+        experimentalFeatures: [],
         favoriteTeamId: '',
         favoritePoolName: '',
         favoriteTeamExpanded: true,
@@ -35,6 +36,7 @@ describe('PreferencesService', () => {
         contrast: 'high',
         motion: 'reduced',
         underlineLinks: true,
+        experimentalFeatures: ['my-meet-day', 'unknown', 'my-meet-day'],
         favoriteTeamId: '  lrm ',
         favoritePoolName: ' Kendall Ridge ',
         favoriteTeamExpanded: false,
@@ -49,6 +51,7 @@ describe('PreferencesService', () => {
 
       assert.deepEqual(saved, {
         theme: 'dark', textSize: 'extra-large', contrast: 'high', motion: 'reduced', underlineLinks: true,
+        experimentalFeatures: ['my-meet-day'],
         favoriteTeamId: 'lrm', favoritePoolName: 'Kendall Ridge', favoriteTeamExpanded: false,
         favoritePoolExpanded: false, poolScheduleLayout: 'calendar',
         poolFeatureFilters: ['beach entry', 'slide'], practiceGroups: ['first-splash', '9-10', '15-18'],
@@ -65,6 +68,7 @@ describe('PreferencesService', () => {
       assert.deepEqual(PreferencesService.get(storage), PreferencesService.DEFAULT_PREFERENCES);
       assert.deepEqual(PreferencesService.normalize({ theme: 'unsupported', favoriteTeamId: 10 }), {
         theme: 'system', textSize: 'default', contrast: 'system', motion: 'system', underlineLinks: false,
+        experimentalFeatures: [],
         favoriteTeamId: '', favoritePoolName: '', favoriteTeamExpanded: true,
         favoritePoolExpanded: true, poolScheduleLayout: 'list', poolFeatureFilters: [],
         practiceGroups: ['first-splash', '8-under', '9-10', '11-12', '13-14', '15-18'],

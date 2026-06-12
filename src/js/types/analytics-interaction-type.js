@@ -5,6 +5,7 @@
   const AnalyticsInteractionType = Object.freeze({
     BANNER: 'banner',
     DIRECTORY_DETAIL_OPEN: 'directory_detail_open',
+    EXPERIMENTAL_FEATURE_CHANGE: 'experimental_feature_change',
     EXTERNAL_LINK: 'external_link',
     FIXED_SETTING_CHANGE: 'fixed_setting_change',
     INSTALL: 'install',

@@ -35,7 +35,7 @@ describe('app-config', () => {
     assert.equal(context.APP_VERSION, config.APP_VERSION);
     assert.equal(context.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, config.ANALYTICS_VERSION_REPORTED_STORAGE_KEY);
     assert.equal(context.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY, config.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY);
-    assert.equal(context.MY_MEET_DAY_ENABLED, config.MY_MEET_DAY_ENABLED);
+    assert.equal(context.EXPERIMENTAL_SETTINGS_URL, config.EXPERIMENTAL_SETTINGS_URL);
     assert.equal(context.MY_MEET_DAY_LOOKAHEAD_DAYS, 2);
     assert.equal(
       context.WEATHER_PUBLIC_ALERTS_URL,
@@ -43,8 +43,10 @@ describe('app-config', () => {
     );
   });
 
-  it('publishes the My Meet Day feature flag', () => {
-    assert.equal(typeof config.MY_MEET_DAY_ENABLED, 'boolean');
+  it('publishes immutable experimental feature configuration', () => {
+    assert.deepEqual(config.EXPERIMENTAL_FEATURE_IDS, { MY_MEET_DAY: 'my-meet-day' });
+    assert.equal(Object.isFrozen(config.EXPERIMENTAL_FEATURE_IDS), true);
+    assert.equal(config.EXPERIMENTAL_SETTINGS_URL, 'assets/experimental-settings.json');
     assert.equal(config.MY_MEET_DAY_LOOKAHEAD_DAYS, 2);
   });
 

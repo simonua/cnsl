@@ -57,6 +57,22 @@
   }
 
   /**
+   * Resolves the My Meet Day device opt-in without interrupting the standard agenda.
+   * @returns {Promise<boolean>} Whether the experimental preview may render
+   * @private
+   */
+  async function isMyMeetDayEnabled() {
+    try {
+      return await globalThis.ExperimentalFeaturesService.isEnabled(
+        globalThis.EXPERIMENTAL_FEATURE_IDS.MY_MEET_DAY
+      );
+    } catch (error) {
+      console.error('Unable to load My Meet Day availability:', error);
+      return false;
+    }
+  }
+
+  /**
    * Renders upcoming events for the currently selected favorite team.
    * @returns {Promise<void>} Promise settled after the favorite-team section is updated
    * @private
@@ -104,7 +120,7 @@
       }
 
       const events = globalThis.TeamAgendaDisplay.getUpcomingEvents(team, dataManager.getMeets().getAllMeets());
-      if (globalThis.MY_MEET_DAY_ENABLED && meetDaySection && meetDayContent) {
+      if (meetDaySection && meetDayContent && await isMyMeetDayEnabled()) {
         const guide = globalThis.MeetDayGuideService.getGuide(
           team,
           dataManager.getTeams().getAllTeams(),

@@ -56,15 +56,18 @@ test.beforeEach(async ({ page }) => {
 
 test('[WF-NAV-001] navigation contains keyboard focus and restores it when dismissed', async ({ page }) => {
   await page.setViewportSize(MOBILE_VIEWPORT);
-  await page.goto('/pools.html');
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await page.goto('/about.html');
 
   const toggle = page.getByRole('button', { name: 'Open navigation menu' });
   await toggle.focus();
   await page.keyboard.press('Enter');
 
   await expect(page.getByRole('button', { name: 'Close navigation menu' })).toBeFocused();
-  await expect(page.locator('#navMenu')).toHaveAttribute('aria-hidden', 'false');
+  const navigation = page.locator('#navMenu');
+  await expect(navigation).toHaveAttribute('aria-hidden', 'false');
+  await expect(navigation).toHaveCSS('transition-property', 'transform, visibility');
+  await expect(navigation).toHaveCSS('transition-duration', '0.15s, 0s');
+  await expect(navigation).toHaveCSS('transform', 'matrix(1, 0, 0, 1, 0, 0)');
   await expect(page.getByRole('link', { name: 'Lessons' })).toHaveAttribute('href', 'lessons.html');
   await expect(page.locator('#mainContent')).toHaveJSProperty('inert', true);
 
@@ -77,7 +80,8 @@ test('[WF-NAV-001] navigation contains keyboard focus and restores it when dismi
   await page.locator('#navMenu').evaluate(nav => nav.classList.remove('active'));
   await page.keyboard.press('Escape');
   await expect(page.getByRole('button', { name: 'Open navigation menu' })).toBeFocused();
-  await expect(page.locator('#navMenu')).toHaveAttribute('aria-hidden', 'true');
+  await expect(navigation).toHaveAttribute('aria-hidden', 'true');
+  await expect(navigation).toHaveCSS('visibility', 'hidden');
   await expect(page.locator('#mainContent')).toHaveJSProperty('inert', false);
 });
 
@@ -1596,19 +1600,15 @@ test('[WF-AGENDA-002] home page shows the next practices and swim event for a se
   await expect(page.locator('#favoriteWeekContent')).toBeVisible();
 });
 
-test('[WF-AGENDA-007] home page follows the My Meet Day feature flag', async ({ page }) => {
+test('[WF-AGENDA-007] home page follows the My Meet Day experimental opt-in', async ({ page }) => {
   await page.clock.setFixedTime(new Date('2026-06-12T12:00:00-04:00'));
-  await seedPreferences(page, { favoriteTeamId: 'lrm' });
+  await seedPreferences(page, { experimentalFeatures: ['my-meet-day'], favoriteTeamId: 'lrm' });
   await page.goto('/index.html');
 
   const meetDay = page.locator('#myMeetDay');
-  const isMeetDayEnabled = await page.evaluate(() => globalThis.MY_MEET_DAY_ENABLED);
-  if (!isMeetDayEnabled) {
-    await expect(meetDay).toBeHidden();
-    return;
-  }
   await expect(meetDay).toBeVisible();
-  await expect(meetDay.getByRole('heading', { name: 'My Meet Day' })).toBeVisible();
+  await expect(meetDay.getByRole('heading', { name: /My Meet Day/ })).toBeVisible();
+  await expect(meetDay.locator('.experimental-badge')).toHaveText('Experimental');
   await expect(meetDay).toContainText('Away meet');
   await expect(meetDay).toContainText('Marlins visit Watercats');
   await expect(meetDay).toContainText('tomorrow');
@@ -1632,19 +1632,23 @@ test('[WF-AGENDA-007] home page follows the My Meet Day feature flag', async ({ 
   await expect(poolLink).toHaveAttribute('href', 'pools.html?pool=frp');
   await poolLink.focus();
   await expect(poolLink).toBeFocused();
-  expect(isMeetDayEnabled).toBe(true);
 });
 
-test('[WF-AGENDA-008] dedicated My Meet Day route stays deployed and navigation follows the enabled flag', async ({ page }) => {
+test('[WF-AGENDA-008] dedicated My Meet Day route loads only after the experiment is enabled', async ({ page }) => {
   await page.clock.setFixedTime(new Date('2026-06-11T12:00:00-04:00'));
   await page.goto('/my-meet-day.html');
 
-  await expect(page.getByRole('heading', { name: 'My Meet Day' })).toBeVisible();
-  await expect(page.locator('#myMeetDayNoFavorite')).toBeVisible();
+  await expect(page.getByRole('heading', { name: /My Meet Day/ })).toBeVisible();
+  await expect(page.locator('#myMeetDayDisabled')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Open Experimental Features' })).toHaveAttribute('href', 'settings.html');
   await expect(page.locator('script[data-my-meet-day-dependency]')).toHaveCount(0);
+  const navigationLink = page.locator('#navMenu [data-experimental-feature="my-meet-day"]');
+  await page.getByRole('button', { name: 'Open navigation menu' }).click();
+  await expect(navigationLink).toBeHidden();
+  await page.getByRole('button', { name: 'Close navigation menu' }).click();
 
   await page.evaluate(() => {
-    globalThis.PreferencesService.save({ favoriteTeamId: 'lrm' });
+    globalThis.PreferencesService.save({ experimentalFeatures: ['my-meet-day'], favoriteTeamId: 'lrm' });
     globalThis.dispatchEvent(new globalThis.CustomEvent('cnsl:preferences-changed'));
   });
 
@@ -1670,15 +1674,11 @@ test('[WF-AGENDA-008] dedicated My Meet Day route stays deployed and navigation 
   expect(controllerVersion).toBeTruthy();
   expect(dependencyVersions.every(version => version === controllerVersion)).toBe(true);
   await page.getByRole('button', { name: 'Open navigation menu' }).click();
-  const navigationLink = page.getByRole('link', { name: 'My Meet Day' });
-  if (await page.evaluate(() => globalThis.MY_MEET_DAY_ENABLED)) {
-    await expect(navigationLink).toHaveAttribute('href', 'my-meet-day.html');
-  } else {
-    await expect(navigationLink).toHaveCount(0);
-  }
+  await expect(navigationLink).toBeVisible();
+  await expect(navigationLink).toHaveAttribute('href', 'my-meet-day.html');
 
   await page.evaluate(() => {
-    globalThis.PreferencesService.save({ favoriteTeamId: '' });
+    globalThis.PreferencesService.save({ experimentalFeatures: ['my-meet-day'], favoriteTeamId: '' });
     globalThis.dispatchEvent(new globalThis.CustomEvent('cnsl:preferences-changed'));
   });
   await expect(page.locator('#myMeetDay')).toBeHidden();
@@ -2193,11 +2193,35 @@ test('[WF-SETTINGS-001] settings dialog is evenly inset on mobile and centered o
   let bounds = await dialog.boundingBox();
 
   expect(bounds.x).toBeGreaterThanOrEqual(8);
+  expect(Math.abs(bounds.height - (mobileViewport.height * 0.75))).toBeLessThanOrEqual(1);
   expect(Math.abs(bounds.x - (mobileViewport.width - bounds.x - bounds.width))).toBeLessThanOrEqual(1);
   expect(Math.abs(bounds.y + (bounds.height / 2) - (mobileViewport.height / 2))).toBeLessThanOrEqual(1);
+  await expect.poll(() => page.evaluate(() => {
+    const dialogElement = globalThis.document.getElementById('settingsDialog');
+    const panel = dialogElement.querySelector('.settings-dialog__panel');
+    const form = globalThis.document.getElementById('settingsForm');
+    return {
+      dialogOverflowY: globalThis.getComputedStyle(dialogElement).overflowY,
+      dialogScrollable: dialogElement.scrollHeight > dialogElement.clientHeight,
+      formOverflowY: globalThis.getComputedStyle(form).overflowY,
+      formScrollable: form.scrollHeight > form.clientHeight,
+      panelOverflowY: globalThis.getComputedStyle(panel).overflowY,
+      panelScrollable: panel.scrollHeight > panel.clientHeight
+    };
+  })).toEqual({
+    dialogOverflowY: 'hidden',
+    dialogScrollable: false,
+    formOverflowY: 'auto',
+    formScrollable: true,
+    panelOverflowY: 'hidden',
+    panelScrollable: false
+  });
   await expect(page.locator('#settingsForm > .settings-group').evaluateAll(groups => groups.map(group => {
     const heading = group.querySelector(':scope > legend, :scope > .settings-label');
-    return heading ? heading.textContent.trim() : '';
+    const primaryHeading = heading?.tagName === 'SUMMARY'
+      ? heading.querySelector(':scope > .settings-experiments__heading > span:first-child')
+      : null;
+    return primaryHeading ? primaryHeading.textContent.trim() : heading?.textContent.trim() || '';
   }))).resolves.toEqual([
     'Favorite pool ★',
     'Favorite team ★',
@@ -2206,7 +2230,8 @@ test('[WF-SETTINGS-001] settings dialog is evenly inset on mobile and centered o
     'Weather safety alerts',
     'Pool distance',
     'Accessibility',
-    'Appearance'
+    'Appearance',
+    'Experimental Features'
   ]);
   const closeButtonBounds = await page.getByRole('button', { name: 'Close settings' }).boundingBox();
   expect(closeButtonBounds.width).toBeLessThan(closeButtonBounds.height);
@@ -2223,6 +2248,7 @@ test('[WF-SETTINGS-001] settings dialog is evenly inset on mobile and centered o
   await page.goto('/settings.html');
   bounds = await dialog.boundingBox();
 
+  expect(Math.abs(bounds.height - (desktopViewport.height * 0.75))).toBeLessThanOrEqual(1);
   expect(Math.abs(bounds.x + (bounds.width / 2) - (desktopViewport.width / 2))).toBeLessThanOrEqual(1);
   expect(Math.abs(bounds.y + (bounds.height / 2) - (desktopViewport.height / 2))).toBeLessThanOrEqual(1);
   clearButtonBounds = await page.getByRole('button', { name: 'Clear all app data' }).boundingBox();
@@ -2356,6 +2382,50 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
     ['event', 'ca_setting_change', { setting_name: 'weather_refresh_minutes' }],
     ['event', 'ca_setting_change', { setting_name: 'practice_groups' }],
     ['event', 'ca_setting_change', { setting_name: 'favorite_team', selection: 'none' }]
+  ]);
+});
+
+test('[WF-SETTINGS-011] experimental features are collapsed, tracked, and gated by device opt-in', async ({ page }) => {
+  await initializeAnalyticsRecorder(page);
+  await page.goto('/settings.html');
+
+  const experiments = page.locator('#experimentalFeatures');
+  const enabledCount = page.locator('#experimentalFeaturesCount');
+  await expect(experiments).not.toHaveAttribute('open', '');
+  await expect(enabledCount).toHaveText('0/1 enabled');
+  await expect(page.getByText('Experimental features may change or provide incomplete information.', { exact: false })).toBeHidden();
+  await experiments.locator('summary').click();
+  await expect(page.getByText('Please do not rely on them as your only source, and validate all information with your team and official sources.', { exact: false })).toBeVisible();
+  await expect(experiments.locator('input[name="experimentalFeatures"]')).toHaveCount(1);
+  await expect(experiments.getByText('My Meet Day', { exact: true })).toBeVisible();
+  await expect(experiments.locator('.settings-experiment__description')).toHaveText("See personalized details for your favorite team's next meet, including key times and host-pool guidance when available.");
+
+  const meetDaySwitch = page.getByLabel('Enable My Meet Day');
+  await expect(meetDaySwitch).not.toBeChecked();
+  await meetDaySwitch.check();
+  await expect(meetDaySwitch).toBeChecked();
+  await expect(experiments.locator('.settings-switch__state')).toHaveText('On');
+  await expect(enabledCount).toHaveText('1/1 enabled');
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).experimentalFeatures)).toEqual(['my-meet-day']);
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
+    ['event', 'ca_experimental_feature_change', { feature_action: 'enabled', feature_name: 'my-meet-day' }]
+  ]);
+
+  await page.getByRole('button', { name: 'Close settings' }).click();
+  await page.getByRole('button', { name: 'Open navigation menu' }).click();
+  const meetDayLink = page.getByRole('link', { name: /My Meet Day/ });
+  await expect(meetDayLink).toBeVisible();
+  await expect(meetDayLink.locator('.experimental-badge')).toHaveText('Experimental');
+
+  await page.goto('/settings.html');
+  await experiments.locator('summary').click();
+  await page.getByLabel('Enable My Meet Day').uncheck();
+  await expect(experiments.locator('.settings-switch__state')).toHaveText('Off');
+  await expect(enabledCount).toHaveText('0/1 enabled');
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).experimentalFeatures)).toEqual([]);
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
+    ['event', 'ca_experimental_feature_change', { feature_action: 'enabled', feature_name: 'my-meet-day' }],
+    ['event', 'ca_experimental_feature_change', { feature_action: 'disabled', feature_name: 'my-meet-day' }]
   ]);
 });
 
@@ -2702,7 +2772,7 @@ test('[WF-WEATHER-003] turning weather safety alerts off hides an active banner 
   await page.goto('/settings.html');
   await expect(page.locator('#weatherAlert')).toBeVisible();
 
-  await page.getByLabel('Off').check();
+  await page.getByRole('radio', { name: 'Off', exact: true }).check();
   await expect(page.locator('#weatherAlert')).toBeHidden();
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).weatherRefreshMinutes)).toBe(0);
 

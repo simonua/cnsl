@@ -42,7 +42,7 @@ describe('performance measurement reporting', () => {
         { name: 'Pools', readySelector: '#poolList[aria-busy="false"]' },
         { name: 'Teams', readySelector: '#teamList[aria-busy="false"]' },
         { name: 'Meets', readySelector: '#meetList[aria-busy="false"]' },
-        { name: 'My Meet Day', readySelector: '#myMeetDayNoFavorite:not([hidden])' }
+        { name: 'My Meet Day', readySelector: '#myMeetDayDisabled:not([hidden])' }
       ]
     );
   });
