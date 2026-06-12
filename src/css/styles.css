@@ -300,6 +300,7 @@
 
 html {
   -webkit-tap-highlight-color: transparent;
+  background-color: var(--light-bg);
   font-size: 16px;
   height: 100%;
   scroll-behavior: smooth;
@@ -1219,6 +1220,7 @@ main h1 {
 
 .my-meet-day__heading {
   justify-content: center;
+  margin-bottom: 0.2rem;
 }
 
 .my-meet-day__heading h2,
@@ -1412,7 +1414,7 @@ button.my-meet-day__toggle {
 #favoriteWeek {
   display: none;
   margin-inline: auto;
-  max-width: 38rem;
+  max-width: 42rem;
   position: relative;
 }
 
@@ -1832,13 +1834,22 @@ button.share-qr-dialog__close:focus {
   .share-site__links {
     display: grid;
     gap: 0.5rem;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 
   .share-site__links .share-site__link {
+    grid-column: span 2;
     min-width: 0;
     padding-inline: 0.5rem;
     width: 100%;
+  }
+
+  .share-site__links .share-site__link:nth-child(4) {
+    grid-column: 2 / span 2;
+  }
+
+  .share-site__links .share-site__link:nth-child(5) {
+    grid-column: 4 / span 2;
   }
 }
 
@@ -5915,6 +5926,10 @@ button.settings-dialog__close:focus {
 .experimental-heading--centered {
   justify-content: center;
   text-align: center;
+}
+
+.experimental-heading .experimental-badge {
+  transform: translateY(-0.1rem);
 }
 
 .experimental-surface {
