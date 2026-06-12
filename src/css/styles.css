@@ -3224,6 +3224,11 @@ button.pool-filter__clear:focus-visible {
   margin-bottom: 0;
 }
 
+.release-highlights .experimental-badge {
+  margin: 0 0.35rem 0.2rem 0;
+  vertical-align: 0.08em;
+}
+
 .release-label {
   display: inline-block;
   border: 1px solid;
