@@ -187,7 +187,9 @@ assert.match(analytics, /allow_ad_personalization_signals:\s*false/, 'Analytics 
 assert.match(analytics, /send_page_view:\s*false/, 'Analytics must suppress automatic unsanitized page views.');
 assert.match(analytics, /window\.location\.hostname\s*===\s*window\.HOME_PAGE_HOSTNAME/, 'Analytics must initialize only on the configured production hostname.');
 assert.match(analytics, /window\.location\.protocol\s*===\s*'https:'/, 'Analytics must initialize only over HTTPS.');
-assert.match(analytics, /page_location:\s*`\$\{window\.HOME_PAGE_URL\}\$\{window\.location\.pathname\}`/, 'Analytics page locations must use the configured production origin without query strings or fragments.');
+assert.match(analytics, /const currentPagePath = window\.location\.pathname;/, 'Analytics page paths must exclude query strings and fragments.');
+assert.match(analytics, /publishedPageUrl\.origin === window\.HOME_PAGE_URL[\s\S]*publishedPageUrl\.search === ''[\s\S]*publishedPageUrl\.hash === '';/, 'Canonical analytics page paths must require the configured production origin without query strings or fragments.');
+assert.match(analytics, /page_location:\s*`\$\{window\.HOME_PAGE_URL\}\$\{getMeasuredPagePath\(\)\}`/, 'Analytics page locations must combine the configured production origin with a reviewed page path.');
 assert.match(analytics, /page_referrer:\s*''/, 'Analytics must not send page referrers.');
 assert.match(analytics, /window\.gtag\('event', 'page_view'/, 'Sanitized page measurement must use the GA4 page_view event recognized by standard reports.');
 assert.doesNotMatch(analytics, /window\.gtag\('event', 'ca_page_view'/, 'Page measurement must not be renamed to a custom event that standard GA4 page reporting ignores.');
