@@ -192,7 +192,7 @@ describe('MeetDayGuideService', () => {
 
     it('escapes supplied text and returns no markup without guidance', () => {
       const html = MeetDayGuideService.renderGuide({
-        date: '2026-06-20"><script>', dayLabel: 'Today', generalGuide: null,
+        date: '2026-06-20"><ScRiPt>', dayLabel: 'Today', generalGuide: null,
         homeTeam: null, visitingTeam: null,
         meet: { homeTeam: '<Home>', awayTeam: '<Visitor>', location: '<Pool>', time: '<Time>' },
         pool: null, poolAddress: '<Address>', role: MeetTeamRole.AWAY, roleGuide: null,
@@ -200,7 +200,7 @@ describe('MeetDayGuideService', () => {
       });
 
       assert.equal(MeetDayGuideService.renderGuide(null), '');
-      assert.doesNotMatch(html, /<script>|<Home>|<Visitor>|<Pool>|<Address>|<Time>/);
+      assert.doesNotMatch(html, /<script\b|<Home>|<Visitor>|<Pool>|<Address>|<Time>/i);
       assert.match(html, /&lt;Home&gt;|&lt;Visitor&gt;/);
 
       const plainRecordHtml = MeetDayGuideService.renderGuide({

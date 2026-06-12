@@ -30,4 +30,5 @@ description: "Use when changing URL handling, navigation, generated markup, exte
 
 - Add or update focused tests whenever code introduces or changes URL parsing, link generation, generated markup, redirects, storage-to-DOM output, or external-data rendering.
 - Exercise accepted inputs and rejected hostile inputs, including disallowed schemes (`javascript:` and `data:`), malformed URLs, markup/attribute delimiters, encoded components, and control-character or whitespace injection where relevant.
+- When a regular-expression assertion verifies that dangerous HTML tags were escaped or rejected, make the tag match case-insensitive, use a tag-name boundary, and include mixed-case hostile input. Prefer structured DOM assertions when the test needs to inspect general HTML rather than one specific forbidden tag.
 - Keep reusable sanitization logic in a service with unit coverage, and add browser coverage when the value reaches rendered output or an interactive navigation workflow.
