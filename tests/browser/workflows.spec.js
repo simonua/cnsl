@@ -569,7 +569,8 @@ analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and each publi
 
   await page.route('https://pools.longreachmarlins.org/**', async route => {
     const requestedUrl = new URL(route.request().url());
-    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    const localPath = requestedUrl.pathname === '/pools' ? '/pools.html' : requestedUrl.pathname;
+    const response = await page.request.get(`http://127.0.0.1:4173${localPath}`);
     await route.fulfill({ response });
   });
 
@@ -649,6 +650,14 @@ analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and each publi
     }]);
   await expect.poll(() => page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
     .not.toContainEqual(['event', 'ca_version', { app_version: appVersion }]);
+
+  await page.goto('https://pools.longreachmarlins.org/pools', { waitUntil: 'domcontentloaded' });
+  await expect.poll(() => page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
+    .toContainEqual(['event', 'page_view', {
+      page_location: 'https://pools.longreachmarlins.org/pools.html',
+      page_referrer: '',
+      page_title: 'Pools'
+    }]);
 
   await page.evaluate(() => {
     sessionStorage.setItem(

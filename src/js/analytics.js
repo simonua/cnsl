@@ -123,13 +123,38 @@
   // Private measurement and publishing helpers
 
   /**
+   * Resolves an extensionless app route to its reviewed published page path.
+   * @returns {string} Current path or its validated same-origin HTML counterpart
+   * @private
+   */
+  function getMeasuredPagePath() {
+    const currentPagePath = window.location.pathname;
+    if (currentPagePath === '/' || currentPagePath.endsWith('.html')) return currentPagePath;
+
+    const publishedPageMetadata = document.querySelector('meta[property="og:url"]');
+    if (!publishedPageMetadata) return currentPagePath;
+
+    try {
+      const publishedPageUrl = new URL(publishedPageMetadata.content);
+      const expectedPagePath = `${currentPagePath}.html`;
+      const isPublishedPage = publishedPageUrl.origin === window.HOME_PAGE_URL
+        && publishedPageUrl.pathname === expectedPagePath
+        && publishedPageUrl.search === ''
+        && publishedPageUrl.hash === '';
+      return isPublishedPage ? expectedPagePath : currentPagePath;
+    } catch (_error) {
+      return currentPagePath;
+    }
+  }
+
+  /**
    * Builds privacy-limited page location and referrer parameters.
    * @returns {Object} Approved page measurement parameters
    * @private
    */
   function getMeasuredPageParameters() {
     return {
-      page_location: `${window.HOME_PAGE_URL}${window.location.pathname}`,
+      page_location: `${window.HOME_PAGE_URL}${getMeasuredPagePath()}`,
       page_referrer: ''
     };
   }
