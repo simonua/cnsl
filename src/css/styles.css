@@ -1180,17 +1180,20 @@ main h1 {
   box-shadow: 0 2px 8px var(--primary-soft-shadow);
 }
 
+#favoriteWeek,
+.my-meet-day {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1.25rem;
+}
+
 .favorite-week {
-  border-block: 1px solid var(--border-color);
   margin: 2rem 0;
-  padding: 1.25rem 0;
 }
 
 .my-meet-day {
-  border-block: 1px solid var(--border-color);
   margin: 2rem auto;
   max-width: 42rem;
-  padding: 1.25rem 0;
 }
 
 .my-meet-day--page {
@@ -1214,6 +1217,15 @@ main h1 {
   text-align: center;
 }
 
+.my-meet-day__heading {
+  justify-content: center;
+}
+
+.my-meet-day__heading h2,
+button.my-meet-day__toggle {
+  width: 100%;
+}
+
 .my-meet-day__summary {
   align-items: center;
   display: grid;
@@ -1224,6 +1236,7 @@ main h1 {
 }
 
 .my-meet-day__matchup,
+.my-meet-day__location,
 .my-meet-day__schedule {
   margin: 0;
 }
@@ -1273,13 +1286,6 @@ main h1 {
   padding: 0.85rem 1rem;
 }
 
-.my-meet-day__timing h3 {
-  color: var(--primary-text-color);
-  font-size: 0.9rem;
-  margin: 0 0 0.65rem;
-  text-align: center;
-}
-
 .my-meet-day__timing dl {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1324,16 +1330,15 @@ main h1 {
 
 .my-meet-day__facts {
   display: grid;
-  gap: 0;
+  gap: 0.35rem;
   margin: 0;
 }
 
 .my-meet-day__fact {
-  border-top: 1px solid var(--border-color);
   display: grid;
   gap: 0.2rem;
   grid-template-columns: minmax(7.5rem, 0.35fr) minmax(0, 1fr);
-  padding: 0.7rem 0;
+  padding: 0.55rem 0;
 }
 
 .my-meet-day__fact dt {
@@ -1347,10 +1352,35 @@ main h1 {
   min-width: 0;
 }
 
-.my-meet-day__volunteer {
-  border-top: 1px solid var(--border-color);
+.my-meet-day__fact--concessions {
+  background: var(--primary-soft-bg);
+  border: 1px solid var(--primary-color);
+  border-radius: var(--border-radius);
+  padding: 0.85rem;
+}
+
+.my-meet-day__concessions-details {
+  line-height: 1.55;
   margin: 0;
-  padding-top: 0.85rem;
+}
+
+.my-meet-day__concessions-menu {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+}
+
+.my-meet-day__concessions-group {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.my-meet-day__concessions-group strong {
+  color: var(--primary-text-color);
+}
+
+.my-meet-day__volunteer {
+  margin: 0.75rem 0 0;
 }
 
 @media (max-width: 32rem) {
@@ -1364,13 +1394,18 @@ main h1 {
 
   .my-meet-day__timing-item + .my-meet-day__timing-item {
     border-left: 0;
-    border-top: 1px solid var(--border-color);
     margin-top: 0.7rem;
     padding-top: 0.7rem;
   }
 
   .my-meet-day__fact {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 40rem) {
+  .my-meet-day__concessions-menu {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -1437,6 +1472,17 @@ button.favorite-week__toggle {
 #favoriteWeek button.favorite-week__toggle {
   justify-content: center;
   text-align: center;
+}
+
+button.my-meet-day__toggle {
+  justify-content: center;
+  position: relative;
+  text-align: center;
+}
+
+button.my-meet-day__toggle .favorite-week__toggle-icon {
+  position: absolute;
+  right: 0;
 }
 
 .favorite-week__toggle-icon {

@@ -189,17 +189,18 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
       if (!concessions) return [];
 
       const lines = [];
-      if (concessions.opensAt) lines.push(`Concessions open at ${MeetDayGuideService.formatClockTime(concessions.opensAt)}.`);
+      const unavailableBills = concessions.denominationsNotAccepted?.map(value => `$${value} bills`).join(', ');
+      const denominationNote = unavailableBills ? ` (no ${unavailableBills})` : '';
       if (concessions.paymentMethods?.length) {
         const paymentMethods = concessions.paymentMethods.map(method => PAYMENT_METHOD_LABELS[method] || method).join(', ');
         const smallBills = concessions.smallBillsPreferred ? ' and prefer small bills' : '';
-        lines.push(`We accept ${paymentMethods}${smallBills}.`);
+        lines.push(`We accept ${paymentMethods}${smallBills}${denominationNote}.`);
       } else if (concessions.smallBillsPreferred) {
-        lines.push('Small bills are preferred.');
+        lines.push(`Small bills are preferred${denominationNote}.`);
+      } else if (unavailableBills) {
+        lines.push(`We cannot accept ${unavailableBills}.`);
       }
-      if (concessions.denominationsNotAccepted?.length) {
-        lines.push(`Please be aware that we cannot accept ${concessions.denominationsNotAccepted.map(value => `$${value} bills`).join(', ')}.`);
-      }
+      if (concessions.opensAt) lines.push(`Concessions open at ${MeetDayGuideService.formatClockTime(concessions.opensAt)}.`);
       if (concessions.dietaryOptions?.length) {
         lines.push(`Dietary options: ${concessions.dietaryOptions.map(option => `${option.type}${option.availability === 'by-request' ? ' by request' : ` (${option.availability})`}`).join(', ')}`);
       }
@@ -237,6 +238,46 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
     }
 
     /**
+     * Renders one semantically grouped concessions menu category.
+     * @param {string} label - Menu category label
+     * @param {string[]|undefined} items - Published menu items
+     * @returns {string} Menu category HTML or an empty string
+     * @private
+     */
+    static renderConcessionGroup(label, items) {
+      if (!Array.isArray(items) || items.length === 0) return '';
+      return `<div class="my-meet-day__concessions-group"><strong>${globalThis.HtmlSafety.escapeHtml(label)}</strong><span>${items.map(item => globalThis.HtmlSafety.escapeHtml(item)).join(', ')}</span></div>`;
+    }
+
+    /**
+     * Renders the concessions details and semantic menu groups as one emphasized fact.
+     * @param {Object|null} concessions - Published concessions guidance
+     * @returns {string} Concessions fact HTML or an empty string
+     * @private
+     */
+    static renderConcessions(concessions) {
+      if (!concessions) return '';
+
+      const detailLines = MeetDayGuideService.getConcessionLines(concessions);
+      const emphasizePayment = Boolean(concessions.paymentMethods?.length || concessions.smallBillsPreferred);
+      const details = detailLines.map((line, index) => {
+        const safeLine = globalThis.HtmlSafety.escapeHtml(line);
+        return emphasizePayment && index === 0 ? `<strong>${safeLine}</strong>` : safeLine;
+      }).join('<br>');
+      const menuGroups = [
+        MeetDayGuideService.renderConcessionGroup('Meals', concessions.mealItems),
+        MeetDayGuideService.renderConcessionGroup('Snacks', concessions.snackItems),
+        MeetDayGuideService.renderConcessionGroup('Food', concessions.foodItems),
+        MeetDayGuideService.renderConcessionGroup('Drinks', concessions.drinkItems)
+      ].filter(Boolean).join('');
+      if (!details && !menuGroups) return '';
+
+      const detailsMarkup = details ? `<p class="my-meet-day__concessions-details">${details}</p>` : '';
+      const menuMarkup = menuGroups ? `<div class="my-meet-day__concessions-menu">${menuGroups}</div>` : '';
+      return `<div class="my-meet-day__fact my-meet-day__fact--concessions"><dt>Concessions</dt><dd>${detailsMarkup}${menuMarkup}</dd></div>`;
+    }
+
+    /**
      * Renders one prominent meet timing fact when it has content.
      * @param {string} label - Timing label
      * @param {string} primary - Primary timing instruction
@@ -264,9 +305,7 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
       const visitingName = guide.visitingTeam?.shortName || guide.visitingTeam?.name || meet.visiting_team || meet.awayTeam;
       const meetDate = new Date(`${guide.date}T12:00:00`);
       const dateLabel = meetDate.toLocaleDateString('en-US', { day: 'numeric', month: 'long', weekday: 'long' });
-      const matchup = guide.role === globalThis.MeetTeamRole.HOME
-        ? `${homeName} host ${visitingName}`
-        : `${visitingName} visit ${homeName}`;
+      const matchup = `${visitingName} @ ${homeName}`;
       const meetTime = globalThis.TeamAgendaDisplay.getMeetDisplayTime(meet, guide.team);
       const locationName = pool?.name ? `${pool.name} Pool` : meet.location;
       const locationLink = pool?.id
@@ -304,10 +343,10 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
         <div class="my-meet-day__summary">
           <span class="my-meet-day__role my-meet-day__role--${guide.role}">${roleLabel}</span>
           <p class="my-meet-day__matchup"><strong>${globalThis.HtmlSafety.escapeHtml(matchup)}</strong></p>
+          <p class="my-meet-day__location">${locationLink}</p>
           <p class="my-meet-day__schedule"><time datetime="${globalThis.HtmlSafety.escapeHtml(guide.date)}">${globalThis.HtmlSafety.escapeHtml(dateLabel)}</time><span class="upcoming-day-pill${dayPillClass}">${globalThis.HtmlSafety.escapeHtml(guide.dayLabel.toLowerCase())}</span><span class="my-meet-day__meet-time">${globalThis.HtmlSafety.escapeHtml(meetTime)}</span></p>
         </div>
-        <section class="my-meet-day__timing" aria-labelledby="myMeetDayKeyTimes">
-          <h3 id="myMeetDayKeyTimes">Key times</h3>
+        <section class="my-meet-day__timing" aria-label="Key times">
           <dl>
             ${MeetDayGuideService.renderTimingFact('Team arrival', arrivalPrimary, arrivalDetail)}
             ${MeetDayGuideService.renderTimingFact('Warm-ups', MeetDayGuideService.formatWarmups(roleGuide), '')}
@@ -322,9 +361,7 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
           ${MeetDayGuideService.renderFact('Team setup', setupLines)}
           ${MeetDayGuideService.renderFact('Check-in', MeetDayGuideService.getCheckInLines(roleGuide))}
           ${MeetDayGuideService.renderFact('Clerk of course', [roleGuide?.clerkGuidance])}
-          ${MeetDayGuideService.renderFact('Concessions', MeetDayGuideService.getConcessionLines(concessions))}
-          ${MeetDayGuideService.renderFact('Food', [concessions?.foodItems?.join(', ')])}
-          ${MeetDayGuideService.renderFact('Drinks', [concessions?.drinkItems?.join(', ')])}
+          ${MeetDayGuideService.renderConcessions(concessions)}
           ${MeetDayGuideService.renderFact('Good to know', helpfulNotes)}
         </dl>
         <p class="my-meet-day__volunteer"><strong>Volunteer reminder:</strong> ${globalThis.HtmlSafety.escapeHtml(volunteerMessage)}</p>

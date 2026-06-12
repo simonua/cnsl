@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://example.com/teams.schema.json",
-  "version": "V15",
+  "version": "V16",
   "title": "Team Data Schema",
   "description": "Schema for team data containing practice schedules and team information",
   "type": "object",
@@ -283,6 +283,22 @@
           "uniqueItems": true
         },
         "foodItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/NonEmptyString"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "mealItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/NonEmptyString"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "snackItems": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/NonEmptyString"

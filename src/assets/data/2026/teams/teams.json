@@ -956,18 +956,21 @@
               "paymentMethods": ["cash"],
               "smallBillsPreferred": true,
               "denominationsNotAccepted": [100],
-              "foodItems": [
+              "mealItems": [
                 "breakfast sandwiches",
-                "candy",
-                "chips",
-                "donuts",
-                "fruit",
                 "grilled cheese",
                 "hamburgers",
                 "hot dogs"
               ],
+              "snackItems": [
+                "candy",
+                "chips",
+                "donuts",
+                "fruit"
+              ],
               "drinkItems": [
-                "a variety of drinks"
+                "a variety of drinks",
+                "Starbucks coffee"
               ],
               "dietaryOptions": [
                 {
@@ -981,8 +984,8 @@
           "visitingTeam": {
             "arrivalTime": "07:15",
             "arrivalGuidance": "Please allow enough time to park, set up, check in, and be ready for warm-ups.",
-            "reservedParking": "Six spaces near the pool entrance are reserved for coaches and managers.",
-            "familySetupLocation": "behind the wading pool, just to the right from the entrance. If more space is needed, please use the area outside the side gates",
+            "reservedParking": "The six spaces near the pool entrance are reserved for coaches and managers.",
+            "familySetupLocation": "behind the wading pool, just to the right of the entrance. If more space is needed, please use the area outside the side gates",
             "clerkGuidance": "Your team's clerk of course will have a table behind the wading pool.",
             "checkInGuidance": "Please check in after setting up. The host team did not provide a check-in location.",
             "warmupTime": "07:30"

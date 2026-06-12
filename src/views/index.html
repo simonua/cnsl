@@ -59,8 +59,10 @@
     </div>
     <include src="components/quick-links.html"></include>
     <section class="my-meet-day" id="myMeetDay" aria-labelledby="myMeetDayTitle" data-experimental-feature="{{ EXPERIMENTAL_FEATURE_IDS.MY_MEET_DAY }}" hidden>
-      <h2 class="experimental-heading" id="myMeetDayTitle"><span>My Meet Day</span><span class="experimental-badge">Experimental</span></h2>
-      <div id="myMeetDayContent"></div>
+      <div class="favorite-week__heading my-meet-day__heading">
+        <h2><button class="favorite-week__toggle my-meet-day__toggle" id="myMeetDayToggle" type="button" aria-expanded="true" aria-controls="myMeetDayContent"><span class="experimental-heading experimental-heading--centered"><span id="myMeetDayTitle">My Meet Day</span><span class="experimental-badge">Experimental</span></span><span class="favorite-week__toggle-icon" aria-hidden="true">&#9650;</span></button></h2>
+      </div>
+      <div class="favorite-week__content" id="myMeetDayContent"></div>
     </section>
     <section class="favorite-week" id="favoriteWeek" aria-labelledby="favoriteWeekTitle" hidden>
       <div class="favorite-week__heading">

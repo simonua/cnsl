@@ -160,12 +160,14 @@
   }
 
   /**
-   * Binds the favorite-team agenda disclosure control.
+   * Binds one home-page section disclosure control.
+   * @param {string} toggleId - Disclosure button identifier
+   * @param {string} contentId - Controlled content identifier
    * @private
    */
-  function initializeFavoriteWeekToggle() {
-    const toggle = document.getElementById('favoriteWeekToggle');
-    const content = document.getElementById('favoriteWeekContent');
+  function initializeSectionToggle(toggleId, contentId) {
+    const toggle = document.getElementById(toggleId);
+    const content = document.getElementById(contentId);
     if (!toggle || !content) return;
 
     toggle.addEventListener('click', () => {
@@ -177,7 +179,8 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     if (globalThis.cnslSeasonState && globalThis.cnslSeasonState.isOffSeason) return;
-    initializeFavoriteWeekToggle();
+    initializeSectionToggle('myMeetDayToggle', 'myMeetDayContent');
+    initializeSectionToggle('favoriteWeekToggle', 'favoriteWeekContent');
     renderFavoriteWeek();
   });
   window.addEventListener('cnsl:preferences-changed', renderFavoriteWeek);
