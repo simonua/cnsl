@@ -2256,6 +2256,22 @@ test('[WF-SETTINGS-001] settings dialog is evenly inset on mobile and centered o
   expect(Math.abs(clearButtonBounds.x + (clearButtonBounds.width / 2) - (clearActionsBounds.x + (clearActionsBounds.width / 2)))).toBeLessThanOrEqual(1);
 });
 
+test('[WF-SETTINGS-012] settings dialog closes from the backdrop and restores launcher focus', async ({ page }) => {
+  await page.setViewportSize(MOBILE_VIEWPORT);
+  await page.goto('/settings.html');
+
+  const dialog = page.locator('#settingsDialog');
+  const launcher = page.getByRole('button', { name: 'Open settings' });
+  await expect(dialog).toBeVisible();
+
+  await page.locator('.settings-dialog__notice').click();
+  await expect(dialog).toBeVisible();
+
+  await page.mouse.click(4, 4);
+  await expect(dialog).not.toBeVisible();
+  await expect(launcher).toBeFocused();
+});
+
 test('[WF-SETTINGS-002] settings persist choices locally and confirm before clearing all app data', async ({ page }) => {
   await initializeAnalyticsRecorder(page);
   await page.goto('/settings.html');
