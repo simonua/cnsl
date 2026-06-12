@@ -35,10 +35,23 @@ describe('app-config', () => {
     assert.equal(context.APP_VERSION, config.APP_VERSION);
     assert.equal(context.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, config.ANALYTICS_VERSION_REPORTED_STORAGE_KEY);
     assert.equal(context.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY, config.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY);
+    assert.equal(context.MY_MEET_DAY_ENABLED, true);
+    assert.equal(context.MY_MEET_DAY_LOOKAHEAD_DAYS, 2);
     assert.equal(
       context.WEATHER_PUBLIC_ALERTS_URL,
       'https://forecast.weather.gov/MapClick.php?lat=39.2014&lon=-76.8610'
     );
+  });
+
+  it('publishes the My Meet Day feature flag', () => {
+    assert.equal(config.MY_MEET_DAY_ENABLED, true);
+    assert.equal(config.MY_MEET_DAY_LOOKAHEAD_DAYS, 2);
+  });
+
+  it('publishes one immutable dependency manifest for team agenda views', () => {
+    assert.equal(config.TEAM_AGENDA_DEPENDENCIES.length, 18);
+    assert.equal(config.TEAM_AGENDA_DEPENDENCIES.at(-1), 'js/services/meet-day-guide-service.js');
+    assert.equal(Object.isFrozen(config.TEAM_AGENDA_DEPENDENCIES), true);
   });
 
   it('publishes named app-owned session storage keys', () => {

@@ -15,6 +15,30 @@
   const AUTHOR_EMAIL = 'simonkurtz+pool-app@gmail.com';
   const SHARE_MESSAGE = `Find Columbia pools and CNSL schedules: ${HOME_PAGE_URL}`;
 
+  // Visitor-facing feature availability.
+  const MY_MEET_DAY_ENABLED = false;
+  const MY_MEET_DAY_LOOKAHEAD_DAYS = 2;
+  const TEAM_AGENDA_DEPENDENCIES = Object.freeze([
+    'js/services/html-safety.js',
+    'js/services/pool-link-helper.js',
+    'js/services/time-utils.js',
+    'js/types/pool-enums.js',
+    'js/models/pool-schedule.js',
+    'js/services/pool-period-schedule-service.js',
+    'js/models/pool.js',
+    'js/managers/pools-manager.js',
+    'js/models/team.js',
+    'js/managers/teams-manager.js',
+    'js/types/meet-team-role.js',
+    'js/models/meet.js',
+    'js/managers/meets-manager.js',
+    'js/services/file-helper.js',
+    'js/services/data-manager.js',
+    'js/services/team-schedule-service.js',
+    'js/services/team-agenda-display.js',
+    'js/services/meet-day-guide-service.js'
+  ]);
+
   // External services and regional behavior.
   const GA4_MEASUREMENT_ID = 'G-ZMBPYQKLQP';
   const WEATHER_API_BASE_URL = 'https://api.weather.gov';
@@ -173,10 +197,13 @@
     HOME_PAGE_URL,
     LOCAL_DEVELOPMENT_HOSTNAMES,
     LOCAL_DEVELOPMENT_PORT,
+    MY_MEET_DAY_ENABLED,
+    MY_MEET_DAY_LOOKAHEAD_DAYS,
     PREFERENCES_STORAGE_KEY,
     PWA_CACHE_PREFIX,
     SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY,
     SETTINGS_NOTICE_DISMISSED_STORAGE_KEY,
+    TEAM_AGENDA_DEPENDENCIES,
     WEATHER_ALERT_DEFAULT_REFRESH_MINUTES,
     WEATHER_ALERT_DISCLOSURE_STORAGE_KEY,
     WEATHER_ALERT_MOBILE_MEDIA_QUERY,

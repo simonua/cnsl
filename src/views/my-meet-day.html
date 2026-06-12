@@ -1,0 +1,50 @@
+<extends src="base.html">
+  <block name="metadata">
+    <title>My Meet Day</title>
+    <meta name="analytics-page-title" content="My Meet Day" />
+    <meta name="description" content="See personalized meet-day details for your saved Columbia Neighborhood Swim League team, including pool, parking, setup, warmup, and concessions guidance when available." />
+    <meta name="robots" content="noindex, follow" />
+    <link rel="canonical" href="{{ HOME_PAGE_URL }}/my-meet-day.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="My Meet Day" />
+    <meta property="og:description" content="See personalized meet-day details for your saved Columbia Neighborhood Swim League team." />
+    <meta property="og:url" content="{{ HOME_PAGE_URL }}/my-meet-day.html" />
+    <meta name="twitter:title" content="My Meet Day" />
+    <meta name="twitter:description" content="See personalized meet-day details for your saved Columbia Neighborhood Swim League team." />
+  </block>
+
+  <block name="content">
+    <h1>My Meet Day</h1>
+    <include src="components/off-season-message.html"></include>
+    <div class="my-meet-day-view" data-seasonal-content>
+      <p class="visually-hidden" id="myMeetDayStatus" role="status" aria-live="polite">Loading meet-day details.</p>
+
+      <div class="my-meet-day-view__state" id="myMeetDayNoFavorite" hidden>
+        <p>Please choose a favorite team to see its meet-day details.</p>
+        <a class="directory-link" href="settings.html">Choose favorite team</a>
+      </div>
+
+      <div class="my-meet-day-view__state" id="myMeetDayNoMeet" hidden>
+        <p><span id="myMeetDayTeamName"></span> does not have a meet today or in the next {{ MY_MEET_DAY_LOOKAHEAD_DAYS }} days.</p>
+        <a class="directory-link" href="meets.html">View Meet Schedule</a>
+      </div>
+
+      <div class="my-meet-day-view__state" id="myMeetDayTeamUnavailable" hidden>
+        <p>Your saved team is not listed this season. Please choose another favorite team.</p>
+        <a class="directory-link" href="settings.html">Choose favorite team</a>
+      </div>
+
+      <div class="my-meet-day-view__state" id="myMeetDayUnavailable" hidden>
+        <p>Meet-day details did not load. Please check your connection, then refresh the page to try again.</p>
+      </div>
+
+      <div class="my-meet-day my-meet-day--page" id="myMeetDay" hidden>
+        <div id="myMeetDayContent"></div>
+      </div>
+    </div>
+  </block>
+
+  <block name="scripts">
+    <script src="js/my-meet-day.js" defer></script>
+  </block>
+</extends>

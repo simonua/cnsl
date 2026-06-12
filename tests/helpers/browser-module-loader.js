@@ -18,6 +18,8 @@ const BROWSER_MODULE_MANIFESTS = Object.freeze({
   'icon-catalog': { scripts: [ICONS], exports: ['IconCatalog'] },
   'lesson-provider-service': { scripts: ['services/lesson-provider-service.js'], exports: ['LessonProviderService'] },
   meet: { scripts: [SCHEDULE_STATE, 'models/meet.js'], exports: ['Meet', 'MeetLiveStatus'] },
+  'meet-day-guide-service': { scripts: [CONFIG, ICONS, TIME, SCHEDULE_STATE, 'models/meet.js', 'services/preferences-service.js', 'services/html-safety.js', 'services/pool-link-helper.js', 'types/meet-team-role.js', 'services/team-schedule-service.js', 'services/team-agenda-display.js', 'services/meet-day-guide-service.js'], exports: ['Meet', 'MeetDayGuideService', 'MeetTeamRole', 'PreferencesService', 'TeamAgendaDisplay'] },
+  'meet-team-role': { scripts: ['types/meet-team-role.js'], exports: ['MeetTeamRole'] },
   'meets-manager': { scripts: [SCHEDULE_STATE, 'models/meet.js', 'managers/meets-manager.js'], exports: ['Meet', 'MeetsManager'] },
   pool: { scripts: [CONFIG, ICONS, TIME, 'types/pool-enums.js', SCHEDULE_STATE, 'models/pool-schedule.js', 'services/pool-period-schedule-service.js', 'models/pool.js'], exports: ['Pool', 'PoolStatus', 'TimeUtils', 'PoolPeriodScheduleService'], realmExports: ['PoolStatus'] },
   'pool-card-display': { scripts: ['services/html-safety.js', ICONS, SCHEDULE_STATE, 'services/pool-card-display.js'], exports: ['PoolCardDisplay'] },

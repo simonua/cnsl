@@ -11,7 +11,7 @@ const {
 
 const publishedPagePaths = [
   '/index.html', '/pools.html', '/teams.html', '/meets.html', '/settings.html',
-  '/swim-meet-resources.html', '/lessons.html', '/whats-new.html', '/about.html', '/faq.html', '/offline.html'
+  '/my-meet-day.html', '/swim-meet-resources.html', '/lessons.html', '/whats-new.html', '/about.html', '/faq.html', '/offline.html'
 ];
 
 const directoryScenarios = [
@@ -1596,6 +1596,68 @@ test('[WF-AGENDA-002] home page shows the next practices and swim event for a se
   await expect(page.locator('#favoriteWeekContent')).toBeVisible();
 });
 
+test('[WF-AGENDA-007] home page shows personalized away meet guidance the day before a favorite team meet', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-06-12T12:00:00-04:00'));
+  await seedPreferences(page, { favoriteTeamId: 'lrm' });
+  await page.goto('/index.html');
+
+  const meetDay = page.locator('#myMeetDay');
+  await expect(meetDay).toBeVisible();
+  await expect(meetDay.getByRole('heading', { name: 'My Meet Day' })).toBeVisible();
+  await expect(meetDay).toContainText('Away meet');
+  await expect(meetDay).toContainText('Marlins at Watercats');
+  await expect(meetDay).toContainText('tomorrow');
+  await expect(meetDay).toContainText('Faulkner Ridge Pool');
+  await expect(meetDay).toContainText('10518 Marble Faun Court, Columbia, MD 21044');
+  await expect(meetDay).toContainText('6-lane / 25-meter');
+  await expect(meetDay).toContainText('6 lanes can mean more heats');
+  await expect(meetDay).toContainText('6 reserved spaces for coaches and managers');
+  await expect(meetDay).toContainText('Payment: cash');
+  await expect(meetDay).toContainText('vegan by request');
+  await expect(meetDay).toContainText('volunteers from both teams');
+  const poolLink = meetDay.getByRole('link', { name: 'Faulkner Ridge Pool' });
+  await expect(poolLink).toHaveAttribute('href', 'pools.html?pool=frp');
+  await poolLink.focus();
+  await expect(poolLink).toBeFocused();
+  expect(await page.evaluate(() => globalThis.MY_MEET_DAY_ENABLED)).toBe(true);
+});
+
+test('[WF-AGENDA-008] dedicated My Meet Day route stays deployed and navigation follows the enabled flag', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-06-11T12:00:00-04:00'));
+  await page.goto('/my-meet-day.html');
+
+  await expect(page.getByRole('heading', { name: 'My Meet Day' })).toBeVisible();
+  await expect(page.locator('#myMeetDayNoFavorite')).toBeVisible();
+  await expect(page.locator('script[data-my-meet-day-dependency]')).toHaveCount(0);
+
+  await page.evaluate(() => {
+    globalThis.PreferencesService.save({ favoriteTeamId: 'lrm' });
+    globalThis.dispatchEvent(new globalThis.CustomEvent('cnsl:preferences-changed'));
+  });
+
+  await expect(page.locator('#myMeetDay')).toBeVisible();
+  await expect(page.locator('#myMeetDay')).toContainText('Marlins at Watercats');
+  await expect(page.locator('#myMeetDay')).toContainText('in 2 days');
+  await expect(page.locator('#myMeetDayStatus')).toHaveText('Meet-day details loaded.');
+  await expect(page.locator('script[data-my-meet-day-dependency]')).toHaveCount(18);
+  const controllerVersion = await page.locator('script[src*="js/my-meet-day.js"]').evaluate(script => new URL(script.src).searchParams.get('v'));
+  const dependencyVersions = await page.locator('script[data-my-meet-day-dependency]').evaluateAll(scripts => (
+    scripts.map(script => new URL(script.src).searchParams.get('v'))
+  ));
+  expect(controllerVersion).toBeTruthy();
+  expect(dependencyVersions.every(version => version === controllerVersion)).toBe(true);
+  await page.getByRole('button', { name: 'Open navigation menu' }).click();
+  await expect(page.getByRole('link', { name: 'My Meet Day' })).toHaveAttribute('href', 'my-meet-day.html');
+
+  await page.evaluate(() => {
+    globalThis.PreferencesService.save({ favoriteTeamId: '' });
+    globalThis.dispatchEvent(new globalThis.CustomEvent('cnsl:preferences-changed'));
+  });
+  await expect(page.locator('#myMeetDay')).toBeHidden();
+  await expect(page.locator('#myMeetDayNoFavorite')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Choose favorite team' })).toHaveAttribute('href', 'settings.html');
+});
+
 test('[WF-HOME-002] home page keeps compact link actions readable on narrow phones', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 900 });
   await page.goto('/index.html');
@@ -1644,7 +1706,7 @@ test('[WF-AGENDA-004] home page loads agenda dependencies only after a favorite 
   });
 
   await expect(page.locator('#favoriteWeek')).toBeVisible();
-  await expect(page.locator('script[data-home-schedule-dependency]')).toHaveCount(16);
+  await expect(page.locator('script[data-home-schedule-dependency]')).toHaveCount(18);
   const homeScheduleVersion = await page.locator('script[src*="js/home-schedule.js"]').evaluate(script => new URL(script.src).searchParams.get('v'));
   const dependencyVersions = await page.locator('script[data-home-schedule-dependency]').evaluateAll(scripts => (
     scripts.map(script => new URL(script.src).searchParams.get('v'))

@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://example.com/teams.schema.json",
-  "version": "V10",
+  "version": "V12",
   "title": "Team Data Schema",
   "description": "Schema for team data containing practice schedules and team information",
   "type": "object",
@@ -89,6 +89,13 @@
         "meetTimeOverrides": {
           "$ref": "#/definitions/MeetTimeOverrides"
         },
+        "homeMeetGuides": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/HomeMeetGuide"
+          },
+          "minItems": 1
+        },
         "practicePools": {
           "type": "array",
           "items": {
@@ -105,6 +112,236 @@
       },
       "required": ["id", "name", "shortName", "keywords", "url", "merchandiseUrl", "eventsSubscriptionUrl", "homePools", "timeTrialsPool", "practicePools", "staff"],
       "additionalProperties": false
+    },
+    "HomeMeetGuide": {
+      "type": "object",
+      "properties": {
+        "poolId": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "source": {
+          "$ref": "#/definitions/HomeMeetGuideSource"
+        },
+        "general": {
+          "$ref": "#/definitions/HomeMeetGeneralGuide"
+        },
+        "homeTeam": {
+          "$ref": "#/definitions/HomeTeamMeetGuide"
+        },
+        "visitingTeam": {
+          "$ref": "#/definitions/VisitingTeamMeetGuide"
+        }
+      },
+      "required": ["poolId", "source"],
+      "anyOf": [
+        { "required": ["general"] },
+        { "required": ["homeTeam"] },
+        { "required": ["visitingTeam"] }
+      ],
+      "additionalProperties": false
+    },
+    "HomeMeetGuideSource": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["host-team-manager", "visiting-team-manager"]
+        },
+        "receivedOn": {
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "required": ["type", "receivedOn"],
+      "additionalProperties": false
+    },
+    "HomeMeetGeneralGuide": {
+      "type": "object",
+      "properties": {
+        "parkingLocation": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "parkingNotes": {
+          "$ref": "#/definitions/NonEmptyStringArray"
+        },
+        "poolsideConditions": {
+          "$ref": "#/definitions/NonEmptyStringArray"
+        },
+        "helpfulNotes": {
+          "$ref": "#/definitions/NonEmptyStringArray"
+        },
+        "concessions": {
+          "$ref": "#/definitions/HomeMeetConcessions"
+        }
+      },
+      "minProperties": 1,
+      "additionalProperties": false
+    },
+    "HomeTeamMeetGuide": {
+      "type": "object",
+      "properties": {
+        "arrivalTime": {
+          "$ref": "#/definitions/ClockTime"
+        },
+        "parkingLocation": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "familySetupLocation": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "overflowLocation": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "clerkLocation": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "volunteerCheckInLocation": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "swimmerCheckInLocation": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "warmups": {
+          "$ref": "#/definitions/HomeMeetWarmupWindow"
+        },
+        "helpfulNotes": {
+          "$ref": "#/definitions/NonEmptyStringArray"
+        }
+      },
+      "minProperties": 1,
+      "additionalProperties": false
+    },
+    "VisitingTeamMeetGuide": {
+      "type": "object",
+      "properties": {
+        "arrivalTime": {
+          "$ref": "#/definitions/ClockTime"
+        },
+        "reservedParking": {
+          "$ref": "#/definitions/HomeMeetReservedParking"
+        },
+        "familySetupLocation": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "overflowLocation": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "clerkLocation": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "swimmerCheckInLocation": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "volunteerCheckInLocation": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "warmups": {
+          "$ref": "#/definitions/HomeMeetWarmupWindow"
+        },
+        "helpfulNotes": {
+          "$ref": "#/definitions/NonEmptyStringArray"
+        }
+      },
+      "minProperties": 1,
+      "additionalProperties": false
+    },
+    "HomeMeetReservedParking": {
+      "type": "object",
+      "properties": {
+        "audience": {
+          "const": "coaches-and-managers"
+        },
+        "spaceCount": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "location": {
+          "$ref": "#/definitions/NonEmptyString"
+        }
+      },
+      "required": ["audience", "spaceCount", "location"],
+      "additionalProperties": false
+    },
+    "HomeMeetWarmupWindow": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "$ref": "#/definitions/ClockTime"
+        },
+        "end": {
+          "$ref": "#/definitions/ClockTime"
+        }
+      },
+      "required": ["start"],
+      "additionalProperties": false
+    },
+    "HomeMeetConcessions": {
+      "type": "object",
+      "properties": {
+        "opensAt": {
+          "$ref": "#/definitions/ClockTime"
+        },
+        "paymentMethods": {
+          "type": "array",
+          "items": {
+            "enum": ["cash", "credit", "venmo", "paypal", "other"]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "smallBillsPreferred": {
+          "type": "boolean"
+        },
+        "denominationsNotAccepted": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "offerings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/NonEmptyString"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "dietaryOptions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/HomeMeetDietaryOption"
+          },
+          "uniqueItems": true
+        },
+        "notes": {
+          "$ref": "#/definitions/NonEmptyStringArray"
+        }
+      },
+      "minProperties": 1,
+      "additionalProperties": false
+    },
+    "HomeMeetDietaryOption": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["allergy-friendly", "gluten-free", "other", "vegan", "vegetarian"]
+        },
+        "availability": {
+          "enum": ["available", "by-request", "limited"]
+        }
+      },
+      "required": ["type", "availability"],
+      "additionalProperties": false
+    },
+    "NonEmptyStringArray": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/NonEmptyString"
+      },
+      "minItems": 1,
+      "uniqueItems": true
     },
     "MeetTimeOverrides": {
       "type": "object",

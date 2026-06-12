@@ -32,6 +32,7 @@ const pageScenarios = [
   { reference: 'POOLS', name: 'pools', path: '/pools.html', readySelector: '#poolListStatus', readyText: /Pool directory loaded/ },
   { reference: 'TEAMS', name: 'teams', path: '/teams.html', readySelector: '#teamListStatus', readyText: /Team directory loaded/ },
   { reference: 'MEETS', name: 'meets', path: '/meets.html', readySelector: '#meetListStatus', readyText: /Meet schedule loaded/ },
+  { reference: 'MY-MEET-DAY', name: 'my meet day', path: '/my-meet-day.html', readySelector: '#myMeetDayNoFavorite' },
   { reference: 'SETTINGS', name: 'settings', path: '/settings.html', readySelector: '#favoritePool:not([disabled])' },
   { reference: 'RESOURCES', name: 'resources', path: '/swim-meet-resources.html' },
   { reference: 'LESSONS', name: 'lessons', path: '/lessons.html' },
@@ -100,7 +101,7 @@ test('[AX-SETTINGS-002] accessibility preferences have no WCAG A or AA automated
 test('[AX-SEASON-001] off-season views have no WCAG A or AA automated violations', async ({ page }) => {
   await page.clock.setFixedTime(new Date('2026-09-08T12:00:00-04:00'));
 
-  for (const path of ['/index.html', '/pools.html', '/teams.html', '/meets.html']) {
+  for (const path of ['/index.html', '/pools.html', '/teams.html', '/meets.html', '/my-meet-day.html']) {
     await page.goto(path);
     await expect(page.locator('.off-season-message')).toBeVisible();
     await expectNoAccessibilityViolations(page);
@@ -124,6 +125,27 @@ for (const theme of ['light', 'dark']) {
     await expect(page.locator('#favoriteWeek')).toBeVisible();
     await expect(page.locator('#favoriteWeek .favorite-week__events li')).toHaveCount(3);
     await expect(page.locator('#favoriteWeekStatus')).toBeHidden();
+
+    await expectNoAccessibilityViolations(page);
+  });
+
+  test(`[AX-AGENDA-002-${theme.toUpperCase()}] My Meet Day has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
+    await page.clock.setFixedTime(new Date('2026-06-12T12:00:00-04:00'));
+    await prepareStableWeatherResponses(page);
+    await seedPreferences(page, { theme, favoriteTeamId: 'lrm' });
+    await page.goto('/index.html');
+    await expect(page.locator('#myMeetDay')).toBeVisible();
+    await expect(page.locator('#myMeetDay')).toContainText('Away meet');
+
+    await expectNoAccessibilityViolations(page);
+  });
+
+  test(`[AX-AGENDA-003-${theme.toUpperCase()}] dedicated My Meet Day route has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
+    await page.clock.setFixedTime(new Date('2026-06-12T12:00:00-04:00'));
+    await prepareStableWeatherResponses(page);
+    await seedPreferences(page, { theme, favoriteTeamId: 'lrm' });
+    await page.goto('/my-meet-day.html');
+    await expect(page.locator('#myMeetDay')).toBeVisible();
 
     await expectNoAccessibilityViolations(page);
   });

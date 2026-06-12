@@ -21,9 +21,10 @@ const ROUTES = [
   { budgetBytes: 500000, budgetRequests: 45, budgetUsableMs: 1200, name: 'Home', path: '/index.html', readySelector: '.home-view' },
   { budgetBytes: 900000, budgetRequests: 55, budgetUsableMs: 2000, name: 'Pools', path: '/pools.html', readySelector: '#poolList[aria-busy="false"]' },
   { budgetBytes: 1100000, budgetRequests: 50, budgetUsableMs: 1800, name: 'Teams', path: '/teams.html', readySelector: '#teamList[aria-busy="false"]' },
-  { budgetBytes: 800000, budgetRequests: 45, budgetUsableMs: 1800, name: 'Meets', path: '/meets.html', readySelector: '#meetList[aria-busy="false"]' }
+  { budgetBytes: 800000, budgetRequests: 45, budgetUsableMs: 1800, name: 'Meets', path: '/meets.html', readySelector: '#meetList[aria-busy="false"]' },
+  { budgetBytes: 500000, budgetRequests: 45, budgetUsableMs: 1200, name: 'My Meet Day', path: '/my-meet-day.html', readySelector: '#myMeetDayNoFavorite:not([hidden])' }
 ];
-const DIRECTORY_ROUTES = ROUTES.filter(route => route.name !== 'Home');
+const DIRECTORY_ROUTES = ROUTES.filter(route => route.name !== 'Home' && route.name !== 'My Meet Day');
 
 function median(values) {
   const sorted = [...values].sort((left, right) => left - right);

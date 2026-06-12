@@ -4,24 +4,6 @@
  */
 
 (function initializeHomeSchedule() {
-  const AGENDA_DEPENDENCIES = [
-    'js/services/html-safety.js',
-    'js/services/pool-link-helper.js',
-    'js/services/time-utils.js',
-    'js/types/pool-enums.js',
-    'js/models/pool-schedule.js',
-    'js/services/pool-period-schedule-service.js',
-    'js/models/pool.js',
-    'js/managers/pools-manager.js',
-    'js/models/team.js',
-    'js/managers/teams-manager.js',
-    'js/models/meet.js',
-    'js/managers/meets-manager.js',
-    'js/services/file-helper.js',
-    'js/services/data-manager.js',
-    'js/services/team-schedule-service.js',
-    'js/services/team-agenda-display.js'
-  ];
   const controllerSource = document.currentScript && document.currentScript.src
     ? new URL(document.currentScript.src, document.baseURI)
     : null;
@@ -66,7 +48,7 @@
    */
   function loadAgendaDependencies() {
     if (!dependenciesPromise) {
-      dependenciesPromise = AGENDA_DEPENDENCIES.reduce(
+      dependenciesPromise = globalThis.TEAM_AGENDA_DEPENDENCIES.reduce(
         (loadPromise, source) => loadPromise.then(() => loadScript(source)),
         Promise.resolve()
       );
@@ -84,6 +66,8 @@
     const title = document.getElementById('favoriteWeekTitle');
     const status = document.getElementById('favoriteWeekStatus');
     const schedule = document.getElementById('favoriteWeekSchedule');
+    const meetDaySection = document.getElementById('myMeetDay');
+    const meetDayContent = document.getElementById('myMeetDayContent');
     const shareSite = document.getElementById('shareSite');
     const favoriteTeamId = PreferencesService.get().favoriteTeamId;
     if (!section || !title || !status || !schedule) return;
@@ -93,6 +77,8 @@
     status.hidden = true;
     status.textContent = '';
     schedule.replaceChildren();
+    if (meetDaySection) meetDaySection.hidden = true;
+    if (meetDayContent) meetDayContent.replaceChildren();
     if (shareSite) shareSite.hidden = true;
 
     if (!favoriteTeamId) {
@@ -118,6 +104,20 @@
       }
 
       const events = globalThis.TeamAgendaDisplay.getUpcomingEvents(team, dataManager.getMeets().getAllMeets());
+      if (globalThis.MY_MEET_DAY_ENABLED && meetDaySection && meetDayContent) {
+        const guide = globalThis.MeetDayGuideService.getGuide(
+          team,
+          dataManager.getTeams().getAllTeams(),
+          dataManager.getMeets().getAllMeets(),
+          dataManager.getPools().getAllPools(),
+          globalThis.TimeUtils.getEasternTime()
+        );
+        const meetDayHtml = globalThis.MeetDayGuideService.renderGuide(guide);
+        if (meetDayHtml) {
+          meetDayContent.innerHTML = meetDayHtml;
+          meetDaySection.hidden = false;
+        }
+      }
       title.textContent = `Upcoming ${team.shortName || team.name} events`;
       if (events.length === 0) {
         status.hidden = false;
