@@ -1282,7 +1282,7 @@ main h1 {
 
 .my-meet-day__timing dl {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   margin: 0;
 }
 
@@ -5864,6 +5864,11 @@ button.settings-dialog__close:focus {
   display: flex;
   flex-wrap: wrap;
   gap: 0.55rem;
+}
+
+.experimental-heading--centered {
+  justify-content: center;
+  text-align: center;
 }
 
 .experimental-surface {
