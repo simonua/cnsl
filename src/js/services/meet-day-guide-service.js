@@ -66,7 +66,7 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
     }
 
     /**
-    * Selects a favorite-team dual meet within the configured inclusive look-ahead window.
+     * Selects a favorite-team dual meet within the configured inclusive look-ahead window.
      * @param {Object|null} team - Favorite team
      * @param {Array} meets - Published meets
      * @param {Date} referenceDate - Current Eastern wall-clock date
@@ -160,7 +160,7 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
     static formatWarmups(roleGuide) {
       const warmups = roleGuide?.warmups;
       if (warmups?.start && warmups?.end) {
-        return `${MeetDayGuideService.formatClockTime(warmups.start)} - ${MeetDayGuideService.formatClockTime(warmups.end)}`;
+        return `${MeetDayGuideService.formatClockTime(warmups.start)} to ${MeetDayGuideService.formatClockTime(warmups.end)}`;
       }
       const start = warmups?.start || roleGuide?.warmupsStartAt;
       return start ? `Start at ${MeetDayGuideService.formatClockTime(start)}` : '';
@@ -174,9 +174,11 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
      * @private
      */
     static getParkingLines(generalGuide, roleGuide) {
-      const lines = [generalGuide?.parkingLocation, ...(generalGuide?.parkingNotes || []), roleGuide?.parkingLocation].filter(Boolean);
-      const reserved = roleGuide?.reservedParking;
-      if (reserved) lines.push(`${reserved.spaceCount} reserved spaces for coaches and managers: ${reserved.location}`);
+      const lines = [];
+      if (generalGuide?.parkingLocation) lines.push(`Please park ${generalGuide.parkingLocation}.`);
+      lines.push(...(generalGuide?.parkingNotes || []));
+      if (roleGuide?.parkingLocation) lines.push(`Team parking is ${roleGuide.parkingLocation}.`);
+      if (roleGuide?.reservedParking) lines.push(roleGuide.reservedParking);
       return lines;
     }
 
@@ -190,19 +192,35 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
       if (!concessions) return [];
 
       const lines = [];
-      if (concessions.opensAt) lines.push(`Opens at ${MeetDayGuideService.formatClockTime(concessions.opensAt)}`);
+      if (concessions.opensAt) lines.push(`Concessions open at ${MeetDayGuideService.formatClockTime(concessions.opensAt)}.`);
       if (concessions.paymentMethods?.length) {
-        lines.push(`Payment: ${concessions.paymentMethods.map(method => PAYMENT_METHOD_LABELS[method] || method).join(', ')}`);
+        const paymentMethods = concessions.paymentMethods.map(method => PAYMENT_METHOD_LABELS[method] || method).join(', ');
+        const smallBills = concessions.smallBillsPreferred ? ' and prefer small bills' : '';
+        lines.push(`We accept ${paymentMethods}${smallBills}.`);
+      } else if (concessions.smallBillsPreferred) {
+        lines.push('Small bills are preferred.');
       }
-      if (concessions.smallBillsPreferred) lines.push('Small bills preferred');
       if (concessions.denominationsNotAccepted?.length) {
-        lines.push(`Cannot accept ${concessions.denominationsNotAccepted.map(value => `$${value} bills`).join(', ')}`);
+        lines.push(`Please be aware that we cannot accept ${concessions.denominationsNotAccepted.map(value => `$${value} bills`).join(', ')}.`);
       }
-      if (concessions.offerings?.length) lines.push(`Food and drinks: ${concessions.offerings.join(', ')}`);
       if (concessions.dietaryOptions?.length) {
         lines.push(`Dietary options: ${concessions.dietaryOptions.map(option => `${option.type}${option.availability === 'by-request' ? ' by request' : ` (${option.availability})`}`).join(', ')}`);
       }
       if (concessions.notes?.length) lines.push(...concessions.notes);
+      return lines;
+    }
+
+    /**
+     * Formats role-specific swimmer and volunteer check-in instructions.
+     * @param {Object|null} roleGuide - Role-specific host guidance
+     * @returns {string[]} Check-in guidance lines
+     * @private
+     */
+    static getCheckInLines(roleGuide) {
+      const lines = [];
+      if (roleGuide?.checkInGuidance) lines.push(roleGuide.checkInGuidance);
+      if (roleGuide?.swimmerCheckInLocation) lines.push(`Swimmers check in ${roleGuide.swimmerCheckInLocation}.`);
+      if (roleGuide?.volunteerCheckInLocation) lines.push(`Volunteers check in ${roleGuide.volunteerCheckInLocation}.`);
       return lines;
     }
 
@@ -222,6 +240,20 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
     }
 
     /**
+     * Renders one prominent meet timing fact when it has content.
+     * @param {string} label - Timing label
+     * @param {string} primary - Primary timing instruction
+     * @param {string} detail - Supporting timing guidance
+     * @returns {string} Timing fact HTML
+     * @private
+     */
+    static renderTimingFact(label, primary, detail) {
+      if (!primary) return '';
+      const safeDetail = detail ? `<span>${globalThis.HtmlSafety.escapeHtml(detail)}</span>` : '';
+      return `<div class="my-meet-day__timing-item"><dt>${globalThis.HtmlSafety.escapeHtml(label)}</dt><dd><strong>${globalThis.HtmlSafety.escapeHtml(primary)}</strong>${safeDetail}</dd></div>`;
+    }
+
+    /**
      * Renders safe meet-day guidance markup.
      * @param {Object|null} guide - Display-ready guidance
      * @returns {string} Meet-day HTML or an empty string
@@ -235,7 +267,9 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
       const visitingName = guide.visitingTeam?.shortName || guide.visitingTeam?.name || meet.visiting_team || meet.awayTeam;
       const meetDate = new Date(`${guide.date}T12:00:00`);
       const dateLabel = meetDate.toLocaleDateString('en-US', { day: 'numeric', month: 'long', weekday: 'long' });
-      const matchup = `${visitingName} at ${homeName}`;
+      const matchup = guide.role === globalThis.MeetTeamRole.HOME
+        ? `${homeName} host ${visitingName}`
+        : `${visitingName} visit ${homeName}`;
       const meetTime = globalThis.TeamAgendaDisplay.getMeetDisplayTime(meet, guide.team);
       const locationName = pool?.name ? `${pool.name} Pool` : meet.location;
       const locationLink = pool?.id
@@ -243,34 +277,49 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
         : globalThis.HtmlSafety.escapeHtml(locationName);
       const safePoolAddress = globalThis.HtmlSafety.escapeHtml(guide.poolAddress);
       const course = globalThis.formatPoolCourseLabel(pool);
-      const courseLines = course ? [course] : [];
-      if (pool?.laneCount && pool.laneCount <= MEET_HEAT_NOTICE_MAX_LANES) {
-        courseLines.push(`${pool.laneCount} lanes can mean more heats, so please allow extra time.`);
-      }
-      const arrival = roleGuide?.arrivalTime ? MeetDayGuideService.formatClockTime(roleGuide.arrivalTime) : '';
-      const setupLines = [roleGuide?.familySetupLocation, roleGuide?.overflowLocation].filter(Boolean);
-      const checkInLines = [roleGuide?.swimmerCheckInLocation, roleGuide?.volunteerCheckInLocation].filter(Boolean);
+      const courseLabel = course && pool?.laneCount && pool.laneCount <= MEET_HEAT_NOTICE_MAX_LANES
+        ? `${course} (may mean more heats & longer meet time)`
+        : course;
+      const arrivalTime = roleGuide?.arrivalTime ? MeetDayGuideService.formatClockTime(roleGuide.arrivalTime) : '';
+      const arrivalPrimary = arrivalTime
+        ? `Arrive by ${arrivalTime}`
+        : roleGuide?.arrivalGuidance ? 'Arrive early' : roleGuide ? 'Arrival time not provided' : '';
+      const arrivalDetail = roleGuide?.arrivalGuidance
+        || (roleGuide ? 'Please allow enough time to get settled before warm-ups.' : '');
+      const setupLines = [];
+      if (roleGuide?.familySetupLocation) setupLines.push(`Please set up ${roleGuide.familySetupLocation}.`);
+      const concessions = generalGuide?.concessions;
       const helpfulNotes = [...(generalGuide?.poolsideConditions || []), ...(generalGuide?.helpfulNotes || []), ...(roleGuide?.helpfulNotes || [])];
       const volunteerMessage = guide.role === globalThis.MeetTeamRole.HOME
         ? 'Home meets depend on volunteers. Please check your team signup and help fill any open role.'
         : 'Swim meets depend on volunteers from both teams. Please check your team signup for any open role.';
+      const dayPillClass = guide.dayLabel === 'Today'
+        ? ' upcoming-day-pill--today'
+        : guide.dayLabel === 'Tomorrow' ? ' upcoming-day-pill--tomorrow' : '';
 
       return `
         <div class="my-meet-day__summary">
           <span class="my-meet-day__role my-meet-day__role--${guide.role}">${roleLabel}</span>
-          <p><strong>${globalThis.HtmlSafety.escapeHtml(matchup)}</strong><br><time datetime="${globalThis.HtmlSafety.escapeHtml(guide.date)}">${globalThis.HtmlSafety.escapeHtml(dateLabel)}</time> <span class="upcoming-day-pill${guide.dayLabel === 'Today' ? ' upcoming-day-pill--today' : ' upcoming-day-pill--tomorrow'}">${globalThis.HtmlSafety.escapeHtml(guide.dayLabel.toLowerCase())}</span></p>
+          <p class="my-meet-day__matchup"><strong>${globalThis.HtmlSafety.escapeHtml(matchup)}</strong></p>
+          <p class="my-meet-day__schedule"><time datetime="${globalThis.HtmlSafety.escapeHtml(guide.date)}">${globalThis.HtmlSafety.escapeHtml(dateLabel)}</time><span class="upcoming-day-pill${dayPillClass}">${globalThis.HtmlSafety.escapeHtml(guide.dayLabel.toLowerCase())}</span><span class="my-meet-day__meet-time">${globalThis.HtmlSafety.escapeHtml(meetTime)}</span></p>
         </div>
+        <section class="my-meet-day__timing" aria-labelledby="myMeetDayKeyTimes">
+          <h3 id="myMeetDayKeyTimes">Key times</h3>
+          <dl>
+            ${MeetDayGuideService.renderTimingFact('Team arrival', arrivalPrimary, arrivalDetail)}
+            ${MeetDayGuideService.renderTimingFact('Warm-ups', MeetDayGuideService.formatWarmups(roleGuide), '')}
+          </dl>
+        </section>
         <dl class="my-meet-day__facts">
-          ${MeetDayGuideService.renderFact('When', [meetTime])}
           ${MeetDayGuideService.renderFact('Where', [locationLink, safePoolAddress], true)}
-          ${MeetDayGuideService.renderFact('Pool', courseLines)}
-          ${MeetDayGuideService.renderFact('Please arrive by', [arrival])}
-          ${MeetDayGuideService.renderFact('Warm-ups', [MeetDayGuideService.formatWarmups(roleGuide)])}
+          ${MeetDayGuideService.renderFact('Pool', [courseLabel])}
           ${MeetDayGuideService.renderFact('Parking', MeetDayGuideService.getParkingLines(generalGuide, roleGuide))}
           ${MeetDayGuideService.renderFact('Team setup', setupLines)}
-          ${MeetDayGuideService.renderFact('Swimmer and volunteer check-in', checkInLines)}
-          ${MeetDayGuideService.renderFact('Clerk of course', [roleGuide?.clerkLocation])}
-          ${MeetDayGuideService.renderFact('Concessions', MeetDayGuideService.getConcessionLines(generalGuide?.concessions))}
+          ${MeetDayGuideService.renderFact('Check-in', MeetDayGuideService.getCheckInLines(roleGuide))}
+          ${MeetDayGuideService.renderFact('Clerk of course', [roleGuide?.clerkGuidance])}
+          ${MeetDayGuideService.renderFact('Concessions', MeetDayGuideService.getConcessionLines(concessions))}
+          ${MeetDayGuideService.renderFact('Food', [concessions?.foodItems?.join(', ')])}
+          ${MeetDayGuideService.renderFact('Drinks', [concessions?.drinkItems?.join(', ')])}
           ${MeetDayGuideService.renderFact('Good to know', helpfulNotes)}
         </dl>
         <p class="my-meet-day__volunteer"><strong>Volunteer reminder:</strong> ${globalThis.HtmlSafety.escapeHtml(volunteerMessage)}</p>

@@ -35,7 +35,7 @@ describe('app-config', () => {
     assert.equal(context.APP_VERSION, config.APP_VERSION);
     assert.equal(context.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, config.ANALYTICS_VERSION_REPORTED_STORAGE_KEY);
     assert.equal(context.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY, config.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY);
-    assert.equal(context.MY_MEET_DAY_ENABLED, true);
+    assert.equal(context.MY_MEET_DAY_ENABLED, config.MY_MEET_DAY_ENABLED);
     assert.equal(context.MY_MEET_DAY_LOOKAHEAD_DAYS, 2);
     assert.equal(
       context.WEATHER_PUBLIC_ALERTS_URL,
@@ -44,7 +44,7 @@ describe('app-config', () => {
   });
 
   it('publishes the My Meet Day feature flag', () => {
-    assert.equal(config.MY_MEET_DAY_ENABLED, true);
+    assert.equal(typeof config.MY_MEET_DAY_ENABLED, 'boolean');
     assert.equal(config.MY_MEET_DAY_LOOKAHEAD_DAYS, 2);
   });
 

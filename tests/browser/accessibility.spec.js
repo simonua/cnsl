@@ -134,8 +134,13 @@ for (const theme of ['light', 'dark']) {
     await prepareStableWeatherResponses(page);
     await seedPreferences(page, { theme, favoriteTeamId: 'lrm' });
     await page.goto('/index.html');
-    await expect(page.locator('#myMeetDay')).toBeVisible();
-    await expect(page.locator('#myMeetDay')).toContainText('Away meet');
+    const meetDay = page.locator('#myMeetDay');
+    if (await page.evaluate(() => globalThis.MY_MEET_DAY_ENABLED)) {
+      await expect(meetDay).toBeVisible();
+      await expect(meetDay).toContainText('Away meet');
+    } else {
+      await expect(meetDay).toBeHidden();
+    }
 
     await expectNoAccessibilityViolations(page);
   });

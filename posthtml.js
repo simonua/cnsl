@@ -126,7 +126,7 @@ const includePlugin = (tree) => {
     if (!src) return node;
 
     const content = readComponent(src);
-    return { content: content };
+    return { content: tree.parser(content) };
   });
   return tree;
 };

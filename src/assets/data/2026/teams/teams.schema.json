@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://example.com/teams.schema.json",
-  "version": "V12",
+  "version": "V14",
   "title": "Team Data Schema",
   "description": "Schema for team data containing practice schedules and team information",
   "type": "object",
@@ -126,17 +126,23 @@
           "$ref": "#/definitions/HomeMeetGeneralGuide"
         },
         "homeTeam": {
-          "$ref": "#/definitions/HomeTeamMeetGuide"
+          "anyOf": [
+            { "$ref": "#/definitions/HomeTeamMeetGuide" },
+            { "type": "null" }
+          ]
         },
         "visitingTeam": {
-          "$ref": "#/definitions/VisitingTeamMeetGuide"
+          "anyOf": [
+            { "$ref": "#/definitions/VisitingTeamMeetGuide" },
+            { "type": "null" }
+          ]
         }
       },
-      "required": ["poolId", "source"],
+      "required": ["poolId", "source", "homeTeam", "visitingTeam"],
       "anyOf": [
         { "required": ["general"] },
-        { "required": ["homeTeam"] },
-        { "required": ["visitingTeam"] }
+        { "properties": { "homeTeam": { "$ref": "#/definitions/HomeTeamMeetGuide" } } },
+        { "properties": { "visitingTeam": { "$ref": "#/definitions/VisitingTeamMeetGuide" } } }
       ],
       "additionalProperties": false
     },
@@ -182,16 +188,19 @@
         "arrivalTime": {
           "$ref": "#/definitions/ClockTime"
         },
+        "arrivalGuidance": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
         "parkingLocation": {
           "$ref": "#/definitions/NonEmptyString"
         },
         "familySetupLocation": {
           "$ref": "#/definitions/NonEmptyString"
         },
-        "overflowLocation": {
+        "clerkGuidance": {
           "$ref": "#/definitions/NonEmptyString"
         },
-        "clerkLocation": {
+        "checkInGuidance": {
           "$ref": "#/definitions/NonEmptyString"
         },
         "volunteerCheckInLocation": {
@@ -216,16 +225,19 @@
         "arrivalTime": {
           "$ref": "#/definitions/ClockTime"
         },
+        "arrivalGuidance": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
         "reservedParking": {
-          "$ref": "#/definitions/HomeMeetReservedParking"
+          "$ref": "#/definitions/NonEmptyString"
         },
         "familySetupLocation": {
           "$ref": "#/definitions/NonEmptyString"
         },
-        "overflowLocation": {
+        "clerkGuidance": {
           "$ref": "#/definitions/NonEmptyString"
         },
-        "clerkLocation": {
+        "checkInGuidance": {
           "$ref": "#/definitions/NonEmptyString"
         },
         "swimmerCheckInLocation": {
@@ -242,23 +254,6 @@
         }
       },
       "minProperties": 1,
-      "additionalProperties": false
-    },
-    "HomeMeetReservedParking": {
-      "type": "object",
-      "properties": {
-        "audience": {
-          "const": "coaches-and-managers"
-        },
-        "spaceCount": {
-          "type": "integer",
-          "minimum": 1
-        },
-        "location": {
-          "$ref": "#/definitions/NonEmptyString"
-        }
-      },
-      "required": ["audience", "spaceCount", "location"],
       "additionalProperties": false
     },
     "HomeMeetWarmupWindow": {
@@ -300,7 +295,15 @@
           "minItems": 1,
           "uniqueItems": true
         },
-        "offerings": {
+        "foodItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/NonEmptyString"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "drinkItems": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/NonEmptyString"

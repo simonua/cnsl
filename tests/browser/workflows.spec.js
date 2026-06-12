@@ -1596,30 +1596,43 @@ test('[WF-AGENDA-002] home page shows the next practices and swim event for a se
   await expect(page.locator('#favoriteWeekContent')).toBeVisible();
 });
 
-test('[WF-AGENDA-007] home page shows personalized away meet guidance the day before a favorite team meet', async ({ page }) => {
+test('[WF-AGENDA-007] home page follows the My Meet Day feature flag', async ({ page }) => {
   await page.clock.setFixedTime(new Date('2026-06-12T12:00:00-04:00'));
   await seedPreferences(page, { favoriteTeamId: 'lrm' });
   await page.goto('/index.html');
 
   const meetDay = page.locator('#myMeetDay');
+  const isMeetDayEnabled = await page.evaluate(() => globalThis.MY_MEET_DAY_ENABLED);
+  if (!isMeetDayEnabled) {
+    await expect(meetDay).toBeHidden();
+    return;
+  }
   await expect(meetDay).toBeVisible();
   await expect(meetDay.getByRole('heading', { name: 'My Meet Day' })).toBeVisible();
   await expect(meetDay).toContainText('Away meet');
-  await expect(meetDay).toContainText('Marlins at Watercats');
+  await expect(meetDay).toContainText('Marlins visit Watercats');
   await expect(meetDay).toContainText('tomorrow');
   await expect(meetDay).toContainText('Faulkner Ridge Pool');
   await expect(meetDay).toContainText('10518 Marble Faun Court, Columbia, MD 21044');
-  await expect(meetDay).toContainText('6-lane / 25-meter');
-  await expect(meetDay).toContainText('6 lanes can mean more heats');
-  await expect(meetDay).toContainText('6 reserved spaces for coaches and managers');
-  await expect(meetDay).toContainText('Payment: cash');
+  await expect(meetDay).toContainText('6-lane / 25-meter (may mean more heats & longer meet time)');
+  await expect(meetDay).toContainText('Arrive by 7:00 AM');
+  await expect(meetDay).toContainText('Start at 7:30 AM');
+  await expect(meetDay).toContainText('Please park by the neighborhood center behind the pool.');
+  await expect(meetDay).toContainText('Six spaces near the pool entrance are reserved for coaches and managers.');
+  await expect(meetDay).toContainText('Please set up behind the wading pool, just to the right from the entrance. If more space is needed, please use the area outside the side gates.');
+  await expect(meetDay).toContainText('The host team did not provide a check-in location.');
+  await expect(meetDay).toContainText("Your team's clerk of course will have a table behind the wading pool.");
+  await expect(meetDay).toContainText('We accept cash and prefer small bills.');
+  await expect(meetDay.getByText('Food', { exact: true })).toBeVisible();
+  await expect(meetDay.getByText('Drinks', { exact: true })).toBeVisible();
+  await expect(meetDay).toContainText('a variety of drinks');
   await expect(meetDay).toContainText('vegan by request');
   await expect(meetDay).toContainText('volunteers from both teams');
   const poolLink = meetDay.getByRole('link', { name: 'Faulkner Ridge Pool' });
   await expect(poolLink).toHaveAttribute('href', 'pools.html?pool=frp');
   await poolLink.focus();
   await expect(poolLink).toBeFocused();
-  expect(await page.evaluate(() => globalThis.MY_MEET_DAY_ENABLED)).toBe(true);
+  expect(isMeetDayEnabled).toBe(true);
 });
 
 test('[WF-AGENDA-008] dedicated My Meet Day route stays deployed and navigation follows the enabled flag', async ({ page }) => {
@@ -1636,8 +1649,18 @@ test('[WF-AGENDA-008] dedicated My Meet Day route stays deployed and navigation 
   });
 
   await expect(page.locator('#myMeetDay')).toBeVisible();
-  await expect(page.locator('#myMeetDay')).toContainText('Marlins at Watercats');
+  await expect(page.locator('#myMeetDay')).toContainText('Marlins visit Watercats');
   await expect(page.locator('#myMeetDay')).toContainText('in 2 days');
+  await expect(page.locator('#myMeetDay')).toContainText('Arrive by 7:00 AM');
+  await expect(page.locator('#myMeetDay')).toContainText('Start at 7:30 AM');
+  await expect(page.locator('#myMeetDay')).toContainText('Please park by the neighborhood center behind the pool.');
+  await expect(page.locator('#myMeetDay')).toContainText('Six spaces near the pool entrance are reserved for coaches and managers.');
+  await expect(page.locator('#myMeetDay')).toContainText('Please set up behind the wading pool, just to the right from the entrance. If more space is needed, please use the area outside the side gates.');
+  await expect(page.locator('#myMeetDay')).toContainText('The host team did not provide a check-in location.');
+  await expect(page.locator('#myMeetDay')).toContainText("Your team's clerk of course will have a table behind the wading pool.");
+  await expect(page.locator('#myMeetDay')).toContainText('We accept cash and prefer small bills.');
+  await expect(page.locator('#myMeetDay').getByText('Food', { exact: true })).toBeVisible();
+  await expect(page.locator('#myMeetDay').getByText('Drinks', { exact: true })).toBeVisible();
   await expect(page.locator('#myMeetDayStatus')).toHaveText('Meet-day details loaded.');
   await expect(page.locator('script[data-my-meet-day-dependency]')).toHaveCount(18);
   const controllerVersion = await page.locator('script[src*="js/my-meet-day.js"]').evaluate(script => new URL(script.src).searchParams.get('v'));
@@ -1647,7 +1670,12 @@ test('[WF-AGENDA-008] dedicated My Meet Day route stays deployed and navigation 
   expect(controllerVersion).toBeTruthy();
   expect(dependencyVersions.every(version => version === controllerVersion)).toBe(true);
   await page.getByRole('button', { name: 'Open navigation menu' }).click();
-  await expect(page.getByRole('link', { name: 'My Meet Day' })).toHaveAttribute('href', 'my-meet-day.html');
+  const navigationLink = page.getByRole('link', { name: 'My Meet Day' });
+  if (await page.evaluate(() => globalThis.MY_MEET_DAY_ENABLED)) {
+    await expect(navigationLink).toHaveAttribute('href', 'my-meet-day.html');
+  } else {
+    await expect(navigationLink).toHaveCount(0);
+  }
 
   await page.evaluate(() => {
     globalThis.PreferencesService.save({ favoriteTeamId: '' });

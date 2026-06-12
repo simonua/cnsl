@@ -25,7 +25,7 @@
             ],
             "concessions": {
               "paymentMethods": ["cash"],
-              "offerings": [
+              "foodItems": [
                 "breakfast items",
                 "lunch items",
                 "snacks",
@@ -33,10 +33,11 @@
               ]
             }
           },
+          "homeTeam": null,
           "visitingTeam": {
             "arrivalTime": "07:10",
-            "familySetupLocation": "Right side from the pool entrance, near the slide",
-            "swimmerCheckInLocation": "On the visiting-team side of the pool",
+            "familySetupLocation": "on the right side from the pool entrance, near the slide",
+            "swimmerCheckInLocation": "on the visiting-team side of the pool",
             "warmups": {
               "start": "07:30"
             },
@@ -231,26 +232,23 @@
             "receivedOn": "2024-07-18"
           },
           "general": {
-            "parkingLocation": "Longfellow Elementary School parking lot, or street parking along Eliot's Oak Road and Hesperus Drive",
+            "parkingLocation": "at the Longfellow Elementary School parking lot or along Eliot's Oak Road and Hesperus Drive",
             "parkingNotes": [
               "A path to the left of Longfellow Elementary School leads to the pool."
             ],
             "concessions": {
               "paymentMethods": ["cash"],
-              "offerings": [
+              "foodItems": [
                 "breakfast items",
                 "lunch items"
               ]
             }
           },
+          "homeTeam": null,
           "visitingTeam": {
-            "reservedParking": {
-              "audience": "coaches-and-managers",
-              "spaceCount": 4,
-              "location": "Pool parking lot"
-            },
-            "familySetupLocation": "Right side of the pool at the shallow end",
-            "clerkLocation": "Table reserved by the host team",
+            "reservedParking": "Four spaces in the pool parking lot are reserved for coaches and managers.",
+            "familySetupLocation": "on the right side of the pool at the shallow end",
+            "clerkGuidance": "The host team will reserve a table for your clerk of course.",
             "warmups": {
               "start": "07:25",
               "end": "07:45"
@@ -444,7 +442,7 @@
           },
           "general": {
             "concessions": {
-              "offerings": [
+              "foodItems": [
                 "bagels",
                 "breakfast sandwiches",
                 "donuts",
@@ -456,8 +454,8 @@
           },
           "homeTeam": {
             "arrivalTime": "06:50",
-            "familySetupLocation": "Right side from the pool entrance",
-            "swimmerCheckInLocation": "Check-in table under the large pavilion",
+            "familySetupLocation": "on the right side from the pool entrance",
+            "swimmerCheckInLocation": "at the check-in table under the large pavilion",
             "warmups": {
               "start": "07:00"
             },
@@ -466,7 +464,8 @@
               "Please mark each swimmer with their event, heat, and lane before arrival.",
               "Please tell team managers or check-in volunteers before leaving early if a swimmer is in a relay."
             ]
-          }
+          },
+          "visitingTeam": null
         }
       ],
       "practicePools": ["Kendall Ridge", "Jeffers Hill", "Locust Park", "Stevens Forest"],
@@ -960,22 +959,24 @@
             "receivedOn": "2026-06-09"
           },
           "general": {
-            "parkingLocation": "Neighborhood center behind the pool",
+            "parkingLocation": "by the neighborhood center behind the pool",
             "concessions": {
               "opensAt": "07:30",
               "paymentMethods": ["cash"],
               "smallBillsPreferred": true,
               "denominationsNotAccepted": [100],
-              "offerings": [
+              "foodItems": [
                 "breakfast sandwiches",
                 "candy",
                 "chips",
                 "donuts",
-                "drinks",
                 "fruit",
                 "grilled cheese",
                 "hamburgers",
                 "hot dogs"
+              ],
+              "drinkItems": [
+                "a variety of drinks"
               ],
               "dietaryOptions": [
                 {
@@ -985,15 +986,17 @@
               ]
             }
           },
+          "homeTeam": null,
           "visitingTeam": {
-            "reservedParking": {
-              "audience": "coaches-and-managers",
-              "spaceCount": 6,
-              "location": "Near the pool entrance"
-            },
-            "familySetupLocation": "Behind the wading pool, to the right from the entrance",
-            "overflowLocation": "Outside the side gates",
-            "clerkLocation": "Behind the wading pool"
+            "arrivalTime": "07:00",
+            "arrivalGuidance": "Please allow enough time to park, set up, check in, and be ready for warm-ups.",
+            "reservedParking": "Six spaces near the pool entrance are reserved for coaches and managers.",
+            "familySetupLocation": "behind the wading pool, just to the right from the entrance. If more space is needed, please use the area outside the side gates",
+            "clerkGuidance": "Your team's clerk of course will have a table behind the wading pool.",
+            "checkInGuidance": "Please check in after setting up. The host team did not provide a check-in location.",
+            "warmups": {
+              "start": "07:30"
+            }
           }
         }
       ],

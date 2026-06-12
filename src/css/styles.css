@@ -1191,23 +1191,41 @@ main h1 {
 .my-meet-day h2 {
   color: var(--primary-text-color);
   font-size: 1.4rem;
-  margin: 0 0 0.85rem;
+  margin: 0 0 1rem;
   text-align: center;
 }
 
 .my-meet-day__summary {
   align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  justify-content: center;
-  margin-bottom: 1rem;
+  display: grid;
+  gap: 0.45rem;
+  justify-items: center;
+  margin-bottom: 1.15rem;
   text-align: center;
 }
 
-.my-meet-day__summary p {
-  line-height: 1.45;
+.my-meet-day__matchup,
+.my-meet-day__schedule {
   margin: 0;
+}
+
+.my-meet-day__matchup {
+  color: var(--text-dark);
+  font-size: 1.2rem;
+  line-height: 1.35;
+}
+
+.my-meet-day__schedule {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.65rem;
+  justify-content: center;
+  line-height: 1.45;
+}
+
+.my-meet-day__meet-time {
+  color: var(--text-muted);
 }
 
 .my-meet-day__role {
@@ -1226,6 +1244,63 @@ main h1 {
 .my-meet-day__role--away {
   background: var(--home-meet-label-bg);
   color: var(--home-meet-text);
+}
+
+.my-meet-day__timing {
+  background: var(--primary-soft-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+}
+
+.my-meet-day__timing h3 {
+  color: var(--primary-text-color);
+  font-size: 0.9rem;
+  margin: 0 0 0.65rem;
+  text-align: center;
+}
+
+.my-meet-day__timing dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+  margin: 0;
+}
+
+.my-meet-day__timing-item {
+  min-width: 0;
+  padding: 0 0.85rem;
+  text-align: center;
+}
+
+.my-meet-day__timing-item + .my-meet-day__timing-item {
+  border-left: 1px solid var(--border-color);
+}
+
+.my-meet-day__timing-item dt {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.my-meet-day__timing-item dd {
+  line-height: 1.4;
+  margin: 0;
+}
+
+.my-meet-day__timing-item strong,
+.my-meet-day__timing-item span {
+  display: block;
+}
+
+.my-meet-day__timing-item strong {
+  color: var(--text-dark);
+  font-size: 1.15rem;
+}
+
+.my-meet-day__timing-item span {
+  margin-top: 0.25rem;
 }
 
 .my-meet-day__facts {
@@ -1260,6 +1335,21 @@ main h1 {
 }
 
 @media (max-width: 32rem) {
+  .my-meet-day__timing dl {
+    grid-template-columns: 1fr;
+  }
+
+  .my-meet-day__timing-item {
+    padding: 0.15rem 0;
+  }
+
+  .my-meet-day__timing-item + .my-meet-day__timing-item {
+    border-left: 0;
+    border-top: 1px solid var(--border-color);
+    margin-top: 0.7rem;
+    padding-top: 0.7rem;
+  }
+
   .my-meet-day__fact {
     grid-template-columns: 1fr;
   }
