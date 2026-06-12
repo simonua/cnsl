@@ -54,7 +54,8 @@ Perform this review on the deployed HTTPS site whenever analytics code, the shar
 | Check | Evidence To Record |
 | --- | --- |
 | The page loads `https://www.googletagmanager.com/gtag/js` with the configured GA4 web-stream measurement ID. | Deployment URL, launch mode, script URL, HTTP status, and measurement ID. |
-| A home-page load dispatches `page_view` with the published `app_version`. | Collection endpoint, HTTP result when observable, event name, and app version. |
+| A home-page load dispatches `page_view` and `ca_version` with the published `app_version`. | Collection endpoint, HTTP result when observable, event names, and app version. |
+| A load after an application upgrade dispatches `ca_upgrade` once with a validated `upgrade_path`; a clean first use does not dispatch it. | Previous and current versions, transmitted path, current local version, and event count. |
 | A representative internal route load dispatches its sanitized `page_view`. | Route, event name, sanitized `page_location`, and empty `page_referrer`. |
 | A reviewed flyer QR URL dispatches `ca_flyer_visit`, maps only the documented campaign source, medium, and name, and removes those tags from the visible URL before page measurement. | Starting URL, cleaned visible URL, collection fields, and event names. |
 | An unrecognized or malformed campaign URL is not consumed or attributed. | Starting URL, unchanged visible URL, and absence of campaign fields and `ca_flyer_visit`. |
@@ -68,6 +69,8 @@ Treat an HTTP `2xx` or `204` collection response as proof that Google accepted a
 | Event | Representative Trigger | Allowed App-Authored Fields |
 | --- | --- | --- |
 | `page_view` | Load the home page and one internal route. | Sanitized `page_title`, canonical `page_location`, empty `page_referrer`, and published `app_version`. |
+| `ca_version` | Load a public application version for the first time in a browser session. | Published `app_version`. |
+| `ca_upgrade` | Load a newer application version after prior use. | Validated `upgrade_path` in `<previous> -> <current>` form, using fixed `0` only when the prior version is unavailable. |
 | `ca_flyer_visit` | Open the reviewed flyer QR destination. | No app-authored event fields; the reviewed campaign tuple is mapped separately. |
 | `ca_share` | Use one visible sharing method. | Allowlisted sharing `method`, fixed `content_type`, and fixed `item_id`. |
 | `ca_external_link` | Open one authored external link. | Allowlisted `link_context` and `link_purpose`; never a URL, label, or destination host. |
@@ -91,7 +94,7 @@ Treat an HTTP `2xx` or `204` collection response as proof that Google accepted a
 
 - Confirm the GA4 web data stream uses the same measurement ID as the deployed application configuration.
 - Confirm Google signals, advertising personalization, enhanced measurement, and granular location/device reporting are disabled unless a separately reviewed exception exists; confirm no linked advertising destination broadens purpose-limited usage reporting into advertising or profiling use.
-- Confirm event-scoped custom dimensions required for intended aggregate reporting are registered in GA administration. Register `app_version` before relying on a release-adoption report, `resource_name` before comparing swim meet resource views or downloads by document, `directory_name` before comparing broad directory engagement, `selection` before comparing favorite pool/team choices, and `install_action` before reviewing the install funnel.
+- Confirm event-scoped custom dimensions required for intended aggregate reporting are registered in GA administration. Register `app_version` before relying on a release-adoption report, `upgrade_path` before comparing application upgrade paths, `resource_name` before comparing swim meet resource views or downloads by document, `directory_name` before comparing broad directory engagement, `selection` before comparing favorite pool/team choices, and `install_action` before reviewing the install funnel.
 - Check the GA Realtime view or another appropriate GA report for the expected aggregate events, but record the result separately from browser transport evidence.
 - Do not treat successful browser requests as the only completion evidence. Confirm that the intended aggregate events become visible in GA reporting after the expected processing interval, and record any delay or missing report rows separately from browser transport evidence.
 - Do not change analytics storage to denied, add app-authored identifiers, or weaken the privacy boundary. Any change to the reporting model requires a separate privacy review, visitor-facing documentation update, and regression coverage.

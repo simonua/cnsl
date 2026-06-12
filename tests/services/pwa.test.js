@@ -25,6 +25,7 @@ function createWindow(location = {}) {
     DEPLOYMENT_VERSION_FILE: 'version.txt',
     PWA_CACHE_PREFIX: 'cnsl-static-',
     SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY: 'cnsl_service_worker_update_checked_at',
+    SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY: 'cnsl_service_worker_upgrade_from_version',
     APP_VERSION: '2.13.1',
     location: {
       href: 'https://pools.longreachmarlins.org/index.html',
@@ -222,6 +223,32 @@ describe('PWA update startup', () => {
     await new Promise(resolve => setImmediate(resolve));
     controllerChange();
     controllerChange();
+    controllerChange();
+
+    assert.equal(reloadCalls, 1);
+    assert.equal(window.sessionStorage.getItem(window.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY), window.APP_VERSION);
+  });
+
+  it('should continue an update reload when the upgrade marker cannot be stored', async () => {
+    let controllerChange;
+    let reloadCalls = 0;
+    const window = createWindow({ reload: () => { reloadCalls += 1; } });
+    window.sessionStorage = {
+      getItem: () => null,
+      setItem: () => { throw new Error('storage blocked'); }
+    };
+    const navigator = {
+      serviceWorker: {
+        controller: {},
+        addEventListener: (type, listener) => {
+          if (type === 'controllerchange') controllerChange = listener;
+        },
+        register: async () => ({ update: async () => undefined })
+      }
+    };
+
+    runPwa({ console, navigator, window });
+    await new Promise(resolve => setImmediate(resolve));
     controllerChange();
 
     assert.equal(reloadCalls, 1);

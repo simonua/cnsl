@@ -116,6 +116,9 @@
   ]);
   const FAVORITE_SETTING_NAMES = new Set(['favorite_pool', 'favorite_team']);
   const EMPTY_FAVORITE_SELECTION = 'none';
+  const APP_VERSION_PATTERN = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
+  const UPGRADE_EVENT_NAME = 'ca_upgrade';
+  const UNKNOWN_PREVIOUS_VERSION = '0';
 
   // Private measurement and publishing helpers
 
@@ -190,6 +193,174 @@
     if (typeof window.gtag !== 'function') return;
 
     window.gtag('event', eventName, eventParameters);
+  }
+
+  /**
+   * Reads a browser-storage value without exposing storage access failures.
+   * @param {Storage|null} storage - Browser storage implementation
+   * @param {string} key - Storage key to read
+   * @returns {string|null} Stored value, or null when unavailable
+   * @private
+   */
+  function readStorageValue(storage, key) {
+    if (!storage || !key) return null;
+    try {
+      return storage.getItem(key);
+    } catch (_error) {
+      return null;
+    }
+  }
+
+  /**
+   * Parses an application semantic version into numeric parts.
+   * @param {string|null} version - Candidate application version
+   * @returns {number[]|null} Numeric version parts, or null when invalid
+   * @private
+   */
+  function getVersionParts(version) {
+    const match = typeof version === 'string' ? version.match(APP_VERSION_PATTERN) : null;
+    if (!match) return null;
+
+    const parts = match.slice(1).map(part => Number(part));
+    return parts.every(part => Number.isSafeInteger(part)) ? parts : null;
+  }
+
+  /**
+   * Compares two validated application versions.
+   * @param {string} firstVersion - First application version
+   * @param {string} secondVersion - Second application version
+   * @returns {number|null} Comparison result, or null when either version is invalid
+   * @private
+   */
+  function compareVersions(firstVersion, secondVersion) {
+    const firstParts = getVersionParts(firstVersion);
+    const secondParts = getVersionParts(secondVersion);
+    if (!firstParts || !secondParts) return null;
+
+    for (let index = 0; index < firstParts.length; index += 1) {
+      if (firstParts[index] !== secondParts[index]) {
+        return firstParts[index] > secondParts[index] ? 1 : -1;
+      }
+    }
+    return 0;
+  }
+
+  /**
+   * Finds a validated previous version from durable, session, or legacy state.
+   * @param {Storage|null} localStorageImplementation - Device-local storage
+   * @param {Storage|null} sessionStorageImplementation - Current-tab storage
+   * @returns {string|null} Best available previous version
+   * @private
+   */
+  function getPreviousAppVersion(localStorageImplementation, sessionStorageImplementation) {
+    const candidates = [
+      readStorageValue(localStorageImplementation, window.ANALYTICS_APP_VERSION_STORAGE_KEY),
+      readStorageValue(sessionStorageImplementation, window.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY),
+      readStorageValue(sessionStorageImplementation, window.ANALYTICS_VERSION_REPORTED_STORAGE_KEY),
+      readStorageValue(localStorageImplementation, window.APP_VERSION_STORAGE_KEY)
+    ];
+    return candidates.find(version => getVersionParts(version)) || null;
+  }
+
+  /**
+   * Determines whether browser state proves that the application was used before this load.
+   * @param {Storage|null} localStorageImplementation - Device-local storage
+   * @param {Storage|null} sessionStorageImplementation - Current-tab storage
+   * @returns {boolean} Whether prior application use is evident
+   * @private
+   */
+  function hasPriorAppUse(localStorageImplementation, sessionStorageImplementation) {
+    const hasStoredAppState = window.APP_LOCAL_STORAGE_KEYS.some(key => (
+      key !== window.ANALYTICS_APP_VERSION_STORAGE_KEY
+      && key !== window.ANALYTICS_UPGRADE_PATH_STORAGE_KEY
+      && readStorageValue(localStorageImplementation, key) !== null
+    ));
+    const hasSessionVersion = readStorageValue(
+      sessionStorageImplementation,
+      window.ANALYTICS_VERSION_REPORTED_STORAGE_KEY
+    ) !== null;
+    const hasServiceWorkerUpgrade = readStorageValue(
+      sessionStorageImplementation,
+      window.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY
+    ) !== null;
+    return hasStoredAppState || hasSessionVersion || hasServiceWorkerUpgrade;
+  }
+
+  /**
+   * Validates a pending upgrade path before it reaches analytics.
+   * @param {string|null} upgradePath - Candidate stored upgrade path
+   * @returns {string|null} Validated path for the current version, or null
+   * @private
+   */
+  function getValidUpgradePath(upgradePath) {
+    if (typeof upgradePath !== 'string') return null;
+    const [previousVersion, currentVersion, extraPart] = upgradePath.split(' -> ');
+    if (extraPart !== undefined || currentVersion !== window.APP_VERSION || !getVersionParts(currentVersion)) return null;
+    if (previousVersion === UNKNOWN_PREVIOUS_VERSION) return upgradePath;
+    return compareVersions(previousVersion, currentVersion) === -1 ? upgradePath : null;
+  }
+
+  /**
+   * Records the current app version and prepares one validated upgrade path for publication.
+   * @returns {string|null} Pending upgrade path, or null for first use and non-upgrades
+   * @private
+   */
+  function prepareUpgradeTracking() {
+    let localStorageImplementation;
+    let sessionStorageImplementation;
+    try {
+      localStorageImplementation = window.localStorage;
+      sessionStorageImplementation = window.sessionStorage;
+    } catch (_error) {
+      return null;
+    }
+
+    const storedVersion = readStorageValue(localStorageImplementation, window.ANALYTICS_APP_VERSION_STORAGE_KEY);
+    const pendingPath = getValidUpgradePath(readStorageValue(
+      localStorageImplementation,
+      window.ANALYTICS_UPGRADE_PATH_STORAGE_KEY
+    ));
+    if (storedVersion === window.APP_VERSION) return pendingPath;
+
+    const previousVersion = getPreviousAppVersion(localStorageImplementation, sessionStorageImplementation);
+    const upgradePath = compareVersions(previousVersion, window.APP_VERSION) === -1
+      ? `${previousVersion} -> ${window.APP_VERSION}`
+      : !previousVersion && (storedVersion !== null
+        || hasPriorAppUse(localStorageImplementation, sessionStorageImplementation))
+        ? `${UNKNOWN_PREVIOUS_VERSION} -> ${window.APP_VERSION}`
+        : null;
+
+    try {
+      localStorageImplementation.setItem(window.ANALYTICS_APP_VERSION_STORAGE_KEY, window.APP_VERSION);
+      if (upgradePath) {
+        localStorageImplementation.setItem(window.ANALYTICS_UPGRADE_PATH_STORAGE_KEY, upgradePath);
+      } else {
+        localStorageImplementation.removeItem(window.ANALYTICS_UPGRADE_PATH_STORAGE_KEY);
+      }
+      sessionStorageImplementation.removeItem(window.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY);
+    } catch (_error) {
+      return null;
+    }
+    return upgradePath;
+  }
+
+  /**
+   * Publishes and clears a prepared application upgrade path.
+   * @param {string|null} upgradePath - Validated path prepared during initialization
+   * @private
+   */
+  function publishUpgrade(upgradePath) {
+    const validUpgradePath = getValidUpgradePath(upgradePath);
+    if (!validUpgradePath) return;
+
+    publishEvent(UPGRADE_EVENT_NAME, { upgrade_path: validUpgradePath });
+    try {
+      if (window.localStorage.getItem(window.ANALYTICS_UPGRADE_PATH_STORAGE_KEY) === validUpgradePath) {
+        window.localStorage.removeItem(window.ANALYTICS_UPGRADE_PATH_STORAGE_KEY);
+      }
+    } catch (_error) {
+      return;
+    }
   }
 
   /**
@@ -478,6 +649,7 @@
   // Initialization
 
   const publishedCampaign = isProductionSite() ? consumePublishedCampaign() : null;
+  const pendingUpgradePath = prepareUpgradeTracking();
 
   // Public API
 
@@ -566,6 +738,7 @@
       ...getMeasuredPageParameters()
     });
     publishVersionWhenChanged();
+    publishUpgrade(pendingUpgradePath);
     if (publishedCampaign?.source === 'flyer') {
       window.gtag('event', 'ca_flyer_visit');
     }

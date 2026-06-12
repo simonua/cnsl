@@ -125,6 +125,11 @@
 
     if (!refreshing) {
       refreshing = true;
+      try {
+        window.sessionStorage?.setItem(window.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY, window.APP_VERSION);
+      } catch {
+        // Continue the update reload when session storage is unavailable.
+      }
       window.location.reload();
     }
   });

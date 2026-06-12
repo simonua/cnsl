@@ -573,10 +573,11 @@ analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and each publi
     await route.fulfill({ response });
   });
 
-  await page.addInitScript(() => {
+  await page.addInitScript(({ analyticsVersionKey }) => {
+    localStorage.setItem(analyticsVersionKey, '2.8.4');
     localStorage.setItem('cnsl_current_version', '9999.0.0');
     localStorage.setItem('cnsl_settings_notice_dismissed', 'true');
-  });
+  }, { analyticsVersionKey: AppConfig.ANALYTICS_APP_VERSION_STORAGE_KEY });
 
   await page.goto('https://pools.longreachmarlins.org/index.html', { waitUntil: 'domcontentloaded' });
   await tagScriptRequested;
@@ -616,11 +617,18 @@ analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and each publi
       ['js'],
       ['config', measurementId],
       ['event', 'page_view'],
-      ['event', 'ca_version']
+      ['event', 'ca_version'],
+      ['event', 'ca_upgrade']
     ]
   });
   await expect.poll(() => page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
     .toContainEqual(['event', 'ca_version', { app_version: appVersion }]);
+  await expect.poll(() => page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
+    .toContainEqual(['event', 'ca_upgrade', { upgrade_path: `2.8.4 -> ${appVersion}` }]);
+  await expect.poll(() => page.evaluate(() => localStorage.getItem(globalThis.ANALYTICS_APP_VERSION_STORAGE_KEY)))
+    .toBe(appVersion);
+  await expect.poll(() => page.evaluate(() => localStorage.getItem(globalThis.ANALYTICS_UPGRADE_PATH_STORAGE_KEY)))
+    .toBeNull();
   await expect.poll(() => page.evaluate(() => sessionStorage.getItem(globalThis.ANALYTICS_VERSION_REPORTED_STORAGE_KEY)))
     .toBe(appVersion);
   await expect.poll(() => page.evaluate(() => {
@@ -653,6 +661,76 @@ analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and each publi
     .toContainEqual(['event', 'ca_version', { app_version: appVersion }]);
   await expect.poll(() => page.evaluate(() => sessionStorage.getItem(globalThis.ANALYTICS_VERSION_REPORTED_STORAGE_KEY)))
     .toBe(appVersion);
+  await page.unrouteAll({ behavior: 'ignoreErrors' });
+});
+
+analyticsTest('[WF-ANALYTICS-008] analytics records first use without publishing an upgrade path', async ({ page }) => {
+  await page.route('https://www.googletagmanager.com/**', route => route.fulfill({
+    contentType: 'application/javascript',
+    body: 'globalThis.cnslTagScriptLoaded = true;'
+  }));
+  await page.route('https://pools.longreachmarlins.org/**', async route => {
+    const requestedUrl = new URL(route.request().url());
+    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    await route.fulfill({ response });
+  });
+
+  await page.goto('https://pools.longreachmarlins.org/contact.html', { waitUntil: 'domcontentloaded' });
+  const appVersion = await page.evaluate(() => globalThis.APP_VERSION);
+  await expect.poll(() => page.evaluate(() => globalThis.cnslTagScriptLoaded)).toBe(true);
+  await expect.poll(() => page.evaluate(() => localStorage.getItem(globalThis.ANALYTICS_APP_VERSION_STORAGE_KEY)))
+    .toBe(appVersion);
+  const eventNames = await page.evaluate(() => globalThis.dataLayer
+    .filter(argumentsList => argumentsList[0] === 'event')
+    .map(argumentsList => argumentsList[1]));
+  expect(eventNames).not.toContain('ca_upgrade');
+  await page.unrouteAll({ behavior: 'ignoreErrors' });
+});
+
+analyticsTest('[WF-ANALYTICS-009] analytics uses zero when prior use is known but its version is unavailable', async ({ page }) => {
+  await page.route('https://www.googletagmanager.com/**', route => route.fulfill({
+    contentType: 'application/javascript',
+    body: 'globalThis.cnslTagScriptLoaded = true;'
+  }));
+  await page.route('https://pools.longreachmarlins.org/**', async route => {
+    const requestedUrl = new URL(route.request().url());
+    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    await route.fulfill({ response });
+  });
+  await page.addInitScript(({ analyticsVersionKey }) => {
+    localStorage.setItem(analyticsVersionKey, 'unknown');
+  }, { analyticsVersionKey: AppConfig.ANALYTICS_APP_VERSION_STORAGE_KEY });
+
+  await page.goto('https://pools.longreachmarlins.org/contact.html', { waitUntil: 'domcontentloaded' });
+  const appVersion = await page.evaluate(() => globalThis.APP_VERSION);
+  await expect.poll(() => page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
+    .toContainEqual(['event', 'ca_upgrade', { upgrade_path: `0 -> ${appVersion}` }]);
+  await expect.poll(() => page.evaluate(() => localStorage.getItem(globalThis.ANALYTICS_APP_VERSION_STORAGE_KEY)))
+    .toBe(appVersion);
+  await page.unrouteAll({ behavior: 'ignoreErrors' });
+});
+
+analyticsTest('[WF-ANALYTICS-010] analytics uses the service-worker upgrade version when local version state was cleared', async ({ page }) => {
+  await page.route('https://www.googletagmanager.com/**', route => route.fulfill({
+    contentType: 'application/javascript',
+    body: 'globalThis.cnslTagScriptLoaded = true;'
+  }));
+  await page.route('https://pools.longreachmarlins.org/**', async route => {
+    const requestedUrl = new URL(route.request().url());
+    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    await route.fulfill({ response });
+  });
+  await page.addInitScript(({ upgradeFromVersionKey }) => {
+    sessionStorage.setItem(upgradeFromVersionKey, '2.8.4');
+  }, { upgradeFromVersionKey: AppConfig.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY });
+
+  await page.goto('https://pools.longreachmarlins.org/contact.html', { waitUntil: 'domcontentloaded' });
+  const appVersion = await page.evaluate(() => globalThis.APP_VERSION);
+  await expect.poll(() => page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
+    .toContainEqual(['event', 'ca_upgrade', { upgrade_path: `2.8.4 -> ${appVersion}` }]);
+  await expect.poll(() => page.evaluate(() => sessionStorage.getItem(
+    globalThis.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY
+  ))).toBeNull();
   await page.unrouteAll({ behavior: 'ignoreErrors' });
 });
 

@@ -19,16 +19,32 @@ describe('AppStorageService', () => {
         delete: async name => { deletedCaches.push(name); return true; }
       };
 
-      ['cnsl_preferences', 'cnsl_current_version', 'cnsl_settings_notice_dismissed', 'cnsl_weather_alert_last_successful_check', 'unrelated'].forEach(key => localStorage.setItem(key, 'saved'));
-      ['cnsl_weather_alert_status', 'cnsl_weather_alert_expanded', 'unrelated'].forEach(key => sessionStorage.setItem(key, 'saved'));
+      [
+        'cnsl_analytics_current_version',
+        'cnsl_analytics_pending_upgrade_path',
+        'cnsl_preferences',
+        'cnsl_current_version',
+        'cnsl_settings_notice_dismissed',
+        'cnsl_weather_alert_last_successful_check',
+        'unrelated'
+      ].forEach(key => localStorage.setItem(key, 'saved'));
+      [
+        'cnsl_service_worker_upgrade_from_version',
+        'cnsl_weather_alert_status',
+        'cnsl_weather_alert_expanded',
+        'unrelated'
+      ].forEach(key => sessionStorage.setItem(key, 'saved'));
 
       await AppStorageService.clearAppData({ localStorage, sessionStorage, cacheStorage });
 
+      assert.equal(localStorage.getItem('cnsl_analytics_current_version'), null);
+      assert.equal(localStorage.getItem('cnsl_analytics_pending_upgrade_path'), null);
       assert.equal(localStorage.getItem('cnsl_preferences'), null);
       assert.equal(localStorage.getItem('cnsl_current_version'), null);
       assert.equal(localStorage.getItem('cnsl_settings_notice_dismissed'), null);
       assert.equal(localStorage.getItem('cnsl_weather_alert_last_successful_check'), null);
       assert.equal(localStorage.getItem('unrelated'), 'saved');
+      assert.equal(sessionStorage.getItem('cnsl_service_worker_upgrade_from_version'), null);
       assert.equal(sessionStorage.getItem('cnsl_weather_alert_status'), null);
       assert.equal(sessionStorage.getItem('cnsl_weather_alert_expanded'), null);
       assert.equal(sessionStorage.getItem('unrelated'), 'saved');

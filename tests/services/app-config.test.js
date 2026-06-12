@@ -33,8 +33,11 @@ describe('app-config', () => {
     vm.runInNewContext(source, context, { filename: sourcePath });
 
     assert.equal(context.APP_VERSION, config.APP_VERSION);
+    assert.equal(context.ANALYTICS_APP_VERSION_STORAGE_KEY, config.ANALYTICS_APP_VERSION_STORAGE_KEY);
+    assert.equal(context.ANALYTICS_UPGRADE_PATH_STORAGE_KEY, config.ANALYTICS_UPGRADE_PATH_STORAGE_KEY);
     assert.equal(context.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, config.ANALYTICS_VERSION_REPORTED_STORAGE_KEY);
     assert.equal(context.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY, config.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY);
+    assert.equal(context.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY, config.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY);
     assert.equal(context.EXPERIMENTAL_SETTINGS_URL, config.EXPERIMENTAL_SETTINGS_URL);
     assert.equal(context.MY_MEET_DAY_LOOKAHEAD_DAYS, 2);
     assert.equal(
@@ -59,13 +62,29 @@ describe('app-config', () => {
   it('publishes named app-owned session storage keys', () => {
     assert.equal(config.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, 'cnsl_analytics_version_reported');
     assert.equal(config.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY, 'cnsl_service_worker_update_checked_at');
+    assert.equal(config.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY, 'cnsl_service_worker_upgrade_from_version');
     assert.deepEqual(config.APP_SESSION_STORAGE_KEYS, [
       config.ANALYTICS_VERSION_REPORTED_STORAGE_KEY,
       config.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY,
+      config.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY,
       config.WEATHER_ALERT_STATUS_STORAGE_KEY,
       config.WEATHER_ALERT_DISCLOSURE_STORAGE_KEY
     ]);
     assert.equal(Object.isFrozen(config.APP_SESSION_STORAGE_KEYS), true);
+  });
+
+  it('publishes named app-owned local storage keys', () => {
+    assert.equal(config.ANALYTICS_APP_VERSION_STORAGE_KEY, 'cnsl_analytics_current_version');
+    assert.equal(config.ANALYTICS_UPGRADE_PATH_STORAGE_KEY, 'cnsl_analytics_pending_upgrade_path');
+    assert.deepEqual(config.APP_LOCAL_STORAGE_KEYS, [
+      config.ANALYTICS_APP_VERSION_STORAGE_KEY,
+      config.ANALYTICS_UPGRADE_PATH_STORAGE_KEY,
+      config.PREFERENCES_STORAGE_KEY,
+      config.APP_VERSION_STORAGE_KEY,
+      config.SETTINGS_NOTICE_DISMISSED_STORAGE_KEY,
+      config.WEATHER_ALERT_LAST_SUCCESSFUL_CHECK_STORAGE_KEY
+    ]);
+    assert.equal(Object.isFrozen(config.APP_LOCAL_STORAGE_KEYS), true);
   });
 
   it('falls back to the Columbia ZIP code when weather coordinates are invalid', () => {
