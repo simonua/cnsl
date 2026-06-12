@@ -10,6 +10,14 @@
 /* ==========================================================================
   Theme tokens
   ========================================================================== */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-group(root) {
+  animation-duration: 0s;
+}
+
 :root {
   --primary-color: #005ea8;
   --primary-dark: #004578;

@@ -27,7 +27,7 @@
   }
 
   let hasActiveController = Boolean(navigator.serviceWorker.controller);
-  let refreshing = false;
+  let hasRecordedControllerChange = false;
   let serviceWorkerRegistration = null;
   let lastUpdateCheckAt = 0;
   let updateCheckPromise = null;
@@ -123,14 +123,13 @@
       return;
     }
 
-    if (!refreshing) {
-      refreshing = true;
+    if (!hasRecordedControllerChange) {
+      hasRecordedControllerChange = true;
       try {
         window.sessionStorage?.setItem(window.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY, window.APP_VERSION);
       } catch {
-        // Continue the update reload when session storage is unavailable.
+        // Keep the current view available when session storage is unavailable.
       }
-      window.location.reload();
     }
   });
 

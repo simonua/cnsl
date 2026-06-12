@@ -205,7 +205,7 @@ describe('PWA update startup', () => {
     assert.equal(errors.length, 2);
   });
 
-  it('should reload once after an active worker controller changes', async () => {
+  it('should keep the current view until the next navigation after a controller change', async () => {
     let controllerChange;
     let reloadCalls = 0;
     const window = createWindow({ reload: () => { reloadCalls += 1; } });
@@ -225,11 +225,11 @@ describe('PWA update startup', () => {
     controllerChange();
     controllerChange();
 
-    assert.equal(reloadCalls, 1);
+    assert.equal(reloadCalls, 0);
     assert.equal(window.sessionStorage.getItem(window.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY), window.APP_VERSION);
   });
 
-  it('should continue an update reload when the upgrade marker cannot be stored', async () => {
+  it('should keep the current view when the upgrade marker cannot be stored', async () => {
     let controllerChange;
     let reloadCalls = 0;
     const window = createWindow({ reload: () => { reloadCalls += 1; } });
@@ -251,7 +251,7 @@ describe('PWA update startup', () => {
     await new Promise(resolve => setImmediate(resolve));
     controllerChange();
 
-    assert.equal(reloadCalls, 1);
+    assert.equal(reloadCalls, 0);
   });
 
   it('should preserve the rendered footer when an older service worker reports its version', async () => {

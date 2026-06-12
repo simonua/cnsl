@@ -102,7 +102,7 @@ self.addEventListener("activate", event => {
       })
     ]).then(() => {
       console.log(`Service Worker activated - Cache Version: ${CACHE_VERSION}`);
-      // Notify all clients to reload for updates
+      // Notify clients that the updated worker is active.
       return self.clients.matchAll().then(clients => {
         clients.forEach(client => {
           client.postMessage({
