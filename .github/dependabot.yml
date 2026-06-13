@@ -3,6 +3,9 @@ updates:
   # The npm ecosystem covers package.json and the pnpm lockfile.
   - package-ecosystem: npm
     directory: "/"
+    cooldown:
+      # Match pnpm 11's default 24-hour minimum release age.
+      default-days: 1
     schedule:
       # Resume daily update checks during the May-July maintenance window only.
       interval: cron
