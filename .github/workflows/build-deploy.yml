@@ -3,6 +3,25 @@ name: Build and Deploy to GitHub Pages
 on:
   push:
     branches: [ main ]
+    paths:
+      - '.github/workflows/build-deploy.yml'
+      - 'src/**'
+      - 'BingSiteAuth.xml'
+      - 'browserconfig.xml'
+      - 'CNAME'
+      - 'google3dd9d57115818ebb.html'
+      - 'LICENSE'
+      - 'manifest.webmanifest'
+      - 'robots.txt'
+      - 'sitemap.xml'
+      - 'service-worker.js'
+      - 'posthtml.js'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'scripts/adapters/app-config.js'
+      - 'scripts/adapters/weather-alert-service.js'
+      - 'scripts/lib/classic-script-loader.js'
+      - 'scripts/validate-browser-javascript.js'
   workflow_dispatch:
 
 permissions:
