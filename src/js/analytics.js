@@ -75,6 +75,7 @@
   ]);
   const ALLOWED_EXTERNAL_LINK_PROTOCOLS = new Set(['http:', 'https:', 'mailto:', 'sms:', 'tel:']);
   const EXTERNAL_LINK_DESTINATIONS = Object.freeze({
+    APPLE_MAPS: 'apple_maps',
     COLUMBIA_ASSOCIATION: 'columbia_association',
     COLUMBIA_ASSOCIATION_REGISTRATION: 'columbia_association_registration',
     EMAIL: 'email',
@@ -103,6 +104,7 @@
     'forecast.weather.gov': EXTERNAL_LINK_DESTINATIONS.NATIONAL_WEATHER_SERVICE,
     'github.com': EXTERNAL_LINK_DESTINATIONS.GITHUB,
     'maps.app.goo.gl': EXTERNAL_LINK_DESTINATIONS.GOOGLE_MAPS,
+    'maps.apple.com': EXTERNAL_LINK_DESTINATIONS.APPLE_MAPS,
     'support.google.com': EXTERNAL_LINK_DESTINATIONS.GOOGLE_ANALYTICS_HELP,
     'www.columbiaassociation.org': EXTERNAL_LINK_DESTINATIONS.COLUMBIA_ASSOCIATION,
     'www.facebook.com': EXTERNAL_LINK_DESTINATIONS.FACEBOOK,

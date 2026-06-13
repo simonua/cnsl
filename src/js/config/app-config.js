@@ -23,6 +23,7 @@
   const MY_MEET_DAY_LOOKAHEAD_DAYS = 2;
   const TEAM_AGENDA_DEPENDENCIES = Object.freeze([
     'js/services/html-safety.js',
+    'js/services/device-platform-service.js',
     'js/services/pool-link-helper.js',
     'js/services/time-utils.js',
     'js/types/pool-enums.js',

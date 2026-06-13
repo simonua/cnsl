@@ -311,6 +311,9 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
       const locationLink = pool?.id
         ? globalThis.generatePoolsPageLink(pool.id, locationName)
         : globalThis.HtmlSafety.escapeHtml(locationName);
+      const directionsLink = pool
+        ? globalThis.generatePoolDirectionsLink(pool, locationName)
+        : '';
       const safePoolAddress = globalThis.HtmlSafety.escapeHtml(guide.poolAddress);
       const course = globalThis.formatPoolCourseLabel(pool);
       const courseLabel = course && pool?.laneCount && pool.laneCount <= MEET_HEAT_NOTICE_MAX_LANES
@@ -344,6 +347,7 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
           <span class="my-meet-day__role my-meet-day__role--${guide.role}">${roleLabel}</span>
           <p class="my-meet-day__matchup"><strong>${globalThis.HtmlSafety.escapeHtml(matchup)}</strong></p>
           <p class="my-meet-day__location">${locationLink}</p>
+          ${directionsLink ? `<p class="my-meet-day__directions">${directionsLink}</p>` : ''}
           <p class="my-meet-day__schedule"><time datetime="${globalThis.HtmlSafety.escapeHtml(guide.date)}">${globalThis.HtmlSafety.escapeHtml(dateLabel)}</time><span class="upcoming-day-pill${dayPillClass}">${globalThis.HtmlSafety.escapeHtml(guide.dayLabel.toLowerCase())}</span><span class="my-meet-day__meet-time">${globalThis.HtmlSafety.escapeHtml(meetTime)}</span></p>
         </div>
         <section class="my-meet-day__timing" aria-label="Key times">

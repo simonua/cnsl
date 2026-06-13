@@ -55,6 +55,8 @@ describe('PoolCardDisplay', () => {
     assert.match(html, /Open &lt;public&gt;/);
     assert.match(html, /10400 &lt;Bryant&gt; Woods Court/);
     assert.match(html, /https:\/\/www\.google\.com\/maps\/search\/\?api=1&amp;query=Bryant%20Woods%20Pool/);
+    assert.match(html, /class="directions-link"/);
+    assert.match(html, /Get directions to Bryant &lt;Woods&gt; in Google Maps/);
     assert.match(html, /href="https:\/\/example\.com\/pool\?name=Bryant&amp;Woods"/);
     assert.match(html, /href="tel:4105550100"/);
     assert.match(html, /feature-pill--amenities/);
@@ -216,7 +218,8 @@ describe('PoolCardDisplay', () => {
     const context = {
       window: {},
       HtmlSafety: { escapeHtml: value => String(value).replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character])), safeHttpUrl: () => '', safeTelephoneUrl: () => '' },
-      IconCatalog: { render: () => '' }
+      IconCatalog: { render: () => '' },
+      generatePoolDirectionsLink: () => ''
     };
     Object.assign(context, context.globalThis || {}, context.window || {});
     context.globalThis = context; context.self = context; context.window = context;

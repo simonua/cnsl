@@ -2,7 +2,7 @@
 
 ![GitHub Pages](https://img.shields.io/badge/hosted%20on-GitHub%20Pages-121013?logo=github&logoColor=white&style=flat-square)
 ![PWA Ready](https://img.shields.io/badge/PWA-ready-0abf53?logo=googlechrome&logoColor=white&style=flat-square)
-[![Nightly Browser Verification](https://github.com/simonua/cnsl/actions/workflows/nightly-browser-verification.yml/badge.svg?branch=main)](https://github.com/simonua/cnsl/actions/workflows/nightly-browser-verification.yml)
+[![Weekly Browser Verification](https://github.com/simonua/cnsl/actions/workflows/nightly-browser-verification.yml/badge.svg?branch=main)](https://github.com/simonua/cnsl/actions/workflows/nightly-browser-verification.yml)
 [![CodeQL](https://github.com/simonua/cnsl/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/simonua/cnsl/actions/workflows/github-code-scanning/codeql)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)
 
@@ -71,7 +71,7 @@ pnpm run build
 pnpm run verify:pwa
 ```
 
-Playwright browser verification is deferred to the `Nightly Browser Verification` GitHub Actions workflow. Each day during May, June, and July, its scheduled check runs Chromium workflow and automated WCAG A/AA checks only when a push to `main` was recorded during the preceding 24 hours. It can also be run on demand through workflow dispatch. Browser results are reported separately and do not delay or block a GitHub Pages build. Use the [Release Verification Checklist](docs/release-checklist.md) for the secure-origin installed-PWA and manual assistive-technology checks that automation cannot establish.
+Playwright browser verification is deferred to the `Weekly Browser Verification` GitHub Actions workflow. Each Sunday during May, June, and July, its scheduled check runs Chromium workflow and automated WCAG A/AA checks only when a push to `main` was recorded during the preceding seven days. It can also be run on demand through workflow dispatch. Browser results are reported separately and do not delay or block a GitHub Pages build. Use the [Release Verification Checklist](docs/release-checklist.md) for the secure-origin installed-PWA and manual assistive-technology checks that automation cannot establish.
 
 Design and maintenance decisions are recorded in the [Visual Style Guide](docs/style-guide.md), [Runtime And Stylesheet Ownership](docs/runtime-architecture.md), [Security And Privacy Decision](docs/security-privacy.md), and retained [Voice Assistant Question Scope](docs/voice-assistant-scope.md).
 
@@ -89,7 +89,7 @@ This project uses GitHub Actions to automatically build and deploy the website t
 8. Uploads the built files as an artifact
 9. Deploys the artifact to GitHub Pages
 
-Separately, the May-to-July daily browser-verification workflow runs Playwright after a push to `main` in the preceding 24 hours, or when manually dispatched.
+Separately, the May-to-July weekly browser-verification workflow runs Playwright after a push to `main` in the preceding seven days, or when manually dispatched.
 
 Workflow configurations are located in `.github/workflows/build-deploy.yml` and `.github/workflows/nightly-browser-verification.yml`.
 

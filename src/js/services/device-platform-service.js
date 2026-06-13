@@ -1,5 +1,5 @@
 /**
- * Classifies supported mobile platforms and installed display mode.
+ * Classifies browser platforms and installed display mode.
  * Accepts browser capability values explicitly so detection remains testable.
  */
 
@@ -28,6 +28,18 @@ if (typeof globalThis.DevicePlatformService === 'undefined') {
      */
     static isMobilePlatform(platform) {
       return platform === 'android' || platform === 'ios';
+    }
+
+    /**
+     * Check whether browser capabilities identify an Apple device.
+     * @param {Object} navigatorLike - Navigator capability values
+     * @returns {boolean} Whether the browser is running on iOS, iPadOS, or macOS
+     */
+    static isApplePlatform(navigatorLike = {}) {
+      const userAgentPlatform = navigatorLike.userAgentData?.platform;
+      const platform = String(userAgentPlatform || navigatorLike.platform || '');
+      const userAgent = String(navigatorLike.userAgent || '');
+      return /Mac|iPhone|iPad|iPod/i.test(`${platform} ${userAgent}`);
     }
 
     /**

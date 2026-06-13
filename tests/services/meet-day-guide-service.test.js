@@ -130,6 +130,8 @@ describe('MeetDayGuideService', () => {
       assert.match(html, /The six spaces near the pool entrance are reserved for coaches and managers\./);
       assert.match(html, /Please set up behind the wading pool, just to the right of the entrance\. If more space is needed, please use the area outside the side gates\./);
       assert.match(html, /<p class="my-meet-day__location"><a href="pools\.html\?pool=frp" class="location-link pool-link">Faulkner Ridge Pool<\/a><\/p>/);
+      assert.match(html, /class="my-meet-day__directions"/);
+      assert.match(html, /Get directions to Faulkner Ridge Pool in Google Maps/);
       assert.match(html, /<section class="my-meet-day__timing" aria-label="Key times">/);
       assert.doesNotMatch(html, />Key times<\/h3>/);
       assert.match(html, /The host team did not provide a check-in location\./);
@@ -187,6 +189,7 @@ describe('MeetDayGuideService', () => {
       assert.match(html, /The clerk of course checks in by the office\./);
       assert.match(html, /Bring a canopy/);
       assert.match(html, /Home meets depend on volunteers/);
+      assert.match(html, /Get directions to Host Pool in Google Maps/);
       assert.doesNotMatch(html, /more heats/);
     });
 
@@ -212,6 +215,7 @@ describe('MeetDayGuideService', () => {
       });
       assert.match(plainRecordHtml, /By 7:55 AM/);
       assert.match(plainRecordHtml, /Starts at 8:00 AM/);
+      assert.doesNotMatch(plainRecordHtml, /directions-link/);
     });
   });
 

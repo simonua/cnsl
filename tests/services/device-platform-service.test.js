@@ -25,6 +25,14 @@ describe('DevicePlatformService', () => {
     assert.equal(DevicePlatformService.isStandalone(true, true), true);
   });
 
+  it('identifies Apple browser platforms for native map links', () => {
+    assert.equal(DevicePlatformService.isApplePlatform({ userAgentData: { platform: 'macOS' } }), true);
+    assert.equal(DevicePlatformService.isApplePlatform({ platform: 'MacIntel' }), true);
+    assert.equal(DevicePlatformService.isApplePlatform({ userAgent: 'Mozilla/5.0 (iPad)' }), true);
+    assert.equal(DevicePlatformService.isApplePlatform({ platform: 'Win32' }), false);
+    assert.equal(DevicePlatformService.isApplePlatform(), false);
+  });
+
   it('installs the service as a browser script global', () => {
     const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'device-platform-service.js');
     const source = fs.readFileSync(sourcePath, 'utf8');

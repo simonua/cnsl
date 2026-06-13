@@ -81,6 +81,6 @@ pnpm run build
 pnpm run verify:pwa
 ```
 
-Do not run Playwright locally as part of release verification. The separate nightly browser-verification workflow runs it only after repository updates and does not block deployment.
+Do not run Playwright locally as part of release verification. The separate weekly browser-verification workflow runs it only after repository updates and does not block deployment.
 
 Report changed files, visitor-facing release highlights, and exact validation results. Identify any required HTTPS PWA, keyboard/screen reader, or privacy review that still needs to be completed on the delivered site; do not claim completion without evidence.

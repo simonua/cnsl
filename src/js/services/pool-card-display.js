@@ -137,6 +137,7 @@ if (typeof globalThis.PoolCardDisplay === 'undefined') {
       const safePoolName = HtmlSafety.escapeHtml(poolName || 'pool');
       const caUrl = HtmlSafety.safeHttpUrl(safePool.caUrl);
       const phoneUrl = HtmlSafety.safeTelephoneUrl(safePool.phone);
+      const directionsHtml = globalThis.generatePoolDirectionsLink(safePool, poolName);
       const caLinkHtml = caUrl
         ? `<div class="ca-website-section">
           <a href="${caUrl}"
@@ -154,7 +155,7 @@ if (typeof globalThis.PoolCardDisplay === 'undefined') {
           </a>
         </div>`
         : '';
-      return `${phoneHtml}${caLinkHtml}`;
+      return `${directionsHtml}${phoneHtml}${caLinkHtml}`;
     }
 
     /**

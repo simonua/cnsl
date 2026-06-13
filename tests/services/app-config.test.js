@@ -54,7 +54,9 @@ describe('app-config', () => {
   });
 
   it('publishes one immutable dependency manifest for team agenda views', () => {
-    assert.equal(config.TEAM_AGENDA_DEPENDENCIES.length, 18);
+    assert.equal(config.TEAM_AGENDA_DEPENDENCIES.length, 19);
+    assert.ok(config.TEAM_AGENDA_DEPENDENCIES.indexOf('js/services/device-platform-service.js')
+      < config.TEAM_AGENDA_DEPENDENCIES.indexOf('js/services/pool-link-helper.js'));
     assert.equal(config.TEAM_AGENDA_DEPENDENCIES.at(-1), 'js/services/meet-day-guide-service.js');
     assert.equal(Object.isFrozen(config.TEAM_AGENDA_DEPENDENCIES), true);
   });

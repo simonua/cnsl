@@ -864,7 +864,14 @@ test('[WF-ANALYTICS-007] external links publish fixed destinations without URL d
   });
   await clickWithoutNavigation(poolCard.locator('.phone-link'));
   await clickWithoutNavigation(poolCard.locator('.address-link'));
+  await clickWithoutNavigation(poolCard.locator('.directions-link'));
   await poolCard.evaluate(card => {
+    const appleMapsLink = globalThis.document.createElement('a');
+    appleMapsLink.href = 'https://maps.apple.com/?daddr=private+address';
+    appleMapsLink.textContent = 'Apple Maps';
+    appleMapsLink.addEventListener('click', event => event.preventDefault(), { once: true });
+    card.append(appleMapsLink);
+    appleMapsLink.click();
     const unknownLink = globalThis.document.createElement('a');
     unknownLink.href = 'https://unreviewed.example/private?token=secret#details';
     unknownLink.textContent = 'Unknown destination';
@@ -876,6 +883,8 @@ test('[WF-ANALYTICS-007] external links publish fixed destinations without URL d
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_external_link'))).toEqual([
     ['event', 'ca_external_link', { link_context: 'pool_details', link_purpose: 'general', link_destination: 'phone_call' }],
     ['event', 'ca_external_link', { link_context: 'pool_details', link_purpose: 'general', link_destination: 'google_maps' }],
+    ['event', 'ca_external_link', { link_context: 'pool_details', link_purpose: 'general', link_destination: 'google_maps' }],
+    ['event', 'ca_external_link', { link_context: 'pool_details', link_purpose: 'general', link_destination: 'apple_maps' }],
     ['event', 'ca_external_link', { link_context: 'pool_details', link_purpose: 'general', link_destination: 'other' }]
   ]);
   await page.evaluate(() => {
@@ -886,7 +895,7 @@ test('[WF-ANALYTICS-007] external links publish fixed destinations without URL d
     });
   });
   const externalEvents = await page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_external_link'));
-  expect(externalEvents).toHaveLength(3);
+  expect(externalEvents).toHaveLength(5);
   expect(JSON.stringify(externalEvents)).not.toContain('secret');
   expect(JSON.stringify(externalEvents)).not.toContain('410-');
 });
@@ -1751,6 +1760,11 @@ test('[WF-AGENDA-007] home page follows the My Meet Day experimental opt-in', as
   const poolLinks = meetDay.getByRole('link', { name: 'Faulkner Ridge Pool' });
   await expect(poolLinks).toHaveCount(2);
   await expect(poolLinks.first()).toHaveAttribute('href', 'pools.html?pool=frp');
+  const directionsLink = meetDay.getByRole('link', { name: 'Get directions to Faulkner Ridge Pool in Google Maps' });
+  await expect(directionsLink).toBeVisible();
+  await expect(directionsLink.locator('svg')).toHaveCount(1);
+  await expect(directionsLink).toContainText('Directions');
+  await expect(directionsLink).toHaveAttribute('href', /https:\/\/www\.google\.com\/maps\/dir\//);
   await expect(meetDay.getByRole('heading', { name: 'Key times' })).toHaveCount(0);
   const poolLink = poolLinks.first();
   await poolLink.focus();
@@ -2197,6 +2211,7 @@ test('[WF-POOLS-006] desktop expanded pool details group contact links and fit t
   await expect(calendar).toBeVisible();
   await expect(favoriteCard.locator('.address-section__phone')).not.toContainText('Pool Desk');
   await expect(favoriteCard.locator('.phone-link')).toHaveAttribute('aria-label', /Call Bryant Woods pool desk at 410-730-5326/);
+  await expect(favoriteCard.getByRole('link', { name: 'Get directions to Bryant Woods in Google Maps' })).toBeVisible();
   const layout = await favoriteCard.evaluate(card => {
     const contactBox = card.querySelector('.pool-contact').getBoundingClientRect();
     const addressSection = card.querySelector('.address-section');
@@ -2235,6 +2250,17 @@ test('[WF-POOLS-006] desktop expanded pool details group contact links and fit t
   expect(layout.calendarFits).toBe(true);
   expect(layout.featuresHasAccentBorder).toBe(true);
   expect(layout.addressToHoursGap).toBe(layout.hoursToFeaturesGap);
+});
+
+test('[WF-POOLS-020] linked pool expands without moving the page and keeps a clear directions action', async ({ page }) => {
+  await page.goto('/pools.html?pool=frp');
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+
+  const linkedPool = page.locator('.pool-card[data-pool-id="frp"]');
+  await expect(linkedPool).toHaveClass(/highlighted/);
+  await expect(linkedPool.locator('.pool-header__toggle')).toHaveAttribute('aria-expanded', 'true');
+  await expect(linkedPool.getByRole('link', { name: 'Get directions to Faulkner Ridge in Google Maps' })).toBeVisible();
+  await expect.poll(() => page.evaluate(() => globalThis.scrollY)).toBe(0);
 });
 
 test('[WF-POOLS-007] mobile calendar schedules reveal today when a pool is expanded', async ({ page }) => {

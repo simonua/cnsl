@@ -1,4 +1,4 @@
-name: Nightly Browser Verification
+name: Weekly Browser Verification
 
 on:
   workflow_dispatch:
@@ -13,8 +13,8 @@ on:
           - '1'
           - '2'
   schedule:
-    # Runs daily at 05:47 UTC during May, June, and July only.
-    - cron: '47 5 * 5-7 *'
+    # Runs Sundays at 05:47 UTC during May, June, and July only.
+    - cron: '47 5 * 5-7 0'
 
 permissions:
   actions: read
@@ -40,7 +40,7 @@ jobs:
             exit 0
           fi
 
-          window_start="$(date --utc --date='24 hours ago' '+%Y-%m-%dT%H:%M:%SZ')"
+          window_start="$(date --utc --date='7 days ago' '+%Y-%m-%dT%H:%M:%SZ')"
           push_runs_json="$(gh api \
             -H 'Accept: application/vnd.github+json' \
             -H 'X-GitHub-Api-Version: 2022-11-28' \
@@ -54,10 +54,10 @@ jobs:
 
           if (( recent_push_run_count > 0 )); then
             echo "run_tests=true" >> "$GITHUB_OUTPUT"
-            echo "Running browser verification after a push to main in the last 24 hours." >> "$GITHUB_STEP_SUMMARY"
+            echo "Running browser verification after a push to main in the last 7 days." >> "$GITHUB_STEP_SUMMARY"
           else
             echo "run_tests=false" >> "$GITHUB_OUTPUT"
-            echo "Skipping browser verification: no push to main was recorded in the last 24 hours." >> "$GITHUB_STEP_SUMMARY"
+            echo "Skipping browser verification: no push to main was recorded in the last 7 days." >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Checkout

@@ -7,6 +7,53 @@ if (typeof globalThis.getPoolIdFromLocation === 'undefined') {
 
 const PoolLinkSafety = globalThis.HtmlSafety;
 const PoolLinkIcons = globalThis.IconCatalog;
+const APPLE_MAPS_DIRECTIONS_URL = 'https://maps.apple.com/';
+const GOOGLE_MAPS_DIRECTIONS_URL = 'https://www.google.com/maps/dir/';
+
+/**
+ * Build a directions query from the most specific published pool location.
+ * @param {Object|null} poolData - Published pool data
+ * @param {string} displayText - Pool label used as a final fallback
+ * @returns {string} Directions destination query
+ */
+function getPoolDirectionsQuery(poolData, displayText) {
+  const pool = poolData && typeof poolData === 'object' ? poolData : {};
+  const location = pool.location && typeof pool.location === 'object' ? pool.location : {};
+  const address = [
+    location.street,
+    [location.city, location.state].filter(Boolean).join(', '),
+    location.zip
+  ].filter(Boolean).join(' ');
+  const latitude = Number.isFinite(location.lat) ? location.lat : pool.lat;
+  const longitude = Number.isFinite(location.lng) ? location.lng : pool.lng;
+  const coordinates = Number.isFinite(latitude) && Number.isFinite(longitude)
+    ? `${latitude},${longitude}`
+    : '';
+  return String(location.mapsQuery || pool.mapsQuery || address || pool.address || coordinates || displayText || '');
+}
+
+/**
+ * Generate a clear directions action for the visitor's map platform.
+ * @param {Object|null} poolData - Published pool data with location information
+ * @param {string} displayText - Pool name used in the accessible link name
+ * @param {Object|null} navigatorData - Browser navigator-like platform data
+ * @returns {string} Safe directions link HTML or an empty string
+ */
+function generatePoolDirectionsLink(poolData, displayText, navigatorData = globalThis.navigator) {
+  const destination = getPoolDirectionsQuery(poolData, displayText);
+  if (!destination) return '';
+
+  const useAppleMaps = globalThis.DevicePlatformService.isApplePlatform(navigatorData || {});
+  const directionsUrl = new URL(useAppleMaps ? APPLE_MAPS_DIRECTIONS_URL : GOOGLE_MAPS_DIRECTIONS_URL);
+  directionsUrl.searchParams.set(useAppleMaps ? 'daddr' : 'destination', destination);
+  if (!useAppleMaps) directionsUrl.searchParams.set('api', '1');
+  const safeDirectionsUrl = PoolLinkSafety.safeHttpUrl(directionsUrl.toString());
+  if (!safeDirectionsUrl) return '';
+
+  const providerName = useAppleMaps ? 'Apple Maps' : 'Google Maps';
+  const safeDisplayText = PoolLinkSafety.escapeHtml(displayText || 'this pool');
+  return `<a href="${safeDirectionsUrl}" target="_blank" rel="noopener" class="directions-link" aria-label="Get directions to ${safeDisplayText} in ${providerName}">${PoolLinkIcons.render('map')}<span>Directions</span></a>`;
+}
 
 /**
  * Build a case-insensitive index of published pool locations.
@@ -216,5 +263,7 @@ globalThis.generatePoolsPageLink = generatePoolsPageLink;
 globalThis.generateLinkedPoolMentions = generateLinkedPoolMentions;
 globalThis.generateGoogleMapsLink = generateGoogleMapsLink;
 globalThis.generateEnhancedPoolLink = generateEnhancedPoolLink;
+globalThis.generatePoolDirectionsLink = generatePoolDirectionsLink;
+globalThis.getPoolDirectionsQuery = getPoolDirectionsQuery;
 
 }

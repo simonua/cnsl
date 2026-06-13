@@ -164,19 +164,6 @@ function scrollCalendarsToToday(root = document) {
 }
 
 /**
- * Reveal a linked pool without placing its heading beneath the fixed site header.
- * @param {Element} poolCard - Pool card selected from a cross-page link
- */
-function scrollLinkedPoolIntoView(poolCard) {
-  const header = document.querySelector('.header');
-  const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
-  const scrollClearance = 12;
-  const top = Math.max(0, window.scrollY + poolCard.getBoundingClientRect().top - headerBottom - scrollClearance);
-  const behavior = window.shouldReduceMotion() ? 'auto' : 'smooth';
-  window.scrollTo({ top, behavior });
-}
-
-/**
  * Load and display the official interactive CA pool directory action.
  */
 function loadSeasonInfo() {
@@ -900,7 +887,7 @@ function renderPools(pools) {
 
 /**
  * Handles URL parameters to show a specific pool
- * If ?pool=poolId is in the URL, expands and highlights that pool
+ * If ?pool=poolId is in the URL, highlights the already expanded pool.
  */
 function handlePoolUrlParameter() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -914,7 +901,6 @@ function handlePoolUrlParameter() {
   if (!poolCard) return;
 
   poolCard.classList.add('highlighted');
-  scrollLinkedPoolIntoView(poolCard);
 
   setTimeout(() => {
     poolCard.classList.remove('highlighted');

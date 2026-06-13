@@ -56,6 +56,6 @@ Prefer recommendations that make useful content available sooner, remove duplica
 
 ## Verification
 
-When feasible, run `pnpm run lint`, `pnpm test`, `pnpm run validate:data`, `pnpm run build`, `pnpm run verify:pwa`, and `pnpm run measure:performance`. Do not run Playwright as part of the audit except through the performance command's isolated measurement runner; note that functional and accessibility Playwright verification is executed only by the separate nightly browser-verification workflow after repository updates. Record performance phases, sample spread, annual-domain request counts, PWA tiers, warnings, and all other results accurately in the plan, including checks that could not be executed.
+When feasible, run `pnpm run lint`, `pnpm test`, `pnpm run validate:data`, `pnpm run build`, `pnpm run verify:pwa`, and `pnpm run measure:performance`. Do not run Playwright as part of the audit except through the performance command's isolated measurement runner; note that functional and accessibility Playwright verification is executed only by the separate weekly browser-verification workflow after repository updates. Record performance phases, sample spread, annual-domain request counts, PWA tiers, warnings, and all other results accurately in the plan, including checks that could not be executed.
 
 In `runlocal` mode, report the updated local plan and verification results without publishing. In explicit `publish` mode, open a pull request containing only the refreshed refactoring plan for human review.
