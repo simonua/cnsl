@@ -54,13 +54,16 @@ In Release mode:
 
 The What's New page is for families and visitors, not an engineering changelog. Use concise benefit-oriented language and describe only observable behavior backed by the diff.
 
-Whenever an item is added to `Upcoming` or a release is versioned, reevaluate every item in the affected list and rank the items from most to least important to visitors. Apply this order of consideration:
+Whenever an item is added to `Upcoming` or a release is versioned, reevaluate every item in the affected list and rank the items from most to least important to visitors. For a list about to be versioned, lead with its highest-impact visitor-facing feature additions: new capabilities and substantial workflow expansions should appear before fixes, refinements, and presentation changes of comparable importance. A safety- or correctness-critical item may precede a feature addition only when its visitor impact is clearly greater.
 
-1. Safety, schedule or status correctness, and current seasonal information.
-2. Broadly used pool, meet, team, and home-page planning workflows.
-3. Meaningful reliability, accessibility, privacy, and offline improvements.
-4. Secondary or audience-specific workflows.
-5. Narrow visual, wording, or presentation polish.
+Apply this order of consideration:
+
+1. High-impact feature additions, especially broadly used pool, meet, team, and home-page planning capabilities.
+2. Safety, schedule or status correctness, and current seasonal information.
+3. Other meaningful feature additions and workflow expansions.
+4. Meaningful reliability, accessibility, privacy, and offline improvements.
+5. Secondary or audience-specific fixes and refinements.
+6. Narrow visual, wording, or presentation polish.
 
 Use judgment when categories overlap. Do not preserve implementation order or group items mechanically by Pool, Meet, Team, and Bug fix labels. Keep the release summary aligned with the highest-ranked items.
 
