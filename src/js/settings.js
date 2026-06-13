@@ -315,6 +315,7 @@
 
     const favoriteTeam = document.getElementById('favoriteTeam');
     const favoritePool = document.getElementById('favoritePool');
+    const favoriteSettings = document.getElementById('favoriteSettings');
     const status = document.getElementById('settingsStatus');
     const closeButton = document.getElementById('closeSettings');
     const publishedTeamNames = new Set();
@@ -460,6 +461,7 @@
       status.textContent = '';
       applyFormValues(form, PreferencesService.get());
       renderWeatherCheckStatus();
+      favoriteSettings.open = true;
       if (!dialog.open) dialog.showModal();
       closeButton.focus();
       loadFavoriteOptions();

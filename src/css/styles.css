@@ -5863,11 +5863,36 @@ button.settings-dialog__close:focus {
   padding: 0;
 }
 
+.settings-section {
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+  padding: 0;
+}
+
+.settings-section > summary {
+  margin: 0;
+  padding: 0.9rem;
+}
+
+.settings-section > .settings-section__content {
+  border-top: 1px solid var(--border-color);
+  padding: 0.9rem;
+}
+
+.settings-section .settings-preference {
+  border: 0;
+  margin-left: 0;
+  margin-right: 0;
+  padding: 0;
+}
+
 .settings-experiments {
   background-color: var(--experimental-bg);
   border: 1px solid var(--experimental-border);
   border-radius: 8px;
   color: var(--experimental-text);
+  margin-bottom: 1rem;
   padding: 0;
 }
 
@@ -5902,8 +5927,10 @@ button.settings-dialog__close:focus {
 }
 
 .settings-experiments__disclaimer {
-  line-height: 1.5;
-  margin: 0 0 1rem;
+  font-size: 0.82rem;
+  font-style: italic;
+  line-height: 1.45;
+  margin: 1rem 0 0;
 }
 
 .settings-experiments__options {
@@ -6038,7 +6065,8 @@ button.settings-dialog__close:focus {
   pointer-events: none;
 }
 
-.settings-preference + .settings-preference {
+.settings-preference + .settings-preference,
+.settings-section__content > .settings-preference + .settings-preference {
   margin-top: 1rem;
 }
 
@@ -6237,6 +6265,10 @@ button.settings-dialog__close:focus {
   margin-left: 0.4rem;
   text-shadow: 0 1px 1px var(--favorite-badge-text);
   vertical-align: 0.09em;
+}
+
+.settings-collapsible__heading .favorite-marker {
+  transform: translateY(0.25rem);
 }
 
 .favorite-meet {

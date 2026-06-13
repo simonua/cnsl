@@ -2373,16 +2373,24 @@ test('[WF-SETTINGS-001] settings dialog is evenly inset on mobile and centered o
     const primaryHeading = collapsibleHeading?.querySelector(':scope > span:first-child') || collapsibleHeading;
     return primaryHeading ? primaryHeading.textContent.trim() : heading?.textContent.trim() || '';
   }))).resolves.toEqual([
-    'Favorite pool ★',
-    'Favorite team ★',
-    'Practice groups',
-    'Pool schedule view',
-    'Weather safety alerts',
-    'Pool distance',
-    'Accessibility',
-    'Appearance',
+    'Favorites',
+    'Schedules',
+    'Pool visits',
+    'Display and accessibility',
     'Experimental Features'
   ]);
+  const favoriteSettings = page.locator('#favoriteSettings');
+  const scheduleSettings = page.locator('#scheduleSettings');
+  await expect(favoriteSettings).toHaveAttribute('open', '');
+  await expect(scheduleSettings).not.toHaveAttribute('open', '');
+  await expect(page.locator('#favoritePool')).toBeVisible();
+  await expect(page.getByRole('group', { name: 'Swim Team Practice Groups' })).toBeHidden();
+  await scheduleSettings.locator('summary').press('Enter');
+  await expect(scheduleSettings).toHaveAttribute('open', '');
+  await expect(favoriteSettings).not.toHaveAttribute('open', '');
+  await expect(page.getByRole('group', { name: 'Swim Team Practice Groups' })).toBeVisible();
+  const practiceBounds = await page.locator('.settings-checkbox-list .settings-checkbox').evaluateAll(options => options.map(option => option.getBoundingClientRect().x));
+  expect(new Set(practiceBounds.map(position => Math.round(position))).size).toBe(2);
   const accessibilitySettings = page.locator('#accessibilitySettings');
   const accessibilitySummary = accessibilitySettings.locator('summary');
   await expect(accessibilitySettings).not.toHaveAttribute('open', '');
@@ -2397,10 +2405,12 @@ test('[WF-SETTINGS-001] settings dialog is evenly inset on mobile and centered o
   let clearButtonBounds = await page.getByRole('button', { name: 'Clear all app data' }).boundingBox();
   let clearActionsBounds = await page.locator('.settings-actions').boundingBox();
   expect(Math.abs(clearButtonBounds.x + (clearButtonBounds.width / 2) - (clearActionsBounds.x + (clearActionsBounds.width / 2)))).toBeLessThanOrEqual(1);
-  const practiceBounds = await page.locator('.settings-checkbox-list .settings-checkbox').evaluateAll(options => options.map(option => option.getBoundingClientRect().x));
-  expect(new Set(practiceBounds.map(position => Math.round(position))).size).toBe(2);
   await page.getByRole('button', { name: 'Close settings' }).click();
   await expect(dialog).not.toBeVisible();
+  await page.getByRole('button', { name: 'Open settings' }).click();
+  await expect(favoriteSettings).toHaveAttribute('open', '');
+  await expect(accessibilitySettings).not.toHaveAttribute('open', '');
+  await page.getByRole('button', { name: 'Close settings' }).click();
 
   const desktopViewport = { width: 1280, height: 800 };
   await page.setViewportSize(desktopViewport);
@@ -2435,15 +2445,20 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
   await initializeAnalyticsRecorder(page);
   await page.goto('/settings.html');
   await expect(page.locator('#favoritePool')).toBeEnabled();
-  await expect(page.getByRole('group', { name: 'Practice groups' })).toBeVisible();
+  await page.locator('#scheduleSettings summary').click();
+  await expect(page.getByRole('group', { name: 'Swim Team Practice Groups' })).toBeVisible();
   await expect(page.getByLabel('First Splash')).toBeChecked();
   await expect(page.getByLabel('8 and under')).toBeChecked();
   await expect(page.getByLabel('9-10')).toBeChecked();
 
+  await page.locator('#accessibilitySettings summary').click();
   await page.getByLabel('Dark').check();
+  await page.locator('#scheduleSettings summary').click();
   await page.getByLabel('Weekly calendar').check();
+  await page.locator('#poolVisitSettings summary').click();
   await page.getByLabel('Use my current location to estimate distances to pools').check();
   await page.getByLabel('10 min').check();
+  await page.locator('#scheduleSettings summary').click();
   await page.getByLabel('First Splash').uncheck();
   await page.getByLabel('8 and under').uncheck();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
@@ -2462,6 +2477,7 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
     ['event', 'ca_setting_change', { setting_name: 'practice_groups' }]
   ]);
 
+  await page.locator('#favoriteSettings summary').click();
   await page.locator('#favoritePool').selectOption({ label: 'Bryant Woods' });
   await page.locator('#favoriteTeam').selectOption('cfhss');
   await page.locator('#favoritePool').selectOption('');
@@ -2574,6 +2590,12 @@ test('[WF-SETTINGS-011] experimental features are collapsed, tracked, and gated 
   await expect(experiments.locator('input[name="experimentalFeatures"]')).toHaveCount(1);
   await expect(experiments.getByText('My Meet Day', { exact: true })).toBeVisible();
   await expect(experiments.locator('.settings-experiment__description')).toHaveText("See personalized details for your favorite team's next meet, including key times and host-pool guidance when available.");
+  const disclaimer = experiments.locator('.settings-experiments__disclaimer');
+  await expect(disclaimer).toHaveCSS('font-style', 'italic');
+  await expect.poll(() => disclaimer.evaluate(element => ({
+    followsOptions: element.previousElementSibling?.classList.contains('settings-experiments__options'),
+    fontSize: Number.parseFloat(globalThis.getComputedStyle(element).fontSize)
+  }))).toEqual({ followsOptions: true, fontSize: 13.12 });
 
   const meetDaySwitch = page.getByLabel('Enable My Meet Day');
   await expect(meetDaySwitch).not.toBeChecked();
@@ -2632,6 +2654,7 @@ test('[WF-SETTINGS-004] system theme follows OS color scheme changes while expli
   await page.emulateMedia({ colorScheme: 'light' });
   await expect(root).toHaveAttribute('data-color-scheme', 'light');
 
+  await page.locator('#accessibilitySettings summary').click();
   await page.getByLabel('Dark').check();
   await expect(root).toHaveAttribute('data-theme', 'dark');
   await expect(root).toHaveAttribute('data-color-scheme', 'dark');
@@ -2663,6 +2686,7 @@ test('[WF-SETTINGS-008] accessibility settings apply immediately, persist locall
   await expect(root).toHaveAttribute('data-motion-mode', 'reduced');
   await expect(root).toHaveAttribute('data-underline-links', 'true');
   await expect(root).toHaveCSS('font-size', '20px');
+  await page.locator('#poolVisitSettings summary').click();
   await expect(page.getByRole('link', { name: 'View weather source details.' })).toHaveCSS('text-decoration-line', 'underline');
   await expect.poll(() => page.locator('.settings-segmented label').first().evaluate(element => parseFloat(globalThis.getComputedStyle(element).transitionDuration))).toBeLessThanOrEqual(0.001);
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')))).toMatchObject({
@@ -2704,6 +2728,7 @@ test('[WF-SETTINGS-009] device contrast, reduced motion, and forced colors updat
 
   await page.emulateMedia({ forcedColors: 'active' });
   await expect(root).toHaveAttribute('data-contrast-mode', 'high');
+  await page.locator('#poolVisitSettings summary').click();
   await expect(page.getByRole('link', { name: 'View weather source details.' })).toHaveCSS('text-decoration-line', 'underline');
 });
 
@@ -2724,6 +2749,7 @@ test('[WF-SETTINGS-005] weather safety alerts show the most recent check after u
     localStorage.setItem('cnsl_weather_alert_last_successful_check', JSON.stringify({ updatedAt: '2026-06-02T14:15:00-04:00' }));
   });
   await page.goto('/settings.html');
+  await page.locator('#poolVisitSettings summary').click();
 
   const weatherCheckStatus = page.locator('#weatherCheckStatus');
   await expect(weatherCheckStatus).toHaveText('Most recent successful weather check: Jun 2, 2026, 2:15 PM. Weather safety alerts are currently off.');
@@ -2739,6 +2765,7 @@ test('[WF-SETTINGS-006] weather safety alerts retain the last successful check w
     localStorage.setItem('cnsl_weather_alert_last_successful_check', JSON.stringify({ updatedAt: '2026-06-02T14:15:00-04:00' }));
   });
   await page.goto('/settings.html');
+  await page.locator('#poolVisitSettings summary').click();
   await page.evaluate(async () => {
     const poolData = { pools: [{ schedules: [{
       startDate: '2026-01-01',
@@ -2763,6 +2790,7 @@ test('[WF-SETTINGS-006] weather safety alerts retain the last successful check w
 
 test('[WF-SETTINGS-007] weather source details expose fixed Columbia-area National Weather Service requests in a new tab', async ({ page }) => {
   await page.goto('/settings.html');
+  await page.locator('#poolVisitSettings summary').click();
   const sourceDetailsLink = page.getByRole('link', { name: 'View weather source details.' });
 
   await expect(sourceDetailsLink).toHaveAttribute('href', 'faq.html#weather-safety-location');

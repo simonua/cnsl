@@ -8,120 +8,139 @@
     </header>
     <p class="settings-dialog__notice">Changes apply automatically, and your choices stay on this device.</p>
     <form class="settings-form" id="settingsForm">
-      <div class="settings-group">
-        <label class="settings-label" for="favoritePool">Favorite pool <span class="favorite-marker" aria-hidden="true">&#9733;</span></label>
-        <select class="settings-select" id="favoritePool" name="favoritePool" disabled>
-          <option value="">Loading pools...</option>
-        </select>
-      </div>
-
-      <div class="settings-group">
-        <label class="settings-label" for="favoriteTeam">Favorite team <span class="favorite-marker" aria-hidden="true">&#9733;</span></label>
-        <select class="settings-select" id="favoriteTeam" name="favoriteTeam" disabled>
-          <option value="">Loading teams...</option>
-        </select>
-      </div>
-
-      <fieldset class="settings-group" aria-describedby="practiceGroupsHint">
-        <legend>Practice groups</legend>
-        <p class="settings-hint settings-hint--flush" id="practiceGroupsHint">Select the practice groups you are interested in. A published time for a combined age range is shown when it includes a selected group.</p>
-        <div class="settings-checkbox-list">
-          <label class="settings-checkbox"><input type="checkbox" name="practiceGroups" value="first-splash" checked> <span>First Splash</span></label>
-          <label class="settings-checkbox"><input type="checkbox" name="practiceGroups" value="8-under" checked> <span>8 and under</span></label>
-          <label class="settings-checkbox"><input type="checkbox" name="practiceGroups" value="9-10" checked> <span>9-10</span></label>
-          <label class="settings-checkbox"><input type="checkbox" name="practiceGroups" value="11-12" checked> <span>11-12</span></label>
-          <label class="settings-checkbox"><input type="checkbox" name="practiceGroups" value="13-14" checked> <span>13-14</span></label>
-          <label class="settings-checkbox"><input type="checkbox" name="practiceGroups" value="15-18" checked> <span>15-18</span></label>
-        </div>
-      </fieldset>
-
-      <fieldset class="settings-group">
-        <legend>Pool schedule view</legend>
-        <div class="settings-segmented settings-segmented--two" role="radiogroup" aria-label="Pool schedule view">
-          <label><input type="radio" name="poolScheduleLayout" value="list"> List</label>
-          <label><input type="radio" name="poolScheduleLayout" value="calendar"> Weekly calendar</label>
-        </div>
-      </fieldset>
-
-      <fieldset class="settings-group" aria-describedby="weatherAlertsHint weatherCheckStatus">
-        <legend>Weather safety alerts</legend>
-        <div class="settings-segmented" role="radiogroup" aria-label="Weather update frequency">
-          <label><input type="radio" name="weatherRefreshMinutes" value="0"> Off</label>
-          <label><input type="radio" name="weatherRefreshMinutes" value="5"> 5 min</label>
-          <label><input type="radio" name="weatherRefreshMinutes" value="10"> 10 min</label>
-        </div>
-        <p class="settings-hint settings-hint--flush" id="weatherAlertsHint">Weather is checked only from one hour before the first scheduled pool activity until pools close. Checks use a fixed Columbia-area point, not your current location. Visible alerts show when they were last updated. <a href="faq.html#weather-safety-location" target="_blank" rel="noopener">View weather source details.</a></p>
-        <p class="settings-weather-status" id="weatherCheckStatus" aria-live="polite">No weather check has been recorded in this tab yet.</p>
-      </fieldset>
-
-      <fieldset class="settings-group">
-        <legend>Pool distance</legend>
-        <label class="settings-checkbox" for="locationAwarenessEnabled">
-          <input type="checkbox" id="locationAwarenessEnabled" name="locationAwarenessEnabled" aria-describedby="locationAwarenessHint">
-          <span>Use my current location to estimate distances to pools</span>
-        </label>
-        <p class="settings-hint" id="locationAwarenessHint">This is off by default. If you turn it on, the Pools page asks your browser for your location only long enough to estimate pool distances. The app does not track, save, or send your location.</p>
-      </fieldset>
-
-      <details class="settings-group settings-collapsible" id="accessibilitySettings">
+      <details class="settings-group settings-collapsible settings-section" id="favoriteSettings" name="settings-section" open>
         <summary class="settings-label">
-          <span class="settings-collapsible__heading">Accessibility</span>
+          <span class="settings-collapsible__heading"><span>Favorites</span><span class="favorite-marker" aria-hidden="true">&#9733;</span></span>
           <span class="settings-collapsible__toggle-icon" aria-hidden="true">&#9650;</span>
         </summary>
-        <fieldset class="settings-collapsible__content">
-          <legend class="visually-hidden">Accessibility preferences</legend>
+        <div class="settings-collapsible__content settings-section__content">
           <div class="settings-preference">
-            <span class="settings-sublabel" id="textSizeLabel">Text size</span>
+            <label class="settings-sublabel" for="favoritePool">Favorite pool</label>
+            <select class="settings-select" id="favoritePool" name="favoritePool" disabled>
+              <option value="">Loading pools...</option>
+            </select>
+          </div>
+          <div class="settings-preference">
+            <label class="settings-sublabel" for="favoriteTeam">Favorite team</label>
+            <select class="settings-select" id="favoriteTeam" name="favoriteTeam" disabled>
+              <option value="">Loading teams...</option>
+            </select>
+          </div>
+        </div>
+      </details>
+
+      <details class="settings-group settings-collapsible settings-section" id="scheduleSettings" name="settings-section">
+        <summary class="settings-label">
+          <span class="settings-collapsible__heading">Schedules</span>
+          <span class="settings-collapsible__toggle-icon" aria-hidden="true">&#9650;</span>
+        </summary>
+        <div class="settings-collapsible__content settings-section__content">
+          <fieldset class="settings-preference" aria-describedby="practiceGroupsHint">
+            <legend class="settings-sublabel">Swim Team Practice Groups</legend>
+            <p class="settings-hint settings-hint--flush" id="practiceGroupsHint">Select the swim team practice groups you are interested in. A published time for a combined age range is shown when it includes a selected group.</p>
+            <div class="settings-checkbox-list">
+              <label class="settings-checkbox"><input type="checkbox" name="practiceGroups" value="first-splash" checked> <span>First Splash</span></label>
+              <label class="settings-checkbox"><input type="checkbox" name="practiceGroups" value="8-under" checked> <span>8 and under</span></label>
+              <label class="settings-checkbox"><input type="checkbox" name="practiceGroups" value="9-10" checked> <span>9-10</span></label>
+              <label class="settings-checkbox"><input type="checkbox" name="practiceGroups" value="11-12" checked> <span>11-12</span></label>
+              <label class="settings-checkbox"><input type="checkbox" name="practiceGroups" value="13-14" checked> <span>13-14</span></label>
+              <label class="settings-checkbox"><input type="checkbox" name="practiceGroups" value="15-18" checked> <span>15-18</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="settings-preference">
+            <legend class="settings-sublabel">Pool schedule view</legend>
+            <div class="settings-segmented settings-segmented--two" role="radiogroup" aria-label="Pool schedule view">
+              <label><input type="radio" name="poolScheduleLayout" value="list"> List</label>
+              <label><input type="radio" name="poolScheduleLayout" value="calendar"> Weekly calendar</label>
+            </div>
+          </fieldset>
+        </div>
+      </details>
+
+      <details class="settings-group settings-collapsible settings-section" id="poolVisitSettings" name="settings-section">
+        <summary class="settings-label">
+          <span class="settings-collapsible__heading">Pool visits</span>
+          <span class="settings-collapsible__toggle-icon" aria-hidden="true">&#9650;</span>
+        </summary>
+        <div class="settings-collapsible__content settings-section__content">
+          <fieldset class="settings-preference" aria-describedby="weatherAlertsHint weatherCheckStatus">
+            <legend class="settings-sublabel">Weather safety alerts</legend>
+            <div class="settings-segmented" role="radiogroup" aria-label="Weather update frequency">
+              <label><input type="radio" name="weatherRefreshMinutes" value="0"> Off</label>
+              <label><input type="radio" name="weatherRefreshMinutes" value="5"> 5 min</label>
+              <label><input type="radio" name="weatherRefreshMinutes" value="10"> 10 min</label>
+            </div>
+            <p class="settings-hint settings-hint--flush" id="weatherAlertsHint">Weather is checked only from one hour before the first scheduled pool activity until pools close. Checks use a fixed Columbia-area point, not your current location. Visible alerts show when they were last updated. <a href="faq.html#weather-safety-location" target="_blank" rel="noopener">View weather source details.</a></p>
+            <p class="settings-weather-status" id="weatherCheckStatus" aria-live="polite">No weather check has been recorded in this tab yet.</p>
+          </fieldset>
+          <fieldset class="settings-preference">
+            <legend class="settings-sublabel">Pool distance</legend>
+            <label class="settings-checkbox" for="locationAwarenessEnabled">
+              <input type="checkbox" id="locationAwarenessEnabled" name="locationAwarenessEnabled" aria-describedby="locationAwarenessHint">
+              <span>Use my current location to estimate distances to pools</span>
+            </label>
+            <p class="settings-hint" id="locationAwarenessHint">This is off by default. If you turn it on, the Pools page asks your browser for your location only long enough to estimate pool distances. The app does not track, save, or send your location.</p>
+          </fieldset>
+        </div>
+      </details>
+
+      <details class="settings-group settings-collapsible settings-section" id="accessibilitySettings" name="settings-section">
+        <summary class="settings-label">
+          <span class="settings-collapsible__heading">Display and accessibility</span>
+          <span class="settings-collapsible__toggle-icon" aria-hidden="true">&#9650;</span>
+        </summary>
+        <div class="settings-collapsible__content settings-section__content">
+          <fieldset class="settings-preference">
+            <legend class="settings-sublabel">Theme</legend>
+            <div class="settings-segmented" role="radiogroup" aria-label="Appearance theme">
+              <label><input type="radio" name="theme" value="system"> Device default</label>
+              <label><input type="radio" name="theme" value="light"> Light</label>
+              <label><input type="radio" name="theme" value="dark"> Dark</label>
+            </div>
+          </fieldset>
+          <fieldset class="settings-preference">
+            <legend class="settings-sublabel" id="textSizeLabel">Text size</legend>
             <div class="settings-segmented" role="radiogroup" aria-labelledby="textSizeLabel">
               <label><input type="radio" name="textSize" value="default"> Default</label>
               <label><input type="radio" name="textSize" value="large"> Large</label>
               <label><input type="radio" name="textSize" value="extra-large"> Extra large</label>
             </div>
-          </div>
-          <div class="settings-preference">
-            <span class="settings-sublabel" id="contrastLabel">Contrast</span>
+          </fieldset>
+          <fieldset class="settings-preference">
+            <legend class="settings-sublabel" id="contrastLabel">Contrast</legend>
             <div class="settings-segmented settings-segmented--two" role="radiogroup" aria-labelledby="contrastLabel">
               <label><input type="radio" name="contrast" value="system"> Device default</label>
               <label><input type="radio" name="contrast" value="high"> High</label>
             </div>
-          </div>
-          <div class="settings-preference">
-            <span class="settings-sublabel" id="motionLabel">Motion</span>
+          </fieldset>
+          <fieldset class="settings-preference">
+            <legend class="settings-sublabel" id="motionLabel">Motion</legend>
             <div class="settings-segmented settings-segmented--two" role="radiogroup" aria-labelledby="motionLabel">
               <label><input type="radio" name="motion" value="system"> Device default</label>
               <label><input type="radio" name="motion" value="reduced"> Reduced</label>
             </div>
-          </div>
+          </fieldset>
           <label class="settings-checkbox settings-preference" for="underlineLinks">
             <input type="checkbox" id="underlineLinks" name="underlineLinks">
             <span>Underline text links</span>
           </label>
-        </fieldset>
+        </div>
       </details>
 
-      <fieldset class="settings-group">
-        <legend>Appearance</legend>
-        <div class="settings-segmented" role="radiogroup" aria-label="Appearance theme">
-          <label><input type="radio" name="theme" value="system"> Device default</label>
-          <label><input type="radio" name="theme" value="light"> Light</label>
-          <label><input type="radio" name="theme" value="dark"> Dark</label>
-        </div>
-      </fieldset>
-
-      <details class="settings-group settings-collapsible settings-experiments" id="experimentalFeatures">
+      <details class="settings-group settings-collapsible settings-section settings-experiments" id="experimentalFeatures" name="settings-section">
         <summary class="settings-label">
           <span class="settings-collapsible__heading settings-experiments__heading"><span>Experimental Features</span><span class="experimental-badge">Experimental</span></span>
           <span class="settings-experiments__count" id="experimentalFeaturesCount" aria-live="polite">0/0 enabled</span>
           <span class="settings-collapsible__toggle-icon settings-experiments__toggle-icon" aria-hidden="true">&#9650;</span>
         </summary>
         <div class="settings-experiments__content">
-          <p class="settings-experiments__disclaimer">Experimental features may change or provide incomplete information. Please do not rely on them as your only source, and validate all information with your team and official sources.</p>
           <fieldset class="settings-experiments__options">
             <legend class="visually-hidden">Available experimental features</legend>
             <div id="experimentalFeatureOptions" aria-live="polite">
               <p class="settings-hint settings-hint--flush">Loading experimental features...</p>
             </div>
           </fieldset>
+          <p class="settings-experiments__disclaimer">Experimental features may change or provide incomplete information. Please do not rely on them as your only source, and validate all information with your team and official sources.</p>
         </div>
       </details>
 
