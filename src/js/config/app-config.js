@@ -7,8 +7,8 @@
   const APP_TIMEZONE = 'America/New_York';
   const OFFICIAL_SOURCE_CHECKED_AT = '2026-06-13T09:03:27-04:00';
   const OFFICIAL_SOURCE_UPDATED_AT = '2026-06-12T17:57:05-04:00';
-  const APP_VERSION = '2.16.1';
-  const APP_LAST_UPDATED_ON = '2026-06-12';
+  const APP_VERSION = '2.17.0';
+  const APP_LAST_UPDATED_ON = '2026-06-13';
   const HOME_PAGE_HOSTNAME = 'pools.longreachmarlins.org';
   const HOME_PAGE_URL = `https://${HOME_PAGE_HOSTNAME}`;
   const AUTHOR_NAME = 'Simon Kurtz';
