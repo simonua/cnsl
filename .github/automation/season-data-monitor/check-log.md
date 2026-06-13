@@ -1,6 +1,6 @@
 # Seasonal Data Update Check Log
 
-This append-only log records completed online checks of official active-season sources. Each entry uses an `America/New_York` timestamp with an explicit UTC offset and states whether the overall check was complete.
+This append-only log records completed online checks of official active-season sources. Each entry uses an `America/New_York` timestamp with an explicit UTC offset, states whether the overall check was complete, and ends with an update-summary table.
 
 ## 2026-06-10T06:56:02-04:00
 
@@ -17,6 +17,15 @@ Checked 107 unique official URLs:
 
 The monitor reported candidate changes for the Columbia Association pool schedule page and Huntington Dolphins practice source. Review found no represented-data change: CA's short schedule links still resolved to the retained schedule documents, and Huntington's modeled practice details remained unchanged despite new home-page news content.
 
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Unchanged | None. |
+| Application-used source destinations | Unchanged | None. |
+| Retained official PDFs | Unchanged | None accepted. |
+| Visitor-facing records | Unchanged | None. |
+| Review records | Not completed | This incomplete result was logged; completed-check timestamps were not advanced. |
+| Reviewed source baseline | Not completed | The baseline was not refreshed because required source coverage was incomplete. |
+
 ## 2026-06-10T22:13:23-04:00
 
 **Active season:** 2026
@@ -32,6 +41,15 @@ Checked the 135-source inventory:
 
 The monitor detected no candidate source differences. No modeled data or application-used destination changed, so `OFFICIAL_SOURCE_UPDATED_AT` remains unchanged.
 
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Unchanged | None. |
+| Application-used source destinations | Unchanged | None. |
+| Retained official PDFs | Unchanged | None. |
+| Visitor-facing records | Unchanged | None. |
+| Review records | Updated | Completed-check timestamp, annual README evidence, and this check-log entry. |
+| Reviewed source baseline | Updated | `source-state.json` refreshed after the completed review. |
+
 ## 2026-06-11T18:08:10-04:00
 
 **Active season:** 2026
@@ -45,3 +63,35 @@ Checked the 135-source inventory:
 - 3 application-used destinations retained their availability exception: the Long Reach and Phelps Luck merchandise stores and the Long Reach booster site.
 
 The monitor detected no candidate source differences, and all required uncovered destinations were reachable. No modeled data or application-used destination changed, so `OFFICIAL_SOURCE_UPDATED_AT` remains unchanged.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Unchanged | None. |
+| Application-used source destinations | Unchanged | None. |
+| Retained official PDFs | Unchanged | None. |
+| Visitor-facing records | Unchanged | None. |
+| Review records | Updated | Completed-check timestamp, annual README evidence, and this check-log entry. |
+| Reviewed source baseline | Updated | `source-state.json` refreshed after the completed review. |
+
+## 2026-06-13T09:03:27-04:00
+
+**Active season:** 2026
+
+**Result:** Complete under the existing explicit maintainer exception for merchandise-store and booster-site availability.
+
+Checked the 135-source inventory:
+
+- 76 modeled-evidence sources were reached by the seasonal source monitor.
+- 56 uncovered application-used destinations were reached separately with live GET requests.
+- 3 application-used destinations retained their availability exception: the Long Reach and Phelps Luck merchandise stores and the Long Reach booster site.
+
+The monitor detected no candidate source differences, and all required uncovered destinations were reachable. No modeled data or application-used destination changed, so `OFFICIAL_SOURCE_UPDATED_AT` remains unchanged.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Unchanged | None. |
+| Application-used source destinations | Unchanged | None. |
+| Retained official PDFs | Unchanged | None. |
+| Visitor-facing records | Unchanged | None. |
+| Review records | Updated | `OFFICIAL_SOURCE_CHECKED_AT`, annual README evidence, and this check-log entry. |
+| Reviewed source baseline | Updated | `source-state.json` refreshed with the accepted June 13 fingerprints and PDF metadata. |

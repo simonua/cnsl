@@ -102,6 +102,8 @@ The monitor itself does not deterministically rewrite application JSON from PDF 
 
 After every completed source review, record its date and evidence in the annual README, update `OFFICIAL_SOURCE_CHECKED_AT` to the review-completion timestamp in `America/New_York`, and refresh the reviewed baseline. When the review also changes modeled data or an application-used source destination, update `OFFICIAL_SOURCE_UPDATED_AT` to the same timestamp. The FAQ and footer render both values so visitors can distinguish recent verification from the last accepted data change.
 
+End both the reviewer completion response and its check-log entry with the same update-summary table. The table uses `Area`, `Status`, and `Details` columns and includes modeled application data, application-used source destinations, retained official PDFs, visitor-facing records, review records, and the reviewed source baseline. Use `Updated`, `Unchanged`, or `Not completed`; identify changed files or fields and state `None` for unchanged areas.
+
 ### Active Data Validation Gate
 
 Run `pnpm run validate:data` after transcribing or correcting active annual data. The command validates the active `YEAR` JSON documents against their sibling draft-07 schemas with date, URI, and email formats enabled, and checks identifiers, seasonal date ranges, HTTPS source links, team-to-pool and meet-location references, detailed practice locations against each team's declared practice pools, and locally retained official PDF files. It reads local accepted evidence only and does not fetch or rewrite official sources.

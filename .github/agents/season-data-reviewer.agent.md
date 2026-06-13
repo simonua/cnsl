@@ -67,3 +67,16 @@ In the pull request description, include a `## Data Changes` section organized b
 ```
 
 Do not list raw page fingerprint changes as data changes. They are investigation signals only; describe only verified changes to application-used values or source destinations.
+
+## Completion Report
+
+Make an `Updates` table the final section of every completion response and the corresponding check-log entry. Put the optional `pnpm run validate:data` offer and all other prose before this table so nothing follows it. Use `Updated`, `Unchanged`, or `Not completed`, name changed files or modeled properties, and write `None` when an area did not change:
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Updated / Unchanged / Not completed | Name changed records and properties, or `None`. |
+| Application-used source destinations | Updated / Unchanged / Not completed | Name changed URLs, or `None`. |
+| Retained official PDFs | Updated / Unchanged / Not completed | Name added or replaced files, or `None`. |
+| Visitor-facing records | Updated / Unchanged / Not completed | Name What's New and sitemap edits, or `None`. |
+| Review records | Updated / Unchanged / Not completed | Name timestamp, annual README, and check-log edits. |
+| Reviewed source baseline | Updated / Unchanged / Not completed | State whether `source-state.json` was refreshed. |
