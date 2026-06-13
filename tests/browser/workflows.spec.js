@@ -900,7 +900,8 @@ test('[WF-ANALYTICS-005] browser verification blocks Google Analytics collection
 
   await page.goto('https://pools.longreachmarlins.org/index.html', { waitUntil: 'domcontentloaded' });
   const measurementId = await page.evaluate(() => globalThis.GA4_MEASUREMENT_ID);
-  await expect(page.evaluate(id => globalThis[`ga-disable-${id}`], measurementId)).resolves.toBe(true);
+  await expect(page.evaluate(() => globalThis.navigator.webdriver)).resolves.toBe(true);
+  await expect(page.evaluate(id => globalThis[`ga-disable-${id}`], measurementId)).resolves.not.toBe(true);
   await expect(page.locator('#cnslAnalyticsScript')).toHaveCount(0);
   await expect(page.evaluate(() => globalThis.dataLayer)).resolves.toBeUndefined();
   await expect(page.goto('https://www.google-analytics.com/g/collect?v=2')).rejects.toThrow(/ERR_BLOCKED_BY_CLIENT/);

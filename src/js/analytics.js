@@ -701,7 +701,8 @@
    * @private
    */
   function isAnalyticsDisabled() {
-    return window[`ga-disable-${window.GA4_MEASUREMENT_ID}`] === true;
+    return navigator.webdriver === true
+      || window[`ga-disable-${window.GA4_MEASUREMENT_ID}`] === true;
   }
 
   // Initialization
