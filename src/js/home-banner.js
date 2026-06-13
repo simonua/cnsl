@@ -2,7 +2,7 @@
   'use strict';
 
   /**
-   * Controls the visibility, acknowledgement, and analytics for a home-page banner.
+    * Controls the visibility, acknowledgement, and analytics for an application banner.
    * @private
    */
   class HomeBanner {
@@ -87,10 +87,10 @@
   }
 
   /**
-   * Builds and displays the eligible home-page banners.
+    * Builds and displays the eligible application banners on the current view.
    * @private
    */
-  function showHomeBanners() {
+  function showApplicationBanners() {
     const storage = getLocalStorage();
     const releaseVersion = document.getElementById('releaseNoticeVersion');
     const bannerNames = window.cnslAnalytics && window.cnslAnalytics.bannerNames;
@@ -138,8 +138,8 @@
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', showHomeBanners);
+    document.addEventListener('DOMContentLoaded', showApplicationBanners);
   } else {
-    showHomeBanners();
+    showApplicationBanners();
   }
 }());

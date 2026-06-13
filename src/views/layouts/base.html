@@ -95,6 +95,8 @@
 
     <include src="components/connectivity-status.html"></include>
 
+    <include src="components/release-notice.html"></include>
+
     <block name="notice"></block>
 
     <main class="container" id="mainContent" tabindex="-1">
@@ -110,8 +112,12 @@
   <script src="js/navigation.js"></script>
   <script src="js/pwa.js"></script>
   <script src="js/connectivity-status.js"></script>
+  <script src="js/services/device-platform-service.js"></script>
+  <script src="js/services/release-notice-service.js"></script>
 
   <block name="scripts"></block>
+
+  <script src="js/home-banner.js"></script>
 
   <!-- Weather scripts load after the current view's scripts -->
   <script src="js/config/weather-operating-windows.js" defer></script>

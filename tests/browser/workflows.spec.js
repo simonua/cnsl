@@ -918,8 +918,13 @@ test('[WF-ANALYTICS-005] browser verification blocks Google Analytics collection
 
 test('[WF-RELEASE-001] release updates are announced once after a stable version is acknowledged', async ({ page }) => {
   await initializeAnalyticsRecorder(page);
+  await page.addInitScript(() => {
+    if (!localStorage.getItem('cnsl_current_version')) {
+      localStorage.setItem('cnsl_current_version', '2.16.1');
+    }
+  });
   await page.setViewportSize(MOBILE_VIEWPORT);
-  await page.goto('/index.html');
+  await page.goto('/pools.html');
   const currentVersion = await page.evaluate(() => globalThis.APP_VERSION);
   const releaseSeries = currentVersion.split('.').slice(0, 2).join('.');
 
@@ -939,11 +944,11 @@ test('[WF-RELEASE-001] release updates are announced once after a stable version
     ['event', 'ca_banner_interaction', { banner_name: 'release_notice', banner_action: 'dismiss' }]
   ]);
 
-  await page.goto('/pools.html');
-  await expect(page.locator('#releaseNotice')).toHaveCount(0);
+  await page.goto('/teams.html');
+  await expect(page.locator('#releaseNotice')).toBeHidden();
 
   await page.evaluate(() => localStorage.setItem('cnsl_current_version', '2.0.0'));
-  await page.goto('/index.html');
+  await page.goto('/about.html');
   await expect(page.locator('#releaseNotice')).toBeVisible();
   await page.locator('#releaseNoticeLink').click();
   await expect(page).toHaveURL(/\/whats-new\.html$/);
