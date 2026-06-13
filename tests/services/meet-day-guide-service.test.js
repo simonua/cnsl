@@ -123,7 +123,7 @@ describe('MeetDayGuideService', () => {
       assert.match(html, /6-lane \/ 25-meter \(may mean more heats &amp; longer meet time\)/);
       assert.match(html, /Arrive by 7:15 AM/);
       assert.match(html, /Please allow enough time to park, set up, check in, and be ready for warm-ups\./);
-      assert.match(html, /Start at 7:30 AM/);
+      assert.match(html, /Start at 7:25 AM/);
       assert.match(html, /By 7:55 AM/);
       assert.match(html, /Starts at 8:00 AM/);
       assert.match(html, /Please park by the neighborhood center behind the pool\./);
@@ -219,7 +219,7 @@ describe('MeetDayGuideService', () => {
     it('formats fallback guide values and optional concessions fields', () => {
       assert.equal(MeetDayGuideService.formatClockTime('bad'), 'bad');
       assert.equal(MeetDayGuideService.formatClockTime(), '');
-      assert.equal(MeetDayGuideService.formatWarmups({ warmupTime: '07:30' }), 'Start at 7:30 AM');
+      assert.equal(MeetDayGuideService.formatWarmups({ warmupTime: '07:25' }), 'Start at 7:25 AM');
       assert.equal(MeetDayGuideService.formatWarmups(null), '');
       assert.deepEqual(MeetDayGuideService.getParkingLines(null, null), []);
       assert.deepEqual(MeetDayGuideService.getParkingLines(null, {

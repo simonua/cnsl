@@ -1703,7 +1703,7 @@ test('[WF-AGENDA-007] home page follows the My Meet Day experimental opt-in', as
   await expect(meetDay).toContainText('10518 Marble Faun Court, Columbia, MD 21044');
   await expect(meetDay).toContainText('6-lane / 25-meter (may mean more heats & longer meet time)');
   await expect(meetDay).toContainText('Arrive by 7:15 AM');
-  await expect(meetDay).toContainText('Start at 7:30 AM');
+  await expect(meetDay).toContainText('Start at 7:25 AM');
   await expect(meetDay).toContainText('By 7:55 AM');
   await expect(meetDay).toContainText('Starts at 8:00 AM');
   await expect(meetDay).toContainText('Please park by the neighborhood center behind the pool.');
@@ -1767,7 +1767,7 @@ test('[WF-AGENDA-008] dedicated My Meet Day route loads only after the experimen
   await expect(page.locator('#myMeetDay')).toContainText('Marlins @ Watercats');
   await expect(page.locator('#myMeetDay')).toContainText('in 2 days');
   await expect(page.locator('#myMeetDay')).toContainText('Arrive by 7:15 AM');
-  await expect(page.locator('#myMeetDay')).toContainText('Start at 7:30 AM');
+  await expect(page.locator('#myMeetDay')).toContainText('Start at 7:25 AM');
   await expect(page.locator('#myMeetDay')).toContainText('By 7:55 AM');
   await expect(page.locator('#myMeetDay')).toContainText('Starts at 8:00 AM');
   await expect(page.locator('#myMeetDay')).toContainText('Please park by the neighborhood center behind the pool.');
