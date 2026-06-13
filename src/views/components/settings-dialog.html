@@ -63,35 +63,41 @@
         <p class="settings-hint" id="locationAwarenessHint">This is off by default. If you turn it on, the Pools page asks your browser for your location only long enough to estimate pool distances. The app does not track, save, or send your location.</p>
       </fieldset>
 
-      <fieldset class="settings-group">
-        <legend>Accessibility</legend>
-        <div class="settings-preference">
-          <span class="settings-sublabel" id="textSizeLabel">Text size</span>
-          <div class="settings-segmented" role="radiogroup" aria-labelledby="textSizeLabel">
-            <label><input type="radio" name="textSize" value="default"> Default</label>
-            <label><input type="radio" name="textSize" value="large"> Large</label>
-            <label><input type="radio" name="textSize" value="extra-large"> Extra large</label>
+      <details class="settings-group settings-collapsible" id="accessibilitySettings">
+        <summary class="settings-label">
+          <span class="settings-collapsible__heading">Accessibility</span>
+          <span class="settings-collapsible__toggle-icon" aria-hidden="true">&#9650;</span>
+        </summary>
+        <fieldset class="settings-collapsible__content">
+          <legend class="visually-hidden">Accessibility preferences</legend>
+          <div class="settings-preference">
+            <span class="settings-sublabel" id="textSizeLabel">Text size</span>
+            <div class="settings-segmented" role="radiogroup" aria-labelledby="textSizeLabel">
+              <label><input type="radio" name="textSize" value="default"> Default</label>
+              <label><input type="radio" name="textSize" value="large"> Large</label>
+              <label><input type="radio" name="textSize" value="extra-large"> Extra large</label>
+            </div>
           </div>
-        </div>
-        <div class="settings-preference">
-          <span class="settings-sublabel" id="contrastLabel">Contrast</span>
-          <div class="settings-segmented settings-segmented--two" role="radiogroup" aria-labelledby="contrastLabel">
-            <label><input type="radio" name="contrast" value="system"> Device default</label>
-            <label><input type="radio" name="contrast" value="high"> High</label>
+          <div class="settings-preference">
+            <span class="settings-sublabel" id="contrastLabel">Contrast</span>
+            <div class="settings-segmented settings-segmented--two" role="radiogroup" aria-labelledby="contrastLabel">
+              <label><input type="radio" name="contrast" value="system"> Device default</label>
+              <label><input type="radio" name="contrast" value="high"> High</label>
+            </div>
           </div>
-        </div>
-        <div class="settings-preference">
-          <span class="settings-sublabel" id="motionLabel">Motion</span>
-          <div class="settings-segmented settings-segmented--two" role="radiogroup" aria-labelledby="motionLabel">
-            <label><input type="radio" name="motion" value="system"> Device default</label>
-            <label><input type="radio" name="motion" value="reduced"> Reduced</label>
+          <div class="settings-preference">
+            <span class="settings-sublabel" id="motionLabel">Motion</span>
+            <div class="settings-segmented settings-segmented--two" role="radiogroup" aria-labelledby="motionLabel">
+              <label><input type="radio" name="motion" value="system"> Device default</label>
+              <label><input type="radio" name="motion" value="reduced"> Reduced</label>
+            </div>
           </div>
-        </div>
-        <label class="settings-checkbox settings-preference" for="underlineLinks">
-          <input type="checkbox" id="underlineLinks" name="underlineLinks">
-          <span>Underline text links</span>
-        </label>
-      </fieldset>
+          <label class="settings-checkbox settings-preference" for="underlineLinks">
+            <input type="checkbox" id="underlineLinks" name="underlineLinks">
+            <span>Underline text links</span>
+          </label>
+        </fieldset>
+      </details>
 
       <fieldset class="settings-group">
         <legend>Appearance</legend>
@@ -102,11 +108,11 @@
         </div>
       </fieldset>
 
-      <details class="settings-group settings-experiments" id="experimentalFeatures">
+      <details class="settings-group settings-collapsible settings-experiments" id="experimentalFeatures">
         <summary class="settings-label">
-          <span class="settings-experiments__heading"><span>Experimental Features</span><span class="experimental-badge">Experimental</span></span>
+          <span class="settings-collapsible__heading settings-experiments__heading"><span>Experimental Features</span><span class="experimental-badge">Experimental</span></span>
           <span class="settings-experiments__count" id="experimentalFeaturesCount" aria-live="polite">0/0 enabled</span>
-          <span class="settings-experiments__toggle-icon" aria-hidden="true">&#9650;</span>
+          <span class="settings-collapsible__toggle-icon settings-experiments__toggle-icon" aria-hidden="true">&#9650;</span>
         </summary>
         <div class="settings-experiments__content">
           <p class="settings-experiments__disclaimer">Experimental features may change or provide incomplete information. Please do not rely on them as your only source, and validate all information with your team and official sources.</p>

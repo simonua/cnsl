@@ -94,6 +94,7 @@ test('[AX-SETTINGS-002] accessibility preferences have no WCAG A or AA automated
   });
   await page.goto('/settings.html');
   await page.locator('#favoritePool:not([disabled])').waitFor();
+  await page.locator('#accessibilitySettings summary').click();
   await page.locator('#experimentalFeatures summary').click();
 
   await expectNoAccessibilityViolations(page);

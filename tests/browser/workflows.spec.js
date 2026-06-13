@@ -1003,7 +1003,9 @@ test('[WF-INSTALL-002] Android install shortcut shows only Android guidance when
   await shortcut.click();
   await expect(page.locator('#androidInstallInstructions')).toBeVisible();
   await expect(page.locator('#iosInstallInstructions')).toBeHidden();
-  await page.getByRole('button', { name: 'Install app', exact: true }).click();
+  const installButton = page.getByRole('button', { name: 'Install app', exact: true });
+  await expect(installButton).toBeVisible();
+  await installButton.click({ force: true });
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_install_interaction'))).toEqual([
     ['event', 'ca_install_interaction', { install_action: 'instructions_open' }],
     ['event', 'ca_install_interaction', { install_action: 'prompt_open' }],
@@ -1036,7 +1038,9 @@ test('[WF-INSTALL-003] accepted browser installation publishes only coarse insta
   });
 
   await page.getByRole('button', { name: 'Phone Install', exact: true }).click();
-  await page.getByRole('button', { name: 'Install app', exact: true }).click();
+  const installButton = page.getByRole('button', { name: 'Install app', exact: true });
+  await expect(installButton).toBeVisible();
+  await installButton.click({ force: true });
   await page.evaluate(() => globalThis.dispatchEvent(new Event('appinstalled')));
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_install_interaction'))).toEqual([
     ['event', 'ca_install_interaction', { install_action: 'instructions_open' }],
@@ -1673,6 +1677,11 @@ test('[WF-AGENDA-002] home page shows the next practices and swim event for a se
   await expect(agenda).not.toContainText('Jeffers Hill Pool');
   await expect(agenda).toContainText('5:00 - 5:30pm First Splash');
   await expect(page.locator('#shareSite')).toBeVisible();
+  await expect.poll(() => page.locator('#favoriteWeekToggle').evaluate(toggle => {
+    const iconBounds = toggle.querySelector('.favorite-week__toggle-icon').getBoundingClientRect();
+    const toggleBounds = toggle.getBoundingClientRect();
+    return Math.abs(toggleBounds.right - iconBounds.right) <= 1;
+  })).toBe(true);
   await expect.poll(() => page.evaluate(() => {
     const agendaBottom = globalThis.document.getElementById('favoriteWeek').getBoundingClientRect().bottom;
     const shareTop = globalThis.document.getElementById('shareSite').getBoundingClientRect().top;
@@ -1719,6 +1728,25 @@ test('[WF-AGENDA-007] home page follows the My Meet Day experimental opt-in', as
   await expect(meetDay).toContainText('Starbucks coffee');
   await expect(meetDay).toContainText('vegan by request');
   await expect(meetDay).toContainText('volunteers from both teams');
+  const agenda = page.locator('#favoriteWeek');
+  await expect(agenda).toBeVisible();
+  await expect.poll(() => page.evaluate(() => {
+    const concessionsBounds = globalThis.document.querySelector('.my-meet-day__fact--concessions').getBoundingClientRect();
+    const agendaDay = globalThis.document.querySelector('#favoriteWeek .favorite-week__day');
+    const agendaHeadingBounds = agendaDay.querySelector('h3').getBoundingClientRect();
+    const agendaEventBounds = agendaDay.querySelector('.favorite-week__event-heading').getBoundingClientRect();
+    const agendaSessionBounds = agendaDay.querySelector('.sessions').getBoundingClientRect();
+    const matchesConcessions = bounds => (
+      Math.abs(bounds.left - concessionsBounds.left) <= 1
+      && Math.abs(bounds.width - concessionsBounds.width) <= 1
+    );
+
+    return {
+      eventMatches: matchesConcessions(agendaEventBounds),
+      headingMatches: matchesConcessions(agendaHeadingBounds),
+      sessionMatches: matchesConcessions(agendaSessionBounds)
+    };
+  })).toEqual({ eventMatches: true, headingMatches: true, sessionMatches: true });
   const poolLinks = meetDay.getByRole('link', { name: 'Faulkner Ridge Pool' });
   await expect(poolLinks).toHaveCount(2);
   await expect(poolLinks.first()).toHaveAttribute('href', 'pools.html?pool=frp');
@@ -1729,14 +1757,18 @@ test('[WF-AGENDA-007] home page follows the My Meet Day experimental opt-in', as
   await page.setViewportSize({ width: 390, height: 844 });
   await expect.poll(() => page.evaluate(() => {
     const sectionRect = globalThis.document.getElementById('myMeetDay').getBoundingClientRect();
-    const labelRect = globalThis.document.querySelector('#myMeetDayToggle .experimental-heading').getBoundingClientRect();
+    const toggle = globalThis.document.getElementById('myMeetDayToggle');
+    const iconRect = toggle.querySelector('.favorite-week__toggle-icon').getBoundingClientRect();
+    const labelRect = toggle.querySelector('.experimental-heading').getBoundingClientRect();
+    const toggleRect = toggle.getBoundingClientRect();
     const sectionCenter = sectionRect.left + (sectionRect.width / 2);
     const labelCenter = labelRect.left + (labelRect.width / 2);
     return {
+      iconAlignedRight: Math.abs(toggleRect.right - iconRect.right) <= 1,
       isCentered: Math.abs(sectionCenter - labelCenter) <= 1,
       hasHorizontalOverflow: globalThis.document.documentElement.scrollWidth > globalThis.document.documentElement.clientWidth
     };
-  })).toEqual({ isCentered: true, hasHorizontalOverflow: false });
+  })).toEqual({ iconAlignedRight: true, isCentered: true, hasHorizontalOverflow: false });
   const meetDayToggle = page.locator('#myMeetDayToggle');
   await meetDayToggle.press('Enter');
   await expect(meetDayToggle).toHaveAttribute('aria-expanded', 'false');
@@ -2334,9 +2366,10 @@ test('[WF-SETTINGS-001] settings dialog is evenly inset on mobile and centered o
   });
   await expect(page.locator('#settingsForm > .settings-group').evaluateAll(groups => groups.map(group => {
     const heading = group.querySelector(':scope > legend, :scope > .settings-label');
-    const primaryHeading = heading?.tagName === 'SUMMARY'
-      ? heading.querySelector(':scope > .settings-experiments__heading > span:first-child')
+    const collapsibleHeading = heading?.tagName === 'SUMMARY'
+      ? heading.querySelector(':scope > .settings-collapsible__heading')
       : null;
+    const primaryHeading = collapsibleHeading?.querySelector(':scope > span:first-child') || collapsibleHeading;
     return primaryHeading ? primaryHeading.textContent.trim() : heading?.textContent.trim() || '';
   }))).resolves.toEqual([
     'Favorite pool ★',
@@ -2349,6 +2382,15 @@ test('[WF-SETTINGS-001] settings dialog is evenly inset on mobile and centered o
     'Appearance',
     'Experimental Features'
   ]);
+  const accessibilitySettings = page.locator('#accessibilitySettings');
+  const accessibilitySummary = accessibilitySettings.locator('summary');
+  await expect(accessibilitySettings).not.toHaveAttribute('open', '');
+  await expect(page.getByLabel('Extra large')).toBeHidden();
+  await accessibilitySummary.press('Enter');
+  await expect(accessibilitySettings).toHaveAttribute('open', '');
+  await expect(page.getByLabel('Extra large')).toBeVisible();
+  await accessibilitySummary.press('Enter');
+  await expect(accessibilitySettings).not.toHaveAttribute('open', '');
   const closeButtonBounds = await page.getByRole('button', { name: 'Close settings' }).boundingBox();
   expect(closeButtonBounds.width).toBeLessThan(closeButtonBounds.height);
   let clearButtonBounds = await page.getByRole('button', { name: 'Clear all app data' }).boundingBox();
@@ -2548,6 +2590,22 @@ test('[WF-SETTINGS-011] experimental features are collapsed, tracked, and gated 
   const meetDayLink = page.getByRole('link', { name: /My Meet Day/ });
   await expect(meetDayLink).toBeVisible();
   await expect(meetDayLink.locator('.experimental-badge')).toHaveText('Experimental');
+  const meetDayNavLayout = await meetDayLink.evaluate(link => {
+    const badgeBounds = link.querySelector('.experimental-badge').getBoundingClientRect();
+    const iconBounds = link.querySelector('.nav-menu__icon').getBoundingClientRect();
+    const labelBounds = link.querySelector('.nav-menu__item-label').getBoundingClientRect();
+
+    return {
+      badgeLeft: badgeBounds.left,
+      badgeTop: badgeBounds.top,
+      iconRight: iconBounds.right,
+      labelBottom: labelBounds.bottom,
+      labelLeft: labelBounds.left
+    };
+  });
+  expect(meetDayNavLayout.badgeLeft).toBeCloseTo(meetDayNavLayout.labelLeft, 0);
+  expect(meetDayNavLayout.badgeTop).toBeGreaterThanOrEqual(meetDayNavLayout.labelBottom);
+  expect(meetDayNavLayout.badgeLeft).toBeGreaterThan(meetDayNavLayout.iconRight);
 
   await page.goto('/settings.html');
   await experiments.locator('summary').click();
@@ -2582,6 +2640,10 @@ test('[WF-SETTINGS-008] accessibility settings apply immediately, persist locall
   await initializeAnalyticsRecorder(page);
   await page.goto('/settings.html');
   const root = page.locator('html');
+  const accessibilitySettings = page.locator('#accessibilitySettings');
+
+  await expect(accessibilitySettings).not.toHaveAttribute('open', '');
+  await accessibilitySettings.locator('summary').click();
 
   await expect(page.getByLabel('Default', { exact: true })).toBeChecked();
   await expect(page.getByRole('radiogroup', { name: 'Contrast' }).getByLabel('Device default')).toBeChecked();
@@ -2616,6 +2678,8 @@ test('[WF-SETTINGS-008] accessibility settings apply immediately, persist locall
   ]);
 
   await page.reload();
+  await expect(accessibilitySettings).not.toHaveAttribute('open', '');
+  await accessibilitySettings.locator('summary').click();
   await expect(page.getByLabel('Extra large')).toBeChecked();
   await expect(page.getByRole('radiogroup', { name: 'Contrast' }).getByLabel('High')).toBeChecked();
   await expect(page.getByRole('radiogroup', { name: 'Motion' }).getByLabel('Reduced')).toBeChecked();

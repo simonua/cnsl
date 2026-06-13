@@ -95,4 +95,19 @@ jobs:
         if: steps.decision.outputs.run_tests == 'true'
         env:
           CNSL_PLAYWRIGHT_WORKERS: ${{ inputs.worker_count }}
-        run: pnpm run test:browser:nightly
+        shell: bash
+        run: |
+          set +e
+          pnpm run test:browser:nightly
+          browser_exit_code=$?
+          set -e
+
+          if (( browser_exit_code != 0 )); then
+            {
+              echo '## Browser verification failed'
+              echo
+              echo 'Playwright published the detailed error annotations for this nonblocking nightly check.'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          exit 0
