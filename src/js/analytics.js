@@ -4,12 +4,37 @@
 (function initializeAnalytics() {
   'use strict';
 
-  // Configuration and allowlists
+  // Published event contract
+
+  const ANALYTICS_EVENT_NAMES = Object.freeze({
+    BANNER_INTERACTION: 'ca_banner_interaction',
+    DIRECTORY_DETAIL_OPEN: 'ca_directory_detail_open',
+    EXPERIMENTAL_FEATURE_CHANGE: 'ca_experimental_feature_change',
+    EXTERNAL_LINK: 'ca_external_link',
+    FLYER_VISIT: 'ca_flyer_visit',
+    INSTALL_INTERACTION: 'ca_install_interaction',
+    PAGE_VIEW: 'page_view',
+    RESOURCE_DOWNLOAD: 'ca_resource_download',
+    RESOURCE_VIEW: 'ca_resource_view',
+    SETTING_CHANGE: 'ca_setting_change',
+    SHARE: 'ca_share',
+    UPGRADE: 'ca_upgrade',
+    VERSION: 'ca_version'
+  });
+  const ALLOWED_ANALYTICS_EVENT_NAMES = new Set(Object.values(ANALYTICS_EVENT_NAMES));
+  const RESOURCE_EVENT_NAMES_BY_ACTION = Object.freeze({
+    download: ANALYTICS_EVENT_NAMES.RESOURCE_DOWNLOAD,
+    view: ANALYTICS_EVENT_NAMES.RESOURCE_VIEW
+  });
+
+  // Campaign attribution
 
   const PUBLISHED_CAMPAIGNS = Object.freeze([
     Object.freeze({ medium: 'qr', name: '2026_pool_season', source: 'app' }),
     Object.freeze({ medium: 'qr', name: '2026_pool_season', source: 'flyer' })
   ]);
+
+  // Interaction validation
 
   const BANNER_NAMES = Object.freeze({
     RELEASE_NOTICE: 'release_notice',
@@ -17,6 +42,23 @@
   });
   const ALLOWED_BANNER_NAMES = new Set(Object.values(BANNER_NAMES));
   const ALLOWED_BANNER_ACTIONS = new Set(['dismiss', 'open', 'view']);
+
+  const ALLOWED_DIRECTORY_NAMES = new Set(['meets', 'pools', 'teams']);
+
+  const ALLOWED_EXPERIMENTAL_FEATURE_ACTIONS = new Set(['disabled', 'enabled']);
+  const ALLOWED_EXPERIMENTAL_FEATURE_IDS = new Set(Object.values(globalThis.EXPERIMENTAL_FEATURE_IDS));
+
+  const ALLOWED_INSTALL_ACTIONS = new Set([
+    'installed', 'instructions_open', 'prompt_accepted', 'prompt_dismissed', 'prompt_open'
+  ]);
+
+  const ALLOWED_RESOURCE_NAMES = new Set([
+    'judge', 'line_up_aid', 'timer', 'timesheet_runner', 'web_app_flyer'
+  ]);
+
+  const ALLOWED_SHARE_METHODS = new Set(['email', 'facebook', 'qr_code', 'text', 'x']);
+
+  // External-link classification
 
   const EXTERNAL_LINK_PURPOSES = Object.freeze({
     GENERAL: 'general',
@@ -81,22 +123,7 @@
     'tel:': EXTERNAL_LINK_DESTINATIONS.PHONE_CALL
   });
 
-  const ALLOWED_DIRECTORY_NAMES = new Set(['meets', 'pools', 'teams']);
-  const ALLOWED_INSTALL_ACTIONS = new Set([
-    'installed', 'instructions_open', 'prompt_accepted', 'prompt_dismissed', 'prompt_open'
-  ]);
-  const ALLOWED_EXPERIMENTAL_FEATURE_ACTIONS = new Set(['disabled', 'enabled']);
-  const ALLOWED_EXPERIMENTAL_FEATURE_IDS = new Set(Object.values(globalThis.EXPERIMENTAL_FEATURE_IDS));
-
-  const RESOURCE_EVENT_NAMES = Object.freeze({
-    download: 'ca_resource_download',
-    view: 'ca_resource_view'
-  });
-  const ALLOWED_RESOURCE_NAMES = new Set([
-    'judge', 'line_up_aid', 'timer', 'timesheet_runner', 'web_app_flyer'
-  ]);
-
-  const ALLOWED_SHARE_METHODS = new Set(['email', 'facebook', 'qr_code', 'text', 'x']);
+  // Setting validation
 
   const FIXED_SETTING_VALUES = Object.freeze({
     contrast: new Set(['high', 'system']),
@@ -116,8 +143,10 @@
   ]);
   const FAVORITE_SETTING_NAMES = new Set(['favorite_pool', 'favorite_team']);
   const EMPTY_FAVORITE_SELECTION = 'none';
+
+  // Upgrade tracking
+
   const APP_VERSION_PATTERN = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
-  const UPGRADE_EVENT_NAME = 'ca_upgrade';
   const UNKNOWN_PREVIOUS_VERSION = '0';
 
   // Private measurement and publishing helpers
@@ -214,10 +243,14 @@
    * @param {Object} [eventParameters] - Privacy-reviewed event parameters
    * @private
    */
-  function publishEvent(eventName, eventParameters = {}) {
-    if (typeof window.gtag !== 'function') return;
+  function publishEvent(eventName, eventParameters) {
+    if (!ALLOWED_ANALYTICS_EVENT_NAMES.has(eventName) || typeof window.gtag !== 'function') return;
 
-    window.gtag('event', eventName, eventParameters);
+    if (eventParameters) {
+      window.gtag('event', eventName, eventParameters);
+    } else {
+      window.gtag('event', eventName);
+    }
   }
 
   /**
@@ -378,7 +411,7 @@
     const validUpgradePath = getValidUpgradePath(upgradePath);
     if (!validUpgradePath) return;
 
-    publishEvent(UPGRADE_EVENT_NAME, { upgrade_path: validUpgradePath });
+    publishEvent(ANALYTICS_EVENT_NAMES.UPGRADE, { upgrade_path: validUpgradePath });
     try {
       if (window.localStorage.getItem(window.ANALYTICS_UPGRADE_PATH_STORAGE_KEY) === validUpgradePath) {
         window.localStorage.removeItem(window.ANALYTICS_UPGRADE_PATH_STORAGE_KEY);
@@ -403,7 +436,7 @@
       return;
     }
 
-    publishEvent('ca_version', {
+    publishEvent(ANALYTICS_EVENT_NAMES.VERSION, {
       app_version: window.APP_VERSION
     });
   }
@@ -419,7 +452,7 @@
   function trackBannerInteraction(bannerName, action) {
     if (!ALLOWED_BANNER_NAMES.has(bannerName) || !ALLOWED_BANNER_ACTIONS.has(action)) return;
 
-    publishEvent('ca_banner_interaction', {
+    publishEvent(ANALYTICS_EVENT_NAMES.BANNER_INTERACTION, {
       banner_name: bannerName,
       banner_action: action
     });
@@ -433,7 +466,7 @@
   function trackDirectoryDetailOpen(directoryName) {
     if (!ALLOWED_DIRECTORY_NAMES.has(directoryName)) return;
 
-    publishEvent('ca_directory_detail_open', {
+    publishEvent(ANALYTICS_EVENT_NAMES.DIRECTORY_DETAIL_OPEN, {
       directory_name: directoryName
     });
   }
@@ -447,7 +480,7 @@
   function trackExperimentalFeatureChange(featureId, action) {
     if (!ALLOWED_EXPERIMENTAL_FEATURE_IDS.has(featureId) || !ALLOWED_EXPERIMENTAL_FEATURE_ACTIONS.has(action)) return;
 
-    publishEvent('ca_experimental_feature_change', {
+    publishEvent(ANALYTICS_EVENT_NAMES.EXPERIMENTAL_FEATURE_CHANGE, {
       feature_action: action,
       feature_name: featureId
     });
@@ -465,7 +498,7 @@
       || !ALLOWED_EXTERNAL_LINK_PURPOSES.has(purpose)
       || !ALLOWED_EXTERNAL_LINK_DESTINATIONS.has(destination)) return;
 
-    publishEvent('ca_external_link', {
+    publishEvent(ANALYTICS_EVENT_NAMES.EXTERNAL_LINK, {
       link_context: context,
       link_purpose: purpose,
       link_destination: destination
@@ -483,7 +516,7 @@
     const normalizedValue = String(settingValue);
     if (!allowedValues || !allowedValues.has(normalizedValue)) return;
 
-    publishEvent('ca_setting_change', {
+    publishEvent(ANALYTICS_EVENT_NAMES.SETTING_CHANGE, {
       setting_name: settingName
     });
   }
@@ -496,7 +529,7 @@
   function trackInstallInteraction(action) {
     if (!ALLOWED_INSTALL_ACTIONS.has(action)) return;
 
-    publishEvent('ca_install_interaction', {
+    publishEvent(ANALYTICS_EVENT_NAMES.INSTALL_INTERACTION, {
       install_action: action
     });
   }
@@ -521,7 +554,7 @@
       eventParameters.selection = normalizedValues[0] || EMPTY_FAVORITE_SELECTION;
     }
 
-    publishEvent('ca_setting_change', eventParameters);
+    publishEvent(ANALYTICS_EVENT_NAMES.SETTING_CHANGE, eventParameters);
   }
 
   /**
@@ -531,7 +564,7 @@
    * @private
    */
   function trackResourceInteraction(resourceName, action) {
-    const eventName = RESOURCE_EVENT_NAMES[action];
+    const eventName = RESOURCE_EVENT_NAMES_BY_ACTION[action];
     if (!ALLOWED_RESOURCE_NAMES.has(resourceName) || !eventName) return;
 
     publishEvent(eventName, {
@@ -547,7 +580,7 @@
   function trackShareInteraction(method) {
     if (!ALLOWED_SHARE_METHODS.has(method)) return;
 
-    publishEvent('ca_share', {
+    publishEvent(ANALYTICS_EVENT_NAMES.SHARE, {
       content_type: 'website',
       item_id: 'home_page',
       method
@@ -758,14 +791,14 @@
       send_page_view: false,
       ...getMeasuredCampaignParameters(publishedCampaign)
     });
-    window.gtag('event', 'page_view', {
+    publishEvent(ANALYTICS_EVENT_NAMES.PAGE_VIEW, {
       page_title: getMeasuredPageTitle(),
       ...getMeasuredPageParameters()
     });
     publishVersionWhenChanged();
     publishUpgrade(pendingUpgradePath);
     if (publishedCampaign?.source === 'flyer') {
-      window.gtag('event', 'ca_flyer_visit');
+      publishEvent(ANALYTICS_EVENT_NAMES.FLYER_VISIT);
     }
   }, { once: true });
   document.head.appendChild(script);
