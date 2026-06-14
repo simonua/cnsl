@@ -22,6 +22,7 @@ on:
       - 'scripts/adapters/weather-alert-service.js'
       - 'scripts/lib/classic-script-loader.js'
       - 'scripts/validate-browser-javascript.js'
+      - 'scripts/verify-pwa-build.js'
   workflow_dispatch:
 
 permissions:

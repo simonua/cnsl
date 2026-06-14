@@ -197,8 +197,8 @@ assert.match(analytics, /PAGE_VIEW:\s*'page_view'/, 'Sanitized page measurement 
 assert.doesNotMatch(analytics, /PAGE_VIEW:\s*'ca_page_view'/, 'Page measurement must not be renamed to a custom event that standard GA4 page reporting ignores.');
 assert.match(analytics, /publishEvent\(ANALYTICS_EVENT_NAMES\.PAGE_VIEW,\s*\{[\s\S]*?page_title:\s*getMeasuredPageTitle\(\),[\s\S]*?\.\.\.getMeasuredPageParameters\(\)[\s\S]*?\}\);/, 'Sanitized page measurement must publish only its reviewed title and page parameters.');
 assert.match(analytics, /publishEvent\(ANALYTICS_EVENT_NAMES\.VERSION,[\s\S]*app_version:\s*window\.APP_VERSION/, 'App version measurement must use the configured published version in its dedicated event.');
-assert.match(analytics, /window\.sessionStorage\.getItem\(window\.ANALYTICS_VERSION_REPORTED_STORAGE_KEY\)/, 'App version measurement must check its configured session marker before publication.');
-assert.match(analytics, /window\.sessionStorage\.setItem\(window\.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, window\.APP_VERSION\)/, 'App version measurement must store the reported app version before publication.');
+assert.match(analytics, /window\.localStorage\.getItem\(window\.ANALYTICS_VERSION_REPORTED_STORAGE_KEY\)/, 'App version measurement must check its configured browser-profile marker before publication.');
+assert.match(analytics, /window\.localStorage\.setItem\(window\.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, window\.APP_VERSION\)/, 'App version measurement must store the reported app version for the browser profile before publication.');
 assert.doesNotMatch(analytics, /cnsl_analytics_version_reported/, 'Analytics must use the session storage key from application configuration.');
 assert.doesNotMatch(pwa, /cnsl_service_worker_update_checked_at/, 'The PWA consumer must use its session storage key from application configuration.');
 assert.match(analyticsInteractionType, /const AnalyticsInteractionType = Object\.freeze\(/, 'Analytics interaction types must use one immutable shared enum.');
