@@ -306,20 +306,32 @@
   }
 
   /**
-   * Finds a validated previous version from durable, session, or legacy state.
+   * Finds the newest validated predecessor from durable, session, or legacy state.
    * @param {Storage|null} localStorageImplementation - Device-local storage
    * @param {Storage|null} sessionStorageImplementation - Current-tab storage
-   * @returns {string|null} Best available previous version
+   * @param {string} currentVersion - Running application version
+   * @returns {string|null} Newest observed version below the current version
    * @private
    */
-  function getPreviousAppVersion(localStorageImplementation, sessionStorageImplementation) {
+  function getPreviousAppVersion(localStorageImplementation, sessionStorageImplementation, currentVersion) {
     const candidates = [
+      // Canonical upgrade marker since 2.16.0; retain while upgrade analytics exists.
       readStorageValue(localStorageImplementation, window.ANALYTICS_APP_VERSION_STORAGE_KEY),
+      // Active 2.16.0+ controller-change handoff, not legacy. Remove only with its pwa.js producer
+      // after another mechanism preserves the outgoing version across service-worker activation.
       readStorageValue(sessionStorageImplementation, window.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY),
+      // Compatibility fallback: ca_version moved from session to profile storage in 2.17.2.
+      // Reassess this candidate after the full 2027 season if no pre-2.16.0 upgrades are observed;
+      // keep the key itself while publishVersionWhenChanged still uses it for event deduplication.
       readStorageValue(localStorageImplementation, window.ANALYTICS_VERSION_REPORTED_STORAGE_KEY),
+      // Compatibility fallback from the 2.1.0 release-notice flow. Reassess with the preceding
+      // candidate after the full 2027 season; the release notice still owns this key afterward.
       readStorageValue(localStorageImplementation, window.APP_VERSION_STORAGE_KEY)
     ];
-    return candidates.find(version => getVersionParts(version)) || null;
+    return candidates.reduce((newestVersion, version) => {
+      if (compareVersions(version, currentVersion) !== -1) return newestVersion;
+      return !newestVersion || compareVersions(version, newestVersion) === 1 ? version : newestVersion;
+    }, null);
   }
 
   /**
@@ -383,7 +395,11 @@
     ));
     if (storedVersion === window.APP_VERSION) return pendingPath;
 
-    const previousVersion = getPreviousAppVersion(localStorageImplementation, sessionStorageImplementation);
+    const previousVersion = getPreviousAppVersion(
+      localStorageImplementation,
+      sessionStorageImplementation,
+      window.APP_VERSION
+    );
     const upgradePath = compareVersions(previousVersion, window.APP_VERSION) === -1
       ? `${previousVersion} -> ${window.APP_VERSION}`
       : !previousVersion && (storedVersion !== null

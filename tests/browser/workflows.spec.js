@@ -750,6 +750,37 @@ analyticsTest('[WF-ANALYTICS-010] analytics uses the service-worker upgrade vers
   await page.unrouteAll({ behavior: 'ignoreErrors' });
 });
 
+analyticsTest('[WF-ANALYTICS-011] analytics uses the newest predecessor across a multi-step upgrade history', async ({ page }) => {
+  await page.route('https://www.googletagmanager.com/**', route => route.fulfill({
+    contentType: 'application/javascript',
+    body: 'globalThis.cnslTagScriptLoaded = true;'
+  }));
+  await page.route('https://pools.longreachmarlins.org/**', async route => {
+    const requestedUrl = new URL(route.request().url());
+    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    await route.fulfill({ response });
+  });
+  await page.addInitScript(storageKeys => {
+    localStorage.setItem(storageKeys.analyticsVersion, '2.8.4');
+    localStorage.setItem(storageKeys.releaseNoticeVersion, '2.16.1');
+    localStorage.setItem(storageKeys.reportedVersion, '2.17.0');
+    sessionStorage.setItem(storageKeys.serviceWorkerVersion, '2.17.1');
+  }, {
+    analyticsVersion: AppConfig.ANALYTICS_APP_VERSION_STORAGE_KEY,
+    releaseNoticeVersion: AppConfig.APP_VERSION_STORAGE_KEY,
+    reportedVersion: AppConfig.ANALYTICS_VERSION_REPORTED_STORAGE_KEY,
+    serviceWorkerVersion: AppConfig.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY
+  });
+
+  await page.goto('https://pools.longreachmarlins.org/contact.html', { waitUntil: 'domcontentloaded' });
+  const appVersion = await page.evaluate(() => globalThis.APP_VERSION);
+  await expect.poll(() => page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
+    .toContainEqual(['event', 'ca_upgrade', { upgrade_path: `2.17.1 -> ${appVersion}` }]);
+  await expect.poll(() => page.evaluate(() => localStorage.getItem(globalThis.ANALYTICS_APP_VERSION_STORAGE_KEY)))
+    .toBe(appVersion);
+  await page.unrouteAll({ behavior: 'ignoreErrors' });
+});
+
 analyticsTest('[WF-ANALYTICS-002] flyer QR campaign visits publish reviewed attribution and clear their landing tags', async ({ page }) => {
   await page.route('https://www.googletagmanager.com/**', route => route.fulfill({
     contentType: 'application/javascript',
