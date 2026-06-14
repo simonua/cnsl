@@ -16,6 +16,8 @@ const pools = activePoolsData.pools;
 const marlins = teams.find(team => team.id === 'lrm');
 const firstMarlinsMeetData = activeMeetsData.regular_meets.find(meet => meet.date === '2026-06-13' && meet.visiting_team === 'Long Reach');
 const firstMarlinsMeet = new Meet(firstMarlinsMeetData, activeMeetsData.meetTimes, 'dualMeets');
+const secondMarlinsMeetData = activeMeetsData.regular_meets.find(meet => meet.date === '2026-06-20' && meet.home_team === 'Long Reach');
+const secondMarlinsMeet = new Meet(secondMarlinsMeetData, activeMeetsData.meetTimes, 'dualMeets');
 
 describe('MeetDayGuideService', () => {
   describe('getGuide', () => {
@@ -33,18 +35,35 @@ describe('MeetDayGuideService', () => {
       assert.equal(guide.homeTeam.homeMeetGuides[0].homeTeam, null);
     });
 
-    it('shows guidance from two days ahead through meet day and omits it outside the configured window', () => {
-      const twoDaysAheadGuide = MeetDayGuideService.getGuide(marlins, teams, [firstMarlinsMeet], pools, new Date(2026, 5, 11, 12));
+    it('applies an optional inclusive look-ahead window', () => {
+      const twoDaysAheadGuide = MeetDayGuideService.getGuide(marlins, teams, [firstMarlinsMeet], pools, new Date(2026, 5, 11, 12), 2);
       const todayGuide = MeetDayGuideService.getGuide(marlins, teams, [firstMarlinsMeet], pools, new Date(2026, 5, 13, 6));
 
       assert.equal(twoDaysAheadGuide.dayLabel, 'In 2 days');
       assert.equal(todayGuide.dayLabel, 'Today');
-      assert.equal(MeetDayGuideService.getGuide(marlins, teams, [firstMarlinsMeet], pools, new Date(2026, 5, 10, 12)), null);
+      assert.equal(MeetDayGuideService.getGuide(marlins, teams, [firstMarlinsMeet], pools, new Date(2026, 5, 10, 12), 2), null);
       assert.equal(MeetDayGuideService.getGuide(marlins, teams, [firstMarlinsMeet], pools, new Date(2026, 5, 14, 12)), null);
       assert.equal(MeetDayGuideService.getGuide(null, teams, [firstMarlinsMeet], pools, new Date(2026, 5, 12, 12)), null);
       assert.equal(MeetDayGuideService.getGuide(marlins, teams, null, pools, new Date(2026, 5, 12, 12)), null);
       assert.equal(MeetDayGuideService.getGuide(marlins, teams, [firstMarlinsMeet], pools, new Date('invalid')), null);
       assert.equal(MeetDayGuideService.getGuide(null), null);
+    });
+
+    it('advances to the next chronological meet after the current meet concludes', () => {
+      const duringMeet = MeetDayGuideService.getGuide(
+        marlins, teams, [secondMarlinsMeet, firstMarlinsMeet], pools, new Date(2026, 5, 13, 11, 59)
+      );
+      const afterMeet = MeetDayGuideService.getGuide(
+        marlins, teams, [secondMarlinsMeet, firstMarlinsMeet], pools, new Date(2026, 5, 13, 12)
+      );
+      const homePreviewAfterMeet = MeetDayGuideService.getGuide(
+        marlins, teams, [firstMarlinsMeet, secondMarlinsMeet], pools, new Date(2026, 5, 13, 12), 2
+      );
+
+      assert.equal(duringMeet.meet.date, '2026-06-13');
+      assert.equal(afterMeet.meet.date, '2026-06-20');
+      assert.equal(afterMeet.dayLabel, 'In 7 days');
+      assert.equal(homePreviewAfterMeet, null);
     });
 
     it('builds role-specific home guidance and accepts absent collections', () => {

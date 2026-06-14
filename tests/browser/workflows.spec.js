@@ -1841,7 +1841,7 @@ test('[WF-AGENDA-008] dedicated My Meet Day route loads only after the experimen
   await expect(page.locator('#myMeetDay').getByText('Snacks', { exact: true })).toBeVisible();
   await expect(page.locator('#myMeetDay').getByText('Drinks', { exact: true })).toBeVisible();
   await expect(page.locator('#myMeetDayStatus')).toHaveText('Meet-day details loaded.');
-  await expect(page.locator('script[data-my-meet-day-dependency]')).toHaveCount(18);
+  await expect(page.locator('script[data-my-meet-day-dependency]')).toHaveCount(20);
   const controllerVersion = await page.locator('script[src*="js/my-meet-day.js"]').evaluate(script => new URL(script.src).searchParams.get('v'));
   const dependencyVersions = await page.locator('script[data-my-meet-day-dependency]').evaluateAll(scripts => (
     scripts.map(script => new URL(script.src).searchParams.get('v'))
@@ -1859,6 +1859,22 @@ test('[WF-AGENDA-008] dedicated My Meet Day route loads only after the experimen
   await expect(page.locator('#myMeetDay')).toBeHidden();
   await expect(page.locator('#myMeetDayNoFavorite')).toBeVisible();
   await expect(page.getByRole('link', { name: 'Choose favorite team' })).toHaveAttribute('href', 'settings.html');
+});
+
+test('[WF-AGENDA-009] completed meets advance only the dedicated My Meet Day route beyond two days', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-06-13T12:01:00-04:00'));
+  await seedPreferences(page, { experimentalFeatures: ['my-meet-day'], favoriteTeamId: 'lrm' });
+
+  await page.goto('/index.html');
+  await expect(page.locator('#favoriteWeek')).toBeVisible();
+  await expect(page.locator('#myMeetDay')).toBeHidden();
+
+  await page.getByRole('button', { name: 'Open navigation menu' }).click();
+  await page.getByRole('link', { name: /My Meet Day/ }).click();
+
+  await expect(page.locator('#myMeetDay')).toBeVisible();
+  await expect(page.locator('#myMeetDay')).toContainText('Snappers @ Marlins');
+  await expect(page.locator('#myMeetDay')).toContainText('in 7 days');
 });
 
 test('[WF-HOME-002] home page keeps compact link actions readable on narrow phones', async ({ page }) => {
@@ -1909,7 +1925,7 @@ test('[WF-AGENDA-004] home page loads agenda dependencies only after a favorite 
   });
 
   await expect(page.locator('#favoriteWeek')).toBeVisible();
-  await expect(page.locator('script[data-home-schedule-dependency]')).toHaveCount(18);
+  await expect(page.locator('script[data-home-schedule-dependency]')).toHaveCount(20);
   const homeScheduleVersion = await page.locator('script[src*="js/home-schedule.js"]').evaluate(script => new URL(script.src).searchParams.get('v'));
   const dependencyVersions = await page.locator('script[data-home-schedule-dependency]').evaluateAll(scripts => (
     scripts.map(script => new URL(script.src).searchParams.get('v'))

@@ -95,3 +95,26 @@ The monitor detected no candidate source differences, and all required uncovered
 | Visitor-facing records | Unchanged | None. |
 | Review records | Updated | `OFFICIAL_SOURCE_CHECKED_AT`, annual README evidence, and this check-log entry. |
 | Reviewed source baseline | Updated | `source-state.json` refreshed with the accepted June 13 fingerprints and PDF metadata. |
+
+## 2026-06-13T21:03:58-04:00
+
+**Active season:** 2026
+
+**Result:** Complete under the existing explicit maintainer exception for merchandise-store and booster-site availability.
+
+Checked the 135-source inventory:
+
+- 76 modeled-evidence sources were reached by `pnpm run check:data-updates`.
+- 56 uncovered application-used destinations were reached separately with live GET requests.
+- 3 application-used destinations were attempted and retained their availability exception: the Long Reach and Phelps Luck merchandise stores and the Long Reach booster site returned HTTP 403.
+
+The live web review detected no candidate source differences, all required uncovered destinations were reachable, and all 26 retained official PDFs remained current. Separately, a directly supplied Long Reach host-team manager communication updated the modeled Marlins home-meet guidance; `OFFICIAL_SOURCE_UPDATED_AT` records its acceptance at 9:01 PM EDT.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Updated | Long Reach Marlins `homeMeetGuides` arrival guidance, swimmer check-in location, and source date in `teams/teams.json`. |
+| Application-used source destinations | Unchanged | None. |
+| Retained official PDFs | Unchanged | None. |
+| Visitor-facing records | Unchanged | None. |
+| Review records | Updated | `OFFICIAL_SOURCE_CHECKED_AT`, annual README evidence, and this check-log entry. |
+| Reviewed source baseline | Unchanged | `source-state.json` was refreshed; its fingerprints and PDF metadata remained unchanged. |

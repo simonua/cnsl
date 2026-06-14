@@ -39,7 +39,7 @@ describe('app-config', () => {
     assert.equal(context.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY, config.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY);
     assert.equal(context.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY, config.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY);
     assert.equal(context.EXPERIMENTAL_SETTINGS_URL, config.EXPERIMENTAL_SETTINGS_URL);
-    assert.equal(context.MY_MEET_DAY_LOOKAHEAD_DAYS, 2);
+    assert.equal(context.MY_MEET_DAY_HOME_LOOKAHEAD_DAYS, 2);
     assert.equal(
       context.WEATHER_PUBLIC_ALERTS_URL,
       'https://forecast.weather.gov/MapClick.php?lat=39.2014&lon=-76.8610'
@@ -50,11 +50,13 @@ describe('app-config', () => {
     assert.deepEqual(config.EXPERIMENTAL_FEATURE_IDS, { MY_MEET_DAY: 'my-meet-day' });
     assert.equal(Object.isFrozen(config.EXPERIMENTAL_FEATURE_IDS), true);
     assert.equal(config.EXPERIMENTAL_SETTINGS_URL, 'assets/experimental-settings.json');
-    assert.equal(config.MY_MEET_DAY_LOOKAHEAD_DAYS, 2);
+    assert.equal(config.MY_MEET_DAY_HOME_LOOKAHEAD_DAYS, 2);
   });
 
   it('publishes one immutable dependency manifest for team agenda views', () => {
-    assert.equal(config.TEAM_AGENDA_DEPENDENCIES.length, 19);
+    assert.equal(config.TEAM_AGENDA_DEPENDENCIES.length, 20);
+    assert.ok(config.TEAM_AGENDA_DEPENDENCIES.indexOf('js/types/schedule-state.js')
+      < config.TEAM_AGENDA_DEPENDENCIES.indexOf('js/models/meet.js'));
     assert.ok(config.TEAM_AGENDA_DEPENDENCIES.indexOf('js/services/device-platform-service.js')
       < config.TEAM_AGENDA_DEPENDENCIES.indexOf('js/services/pool-link-helper.js'));
     assert.equal(config.TEAM_AGENDA_DEPENDENCIES.at(-1), 'js/services/meet-day-guide-service.js');

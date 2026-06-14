@@ -5,7 +5,7 @@
   // Published site and active season metadata.
   const YEAR = 2026;
   const APP_TIMEZONE = 'America/New_York';
-  const OFFICIAL_SOURCE_CHECKED_AT = '2026-06-13T21:01:14-04:00';
+  const OFFICIAL_SOURCE_CHECKED_AT = '2026-06-13T21:03:58-04:00';
   const OFFICIAL_SOURCE_UPDATED_AT = '2026-06-13T21:01:14-04:00';
   const APP_VERSION = '2.17.1';
   const APP_LAST_UPDATED_ON = '2026-06-13';
@@ -20,7 +20,7 @@
     MY_MEET_DAY: 'my-meet-day'
   });
   const EXPERIMENTAL_SETTINGS_URL = 'assets/experimental-settings.json';
-  const MY_MEET_DAY_LOOKAHEAD_DAYS = 2;
+  const MY_MEET_DAY_HOME_LOOKAHEAD_DAYS = 2;
   const TEAM_AGENDA_DEPENDENCIES = Object.freeze([
     'js/services/html-safety.js',
     'js/services/device-platform-service.js',
@@ -34,6 +34,7 @@
     'js/models/team.js',
     'js/managers/teams-manager.js',
     'js/types/meet-team-role.js',
+    'js/types/schedule-state.js',
     'js/models/meet.js',
     'js/managers/meets-manager.js',
     'js/services/file-helper.js',
@@ -211,7 +212,7 @@
     HOME_PAGE_URL,
     LOCAL_DEVELOPMENT_HOSTNAMES,
     LOCAL_DEVELOPMENT_PORT,
-    MY_MEET_DAY_LOOKAHEAD_DAYS,
+    MY_MEET_DAY_HOME_LOOKAHEAD_DAYS,
     PREFERENCES_STORAGE_KEY,
     PWA_CACHE_PREFIX,
     SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY,

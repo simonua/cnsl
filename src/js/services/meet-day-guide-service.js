@@ -66,33 +66,37 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
     }
 
     /**
-     * Selects a favorite-team dual meet within the configured inclusive look-ahead window.
+     * Selects the next non-concluded favorite-team dual meet within an optional inclusive look-ahead window.
      * @param {Object|null} team - Favorite team
      * @param {Array} meets - Published meets
      * @param {Date} referenceDate - Current Eastern wall-clock date
+     * @param {number|null} maxDayOffset - Optional maximum calendar-day offset
      * @returns {{ meet: Object, dayOffset: number }|null} Relevant meet and relative day
      * @private
      */
-    static findRelevantMeet(team, meets, referenceDate) {
+    static findRelevantMeet(team, meets, referenceDate, maxDayOffset = null) {
       if (!team || !Array.isArray(meets) || !(referenceDate instanceof Date) || Number.isNaN(referenceDate.getTime())) return null;
 
-      const today = new Date(referenceDate);
-      today.setHours(0, 0, 0, 0);
-      const dayOffsets = new Map(Array.from(
-        { length: globalThis.MY_MEET_DAY_LOOKAHEAD_DAYS + 1 },
-        (_, dayOffset) => {
-          const date = new Date(today);
-          date.setDate(today.getDate() + dayOffset);
-          return [MeetDayGuideService.formatDateKey(date), dayOffset];
-        }
-      ));
-      const meet = meets.find(candidate => {
+      const validMaxDayOffset = Number.isInteger(maxDayOffset) && maxDayOffset >= 0 ? maxDayOffset : null;
+      const easternTimeInfo = {
+        date: MeetDayGuideService.formatDateKey(referenceDate),
+        isValid: true,
+        minutes: (referenceDate.getHours() * 60) + referenceDate.getMinutes()
+      };
+      const candidates = meets.filter(candidate => {
         const hasDualMatchup = Boolean(candidate && (candidate.home_team || candidate.homeTeam) && (candidate.visiting_team || candidate.awayTeam));
-        return hasDualMatchup
-          && dayOffsets.has(candidate.date)
-          && globalThis.PreferencesService.meetIncludesFavoriteTeam(candidate, team);
-      });
-      return meet ? { meet, dayOffset: dayOffsets.get(meet.date) } : null;
+        return hasDualMatchup && globalThis.PreferencesService.meetIncludesFavoriteTeam(candidate, team);
+      }).sort((left, right) => left.date.localeCompare(right.date));
+
+      for (const meet of candidates) {
+        const meetDate = globalThis.TimeUtils.parseDateOnly(meet.date);
+        const dayOffset = globalThis.TimeUtils.getRelativeFutureDayOffset(meetDate, referenceDate);
+        if (dayOffset === null || (validMaxDayOffset !== null && dayOffset > validMaxDayOffset)) continue;
+        if (typeof meet.getLiveStatus === 'function'
+          && meet.getLiveStatus(easternTimeInfo) === globalThis.MeetLiveStatus.CONCLUDED) continue;
+        return { meet, dayOffset };
+      }
+      return null;
     }
 
     /**
@@ -102,12 +106,13 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
      * @param {Array} meets - Published meets
      * @param {Array} pools - Published pools
      * @param {Date} referenceDate - Current Eastern wall-clock date
+     * @param {number|null} maxDayOffset - Optional maximum calendar-day offset
      * @returns {Object|null} Display-ready guidance or null outside the display window
      */
-    static getGuide(team, teams, meets, pools, referenceDate = new Date()) {
+    static getGuide(team, teams, meets, pools, referenceDate = new Date(), maxDayOffset = null) {
       const publishedTeams = Array.isArray(teams) ? teams : [];
       const publishedPools = Array.isArray(pools) ? pools : [];
-      const relevantMeet = MeetDayGuideService.findRelevantMeet(team, meets, referenceDate);
+      const relevantMeet = MeetDayGuideService.findRelevantMeet(team, meets, referenceDate, maxDayOffset);
       if (!relevantMeet) return null;
 
       const { meet } = relevantMeet;

@@ -126,7 +126,8 @@
           dataManager.getTeams().getAllTeams(),
           dataManager.getMeets().getAllMeets(),
           dataManager.getPools().getAllPools(),
-          globalThis.TimeUtils.getEasternTime()
+          globalThis.TimeUtils.getEasternTime(),
+          globalThis.MY_MEET_DAY_HOME_LOOKAHEAD_DAYS
         );
         const meetDayHtml = globalThis.MeetDayGuideService.renderGuide(guide);
         if (meetDayHtml) {
