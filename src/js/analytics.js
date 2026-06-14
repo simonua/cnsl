@@ -71,7 +71,7 @@
   const ALLOWED_EXTERNAL_LINK_PURPOSES = new Set(Object.values(EXTERNAL_LINK_PURPOSES));
   const ALLOWED_EXTERNAL_LINK_CONTEXTS = new Set([
     'feedback', 'lesson_resources', 'meet_details', 'official_information', 'other', 'pool_details',
-    'project_information', 'share', 'team_details', 'weather_status'
+    'project_information', 'team_details', 'weather_status'
   ]);
   const ALLOWED_EXTERNAL_LINK_PROTOCOLS = new Set(['http:', 'https:', 'mailto:', 'sms:', 'tel:']);
   const EXTERNAL_LINK_DESTINATIONS = Object.freeze({
@@ -677,7 +677,7 @@
           resourceName: resourceLink.dataset.analyticsResourceName
         });
       }
-      if (clickedLink && isExternalLink(clickedLink)) {
+      if (!shareLink && clickedLink && isExternalLink(clickedLink)) {
         trackInteraction(AnalyticsInteractionType.EXTERNAL_LINK, {
           context: getExternalLinkContext(clickedLink),
           destination: getExternalLinkDestination(clickedLink),

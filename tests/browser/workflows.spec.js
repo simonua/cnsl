@@ -469,13 +469,9 @@ test('[WF-HOME-001] season summary and sharing actions appear only on the home p
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_share' || eventArguments[1] === 'ca_external_link'))).toEqual([
     ['event', 'ca_share', { method: 'qr_code', content_type: 'website', item_id: 'home_page' }],
     ['event', 'ca_share', { method: 'text', content_type: 'website', item_id: 'home_page' }],
-    ['event', 'ca_external_link', { link_context: 'share', link_purpose: 'general', link_destination: 'text_message' }],
     ['event', 'ca_share', { method: 'email', content_type: 'website', item_id: 'home_page' }],
-    ['event', 'ca_external_link', { link_context: 'share', link_purpose: 'general', link_destination: 'email' }],
     ['event', 'ca_share', { method: 'facebook', content_type: 'website', item_id: 'home_page' }],
-    ['event', 'ca_external_link', { link_context: 'share', link_purpose: 'general', link_destination: 'facebook' }],
-    ['event', 'ca_share', { method: 'x', content_type: 'website', item_id: 'home_page' }],
-    ['event', 'ca_external_link', { link_context: 'share', link_purpose: 'general', link_destination: 'x' }]
+    ['event', 'ca_share', { method: 'x', content_type: 'website', item_id: 'home_page' }]
   ]);
 
   await page.locator('a.directory-link').evaluate(link => {
