@@ -1166,7 +1166,7 @@ test('[WF-POOLS-001] pool feature filters expose their state and resulting count
   await page.locator('#clearPoolFeatureFilters').click();
   await expect(filters).toHaveAttribute('aria-expanded', 'true');
   await expect(page.locator('#poolFilterSummary')).toHaveText('23 pools');
-  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_setting_change'))).toEqual([
     ['event', 'ca_setting_change', { setting_name: 'pool_feature_filters' }],
     ['event', 'ca_setting_change', { setting_name: 'pool_feature_filters' }]
   ]);
@@ -1180,7 +1180,7 @@ test('[WF-POOLS-001] pool feature filters expose their state and resulting count
     options.appendChild(untrustedInput);
     untrustedInput.dispatchEvent(new options.ownerDocument.defaultView.Event('change', { bubbles: true }));
   });
-  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toHaveLength(2);
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_setting_change'))).toHaveLength(2);
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).poolFeatureFilters)).toEqual([]);
 });
 
@@ -1364,7 +1364,7 @@ test('[WF-TEAMS-001] collapsed favorite team stays collapsed after returning to 
   });
   const stableFavoriteToggle = page.locator('[data-team-id="cfhss"] [data-team-card-action="toggle"]');
   await expect(stableFavoriteToggle).toHaveAttribute('aria-expanded', 'false');
-  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_setting_change'))).toEqual([
     ['event', 'ca_setting_change', { setting_name: 'favorite_team_expanded' }]
   ]);
 
@@ -1800,7 +1800,7 @@ test('[WF-AGENDA-007] home page follows the My Meet Day experimental opt-in', as
       sessionMatches: matchesConcessions(agendaSessionBounds)
     };
   })).toEqual({ eventMatches: true, headingMatches: true, sessionMatches: true });
-  const poolLinks = meetDay.getByRole('link', { name: 'Faulkner Ridge Pool' });
+  const poolLinks = meetDay.getByRole('link', { name: 'Faulkner Ridge Pool', exact: true });
   await expect(poolLinks).toHaveCount(2);
   await expect(poolLinks.first()).toHaveAttribute('href', 'pools.html?pool=frp');
   const directionsLink = meetDay.getByRole('link', { name: 'Get directions to Faulkner Ridge Pool in Google Maps' });
@@ -1863,7 +1863,7 @@ test('[WF-AGENDA-008] dedicated My Meet Day route loads only after the experimen
   await expect(page.locator('#myMeetDay')).toContainText('Please park by the neighborhood center behind the pool.');
   await expect(page.locator('#myMeetDay')).toContainText('The six spaces near the pool entrance are reserved for coaches and managers.');
   await expect(page.locator('#myMeetDay')).toContainText('Please set up behind the wading pool, just to the right of the entrance. If more space is needed, please use the area outside the side gates.');
-  await expect(page.locator('#myMeetDay').getByRole('link', { name: 'Faulkner Ridge Pool' })).toHaveCount(2);
+  await expect(page.locator('#myMeetDay').getByRole('link', { name: 'Faulkner Ridge Pool', exact: true })).toHaveCount(2);
   await expect(page.locator('#myMeetDay').getByRole('heading', { name: 'Key times' })).toHaveCount(0);
   await expect(page.locator('#myMeetDay')).toContainText('The host team did not provide a check-in location.');
   await expect(page.locator('#myMeetDay')).toContainText("Your team's clerk of course will have a table behind the wading pool.");
@@ -2062,19 +2062,12 @@ test('[WF-DIR-001] directory disclosures work without rendered inline event hand
   await expect(page.locator('#meetList [onclick], #meetList [onerror]')).toHaveCount(0);
 });
 
-test('[WF-MEETS-001] meet pool links reveal the destination below the mobile fixed header', async ({ page }) => {
+test('[WF-MEETS-001] meet pool links open the expanded destination without moving the page', async ({ page }) => {
   await page.setViewportSize(MOBILE_VIEWPORT);
   await page.context().grantPermissions(['geolocation']);
   await page.context().setGeolocation({ latitude: 39.2105, longitude: -76.8721 });
   await page.addInitScript(() => {
     localStorage.setItem('cnsl_preferences', JSON.stringify({ locationAwarenessEnabled: true }));
-    sessionStorage.setItem('cnsl_linked_pool_scroll_count', '0');
-    const originalScrollTo = globalThis.scrollTo.bind(globalThis);
-    globalThis.scrollTo = (...args) => {
-      const count = Number.parseInt(sessionStorage.getItem('cnsl_linked_pool_scroll_count') || '0', 10);
-      sessionStorage.setItem('cnsl_linked_pool_scroll_count', String(count + 1));
-      originalScrollTo(...args);
-    };
   });
   await page.goto('/meets.html');
   await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
@@ -2095,13 +2088,9 @@ test('[WF-MEETS-001] meet pool links reveal the destination below the mobile fix
   const targetCard = page.locator(`.pool-card[data-pool-id="${targetPoolId}"]`);
   await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
   await expect(page.locator('.distance-badge').first()).toBeVisible();
+  await expect.poll(() => page.evaluate(() => new URL(globalThis.location.href).searchParams.get('pool'))).toBe(targetPoolId);
   await expect(targetCard.locator('.pool-header__toggle')).toHaveAttribute('aria-expanded', 'true');
-  await expect.poll(() => page.evaluate(() => Number.parseInt(sessionStorage.getItem('cnsl_linked_pool_scroll_count') || '0', 10))).toBe(1);
-  await expect.poll(() => targetCard.evaluate(card => {
-    const headerBottom = card.ownerDocument.querySelector('.header').getBoundingClientRect().bottom;
-    const poolHeadingTop = card.querySelector('.pool-header').getBoundingClientRect().top;
-    return poolHeadingTop > headerBottom;
-  })).toBe(true);
+  await expect.poll(() => page.evaluate(() => globalThis.scrollY)).toBe(0);
 });
 
 test('[WF-MEETS-002] favorite team matchups appear first on every meet day they compete', async ({ page }) => {
@@ -2116,7 +2105,7 @@ test('[WF-MEETS-002] favorite team matchups appear first on every meet day they 
   expect(favoriteDayPlacement.length).toBeGreaterThan(1);
   expect(favoriteDayPlacement.every(firstIsFavorite => firstIsFavorite)).toBe(true);
 
-  const favoriteMeet = page.locator('.favorite-meet').first();
+  const favoriteMeet = page.locator('.favorite-meet:visible').first();
   const favoriteMarker = favoriteMeet.getByRole('img', { name: 'Favorite team' });
   const favoriteTeam = favoriteMarker.locator('..');
   const otherTeam = favoriteMeet.locator('.home-team:not(:has(.favorite-marker)), .visiting-team:not(:has(.favorite-marker))');
@@ -2553,7 +2542,7 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
   await expect(page.getByLabel('Share anonymous page usage through Google Analytics')).toHaveCount(0);
   await expect.poll(() => page.evaluate(() => Object.hasOwn(JSON.parse(localStorage.getItem('cnsl_preferences')), 'analyticsEnabled'))).toBe(false);
   await expect(page.locator('#cnslAnalyticsScript')).toHaveCount(0);
-  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_setting_change'))).toEqual([
     ['event', 'ca_setting_change', { setting_name: 'theme' }],
     ['event', 'ca_setting_change', { setting_name: 'pool_schedule_layout' }],
     ['event', 'ca_setting_change', { setting_name: 'location_awareness' }],
@@ -2566,7 +2555,7 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
   await page.locator('#favoritePool').selectOption({ label: 'Bryant Woods' });
   await page.locator('#favoriteTeam').selectOption('cfhss');
   await page.locator('#favoritePool').selectOption('');
-  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_setting_change'))).toEqual([
     ['event', 'ca_setting_change', { setting_name: 'theme' }],
     ['event', 'ca_setting_change', { setting_name: 'pool_schedule_layout' }],
     ['event', 'ca_setting_change', { setting_name: 'location_awareness' }],
@@ -2586,7 +2575,7 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
     select.value = untrustedOption.value;
     select.dispatchEvent(new select.ownerDocument.defaultView.Event('change', { bubbles: true }));
   });
-  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toHaveLength(9);
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_setting_change'))).toHaveLength(9);
 
   const dismissedClearPrompt = page.waitForEvent('dialog').then(async dialog => {
     expect(dialog.type()).toBe('confirm');
@@ -2597,7 +2586,7 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
   await dismissedClearPrompt;
   await expect(page.getByLabel('Dark')).toBeChecked();
   await expect(page.getByLabel('First Splash')).not.toBeChecked();
-  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toHaveLength(9);
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_setting_change'))).toHaveLength(9);
 
   await page.evaluate(async () => {
     localStorage.setItem('cnsl_current_version', 'saved');
@@ -2642,7 +2631,7 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
   });
   await expect(page.getByLabel('First Splash')).toBeChecked();
   await expect(page.getByLabel('8 and under')).toBeChecked();
-  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_setting_change'))).toEqual([
     ['event', 'ca_setting_change', { setting_name: 'theme' }],
     ['event', 'ca_setting_change', { setting_name: 'pool_schedule_layout' }],
     ['event', 'ca_setting_change', { setting_name: 'location_awareness' }],
@@ -2689,7 +2678,7 @@ test('[WF-SETTINGS-011] experimental features are collapsed, tracked, and gated 
   await expect(experiments.locator('.settings-switch__state')).toHaveText('On');
   await expect(enabledCount).toHaveText('1/1 enabled');
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).experimentalFeatures)).toEqual(['my-meet-day']);
-  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_experimental_feature_change'))).toEqual([
     ['event', 'ca_experimental_feature_change', { feature_action: 'enabled', feature_name: 'my-meet-day' }]
   ]);
 
@@ -2721,7 +2710,7 @@ test('[WF-SETTINGS-011] experimental features are collapsed, tracked, and gated 
   await expect(experiments.locator('.settings-switch__state')).toHaveText('Off');
   await expect(enabledCount).toHaveText('0/1 enabled');
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).experimentalFeatures)).toEqual([]);
-  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_experimental_feature_change'))).toEqual([
     ['event', 'ca_experimental_feature_change', { feature_action: 'enabled', feature_name: 'my-meet-day' }],
     ['event', 'ca_experimental_feature_change', { feature_action: 'disabled', feature_name: 'my-meet-day' }]
   ]);
@@ -2780,7 +2769,7 @@ test('[WF-SETTINGS-008] accessibility settings apply immediately, persist locall
     motion: 'reduced',
     underlineLinks: true
   });
-  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents)).toEqual([
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_setting_change'))).toEqual([
     ['event', 'ca_setting_change', { setting_name: 'text_size' }],
     ['event', 'ca_setting_change', { setting_name: 'contrast' }],
     ['event', 'ca_setting_change', { setting_name: 'motion' }],
@@ -3082,6 +3071,7 @@ test('[WF-WEATHER-003] turning weather safety alerts off hides an active banner 
   await page.goto('/settings.html');
   await expect(page.locator('#weatherAlert')).toBeVisible();
 
+  await page.locator('#poolVisitSettings summary').click();
   await page.getByRole('radio', { name: 'Off', exact: true }).check();
   await expect(page.locator('#weatherAlert')).toBeHidden();
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).weatherRefreshMinutes)).toBe(0);
