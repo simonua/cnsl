@@ -128,7 +128,7 @@
   --release-bugfix-border: var(--error-color);
   --release-bugfix-text: var(--error-text-color);
   --header-height: 4.625rem;
-  --footer-height: 3.75rem;
+  --footer-height: 4.85rem;
   --footer-bottom-clearance: env(safe-area-inset-bottom, 0rem);
   --border-radius: 12px;
   --navigation-transition-duration: 0.15s;
@@ -4022,10 +4022,6 @@ button.pool-filter__clear:focus-visible {
   color: var(--text-dark);
 }
 
-body:has(.footer__weather-freshness:not([hidden])) {
-  --footer-height: 4.85rem;
-}
-
 .footer p {
   margin: 0;
   line-height: 1.4;
@@ -4044,16 +4040,8 @@ body:has(.footer__weather-freshness:not([hidden])) {
 }
 
 @media (max-width: 48rem) {
-  :root {
-    --footer-height: 3.75rem;
-  }
-
   .footer {
     padding: 0.1rem 1rem calc(0.1rem + var(--footer-bottom-clearance));
-  }
-
-  body:has(.footer__weather-freshness:not([hidden])) {
-    --footer-height: 4.85rem;
   }
 }
 
