@@ -1873,7 +1873,7 @@ test('[WF-AGENDA-009] completed meets advance only the dedicated My Meet Day rou
   await page.getByRole('link', { name: /My Meet Day/ }).click();
 
   await expect(page.locator('#myMeetDay')).toBeVisible();
-  await expect(page.locator('#myMeetDay')).toContainText('Snappers @ Marlins');
+  await expect(page.locator('#myMeetDay')).toContainText('Piranhas @ Marlins');
   await expect(page.locator('#myMeetDay')).toContainText('in 7 days');
 });
 
