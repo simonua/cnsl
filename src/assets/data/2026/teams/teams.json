@@ -432,7 +432,7 @@
           "poolId": "krp",
           "source": {
             "type": "host-team-manager",
-            "receivedOn": "2025-07-11"
+            "receivedOn": "2026-06-13"
           },
           "general": {
             "concessions": {
@@ -447,9 +447,9 @@
             }
           },
           "homeTeam": {
-            "arrivalTime": "06:50",
+            "arrivalGuidance": "Please allow enough time to find parking, set up, and check in so your swimmer is ready to enter the pool when warm-ups begin promptly at 7:00 AM.",
             "familySetupLocation": "on the right side from the pool entrance",
-            "swimmerCheckInLocation": "at the check-in table under the large pavilion",
+            "swimmerCheckInLocation": "under the large canopy next to the baby pool",
             "warmupTime": "07:00",
             "helpfulNotes": [
               "Please mark each swimmer with their event, heat, and lane before arrival.",
