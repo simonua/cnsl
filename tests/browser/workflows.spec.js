@@ -542,14 +542,15 @@ test('[WF-CONTACT-001] author contact options are collected on the Contact page'
   await expect(page.getByRole('link', { name: 'Message Simon on Facebook (opens in new tab)' })).toHaveAttribute('href', 'https://www.facebook.com/simonkurtz82');
 });
 
-analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and each public app version once per session after the Google tag script loads', async ({ page }) => {
+analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and each public app version once per browser profile after the Google tag script loads', async ({ page }) => {
+  const browserContext = page.context();
   let releaseTagScript;
   let reportTagScriptRequest;
   let tagScriptRequestCount = 0;
   const tagScriptRequested = new Promise(resolve => {
     reportTagScriptRequest = resolve;
   });
-  await page.route('https://www.googletagmanager.com/**', async route => {
+  await browserContext.route('https://www.googletagmanager.com/**', async route => {
     tagScriptRequestCount += 1;
     reportTagScriptRequest();
     if (tagScriptRequestCount === 1) {
@@ -563,7 +564,7 @@ analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and each publi
     });
   });
 
-  await page.route('https://pools.longreachmarlins.org/**', async route => {
+  await browserContext.route('https://pools.longreachmarlins.org/**', async route => {
     const requestedUrl = new URL(route.request().url());
     const localPath = requestedUrl.pathname === '/pools' ? '/pools.html' : requestedUrl.pathname;
     const response = await page.request.get(`http://127.0.0.1:4173${localPath}`);
@@ -626,7 +627,7 @@ analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and each publi
     .toBe(appVersion);
   await expect.poll(() => page.evaluate(() => localStorage.getItem(globalThis.ANALYTICS_UPGRADE_PATH_STORAGE_KEY)))
     .toBeNull();
-  await expect.poll(() => page.evaluate(() => sessionStorage.getItem(globalThis.ANALYTICS_VERSION_REPORTED_STORAGE_KEY)))
+  await expect.poll(() => page.evaluate(() => localStorage.getItem(globalThis.ANALYTICS_VERSION_REPORTED_STORAGE_KEY)))
     .toBe(appVersion);
   await expect.poll(() => page.evaluate(() => {
     const pageViewCommand = globalThis.dataLayer.find(argumentsList => argumentsList[1] === 'page_view');
@@ -655,8 +656,18 @@ analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and each publi
       page_title: 'Pools'
     }]);
 
+  const profilePage = await browserContext.newPage();
+  await profilePage.goto('https://pools.longreachmarlins.org/contact.html', { waitUntil: 'domcontentloaded' });
+  await expect.poll(() => profilePage.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
+    .not.toContainEqual(['event', 'ca_version', { app_version: appVersion }]);
+  await expect.poll(() => profilePage.evaluate(() => localStorage.getItem(globalThis.ANALYTICS_VERSION_REPORTED_STORAGE_KEY)))
+    .toBe(appVersion);
+  await expect.poll(() => profilePage.evaluate(() => sessionStorage.getItem(globalThis.ANALYTICS_VERSION_REPORTED_STORAGE_KEY)))
+    .toBeNull();
+  await profilePage.close();
+
   await page.evaluate(() => {
-    sessionStorage.setItem(
+    localStorage.setItem(
       globalThis.ANALYTICS_VERSION_REPORTED_STORAGE_KEY,
       `${globalThis.APP_VERSION}-previous`
     );
@@ -664,9 +675,9 @@ analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and each publi
   await page.goto('https://pools.longreachmarlins.org/contact.html', { waitUntil: 'domcontentloaded' });
   await expect.poll(() => page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
     .toContainEqual(['event', 'ca_version', { app_version: appVersion }]);
-  await expect.poll(() => page.evaluate(() => sessionStorage.getItem(globalThis.ANALYTICS_VERSION_REPORTED_STORAGE_KEY)))
+  await expect.poll(() => page.evaluate(() => localStorage.getItem(globalThis.ANALYTICS_VERSION_REPORTED_STORAGE_KEY)))
     .toBe(appVersion);
-  await page.unrouteAll({ behavior: 'ignoreErrors' });
+  await browserContext.unrouteAll({ behavior: 'ignoreErrors' });
 });
 
 analyticsTest('[WF-ANALYTICS-008] analytics records first use without publishing an upgrade path', async ({ page }) => {

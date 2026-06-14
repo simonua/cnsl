@@ -316,7 +316,7 @@
     const candidates = [
       readStorageValue(localStorageImplementation, window.ANALYTICS_APP_VERSION_STORAGE_KEY),
       readStorageValue(sessionStorageImplementation, window.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY),
-      readStorageValue(sessionStorageImplementation, window.ANALYTICS_VERSION_REPORTED_STORAGE_KEY),
+      readStorageValue(localStorageImplementation, window.ANALYTICS_VERSION_REPORTED_STORAGE_KEY),
       readStorageValue(localStorageImplementation, window.APP_VERSION_STORAGE_KEY)
     ];
     return candidates.find(version => getVersionParts(version)) || null;
@@ -333,17 +333,18 @@
     const hasStoredAppState = window.APP_LOCAL_STORAGE_KEYS.some(key => (
       key !== window.ANALYTICS_APP_VERSION_STORAGE_KEY
       && key !== window.ANALYTICS_UPGRADE_PATH_STORAGE_KEY
+      && key !== window.ANALYTICS_VERSION_REPORTED_STORAGE_KEY
       && readStorageValue(localStorageImplementation, key) !== null
     ));
-    const hasSessionVersion = readStorageValue(
-      sessionStorageImplementation,
+    const hasReportedVersion = readStorageValue(
+      localStorageImplementation,
       window.ANALYTICS_VERSION_REPORTED_STORAGE_KEY
     ) !== null;
     const hasServiceWorkerUpgrade = readStorageValue(
       sessionStorageImplementation,
       window.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY
     ) !== null;
-    return hasStoredAppState || hasSessionVersion || hasServiceWorkerUpgrade;
+    return hasStoredAppState || hasReportedVersion || hasServiceWorkerUpgrade;
   }
 
   /**
@@ -424,16 +425,16 @@
   }
 
   /**
-   * Publishes each application version once for the current browser session.
+  * Publishes each application version once for the current browser profile.
    * @private
    */
   function publishVersionWhenChanged() {
     if (typeof window.gtag !== 'function') return;
 
     try {
-      if (window.sessionStorage.getItem(window.ANALYTICS_VERSION_REPORTED_STORAGE_KEY) === window.APP_VERSION) return;
+      if (window.localStorage.getItem(window.ANALYTICS_VERSION_REPORTED_STORAGE_KEY) === window.APP_VERSION) return;
 
-      window.sessionStorage.setItem(window.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, window.APP_VERSION);
+      window.localStorage.setItem(window.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, window.APP_VERSION);
     } catch (_error) {
       return;
     }
