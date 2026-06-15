@@ -150,6 +150,7 @@
 
   const APP_VERSION_PATTERN = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
   const UNKNOWN_PREVIOUS_VERSION = '0';
+  const VS_CODE_BROWSER_USER_AGENT_PATTERN = /\b(?:Code|Code-Insiders|VSCodium)\//;
 
   // Private measurement and publishing helpers
 
@@ -721,6 +722,7 @@
    */
   function isAnalyticsDisabled() {
     return navigator.webdriver === true
+      || VS_CODE_BROWSER_USER_AGENT_PATTERN.test(navigator.userAgent)
       || window[`ga-disable-${window.GA4_MEASUREMENT_ID}`] === true;
   }
 

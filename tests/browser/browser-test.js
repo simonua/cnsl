@@ -1,10 +1,13 @@
 const { test: base, expect } = require('@playwright/test');
 
-const GOOGLE_ANALYTICS_REQUEST = /^https:\/\/(?:www\.googletagmanager\.com|(?:[a-z0-9-]+\.)?google-analytics\.com)\//i;
+const EXTERNAL_HTTP_REQUEST = /^https?:\/\/(?!(?:127\.0\.0\.1|localhost|\[::1\])(?::\d+)?(?:[/?#]|$))/i;
 
 const test = base.extend({
   analyticsSimulation: [false, { option: true }],
-  blockGoogleAnalytics: [async ({ context, analyticsSimulation }, use) => {
+  blockedExternalRequests: async ({ browserName: _browserName }, use) => {
+    await use([]);
+  },
+  blockExternalNetwork: [async ({ context, analyticsSimulation, blockedExternalRequests }, use) => {
     if (analyticsSimulation) {
       await context.addInitScript(() => {
         Object.defineProperty(globalThis.navigator, 'webdriver', {
@@ -12,11 +15,12 @@ const test = base.extend({
           value: false
         });
       });
-      await use();
-      return;
     }
 
-    await context.route(GOOGLE_ANALYTICS_REQUEST, route => route.abort('blockedbyclient'));
+    await context.route(EXTERNAL_HTTP_REQUEST, route => {
+      blockedExternalRequests.push(route.request().url());
+      return route.abort('blockedbyclient');
+    });
 
     await use();
   }, { auto: true }]

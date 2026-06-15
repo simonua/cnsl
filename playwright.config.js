@@ -35,6 +35,7 @@ module.exports = defineConfig({
   use: {
     baseURL: 'http://127.0.0.1:4173',
     reducedMotion: 'reduce',
+    serviceWorkers: 'block',
     trace: 'retain-on-failure'
   },
   projects: [

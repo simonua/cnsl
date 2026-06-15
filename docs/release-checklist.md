@@ -47,7 +47,7 @@ Automated axe results do not substitute for this walkthrough. Do not state full 
 
 ## Google Analytics Review
 
-Perform this review on the deployed HTTPS site whenever analytics code, the shared layout, Content Security Policy, service-worker behavior, release metadata, or GA administration changes. Local development deliberately does not load the Google tag. Use a clean browser profile or cleared site data, preserve the browser network log, and exercise both a normal browser tab and an installed or standalone PWA launch with an active service-worker controller.
+Perform this review on the deployed HTTPS site whenever analytics code, the shared layout, Content Security Policy, service-worker behavior, release metadata, or GA administration changes. Local development and VS Code-family embedded browsers deliberately do not load the Google tag, so use a normal external browser for this review. Use a clean browser profile or cleared site data, preserve the browser network log, and exercise both a normal browser tab and an installed or standalone PWA launch with an active service-worker controller.
 
 ### Transport And Payload
 
