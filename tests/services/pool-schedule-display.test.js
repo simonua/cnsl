@@ -114,6 +114,7 @@ describe('PoolScheduleDisplay', () => {
       assert.equal(PoolScheduleDisplay.getStatusTooltip('special-event'), 'Special schedule or restrictions');
       assert.equal(PoolScheduleDisplay.getStatusTooltip('closed-to-public'), 'Currently closed');
       assert.equal(PoolScheduleDisplay.getStatusTooltip('schedule-not-found'), 'Schedule not available');
+      assert.equal(PoolScheduleDisplay.getStatusTooltip('status-not-applicable'), 'Current status not applicable');
       assert.equal(PoolScheduleDisplay.getStatusTooltip('missing'), 'Status unknown');
       assert.equal(PoolScheduleDisplay.getStatusTooltip('closed'), 'Currently closed');
       assert.equal(PoolScheduleDisplay.getStatusTooltip('restricted'), 'Special schedule or restrictions');
@@ -239,6 +240,29 @@ describe('PoolScheduleDisplay', () => {
       assert.match(PoolScheduleDisplay.renderSlot(poolParty, day, options, true), /schedule-activity--event override-slot/);
       assert.equal(PoolScheduleDisplay.getMeetHref({ meetDate: 'bad', meetPoolId: 'krp' }), '');
       assert.equal(PoolScheduleDisplay.getMeetHref({ meetDate: '2026-06-20', meetPoolId: '<bad>' }), '');
+    });
+
+    it('renders safe official activity links and rejects unsafe destinations', () => {
+      const day = { isCurrentDay: false };
+      const slot = { startTime: '10:00AM', endTime: '10:55AM', activities: ['Aqua <Fitness>'], accessStatus: 'restricted', notes: '' };
+      const linked = PoolScheduleDisplay.renderSlot({
+        ...slot,
+        sourceUrl: 'https://example.com/classes?type=aqua&view=details'
+      }, day, options, true);
+      const hostile = PoolScheduleDisplay.renderSlot({
+        ...slot,
+        sourceUrl: 'JaVaScRiPt:alert(1)'
+      }, day, options, true);
+      const malformed = PoolScheduleDisplay.renderSlot({ ...slot, sourceUrl: 'not a URL' }, day, options, true);
+
+      assert.match(linked, /class="schedule-activity__link schedule-activity__source-link"/);
+      assert.match(linked, /href="https:\/\/example\.com\/classes\?type=aqua&amp;view=details"/);
+      assert.match(linked, /target="_blank" rel="noopener"/);
+      assert.match(linked, /aria-label="Aqua &lt;Fitness&gt; official details \(opens in new tab\)"/);
+      assert.match(linked, />Aqua &lt;Fitness&gt;<\/a>/);
+      assert.doesNotMatch(hostile, /<a\b/i);
+      assert.doesNotMatch(hostile, /javascript:/i);
+      assert.doesNotMatch(malformed, /<a\b/i);
     });
 
     it('renders resolved practice teams only for semantic practice slots', () => {

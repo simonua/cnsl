@@ -41,14 +41,14 @@
         <div class="pool-filter__controls" id="poolFeatureFilterControls" hidden>
             <div class="pool-filter__quick-controls">
               <div class="pool-sort" id="poolAvailabilityControls">
-                <label class="pool-sort__label" for="poolAvailabilityFilter">Availability</label>
+                <label class="pool-sort__label" for="poolAvailabilityFilter">When pools are open for general use</label>
                 <select class="pool-sort__select" id="poolAvailabilityFilter" name="poolAvailabilityFilter">
                   <option value="all">All pools</option>
-                  <option value="open-now">Open now</option>
-                  <option value="opens-soon">Opens soon</option>
-                  <option value="open-today">Open today</option>
-                  <option value="open-next-two-hours">Open for next 2 hours</option>
-                  <option value="open-tomorrow">Open tomorrow</option>
+                  <option value="open-now">Now</option>
+                  <option value="opens-soon">Within the hour</option>
+                  <option value="open-next-two-hours">For next 2 hours</option>
+                  <option value="open-today">Today</option>
+                  <option value="open-tomorrow">Tomorrow</option>
                 </select>
               </div>
               <section class="pool-sort" id="poolSortControls" aria-label="Pool sorting" hidden>
@@ -75,7 +75,7 @@
           <li class="pool-status-legend__item"><span class="pool-status-indicator green" aria-hidden="true"></span>Open for public use</li>
           <li class="pool-status-legend__item"><span class="pool-status-indicator yellow" aria-hidden="true"></span>Special schedule or restrictions</li>
           <li class="pool-status-legend__item"><span class="pool-status-indicator red" aria-hidden="true"></span>Currently closed</li>
-          <li class="pool-status-legend__item"><span class="pool-status-indicator gray" aria-hidden="true"></span>Schedule not available</li>
+          <li class="pool-status-legend__item"><span class="pool-status-indicator gray" aria-hidden="true"></span>Schedule not available or applicable</li>
         </ul>
         <p class="pool-status-legend__note"><i>Opens in ...</i> and <i>Closes in ...</i> are quick guides based on today's published public hours. They may not reflect every schedule exception or last-minute change. Please check the expanded pool details before heading out.</p>
       </section>

@@ -361,21 +361,7 @@ if (typeof globalThis.Pool === 'undefined') {
    * @returns {boolean} Whether the pool is open to the public at any time today
    */
   hasPublicUseToday() {
-    const TimeUtilsRef = this._getTimeUtils();
-    const PoolStatusRef = this._getPoolStatus();
-    if (!TimeUtilsRef || !PoolStatusRef) return false;
-
-    if (this.schedulePeriods) {
-      const easternTimeInfo = TimeUtilsRef.getCurrentEasternTimeInfo();
-      if (!easternTimeInfo.isValid) return false;
-      return this._getPeriodTimeSlotsForDate(easternTimeInfo.date, easternTimeInfo.day.substring(0, 3))
-        .some(slot => this._getPeriodSlotStatus(slot) === PoolStatusRef.OPEN);
-    }
-
-    const easternTime = TimeUtilsRef.getEasternTime();
-    const dayHours = this.schedule.getDayHours(TimeUtilsRef.getDayName(easternTime));
-    return Boolean(dayHours && !dayHours.closed
-      && typeof dayHours.open === 'string' && typeof dayHours.close === 'string');
+    return this.hasPublicUseOnDayOffset(0);
   }
 
   /**
@@ -383,28 +369,61 @@ if (typeof globalThis.Pool === 'undefined') {
    * @returns {boolean} Whether the pool is open to the public at any time tomorrow
    */
   hasPublicUseTomorrow() {
+    return this.hasPublicUseOnDayOffset(1);
+  }
+
+  /**
+   * Check whether any published public-use period exists on a future Eastern calendar day.
+   * @param {number} dayOffset - Non-negative number of days after today
+   * @returns {boolean} Whether the pool is open to the public at any time on that day
+   */
+  hasPublicUseOnDayOffset(dayOffset) {
+    return this.getGeneralUseScheduleOnDayOffset(dayOffset) !== null;
+  }
+
+  /**
+   * Get effective general-use hours for an Eastern calendar day.
+   * @param {number} dayOffset - Non-negative number of days after today
+   * @returns {{ date: string, dayName: string, shortDay: string, timeSlots: Array<{ startTime: string, endTime: string }> }|null} General-use schedule, or null when unavailable
+   */
+  getGeneralUseScheduleOnDayOffset(dayOffset) {
+    if (!Number.isInteger(dayOffset) || dayOffset < 0) return null;
+
     const TimeUtilsRef = this._getTimeUtils();
     const PoolStatusRef = this._getPoolStatus();
-    if (!TimeUtilsRef || !PoolStatusRef) return false;
+    if (!TimeUtilsRef || !PoolStatusRef) return null;
 
     const easternTimeInfo = TimeUtilsRef.getCurrentEasternTimeInfo();
-    if (!easternTimeInfo.isValid) return false;
+    if (!easternTimeInfo.isValid) return null;
 
     const dateParts = easternTimeInfo.date.match(TimeUtilsRef.DATE_ONLY_REGEX);
-    if (!dateParts) return false;
-    const tomorrow = new Date(Date.UTC(Number(dateParts[1]), Number(dateParts[2]) - 1, Number(dateParts[3]) + 1));
-    const tomorrowDate = tomorrow.toISOString().slice(0, 10);
-    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const tomorrowDay = dayNames[tomorrow.getUTCDay()];
+    if (!dateParts) return null;
+    const easternDate = new Date(Date.UTC(Number(dateParts[1]), Number(dateParts[2]) - 1, Number(dateParts[3])));
+    if (easternDate.toISOString().slice(0, 10) !== easternTimeInfo.date) return null;
+    easternDate.setUTCDate(easternDate.getUTCDate() + dayOffset);
+    const requestedDate = easternDate.toISOString().slice(0, 10);
+    const requestedDay = easternDate.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' });
+    const shortDay = requestedDay.substring(0, 3);
 
     if (this.schedulePeriods) {
-      return this._getPeriodTimeSlotsForDate(tomorrowDate, tomorrowDay.substring(0, 3))
-        .some(slot => this._getPeriodSlotStatus(slot) === PoolStatusRef.OPEN);
+      const timeSlots = this._getPeriodTimeSlotsForDate(requestedDate, shortDay)
+        .filter(slot => this._getPeriodSlotStatus(slot) === PoolStatusRef.OPEN
+          && slot.isSpecialEvent !== true
+          && typeof slot.startTime === 'string'
+          && typeof slot.endTime === 'string')
+        .map(slot => ({ startTime: slot.startTime, endTime: slot.endTime }));
+      return timeSlots.length > 0 ? { date: requestedDate, dayName: requestedDay, shortDay, timeSlots } : null;
     }
 
-    const dayHours = this.schedule.getDayHours(tomorrowDay);
-    return Boolean(dayHours && !dayHours.closed
-      && typeof dayHours.open === 'string' && typeof dayHours.close === 'string');
+    const dayHours = this.schedule.getDayHours(requestedDay);
+    if (!dayHours || dayHours.closed || dayHours.isSpecialEvent === true
+      || typeof dayHours.open !== 'string' || typeof dayHours.close !== 'string') return null;
+    return {
+      date: requestedDate,
+      dayName: requestedDay,
+      shortDay,
+      timeSlots: [{ startTime: dayHours.open, endTime: dayHours.close }]
+    };
   }
 
   /**

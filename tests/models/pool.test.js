@@ -545,8 +545,10 @@ describe('Pool', () => {
     it('rejects an invalid Eastern calendar date when checking tomorrow', () => {
       const pool = new Pool(createSamplePoolData({ schedules: [] }));
       const originalGetInfo = TimeUtils.getCurrentEasternTimeInfo;
-      TimeUtils.getCurrentEasternTimeInfo = () => ({ date: 'not-a-date', day: 'Mon', isValid: true });
       try {
+        TimeUtils.getCurrentEasternTimeInfo = () => ({ date: 'not-a-date', day: 'Mon', isValid: true });
+        assert.equal(pool.hasPublicUseTomorrow(), false);
+        TimeUtils.getCurrentEasternTimeInfo = () => ({ date: '2026-02-31', day: 'Tue', isValid: true });
         assert.equal(pool.hasPublicUseTomorrow(), false);
       } finally {
         TimeUtils.getCurrentEasternTimeInfo = originalGetInfo;
@@ -558,13 +560,50 @@ describe('Pool', () => {
       TimeUtils.getCurrentEasternTimeInfo = () => ({ date: '2026-06-01', day: 'Monday', isValid: true });
       try {
         const openTomorrow = new Pool(createSamplePoolData({
-          hours: { Tuesday: { open: '9:00AM', close: '5:00PM' } }
+          hours: {
+            Tuesday: { open: '9:00AM', close: '5:00PM' },
+            Wednesday: { open: '10:00AM', close: '6:00PM' }
+          }
         }));
         const closedTomorrow = new Pool(createSamplePoolData({
           hours: { Tuesday: { closed: true } }
         }));
         assert.equal(openTomorrow.hasPublicUseTomorrow(), true);
+        assert.equal(openTomorrow.hasPublicUseOnDayOffset(2), true);
         assert.equal(closedTomorrow.hasPublicUseTomorrow(), false);
+      } finally {
+        TimeUtils.getCurrentEasternTimeInfo = originalGetInfo;
+      }
+    });
+
+    it('checks future offsets against dated schedules and public access state', () => {
+      const originalGetInfo = TimeUtils.getCurrentEasternTimeInfo;
+      TimeUtils.getCurrentEasternTimeInfo = () => ({ date: '2026-06-15', day: 'Mon', isValid: true });
+      try {
+        const pool = new Pool(createSamplePoolData({ schedules: [{
+          startDate: '2026-06-15',
+          endDate: '2026-06-21',
+          hours: [
+            { weekDays: ['Wed'], startTime: '1:00PM', endTime: '3:00PM', accessStatus: 'public' },
+            { weekDays: ['Wed'], startTime: '3:00PM', endTime: '5:00PM', accessStatus: 'public', isSpecialEvent: true },
+            { weekDays: ['Thu'], startTime: '1:00PM', endTime: '5:00PM', accessStatus: 'practice-only' },
+            { weekDays: ['Fri'], startTime: '6:00PM', endTime: '9:00PM', accessStatus: 'public', isSpecialEvent: true },
+            { weekDays: ['Sun'], startTime: '1:00PM', endTime: '5:00PM', accessStatus: 'public' }
+          ]
+        }] }));
+
+        assert.equal(pool.hasPublicUseOnDayOffset(2), true);
+        assert.deepEqual(pool.getGeneralUseScheduleOnDayOffset(2), {
+          date: '2026-06-17',
+          dayName: 'Wednesday',
+          shortDay: 'Wed',
+          timeSlots: [{ startTime: '1:00PM', endTime: '3:00PM' }]
+        });
+        assert.equal(pool.hasPublicUseOnDayOffset(3), false);
+        assert.equal(pool.hasPublicUseOnDayOffset(4), false);
+        assert.equal(pool.hasPublicUseOnDayOffset(6), true);
+        assert.equal(pool.hasPublicUseOnDayOffset(-1), false);
+        assert.equal(pool.hasPublicUseOnDayOffset(1.5), false);
       } finally {
         TimeUtils.getCurrentEasternTimeInfo = originalGetInfo;
       }

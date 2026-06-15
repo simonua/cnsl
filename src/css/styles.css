@@ -2909,6 +2909,13 @@ button.pool-filter__clear:focus-visible {
   margin: 0.5rem 0 0;
 }
 
+@media (max-width: 48rem) {
+  .pool-status-legend {
+    margin-left: calc(1px + 0.625rem + 0.15rem);
+    width: calc(100% - 1px - 0.625rem - 0.15rem);
+  }
+}
+
 /* Enhanced Quick Link Cards */
 .quick-link-card .card-content {
   align-items: center;

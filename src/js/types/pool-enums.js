@@ -21,6 +21,8 @@ if (typeof globalThis.PoolStatus === 'undefined') {
     /** @type {PoolStatus} */
     static SWIM_MEET = Object.freeze({ kind: 'swim-meet', isOpen: true, status: 'Swim Meet', color: 'yellow' });
     /** @type {PoolStatus} */
+    static STATUS_NOT_APPLICABLE = Object.freeze({ kind: 'status-not-applicable', isOpen: false, status: 'Current status not applicable', color: 'gray' });
+    /** @type {PoolStatus} */
     static SCHEDULE_NOT_FOUND = Object.freeze({ kind: 'schedule-not-found', isOpen: false, status: 'Schedule TBD', color: 'gray' });
   }
 

@@ -92,6 +92,8 @@ if (typeof globalThis.PoolScheduleDisplay === 'undefined') {
         case 'schedule-not-found':
         case 'unavailable':
           return 'Schedule not available';
+        case 'status-not-applicable':
+          return 'Current status not applicable';
         default:
           return 'Status unknown';
       }

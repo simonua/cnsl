@@ -51,11 +51,19 @@ describe('PoolStatus', () => {
     assert.equal(PoolStatus.SCHEDULE_NOT_FOUND.color, 'gray');
   });
 
+  it('defines STATUS_NOT_APPLICABLE as a neutral state', () => {
+    assert.equal(PoolStatus.STATUS_NOT_APPLICABLE.kind, 'status-not-applicable');
+    assert.equal(PoolStatus.STATUS_NOT_APPLICABLE.isOpen, false);
+    assert.equal(PoolStatus.STATUS_NOT_APPLICABLE.status, 'Current status not applicable');
+    assert.equal(PoolStatus.STATUS_NOT_APPLICABLE.color, 'gray');
+  });
+
   it('all statuses have required properties', () => {
     const statuses = [
       PoolStatus.OPEN, PoolStatus.CLOSED, PoolStatus.RESTRICTED,
       PoolStatus.PRACTICE_ONLY, PoolStatus.CLOSED_TO_PUBLIC,
-      PoolStatus.SWIM_MEET, PoolStatus.SCHEDULE_NOT_FOUND
+      PoolStatus.SWIM_MEET, PoolStatus.STATUS_NOT_APPLICABLE,
+      PoolStatus.SCHEDULE_NOT_FOUND
     ];
     for (const status of statuses) {
       assert.equal(Object.isFrozen(status), true);

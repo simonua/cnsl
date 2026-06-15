@@ -360,7 +360,7 @@ test('[WF-DATA-007-POOLS] pool summaries and requested details render before opt
       'Open for public use',
       'Special schedule or restrictions',
       'Currently closed',
-      'Schedule not available'
+      'Schedule not available or applicable'
     ]);
     await expect(page.locator('.pool-status-legend__note')).toContainText('quick guides based on today\'s published public hours');
     await expect(page.locator('#poolList .pool-details[data-pool-details-hydrated="false"]')).toHaveCount(23);
@@ -1225,7 +1225,7 @@ test('[WF-POOLS-018] lessons feature identifies CA outdoor lesson pools and link
   await expect(lessonsLinkIcon.locator('use')).toHaveAttribute('href', '#icon-link');
 });
 
-test('[WF-POOLS-002] pool availability filters show pools open now, opening soon, today, tomorrow, or for the next two hours', async ({ page }) => {
+test('[WF-POOLS-002] pool availability filters cover live status and the upcoming seven days', async ({ page }) => {
   await page.route('**/assets/data/2026/pools/pools.json*', async route => {
     const response = await route.fetch();
     const poolData = await response.json();
@@ -1233,13 +1233,30 @@ test('[WF-POOLS-002] pool availability filters show pools open now, opening soon
       pool.schedules = [{
         startDate: '2026-05-23',
         endDate: '2026-09-07',
-        hours: [{
-          weekDays: index === 2 ? ['Tue', 'Wed'] : ['Tue'],
-          startTime: index === 1 ? '3:45PM' : '1:00PM',
-          endTime: index < 2 ? '6:00PM' : '4:00PM',
-          types: ['Rec Swim'],
-          accessStatus: 'public'
-        }]
+        hours: [
+          {
+            weekDays: index === 2 ? ['Tue', 'Wed'] : ['Tue'],
+            startTime: index === 1 ? '3:45PM' : '1:00PM',
+            endTime: index < 2 ? '6:00PM' : '4:00PM',
+            types: ['Rec Swim'],
+            accessStatus: 'public'
+          },
+          ...(['Thu', 'Fri', 'Sat', 'Sun', 'Mon'][index - 3] ? [{
+            weekDays: [['Thu', 'Fri', 'Sat', 'Sun', 'Mon'][index - 3]],
+            startTime: '1:00PM',
+            endTime: '4:00PM',
+            types: ['Rec Swim'],
+            accessStatus: 'public'
+          }] : []),
+          ...(index === 4 ? [{
+            weekDays: ['Thu'],
+            startTime: '6:00PM',
+            endTime: '9:00PM',
+            types: ['Registration-required event'],
+            accessStatus: 'public',
+            isSpecialEvent: true
+          }] : [])
+        ]
       }];
       pool.scheduleOverrides = [];
     });
@@ -1253,6 +1270,21 @@ test('[WF-POOLS-002] pool availability filters show pools open now, opening soon
     globalThis.dispatchEvent(new globalThis.Event('cnsl:preferences-changed'));
   });
   await page.locator('#togglePoolFeatureFilters').click();
+  await expect(page.getByLabel('When pools are open for general use')).toBeVisible();
+
+  await expect(page.locator('#poolAvailabilityFilter option')).toHaveText([
+    'All pools',
+    'Now',
+    'Within the hour',
+    'For next 2 hours',
+    'Today',
+    'Tomorrow',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
+    'Monday'
+  ]);
 
   await page.selectOption('#poolAvailabilityFilter', 'open-now');
   await expect(page.locator('#poolFilterSummary')).toHaveText('22 / 23 pools');
@@ -1264,17 +1296,32 @@ test('[WF-POOLS-002] pool availability filters show pools open now, opening soon
   await expect(page.locator('#poolListStatus')).toHaveText('Pool directory filtered to pools opening within the hour.');
 
   await page.keyboard.press('ArrowDown');
-  await expect(page.locator('#poolAvailabilityFilter')).toHaveValue('open-today');
-  await expect(page.locator('#poolFilterSummary')).toHaveText('23 / 23 pools');
-  await expect(page.locator('#poolListStatus')).toHaveText('Pool directory filtered to pools with public hours today.');
+  await expect(page.locator('#poolAvailabilityFilter')).toHaveValue('open-next-two-hours');
 
   await page.keyboard.press('ArrowDown');
-  await expect(page.locator('#poolAvailabilityFilter')).toHaveValue('open-next-two-hours');
+  await expect(page.locator('#poolAvailabilityFilter')).toHaveValue('open-today');
+  await expect(page.locator('#poolFilterSummary')).toHaveText('23 / 23 pools');
+  await expect(page.locator('#poolListStatus')).toHaveText('Pool directory filtered to pools with general-use hours today.');
+  await expect(page.locator('#poolList .pool-status-indicator.gray')).toHaveCount(0);
 
   await page.keyboard.press('ArrowDown');
   await expect(page.locator('#poolAvailabilityFilter')).toHaveValue('open-tomorrow');
   await expect(page.locator('#poolFilterSummary')).toHaveText('1 / 23 pools');
-  await expect(page.locator('#poolListStatus')).toHaveText('Pool directory filtered to pools with public hours tomorrow.');
+  await expect(page.locator('#poolListStatus')).toHaveText('Pool directory filtered to pools with general-use hours tomorrow.');
+  await expect(page.locator('#poolList .pool-transition-summary')).toHaveText('Wed 1pm - 4pm');
+  await expect(page.locator('#poolList .pool-transition-summary')).toHaveAttribute(
+    'aria-label',
+    'Wednesday general-use hours: 1:00 PM to 4:00 PM'
+  );
+  await expect(page.locator('#poolList .pool-status-indicator.gray')).toHaveCount(1);
+  await expect(page.locator('#poolList .pool-header__toggle')).toHaveAccessibleName(/Current status not applicable/);
+  await expect(page.locator('#poolList')).not.toContainText(/Opens in|Closes in/);
+
+  await page.selectOption('#poolAvailabilityFilter', 'open-day-2');
+  await expect(page.locator('#poolFilterSummary')).toHaveText('1 / 23 pools');
+  await expect(page.locator('#poolListStatus')).toHaveText('Pool directory filtered to pools with general-use hours Thursday.');
+  await expect(page.locator('#poolList .pool-transition-summary')).toHaveText('Thu 1pm - 4pm');
+  await expect(page.locator('#poolList .pool-status-indicator.gray')).toHaveCount(1);
 
   await page.selectOption('#poolAvailabilityFilter', 'open-next-two-hours');
   await expect(page.locator('#poolFilterSummary')).toHaveText('1 / 23 pools');

@@ -4,6 +4,7 @@ let userCoords = null;
 let poolBrowserPools = [];
 let poolSortOrder = 'name';
 let poolAvailabilityFilter = 'all';
+let poolAvailabilityOptionsDate = '';
 let poolLiveStatusRefreshTimeout = null;
 let poolLiveStatusSignature = '';
 let poolBrowserEnrichmentPromise = null;
@@ -222,6 +223,17 @@ function getPoolStatus(pool) {
 }
 
 /**
+ * Resolve the status indicator shown for the active availability filter.
+ * @param {Object} pool - Pool data object
+ * @returns {Object} Current status or a neutral future-day status
+ */
+function getPoolCardStatus(pool) {
+  return PoolDirectoryService.getFutureAvailabilityDayOffset(poolAvailabilityFilter) === null
+    ? getPoolStatus(pool)
+    : PoolStatus.STATUS_NOT_APPLICABLE;
+}
+
+/**
  * Builds pool-hours display state and delegates the rendered presentation.
  * @param {Object} pool - Pool data object
  * @returns {string} - HTML string for displaying hours with navigation
@@ -326,6 +338,28 @@ function getPoolTransitionAction(poolModel) {
 }
 
 /**
+ * Build the collapsed-card availability summary for the active filter.
+ * @param {Pool|null} poolModel - Pool domain model
+ * @returns {{ text: string, label: string, action: string }} Display-ready availability summary
+ */
+function getPoolCardAvailabilitySummary(poolModel) {
+  if (!poolModel) return { text: '', label: '', action: '' };
+
+  const dayOffset = PoolDirectoryService.getFutureAvailabilityDayOffset(poolAvailabilityFilter);
+  if (dayOffset !== null) {
+    const schedule = poolModel.getGeneralUseScheduleOnDayOffset(dayOffset);
+    const summary = PoolDirectoryService.formatGeneralUseScheduleSummary(schedule, _getTimeUtils());
+    return { ...summary, action: '' };
+  }
+
+  return {
+    text: getPoolStatusSummary(poolModel),
+    label: getPoolStatusSummary(poolModel, { useLongUnits: true }),
+    action: getPoolTransitionAction(poolModel)
+  };
+}
+
+/**
  * Synchronizes one pool card's live transition summary.
  * @param {Element} poolCard - Pool card to update
  */
@@ -333,12 +367,11 @@ function syncPoolTransitionSummary(poolCard) {
   if (!poolCard) return;
   const pool = getPoolRecord(poolCard.dataset.poolId);
   const poolModel = pool && poolBrowserDataManager ? poolBrowserDataManager.getPool(pool.name) : null;
-  const summaryText = getPoolStatusSummary(poolModel);
-  const transitionAction = getPoolTransitionAction(poolModel);
+  const summaryState = getPoolCardAvailabilitySummary(poolModel);
   let metadata = poolCard.querySelector('.pool-header__metadata');
   let summary = metadata && metadata.querySelector('.pool-transition-summary');
 
-  if (!summaryText) {
+  if (!summaryState.text) {
     if (summary) summary.remove();
     if (metadata && !metadata.querySelector('.distance-badge')) metadata.remove();
     return;
@@ -354,9 +387,9 @@ function syncPoolTransitionSummary(poolCard) {
     summary.className = 'pool-transition-summary';
     metadata.prepend(summary);
   }
-  summary.textContent = summaryText;
-  summary.className = `pool-transition-summary${transitionAction ? ` pool-transition-summary--${transitionAction}` : ''}`;
-  summary.setAttribute('aria-label', getPoolStatusSummary(poolModel, { useLongUnits: true }));
+  summary.textContent = summaryState.text;
+  summary.className = `pool-transition-summary${summaryState.action ? ` pool-transition-summary--${summaryState.action}` : ''}`;
+  summary.setAttribute('aria-label', summaryState.label);
 }
 
 /**
@@ -597,6 +630,19 @@ function setupPoolAvailabilityControl() {
   const select = document.getElementById('poolAvailabilityFilter');
   if (!select) return;
 
+  const currentDate = _getTimeUtils()?.getCurrentEasternTimeInfo()?.date || '';
+  if (currentDate !== poolAvailabilityOptionsDate) {
+    select.querySelectorAll('option[data-availability-day-offset]').forEach(option => option.remove());
+    const options = PoolDirectoryService.getUpcomingDayAvailabilityOptions(currentDate);
+    options.forEach(({ value, dayOffset, label }) => {
+      const option = document.createElement('option');
+      option.value = value;
+      option.dataset.availabilityDayOffset = String(dayOffset);
+      option.textContent = label;
+      select.appendChild(option);
+    });
+    poolAvailabilityOptionsDate = options.length > 0 ? currentDate : '';
+  }
   select.value = poolAvailabilityFilter;
   select.onchange = handlePoolAvailabilityChange;
 }
@@ -609,15 +655,9 @@ function handlePoolAvailabilityChange(event) {
   const requestedFilter = event.target.value;
   poolAvailabilityFilter = PoolDirectoryService.isAvailabilityFilter(requestedFilter) ? requestedFilter : 'all';
   renderPools(poolBrowserPools);
-  const descriptions = {
-    all: 'all pools',
-    'open-now': 'pools open now',
-    'opens-soon': 'pools opening within the hour',
-    'open-today': 'pools with public hours today',
-    'open-tomorrow': 'pools with public hours tomorrow',
-    'open-next-two-hours': 'pools open for the next 2 hours'
-  };
-  setPoolListStatus(`Pool directory filtered to ${descriptions[poolAvailabilityFilter]}.`, false);
+  const currentDate = _getTimeUtils()?.getCurrentEasternTimeInfo()?.date || '';
+  const description = PoolDirectoryService.getAvailabilityFilterDescription(poolAvailabilityFilter, currentDate);
+  setPoolListStatus(`Pool directory filtered to ${description}.`, false);
 }
 
 /**
@@ -735,6 +775,7 @@ function getPoolLiveStatusSignature(pools) {
 function refreshPoolsForCurrentTime() {
   if (poolBrowserPools.length === 0) return;
 
+  setupPoolAvailabilityControl();
   const nextSignature = getPoolLiveStatusSignature(poolBrowserPools);
   if (nextSignature === poolLiveStatusSignature) {
     refreshPoolTransitionSummaries();
@@ -853,12 +894,10 @@ function renderPools(pools) {
     const isExpanded = (isInitialRender && poolId === linkedPoolId)
       || (isFavorite ? preferences.favoritePoolExpanded : expandedPoolIds.has(poolId));
 
-    const poolStatus = getPoolStatus(pool);
+    const poolStatus = getPoolCardStatus(pool);
     const tooltipText = getStatusTooltip(poolStatus.kind);
     const poolModel = poolBrowserDataManager.getPool(poolName);
-    const transitionText = getPoolStatusSummary(poolModel);
-    const transitionLabel = getPoolStatusSummary(poolModel, { useLongUnits: true });
-    const transitionAction = getPoolTransitionAction(poolModel);
+    const availabilitySummary = getPoolCardAvailabilitySummary(poolModel);
     const detailsViewModel = isExpanded ? createPoolDetailsViewModel(pool) : {};
 
     return PoolCardDisplay.render({
@@ -869,9 +908,9 @@ function renderPools(pools) {
       isFavorite,
       isExpanded,
       distanceMiles: Number.isFinite(pool.distance) ? pool.distance : null,
-      transitionText,
-      transitionLabel,
-      transitionAction,
+      transitionText: availabilitySummary.text,
+      transitionLabel: availabilitySummary.label,
+      transitionAction: availabilitySummary.action,
       poolStatus,
       statusTooltip: tooltipText,
       isDetailsHydrated: isExpanded,
