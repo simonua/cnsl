@@ -7,6 +7,7 @@
   "files.trimFinalNewlines": true,
   "files.trimTrailingWhitespace": true,
   "markdown.validate.enabled": true,
+  "markdownlint.ignore": ["test-results/**"],
   "markdownlint.run": "onType",
   "[html]": {
     "editor.wordWrap": "on"

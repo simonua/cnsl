@@ -13,7 +13,7 @@ description: "Use when creating or changing Markdown files. Covers repository ma
 
 ## Commands
 
-- Run `pnpm dlx markdownlint-cli2 "**/*.md" "#node_modules" "#out"` from the repository root for a workspace-wide Markdown audit. Keep the exclusions quoted so third-party dependency documentation and generated build output are not linted.
+- Run `pnpm dlx markdownlint-cli2 "**/*.md" "#node_modules" "#out" "#test-results"` from the repository root for a workspace-wide Markdown audit. Keep the exclusions quoted so third-party dependency documentation and generated output are not linted.
 - Run `pnpm dlx markdownlint-cli2 "<path/to/file.md>"` for a focused command-line check of one changed Markdown file.
 
 ## Rules
