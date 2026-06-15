@@ -113,9 +113,17 @@ test('[WF-SETTINGS-001] settings dialog is evenly inset on mobile and centered o
   await expect(accessibilitySettings).not.toHaveAttribute('open', '');
   const closeButtonBounds = await page.getByRole('button', { name: 'Close settings' }).boundingBox();
   expect(closeButtonBounds.width).toBeLessThan(closeButtonBounds.height);
+  let forceUpdateButtonBounds = await page.getByRole('button', { name: 'Force update' }).boundingBox();
   let clearButtonBounds = await page.getByRole('button', { name: 'Clear all app data' }).boundingBox();
   let clearActionsBounds = await page.locator('.settings-actions').boundingBox();
-  expect(Math.abs(clearButtonBounds.x + (clearButtonBounds.width / 2) - (clearActionsBounds.x + (clearActionsBounds.width / 2)))).toBeLessThanOrEqual(1);
+  expect(forceUpdateButtonBounds.x).toBeGreaterThanOrEqual(clearActionsBounds.x);
+  expect(forceUpdateButtonBounds.x + forceUpdateButtonBounds.width).toBeLessThanOrEqual(clearActionsBounds.x + clearActionsBounds.width);
+  expect(clearButtonBounds.x).toBeGreaterThanOrEqual(clearActionsBounds.x);
+  expect(clearButtonBounds.x + clearButtonBounds.width).toBeLessThanOrEqual(clearActionsBounds.x + clearActionsBounds.width);
+  expect(forceUpdateButtonBounds.y + forceUpdateButtonBounds.height <= clearButtonBounds.y
+    || clearButtonBounds.y + clearButtonBounds.height <= forceUpdateButtonBounds.y
+    || forceUpdateButtonBounds.x + forceUpdateButtonBounds.width <= clearButtonBounds.x
+    || clearButtonBounds.x + clearButtonBounds.width <= forceUpdateButtonBounds.x).toBe(true);
   await page.getByRole('button', { name: 'Close settings' }).click();
   await expect(dialog).not.toBeVisible();
   await page.getByRole('button', { name: 'Open settings' }).click();
@@ -131,9 +139,43 @@ test('[WF-SETTINGS-001] settings dialog is evenly inset on mobile and centered o
   expect(Math.abs(bounds.height - (desktopViewport.height * 0.75))).toBeLessThanOrEqual(1);
   expect(Math.abs(bounds.x + (bounds.width / 2) - (desktopViewport.width / 2))).toBeLessThanOrEqual(1);
   expect(Math.abs(bounds.y + (bounds.height / 2) - (desktopViewport.height / 2))).toBeLessThanOrEqual(1);
+  forceUpdateButtonBounds = await page.getByRole('button', { name: 'Force update' }).boundingBox();
   clearButtonBounds = await page.getByRole('button', { name: 'Clear all app data' }).boundingBox();
   clearActionsBounds = await page.locator('.settings-actions').boundingBox();
-  expect(Math.abs(clearButtonBounds.x + (clearButtonBounds.width / 2) - (clearActionsBounds.x + (clearActionsBounds.width / 2)))).toBeLessThanOrEqual(1);
+  expect(forceUpdateButtonBounds.x).toBeGreaterThanOrEqual(clearActionsBounds.x);
+  expect(forceUpdateButtonBounds.x + forceUpdateButtonBounds.width).toBeLessThanOrEqual(clearActionsBounds.x + clearActionsBounds.width);
+  expect(clearButtonBounds.x).toBeGreaterThanOrEqual(clearActionsBounds.x);
+  expect(clearButtonBounds.x + clearButtonBounds.width).toBeLessThanOrEqual(clearActionsBounds.x + clearActionsBounds.width);
+  expect(forceUpdateButtonBounds.y + forceUpdateButtonBounds.height <= clearButtonBounds.y
+    || clearButtonBounds.y + clearButtonBounds.height <= forceUpdateButtonBounds.y
+    || forceUpdateButtonBounds.x + forceUpdateButtonBounds.width <= clearButtonBounds.x
+    || clearButtonBounds.x + clearButtonBounds.width <= forceUpdateButtonBounds.x).toBe(true);
+});
+
+test('[WF-SETTINGS-013] force update reports progress and recovers without changing preferences', async ({ page }) => {
+  await seedPreferences(page, { theme: 'dark' });
+  await page.goto('/settings.html');
+  const savedPreferences = await page.evaluate(() => localStorage.getItem('cnsl_preferences'));
+  await page.evaluate(() => {
+    globalThis.cnslPwa = {
+      forceUpdate: () => new Promise((resolveUpdate, rejectUpdate) => {
+        globalThis.resolveForcedUpdate = resolveUpdate;
+        globalThis.rejectForcedUpdate = () => rejectUpdate(new Error('network unavailable'));
+      })
+    };
+  });
+
+  const forceUpdateButton = page.getByRole('button', { name: 'Force update' });
+  await forceUpdateButton.click();
+  await expect(forceUpdateButton).toBeDisabled();
+  await expect(forceUpdateButton).toHaveAttribute('aria-busy', 'true');
+  await expect(page.locator('#settingsStatus')).toHaveText('Checking for the latest app files...');
+
+  await page.evaluate(() => globalThis.rejectForcedUpdate());
+  await expect(forceUpdateButton).toBeEnabled();
+  await expect(forceUpdateButton).not.toHaveAttribute('aria-busy');
+  await expect(page.locator('#settingsStatus')).toHaveText('The app could not refresh right now. Please check your connection and try again.');
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_preferences'))).toBe(savedPreferences);
 });
 
 test('[WF-SETTINGS-012] settings dialog closes from the backdrop and restores launcher focus', async ({ page }) => {

@@ -523,6 +523,22 @@
       status.textContent = 'All app data has been cleared from this device.';
     });
 
+    document.getElementById('forceUpdate').addEventListener('click', async event => {
+      const forceUpdateButton = event.currentTarget;
+      forceUpdateButton.disabled = true;
+      forceUpdateButton.setAttribute('aria-busy', 'true');
+      status.textContent = 'Checking for the latest app files...';
+
+      try {
+        await window.cnslPwa.forceUpdate();
+      } catch (error) {
+        console.error('Unable to force an app update:', error);
+        forceUpdateButton.disabled = false;
+        forceUpdateButton.removeAttribute('aria-busy');
+        status.textContent = 'The app could not refresh right now. Please check your connection and try again.';
+      }
+    });
+
     closeButton.addEventListener('click', () => dialog.close());
     dialog.addEventListener('click', event => {
       if (event.target === dialog) dialog.close();

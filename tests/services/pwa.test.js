@@ -43,11 +43,10 @@ function createWindow(location = {}) {
 }
 
 describe('PWA update startup', () => {
-  it('should check the deployment marker without updating a current worker', async () => {
+  it('should check the deployment marker after registering the current build worker', async () => {
     const fetchCalls = [];
     const registerCalls = [];
     const workerMessages = [];
-    let updateCalls = 0;
     const window = createWindow();
     const navigator = {
       serviceWorker: {
@@ -56,8 +55,7 @@ describe('PWA update startup', () => {
         register: async (url, options) => {
           registerCalls.push({ options, url: url.toString() });
           return {
-            active: { postMessage: message => workerMessages.push(message) },
-            update: async () => { updateCalls += 1; }
+            active: { postMessage: message => workerMessages.push(message) }
           };
         }
       }
@@ -75,12 +73,11 @@ describe('PWA update startup', () => {
     await new Promise(resolve => setImmediate(resolve));
 
     assert.equal(registerCalls.length, 1);
-    assert.equal(registerCalls[0].url, 'https://pools.longreachmarlins.org/service-worker.js');
+    assert.equal(registerCalls[0].url, `https://pools.longreachmarlins.org/service-worker.js?v=${CURRENT_BUILD_VERSION}`);
     assert.equal(registerCalls[0].options.updateViaCache, 'none');
     assert.equal(fetchCalls.length, 1);
     assert.equal(fetchCalls[0].url, 'https://pools.longreachmarlins.org/version.txt');
     assert.equal(fetchCalls[0].options.cache, 'no-store');
-    assert.equal(updateCalls, 0);
     assert.equal(workerMessages.length, 1);
     assert.equal(workerMessages[0].type, 'GET_APP_VERSION');
   });
@@ -129,16 +126,17 @@ describe('PWA update startup', () => {
     assert.equal(markerFetchCalls, 2);
   });
 
-  it('should update the worker only for a valid different deployment marker', async () => {
+  it('should register a build-specific worker only for a valid different deployment marker', async () => {
     let deployedVersion = 'not-a-build-version';
-    let updateCalls = 0;
+    const registerCalls = [];
     const navigator = {
       serviceWorker: {
         controller: {},
         addEventListener: () => undefined,
-        register: async () => ({
-          update: async () => { updateCalls += 1; }
-        })
+        register: async url => {
+          registerCalls.push(url.toString());
+          return {};
+        }
       }
     };
 
@@ -149,7 +147,9 @@ describe('PWA update startup', () => {
       window: createWindow()
     });
     await new Promise(resolve => setImmediate(resolve));
-    assert.equal(updateCalls, 0);
+    assert.deepEqual(registerCalls, [
+      `https://pools.longreachmarlins.org/service-worker.js?v=${CURRENT_BUILD_VERSION}`
+    ]);
 
     deployedVersion = '20260609-123457';
     const nextWindow = createWindow();
@@ -160,11 +160,108 @@ describe('PWA update startup', () => {
       window: nextWindow
     });
     await new Promise(resolve => setImmediate(resolve));
-    assert.equal(updateCalls, 1);
+    assert.deepEqual(registerCalls, [
+      `https://pools.longreachmarlins.org/service-worker.js?v=${CURRENT_BUILD_VERSION}`,
+      `https://pools.longreachmarlins.org/service-worker.js?v=${CURRENT_BUILD_VERSION}`,
+      'https://pools.longreachmarlins.org/service-worker.js?v=20260609-123457'
+    ]);
   });
 
-  it('should do nothing when service workers are unavailable', () => {
-    assert.doesNotThrow(() => runPwa({ console, navigator: {}, window: createWindow() }));
+  it('should reload from the network when service workers and caches are unavailable', async () => {
+    let reloadCalls = 0;
+    const window = createWindow({ reload: () => { reloadCalls += 1; } });
+
+    assert.doesNotThrow(() => runPwa({ console, navigator: {}, window }));
+    await window.cnslPwa.forceUpdate();
+
+    assert.equal(reloadCalls, 1);
+    assert.equal(Object.isFrozen(window.cnslPwa), true);
+  });
+
+  it('should force an update without clearing preferences or unrelated caches', async () => {
+    const deletedCaches = [];
+    const fetchCalls = [];
+    let reloadCalls = 0;
+    let unregisterCalls = 0;
+    const caches = {
+      delete: async name => deletedCaches.push(name),
+      keys: async () => ['cnsl-static-current', 'unrelated-cache']
+    };
+    const window = createWindow({ reload: () => { reloadCalls += 1; } });
+    window.caches = caches;
+    const navigator = {
+      serviceWorker: {
+        controller: {},
+        addEventListener: () => undefined,
+        getRegistration: async () => ({ unregister: async () => { unregisterCalls += 1; } }),
+        register: async () => ({ update: async () => undefined })
+      }
+    };
+
+    runPwa({
+      caches,
+      console,
+      fetch: async (url, options) => {
+        fetchCalls.push({ options, url: url.toString() });
+        return new Response(`${CURRENT_BUILD_VERSION}\n`, { status: 200 });
+      },
+      navigator,
+      window
+    });
+    await new Promise(resolve => setImmediate(resolve));
+    await window.cnslPwa.forceUpdate();
+
+    assert.equal(fetchCalls.length, 2);
+    assert.equal(fetchCalls[1].url, 'https://pools.longreachmarlins.org/version.txt');
+    assert.equal(fetchCalls[1].options.cache, 'no-store');
+    assert.equal(unregisterCalls, 1);
+    assert.deepEqual(deletedCaches, ['cnsl-static-current']);
+    assert.equal(reloadCalls, 1);
+  });
+
+  it('should reload when no service-worker registration controls the page', async () => {
+    let reloadCalls = 0;
+    const window = createWindow({ reload: () => { reloadCalls += 1; } });
+    const navigator = {
+      serviceWorker: {
+        controller: {},
+        addEventListener: () => undefined,
+        getRegistration: async () => undefined,
+        register: async () => ({ update: async () => undefined })
+      }
+    };
+
+    runPwa({ console, navigator, window });
+    await new Promise(resolve => setImmediate(resolve));
+    await window.cnslPwa.forceUpdate();
+
+    assert.equal(reloadCalls, 1);
+  });
+
+  it('should preserve the current app when the deployment marker is invalid', async () => {
+    let registrationReads = 0;
+    let reloadCalls = 0;
+    const window = createWindow({ reload: () => { reloadCalls += 1; } });
+    const navigator = {
+      serviceWorker: {
+        controller: {},
+        addEventListener: () => undefined,
+        getRegistration: async () => { registrationReads += 1; },
+        register: async () => ({ update: async () => undefined })
+      }
+    };
+
+    runPwa({
+      console,
+      fetch: async () => new Response('not-a-build-version', { status: 200 }),
+      navigator,
+      window
+    });
+    await new Promise(resolve => setImmediate(resolve));
+
+    await assert.rejects(window.cnslPwa.forceUpdate(), /deployment marker is unavailable/);
+    assert.equal(registrationReads, 0);
+    assert.equal(reloadCalls, 0);
   });
 
   it('should clear local workers and application caches during development', async () => {

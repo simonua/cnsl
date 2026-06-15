@@ -3,6 +3,47 @@
 
   const UPDATE_CHECK_DEBOUNCE_MS = 60 * 1000;
   const BUILD_VERSION_PATTERN = /^\d{8}-\d{6}$/;
+  const deploymentVersionUrl = new URL(window.DEPLOYMENT_VERSION_FILE, window.location.href);
+
+  /**
+   * Reads the latest valid deployment build marker without using browser caches.
+   * @returns {Promise<string|null>} Published build version, or null when the marker is unavailable or invalid
+   * @private
+   */
+  async function fetchDeployedBuildVersion() {
+    const response = await fetch(deploymentVersionUrl, { cache: 'no-store' });
+    if (!response.ok) return null;
+
+    const deployedBuildVersion = (await response.text()).trim();
+    return BUILD_VERSION_PATTERN.test(deployedBuildVersion) ? deployedBuildVersion : null;
+  }
+
+  /**
+   * Removes this app's active worker and static caches before reloading from the network.
+   * @returns {Promise<void>} Promise that settles when the reload has been requested
+   */
+  async function forceUpdate() {
+    const deployedBuildVersion = await fetchDeployedBuildVersion();
+    if (!deployedBuildVersion) {
+      throw new Error('The latest deployment marker is unavailable.');
+    }
+
+    if ('serviceWorker' in navigator) {
+      const registration = await navigator.serviceWorker.getRegistration();
+      if (registration) await registration.unregister();
+    }
+
+    if ('caches' in window) {
+      const cacheNames = await caches.keys();
+      await Promise.all(cacheNames
+        .filter(name => name.startsWith(window.PWA_CACHE_PREFIX))
+        .map(name => caches.delete(name)));
+    }
+
+    window.location.reload();
+  }
+
+  window.cnslPwa = Object.freeze({ forceUpdate });
 
   if (!('serviceWorker' in navigator)) {
     return;
@@ -46,6 +87,25 @@
   }
 
   /**
+   * Registers the worker through a build-specific URL that bypasses stale intermediary caches.
+   * @param {string|null} buildVersion - Valid generated build identifier, when available
+   * @returns {Promise<ServiceWorkerRegistration>} Registered service worker
+   * @private
+   */
+  function registerServiceWorker(buildVersion) {
+    const serviceWorkerUrl = new URL('service-worker.js', window.location.href);
+    if (BUILD_VERSION_PATTERN.test(buildVersion)) {
+      serviceWorkerUrl.searchParams.set('v', buildVersion);
+    }
+
+    return navigator.serviceWorker.register(serviceWorkerUrl, { updateViaCache: 'none' })
+      .then(registration => {
+        serviceWorkerRegistration = registration;
+        return registration;
+      });
+  }
+
+  /**
    * Checks the deployed build marker and requests a service-worker update when needed.
    * @returns {Promise<*>|null} Active update check, or null when no check is needed
    * @private
@@ -72,16 +132,12 @@
       // The in-memory timestamp still limits checks for this document.
     }
 
-    const deploymentVersionUrl = new URL(window.DEPLOYMENT_VERSION_FILE, window.location.href);
-    updateCheckPromise = fetch(deploymentVersionUrl, { cache: 'no-store' })
-      .then(response => response.ok ? response.text() : null)
-      .then(version => {
-        const deployedBuildVersion = version?.trim();
-        if (!BUILD_VERSION_PATTERN.test(deployedBuildVersion)
-          || deployedBuildVersion === currentBuildVersion) {
+    updateCheckPromise = fetchDeployedBuildVersion()
+      .then(deployedBuildVersion => {
+        if (!deployedBuildVersion || deployedBuildVersion === currentBuildVersion) {
           return null;
         }
-        return serviceWorkerRegistration.update();
+        return registerServiceWorker(deployedBuildVersion);
       })
       .catch(error => console.error('Deployment version check failed:', error))
       .finally(() => {
@@ -135,11 +191,8 @@
 
   window.addEventListener('pageshow', checkForDeploymentUpdate);
 
-  const serviceWorkerUrl = new URL('service-worker.js', window.location.href);
-
-  navigator.serviceWorker.register(serviceWorkerUrl, { updateViaCache: 'none' })
+  registerServiceWorker(currentBuildVersion)
     .then(registration => {
-      serviceWorkerRegistration = registration;
       registration.active?.postMessage({ type: 'GET_APP_VERSION' });
       return checkForDeploymentUpdate();
     })
