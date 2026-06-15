@@ -129,6 +129,7 @@ analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and each publi
     }]);
 
   const profilePage = await browserContext.newPage();
+  await prepareStableWeatherResponses(profilePage);
   await profilePage.goto('https://pools.longreachmarlins.org/contact.html', { waitUntil: 'domcontentloaded' });
   await expect.poll(() => profilePage.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
     .not.toContainEqual(['event', 'ca_version', { app_version: appVersion }]);
@@ -263,6 +264,7 @@ analyticsTest('[WF-ANALYTICS-012] analytics simulation cannot reach public netwo
     'https://api.weather.gov/'
   ];
 
+  await page.unroute('https://api.weather.gov/**');
   await expect(page.evaluate(() => globalThis.navigator.webdriver)).resolves.toBe(false);
   const requestResults = await page.evaluate(async urls => Promise.all(urls.map(async url => {
     try {
