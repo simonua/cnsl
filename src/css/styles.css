@@ -4107,7 +4107,8 @@ button.pool-filter__clear:focus-visible {
   background-color: var(--white);
   border-top: 1px solid var(--border-color);
   text-align: center;
-  padding: 0.2rem 1rem calc(0.2rem + var(--footer-bottom-clearance));
+  padding: 0 1rem;
+  padding-top: 3.2px;
   font-size: 0.78rem;
   color: var(--text-muted);
   height: calc(var(--footer-height) + var(--footer-bottom-clearance));
@@ -4142,13 +4143,6 @@ button.pool-filter__clear:focus-visible {
 .footer a:hover,
 .footer a:focus-visible {
   text-decoration: underline;
-}
-
-@media (max-width: 48rem) {
-  .footer {
-    padding-top: 0.2rem;
-    padding-bottom: calc(0.1rem + var(--footer-bottom-clearance));
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
