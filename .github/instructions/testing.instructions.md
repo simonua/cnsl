@@ -17,7 +17,12 @@ description: "Use when writing or modifying unit tests. Covers test patterns, st
 tests/
 ├── browser/
 │   ├── accessibility.spec.js # Playwright + axe route checks
-│   └── workflows.spec.js     # Keyboard, live-status, and settings flows
+│   ├── browser-test.js       # Shared Playwright fixtures
+│   └── workflows/            # Workflow specs grouped by stable WF area
+│       ├── analytics.spec.js
+│       ├── data.spec.js
+│       ├── navigation.spec.js
+│       └── ...
 ├── services/
 │   ├── time-utils.test.js
 │   ├── cache-service.test.js
@@ -55,6 +60,7 @@ describe('MyClass', () => {
 - Prefix browser workflow titles with a stable reference ID in the form `[WF-<AREA>-NNN]`, such as `[WF-AGENDA-003]`; prefix browser accessibility titles with `[AX-<AREA>-NNN]`. Parameterized route or theme variants append an uppercase suffix, such as `[AX-PAGE-001-HOME-LIGHT]`.
 - Keep an existing browser-test reference ID when wording or assertions change. Allocate the next unused number within that behavior area for new coverage so CI failures and review notes can cite a durable handle.
 - Each unit test file covers one source module; each browser spec covers one cohesive user workflow or verification category.
+- Keep workflow specs in `tests/browser/workflows/` and name each file for its stable `WF` area. Run one area through the serialized runner with `node scripts/run-playwright.js test tests/browser/workflows/<area>.spec.js`.
 - Use `describe` blocks to group by class/function, nested `describe` for methods.
 - Use descriptive `it` strings: "should return X when given Y".
 - No mocking frameworks — use simple stubs when needed.

@@ -18,6 +18,7 @@ description: "Use when working with the build pipeline, dev server, testing, lin
 | `pnpm test` | Run all unit tests |
 | `pnpm run test:coverage` | Run unit tests with coverage for delivered application JavaScript (`src/js/**`, `service-worker.js`); omit `scripts/**` maintenance implementations from the report |
 | `node --test tests/<area>/<module>.test.js` | Run one affected unit-test file during iteration |
+| `node scripts/run-playwright.js test tests/browser/workflows/<area>.spec.js` | Run one browser workflow area through the serialized Playwright runner |
 | `pnpm run test:browser:nightly` | Run serialized Playwright workflow and WCAG A/AA checks for the conditional nightly workflow or required significant-refactor completion gate |
 | `pnpm run lint` | Run ESLint on all JS files |
 | `pnpm run lint:fix` | Auto-fix lint issues |
