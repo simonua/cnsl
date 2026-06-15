@@ -36,6 +36,7 @@ describe('app-config', () => {
     assert.equal(context.ANALYTICS_APP_VERSION_STORAGE_KEY, config.ANALYTICS_APP_VERSION_STORAGE_KEY);
     assert.equal(context.ANALYTICS_UPGRADE_PATH_STORAGE_KEY, config.ANALYTICS_UPGRADE_PATH_STORAGE_KEY);
     assert.equal(context.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, config.ANALYTICS_VERSION_REPORTED_STORAGE_KEY);
+    assert.equal(context.APP_ATTENTION_NOTICE_DISMISSED_STORAGE_KEY, config.APP_ATTENTION_NOTICE_DISMISSED_STORAGE_KEY);
     assert.equal(context.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY, config.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY);
     assert.equal(context.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY, config.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY);
     assert.equal(context.EXPERIMENTAL_SETTINGS_URL, config.EXPERIMENTAL_SETTINGS_URL);
@@ -51,6 +52,18 @@ describe('app-config', () => {
     assert.equal(Object.isFrozen(config.EXPERIMENTAL_FEATURE_IDS), true);
     assert.equal(config.EXPERIMENTAL_SETTINGS_URL, 'assets/experimental-settings.json');
     assert.equal(config.MY_MEET_DAY_HOME_LOOKAHEAD_DAYS, 2);
+  });
+
+  it('publishes the immutable attention notice with an Eastern timestamp', () => {
+    assert.deepEqual(config.APP_ATTENTION_NOTICE, {
+      DISMISSIBLE: true,
+      EXPIRES_AT: '2026-06-19T23:59:59-04:00',
+      MESSAGE: 'Some pools may be shown as "Closed for the season" on the official CA website at this time. This may be due to pre-season schedules until the main schedule starts June 20.',
+      UPDATED_AT: '2026-06-15T12:31:18-04:00',
+      UPDATED_LABEL: 'June 15, 2026 at 12:31 PM'
+    });
+    assert.equal(Object.isFrozen(config.APP_ATTENTION_NOTICE), true);
+    assert.equal(config.APP_ATTENTION_NOTICE_DISMISSED_STORAGE_KEY, 'cnsl_attention_notice_dismissed');
   });
 
   it('publishes one immutable dependency manifest for team agenda views', () => {
@@ -83,6 +96,7 @@ describe('app-config', () => {
       config.ANALYTICS_APP_VERSION_STORAGE_KEY,
       config.ANALYTICS_UPGRADE_PATH_STORAGE_KEY,
       config.ANALYTICS_VERSION_REPORTED_STORAGE_KEY,
+      config.APP_ATTENTION_NOTICE_DISMISSED_STORAGE_KEY,
       config.PREFERENCES_STORAGE_KEY,
       config.APP_VERSION_STORAGE_KEY,
       config.SETTINGS_NOTICE_DISMISSED_STORAGE_KEY,

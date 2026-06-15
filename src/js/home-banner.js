@@ -87,6 +87,56 @@
   }
 
   /**
+   * Displays the configured attention notice unless this revision was dismissed.
+   * @param {Storage|null} storage - Available browser local storage
+   * @param {Object|null} bannerNames - Analytics banner-name constants
+   * @private
+   */
+  function showAttentionBanner(storage, bannerNames) {
+    const notice = document.getElementById('attentionBanner');
+    const closeButton = document.getElementById('closeAttentionBanner');
+    const config = window.APP_ATTENTION_NOTICE;
+    if (!notice || !closeButton || !config) return;
+
+    const expiresAt = Date.parse(config.EXPIRES_AT);
+    if (!Number.isFinite(expiresAt) || Date.now() >= expiresAt) {
+      notice.hidden = true;
+      return;
+    }
+
+    let dismissedRevision = null;
+    try {
+      dismissedRevision = storage && storage.getItem(window.APP_ATTENTION_NOTICE_DISMISSED_STORAGE_KEY);
+    } catch (_error) {} // eslint-disable-line no-empty
+    if (config.DISMISSIBLE && dismissedRevision === config.UPDATED_AT) {
+      notice.hidden = true;
+      return;
+    }
+
+    notice.hidden = false;
+    window.setTimeout(() => {
+      notice.hidden = true;
+    }, expiresAt - Date.now());
+    closeButton.hidden = !config.DISMISSIBLE;
+    if (!config.DISMISSIBLE) return;
+
+    closeButton.addEventListener('click', () => {
+      try {
+        if (storage) storage.setItem(window.APP_ATTENTION_NOTICE_DISMISSED_STORAGE_KEY, config.UPDATED_AT);
+      } catch (_error) {
+        // The visual dismissal remains available when storage access is blocked.
+      }
+      notice.hidden = true;
+      if (window.cnslAnalytics) {
+        window.cnslAnalytics.trackInteraction(AnalyticsInteractionType.BANNER, {
+          action: 'dismiss',
+          bannerName: bannerNames && bannerNames.ATTENTION_NOTICE
+        });
+      }
+    });
+  }
+
+  /**
     * Builds and displays the eligible application banners on the current view.
    * @private
    */
@@ -103,6 +153,8 @@
     const isFirstMobileUse = window.DevicePlatformService
       && window.DevicePlatformService.isMobilePlatform(platform)
       && !window.ReleaseNoticeService.getStableVersionParts(acknowledgedVersion);
+
+    showAttentionBanner(storage, bannerNames);
 
     if (isFirstMobileUse) {
       window.ReleaseNoticeService.acknowledge(storage, window.APP_VERSION_STORAGE_KEY, window.APP_VERSION);

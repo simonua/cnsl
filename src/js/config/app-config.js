@@ -14,6 +14,7 @@
   const AUTHOR_NAME = 'Simon Kurtz';
   const AUTHOR_EMAIL = 'simonkurtz+pool-app@gmail.com';
   const SHARE_MESSAGE = `Find Columbia pools and CNSL schedules: ${HOME_PAGE_URL}`;
+  const APP_ATTENTION_NOTICE_UPDATED_AT = '2026-06-15T12:31:18-04:00';
 
   // Visitor-facing feature availability.
   const EXPERIMENTAL_FEATURE_IDS = Object.freeze({
@@ -119,6 +120,20 @@
     return `${date}, ${time}`;
   }
 
+  const APP_ATTENTION_NOTICE = Object.freeze({
+    DISMISSIBLE: true,
+    EXPIRES_AT: '2026-06-19T23:59:59-04:00',
+    MESSAGE: 'Some pools may be shown as "Closed for the season" on the official CA website at this time. This may be due to pre-season schedules until the main schedule starts June 20.',
+    UPDATED_AT: APP_ATTENTION_NOTICE_UPDATED_AT,
+    UPDATED_LABEL: formatOfficialSourceTimestamp(APP_ATTENTION_NOTICE_UPDATED_AT, {
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    })
+  });
+
   const OFFICIAL_SOURCE_LONG_LABEL_OPTIONS = Object.freeze({
     day: 'numeric',
     hour: 'numeric',
@@ -164,6 +179,7 @@
   const ANALYTICS_APP_VERSION_STORAGE_KEY = 'cnsl_analytics_current_version';
   const ANALYTICS_UPGRADE_PATH_STORAGE_KEY = 'cnsl_analytics_pending_upgrade_path';
   const ANALYTICS_VERSION_REPORTED_STORAGE_KEY = 'cnsl_analytics_version_reported';
+  const APP_ATTENTION_NOTICE_DISMISSED_STORAGE_KEY = 'cnsl_attention_notice_dismissed';
   const PREFERENCES_STORAGE_KEY = 'cnsl_preferences';
   const APP_VERSION_STORAGE_KEY = 'cnsl_current_version';
   const SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY = 'cnsl_service_worker_update_checked_at';
@@ -176,6 +192,7 @@
     ANALYTICS_APP_VERSION_STORAGE_KEY,
     ANALYTICS_UPGRADE_PATH_STORAGE_KEY,
     ANALYTICS_VERSION_REPORTED_STORAGE_KEY,
+    APP_ATTENTION_NOTICE_DISMISSED_STORAGE_KEY,
     PREFERENCES_STORAGE_KEY,
     APP_VERSION_STORAGE_KEY,
     SETTINGS_NOTICE_DISMISSED_STORAGE_KEY,
@@ -198,6 +215,8 @@
     ANALYTICS_APP_VERSION_STORAGE_KEY,
     ANALYTICS_UPGRADE_PATH_STORAGE_KEY,
     ANALYTICS_VERSION_REPORTED_STORAGE_KEY,
+    APP_ATTENTION_NOTICE,
+    APP_ATTENTION_NOTICE_DISMISSED_STORAGE_KEY,
     APP_TIMEZONE,
     APP_LOCAL_STORAGE_KEYS,
     APP_SESSION_STORAGE_KEYS,

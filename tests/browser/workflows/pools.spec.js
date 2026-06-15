@@ -339,6 +339,7 @@ test('[WF-POOLS-006] desktop expanded pool details group contact links and fit t
     const addressBox = addressSection.getBoundingClientRect();
     const addressDetailsBox = card.querySelector('.address-section__details').getBoundingClientRect();
     const addressLinkBox = card.querySelector('.address-link').getBoundingClientRect();
+    const directionsBox = card.querySelector('.directions-link').getBoundingClientRect();
     const phoneBox = card.querySelector('.address-section__phone').getBoundingClientRect();
     const caWebsiteBox = card.querySelector('.ca-website-section').getBoundingClientRect();
     const schedule = card.querySelector('.schedule-calendar');
@@ -349,6 +350,7 @@ test('[WF-POOLS-006] desktop expanded pool details group contact links and fit t
       addressHasAccentBorder: card.ownerDocument.defaultView.getComputedStyle(addressSection).borderLeftWidth === '3px',
       addressIsFullWidth: Math.abs(addressBox.width - contactBox.width) <= 1,
       addressIsIndented: addressLinkBox.left > addressDetailsBox.left,
+      directionsIsUnderAddress: directionsBox.top >= addressLinkBox.bottom && directionsBox.left === addressLinkBox.left,
       phoneIsBesideAddress: phoneBox.left >= addressDetailsBox.right && phoneBox.top < addressDetailsBox.bottom,
       caWebsiteIsUnderPhone: caWebsiteBox.top >= phoneBox.bottom && caWebsiteBox.left >= addressDetailsBox.right,
       phoneIsInsideAddress: phoneBox.top > addressBox.top && phoneBox.bottom <= addressBox.bottom,
@@ -364,6 +366,7 @@ test('[WF-POOLS-006] desktop expanded pool details group contact links and fit t
   expect(layout.addressHasAccentBorder).toBe(true);
   expect(layout.addressIsFullWidth).toBe(true);
   expect(layout.addressIsIndented).toBe(true);
+  expect(layout.directionsIsUnderAddress).toBe(true);
   expect(layout.phoneIsBesideAddress).toBe(true);
   expect(layout.caWebsiteIsUnderPhone).toBe(true);
   expect(layout.phoneIsInsideAddress).toBe(true);

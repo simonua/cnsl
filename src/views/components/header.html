@@ -9,6 +9,18 @@
     <span></span>
   </button>
 </header>
+<aside class="attention-banner" id="attentionBanner" role="alert" aria-label="Pool status notice" hidden>
+  <div class="attention-banner__inner">
+    <svg class="icon attention-banner__icon" aria-hidden="true" focusable="false"><use href="#icon-warning-triangle"></use></svg>
+    <div class="attention-banner__copy">
+      <p class="attention-banner__message">{{ APP_ATTENTION_NOTICE.MESSAGE }}</p>
+      <p class="attention-banner__updated">Updated <time datetime="{{ APP_ATTENTION_NOTICE.UPDATED_AT }}">{{ APP_ATTENTION_NOTICE.UPDATED_LABEL }}</time></p>
+    </div>
+    <button class="attention-banner__close" id="closeAttentionBanner" type="button" aria-label="Dismiss attention notice" title="Dismiss attention notice" hidden>
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+</aside>
 <section class="weather-alert" id="weatherAlert" role="alert" aria-label="Weather alert" hidden>
   <div class="weather-alert__inner">
     <div class="weather-alert__copy">

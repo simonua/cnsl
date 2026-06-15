@@ -22,6 +22,7 @@ describe('AppStorageService', () => {
       [
         'cnsl_analytics_current_version',
         'cnsl_analytics_pending_upgrade_path',
+        'cnsl_attention_notice_dismissed',
         'cnsl_preferences',
         'cnsl_current_version',
         'cnsl_settings_notice_dismissed',
@@ -39,6 +40,7 @@ describe('AppStorageService', () => {
 
       assert.equal(localStorage.getItem('cnsl_analytics_current_version'), null);
       assert.equal(localStorage.getItem('cnsl_analytics_pending_upgrade_path'), null);
+      assert.equal(localStorage.getItem('cnsl_attention_notice_dismissed'), null);
       assert.equal(localStorage.getItem('cnsl_preferences'), null);
       assert.equal(localStorage.getItem('cnsl_current_version'), null);
       assert.equal(localStorage.getItem('cnsl_settings_notice_dismissed'), null);

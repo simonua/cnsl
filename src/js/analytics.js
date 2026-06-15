@@ -37,6 +37,7 @@
   // Interaction validation
 
   const BANNER_NAMES = Object.freeze({
+    ATTENTION_NOTICE: 'attention_notice',
     RELEASE_NOTICE: 'release_notice',
     SETTINGS_NOTICE: 'settings_notice'
   });
