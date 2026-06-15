@@ -59,7 +59,7 @@ test('[WF-LAYOUT-003] non-dismissible attention notice remains visible without a
 });
 
 test('[WF-LAYOUT-004] attention notice expires at the configured Eastern deadline', async ({ page }) => {
-  await page.clock.install({ time: new Date('2026-06-18T23:59:58-04:00') });
+  await page.clock.install({ time: new Date('2026-06-19T23:59:58-04:00') });
   await page.goto('/pools.html');
 
   const notice = page.locator('#attentionBanner');

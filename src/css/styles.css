@@ -454,12 +454,13 @@ main.container > .container {
   grid-template-columns: auto minmax(0, 1fr) 2.75rem;
   margin: 0 auto;
   max-width: 1200px;
-  padding: 0.65rem 1rem;
+  padding: 0.65rem 0.5rem 0.65rem 1rem;
 }
 
 .attention-banner__icon {
   color: var(--attention-control);
   font-size: 1.75rem;
+  margin-top: 0.15rem;
 }
 
 .attention-banner__copy {
@@ -557,7 +558,7 @@ button.attention-banner__close:focus {
   margin: 0 auto;
   max-width: 1200px;
   min-height: 3.25rem;
-  padding: 0.6rem 1rem;
+  padding: 0.6rem 0.5rem 0.6rem 1rem;
 }
 
 .home-banner__message {
@@ -629,7 +630,7 @@ button.home-banner__close:focus {
     align-items: center;
     gap: 0.5rem;
     min-height: 2.75rem;
-    padding: 0.35rem 1rem;
+    padding: 0.35rem 0.5rem 0.35rem 1rem;
   }
 
   .home-banner__message {
