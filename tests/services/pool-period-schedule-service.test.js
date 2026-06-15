@@ -11,7 +11,7 @@ const schedules = [{
   startDate: '2026-06-01',
   endDate: '2026-06-07',
   hours: [
-    { weekDays: ['Mon'], startTime: '1:00PM', endTime: '5:00PM', types: ['Rec Swim'], accessStatus: 'public' },
+    { weekDays: ['Mon'], startTime: '1:00PM', endTime: '5:00PM', types: ['Rec Swim'], accessStatus: 'public', sourceUrl: 'https://example.com/activity' },
     { weekDays: ['Tue'], startTime: '2:00PM', endTime: '4:00PM', types: ['Practice'], accessStatus: 'practice-only' }
   ]
 }];
@@ -61,6 +61,7 @@ describe('PoolPeriodScheduleService', () => {
     it('maps public access statuses without interpreting labels', () => {
       const service = createService();
       assert.equal(service.getSlotStatus({ accessStatus: 'public', types: ['Closed-looking label'] }), PoolStatus.OPEN);
+      assert.equal(service.getSlotStatus({ accessStatus: 'restricted' }), PoolStatus.RESTRICTED);
       assert.equal(service.getSlotStatus({ accessStatus: 'closed-to-public' }), PoolStatus.CLOSED_TO_PUBLIC);
       assert.equal(service.getSlotStatus({ accessStatus: 'practice-only' }), PoolStatus.PRACTICE_ONLY);
       assert.equal(service.getSlotStatus({ accessStatus: 'special-event' }), PoolStatus.SPECIAL_EVENT);
@@ -89,6 +90,30 @@ describe('PoolPeriodScheduleService', () => {
 
       assert.equal(specialEvent.find(slot => slot.isOverride).accessStatus, 'special-event');
       assert.equal(specialEvent.find(slot => slot.isOverride).isSpecialEvent, true);
+    });
+
+    it('preserves official activity source URLs in regular and override schedules', () => {
+      const regular = createService({ scheduleOverrides: [] }).getWeekScheduleForDate(new Date(2026, 5, 1));
+      assert.equal(regular[0].timeSlots[0].sourceUrl, 'https://example.com/activity');
+
+      const overrideService = createService({
+        scheduleOverrides: [{
+          startDate: '2026-06-01',
+          endDate: '2026-06-01',
+          reason: 'Class',
+          hours: [{
+            weekDays: ['Mon'],
+            startTime: '2:00PM',
+            endTime: '3:00PM',
+            types: ['Aqua Fitness'],
+            accessStatus: 'restricted',
+            sourceUrl: 'https://example.com/override'
+          }]
+        }]
+      });
+      const override = overrideService.getWeekScheduleForDate(new Date(2026, 5, 1))[0].timeSlots;
+      assert.equal(override.find(slot => slot.accessStatus === 'restricted').sourceUrl, 'https://example.com/override');
+      assert.equal(override.filter(slot => slot.accessStatus === 'public').every(slot => slot.sourceUrl === 'https://example.com/activity'), true);
     });
 
     it('projects regular weekly slots into the display shape', () => {

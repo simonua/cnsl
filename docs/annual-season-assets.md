@@ -54,6 +54,7 @@ Each season year begins a new major application version. Patch and minor release
 - Create one `src/assets/data/<YEAR>/README.md` source manifest that records publication URLs, local PDF paths, data readiness, and any source content intentionally not represented by the existing JSON schema.
 - Keep one matching schema beside each JSON data file and validate the JSON against it.
 - Declare each schema's top-level `"version"` metadata value as `"V1"` for its first annual definition; carry the value forward unchanged when its validation contract is identical, excluding annotations, and advance it only when that contract changes.
+- Classify every pool schedule activity through [Pool Activity Access Classification](pool-activity-classification.md). Update that matrix and the annual pool schema together before accepting a new activity label, combined activity array, or access rule.
 
 ## Starting A New Season
 
@@ -63,7 +64,7 @@ For a new season such as `2027`:
 2. Create the document subdirectory only for material received: `pool-schedules/`, `meet-schedules/`, or `team-schedules/`.
 3. Download official PDFs into the correct domain directory, retaining stable, legible filenames. Pool PDF names should continue the existing `<Pool_Name>.pdf` convention; retain both CNSL practice schedules and team-assignment PDFs when they are published.
 4. Create or copy each domain schema into the new year directory, retaining its top-level `"version"` when the validation contract is unchanged and incrementing it only after adjusting enumerations, required fields, or another validation rule for supported new material.
-5. Transcribe data into `<domain>/<domain>.json`; do not copy schedule contents forward without checking the current year's source documents. Stable identifiers and destination URL patterns may be retained when still valid, while dates, matchups, team pool assignments, and schedule content must come from current sources. When an official Time Trials label uses `returning/experienced`, transcribe that qualifier as `returning / experienced` so the visitor-facing label can wrap cleanly on narrow screens without changing its meaning.
+5. Transcribe data into `<domain>/<domain>.json`; do not copy schedule contents forward without checking the current year's source documents. Stable identifiers and destination URL patterns may be retained when still valid, while dates, matchups, team pool assignments, and schedule content must come from current sources. For pool schedules, match every activity and exact combined array to [Pool Activity Access Classification](pool-activity-classification.md), verify whether general use remains available, and update the matrix and schema before accepting a new classification. When an official Time Trials label uses `returning/experienced`, transcribe that qualifier as `returning / experienced` so the visitor-facing label can wrap cleanly on narrow screens without changing its meaning.
 6. For pools, re-check every official `caUrl` page before carrying feature values into the new season. Transcribe the published description and Amenities information into `features`, update `FeatureType` for newly published amenity categories, and state the verification date and normalization choices in the annual README.
 7. Update `YEAR` in `src/js/config/app-config.js` only after every domain required by the published app has an active-year JSON file or the unavailable feature has been intentionally disabled.
 8. Check runtime and offline paths through `FileHelper`, `DataManager`, and `service-worker.js`; these should normally require no path edits when only `YEAR` changes.
@@ -79,6 +80,8 @@ Before publishing a new active year:
 - Confirm the annual `README.md` lists each official download and whether a local copy was stored and transcribed.
 - Confirm the active annual `README.md` separately records the last completed official-source check and last accepted application-data update. Their dates must match `OFFICIAL_SOURCE_CHECKED_AT` and `OFFICIAL_SOURCE_UPDATED_AT` in `src/js/config/app-config.js`. Record both timestamps in `America/New_York` with explicit UTC offsets for the FAQ and footer display.
 - Confirm the annual `README.md` records when official pool-location pages were checked for `features`, and that each pool has a reviewed feature array.
+- Confirm every pool schedule activity and combined activity array is classified by `docs/pool-activity-classification.md`, with ambiguous access conditions resolved from an official source before activation.
+- Confirm every non-closure pool hours record has a valid start and end time, all-day closures omit both times, timed closures supply both, and every interval ends after it starts on the same day.
 - Confirm each published JSON file has a sibling `.schema.json` file.
 - Run `pnpm run validate:data` to validate active JSON against its schemas, including ISO `YYYY-MM-DD` dates, source URLs, cross-domain references, and retained official PDF inventory.
 - Run `pnpm test` to validate seasonal path expectations and application logic.

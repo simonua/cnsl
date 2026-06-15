@@ -33,7 +33,7 @@ const BROWSER_MODULE_MANIFESTS = Object.freeze({
   'pool-period-schedule-service': { scripts: [CONFIG, ICONS, TIME, 'types/pool-enums.js', 'services/pool-period-schedule-service.js'], exports: ['PoolStatus', 'TimeUtils', 'PoolPeriodScheduleService'], realmExports: ['PoolStatus'] },
   'pool-enums': { scripts: ['types/pool-enums.js'], exports: ['PoolStatus'], realmExports: ['PoolStatus'] },
   'pool-schedule': { scripts: [CONFIG, ICONS, TIME, 'types/pool-enums.js', 'models/pool-schedule.js'], exports: ['PoolSchedule', 'PoolStatus'], realmExports: ['PoolStatus'] },
-  'pool-schedule-display': { scripts: [CONFIG, ICONS, TIME, SCHEDULE_STATE, 'services/pool-schedule-display.js'], exports: ['PoolScheduleDisplay', 'TimeUtils'] },
+  'pool-schedule-display': { scripts: [CONFIG, 'services/html-safety.js', ICONS, TIME, SCHEDULE_STATE, 'services/pool-schedule-display.js'], exports: ['PoolScheduleDisplay', 'TimeUtils'] },
   'pool-week-state-service': { scripts: ['services/pool-calendar-service.js', 'services/pool-week-state-service.js'], exports: ['PoolWeekStateService'] },
   'pools-manager': { scripts: [CONFIG, ICONS, TIME, 'types/pool-enums.js', SCHEDULE_STATE, 'models/pool-schedule.js', 'services/pool-period-schedule-service.js', 'models/pool.js', 'managers/pools-manager.js'], exports: ['PoolStatus', 'PoolsManager'], realmExports: ['PoolStatus'] },
   'preferences-service': { scripts: [CONFIG, 'services/preferences-service.js'], exports: ['PreferencesService'] },

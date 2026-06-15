@@ -1,6 +1,6 @@
 {
   "season": 2026,
-  "acceptedOn": "2026-06-13",
+  "acceptedOn": "2026-06-15",
   "documents": [
     {
       "domain": "pools",
@@ -674,7 +674,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Clemens Crossing Cyclones staff page",
-      "sha256": "5a9cd254f843ce33fd43f1b5d619c778bcf47b08e8e62189855d151d5aec4770",
+      "sha256": "7c82d12dd3caa0f1da795fef9821d142e5cb5a22d35e9f01ffed0f3131357c96",
       "sourceIds": [
         "team:ccc:staff"
       ],
@@ -890,7 +890,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Pointers Run Piranhas practice schedule page",
-      "sha256": "52e71f0c3f964e144095d6af997b0f3c73ef73b8a5db1c2c4885ea53303980ff",
+      "sha256": "0dd0d985f174461da8030e21c398fe06870881f59f0b500fffcfeeb1b62c0c48",
       "sourceIds": [
         "team:prp:practice"
       ],
@@ -902,7 +902,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Pointers Run Piranhas staff page",
-      "sha256": "ec919fa07679d5e63f65d3b4fde7bdf753c330d190278f58a4512c326e9f2cfb",
+      "sha256": "bbad12ea731b8aeb5cb1e23e992f4d6978320461694510dc90b110c4350a204f",
       "sourceIds": [
         "team:prp:staff"
       ],

@@ -542,8 +542,12 @@ test('[WF-CONTACT-001] author contact options are collected on the Contact page'
   await expect(page.getByRole('link', { name: 'Message Simon on Facebook (opens in new tab)' })).toHaveAttribute('href', 'https://www.facebook.com/simonkurtz82');
 });
 
-analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and each public app version once per browser profile after the Google tag script loads', async ({ page }) => {
+analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and each public app version once per browser profile after the Google tag script loads', async ({
+  blockedExternalRequests,
+  page
+}) => {
   const browserContext = page.context();
+  await prepareStableWeatherResponses(page);
   let releaseTagScript;
   let reportTagScriptRequest;
   let tagScriptRequestCount = 0;
@@ -581,6 +585,7 @@ analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and each publi
   await tagScriptRequested;
   const measurementId = await page.evaluate(() => globalThis.GA4_MEASUREMENT_ID);
   const appVersion = await page.evaluate(() => globalThis.APP_VERSION);
+  await expect(page.evaluate(async () => (await navigator.serviceWorker.getRegistrations()).length)).resolves.toBe(0);
 
   await expect.poll(() => page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
     .toEqual([
@@ -677,7 +682,7 @@ analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and each publi
     .toContainEqual(['event', 'ca_version', { app_version: appVersion }]);
   await expect.poll(() => page.evaluate(() => localStorage.getItem(globalThis.ANALYTICS_VERSION_REPORTED_STORAGE_KEY)))
     .toBe(appVersion);
-  await browserContext.unrouteAll({ behavior: 'ignoreErrors' });
+  expect(blockedExternalRequests).toEqual([]);
 });
 
 analyticsTest('[WF-ANALYTICS-008] analytics records first use without publishing an upgrade path', async ({ page }) => {
@@ -700,7 +705,6 @@ analyticsTest('[WF-ANALYTICS-008] analytics records first use without publishing
     .filter(argumentsList => argumentsList[0] === 'event')
     .map(argumentsList => argumentsList[1]));
   expect(eventNames).not.toContain('ca_upgrade');
-  await page.unrouteAll({ behavior: 'ignoreErrors' });
 });
 
 analyticsTest('[WF-ANALYTICS-009] analytics uses zero when prior use is known but its version is unavailable', async ({ page }) => {
@@ -723,7 +727,6 @@ analyticsTest('[WF-ANALYTICS-009] analytics uses zero when prior use is known bu
     .toContainEqual(['event', 'ca_upgrade', { upgrade_path: `0 -> ${appVersion}` }]);
   await expect.poll(() => page.evaluate(() => localStorage.getItem(globalThis.ANALYTICS_APP_VERSION_STORAGE_KEY)))
     .toBe(appVersion);
-  await page.unrouteAll({ behavior: 'ignoreErrors' });
 });
 
 analyticsTest('[WF-ANALYTICS-010] analytics uses the service-worker upgrade version when local version state was cleared', async ({ page }) => {
@@ -747,7 +750,6 @@ analyticsTest('[WF-ANALYTICS-010] analytics uses the service-worker upgrade vers
   await expect.poll(() => page.evaluate(() => sessionStorage.getItem(
     globalThis.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY
   ))).toBeNull();
-  await page.unrouteAll({ behavior: 'ignoreErrors' });
 });
 
 analyticsTest('[WF-ANALYTICS-011] analytics uses the newest predecessor across a multi-step upgrade history', async ({ page }) => {
@@ -778,7 +780,61 @@ analyticsTest('[WF-ANALYTICS-011] analytics uses the newest predecessor across a
     .toContainEqual(['event', 'ca_upgrade', { upgrade_path: `2.17.1 -> ${appVersion}` }]);
   await expect.poll(() => page.evaluate(() => localStorage.getItem(globalThis.ANALYTICS_APP_VERSION_STORAGE_KEY)))
     .toBe(appVersion);
-  await page.unrouteAll({ behavior: 'ignoreErrors' });
+});
+
+analyticsTest('[WF-ANALYTICS-012] analytics simulation cannot reach public network endpoints', async ({
+  blockedExternalRequests,
+  page
+}) => {
+  const publicUrls = [
+    'https://pools.longreachmarlins.org/',
+    'https://www.google-analytics.com/g/collect?v=2',
+    'https://region1.google-analytics.com/g/collect?v=2',
+    'https://www.googletagmanager.com/gtag/js?id=G-TEST',
+    'https://static.cloudflareinsights.com/beacon.min.js',
+    'https://cloudflareinsights.com/cdn-cgi/rum',
+    'https://api.weather.gov/'
+  ];
+
+  await expect(page.evaluate(() => globalThis.navigator.webdriver)).resolves.toBe(false);
+  const requestResults = await page.evaluate(async urls => Promise.all(urls.map(async url => {
+    try {
+      await fetch(url, { mode: 'no-cors' });
+      return false;
+    } catch (_error) {
+      return true;
+    }
+  })), publicUrls);
+
+  expect(requestResults).toEqual(publicUrls.map(() => true));
+  expect(blockedExternalRequests).toHaveLength(publicUrls.length);
+  expect([...blockedExternalRequests].sort()).toEqual([...publicUrls].sort());
+});
+
+analyticsTest('[WF-ANALYTICS-013] VS Code embedded browsers cannot publish analytics when WebDriver is hidden', async ({
+  blockedExternalRequests,
+  page
+}) => {
+  await prepareStableWeatherResponses(page);
+  await page.addInitScript(() => {
+    Object.defineProperty(globalThis.navigator, 'userAgent', {
+      configurable: true,
+      value: 'Mozilla/5.0 Code-Insiders/1.125.0-insider Electron/42.2.0'
+    });
+  });
+  await page.route('https://pools.longreachmarlins.org/**', async route => {
+    const requestedUrl = new URL(route.request().url());
+    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    await route.fulfill({ response });
+  });
+
+  await page.goto('https://pools.longreachmarlins.org/index.html', { waitUntil: 'domcontentloaded' });
+
+  await expect(page.evaluate(() => globalThis.navigator.webdriver)).resolves.toBe(false);
+  await expect(page.evaluate(() => globalThis.navigator.userAgent)).resolves.toContain('Code-Insiders/');
+  await expect(page.locator('#cnslAnalyticsScript')).toHaveCount(0);
+  await expect(page.evaluate(() => globalThis.dataLayer)).resolves.toBeUndefined();
+  expect(blockedExternalRequests).toEqual([]);
 });
 
 analyticsTest('[WF-ANALYTICS-002] flyer QR campaign visits publish reviewed attribution and clear their landing tags', async ({ page }) => {
@@ -808,7 +864,6 @@ analyticsTest('[WF-ANALYTICS-002] flyer QR campaign visits publish reviewed attr
     page_location: 'https://pools.longreachmarlins.org/',
     page_referrer: ''
   });
-  await page.unrouteAll({ behavior: 'ignoreErrors' });
 });
 
 analyticsTest('[WF-ANALYTICS-003] unrecognized campaign input is neither consumed nor counted', async ({ page }) => {
@@ -831,7 +886,6 @@ analyticsTest('[WF-ANALYTICS-003] unrecognized campaign input is neither consume
     page_location: 'https://pools.longreachmarlins.org/',
     page_referrer: ''
   });
-  await page.unrouteAll({ behavior: 'ignoreErrors' });
 });
 
 analyticsTest('[WF-ANALYTICS-006] app QR campaign visits publish reviewed attribution without counting as flyer visits', async ({ page }) => {
@@ -856,7 +910,6 @@ analyticsTest('[WF-ANALYTICS-006] app QR campaign visits publish reviewed attrib
     campaign_name: '2026_pool_season'
   });
   expect(measurementCommands.filter(argumentsList => argumentsList[1] === 'ca_flyer_visit')).toEqual([]);
-  await page.unrouteAll({ behavior: 'ignoreErrors' });
 });
 
 test('[WF-ANALYTICS-004] directory detail opens publish only a broad directory name', async ({ page }) => {
@@ -2431,6 +2484,41 @@ test('[WF-POOLS-017] weekly calendars highlight public pool-party overrides as e
   await expect(poolParty).toContainText('Long Reach Village Pool Party; registration required');
 });
 
+test('[WF-POOLS-021] Aqua Fitness schedules link to official class details', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-06-22T12:00:00-04:00'));
+  await seedPreferences(page, { poolScheduleLayout: 'list' });
+  await page.goto('/pools.html');
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+
+  const expectedLinks = new Map([
+    ['Bryant Woods', 'https://columbiaassn.clubautomation.com/calendar/event-info?id=368278&style=0'],
+    ['Locust Park', 'https://columbiaassn.clubautomation.com/calendar/event-info?id=368279&style=0'],
+    ['Stevens Forest', 'https://columbiaassn.clubautomation.com/calendar/event-info?id=368280&style=0']
+  ]);
+
+  for (const [poolName, sourceUrl] of expectedLinks) {
+    const poolCard = page.locator('.pool-card').filter({ hasText: poolName });
+    await poolCard.locator('.pool-header__toggle').click();
+    const sourceLinks = poolCard.getByRole('link', { name: 'Aqua Fitness official details (opens in new tab)' });
+    await expect(sourceLinks.first()).toBeVisible();
+    await expect(sourceLinks.first()).toHaveAttribute('href', sourceUrl);
+    await expect(sourceLinks.first()).toHaveAttribute('target', '_blank');
+    await expect(sourceLinks.first()).toHaveAttribute('rel', 'noopener');
+    await poolCard.locator('.pool-header__toggle').click();
+  }
+
+  const nonAquaPool = page.locator('.pool-card').filter({ hasText: 'Kendall Ridge' });
+  await nonAquaPool.locator('.pool-header__toggle').click();
+  await expect(nonAquaPool.locator('.schedule-activity__source-link')).toHaveCount(0);
+
+  await seedPreferences(page, { poolScheduleLayout: 'calendar' });
+  await page.reload();
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  const bryantWoods = page.locator('.pool-card').filter({ hasText: 'Bryant Woods' });
+  await bryantWoods.locator('.pool-header__toggle').click();
+  await expect(bryantWoods.locator('.schedule-calendar .schedule-activity__source-link').first()).toBeVisible();
+});
+
 test('[WF-POOLS-008] desktop site header remains visible while the pool directory scrolls', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto('/pools.html');
@@ -3283,7 +3371,7 @@ test('[WF-POOLS-015] opens-soon results update when a public opening enters the 
   await expect(page.locator('#poolListStatus')).toHaveText('Pool availability updated for the current time.');
 });
 
-test('[WF-POOLS-019] Masters-only hours are a special event instead of a public opening', async ({ page }) => {
+test('[WF-POOLS-019] Masters-only hours are restricted program access instead of a public opening', async ({ page }) => {
   await page.clock.setFixedTime(new Date('2026-06-10T06:30:00-04:00'));
   await seedPreferences(page, { poolScheduleLayout: 'calendar' });
   await page.goto('/pools.html');
@@ -3291,9 +3379,9 @@ test('[WF-POOLS-019] Masters-only hours are a special event instead of a public 
 
   let talbottSprings = page.locator('.pool-card').filter({ hasText: 'Talbott Springs' });
   await talbottSprings.locator('.pool-header__toggle').click();
-  await expect(talbottSprings.locator('.open-status')).toContainText('Special Event');
+  await expect(talbottSprings.locator('.open-status')).toContainText('Restricted Access');
   await expect(talbottSprings.locator('.open-status')).toHaveClass(/status-yellow/);
-  await expect(talbottSprings.locator('.schedule-activity--event').filter({ hasText: 'Masters Swim' })).toHaveCount(3);
+  await expect(talbottSprings.locator('.schedule-activity--restricted').filter({ hasText: 'Masters Swim' })).toHaveCount(3);
 
   await page.locator('#togglePoolFeatureFilters').click();
   await page.selectOption('#poolAvailabilityFilter', 'open-now');

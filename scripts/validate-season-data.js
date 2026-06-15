@@ -9,6 +9,7 @@ const TeamScheduleService = require('./adapters/team-schedule-service.js');
 
 const DOMAINS = Object.freeze(['pools', 'meets', 'teams']);
 const REPOSITORY_ROOT = path.resolve(__dirname, '..');
+const TIME_PATTERN = /^(0?[1-9]|1[0-2]):([0-5][0-9])(AM|PM)$/i;
 
 async function readJson(filePath) {
   return JSON.parse(await fs.readFile(filePath, 'utf8'));
@@ -79,6 +80,29 @@ function validateDateRange(errors, label, startDate, endDate) {
   }
 }
 
+function parseTimeMinutes(value) {
+  if (typeof value !== 'string') return null;
+  const match = value.match(TIME_PATTERN);
+  if (!match) return null;
+  const hour = (Number(match[1]) % 12) + (match[3].toLowerCase() === 'pm' ? 12 : 0);
+  return hour * 60 + Number(match[2]);
+}
+
+function validatePoolScheduleHours(errors, poolName, scope, schedules) {
+  schedules.forEach((schedule, scheduleIndex) => {
+    schedule.hours.forEach((hours, hoursIndex) => {
+      const startMinutes = parseTimeMinutes(hours.startTime);
+      const endMinutes = parseTimeMinutes(hours.endTime);
+      if (startMinutes !== null && endMinutes !== null && startMinutes >= endMinutes) {
+        errors.push(
+          `${poolName} ${scope} ${scheduleIndex + 1} hours ${hoursIndex + 1} ` +
+          `must end after it starts: ${hours.startTime} to ${hours.endTime}.`
+        );
+      }
+    });
+  });
+}
+
 function hasRecognizedPoolLocation(location, poolNames) {
   if (location.startsWith("Each Team's Home Pool")) {
     return true;
@@ -117,6 +141,8 @@ function collectIntegrityErrors({ meetsData, poolsData, season, teamsData }) {
       validateSeasonDate(errors, `${label} end date`, schedule.endDate, season);
       validateDateRange(errors, label, schedule.startDate, schedule.endDate);
     });
+    validatePoolScheduleHours(errors, pool.name, 'schedule', pool.schedules);
+    validatePoolScheduleHours(errors, pool.name, 'schedule override', pool.scheduleOverrides || []);
   });
 
   teams.forEach((team) => {

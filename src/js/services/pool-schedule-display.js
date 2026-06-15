@@ -251,9 +251,14 @@ if (typeof globalThis.PoolScheduleDisplay === 'undefined') {
       const safeActivityText = PoolScheduleDisplay.escapeHtml(activityText);
       const restrictedClass = category === 'restricted' ? ' closed-to-public' : '';
       const meetHref = PoolScheduleDisplay.getMeetHref(slot);
-      const activityLabelHtml = meetHref
-        ? `<a class="schedule-activity__link" href="${PoolScheduleDisplay.escapeHtml(meetHref)}">${safeActivityText}</a>`
-        : safeActivityText;
+      const sourceHref = globalThis.HtmlSafety.safeHttpUrl(slot.sourceUrl);
+      let activityLabelHtml = safeActivityText;
+      if (meetHref) {
+        activityLabelHtml = `<a class="schedule-activity__link" href="${PoolScheduleDisplay.escapeHtml(meetHref)}">${safeActivityText}</a>`;
+      } else if (sourceHref) {
+        const safeAccessibleLabel = PoolScheduleDisplay.escapeHtml(`${activityText} official details (opens in new tab)`);
+        activityLabelHtml = `<a class="schedule-activity__link schedule-activity__source-link" href="${sourceHref}" target="_blank" rel="noopener" aria-label="${safeAccessibleLabel}" data-analytics-context="official_information">${safeActivityText}</a>`;
+      }
       const activityHtml = safeActivityText
         ? `<span class="schedule-activity__label${restrictedClass}">${activityLabelHtml}</span>${practiceTeamHtml}`
         : '';

@@ -109,6 +109,7 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
       if (!poolStatus) return { isOpen: false, color: 'gray' };
       switch (slot.accessStatus) {
         case 'public': return poolStatus.OPEN;
+        case 'restricted': return poolStatus.RESTRICTED;
         case 'closed-to-public': return poolStatus.CLOSED_TO_PUBLIC;
         case 'practice-only': return poolStatus.PRACTICE_ONLY;
         case 'special-event': return poolStatus.SPECIAL_EVENT;
@@ -199,6 +200,7 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
         activities: hour.types || [],
         notes: hour.notes || '',
         accessStatus: hour.accessStatus,
+        sourceUrl: hour.sourceUrl || '',
         isSpecialEvent: hour.isSpecialEvent === true,
         isOverride: true,
         overrideReason: override.reason || null,
@@ -226,7 +228,8 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
         isOverride: slot.isOverride,
         overrideReason: slot.overrideReason,
         meetDate: slot.meetDate,
-        meetPoolId: slot.meetPoolId
+        meetPoolId: slot.meetPoolId,
+        sourceUrl: slot.sourceUrl
       }));
     }
 
@@ -283,6 +286,7 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
         activities: hour.types || [],
         notes: hour.notes || '',
         accessStatus: hour.accessStatus,
+        sourceUrl: hour.sourceUrl || '',
         isSpecialEvent: hour.isSpecialEvent === true,
         isOverride: false
       })));

@@ -97,6 +97,70 @@
         },
         {
           "startDate": "2026-06-19",
+          "endDate": "2026-06-21",
+          "hours": [
+            {
+              "weekDays": [
+                "Fri"
+              ],
+              "types": [
+                "Laps",
+                "Rec Swim"
+              ],
+              "accessStatus": "public",
+              "startTime": "12:00pm",
+              "endTime": "5:45pm"
+            },
+            {
+              "weekDays": [
+                "Fri"
+              ],
+              "types": [
+                "Laps"
+              ],
+              "accessStatus": "public",
+              "startTime": "5:45pm",
+              "endTime": "7:00pm"
+            },
+            {
+              "weekDays": [
+                "Fri"
+              ],
+              "types": [
+                "Adult Swim"
+              ],
+              "accessStatus": "public",
+              "startTime": "7:00pm",
+              "endTime": "10:00pm"
+            },
+            {
+              "weekDays": [
+                "Sat"
+              ],
+              "types": [
+                "Laps",
+                "Rec Swim"
+              ],
+              "accessStatus": "public",
+              "startTime": "12:00pm",
+              "endTime": "8:00pm"
+            },
+            {
+              "weekDays": [
+                "Sun"
+              ],
+              "types": [
+                "Laps",
+                "Rec Swim"
+              ],
+              "accessStatus": "public",
+              "startTime": "12:00pm",
+              "endTime": "7:00pm"
+            }
+          ]
+        },
+        {
+          "startDate": "2026-06-22",
           "endDate": "2026-08-09",
           "hours": [
             {
@@ -108,7 +172,8 @@
               "types": [
                 "Aqua Fitness"
               ],
-              "accessStatus": "public",
+              "sourceUrl": "https://columbiaassn.clubautomation.com/calendar/event-info?id=368278&style=0",
+              "accessStatus": "restricted",
               "startTime": "10:45am",
               "endTime": "11:40am"
             },
@@ -146,7 +211,8 @@
               "types": [
                 "Aqua Fitness"
               ],
-              "accessStatus": "public",
+              "sourceUrl": "https://columbiaassn.clubautomation.com/calendar/event-info?id=368278&style=0",
+              "accessStatus": "restricted",
               "startTime": "10:45am",
               "endTime": "11:40am"
             },
@@ -168,7 +234,8 @@
               "types": [
                 "Aqua Fitness"
               ],
-              "accessStatus": "public",
+              "sourceUrl": "https://columbiaassn.clubautomation.com/calendar/event-info?id=368278&style=0",
+              "accessStatus": "restricted",
               "startTime": "10:45am",
               "endTime": "11:40am"
             },
@@ -213,7 +280,8 @@
               "types": [
                 "Aqua Fitness"
               ],
-              "accessStatus": "public",
+              "sourceUrl": "https://columbiaassn.clubautomation.com/calendar/event-info?id=368278&style=0",
+              "accessStatus": "restricted",
               "startTime": "9:30am",
               "endTime": "10:25am"
             },
@@ -971,8 +1039,7 @@
               "types": [
                 "Special Event"
               ],
-              "accessStatus": "public",
-              "isSpecialEvent": true,
+              "accessStatus": "special-event",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             }
@@ -1009,8 +1076,7 @@
               "types": [
                 "Special Event"
               ],
-              "accessStatus": "public",
-              "isSpecialEvent": true,
+              "accessStatus": "special-event",
               "startTime": "7:00am",
               "endTime": "12:00pm"
             }
@@ -1374,8 +1440,7 @@
               "types": [
                 "Pool Party"
               ],
-              "accessStatus": "public",
-              "isSpecialEvent": true,
+              "accessStatus": "special-event",
               "startTime": "6:00pm",
               "endTime": "9:00pm"
             }
@@ -1665,8 +1730,7 @@
               "types": [
                 "Pool Party"
               ],
-              "accessStatus": "public",
-              "isSpecialEvent": true,
+              "accessStatus": "special-event",
               "startTime": "6:00pm",
               "endTime": "9:00pm"
             }
@@ -2139,8 +2203,7 @@
               "types": [
                 "Pool Party"
               ],
-              "accessStatus": "public",
-              "isSpecialEvent": true,
+              "accessStatus": "special-event",
               "startTime": "6:00pm",
               "endTime": "9:00pm"
             }
@@ -2601,8 +2664,7 @@
               "types": [
                 "Special Event"
               ],
-              "accessStatus": "public",
-              "isSpecialEvent": true,
+              "accessStatus": "special-event",
               "startTime": "5:30pm",
               "endTime": "7:30pm"
             }
@@ -2639,8 +2701,7 @@
               "types": [
                 "Pool Party"
               ],
-              "accessStatus": "public",
-              "isSpecialEvent": true,
+              "accessStatus": "special-event",
               "startTime": "6:00pm",
               "endTime": "8:00pm"
             }
@@ -2878,8 +2939,7 @@
               "types": [
                 "Pool Party"
               ],
-              "accessStatus": "public",
-              "isSpecialEvent": true,
+              "accessStatus": "special-event",
               "startTime": "6:00pm",
               "endTime": "8:00pm"
             }
@@ -4809,8 +4869,7 @@
               "types": [
                 "Pool Party"
               ],
-              "accessStatus": "public",
-              "isSpecialEvent": true,
+              "accessStatus": "special-event",
               "startTime": "6:00pm",
               "endTime": "8:30pm"
             }
@@ -4938,7 +4997,8 @@
               "types": [
                 "Aqua Fitness"
               ],
-              "accessStatus": "public",
+              "sourceUrl": "https://columbiaassn.clubautomation.com/calendar/event-info?id=368279&style=0",
+              "accessStatus": "restricted",
               "startTime": "7:00pm",
               "endTime": "7:55pm"
             },
@@ -4975,7 +5035,7 @@
                 "Rec Swim",
                 "CNSL Practice Only"
               ],
-              "accessStatus": "practice-only",
+              "accessStatus": "public",
               "startTime": "5:00pm",
               "endTime": "6:30pm",
               "notes": "Shared lane use"
@@ -5031,18 +5091,6 @@
               "accessStatus": "public",
               "startTime": "12:00pm",
               "endTime": "7:00pm"
-            },
-            {
-              "weekDays": [
-                "Mon",
-                "Wed"
-              ],
-              "types": [
-                "Aqua Fitness"
-              ],
-              "accessStatus": "public",
-              "startTime": "7:00pm",
-              "endTime": "7:55pm"
             },
             {
               "weekDays": [
@@ -5502,8 +5550,7 @@
               "types": [
                 "Pool Party"
               ],
-              "accessStatus": "public",
-              "isSpecialEvent": true,
+              "accessStatus": "special-event",
               "startTime": "6:00pm",
               "endTime": "8:00pm"
             }
@@ -6808,8 +6855,7 @@
               "types": [
                 "Pool Party"
               ],
-              "accessStatus": "public",
-              "isSpecialEvent": true,
+              "accessStatus": "special-event",
               "startTime": "6:00pm",
               "endTime": "8:00pm"
             }
@@ -7307,7 +7353,7 @@
               "types": [
                 "Yoga"
               ],
-              "accessStatus": "public",
+              "accessStatus": "restricted",
               "startTime": "8:30am",
               "endTime": "9:30am"
             },
@@ -7346,7 +7392,7 @@
               "types": [
                 "Yoga"
               ],
-              "accessStatus": "public",
+              "accessStatus": "restricted",
               "startTime": "8:30am",
               "endTime": "9:30am"
             },
@@ -7382,17 +7428,6 @@
                 "Sun"
               ],
               "types": [
-                "Aqua Fitness"
-              ],
-              "accessStatus": "public",
-              "startTime": "10:00am",
-              "endTime": "10:55am"
-            },
-            {
-              "weekDays": [
-                "Sun"
-              ],
-              "types": [
                 "Laps",
                 "Rec Swim"
               ],
@@ -7404,6 +7439,69 @@
         },
         {
           "startDate": "2026-06-19",
+          "endDate": "2026-06-20",
+          "hours": [
+            {
+              "weekDays": [
+                "Fri"
+              ],
+              "types": [
+                "Adult Laps Only"
+              ],
+              "accessStatus": "public",
+              "startTime": "5:30am",
+              "endTime": "9:45am"
+            },
+            {
+              "weekDays": [
+                "Fri"
+              ],
+              "types": [
+                "Yoga"
+              ],
+              "accessStatus": "restricted",
+              "startTime": "8:30am",
+              "endTime": "9:30am"
+            },
+            {
+              "weekDays": [
+                "Fri"
+              ],
+              "types": [
+                "Laps",
+                "Rec Swim"
+              ],
+              "accessStatus": "public",
+              "startTime": "11:00am",
+              "endTime": "8:00pm"
+            },
+            {
+              "weekDays": [
+                "Sat"
+              ],
+              "types": [
+                "Swim Meet"
+              ],
+              "accessStatus": "swim-meet",
+              "startTime": "7:00am",
+              "endTime": "12:00pm"
+            },
+            {
+              "weekDays": [
+                "Sat"
+              ],
+              "types": [
+                "Laps",
+                "Rec Swim"
+              ],
+              "accessStatus": "public",
+              "startTime": "12:00pm",
+              "endTime": "8:00pm"
+            }
+          ]
+        },
+        {
+          "startDate": "2026-06-21",
           "endDate": "2026-08-09",
           "hours": [
             {
@@ -7424,7 +7522,7 @@
               "types": [
                 "Yoga"
               ],
-              "accessStatus": "public",
+              "accessStatus": "restricted",
               "startTime": "8:30am",
               "endTime": "9:30am"
             },
@@ -7435,7 +7533,8 @@
               "types": [
                 "Aqua Fitness"
               ],
-              "accessStatus": "public",
+              "sourceUrl": "https://columbiaassn.clubautomation.com/calendar/event-info?id=368280&style=0",
+              "accessStatus": "restricted",
               "startTime": "10:00am",
               "endTime": "10:55am"
             },
@@ -7481,7 +7580,7 @@
               "types": [
                 "Yoga"
               ],
-              "accessStatus": "public",
+              "accessStatus": "restricted",
               "startTime": "8:30am",
               "endTime": "9:30am"
             },
@@ -7493,7 +7592,8 @@
               "types": [
                 "Aqua Fitness"
               ],
-              "accessStatus": "public",
+              "sourceUrl": "https://columbiaassn.clubautomation.com/calendar/event-info?id=368280&style=0",
+              "accessStatus": "restricted",
               "startTime": "10:00am",
               "endTime": "10:55am"
             },
@@ -7530,7 +7630,7 @@
               "types": [
                 "Yoga"
               ],
-              "accessStatus": "public",
+              "accessStatus": "restricted",
               "startTime": "8:30am",
               "endTime": "9:30am"
             },
@@ -7542,7 +7642,8 @@
               "types": [
                 "Aqua Fitness"
               ],
-              "accessStatus": "public",
+              "sourceUrl": "https://columbiaassn.clubautomation.com/calendar/event-info?id=368280&style=0",
+              "accessStatus": "restricted",
               "startTime": "10:00am",
               "endTime": "10:55am"
             },
@@ -7589,7 +7690,8 @@
               "types": [
                 "Aqua Fitness"
               ],
-              "accessStatus": "public",
+              "sourceUrl": "https://columbiaassn.clubautomation.com/calendar/event-info?id=368280&style=0",
+              "accessStatus": "restricted",
               "startTime": "10:00am",
               "endTime": "10:55am"
             },
@@ -7642,7 +7744,7 @@
               "types": [
                 "Yoga"
               ],
-              "accessStatus": "public",
+              "accessStatus": "restricted",
               "startTime": "8:30am",
               "endTime": "9:30am"
             },
@@ -7653,7 +7755,8 @@
               "types": [
                 "Aqua Fitness"
               ],
-              "accessStatus": "public",
+              "sourceUrl": "https://columbiaassn.clubautomation.com/calendar/event-info?id=368280&style=0",
+              "accessStatus": "restricted",
               "startTime": "10:00am",
               "endTime": "10:55am"
             },
@@ -7688,7 +7791,7 @@
               "types": [
                 "Yoga"
               ],
-              "accessStatus": "public",
+              "accessStatus": "restricted",
               "startTime": "8:30am",
               "endTime": "9:30am"
             },
@@ -7700,7 +7803,8 @@
               "types": [
                 "Aqua Fitness"
               ],
-              "accessStatus": "public",
+              "sourceUrl": "https://columbiaassn.clubautomation.com/calendar/event-info?id=368280&style=0",
+              "accessStatus": "restricted",
               "startTime": "10:00am",
               "endTime": "10:55am"
             },
@@ -7751,7 +7855,7 @@
               "types": [
                 "Yoga"
               ],
-              "accessStatus": "public",
+              "accessStatus": "restricted",
               "startTime": "8:30am",
               "endTime": "9:30am"
             },
@@ -7763,7 +7867,8 @@
               "types": [
                 "Aqua Fitness"
               ],
-              "accessStatus": "public",
+              "sourceUrl": "https://columbiaassn.clubautomation.com/calendar/event-info?id=368280&style=0",
+              "accessStatus": "restricted",
               "startTime": "10:00am",
               "endTime": "10:55am"
             },
@@ -7799,7 +7904,8 @@
               "types": [
                 "Aqua Fitness"
               ],
-              "accessStatus": "public",
+              "sourceUrl": "https://columbiaassn.clubautomation.com/calendar/event-info?id=368280&style=0",
+              "accessStatus": "restricted",
               "startTime": "10:00am",
               "endTime": "10:55am"
             },
@@ -7862,6 +7968,19 @@
               "accessStatus": "public",
               "startTime": "9:00am",
               "endTime": "4:00pm"
+            },
+            {
+              "weekDays": [
+                "Mon",
+                "Fri"
+              ],
+              "types": [
+                "Aqua Fitness"
+              ],
+              "sourceUrl": "https://columbiaassn.clubautomation.com/calendar/event-info?id=368280&style=0",
+              "accessStatus": "restricted",
+              "startTime": "10:00am",
+              "endTime": "10:55am"
             },
             {
               "weekDays": [
@@ -7975,17 +8094,6 @@
               "accessStatus": "public",
               "startTime": "5:30am",
               "endTime": "10:30am"
-            },
-            {
-              "weekDays": [
-                "Mon"
-              ],
-              "types": [
-                "Aqua Fitness"
-              ],
-              "accessStatus": "public",
-              "startTime": "10:30am",
-              "endTime": "11:25am"
             },
             {
               "weekDays": [
@@ -8172,8 +8280,7 @@
               "types": [
                 "Pool Party"
               ],
-              "accessStatus": "public",
-              "isSpecialEvent": true,
+              "accessStatus": "special-event",
               "startTime": "6:00pm",
               "endTime": "9:00pm"
             }
@@ -8443,7 +8550,7 @@
               "types": [
                 "Combo Fitness"
               ],
-              "accessStatus": "public",
+              "accessStatus": "restricted",
               "startTime": "8:00am",
               "endTime": "8:55am",
               "notes": "Diving well and two lanes"
@@ -8471,7 +8578,7 @@
               "types": [
                 "Masters Swim"
               ],
-              "accessStatus": "special-event",
+              "accessStatus": "restricted",
               "startTime": "10:15am",
               "endTime": "11:30am",
               "notes": "Two lanes"
@@ -8699,8 +8806,7 @@
               "types": [
                 "Pool Party"
               ],
-              "accessStatus": "public",
-              "isSpecialEvent": true,
+              "accessStatus": "special-event",
               "startTime": "6:00pm",
               "endTime": "8:00pm"
             }
@@ -8722,7 +8828,7 @@
               "types": [
                 "Combo Fitness"
               ],
-              "accessStatus": "public",
+              "accessStatus": "restricted",
               "startTime": "8:00am",
               "endTime": "8:55am",
               "notes": "Diving well and two lanes"
@@ -8797,7 +8903,7 @@
               "types": [
                 "Masters Swim"
               ],
-              "accessStatus": "special-event",
+              "accessStatus": "restricted",
               "startTime": "5:30am",
               "endTime": "7:00am"
             },
@@ -8859,7 +8965,7 @@
               "types": [
                 "Masters Swim"
               ],
-              "accessStatus": "special-event",
+              "accessStatus": "restricted",
               "startTime": "5:30am",
               "endTime": "7:00am"
             },
@@ -8884,7 +8990,7 @@
                 "Rec Swim",
                 "CNSL Practice Only"
               ],
-              "accessStatus": "practice-only",
+              "accessStatus": "public",
               "startTime": "6:00pm",
               "endTime": "7:30pm",
               "notes": "Shared lanes"

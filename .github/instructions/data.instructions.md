@@ -40,6 +40,17 @@ description: "Use when working with JSON data files, schemas, or data loading. C
 - Date format: `YYYY-MM-DD` (ISO 8601).
 - Preserve established pool IDs used by application links (e.g., `bwp`, `krp`).
 
+## Pool Activity Classification
+
+- Use `docs/pool-activity-classification.md` as the canonical source for pool schedule activity and `accessStatus` mappings.
+- Treat `accessStatus` as whole-slot public availability. Derive it from official access conditions, never from an activity label, color, icon, or other presentation.
+- Keep qualification-only activities such as Adult Laps, Adult Swim, and Senior Swim `public`; age and ordinary facility-admission rules do not constitute program restriction.
+- Use `restricted` for recurring class or program participation, even when advance registration is not required. Use `practice-only`, `special-event`, `swim-meet`, and `closed-to-public` only for their documented semantic cases.
+- A combined slot may be `public` only when an explicitly named general-use activity remains available concurrently. Preserve useful lane-allocation evidence in `notes`, and use separate overlapping slots when simultaneous activities have different access conditions or time boundaries.
+- Before transcribing a new activity label or combination, update the canonical matrix and annual pool schema together. Do not activate annual pool data while an activity's access conditions remain ambiguous.
+- Author `types` as a nonempty array and use `accessStatus` as the sole public-availability owner; do not add a duplicate event or restriction flag.
+- Require both `startTime` and `endTime` for every non-closure slot. A `closed-to-public` slot may omit both for an all-day closure or supply both for a timed closure. Require valid 12-hour clocks and an end later than the start on the same day.
+
 ## Data Loading
 
 - Data files are loaded at runtime via `fetch()` from `assets/data/<YEAR>/<domain>/` paths.

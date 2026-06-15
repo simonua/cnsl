@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const os = require('node:os');
 const path = require('node:path');
+const poolSchema = require('../../src/assets/data/2026/pools/pools.schema.json');
 
 const {
   collectIntegrityErrors,
@@ -32,6 +33,48 @@ describe('season data validation', () => {
 
       assert.strictEqual(errors.length, 3);
       assert.ok(errors.every((error) => error.startsWith('sample/')));
+    });
+
+    it('should enforce exact pool activity classifications and hours shapes', () => {
+      const hoursSchema = {
+        $ref: '#/definitions/Hours',
+        definitions: poolSchema.definitions
+      };
+      const validRecords = [{
+        weekDays: ['Mon'], types: ['Adult Laps Only'], accessStatus: 'public',
+        startTime: '5:30am', endTime: '9:45am'
+      }, {
+        weekDays: ['Tue'], types: ['Closed to Public'], accessStatus: 'closed-to-public'
+      }, {
+        weekDays: ['Wed'], types: ['Closed to Public'], accessStatus: 'closed-to-public',
+        startTime: '5:00pm', endTime: '8:00pm'
+      }, {
+        weekDays: ['Thu'], types: ['Masters Swim', 'Adult Laps Only'], accessStatus: 'public',
+        startTime: '5:30am', endTime: '7:00am'
+      }];
+      const invalidRecords = [{
+        weekDays: ['Mon'], types: 'Adult Laps Only', accessStatus: 'public',
+        startTime: '5:30am', endTime: '9:45am'
+      }, {
+        weekDays: ['Mon'], types: ['Adult Laps Only'], accessStatus: 'restricted',
+        startTime: '5:30am', endTime: '9:45am'
+      }, {
+        weekDays: ['Mon'], types: ['Adult Laps Only'], accessStatus: 'public'
+      }, {
+        weekDays: ['Mon'], types: ['Closed to Public'], accessStatus: 'closed-to-public', startTime: '5:30am'
+      }, {
+        weekDays: ['Mon'], types: ['Adult Laps Only'], accessStatus: 'public',
+        startTime: '19:00pm', endTime: '9:45pm'
+      }, {
+        weekDays: ['Mon'], types: ['Masters Swim', 'Rec Swim'], accessStatus: 'public',
+        startTime: '5:30am', endTime: '9:45am'
+      }, {
+        weekDays: ['Mon'], types: ['Pool Party'], accessStatus: 'special-event',
+        isSpecialEvent: true, startTime: '6:00pm', endTime: '8:00pm'
+      }];
+
+      validRecords.forEach((record) => assert.deepStrictEqual(validateSchema('hours', record, hoursSchema), []));
+      invalidRecords.forEach((record) => assert.ok(validateSchema('hours', record, hoursSchema).length > 0));
     });
   });
 
@@ -109,6 +152,34 @@ describe('season data validation', () => {
       });
 
       assert.ok(errors.includes('Known Pool lane measurement units must be provided when lane length is known.'));
+    });
+
+    it('should reject pool hours that do not end after their start time', () => {
+      const errors = collectIntegrityErrors({
+        season: 2026,
+        poolsData: {
+          caPoolDirectoryUrl: 'https://pools.test/directory', caPoolGuideUrl: 'https://pools.test/guide',
+          seasonStartDate: '2026-05-23', seasonEndDate: '2026-09-07',
+          pools: [{
+            id: 'pool', name: 'Known Pool', caUrl: 'https://pools.test/known',
+            scheduleUrl: 'https://pools.test/Known_Pool.pdf', location: { googleMapsUrl: 'https://maps.google.com/known' },
+            laneCount: 6, laneLengthUnits: 'yards', laneLength: 25,
+            schedules: [{
+              startDate: '2026-06-01', endDate: '2026-06-30',
+              hours: [{ weekDays: ['Mon'], types: ['Laps'], accessStatus: 'public', startTime: '7:00pm', endTime: '6:00pm' }]
+            }],
+            scheduleOverrides: [{
+              startDate: '2026-06-15', endDate: '2026-06-15', reason: 'Test override',
+              hours: [{ weekDays: ['Mon'], types: ['Laps'], accessStatus: 'public', startTime: '8:00pm', endTime: '8:00pm' }]
+            }]
+          }]
+        },
+        teamsData: { teams: [] },
+        meetsData: { url: 'https://league.test/meets.pdf', regular_meets: [], special_meets: [] }
+      });
+
+      assert.ok(errors.includes('Known Pool schedule 1 hours 1 must end after it starts: 7:00pm to 6:00pm.'));
+      assert.ok(errors.includes('Known Pool schedule override 1 hours 1 must end after it starts: 8:00pm to 8:00pm.'));
     });
 
     it('should reject detailed practice recurrence text that cannot render', () => {

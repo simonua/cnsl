@@ -118,3 +118,26 @@ The live web review detected no candidate source differences, all required uncov
 | Visitor-facing records | Unchanged | None. |
 | Review records | Updated | `OFFICIAL_SOURCE_CHECKED_AT`, annual README evidence, and this check-log entry. |
 | Reviewed source baseline | Unchanged | `source-state.json` was refreshed; its fingerprints and PDF metadata remained unchanged. |
+
+## 2026-06-15T08:41:26-04:00
+
+**Active season:** 2026
+
+**Result:** Complete under the existing explicit maintainer exception for merchandise-store and booster-site availability.
+
+Checked the 138-source inventory:
+
+- 76 modeled-evidence sources were reached by `pnpm run check:data-updates`.
+- 59 uncovered application-used destinations and official evidence pages were reached separately with live GET requests, including the three outdoor Aqua Fitness class-series pages.
+- 3 application-used destinations were attempted and retained their availability exception: the Long Reach and Phelps Luck merchandise stores and the Long Reach booster site returned HTTP 403.
+
+The monitor detected three team-page candidates. The official Clemens Crossing Cyclones staff page corrected assistant coach Sofia Luo to Sophia Luo. The Pointers Run Piranhas practice and staff findings were page-content churn and did not change represented data. The three official Columbia Association Aqua Fitness class series corrected represented occurrence boundaries and established restricted program access at Bryant Woods, Locust Park, and Stevens Forest. A classification review of the unchanged retained pool schedules also corrected recurring program, one-time event, and explicit shared-lane public-use statuses. All required uncovered sources were reachable, and all 26 retained official PDFs remained current.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Updated | Outdoor Aqua Fitness date boundaries; matrix-backed pool activity access statuses in `pools/pools.json`; Clemens Crossing Cyclones assistant coach Sophia Luo in `teams/teams.json`. |
+| Application-used source destinations | Unchanged | None. |
+| Retained official PDFs | Unchanged | None. |
+| Visitor-facing records | Updated | Pool schedule classification item in `src/views/whats-new.html` and homepage `lastmod` in `sitemap.xml`. |
+| Review records | Updated | `OFFICIAL_SOURCE_CHECKED_AT`, `OFFICIAL_SOURCE_UPDATED_AT`, annual README evidence, and this check-log entry. |
+| Reviewed source baseline | Updated | `source-state.json` refreshed with accepted June 15 page fingerprints and retained-PDF metadata. |

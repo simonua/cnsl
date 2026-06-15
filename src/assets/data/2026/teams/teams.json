@@ -134,11 +134,11 @@
       "practicePools": ["Clemens Crossing", "Clary's Forest", "Hawthorn"],
       "staff": {
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslccc/page/system/coaches",
-        "verifiedOn": "2026-05-24",
+        "verifiedOn": "2026-06-15",
         "coaches": [
           { "name": "Nick Barnes", "role": "Head Coach", "email": "nicholas.barnes@columbiaassociation.org" },
           { "name": "Sofia Hufft", "role": "Assistant Coach", "email": "sofia.hufft@columbiaassociation.org" },
-          { "name": "Sofia Luo", "role": "Assistant Coach", "email": "sofia.luo@columbiaassociation.org" },
+          { "name": "Sophia Luo", "role": "Assistant Coach", "email": "sofia.luo@columbiaassociation.org" },
           { "name": "Yaakov Englander", "role": "Assistant Coach", "email": "yaakov.englander@columbiaassociation.org" }
         ],
         "managers": [],

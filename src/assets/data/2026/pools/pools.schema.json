@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://example.com/pools.schema.json",
-    "version": "V8",
+    "version": "V12",
     "title": "Pool Data Schema",
     "description": "Schema for pool data containing schedules, features, and location information",
     "type": "object",
@@ -142,7 +142,8 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/Hours"
-                    }
+                    },
+                    "minItems": 1
                 }
             },
             "required": [
@@ -167,7 +168,8 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/Hours"
-                    }
+                    },
+                    "minItems": 1
                 },
                 "reason": {
                     "type": "string",
@@ -185,13 +187,22 @@
         },
         "Hours": {
             "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/ScheduleActivityClassification"
+                },
+                {
+                    "$ref": "#/definitions/ScheduleHoursTimeContract"
+                }
+            ],
             "properties": {
                 "weekDays": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/WeekDayType"
                     },
-                    "minItems": 1
+                    "minItems": 1,
+                    "uniqueItems": true
                 },
                 "startTime": {
                     "$ref": "#/definitions/TimeType"
@@ -200,40 +211,187 @@
                     "$ref": "#/definitions/TimeType"
                 },
                 "types": {
-                    "oneOf": [
-                        {
-                            "$ref": "#/definitions/ScheduleType"
-                        },
-                        {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/ScheduleType"
-                            },
-                            "minItems": 1
-                        }
-                    ]
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ScheduleType"
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
                 },
                 "accessStatus": {
                     "$ref": "#/definitions/AccessStatusType",
                     "description": "Semantic public-access status used for live pool availability and indicators"
                 },
-                "isSpecialEvent": {
-                    "type": "boolean",
-                    "description": "Whether the published activity should be presented as a special event"
-                },
                 "notes": {
                     "type": "string"
+                },
+                "sourceUrl": {
+                    "$ref": "#/definitions/HttpsUrl",
+                    "description": "Official source URL for details about this scheduled activity"
                 }
             },
             "required": [
                 "weekDays",
+                "types",
                 "accessStatus"
             ],
             "additionalProperties": false
         },
+        "ScheduleActivityClassification": {
+            "oneOf": [
+                {
+                    "properties": {
+                        "types": {
+                            "$ref": "#/definitions/PublicScheduleActivity"
+                        },
+                        "accessStatus": {
+                            "const": "public"
+                        }
+                    }
+                },
+                {
+                    "properties": {
+                        "types": {
+                            "$ref": "#/definitions/RestrictedScheduleActivity"
+                        },
+                        "accessStatus": {
+                            "const": "restricted"
+                        }
+                    }
+                },
+                {
+                    "properties": {
+                        "types": {
+                            "$ref": "#/definitions/PracticeScheduleActivity"
+                        },
+                        "accessStatus": {
+                            "const": "practice-only"
+                        }
+                    }
+                },
+                {
+                    "properties": {
+                        "types": {
+                            "$ref": "#/definitions/ClosedScheduleActivity"
+                        },
+                        "accessStatus": {
+                            "const": "closed-to-public"
+                        }
+                    }
+                },
+                {
+                    "properties": {
+                        "types": {
+                            "$ref": "#/definitions/SpecialEventScheduleActivity"
+                        },
+                        "accessStatus": {
+                            "const": "special-event"
+                        }
+                    }
+                },
+                {
+                    "properties": {
+                        "types": {
+                            "$ref": "#/definitions/SwimMeetScheduleActivity"
+                        },
+                        "accessStatus": {
+                            "const": "swim-meet"
+                        }
+                    }
+                }
+            ]
+        },
+        "PublicScheduleActivity": {
+            "type": "array",
+            "enum": [
+                ["Adult Laps Only"],
+                ["Adult Swim"],
+                ["Laps"],
+                ["Rec Swim"],
+                ["Senior Swim"],
+                ["Ultimate Rec Swim"],
+                ["Wading Pool"],
+                ["Wibit"],
+                ["Laps", "Rec Swim"],
+                ["Lessons", "Rec Swim"],
+                ["Lessons", "Wading Pool"],
+                ["Masters Swim", "Adult Laps Only"],
+                ["Laps", "Rec Swim", "CNSL Practice Only"]
+            ]
+        },
+        "RestrictedScheduleActivity": {
+            "type": "array",
+            "enum": [
+                ["Aqua Fitness"],
+                ["Combo Fitness"],
+                ["Lessons"],
+                ["Masters Swim"],
+                ["Yoga"]
+            ]
+        },
+        "PracticeScheduleActivity": {
+            "type": "array",
+            "enum": [
+                ["Clippers Practice Only"],
+                ["CNSL Practice Only"]
+            ]
+        },
+        "ClosedScheduleActivity": {
+            "type": "array",
+            "enum": [
+                ["Closed"],
+                ["Closed to Public"]
+            ]
+        },
+        "SpecialEventScheduleActivity": {
+            "type": "array",
+            "enum": [
+                ["Pool Party"],
+                ["Special Event"]
+            ]
+        },
+        "SwimMeetScheduleActivity": {
+            "const": ["Swim Meet"]
+        },
+        "ScheduleHoursTimeContract": {
+            "if": {
+                "properties": {
+                    "accessStatus": {
+                        "const": "closed-to-public"
+                    }
+                }
+            },
+            "then": {
+                "oneOf": [
+                    {
+                        "required": ["startTime", "endTime"]
+                    },
+                    {
+                        "not": {
+                            "anyOf": [
+                                {
+                                    "required": ["startTime"]
+                                },
+                                {
+                                    "required": ["endTime"]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "else": {
+                "required": ["startTime", "endTime"]
+            }
+        },
         "NonEmptyString": {
             "type": "string",
             "minLength": 1
+        },
+        "HttpsUrl": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https://"
         },
         "Location": {
             "type": "object",
@@ -346,6 +504,7 @@
                 "closed-to-public",
                 "practice-only",
                 "public",
+                "restricted",
                 "special-event",
                 "swim-meet"
             ]
@@ -377,7 +536,7 @@
         },
         "TimeType": {
             "type": "string",
-            "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9](AM|PM|am|pm)$"
+            "pattern": "^(0?[1-9]|1[0-2]):[0-5][0-9](AM|PM|am|pm)$"
         }
     }
 }

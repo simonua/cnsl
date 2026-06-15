@@ -735,7 +735,7 @@ function captureFocusedPoolControl() {
 
   const selectors = [
     '.pool-header__toggle', '.address-link', '.ca-link', '.phone-link', '.feature-pill--link', '.calendar-btn',
-    '.today-btn', '.prev-week', '.next-week', '.week-picker'
+    '.today-btn', '.prev-week', '.next-week', '.week-picker', '.schedule-activity__source-link'
   ];
   const selector = selectors.find(candidate => focusedElement.matches(candidate));
   return selector ? { poolId: poolCard.dataset.poolId, selector } : null;
