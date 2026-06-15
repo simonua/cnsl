@@ -67,7 +67,8 @@ analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and each publi
         allow_google_signals: false,
         allow_ad_personalization_signals: false,
         page_location: 'https://pools.longreachmarlins.org/index.html',
-        page_referrer: ''
+        page_referrer: '',
+        page_title: 'Home'
       }]
     ]);
 

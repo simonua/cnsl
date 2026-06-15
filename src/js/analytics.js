@@ -798,6 +798,7 @@
   window.gtag('set', {
     allow_google_signals: false,
     allow_ad_personalization_signals: false,
+    page_title: getMeasuredPageTitle(),
     ...getMeasuredPageParameters()
   });
 
