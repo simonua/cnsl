@@ -21,4 +21,5 @@ applyTo: "src/views/**/*.html"
 - Use semantic HTML5 elements (`<main>`, `<nav>`, `<header>`, `<footer>`, `<section>`, `<article>`).
 - Include proper `aria-` attributes for interactive elements.
 - Keep inline `<script>` blocks minimal — prefer separate `.js` files.
-- Load JS files at the end of `<body>` (before closing `</body>` tag) in dependency order.
+- Load JS files at the end of `<body>` (before closing `</body>` tag) in dependency order: every script that provides a referenced global must appear before each consumer.
+- When a consumer gains a dependency such as `HtmlSafety`, hoist the provider above that consumer on every applicable route or shared layout in the same change. Do not rely on delayed function execution to compensate for an incorrectly ordered script list.

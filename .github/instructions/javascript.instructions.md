@@ -12,6 +12,7 @@ applyTo: "src/js/**/*.js"
 - Standardize on `getDataManager()` for DataManager access — never `new DataManager()` directly.
 - Route templates list first-load dependencies explicitly. Optional interaction-driven dependencies may be loaded lazily when the loading boundary and resulting workflow are covered by browser tests.
 - Treat `src/js/` as browser application code. New runtime dependencies must come from explicit script order and `globalThis`, never from `require()`, `module.exports`, `process`, `__dirname`, or another Node.js API.
+- When a browser script begins referencing a global owned by another delivered script, treat that provider as a new explicit dependency. Search every route template, shared layout, lazy loader, and test browser-module manifest that loads the consumer; hoist the provider before the consumer in each applicable script list in the same change. Do not rely on the consumer's functions running only after a later script happens to load.
 - Do not add test-only behavior to a delivered browser module. Put fixtures, adapters, loaders, mocks, and export shims under `tests/`; put build-time Node.js code under `scripts/`.
 - The build must parse and validate every source script before copying it byte-for-byte. Never weaken or bypass that guard to make a test pass.
 - Build-time Node consumers must import a narrow adapter under `scripts/adapters/`; they must not directly require a browser source file.
