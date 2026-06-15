@@ -135,7 +135,6 @@
   --release-bugfix-text: var(--error-text-color);
   --header-height: 4.625rem;
   --footer-height: 4.95rem;
-  --footer-content-top: 1.3rem;
   --footer-bottom-clearance: env(safe-area-inset-bottom, 0rem);
   --border-radius: 12px;
   --navigation-transition-duration: 0.15s;
@@ -4108,14 +4107,14 @@ button.pool-filter__clear:focus-visible {
   background-color: var(--white);
   border-top: 1px solid var(--border-color);
   text-align: center;
-  padding: var(--footer-content-top) 1rem calc(0.2rem + var(--footer-bottom-clearance));
+  padding: 0.2rem 1rem calc(0.2rem + var(--footer-bottom-clearance));
   font-size: 0.78rem;
   color: var(--text-muted);
   height: calc(var(--footer-height) + var(--footer-bottom-clearance));
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
   z-index: 100;
 }
