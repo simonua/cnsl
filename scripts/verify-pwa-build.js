@@ -49,9 +49,9 @@ const requiredArtifacts = [
 ];
 const canonicalPages = {
   'index.html': `${siteOrigin}/`,
-  'pools.html': `${siteOrigin}/`,
-  'teams.html': `${siteOrigin}/`,
-  'meets.html': `${siteOrigin}/`,
+  'pools.html': `${siteOrigin}/pools.html`,
+  'teams.html': `${siteOrigin}/teams.html`,
+  'meets.html': `${siteOrigin}/meets.html`,
   'lessons.html': `${siteOrigin}/`,
   'faq.html': `${siteOrigin}/`,
   'settings.html': `${siteOrigin}/`,
@@ -61,7 +61,13 @@ const canonicalPages = {
   'offline.html': `${siteOrigin}/`,
   'swim-meet-resources.html': `${siteOrigin}/`
 };
-const indexablePages = new Set(['index.html']);
+const indexablePages = new Set(['index.html', 'pools.html', 'teams.html', 'meets.html']);
+const analyticsPageTitles = {
+  'index.html': 'Home',
+  'pools.html': 'Pools',
+  'teams.html': 'Teams',
+  'meets.html': 'Meets'
+};
 
 assert.ok(fs.existsSync(outDir), 'Build output is missing. Run pnpm run build before verifying the PWA artifact.');
 requiredArtifacts.forEach(resource => {
@@ -311,6 +317,12 @@ Object.entries(canonicalPages).forEach(([page, canonical]) => {
   const pageDescription = html.match(/<meta name="description" content="([^"]+)">/)?.[1];
   const structuredDataBlocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
   assert.deepEqual(canonicalLinks, [`<link rel="canonical" href="${canonical}">`], `${page} must publish its one canonical URL.`);
+  if (analyticsPageTitles[page]) {
+    assert.ok(
+      html.includes(`<meta name="analytics-page-title" content="${analyticsPageTitles[page]}">`),
+      `${page} must publish its reviewed concise analytics page title.`
+    );
+  }
   assert.equal((html.match(/<title>/g) || []).length, 1, `${page} must publish one title.`);
   assert.ok(pageTitle && pageTitle.length <= 55, `${page} must publish a concise title of at most 55 characters.`);
   assert.ok(pageDescription, `${page} must publish a meta description.`);
@@ -386,9 +398,9 @@ assert.match(offlineHtml, /js\/connectivity-status\.js\?v=/, 'Offline fallback m
 const sitemap = fs.readFileSync(path.join(outDir, 'sitemap.xml'), 'utf8');
 assert.equal((sitemap.match(/<\?xml/g) || []).length, 1, 'Sitemap must contain one XML document.');
 assert.equal((sitemap.match(/<urlset/g) || []).length, 1, 'Sitemap must contain one URL set.');
-assert.equal((sitemap.match(/<url>/g) || []).length, 1, 'Sitemap must contain only the indexable home page.');
-assert.match(sitemap, new RegExp(`<loc>${siteOrigin.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/<\\/loc>`), 'Sitemap must publish the canonical home page.');
-assert.doesNotMatch(sitemap, /\.html<\/loc>/, 'Noindex subpages must not appear in the sitemap.');
+const sitemapUrls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(([, url]) => url);
+const indexableCanonicalUrls = [...indexablePages].map(page => canonicalPages[page]);
+assert.deepEqual(sitemapUrls, indexableCanonicalUrls, 'Sitemap must publish exactly the canonical URLs of indexable pages.');
 
 const robots = fs.readFileSync(path.join(outDir, 'robots.txt'), 'utf8');
 assert.doesNotMatch(robots, /Disallow: \/offline\.html/, 'Crawler rules must allow discovery of the offline noindex directive.');
