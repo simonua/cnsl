@@ -23,6 +23,14 @@ test('[WF-POOLS-001] pool feature filters expose their state and resulting count
   await expect(page.locator('.pool-filter__option--water-play').first()).toBeVisible();
   await expect(page.getByLabel('Meter lanes')).toBeVisible();
   await expect(page.getByLabel('Yard lanes')).toBeVisible();
+  await expect(page.getByLabel('Heated pool')).toBeVisible();
+  await expect(page.locator('.pool-filter__column')).toHaveCount(2);
+  await expect(page.locator('.pool-filter__column').nth(0).locator('legend')).toHaveText([
+    'Swimming & water play', 'Young swimmers & non-swimmers'
+  ]);
+  await expect(page.locator('.pool-filter__column').nth(1).locator('legend')).toHaveText([
+    'Amenities', 'Sports & recreation', 'Accessibility & inclusion'
+  ]);
   await expect(page.locator('.pool-filter__data-marker')).toHaveCount(0);
   await expect(page.locator('#poolLaneUnitsNote')).toHaveCount(0);
   const chipColors = await Promise.all([

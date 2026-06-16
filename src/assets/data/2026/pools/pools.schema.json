@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://example.com/pools.schema.json",
-    "version": "V14",
+    "version": "V15",
     "title": "Pool Data Schema",
     "description": "Schema for pool data containing schedules, features, and location information",
     "type": "object",
@@ -454,7 +454,7 @@
                 "golf course",
                 "grass volleyball",
                 "grill",
-                "heated",
+                "heated pool",
                 "hot tub",
                 "in-water basketball",
                 "lap",

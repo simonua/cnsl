@@ -510,7 +510,11 @@ function setupPoolFeatureFilters(pools) {
   }
 
   optionsContainer.replaceChildren();
-  PreferencesService.groupPoolFeatures(availableFeatures).forEach(group => {
+  PreferencesService.getPoolFeatureFilterColumns(availableFeatures).forEach(groups => {
+    const column = document.createElement('div');
+    column.className = 'pool-filter__column';
+
+    groups.forEach(group => {
     const groupFieldset = document.createElement('fieldset');
     groupFieldset.className = `pool-filter__group pool-filter__group--${group.key}`;
 
@@ -541,8 +545,11 @@ function setupPoolFeatureFilters(pools) {
       groupOptions.appendChild(label);
     });
 
-    groupFieldset.append(groupTitle, groupOptions);
-    optionsContainer.appendChild(groupFieldset);
+      groupFieldset.append(groupTitle, groupOptions);
+      column.appendChild(groupFieldset);
+    });
+
+    optionsContainer.appendChild(column);
   });
   filterSection.hidden = availableFeatures.length === 0;
   filterSection.classList.toggle('pool-filter--collapsed', controls.hidden);

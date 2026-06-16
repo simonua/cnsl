@@ -60,8 +60,13 @@ if (typeof globalThis.PreferencesService === 'undefined') {
       Object.freeze({
         key: 'amenities',
         label: 'Amenities',
-        features: Object.freeze(['bathhouse', 'deck', 'grill', 'heated', 'hot tub', 'party area', 'picnic area', 'shade', 'wifi'])
+        features: Object.freeze(['bathhouse', 'deck', 'grill', 'heated pool', 'hot tub', 'party area', 'picnic area', 'shade', 'wifi'])
       })
+    ]);
+
+    static POOL_FEATURE_FILTER_COLUMNS = Object.freeze([
+      Object.freeze(['water-play', 'young-swimmers']),
+      Object.freeze(['amenities', 'recreation', 'accessibility'])
     ]);
 
     static DEFAULT_PREFERENCES = Object.freeze({
@@ -316,6 +321,20 @@ if (typeof globalThis.PreferencesService === 'undefined') {
         const visibleFeatures = group.features.filter(feature => availableFeatures.includes(feature));
         return { key: group.key, label: group.label, features: visibleFeatures };
       }).filter(group => group.features.length > 0);
+    }
+
+    /**
+     * Arrange available feature groups into the directory filter's display columns.
+     * @param {Array} features - Available feature labels
+     * @returns {Array<Array>} Ordered columns containing visible feature groups
+     */
+    static getPoolFeatureFilterColumns(features) {
+      const groupsByKey = new Map(
+        PreferencesService.groupPoolFeatures(features).map(group => [group.key, group])
+      );
+      return PreferencesService.POOL_FEATURE_FILTER_COLUMNS.map(columnKeys => (
+        columnKeys.map(key => groupsByKey.get(key)).filter(Boolean)
+      )).filter(column => column.length > 0);
     }
 
     /**

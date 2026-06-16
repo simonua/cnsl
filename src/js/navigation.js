@@ -127,18 +127,23 @@ function containMenuFocus(event) {
   const hamburger = document.querySelector('.hamburger');
   if (event.key !== 'Tab' || !nav || !hamburger || !isMenuOpen(hamburger)) return;
 
-  const focusableElements = [hamburger, ...nav.querySelectorAll('a[href]')];
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-  if (!focusableElements.includes(document.activeElement)) {
+  const navigationLinks = [...nav.querySelectorAll('a[href]:not([hidden])')];
+  const firstLink = navigationLinks[0];
+  const lastLink = navigationLinks[navigationLinks.length - 1];
+  if (!firstLink || !lastLink) return;
+
+  if (document.activeElement !== hamburger && !navigationLinks.includes(document.activeElement)) {
     event.preventDefault();
-    (event.shiftKey ? lastElement : nav.querySelector('a[href]')).focus();
-  } else if (event.shiftKey && document.activeElement === firstElement) {
+    (event.shiftKey ? lastLink : firstLink).focus();
+  } else if (event.shiftKey && document.activeElement === hamburger) {
     event.preventDefault();
-    lastElement.focus();
-  } else if (!event.shiftKey && document.activeElement === lastElement) {
+    lastLink.focus();
+  } else if (!event.shiftKey && document.activeElement === hamburger) {
     event.preventDefault();
-    firstElement.focus();
+    firstLink.focus();
+  } else if (!event.shiftKey && document.activeElement === lastLink) {
+    event.preventDefault();
+    hamburger.focus();
   }
 }
 
