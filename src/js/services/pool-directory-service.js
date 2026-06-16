@@ -231,6 +231,7 @@ if (typeof globalThis.PoolDirectoryService === 'undefined') {
         shallow: 'Shallow area',
         splash: 'Splash pad',
         wading: 'Wading pool',
+        'wading pool slide': "Kids' slide (wading pool)",
         wifi: 'Wi-Fi'
       };
       if (labels[feature]) return labels[feature];

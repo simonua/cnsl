@@ -56,6 +56,22 @@ Each season year begins a new major application version. Patch and minor release
 - Declare each schema's top-level `"version"` metadata value as `"V1"` for its first annual definition; carry the value forward unchanged when its validation contract is identical, excluding annotations, and advance it only when that contract changes.
 - Classify every pool schedule activity through [Pool Activity Access Classification](pool-activity-classification.md). Update that matrix and the annual pool schema together before accepting a new activity label, combined activity array, or access rule.
 
+## Evidence Certainty Standard
+
+Annual data review is cumulative. Existing JSON, retained documents, and monitor fingerprints preserve accepted provenance, but each proposed correction must be re-evaluated against current live first-party evidence. More consequential changes require more explicit and better-corroborated evidence.
+
+Authority depends on which source owns the field, how specifically it identifies the represented record, whether its scope is explicit, and whether it is current. A direct official schedule, event record, publisher-maintained structured record, or entity-specific page normally carries more weight than an aggregate directory or summary. Search results, snippets, caches, archived copies, and community pages can help locate a source but cannot establish a modeled value.
+
+For each proposed modeled-data or schema change, inspect the candidate source and every reasonably available independent official representation of the same fact. Keep that corroboration bounded to the affected fields and records. Classify the evidence before editing:
+
+- `High`: a current authoritative source states the value explicitly with no unresolved contradiction, and either another official representation corroborates it or it is the sole definitive publisher record for that field.
+- `Moderate`: one current official source supports an interpretation, but its scope, semantics, currency, or available corroboration is incomplete.
+- `Unresolved`: official sources conflict, the source does not identify the represented scope, or no current authoritative source settles the value.
+
+Only `High`-confidence evidence may change modeled data or a schema. Resolve conflicts by field ownership, specificity, explicit scope, and currency, never by majority vote. When those criteria do not settle a conflict, preserve the current model, do not broaden the schema, mark the field review incomplete, and seek clarification from the responsible publisher or source owner.
+
+A schema change additionally requires explicit evidence that the current contract cannot faithfully represent the supported fact, review of every affected current record and consumer, and a documented semantic reason for the new value, split, required field, or validation rule. One ambiguous phrase or a presentational wording difference is insufficient. The annual README and source-review log must identify the sources inspected, affected fields, normalization or schema decision, conflicts and resolution, final confidence classification, and residual uncertainty.
+
 ## Starting A New Season
 
 For a new season such as `2027`:
@@ -78,6 +94,7 @@ Before publishing a new active year:
 
 - Confirm all expected official PDFs exist in their annual/domain document folders.
 - Confirm the annual `README.md` lists each official download and whether a local copy was stored and transcribed.
+- Confirm every accepted modeled-data or schema change records `High` confidence, the authoritative evidence set, any corroborating official representation, conflict resolution, and residual uncertainty; leave `Moderate` or `Unresolved` findings unmodeled and visibly incomplete.
 - Confirm the active annual `README.md` separately records the last completed official-source check and last accepted application-data update. Their dates must match `OFFICIAL_SOURCE_CHECKED_AT` and `OFFICIAL_SOURCE_UPDATED_AT` in `src/js/config/app-config.js`. Record both timestamps in `America/New_York` with explicit UTC offsets for the FAQ and footer display.
 - Confirm the annual `README.md` records when official pool-location pages were checked for `features`, and that each pool has a reviewed feature array.
 - Confirm every pool schedule activity and combined activity array is classified by `docs/pool-activity-classification.md`, with ambiguous access conditions resolved from an official source before activation.

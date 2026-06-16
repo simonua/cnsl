@@ -141,3 +141,26 @@ The monitor detected three team-page candidates. The official Clemens Crossing C
 | Visitor-facing records | Updated | Pool schedule classification item in `src/views/whats-new.html` and homepage `lastmod` in `sitemap.xml`. |
 | Review records | Updated | `OFFICIAL_SOURCE_CHECKED_AT`, `OFFICIAL_SOURCE_UPDATED_AT`, annual README evidence, and this check-log entry. |
 | Reviewed source baseline | Updated | `source-state.json` refreshed with accepted June 15 page fingerprints and retained-PDF metadata. |
+
+## 2026-06-15T21:28:22-04:00
+
+**Active season:** 2026
+
+**Result:** Complete.
+
+Checked the 139-source inventory:
+
+- 76 modeled-evidence sources were reached by `pnpm run check:data-updates`.
+- 62 previously recorded uncovered official sources and application-used destinations were reached separately with live browser requests.
+- The newly recorded Columbia Association Pool Guide amenity layer was reached directly and supplied separate main-pool, wading-pool, splashpad, and general-facility fields.
+
+The current CA facility pages and Pool Guide corrected broad pool-feature labels that could misrepresent where or what an amenity is. Main-pool slides and children's wading-pool slides are now separate, including the source-backed 5-foot Jeffers Hill wading-pool slide. Beach entries and water features identify their pool area; basketball distinguishes in-water hoops from courts; volleyball identifies sand or grass; and diving boards and diving wells are distinct. The two Harper's Choice Challenge monitor candidates were page-fingerprint churn: the published staff roster and all represented practice periods remained current. All 26 retained official PDFs were unchanged.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Updated | Pool `features` and schema V13 distinguish slide location, pool-area beach entries and water features, basketball type, volleyball surface, and diving facility; Jeffers Hill now includes its wading-pool slide. |
+| Application-used source destinations | Unchanged | None. |
+| Retained official PDFs | Unchanged | None. |
+| Visitor-facing records | Updated | `src/views/whats-new.html` documents the corrected feature details and filters; `sitemap.xml` already had the 2026-06-15 content date. |
+| Review records | Updated | `OFFICIAL_SOURCE_CHECKED_AT`, `OFFICIAL_SOURCE_UPDATED_AT`, annual README source evidence, and this check-log entry. |
+| Reviewed source baseline | Updated | `source-state.json` refreshed with accepted facility-page and Harper's Choice Challenge fingerprints plus retained-PDF metadata. |

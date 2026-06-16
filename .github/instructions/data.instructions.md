@@ -1,5 +1,5 @@
 ---
-description: "Use when working with JSON data files, schemas, or data loading. Covers data protection rules and schema conventions."
+description: "Use when working with JSON data files, schemas, data loading, source authority, evidence confidence, or conflicting official data."
 ---
 
 # Data File Conventions
@@ -30,6 +30,19 @@ description: "Use when working with JSON data files, schemas, or data loading. C
 - When an official Time Trials label uses `returning/experienced`, transcribe that qualifier as `returning / experienced` so visitor-facing text has a natural wrapping opportunity on narrow screens while preserving the published meaning.
 - For the active season, keep two source-review dates in the annual README synchronized with `src/js/config/app-config.js`. `OFFICIAL_SOURCE_CHECKED_AT` records every successfully completed official-source review, including a review that finds no represented change. Updating it and the README evidence is a required completion step, so never report that a successful check changed no files. `OFFICIAL_SOURCE_UPDATED_AT` changes only when reviewed evidence updates modeled application data or an application-used source destination. Record both as timestamps in `America/New_York` with explicit UTC offsets; they supply the public FAQ and footer timestamps.
 - Use the `cnsl-season-rollover` skill when creating, auditing, or activating annual data.
+
+## Evidence Certainty
+
+- Make each review cumulative: begin with the accepted provenance in the annual README and reviewed baseline, then revalidate the affected fact against current live first-party evidence. A prior transcription, retained file, monitor fingerprint, or source validator proves provenance or change detection, not semantic correctness by itself.
+- Authority follows ownership of the field, specificity, explicit scope, and currency rather than presentation format. Prefer, in order: a direct publisher artifact or structured record that owns the value; an entity-specific official page; an aggregate official directory or index; then a qualified official communication allowed by the annual source policy. Use search results, snippets, caches, archived copies, and community pages only to discover a first-party source, never as final evidence.
+- For every proposed modeled-data or schema change, inspect the candidate source plus every reasonably available independent official representation of the same fact. Keep the expansion bounded to the affected field and records; do not turn corroboration into an unrelated domain-wide scan.
+- Classify the result before editing:
+  - `High`: a current authoritative source states the value explicitly with no unresolved contradiction, and either another official representation corroborates it or it is the sole definitive publisher record for that field.
+  - `Moderate`: one current official source supports an interpretation, but scope, semantics, currency, or available corroboration is incomplete.
+  - `Unresolved`: official sources conflict, the source does not identify the represented scope, or no current authoritative source settles the value.
+- Change modeled data or a schema only at `High` confidence. Do not use source counts or majority vote to resolve conflicts. Compare which source directly owns the field, which is more specific, whether the wording explicitly identifies the represented pool, team, period, or amenity, and which source is demonstrably current. If that does not settle the conflict, preserve the current value, mark that field's review incomplete, and seek clarification from the responsible publisher or source owner.
+- A schema change needs stronger evidence than a display-label adjustment. Require explicit official evidence that the existing contract cannot faithfully represent the fact, inspect all affected current records and consumers, and document why a new value, split, required field, or validation rule is semantically necessary. Do not expand a schema from one ambiguous phrase or merely because a source uses different prose.
+- In the annual README and matching check-log entry, record the authoritative sources inspected, the relevant field or record each source supports, the normalization or schema decision, any official-source conflict and how it was resolved, the final confidence classification, and any residual uncertainty. Never write `verified` or advance the completed-check timestamp for a field left `Unresolved`.
 
 ## Schema Conventions
 

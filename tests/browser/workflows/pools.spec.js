@@ -98,6 +98,29 @@ test('[WF-POOLS-018] lessons feature identifies CA outdoor lesson pools and link
   await expect(lessonsLinkIcon.locator('use')).toHaveAttribute('href', '#icon-link');
 });
 
+test('[WF-POOLS-019] main-pool and kids slide filters remain distinct', async ({ page }) => {
+  await page.goto('/pools.html');
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+
+  await page.locator('#togglePoolFeatureFilters').click();
+  await expect(page.getByLabel('Main pool slide')).toBeVisible();
+  await expect(page.getByLabel("Kids' slide (wading pool)")).toBeVisible();
+
+  await page.getByLabel('Main pool slide').check();
+  await expect(page.locator('#poolFilterSummary')).toHaveText('6 / 23 pools');
+  await expect.poll(() => page.locator('#poolList .pool-card').evaluateAll(cards => cards.map(card => card.dataset.poolName))).toEqual([
+    'Clemens Crossing', 'Dickinson', 'Hopewell', 'Locust Park', 'Swansfield', 'Talbott Springs'
+  ]);
+
+  await page.getByLabel('Main pool slide').uncheck();
+  await page.getByLabel("Kids' slide (wading pool)").check();
+  await expect(page.locator('#poolFilterSummary')).toHaveText('9 / 23 pools');
+  await expect.poll(() => page.locator('#poolList .pool-card').evaluateAll(cards => cards.map(card => card.dataset.poolName))).toEqual([
+    'Dasher Green', 'Dorsey Hall', 'Faulkner Ridge', 'Hawthorn', 'Huntington',
+    'Jeffers Hill', 'Kendall Ridge', 'Longfellow', 'River Hill'
+  ]);
+});
+
 test('[WF-POOLS-002] pool availability filters cover live status and the upcoming seven days', async ({ page }) => {
   await page.route('**/assets/data/2026/pools/pools.json*', async route => {
     const response = await route.fetch();
@@ -210,7 +233,10 @@ test('[WF-POOLS-003] pool tile features are ordered by category then alphabetica
   await page.route('**/assets/data/2026/pools/pools.json*', async route => {
     const response = await route.fetch();
     const poolData = await response.json();
-    const scrambledFeatures = ['wifi', 'slide', 'wading', 'lap', 'ada compliant', 'bathhouse', 'family changing room', 'beach entry'];
+    const scrambledFeatures = [
+      'wifi', 'main pool slide', 'wading pool slide', 'wading', 'lap',
+      'ada compliant', 'bathhouse', 'family changing room', 'main pool beach entry'
+    ];
     poolData.pools.forEach(pool => {
       pool.features = scrambledFeatures;
     });
@@ -225,12 +251,13 @@ test('[WF-POOLS-003] pool tile features are ordered by category then alphabetica
   await expect(firstPoolCard.locator('.feature-pill')).toHaveText([
     'ADA compliant',
     'Family changing room',
-    'Beach entry',
+    "Kids' slide (wading pool)",
+    'Main pool beach entry',
     'Wading pool',
     '6 lanes',
     'Lap',
+    'Main pool slide',
     'Meter lanes',
-    'Slide',
     'Bathhouse',
     'Wi-Fi'
   ]);

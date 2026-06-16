@@ -55,6 +55,8 @@ Perform this review on the deployed HTTPS site whenever analytics code, the shar
 | --- | --- |
 | The page loads `https://www.googletagmanager.com/gtag/js` with the configured GA4 web-stream measurement ID. | Deployment URL, launch mode, script URL, HTTP status, and measurement ID. |
 | The first browser-profile load of a newly published app version dispatches `page_view` and `ca_version` with the published `app_version`. | Collection endpoint, HTTP result when observable, event names, and app version. |
+| Concurrent first loads in a browser tab and installed PWA dispatch only one `ca_version` event for the browser profile. | Launch modes, shared profile state, event count, and app version. |
+| An older cached application context does not dispatch `ca_version` or replace a newer reported-version marker. | Cached/current versions, retained marker, and event count. |
 | A load after an application upgrade dispatches `ca_upgrade` once with a validated `upgrade_path`; a clean first use does not dispatch it. | Previous and current versions, transmitted path, current local version, and event count. |
 | A representative internal route load dispatches its sanitized `page_view`. | Route, event name, sanitized `page_location`, and empty `page_referrer`. |
 | A reviewed flyer QR URL dispatches `ca_flyer_visit`, maps only the documented campaign source, medium, and name, and removes those tags from the visible URL before page measurement. | Starting URL, cleaned visible URL, collection fields, and event names. |
@@ -68,7 +70,7 @@ Treat an HTTP `2xx` or `204` collection response as proof that Google accepted a
 
 | Event | Representative Trigger | Allowed App-Authored Fields |
 | --- | --- | --- |
-| `page_view` | Load the home page and one internal route. | Sanitized `page_title`, canonical `page_location`, empty `page_referrer`, and published `app_version`. |
+| `page_view` | Load the home page and one internal route. | Sanitized `page_title`, canonical `page_location`, and empty `page_referrer`. |
 | `ca_version` | Load a public application version for the first time in a browser profile. | Published `app_version`. |
 | `ca_upgrade` | Load a newer application version after prior use. | Validated `upgrade_path` in `<previous> -> <current>` form, using fixed `0` only when the prior version is unavailable. |
 | `ca_flyer_visit` | Open the reviewed flyer QR destination. | No app-authored event fields; the reviewed campaign tuple is mapped separately. |

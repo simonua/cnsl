@@ -1,6 +1,6 @@
 {
   "season": 2026,
-  "acceptedOn": "2026-06-15",
+  "acceptedOn": "2026-06-16",
   "documents": [
     {
       "domain": "pools",
@@ -734,7 +734,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Harper's Choice Challenge staff page",
-      "sha256": "5cb89425066d0beaabacb5d43bac3b1a3f108b300a77b14f25baca283df8fd3a",
+      "sha256": "b4c34ddfe0dc952e410e6301014bec8be26e3245bca4d1143f724faa006512d2",
       "sourceIds": [
         "team:hcc:staff"
       ],
@@ -746,7 +746,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Harper's Choice Challenge practice schedule page",
-      "sha256": "1c87111280e6641118dad6eee714f4b9b815771e8189ad178e4eff764c3b225a",
+      "sha256": "3b2bcca69c2616cd1002da80d43e46dfe0c9a5ac9ec830f901962e81a32b3246",
       "sourceIds": [
         "team:hcc:practice"
       ],

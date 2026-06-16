@@ -182,6 +182,8 @@ describe('PoolDirectoryService', () => {
     const groups = () => [{ features: ['wifi', 'shallow', 'ada compliant'] }];
     assert.deepEqual(PoolDirectoryService.sortFeaturesForDisplay([], groups), ['ada compliant', 'shallow', 'wifi']);
     assert.equal(PoolDirectoryService.formatFeatureLabel('wifi'), 'Wi-Fi');
+    assert.equal(PoolDirectoryService.formatFeatureLabel('wading pool slide'), "Kids' slide (wading pool)");
+    assert.equal(PoolDirectoryService.formatFeatureLabel('main pool slide'), 'Main pool slide');
     assert.equal(PoolDirectoryService.formatFeatureLabel('lap lanes'), 'Lap lanes');
   });
 

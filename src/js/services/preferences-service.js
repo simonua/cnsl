@@ -36,17 +36,26 @@ if (typeof globalThis.PreferencesService === 'undefined') {
       Object.freeze({
         key: 'young-swimmers',
         label: 'Young swimmers & non-swimmers',
-        features: Object.freeze(['beach entry', 'lessons', 'play features', 'shallow', 'splash', 'tot lot', 'wading'])
+        features: Object.freeze([
+          'lessons', 'main pool beach entry', 'shallow', 'splash', 'tot lot', 'wading',
+          'wading pool beach entry', 'wading pool slide', 'wading pool water features'
+        ])
       }),
       Object.freeze({
         key: 'water-play',
         label: 'Swimming & water play',
-        features: Object.freeze(['6 lanes', '8 lanes', 'meter lanes', 'yard lanes', 'climbing wall', 'dive', 'lap', 'slide'])
+        features: Object.freeze([
+          '6 lanes', '8 lanes', 'meter lanes', 'yard lanes', 'climbing wall', 'diving board',
+          'diving well', 'in-water basketball', 'lap', 'main pool slide', 'main pool water features'
+        ])
       }),
       Object.freeze({
         key: 'recreation',
         label: 'Sports & recreation',
-        features: Object.freeze(['baseball', 'basketball', 'cornhole', 'fitness pavilion', 'golf course', 'soccer', 'softball', 'sports field', 'tennis', 'volleyball', 'yoga'])
+        features: Object.freeze([
+          'baseball', 'basketball court', 'cornhole', 'fitness pavilion', 'golf course',
+          'grass volleyball', 'sand volleyball', 'soccer', 'softball', 'sports field', 'tennis', 'yoga'
+        ])
       }),
       Object.freeze({
         key: 'amenities',
