@@ -443,14 +443,14 @@
   }
 
   /**
-  * Publishes each application version once for the current browser profile.
+   * Publishes the current application version only when it advances the browser-profile marker.
    * @private
    */
-  function publishVersionWhenChanged() {
-    if (typeof window.gtag !== 'function') return;
-
+  function publishVersionIfNeeded() {
     try {
-      if (window.localStorage.getItem(window.ANALYTICS_VERSION_REPORTED_STORAGE_KEY) === window.APP_VERSION) return;
+      const reportedVersion = window.localStorage.getItem(window.ANALYTICS_VERSION_REPORTED_STORAGE_KEY);
+      const versionComparison = compareVersions(reportedVersion, window.APP_VERSION);
+      if (versionComparison === 0 || versionComparison === 1) return;
 
       window.localStorage.setItem(window.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, window.APP_VERSION);
     } catch (_error) {
@@ -460,6 +460,27 @@
     publishEvent(ANALYTICS_EVENT_NAMES.VERSION, {
       app_version: window.APP_VERSION
     });
+  }
+
+  /**
+   * Serializes application-version publication across same-origin browser contexts.
+   * @returns {Promise<void>} Completion after the profile marker has been checked
+   * @private
+   */
+  async function publishVersionWhenChanged() {
+    if (typeof window.gtag !== 'function') return;
+
+    const lockManager = window.navigator.locks;
+    if (!lockManager || typeof lockManager.request !== 'function') {
+      publishVersionIfNeeded();
+      return;
+    }
+
+    try {
+      await lockManager.request(window.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, publishVersionIfNeeded);
+    } catch (_error) {
+      publishVersionIfNeeded();
+    }
   }
 
   // Private interaction trackers
@@ -806,7 +827,7 @@
   script.id = 'cnslAnalyticsScript';
   script.async = true;
   script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(window.GA4_MEASUREMENT_ID)}`;
-  script.addEventListener('load', () => {
+  script.addEventListener('load', async () => {
     window.gtag('js', new Date());
     window.gtag('config', window.GA4_MEASUREMENT_ID, {
       allow_google_signals: false,
@@ -819,7 +840,7 @@
       page_title: getMeasuredPageTitle(),
       ...getMeasuredPageParameters()
     });
-    publishVersionWhenChanged();
+    await publishVersionWhenChanged();
     publishUpgrade(pendingUpgradePath);
     if (publishedCampaign?.source === 'flyer') {
       publishEvent(ANALYTICS_EVENT_NAMES.FLYER_VISIT);

@@ -198,7 +198,9 @@ assert.doesNotMatch(analytics, /PAGE_VIEW:\s*'ca_page_view'/, 'Page measurement 
 assert.match(analytics, /publishEvent\(ANALYTICS_EVENT_NAMES\.PAGE_VIEW,\s*\{[\s\S]*?page_title:\s*getMeasuredPageTitle\(\),[\s\S]*?\.\.\.getMeasuredPageParameters\(\)[\s\S]*?\}\);/, 'Sanitized page measurement must publish only its reviewed title and page parameters.');
 assert.match(analytics, /publishEvent\(ANALYTICS_EVENT_NAMES\.VERSION,[\s\S]*app_version:\s*window\.APP_VERSION/, 'App version measurement must use the configured published version in its dedicated event.');
 assert.match(analytics, /window\.localStorage\.getItem\(window\.ANALYTICS_VERSION_REPORTED_STORAGE_KEY\)/, 'App version measurement must check its configured browser-profile marker before publication.');
+assert.match(analytics, /compareVersions\(reportedVersion, window\.APP_VERSION\)/, 'App version measurement must prevent stale contexts from downgrading its browser-profile marker.');
 assert.match(analytics, /window\.localStorage\.setItem\(window\.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, window\.APP_VERSION\)/, 'App version measurement must store the reported app version for the browser profile before publication.');
+assert.match(analytics, /lockManager\.request\(window\.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, publishVersionIfNeeded\)/, 'App version measurement must serialize its profile-marker check across same-origin browser contexts.');
 assert.doesNotMatch(analytics, /cnsl_analytics_version_reported/, 'Analytics must use the session storage key from application configuration.');
 assert.doesNotMatch(pwa, /cnsl_service_worker_update_checked_at/, 'The PWA consumer must use its session storage key from application configuration.');
 assert.match(analyticsInteractionType, /const AnalyticsInteractionType = Object\.freeze\(/, 'Analytics interaction types must use one immutable shared enum.');
