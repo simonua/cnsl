@@ -6,11 +6,13 @@ description: "Use when working with JSON data files, schemas, data loading, sour
 
 ## Critical Rule
 
-**Never modify files in `src/assets/data/` unless the user explicitly requests an annual data update or source correction.** These are source-of-truth files maintained by humans. This includes:
+**Never modify files in `src/assets/data/` unless the user explicitly requests an active-season data update, active-season source correction, or a new season rollover.** These are source-of-truth files maintained by humans. This includes:
 
 - Annual `pools.json`, `teams.json`, and `meets.json` files
 - Their `.schema.json` counterparts
 - Official schedule PDFs stored beneath each annual domain directory
+
+**Never modify a previous year's directory after a newer season has been created.** Prior-year assets are immutable historical records. This prohibition includes all annual JSON data, schemas, READMEs and other review records, retained PDFs, source references, and supporting files beneath `src/assets/data/<YEAR>/`. Apply terminology, schema, normalization, documentation, and source corrections only to the active season or a newly created season; do not backport them to archived years. If a task appears to require changing a prior season, preserve the archived files and report the conflict instead of editing them.
 
 ## Annual Structure
 
