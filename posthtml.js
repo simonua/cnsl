@@ -4,6 +4,7 @@ const posthtml = require('posthtml');
 const { copyBrowserJavaScript } = require('./scripts/validate-browser-javascript');
 const appConfig = require('./scripts/adapters/app-config.js');
 const WeatherAlertService = require('./scripts/adapters/weather-alert-service.js');
+const { CACHE_ON_USE_SCRIPT_RESOURCES, INSTALL_CRITICAL_PAGES } = require('./scripts/lib/pwa-resource-policy.js');
 const annualDataSourceDir = './src/assets/data';
 const activeSeason = String(appConfig.YEAR);
 const activeSeasonPoolsPath = path.join(annualDataSourceDir, activeSeason, 'pools', 'pools.json');
@@ -289,11 +290,12 @@ function writePwaArtifacts() {
     `assets/data/${appConfig.YEAR}/meets/meets.json`
   ];
   const resources = ['./', ...collectPrecacheResources(outDir).sort()];
-  const installCriticalPages = new Set(['index.html', 'offline.html', 'pools.html', 'teams.html', 'meets.html', 'settings.html']);
+  const cacheOnUseScripts = new Set(CACHE_ON_USE_SCRIPT_RESOURCES);
+  const installCriticalPages = new Set(INSTALL_CRITICAL_PAGES);
   const coreResources = resources.filter(resource => resource === './'
     || installCriticalPages.has(resource)
     || resource === appConfig.EXPERIMENTAL_SETTINGS_URL
-    || /\.(?:css|js|webmanifest)$/i.test(resource)
+    || (/\.(?:css|js|webmanifest)$/i.test(resource) && !cacheOnUseScripts.has(resource))
     || resource.startsWith(`assets/data/${appConfig.YEAR}/`));
   const optionalResources = resources.filter(resource => !coreResources.includes(resource));
   const missingResources = requiredOfflineResources.filter(resource => !resources.includes(resource));

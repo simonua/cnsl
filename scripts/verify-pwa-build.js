@@ -2,7 +2,16 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 const vm = require('node:vm');
-const { APP_VERSION, DEPLOYMENT_VERSION_FILE, GA4_MEASUREMENT_ID, HOME_PAGE_HOSTNAME, HOME_PAGE_URL, YEAR } = require('./adapters/app-config.js');
+const {
+  APP_VERSION,
+  DEPLOYMENT_VERSION_FILE,
+  GA4_MEASUREMENT_ID,
+  HOME_PAGE_HOSTNAME,
+  HOME_PAGE_URL,
+  TEAM_AGENDA_DEPENDENCIES,
+  YEAR
+} = require('./adapters/app-config.js');
+const { CACHE_ON_USE_SCRIPT_RESOURCES, INSTALL_CRITICAL_PAGES } = require('./lib/pwa-resource-policy.js');
 const WeatherAlertService = require('./adapters/weather-alert-service.js');
 
 const outDir = path.join(__dirname, '..', 'out');
@@ -143,7 +152,23 @@ assert.equal(new Set(precacheResources).size, precacheResources.length, 'Precach
   `assets/data/${YEAR}/teams/teams.json`,
   `assets/data/${YEAR}/meets/meets.json`
 ].forEach(resource => assert.ok(precacheCoreResources.includes(resource), `Install-critical inventory is missing: ${resource}`));
+INSTALL_CRITICAL_PAGES.forEach(resource => {
+  assert.ok(precacheCoreResources.includes(resource), `Install-critical page must remain in the core tier: ${resource}`);
+  const pageHtml = fs.readFileSync(path.join(outDir, resource), 'utf8');
+  [...pageHtml.matchAll(/<script\b[^>]*\bsrc="([^"]+)"/gi)].forEach(([, scriptSource]) => {
+    const scriptResource = new URL(scriptSource, 'https://cnsl.local/').pathname.replace(/^\//, '');
+    if (scriptResource.startsWith('js/')) {
+      assert.ok(precacheCoreResources.includes(scriptResource), `${resource} requires a script outside the core tier: ${scriptResource}`);
+    }
+  });
+});
+TEAM_AGENDA_DEPENDENCIES.forEach(resource => {
+  assert.ok(precacheCoreResources.includes(resource), `Home agenda dependency must remain in the core tier: ${resource}`);
+});
 assert.ok(!precacheCoreResources.includes('assets/data/lessons.json'), 'The lesson provider directory must not increase the install-critical cache tier.');
+CACHE_ON_USE_SCRIPT_RESOURCES.forEach(resource => {
+  assert.ok(precacheOptionalResources.includes(resource), `Cache-on-use script must remain in the optional tier: ${resource}`);
+});
 assert.ok(precacheOptionalResources.includes('assets/images/logos/team-logos@2x.png'), 'Large visual assets must remain optional during installation.');
 assert.ok(precacheOptionalResources.includes('faq.html'), 'Informational routes without an offline requirement must remain optional during installation.');
 requiredArtifacts
