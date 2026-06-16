@@ -179,6 +179,15 @@ describe('MeetDayGuideService', () => {
       assert.match(twoDaysAheadHtml, /upcoming-day-pill">in 2 days<\/span>/);
     });
 
+    it('renders the active Kendall Ridge concessions as meals and snacks', () => {
+      const guide = MeetDayGuideService.getGuide(marlins, teams, [secondMarlinsMeet], pools, new Date(2026, 5, 19, 12));
+      const html = MeetDayGuideService.renderGuide(guide);
+
+      assert.match(html, />Meals<\/strong><span>breakfast sandwiches, hot dogs<\/span>/);
+      assert.match(html, />Snacks<\/strong><span>bagels, donuts, muffins, snow cones<\/span>/);
+      assert.doesNotMatch(html, />Food<\/strong>/);
+    });
+
     it('renders home timing, check-in, helpful notes, and the stronger volunteer reminder', () => {
       const guide = {
         date: '2026-06-20',

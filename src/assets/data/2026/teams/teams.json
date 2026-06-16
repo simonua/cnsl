@@ -436,11 +436,13 @@
           },
           "general": {
             "concessions": {
-              "foodItems": [
-                "bagels",
+              "mealItems": [
                 "breakfast sandwiches",
+                "hot dogs"
+              ],
+              "snackItems": [
+                "bagels",
                 "donuts",
-                "hot dogs",
                 "muffins",
                 "snow cones"
               ]
