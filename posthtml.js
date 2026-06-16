@@ -53,7 +53,16 @@ function createActiveSeasonTemplateMetadata() {
 
 const ACTIVE_SEASON = createActiveSeasonTemplateMetadata();
 const APP_VERSION_WHATS_NEW_URL = createAppVersionWhatsNewUrl();
-const templateLocals = { ...appConfig, ACTIVE_SEASON, APP_VERSION_WHATS_NEW_URL };
+const ANALYTICS_DEPLOYMENT_MODE = process.env.CNSL_ANALYTICS_DEPLOYMENT
+  === appConfig.ANALYTICS_DEPLOYMENT_MODES.PRODUCTION
+  ? appConfig.ANALYTICS_DEPLOYMENT_MODES.PRODUCTION
+  : appConfig.ANALYTICS_DEPLOYMENT_MODES.DISABLED;
+const templateLocals = {
+  ...appConfig,
+  ACTIVE_SEASON,
+  ANALYTICS_DEPLOYMENT_MODE,
+  APP_VERSION_WHATS_NEW_URL
+};
 const expressions = require('posthtml-expressions')({ locals: templateLocals });
 require('posthtml-include')({ root: './src/views' });
 const extend = require('posthtml-extend')({

@@ -387,6 +387,32 @@ analyticsTest('[WF-ANALYTICS-013] VS Code embedded browsers cannot publish analy
   expect(blockedExternalRequests).toEqual([]);
 });
 
+test('[WF-ANALYTICS-016] local builds cannot publish analytics when automation signals are hidden', async ({
+  blockedExternalRequests,
+  page
+}) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(globalThis.navigator, 'webdriver', {
+      configurable: true,
+      value: false
+    });
+  });
+  await page.route('https://pools.longreachmarlins.org/**', async route => {
+    const requestedUrl = new URL(route.request().url());
+    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    await route.fulfill({ response });
+  });
+
+  await page.goto('https://pools.longreachmarlins.org/pools.html', { waitUntil: 'domcontentloaded' });
+
+  await expect(page.evaluate(() => globalThis.navigator.webdriver)).resolves.toBe(false);
+  await expect(page.locator(`meta[name="${AppConfig.ANALYTICS_DEPLOYMENT_META_NAME}"]`))
+    .toHaveAttribute('content', AppConfig.ANALYTICS_DEPLOYMENT_MODES.DISABLED);
+  await expect(page.locator('#cnslAnalyticsScript')).toHaveCount(0);
+  await expect(page.evaluate(() => globalThis.dataLayer)).resolves.toBeUndefined();
+  expect(blockedExternalRequests).toEqual([]);
+});
+
 analyticsTest('[WF-ANALYTICS-002] flyer QR campaign visits publish reviewed attribution and clear their landing tags', async ({ page }) => {
   await page.route('https://www.googletagmanager.com/**', route => route.fulfill({
     contentType: 'application/javascript',

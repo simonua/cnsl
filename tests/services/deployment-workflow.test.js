@@ -20,4 +20,13 @@ describe('deployment workflow', () => {
       assert.match(workflow, new RegExp(`^      - '${escapedPolicyFile}'$`, 'm'));
     });
   });
+
+  it('should enable analytics only for the production build and artifact verification', () => {
+    const workflow = fs.readFileSync(workflowPath, 'utf8');
+    const analyticsDeploymentBlocks = workflow.match(/env:\n\s+CNSL_ANALYTICS_DEPLOYMENT: production/g) || [];
+
+    assert.equal(analyticsDeploymentBlocks.length, 2);
+    assert.match(workflow, /- name: Build project\n\s+env:\n\s+CNSL_ANALYTICS_DEPLOYMENT: production\n\s+run: pnpm run build/);
+    assert.match(workflow, /- name: Verify PWA artifact contract\n\s+env:\n\s+CNSL_ANALYTICS_DEPLOYMENT: production\n\s+run: pnpm run verify:pwa/);
+  });
 });

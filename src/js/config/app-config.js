@@ -46,6 +46,11 @@
   ]);
 
   // External services and regional behavior.
+  const ANALYTICS_DEPLOYMENT_META_NAME = 'cnsl-analytics-deployment';
+  const ANALYTICS_DEPLOYMENT_MODES = Object.freeze({
+    DISABLED: 'disabled',
+    PRODUCTION: 'production'
+  });
   const GA4_MEASUREMENT_ID = 'G-ZMBPYQKLQP';
   const WEATHER_API_BASE_URL = 'https://api.weather.gov';
   const WEATHER_LOCATION_POINT = '39.2014,-76.8610';
@@ -212,6 +217,8 @@
   const LOCAL_DEVELOPMENT_PORT = '9090';
 
   const RUNTIME_CONFIG = Object.freeze({
+    ANALYTICS_DEPLOYMENT_META_NAME,
+    ANALYTICS_DEPLOYMENT_MODES,
     ANALYTICS_APP_VERSION_STORAGE_KEY,
     ANALYTICS_UPGRADE_PATH_STORAGE_KEY,
     ANALYTICS_VERSION_REPORTED_STORAGE_KEY,

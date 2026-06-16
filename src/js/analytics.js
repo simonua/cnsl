@@ -738,6 +738,18 @@
   }
 
   /**
+   * Determines whether this artifact was explicitly built for production analytics.
+   * @returns {boolean} Whether the deployment capability enables analytics
+   * @private
+   */
+  function isAnalyticsDeploymentEnabled() {
+    const deploymentMetadata = document.querySelector(
+      `meta[name="${window.ANALYTICS_DEPLOYMENT_META_NAME}"]`
+    );
+    return deploymentMetadata?.content === window.ANALYTICS_DEPLOYMENT_MODES.PRODUCTION;
+  }
+
+  /**
    * Determines whether Google Analytics is disabled for this property.
    * @returns {boolean} Whether analytics has been disabled
    * @private
@@ -750,8 +762,11 @@
 
   // Initialization
 
-  const publishedCampaign = isProductionSite() ? consumePublishedCampaign() : null;
-  const pendingUpgradePath = prepareUpgradeTracking();
+  const isAnalyticsEligible = isAnalyticsDeploymentEnabled()
+    && isProductionSite()
+    && !isAnalyticsDisabled();
+  const publishedCampaign = isAnalyticsEligible ? consumePublishedCampaign() : null;
+  const pendingUpgradePath = isAnalyticsEligible ? prepareUpgradeTracking() : null;
 
   // Public API
 
@@ -799,7 +814,7 @@
 
   initializeClickTracking();
 
-  if (isAnalyticsDisabled() || !isProductionSite() || document.getElementById('cnslAnalyticsScript')) return;
+  if (!isAnalyticsEligible || document.getElementById('cnslAnalyticsScript')) return;
 
   window.dataLayer = window.dataLayer || [];
   /**

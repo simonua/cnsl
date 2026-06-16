@@ -73,9 +73,13 @@ jobs:
         run: pnpm run validate:data
 
       - name: Build project
+        env:
+          CNSL_ANALYTICS_DEPLOYMENT: production
         run: pnpm run build
 
       - name: Verify PWA artifact contract
+        env:
+          CNSL_ANALYTICS_DEPLOYMENT: production
         run: pnpm run verify:pwa
 
       - name: Upload artifact

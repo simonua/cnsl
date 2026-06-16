@@ -193,6 +193,10 @@ const appConfig = fs.readFileSync(path.join(outDir, 'js', 'config', 'app-config.
 const pwa = fs.readFileSync(path.join(outDir, 'js', 'pwa.js'), 'utf8');
 const appConfigBrowserContext = { URL };
 vm.runInNewContext(appConfig, appConfigBrowserContext);
+const expectedAnalyticsDeployment = process.env.CNSL_ANALYTICS_DEPLOYMENT
+  === appConfigBrowserContext.ANALYTICS_DEPLOYMENT_MODES.PRODUCTION
+  ? appConfigBrowserContext.ANALYTICS_DEPLOYMENT_MODES.PRODUCTION
+  : appConfigBrowserContext.ANALYTICS_DEPLOYMENT_MODES.DISABLED;
 const nonAnalyticsBrowserCode = fs.readdirSync(path.join(outDir, 'js'), { recursive: true })
   .filter(resource => resource.endsWith('.js') && resource !== 'analytics.js')
   .map(resource => fs.readFileSync(path.join(outDir, 'js', resource), 'utf8'))
@@ -214,6 +218,8 @@ assert.match(analytics, /allow_ad_personalization_signals:\s*false/, 'Analytics 
 assert.match(analytics, /send_page_view:\s*false/, 'Analytics must suppress automatic unsanitized page views.');
 assert.match(analytics, /window\.location\.hostname\s*===\s*window\.HOME_PAGE_HOSTNAME/, 'Analytics must initialize only on the configured production hostname.');
 assert.match(analytics, /window\.location\.protocol\s*===\s*'https:'/, 'Analytics must initialize only over HTTPS.');
+assert.match(analytics, /isAnalyticsDeploymentEnabled\(\)/, 'Analytics must require an explicit production deployment capability.');
+assert.match(analytics, /window\.ANALYTICS_DEPLOYMENT_MODES\.PRODUCTION/, 'Analytics must compare deployment capability against shared configuration.');
 assert.match(analytics, /const currentPagePath = window\.location\.pathname;/, 'Analytics page paths must exclude query strings and fragments.');
 assert.match(analytics, /publishedPageUrl\.origin === window\.HOME_PAGE_URL[\s\S]*publishedPageUrl\.search === ''[\s\S]*publishedPageUrl\.hash === '';/, 'Canonical analytics page paths must require the configured production origin without query strings or fragments.');
 assert.match(analytics, /page_location:\s*`\$\{window\.HOME_PAGE_URL\}\$\{getMeasuredPagePath\(\)\}`/, 'Analytics page locations must combine the configured production origin with a reviewed page path.');
@@ -269,7 +275,7 @@ assert.match(analytics, /campaign_source:\s*publishedCampaign\.source/, 'Reviewe
 assert.match(analytics, /campaign_medium:\s*publishedCampaign\.medium/, 'Reviewed campaign attribution must be mapped to standard GA campaign medium measurement.');
 assert.match(analytics, /campaign_name:\s*publishedCampaign\.name/, 'Reviewed campaign attribution must be mapped to standard GA campaign name measurement.');
 assert.match(analytics, /landingUrl\.searchParams\.delete\('utm_source'\)/, 'Recognized campaign URLs must remove their campaign marker before page measurement.');
-assert.match(analytics, /isProductionSite\(\) \? consumePublishedCampaign\(\) : null/, 'Published campaign cleanup must occur only on the deployed application landing page.');
+assert.match(analytics, /isAnalyticsEligible \? consumePublishedCampaign\(\) : null/, 'Published campaign cleanup must occur only after the complete analytics eligibility gate succeeds.');
 assert.match(analytics, /window\.history\.replaceState\(/, 'Recognized campaign URLs must be cleaned without a navigation or referrer-producing redirect.');
 assert.doesNotMatch(analytics, /setting_value\s*:/, 'Settings measurement must not expose a general selected-value field.');
 assert.doesNotMatch(analytics, /link_(?:url|host)\s*:/, 'External-link measurement must not send raw URL or host details.');
@@ -320,6 +326,10 @@ Object.entries(canonicalPages).forEach(([page, canonical]) => {
     assert.match(html, /<meta name="robots" content="noindex, follow">/, `${page} must stay out of search results while allowing link discovery.`);
   }
   assert.match(html, /http-equiv="Content-Security-Policy"/, `${page} must publish the shared browser security policy.`);
+  assert.ok(
+    html.includes(`<meta name="${appConfigBrowserContext.ANALYTICS_DEPLOYMENT_META_NAME}" content="${expectedAnalyticsDeployment}">`),
+    `${page} must publish the fail-closed analytics deployment mode for this build.`
+  );
   assert.match(html, /script-src[^;"]*'unsafe-inline'/, `${page} must permit Cloudflare-injected inline scripts that cannot use a nonce or stable hash.`);
   assert.doesNotMatch(html, /script-src[^;"]*'(?:sha(?:256|384|512)-|nonce-)/, `${page} must not include a nonce or hash source that causes browsers to ignore unsafe-inline.`);
   assert.match(html, /connect-src[^;"]*https:\/\/\*\.google-analytics\.com/, `${page} must permit Google Analytics collection requests.`);

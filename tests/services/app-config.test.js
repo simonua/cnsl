@@ -33,6 +33,11 @@ describe('app-config', () => {
     vm.runInNewContext(source, context, { filename: sourcePath });
 
     assert.equal(context.APP_VERSION, config.APP_VERSION);
+    assert.equal(context.ANALYTICS_DEPLOYMENT_META_NAME, config.ANALYTICS_DEPLOYMENT_META_NAME);
+    assert.deepEqual(
+      Object.fromEntries(Object.entries(context.ANALYTICS_DEPLOYMENT_MODES)),
+      config.ANALYTICS_DEPLOYMENT_MODES
+    );
     assert.equal(context.ANALYTICS_APP_VERSION_STORAGE_KEY, config.ANALYTICS_APP_VERSION_STORAGE_KEY);
     assert.equal(context.ANALYTICS_UPGRADE_PATH_STORAGE_KEY, config.ANALYTICS_UPGRADE_PATH_STORAGE_KEY);
     assert.equal(context.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, config.ANALYTICS_VERSION_REPORTED_STORAGE_KEY);
@@ -52,6 +57,15 @@ describe('app-config', () => {
     assert.equal(Object.isFrozen(config.EXPERIMENTAL_FEATURE_IDS), true);
     assert.equal(config.EXPERIMENTAL_SETTINGS_URL, 'assets/experimental-settings.json');
     assert.equal(config.MY_MEET_DAY_HOME_LOOKAHEAD_DAYS, 2);
+  });
+
+  it('publishes immutable analytics deployment modes', () => {
+    assert.equal(config.ANALYTICS_DEPLOYMENT_META_NAME, 'cnsl-analytics-deployment');
+    assert.deepEqual(config.ANALYTICS_DEPLOYMENT_MODES, {
+      DISABLED: 'disabled',
+      PRODUCTION: 'production'
+    });
+    assert.equal(Object.isFrozen(config.ANALYTICS_DEPLOYMENT_MODES), true);
   });
 
   it('publishes the immutable attention notice with an Eastern timestamp', () => {

@@ -1,4 +1,5 @@
 const { test: base, expect } = require('@playwright/test');
+const AppConfig = require('../../scripts/adapters/app-config.js');
 
 const EXTERNAL_HTTP_REQUEST = /^https?:\/\/(?!(?:127\.0\.0\.1|localhost|\[::1\])(?::\d+)?(?:[/?#]|$))/i;
 
@@ -9,11 +10,21 @@ const test = base.extend({
   },
   blockExternalNetwork: [async ({ context, analyticsSimulation, blockedExternalRequests }, use) => {
     if (analyticsSimulation) {
-      await context.addInitScript(() => {
+      await context.addInitScript(({ deploymentMetaName, productionDeployment }) => {
         Object.defineProperty(globalThis.navigator, 'webdriver', {
           configurable: true,
           value: false
         });
+        const querySelector = globalThis.Document.prototype.querySelector;
+        globalThis.Document.prototype.querySelector = function querySelectorWithAnalyticsSimulation(selector) {
+          if (selector === `meta[name="${deploymentMetaName}"]`) {
+            return { content: productionDeployment };
+          }
+          return Reflect.apply(querySelector, this, [selector]);
+        };
+      }, {
+        deploymentMetaName: AppConfig.ANALYTICS_DEPLOYMENT_META_NAME,
+        productionDeployment: AppConfig.ANALYTICS_DEPLOYMENT_MODES.PRODUCTION
       });
     }
 
