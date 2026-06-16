@@ -4170,6 +4170,13 @@ button.pool-filter__clear:focus-visible {
   text-decoration: underline;
 }
 
+@media (min-width: 48.0625rem) {
+  .footer {
+    justify-content: flex-start;
+    padding-top: 12px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
