@@ -9,6 +9,7 @@ const TeamScheduleService = require('./adapters/team-schedule-service.js');
 
 const DOMAINS = Object.freeze(['pools', 'meets', 'teams']);
 const REPOSITORY_ROOT = path.resolve(__dirname, '..');
+const CLOCK_TIME_PATTERN = /^([01]\d|2[0-3]):([0-5]\d)$/;
 const TIME_PATTERN = /^(0?[1-9]|1[0-2]):([0-5][0-9])(AM|PM)$/i;
 
 async function readJson(filePath) {
@@ -88,6 +89,39 @@ function parseTimeMinutes(value) {
   return hour * 60 + Number(match[2]);
 }
 
+function parseClockMinutes(value) {
+  if (typeof value !== 'string') return null;
+  const match = value.match(CLOCK_TIME_PATTERN);
+  return match ? (Number(match[1]) * 60) + Number(match[2]) : null;
+}
+
+function validateTimingWindow(errors, label, timingWindow) {
+  if (!timingWindow) return;
+  const startMinutes = parseClockMinutes(timingWindow.start);
+  const endMinutes = parseClockMinutes(timingWindow.end);
+  if (startMinutes !== null && endMinutes !== null && startMinutes >= endMinutes) {
+    errors.push(`${label} must end after it starts: ${timingWindow.start} to ${timingWindow.end}.`);
+  }
+}
+
+function validateDualMeetMilestones(errors, timingWindow) {
+  if (!timingWindow) return;
+  const orderedValues = [
+    timingWindow.start,
+    timingWindow.relayCheckInDeadline,
+    timingWindow.firstSwimTime,
+    timingWindow.end
+  ];
+  const orderedMinutes = orderedValues.map(parseClockMinutes);
+  if (orderedMinutes.some(value => value === null)) return;
+  if (orderedMinutes.some((value, index) => index > 0 && orderedMinutes[index - 1] > value)) {
+    errors.push(
+      'Meet dualMeets timing must order start, relay check-in deadline, first swim, and end: ' +
+      `${orderedValues.join(', ')}.`
+    );
+  }
+}
+
 function validatePoolScheduleHours(errors, poolName, scope, schedules) {
   schedules.forEach((schedule, scheduleIndex) => {
     schedule.hours.forEach((hours, hoursIndex) => {
@@ -163,6 +197,9 @@ function collectIntegrityErrors({ meetsData, poolsData, season, teamsData }) {
     if (team.practice && team.practice.url) {
       validateHttpsUrl(errors, `${team.name} practice URL`, team.practice.url);
     }
+    Object.entries(team.meetTimeOverrides || {}).forEach(([eventType, timingWindow]) => {
+      validateTimingWindow(errors, `${team.name} ${eventType} timing window`, timingWindow);
+    });
     TeamScheduleService.getValidationErrors(team.practice, season).forEach((error) => {
       errors.push(`${team.name} practice ${error}`);
     });
@@ -182,6 +219,10 @@ function collectIntegrityErrors({ meetsData, poolsData, season, teamsData }) {
   });
 
   validateHttpsUrl(errors, 'Meet source URL', meetsData.url);
+  Object.entries(meetsData.meetTimes || {}).forEach(([eventType, timingWindow]) => {
+    validateTimingWindow(errors, `Meet ${eventType} timing window`, timingWindow);
+  });
+  validateDualMeetMilestones(errors, meetsData.meetTimes && meetsData.meetTimes.dualMeets);
   meetsData.regular_meets.forEach((meet, index) => {
     const label = `Regular meet ${index + 1}`;
     validateSeasonDate(errors, `${label} date`, meet.date, season);

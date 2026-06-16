@@ -49,6 +49,10 @@ description: "Use when working with JSON data files, schemas, data loading, sour
 - Every data file has a corresponding `.schema.json` using JSON Schema draft-07.
 - Every schema declares a top-level `"version"` metadata annotation. Begin a domain at `"V1"`, retain that version in later seasons while its validation contract (excluding annotations) is unchanged, and increment it only when that contract differs from the preceding version.
 - Schemas enforce required fields, value types, and enums.
+- Model calendar dates with `type: "string"` and `format: "date"`; do not substitute a `YYYY-MM-DD` regular expression, because syntax alone accepts impossible dates.
+- Define one reusable `HttpsUrl` schema type with `type: "string"`, `format: "uri"`, and `pattern: "^https://"`, then reference it for every application-used official source or destination. When a required field may intentionally be blank, use a named optional-HTTPS definition that accepts either an empty string or `HttpsUrl`; do not weaken populated destinations to a generic nonempty string.
+- Keep active pool records on the structured-location contract: require stable `id`, official `caUrl`, `location`, and `scheduleUrl` fields, and require the document-level CA directory and guide URLs. Runtime compatibility with legacy flat addresses does not make that shape valid annual source data.
+- Enforce clock syntax in schemas and cross-field chronology in `scripts/validate-season-data.js`. Meet and team timing windows must end after they start; standard dual-meet milestones must remain ordered from start through relay check-in and first swim to end.
 - If CA publishes a user-relevant pool amenity that the `FeatureType` enum does not cover, add an intentional normalized enum value and transcribe it rather than omitting source information.
 - Date format: `YYYY-MM-DD` (ISO 8601).
 - Preserve established pool IDs used by application links (e.g., `bwp`, `krp`).

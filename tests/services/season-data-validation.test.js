@@ -3,7 +3,12 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const os = require('node:os');
 const path = require('node:path');
+const meetsData = require('../../src/assets/data/2026/meets/meets.json');
+const meetsSchema = require('../../src/assets/data/2026/meets/meets.schema.json');
+const poolsData = require('../../src/assets/data/2026/pools/pools.json');
 const poolSchema = require('../../src/assets/data/2026/pools/pools.schema.json');
+const teamsData = require('../../src/assets/data/2026/teams/teams.json');
+const teamsSchema = require('../../src/assets/data/2026/teams/teams.schema.json');
 
 const {
   collectIntegrityErrors,
@@ -75,6 +80,38 @@ describe('season data validation', () => {
 
       validRecords.forEach((record) => assert.deepStrictEqual(validateSchema('hours', record, hoursSchema), []));
       invalidRecords.forEach((record) => assert.ok(validateSchema('hours', record, hoursSchema).length > 0));
+    });
+
+    it('should require structured pool identity, location, and official HTTPS sources', () => {
+      ['id', 'caUrl', 'location'].forEach((property) => {
+        const invalidPoolsData = structuredClone(poolsData);
+        delete invalidPoolsData.pools[0][property];
+        assert.ok(validateSchema('pools', invalidPoolsData, poolSchema).length > 0);
+      });
+
+      ['caPoolDirectoryUrl', 'caPoolGuideUrl'].forEach((property) => {
+        const invalidPoolsData = structuredClone(poolsData);
+        delete invalidPoolsData[property];
+        assert.ok(validateSchema('pools', invalidPoolsData, poolSchema).length > 0);
+      });
+
+      const insecurePoolsData = structuredClone(poolsData);
+      insecurePoolsData.pools[0].caUrl = 'http://example.com/pool';
+      assert.ok(validateSchema('pools', insecurePoolsData, poolSchema).length > 0);
+    });
+
+    it('should enforce real meet dates and HTTPS sources in annual schemas', () => {
+      const invalidMeetsData = structuredClone(meetsData);
+      invalidMeetsData.regular_meets[0].date = '2026-02-30';
+      assert.ok(validateSchema('meets', invalidMeetsData, meetsSchema).length > 0);
+
+      const insecureMeetsData = structuredClone(meetsData);
+      insecureMeetsData.url = 'http://example.com/meets.pdf';
+      assert.ok(validateSchema('meets', insecureMeetsData, meetsSchema).length > 0);
+
+      const insecureTeamsData = structuredClone(teamsData);
+      insecureTeamsData.teams[0].staff.sourceUrl = 'http://example.com/staff';
+      assert.ok(validateSchema('teams', insecureTeamsData, teamsSchema).length > 0);
     });
   });
 
@@ -180,6 +217,54 @@ describe('season data validation', () => {
 
       assert.ok(errors.includes('Known Pool schedule 1 hours 1 must end after it starts: 7:00pm to 6:00pm.'));
       assert.ok(errors.includes('Known Pool schedule override 1 hours 1 must end after it starts: 8:00pm to 8:00pm.'));
+    });
+
+    it('should reject unordered meet and team timing windows', () => {
+      const errors = collectIntegrityErrors({
+        season: 2026,
+        poolsData: {
+          caPoolDirectoryUrl: 'https://pools.test/directory',
+          caPoolGuideUrl: 'https://pools.test/guide',
+          seasonStartDate: '2026-05-23',
+          seasonEndDate: '2026-09-07',
+          pools: []
+        },
+        teamsData: {
+          teams: [{
+            id: 'team',
+            name: 'Known Team',
+            keywords: ['known'],
+            url: 'https://teams.test/known',
+            homePools: [],
+            timeTrialsPool: '',
+            practicePools: [],
+            staff: { sourceUrl: 'https://teams.test/staff' },
+            meetTimeOverrides: {
+              timeTrials: { start: '12:00', end: '07:00' }
+            }
+          }]
+        },
+        meetsData: {
+          url: 'https://league.test/meets.pdf',
+          meetTimes: {
+            dualMeets: {
+              start: '07:00',
+              end: '12:00',
+              relayCheckInDeadline: '08:05',
+              firstSwimTime: '08:00'
+            },
+            timeTrials: { start: '12:00', end: '07:00' }
+          },
+          regular_meets: [],
+          special_meets: []
+        }
+      });
+
+      assert.ok(errors.includes('Known Team timeTrials timing window must end after it starts: 12:00 to 07:00.'));
+      assert.ok(errors.includes('Meet timeTrials timing window must end after it starts: 12:00 to 07:00.'));
+      assert.ok(errors.includes(
+        'Meet dualMeets timing must order start, relay check-in deadline, first swim, and end: 07:00, 08:05, 08:00, 12:00.'
+      ));
     });
 
     it('should reject detailed practice recurrence text that cannot render', () => {

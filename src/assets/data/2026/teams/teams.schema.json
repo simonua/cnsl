@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://example.com/teams.schema.json",
-  "version": "V16",
+  "version": "V17",
   "title": "Team Data Schema",
   "description": "Schema for team data containing practice schedules and team information",
   "type": "object",
@@ -41,37 +41,19 @@
           "minItems": 1
         },
         "url": {
-          "$ref": "#/definitions/NonEmptyString"
+          "$ref": "#/definitions/HttpsUrl"
         },
         "resultsUrl": {
-          "$ref": "#/definitions/NonEmptyString"
+          "$ref": "#/definitions/HttpsUrl"
         },
         "calendarUrl": {
-          "$ref": "#/definitions/NonEmptyString"
+          "$ref": "#/definitions/HttpsUrl"
         },
         "eventsSubscriptionUrl": {
-          "anyOf": [
-            {
-              "const": ""
-            },
-            {
-              "type": "string",
-              "format": "uri",
-              "pattern": "^https://"
-            }
-          ]
+          "$ref": "#/definitions/OptionalHttpsUrl"
         },
         "merchandiseUrl": {
-          "anyOf": [
-            {
-              "const": ""
-            },
-            {
-              "type": "string",
-              "format": "uri",
-              "pattern": "^https://"
-            }
-          ]
+          "$ref": "#/definitions/OptionalHttpsUrl"
         },
         "booster": {
           "$ref": "#/definitions/Booster"
@@ -386,9 +368,7 @@
           "$ref": "#/definitions/NonEmptyString"
         },
         "url": {
-          "type": "string",
-          "format": "uri",
-          "pattern": "^https://"
+          "$ref": "#/definitions/HttpsUrl"
         }
       },
       "required": ["name", "url"],
@@ -398,7 +378,7 @@
       "type": "object",
       "properties": {
         "sourceUrl": {
-          "$ref": "#/definitions/NonEmptyString"
+          "$ref": "#/definitions/HttpsUrl"
         },
         "verifiedOn": {
           "type": "string",
@@ -466,7 +446,7 @@
       "type": "object",
       "properties": {
         "url": {
-          "$ref": "#/definitions/NonEmptyString"
+          "$ref": "#/definitions/HttpsUrl"
         },
         "preseason": {
           "type": "array",
@@ -615,6 +595,21 @@
     "NonEmptyString": {
       "type": "string",
       "minLength": 1
+    },
+    "HttpsUrl": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://"
+    },
+    "OptionalHttpsUrl": {
+      "anyOf": [
+        {
+          "const": ""
+        },
+        {
+          "$ref": "#/definitions/HttpsUrl"
+        }
+      ]
     },
     "EmailAddress": {
       "type": "string",

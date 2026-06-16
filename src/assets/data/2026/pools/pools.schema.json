@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://example.com/pools.schema.json",
-    "version": "V13",
+    "version": "V14",
     "title": "Pool Data Schema",
     "description": "Schema for pool data containing schedules, features, and location information",
     "type": "object",
@@ -21,13 +21,11 @@
             "description": "End date of the outdoor pool season"
         },
         "caPoolDirectoryUrl": {
-            "type": "string",
-            "format": "uri",
+            "$ref": "#/definitions/HttpsUrl",
             "description": "URL to the Columbia Association online pool directory"
         },
         "caPoolGuideUrl": {
-            "type": "string",
-            "format": "uri",
+            "$ref": "#/definitions/HttpsUrl",
             "description": "URL to the Columbia Association pool season guide"
         },
         "pools": {
@@ -41,6 +39,8 @@
     "required": [
         "seasonStartDate",
         "seasonEndDate",
+        "caPoolDirectoryUrl",
+        "caPoolGuideUrl",
         "pools"
     ],
     "additionalProperties": false,
@@ -55,13 +55,10 @@
                     "$ref": "#/definitions/NonEmptyString"
                 },
                 "caUrl": {
-                    "$ref": "#/definitions/NonEmptyString"
+                    "$ref": "#/definitions/HttpsUrl"
                 },
                 "location": {
                     "$ref": "#/definitions/Location"
-                },
-                "address": {
-                    "$ref": "#/definitions/NonEmptyString"
                 },
                 "features": {
                     "type": "array",
@@ -100,7 +97,7 @@
                     }
                 },
                 "scheduleUrl": {
-                    "$ref": "#/definitions/NonEmptyString"
+                    "$ref": "#/definitions/HttpsUrl"
                 },
                 "phone": {
                     "type": "string",
@@ -109,21 +106,16 @@
                 }
             },
             "required": [
+                "id",
                 "name",
+                "caUrl",
+                "location",
                 "features",
                 "laneCount",
                 "laneLengthUnits",
                 "laneLength",
                 "scheduleUrl",
                 "schedules"
-            ],
-            "anyOf": [
-                {
-                    "required": ["location"]
-                },
-                {
-                    "required": ["address", "mapsQuery", "lat", "lng"]
-                }
             ],
             "additionalProperties": false
         },
@@ -419,8 +411,7 @@
                     "$ref": "#/definitions/NonEmptyString"
                 },
                 "googleMapsUrl": {
-                    "type": "string",
-                    "format": "uri",
+                    "$ref": "#/definitions/HttpsUrl",
                     "description": "Direct Google Maps URL for the pool location. Format: https://www.google.com/maps/search/?api=1&query=ENCODED_ADDRESS"
                 }
             },

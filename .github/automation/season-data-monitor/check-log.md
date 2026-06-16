@@ -164,3 +164,37 @@ The current CA facility pages and Pool Guide corrected broad pool-feature labels
 | Visitor-facing records | Updated | `src/views/whats-new.html` documents the corrected feature details and filters; `sitemap.xml` already had the 2026-06-15 content date. |
 | Review records | Updated | `OFFICIAL_SOURCE_CHECKED_AT`, `OFFICIAL_SOURCE_UPDATED_AT`, annual README source evidence, and this check-log entry. |
 | Reviewed source baseline | Updated | `source-state.json` refreshed with accepted facility-page and Harper's Choice Challenge fingerprints plus retained-PDF metadata. |
+
+## 2026-06-16T07:07:01-04:00
+
+**Active season:** 2026
+
+**Result:** Local normalization correction; no new online official-source review performed.
+
+The accepted Long Reach host-team manager concession list for Kendall Ridge retained the same six items. Breakfast sandwiches and hot dogs were normalized as meals; bagels, donuts, muffins, and snow cones were normalized as snacks, matching the existing My Meet Day category contract and the established treatment of comparable items. No conflicting source was identified, confidence is High, and there is no residual uncertainty. The official-source timestamps remain unchanged because this local categorization was not a completed online source review and did not identify a change in the underlying source facts.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Updated | Long Reach Marlins' Kendall Ridge `homeMeetGuides` concessions changed from generic `foodItems` to `mealItems` and `snackItems`; the six menu items are unchanged. |
+| Application-used source destinations | Unchanged | None. |
+| Retained official PDFs | Unchanged | None. |
+| Visitor-facing records | Unchanged | None. |
+| Review records | Updated | Annual README normalization evidence and this check-log entry; official-source timestamps are unchanged. |
+| Reviewed source baseline | Unchanged | None; no online source review or retained-document change occurred. |
+
+## 2026-06-16T07:31:14-04:00
+
+**Active season:** 2026
+
+**Result:** Local schema and validation maintenance; no new online official-source review performed.
+
+The active annual contracts now require structured pool identity and location data, consistently validate populated application-used destinations as HTTPS URLs, reject impossible meet calendar dates, and enforce meet and team timing chronology. Pools advanced to schema V14, teams to V17, and meets to V4. Current modeled records required no value changes, and official-source timestamps remain unchanged.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Unchanged | None. |
+| Application-used source destinations | Unchanged | None; existing destinations satisfy the tightened HTTPS schema types. |
+| Retained official PDFs | Unchanged | None. |
+| Visitor-facing records | Unchanged | None. |
+| Review records | Updated | Active annual README and this check-log entry document the schema contract maintenance; official-source timestamps are unchanged. |
+| Reviewed source baseline | Unchanged | None; no online source review or retained-document change occurred. |

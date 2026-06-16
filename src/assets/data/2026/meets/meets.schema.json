@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://example.com/meets.schema.json",
-  "version": "V3",
+  "version": "V4",
   "title": "Meet Data Schema",
   "description": "Schema for meet data containing regular and special meets",
   "type": "object",
@@ -11,7 +11,7 @@
       "description": "JSON Schema reference"
     },
     "url": {
-      "$ref": "#/definitions/NonEmptyString"
+      "$ref": "#/definitions/HttpsUrl"
     },
     "meetTimes": {
       "$ref": "#/definitions/StandardMeetTimes"
@@ -126,9 +126,14 @@
       "type": "string",
       "minLength": 1
     },
+    "HttpsUrl": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://"
+    },
     "DateFormat": {
       "type": "string",
-      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+      "format": "date"
     }
   }
 }
