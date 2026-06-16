@@ -6,10 +6,8 @@ on:
     paths:
       - '.github/workflows/build-deploy.yml'
       - 'src/**'
-      - 'BingSiteAuth.xml'
       - 'browserconfig.xml'
       - 'CNAME'
-      - 'google3dd9d57115818ebb.html'
       - 'LICENSE'
       - 'manifest.webmanifest'
       - 'robots.txt'

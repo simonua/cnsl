@@ -24,6 +24,7 @@ const unpublishedAnnualEvidenceDirectories = [
 ];
 const requiredArtifacts = [
   'BingSiteAuth.xml',
+  'b95676755a0a47f2965553d9f994f87f.txt',
   'CNAME',
   DEPLOYMENT_VERSION_FILE,
   'favicon.ico',
@@ -65,6 +66,12 @@ const indexablePages = new Set(['index.html']);
 assert.ok(fs.existsSync(outDir), 'Build output is missing. Run pnpm run build before verifying the PWA artifact.');
 requiredArtifacts.forEach(resource => {
   assert.ok(fs.existsSync(path.join(outDir, resource)), `Required published artifact is missing: ${resource}`);
+});
+const siteVerificationFiles = ['BingSiteAuth.xml', 'b95676755a0a47f2965553d9f994f87f.txt', 'google3dd9d57115818ebb.html'];
+siteVerificationFiles.forEach(file => {
+  const sourceContent = fs.readFileSync(path.join(__dirname, '..', 'src', 'site-verification', file));
+  const publishedContent = fs.readFileSync(path.join(outDir, file));
+  assert.deepEqual(publishedContent, sourceContent, `Published site verification content is invalid: ${file}`);
 });
 assert.ok(!fs.existsSync(path.join(outDir, 'site.webmanifest')), 'The deprecated duplicate manifest must not be published.');
 const publishedSeasonDirectories = fs.readdirSync(path.join(outDir, 'assets', 'data'), { withFileTypes: true })

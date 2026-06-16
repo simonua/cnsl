@@ -230,14 +230,25 @@ function writeWeatherOperatingWindowsArtifact() {
 
 writeWeatherOperatingWindowsArtifact();
 
-// Copy required publishing artifacts, including search and GitHub Pages domain ownership.
-const requiredRootStaticFiles = ['BingSiteAuth.xml', 'browserconfig.xml', 'CNAME', 'google3dd9d57115818ebb.html', 'LICENSE', 'manifest.webmanifest', 'robots.txt', 'sitemap.xml'];
+// Copy required publishing artifacts, including GitHub Pages domain ownership.
+const requiredRootStaticFiles = ['browserconfig.xml', 'CNAME', 'LICENSE', 'manifest.webmanifest', 'robots.txt', 'sitemap.xml'];
 requiredRootStaticFiles.forEach(file => {
   if (!fs.existsSync(file)) {
     throw new Error(`Required static file not found: ${file}`);
   }
   fs.copyFileSync(file, path.join(outDir, file));
   console.log(`Copied static file: ${file}`);
+});
+
+const siteVerificationSourceDir = path.join('src', 'site-verification');
+const siteVerificationFiles = ['BingSiteAuth.xml', 'b95676755a0a47f2965553d9f994f87f.txt', 'google3dd9d57115818ebb.html'];
+siteVerificationFiles.forEach(file => {
+  const sourcePath = path.join(siteVerificationSourceDir, file);
+  if (!fs.existsSync(sourcePath)) {
+    throw new Error(`Required site verification file not found: ${sourcePath}`);
+  }
+  fs.copyFileSync(sourcePath, path.join(outDir, file));
+  console.log(`Copied site verification file: ${file}`);
 });
 
 const rootFaviconSource = path.join('src', 'assets', 'favicons', 'favicon.ico');

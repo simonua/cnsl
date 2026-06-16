@@ -37,7 +37,8 @@ Run `\.\start.ps1` from PowerShell for the interactive developer menu. It covers
 2. `node posthtml.js` — Custom build script that:
    - Copies `src/assets/` and `src/css/` to `out/`
    - Parses `src/js/` with Acorn, rejects CommonJS, Node.js runtime code, and Node-environment guards, then copies validated scripts byte-for-byte to `out/js/`
-   - Copies required root static files (`manifest.webmanifest`, `browserconfig.xml`, `BingSiteAuth.xml`, `google3dd9d57115818ebb.html`, `robots.txt`, `sitemap.xml`, `LICENSE`, and `CNAME`)
+   - Copies required root static files (`manifest.webmanifest`, `browserconfig.xml`, `robots.txt`, `sitemap.xml`, `LICENSE`, and `CNAME`)
+   - Publishes the allowlisted ownership files from `src/site-verification/` at the deployed root and verifies their exact contents
    - Generates a precache inventory from the delivered artifact and updates `service-worker.js` with a build cache version
    - Processes HTML with PostHTML (extend + include plugins)
    - Publishes only `data/<YEAR>/` for the configured active season; all other annual data folders are excluded
