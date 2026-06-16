@@ -271,6 +271,7 @@ function collectPrecacheResources(directory, rootDirectory = directory) {
 
     const relativePath = path.relative(rootDirectory, entryPath).replace(/\\/g, '/');
     if (['LICENSE', 'robots.txt', 'sitemap.xml', 'service-worker.js', 'precache-manifest.js'].includes(relativePath)) continue;
+    if (siteVerificationFiles.includes(relativePath)) continue;
     if (relativePath === appConfig.EXPERIMENTAL_SETTINGS_URL) {
       resources.push(relativePath);
       continue;

@@ -179,8 +179,11 @@ CACHE_ON_USE_SCRIPT_RESOURCES.forEach(resource => {
 assert.ok(precacheOptionalResources.includes('assets/images/logos/team-logos@2x.png'), 'Large visual assets must remain optional during installation.');
 assert.ok(precacheOptionalResources.includes('faq.html'), 'Informational routes without an offline requirement must remain optional during installation.');
 requiredArtifacts
-  .filter(resource => !['CNAME', DEPLOYMENT_VERSION_FILE, 'robots.txt', 'sitemap.xml', 'precache-manifest.js', 'service-worker.js'].includes(resource))
+  .filter(resource => !['CNAME', DEPLOYMENT_VERSION_FILE, 'robots.txt', 'sitemap.xml', 'precache-manifest.js', 'service-worker.js', ...siteVerificationFiles].includes(resource))
   .forEach(resource => assert.ok(precacheResources.includes(resource), `Precache inventory is missing: ${resource}`));
+siteVerificationFiles.forEach(resource => {
+  assert.ok(!precacheResources.includes(resource), `Site verification files must not be precached: ${resource}`);
+});
 assert.ok(!precacheResources.some(resource => resource.includes('/data/2025/')), 'Archived season data must not be precached.');
 assert.ok(!precacheResources.some(resource => /^assets\/images\/logos\/(?!team-logos@2x\.png$)[^/]+\.png$/i.test(resource)), 'Individual team logos must not be precached once the sprite is published.');
 precacheResources.filter(resource => resource !== './').forEach(resource => {
