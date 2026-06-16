@@ -76,7 +76,6 @@ if (typeof globalThis.PoolCardDisplay === 'undefined') {
       const safeMapsUrl = HtmlSafety.safeHttpUrl(address.mapsUrl);
       const safeStreetAddress = HtmlSafety.escapeHtml(address.streetAddress);
       const safeCityStateZip = HtmlSafety.escapeHtml(address.cityStateZip);
-      const directionsHtml = globalThis.generatePoolDirectionsLink(pool, poolName);
       const actionsHtml = PoolCardDisplay.renderActions(pool, poolName);
       const addressText = `${safeStreetAddress ? `${safeStreetAddress}${safeCityStateZip ? '<br>' : ''}` : ''}${safeCityStateZip || (safeStreetAddress ? '' : 'Address not available')}`;
 
@@ -91,7 +90,6 @@ if (typeof globalThis.PoolCardDisplay === 'undefined') {
                    class="address-link">
                   ${addressText}
                 </a>
-                ${directionsHtml ? `<div class="address-section__directions">${directionsHtml}</div>` : ''}
               </div>
               ${actionsHtml ? `<div class="address-section__actions">${actionsHtml}</div>` : ''}
             </div>
@@ -139,6 +137,7 @@ if (typeof globalThis.PoolCardDisplay === 'undefined') {
       const safePoolName = HtmlSafety.escapeHtml(poolName || 'pool');
       const caUrl = HtmlSafety.safeHttpUrl(safePool.caUrl);
       const phoneUrl = HtmlSafety.safeTelephoneUrl(safePool.phone);
+      const directionsHtml = globalThis.generatePoolDirectionsLink(safePool, poolName);
       const caLinkHtml = caUrl
         ? `<div class="ca-website-section">
           <a href="${caUrl}"
@@ -156,7 +155,8 @@ if (typeof globalThis.PoolCardDisplay === 'undefined') {
           </a>
         </div>`
         : '';
-      return `${phoneHtml}${caLinkHtml}`;
+      const secondaryActionsHtml = `${phoneHtml}${caLinkHtml}`;
+      return `${directionsHtml ? `<div class="address-section__directions">${directionsHtml}</div>` : ''}${secondaryActionsHtml ? `<div class="address-section__secondary-actions">${secondaryActionsHtml}</div>` : ''}`;
     }
 
     /**

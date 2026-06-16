@@ -403,6 +403,30 @@ test('[WF-POOLS-006] desktop expanded pool details group contact links and fit t
   expect(layout.addressToHoursGap).toBe(layout.hoursToFeaturesGap);
 });
 
+test('[WF-POOLS-022] mobile expanded pool details keep directions in the compact action stack', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await seedPreferences(page, { favoritePoolName: 'Bryant Woods' });
+  await page.goto('/pools.html');
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+
+  const favoriteCard = page.locator('.favorite-card');
+  const layout = await favoriteCard.evaluate(card => {
+    const addressLinkBox = card.querySelector('.address-link').getBoundingClientRect();
+    const directionsBox = card.querySelector('.directions-link').getBoundingClientRect();
+    const phoneBox = card.querySelector('.address-section__phone').getBoundingClientRect();
+    const caWebsiteBox = card.querySelector('.ca-website-section').getBoundingClientRect();
+    return {
+      directionsIsBesideAddress: directionsBox.left >= addressLinkBox.right,
+      phoneIsUnderDirections: phoneBox.top >= directionsBox.bottom,
+      caWebsiteIsUnderPhone: caWebsiteBox.top >= phoneBox.bottom
+    };
+  });
+
+  expect(layout.directionsIsBesideAddress).toBe(true);
+  expect(layout.phoneIsUnderDirections).toBe(true);
+  expect(layout.caWebsiteIsUnderPhone).toBe(true);
+});
+
 test('[WF-POOLS-020] linked pool expands without moving the page and keeps a clear directions action', async ({ page }) => {
   await page.goto('/pools.html?pool=frp');
   await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');

@@ -57,7 +57,7 @@ describe('PoolCardDisplay', () => {
     assert.match(html, /https:\/\/www\.google\.com\/maps\/search\/\?api=1&amp;query=Bryant%20Woods%20Pool/);
     assert.match(html, /class="directions-link"/);
     assert.match(html, /Get directions to Bryant &lt;Woods&gt; in Google Maps/);
-    assert.match(html, /class="address-link"[\s\S]*10400 &lt;Bryant&gt; Woods Court[\s\S]*class="address-section__directions"[\s\S]*class="directions-link"/);
+    assert.match(html, /class="address-section__actions"[\s\S]*class="address-section__directions"[\s\S]*class="directions-link"[\s\S]*class="address-section__secondary-actions"/);
     assert.match(html, /href="https:\/\/example\.com\/pool\?name=Bryant&amp;Woods"/);
     assert.match(html, /href="tel:4105550100"/);
     assert.match(html, /feature-pill--amenities/);
