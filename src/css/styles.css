@@ -1464,6 +1464,13 @@ main h1 {
   min-width: 0;
 }
 
+.my-meet-day__guidance-list {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding-inline-start: 1.25rem;
+}
+
 .my-meet-day__fact--concessions,
 .my-meet-day__fact--volunteer {
   background: var(--primary-soft-bg);

@@ -298,6 +298,12 @@ test('[WF-AGENDA-009] completed meets advance only the dedicated My Meet Day rou
       valuesAligned: Math.abs(ordinaryValueLeft - blueValueLeft) <= 1
     };
   })).toEqual({ labelsAligned: true, valuesAligned: true });
+  const guidanceLists = page.locator('#myMeetDay .my-meet-day__guidance-list');
+  expect(await guidanceLists.count()).toBeGreaterThan(0);
+  await expect.poll(() => guidanceLists.evaluateAll(lists => ({
+    allItemsAreListItems: lists.every(list => [...list.children].every(item => item.tagName === 'LI')),
+    allListsAreBulleted: lists.every(list => globalThis.getComputedStyle(list.querySelector('li')).listStyleType !== 'none')
+  }))).toEqual({ allItemsAreListItems: true, allListsAreBulleted: true });
   await expect(page.locator('#myMeetDay a[href^="pools.html?pool="]').first()).toBeVisible();
   const paymentMethods = page.locator('#myMeetDay .my-meet-day__payment-methods');
   await expect(paymentMethods).toBeVisible();

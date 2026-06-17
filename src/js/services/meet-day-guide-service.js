@@ -325,6 +325,22 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
     }
 
     /**
+     * Renders guidance lines as a semantic bulleted fact.
+     * @param {string} label - Guidance label
+     * @param {string[]} lines - Guidance items
+     * @returns {string} Guidance fact HTML or an empty string
+     * @private
+     */
+    static renderGuidanceFact(label, lines) {
+      const items = lines
+        .filter(Boolean)
+        .map(line => `<li>${globalThis.HtmlSafety.escapeHtml(line)}</li>`)
+        .join('');
+      if (!items) return '';
+      return `<div class="my-meet-day__fact"><dt>${globalThis.HtmlSafety.escapeHtml(label)}</dt><dd><ul class="my-meet-day__guidance-list">${items}</ul></dd></div>`;
+    }
+
+    /**
      * Renders one semantically grouped concessions menu category.
      * @param {string} label - Menu category label
      * @param {string[]|undefined} items - Published menu items
@@ -467,12 +483,12 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
         <dl class="my-meet-day__facts">
           ${MeetDayGuideService.renderFact('Where', [locationLink, safePoolAddress], true)}
           ${MeetDayGuideService.renderFact('Pool', [courseLabel])}
-          ${MeetDayGuideService.renderFact('Parking', MeetDayGuideService.getParkingLines(generalGuide, roleGuide))}
-          ${MeetDayGuideService.renderFact('Team setup', setupLines)}
-          ${MeetDayGuideService.renderFact('Check-in', MeetDayGuideService.getCheckInLines(roleGuide))}
-          ${MeetDayGuideService.renderFact('Clerk of course', [roleGuide?.clerkGuidance])}
+          ${MeetDayGuideService.renderGuidanceFact('Parking', MeetDayGuideService.getParkingLines(generalGuide, roleGuide))}
+          ${MeetDayGuideService.renderGuidanceFact('Team setup', setupLines)}
+          ${MeetDayGuideService.renderGuidanceFact('Check-in', MeetDayGuideService.getCheckInLines(roleGuide))}
+          ${MeetDayGuideService.renderGuidanceFact('Clerk of course', [roleGuide?.clerkGuidance])}
           ${MeetDayGuideService.renderConcessions(concessions)}
-          ${MeetDayGuideService.renderFact('Good to know', helpfulNotes)}
+          ${MeetDayGuideService.renderGuidanceFact('Good to know', helpfulNotes)}
           <div class="my-meet-day__fact my-meet-day__fact--volunteer"><dt>Volunteer reminder</dt><dd>${volunteerMarkup}</dd></div>
         </dl>
       `;

@@ -239,6 +239,8 @@ describe('MeetDayGuideService', () => {
       assert.match(html, /href="pools\.html\?pool=host-pool"/);
       assert.match(html, /class="my-meet-day__directions"/);
       assert.match(html, /aria-label="Key times"/);
+      assert.match(html, /<dt>Parking<\/dt><dd><ul class="my-meet-day__guidance-list"><li>/);
+      assert.match(html, /<dt>Good to know<\/dt><dd><ul class="my-meet-day__guidance-list"><li>/);
       assert.ok(html.includes(Meet.formatClockTime(guide.roleGuide.warmupTime)));
       assert.ok(html.includes(Meet.formatClockTime(meetTimes.dualMeets.relayCheckInDeadline)));
       assert.ok(html.includes(Meet.formatClockTime(meetTimes.dualMeets.firstSwimTime)));
@@ -404,6 +406,11 @@ describe('MeetDayGuideService', () => {
       ]);
       assert.equal(MeetDayGuideService.renderFact('Empty', []), '');
       assert.match(MeetDayGuideService.renderFact('Mixed', ['', 'Visible']), /Visible/);
+      assert.equal(MeetDayGuideService.renderGuidanceFact('Empty', []), '');
+      assert.equal(
+        MeetDayGuideService.renderGuidanceFact('Parking', ['', 'Main lot', '<Overflow lot>']),
+        '<div class="my-meet-day__fact"><dt>Parking</dt><dd><ul class="my-meet-day__guidance-list"><li>Main lot</li><li>&lt;Overflow lot&gt;</li></ul></dd></div>'
+      );
       assert.equal(MeetDayGuideService.renderConcessionGroup('Food'), '');
       assert.equal(MeetDayGuideService.renderConcessionGroup('Food', []), '');
       assert.equal(
