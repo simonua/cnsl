@@ -4,6 +4,7 @@ const os = require('node:os');
 const MIN_PLAYWRIGHT_WORKERS = 2;
 const MAX_PLAYWRIGHT_WORKERS = 3;
 const CI_WORKER_COUNTS = new Set(['1', '2']);
+const PROGRESS_REPORTER = require.resolve('./scripts/playwright-progress-reporter.js');
 
 function getPlaywrightWorkerCount() {
   const requestedWorkerCount = process.env.CNSL_PLAYWRIGHT_WORKERS;
@@ -26,7 +27,9 @@ module.exports = defineConfig({
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
-  reporter: process.env.CI ? [['github'], ['list']] : 'list',
+  reporter: process.env.CI
+    ? [['github'], ['list'], [PROGRESS_REPORTER]]
+    : [['list'], [PROGRESS_REPORTER]],
   workers: getPlaywrightWorkerCount(),
   timeout: 45000,
   expect: {
