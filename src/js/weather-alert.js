@@ -149,15 +149,14 @@
   function renderFooterWeatherFreshness() {
     const freshness = document.getElementById('footerWeatherFreshness');
     const updated = document.getElementById('footerWeatherUpdated');
-    const notChecked = document.getElementById('footerWeatherNotChecked');
-    if (!freshness || !updated || !notChecked || typeof WeatherAlertService === 'undefined') return;
+    if (!freshness || !updated || typeof WeatherAlertService === 'undefined') return;
 
     const isEnabled = getWeatherRefreshMinutes() !== 0;
     const latestStatus = WeatherAlertService.readLatestCheckedStatus();
-    freshness.hidden = !isEnabled;
-    updated.hidden = !latestStatus;
-    notChecked.hidden = Boolean(latestStatus);
-    if (!isEnabled || !latestStatus) return;
+    const hasVisibleUpdate = isEnabled && Boolean(latestStatus);
+    freshness.setAttribute('aria-hidden', String(!hasVisibleUpdate));
+    updated.hidden = !hasVisibleUpdate;
+    if (!hasVisibleUpdate) return;
 
     const updatedAt = new Date(latestStatus.updatedAt);
     updated.dateTime = latestStatus.updatedAt;

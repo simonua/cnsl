@@ -4153,6 +4153,10 @@ button.pool-filter__clear:focus-visible {
   color: var(--text-dark);
 }
 
+.footer__weather-freshness[aria-hidden="true"] {
+  visibility: hidden;
+}
+
 .footer p {
   margin: 0;
   line-height: 1.4;
