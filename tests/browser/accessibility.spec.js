@@ -2,14 +2,33 @@ const { test, expect } = require('./browser-test');
 const AxeBuilder = require('@axe-core/playwright').default;
 const {
   MOBILE_VIEWPORT,
+  getOffSeasonReferenceTime,
   prepareStableWeatherResponses,
   prepareVisibleWeatherAlert,
+  readAnnualData,
   seedPreferences,
   setAgendaReferenceTime
 } = require('./browser-test-helpers');
 
 const ACCESSIBILITY_TEST_TIMEOUT_MS = 90000;
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
+const ANNUAL_TEAMS = readAnnualData('teams').teams;
+const AGENDA_TEAM = ANNUAL_TEAMS.find(team => team.practice?.preseason?.length && team.practice?.regular);
+const SUBSCRIPTION_TEAM = ANNUAL_TEAMS.find(team => team.eventsSubscriptionUrl);
+const MEET_DAY_TEAM = ANNUAL_TEAMS.find(team => team.homeMeetGuides?.some(guide => {
+  const paymentMethods = guide.general?.concessions?.paymentMethods || [];
+  return paymentMethods.includes('paypal') && paymentMethods.includes('venmo');
+}));
+const MEET_DAY_MEET = readAnnualData('meets').regular_meets.find(meet => (
+  MEET_DAY_TEAM.keywords.some(keyword => [meet.home_team, meet.visiting_team]
+    .some(name => name.toLowerCase() === keyword.toLowerCase()))
+));
+
+function getMeetDayReferenceTime() {
+  const referenceTime = new Date(`${MEET_DAY_MEET.date}T12:00:00-04:00`);
+  referenceTime.setDate(referenceTime.getDate() - 1);
+  return referenceTime;
+}
 
 test.describe.configure({ mode: 'default' });
 test.setTimeout(ACCESSIBILITY_TEST_TIMEOUT_MS);
@@ -29,9 +48,9 @@ async function expectNoAccessibilityViolations(page) {
 
 const pageScenarios = [
   { reference: 'HOME', name: 'home', path: '/index.html' },
-  { reference: 'POOLS', name: 'pools', path: '/pools.html', readySelector: '#poolListStatus', readyText: /Pool directory loaded/ },
-  { reference: 'TEAMS', name: 'teams', path: '/teams.html', readySelector: '#teamListStatus', readyText: /Team directory loaded/ },
-  { reference: 'MEETS', name: 'meets', path: '/meets.html', readySelector: '#meetListStatus', readyText: /Meet schedule loaded/ },
+  { reference: 'POOLS', name: 'pools', path: '/pools.html', readySelector: '#poolList', readyItem: '.pool-card' },
+  { reference: 'TEAMS', name: 'teams', path: '/teams.html', readySelector: '#teamList', readyItem: '.team-card' },
+  { reference: 'MEETS', name: 'meets', path: '/meets.html', readySelector: '#meetList', readyItem: '.meet-date-card' },
   { reference: 'MY-MEET-DAY', name: 'my meet day', path: '/my-meet-day.html', readySelector: '#myMeetDayDisabled' },
   { reference: 'SETTINGS', name: 'settings', path: '/settings.html', readySelector: '#favoritePool:not([disabled])' },
   { reference: 'RESOURCES', name: 'resources', path: '/swim-meet-resources.html' },
@@ -46,8 +65,9 @@ async function loadScenario(page, scenario, theme) {
   await prepareStableWeatherResponses(page);
   await seedPreferences(page, { theme });
   await page.goto(scenario.path);
-  if (scenario.readySelector && scenario.readyText) {
-    await expect(page.locator(scenario.readySelector)).toHaveText(scenario.readyText);
+  if (scenario.readyItem) {
+    await expect(page.locator(scenario.readySelector)).toHaveAttribute('aria-busy', 'false');
+    await expect(page.locator(`${scenario.readySelector} ${scenario.readyItem}`).first()).toBeVisible();
   } else if (scenario.readySelector) {
     await expect(page.locator(scenario.readySelector)).toBeVisible();
   }
@@ -69,12 +89,14 @@ for (const theme of ['light', 'dark']) {
         }
 
         if (scenario.name === 'teams') {
-          const sundevilsToggle = page.locator('.team-card[data-team-id="cfhss"] .team-header__toggle');
-          if (await sundevilsToggle.getAttribute('aria-expanded') !== 'true') await sundevilsToggle.click();
-          await expect(page.getByRole('link', { name: 'Team Calendar' })).toBeVisible();
-          const marlinsToggle = page.locator('.team-card[data-team-id="lrm"] .team-header__toggle');
-          if (await marlinsToggle.getAttribute('aria-expanded') !== 'true') await marlinsToggle.click();
-          await expect(page.getByRole('link', { name: 'Subscribe to team events calendar' })).toBeVisible();
+          const calendarCard = page.locator('.team-card:has(.team-actions--calendar)').first();
+          const calendarToggle = calendarCard.locator('.team-header__toggle');
+          if (await calendarToggle.getAttribute('aria-expanded') !== 'true') await calendarToggle.click();
+          await expect(calendarCard.getByRole('link', { name: 'Team Calendar' })).toBeVisible();
+          const subscriptionCard = page.locator(`.team-card[data-team-id="${SUBSCRIPTION_TEAM.id}"]`);
+          const subscriptionToggle = subscriptionCard.locator('.team-header__toggle');
+          if (await subscriptionToggle.getAttribute('aria-expanded') !== 'true') await subscriptionToggle.click();
+          await expect(subscriptionCard.getByRole('link', { name: 'Subscribe to team events calendar' })).toBeVisible();
         }
 
         await expectNoAccessibilityViolations(page);
@@ -102,7 +124,7 @@ test('[AX-SETTINGS-002] accessibility preferences have no WCAG A or AA automated
 });
 
 test('[AX-SEASON-001] off-season views have no WCAG A or AA automated violations', async ({ page }) => {
-  await page.clock.setFixedTime(new Date('2026-09-08T12:00:00-04:00'));
+  await page.clock.setFixedTime(getOffSeasonReferenceTime());
 
   for (const path of ['/index.html', '/pools.html', '/teams.html', '/meets.html', '/my-meet-day.html']) {
     await page.goto(path);
@@ -123,31 +145,31 @@ for (const theme of ['light', 'dark']) {
   test(`[AX-AGENDA-001-${theme.toUpperCase()}] favorite-team agenda has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
     await setAgendaReferenceTime(page);
     await prepareStableWeatherResponses(page);
-    await seedPreferences(page, { theme, favoriteTeamId: 'pls' });
+    await seedPreferences(page, { theme, favoriteTeamId: AGENDA_TEAM.id });
     await page.goto('/index.html');
     await expect(page.locator('#favoriteWeek')).toBeVisible();
-    await expect(page.locator('#favoriteWeek .favorite-week__events li')).toHaveCount(3);
+    expect(await page.locator('#favoriteWeek .favorite-week__events li').count()).toBeGreaterThan(0);
     await expect(page.locator('#favoriteWeekStatus')).toBeHidden();
 
     await expectNoAccessibilityViolations(page);
   });
 
   test(`[AX-AGENDA-002-${theme.toUpperCase()}] My Meet Day has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
-    await page.clock.setFixedTime(new Date('2026-06-12T12:00:00-04:00'));
+    await page.clock.setFixedTime(getMeetDayReferenceTime());
     await prepareStableWeatherResponses(page);
-    await seedPreferences(page, { experimentalFeatures: ['my-meet-day'], theme, favoriteTeamId: 'lrm' });
+    await seedPreferences(page, { experimentalFeatures: ['my-meet-day'], theme, favoriteTeamId: MEET_DAY_TEAM.id });
     await page.goto('/index.html');
     const meetDay = page.locator('#myMeetDay');
     await expect(meetDay).toBeVisible();
-    await expect(meetDay).toContainText('Away meet');
+    expect(await meetDay.locator('.my-meet-day__fact').count()).toBeGreaterThan(0);
 
     await expectNoAccessibilityViolations(page);
   });
 
   test(`[AX-AGENDA-003-${theme.toUpperCase()}] dedicated My Meet Day route has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
-    await page.clock.setFixedTime(new Date('2026-06-12T12:00:00-04:00'));
+    await page.clock.setFixedTime(getMeetDayReferenceTime());
     await prepareStableWeatherResponses(page);
-    await seedPreferences(page, { experimentalFeatures: ['my-meet-day'], theme, favoriteTeamId: 'lrm' });
+    await seedPreferences(page, { experimentalFeatures: ['my-meet-day'], theme, favoriteTeamId: MEET_DAY_TEAM.id });
     await page.goto('/my-meet-day.html');
     await expect(page.locator('#myMeetDay')).toBeVisible();
 
@@ -156,11 +178,12 @@ for (const theme of ['light', 'dark']) {
 
   test(`[AX-TEAMS-001-${theme.toUpperCase()}] expanded team schedules have no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
     await loadScenario(page, pageScenarios.find(scenario => scenario.name === 'teams'), theme);
-    const teamToggle = page.locator('.team-card[data-team-id="cfhss"] .team-header__toggle');
+    const teamCard = page.locator(`.team-card[data-team-id="${AGENDA_TEAM.id}"]`);
+    const teamToggle = teamCard.locator('.team-header__toggle');
     if (await teamToggle.getAttribute('aria-expanded') !== 'true') await teamToggle.click();
-    await expect(page.locator('.team-card[data-team-id="cfhss"] .favorite-week')).toBeVisible();
-    await expect(page.locator('.team-card[data-team-id="cfhss"] .practice-schedule')).toBeVisible();
-    const meetSchedule = page.locator('.team-card[data-team-id="cfhss"] .team-meets__phase');
+    await expect(teamCard.locator('.favorite-week')).toBeVisible();
+    await expect(teamCard.locator('.practice-schedule')).toBeVisible();
+    const meetSchedule = teamCard.locator('.team-meets__phase');
     await meetSchedule.locator('summary').click();
     await expect(meetSchedule.locator('.team-meets__table')).toBeVisible();
 

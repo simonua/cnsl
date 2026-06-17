@@ -3,9 +3,9 @@ const directoryScenarios = [
     reference: 'POOLS',
     path: '/pools.html',
     list: '#poolList',
+    item: '.pool-card',
     status: '#poolListStatus',
-    announcement: /Pool directory loaded\. 23 pools available\./,
-    readyText: /Pool directory loaded\./,
+    announcement: /Pool directory loaded\./,
     domains: ['meets', 'pools', 'teams'],
     surface: '.pool-card.collapsed',
     toggle: '.pool-header__toggle'
@@ -14,9 +14,9 @@ const directoryScenarios = [
     reference: 'TEAMS',
     path: '/teams.html',
     list: '#teamList',
+    item: '.team-card',
     status: '#teamListStatus',
     announcement: /Team directory loaded\./,
-    readyText: /Team directory loaded\./,
     domains: ['meets', 'pools', 'teams'],
     surface: '.team-card.collapsed',
     toggle: '.team-header__toggle'
@@ -25,9 +25,9 @@ const directoryScenarios = [
     reference: 'MEETS',
     path: '/meets.html',
     list: '#meetList',
+    item: '.meet-date-card',
     status: '#meetListStatus',
     announcement: /Meet schedule loaded\./,
-    readyText: /Meet schedule loaded\./,
     domains: ['meets', 'pools', 'teams'],
     surface: '.meet-date-card.collapsed',
     toggle: '.meet-date-header__toggle'

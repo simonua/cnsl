@@ -424,8 +424,9 @@ analyticsTest('[WF-ANALYTICS-002] flyer QR campaign visits publish reviewed attr
     await route.fulfill({ response });
   });
 
-  await page.goto('https://pools.longreachmarlins.org/?utm_source=flyer&utm_medium=qr&utm_campaign=2026_pool_season', { waitUntil: 'domcontentloaded' });
-  await expect(page).toHaveURL('https://pools.longreachmarlins.org/');
+  const flyerCampaign = AppConfig.PUBLISHED_CAMPAIGNS.find(campaign => campaign.source === 'flyer');
+  await page.goto(`${AppConfig.HOME_PAGE_URL}/?utm_source=${flyerCampaign.source}&utm_medium=${flyerCampaign.medium}&utm_campaign=${flyerCampaign.name}`, { waitUntil: 'domcontentloaded' });
+  await expect(page).toHaveURL(`${AppConfig.HOME_PAGE_URL}/`);
   await expect.poll(() => page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
     .toContainEqual(['event', 'ca_flyer_visit']);
 
@@ -434,10 +435,10 @@ analyticsTest('[WF-ANALYTICS-002] flyer QR campaign visits publish reviewed attr
   expect(measurementCommands.find(argumentsList => argumentsList[0] === 'config')[2]).toMatchObject({
     campaign_source: 'flyer',
     campaign_medium: 'qr',
-    campaign_name: '2026_pool_season'
+    campaign_name: flyerCampaign.name
   });
   expect(measurementCommands.find(argumentsList => argumentsList[1] === 'page_view')[2]).toMatchObject({
-    page_location: 'https://pools.longreachmarlins.org/',
+    page_location: `${AppConfig.HOME_PAGE_URL}/`,
     page_referrer: ''
   });
 });
@@ -453,13 +454,14 @@ analyticsTest('[WF-ANALYTICS-003] unrecognized campaign input is neither consume
     await route.fulfill({ response });
   });
 
-  await page.goto('https://pools.longreachmarlins.org/?utm_source=javascript%3Aalert(1)&utm_medium=qr&utm_campaign=2026_pool_season', { waitUntil: 'domcontentloaded' });
+  const flyerCampaign = AppConfig.PUBLISHED_CAMPAIGNS.find(campaign => campaign.source === 'flyer');
+  await page.goto(`${AppConfig.HOME_PAGE_URL}/?utm_source=javascript%3Aalert(1)&utm_medium=${flyerCampaign.medium}&utm_campaign=${flyerCampaign.name}`, { waitUntil: 'domcontentloaded' });
   await expect.poll(() => page.evaluate(() => globalThis.dataLayer.some(argumentsList => Array.from(argumentsList)[1] === 'page_view'))).toBe(true);
   expect(new URL(page.url()).searchParams.get('utm_source')).toBe('javascript:alert(1)');
   expect(await page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList)).filter(argumentsList => argumentsList[1] === 'ca_flyer_visit'))).toEqual([]);
   expect(await page.evaluate(() => Array.from(globalThis.dataLayer.find(argumentsList => Array.from(argumentsList)[0] === 'config'))[2])).not.toHaveProperty('campaign_source');
   expect(await page.evaluate(() => Array.from(globalThis.dataLayer.find(argumentsList => Array.from(argumentsList)[1] === 'page_view'))[2])).toMatchObject({
-    page_location: 'https://pools.longreachmarlins.org/',
+    page_location: `${AppConfig.HOME_PAGE_URL}/`,
     page_referrer: ''
   });
 });
@@ -476,15 +478,16 @@ analyticsTest('[WF-ANALYTICS-006] app share campaigns publish reviewed attributi
   });
 
   for (const campaignMedium of ['email', 'facebook', 'qr', 'text', 'x']) {
-    await page.goto(`https://pools.longreachmarlins.org/?utm_source=app&utm_medium=${campaignMedium}&utm_campaign=2026_pool_season`, { waitUntil: 'domcontentloaded' });
-    await expect(page).toHaveURL('https://pools.longreachmarlins.org/');
+    const appCampaign = AppConfig.PUBLISHED_CAMPAIGNS.find(campaign => campaign.source === 'app' && campaign.medium === campaignMedium);
+    await page.goto(`${AppConfig.HOME_PAGE_URL}/?utm_source=${appCampaign.source}&utm_medium=${appCampaign.medium}&utm_campaign=${appCampaign.name}`, { waitUntil: 'domcontentloaded' });
+    await expect(page).toHaveURL(`${AppConfig.HOME_PAGE_URL}/`);
 
     const measurementCommands = await page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList)));
     expect(JSON.stringify(measurementCommands)).not.toContain('utm_source=app');
     expect(measurementCommands.find(argumentsList => argumentsList[0] === 'config')[2]).toMatchObject({
       campaign_source: 'app',
       campaign_medium: campaignMedium,
-      campaign_name: '2026_pool_season'
+      campaign_name: appCampaign.name
     });
     expect(measurementCommands.filter(argumentsList => argumentsList[1] === 'ca_flyer_visit')).toEqual([]);
   }
@@ -494,13 +497,14 @@ test('[WF-ANALYTICS-004] directory detail opens publish only a broad directory n
   await initializeAnalyticsRecorder(page);
 
   const scenarios = [
-    { path: '/pools.html', ready: '#poolListStatus', readyText: 'Pool directory loaded.', toggle: '.pool-header__toggle[aria-expanded="false"]' },
-    { path: '/teams.html', ready: '#teamListStatus', readyText: 'Team directory loaded.', toggle: '.team-header__toggle[aria-expanded="false"]' },
-    { path: '/meets.html', ready: '#meetListStatus', readyText: 'Meet schedule loaded.', toggle: '.meet-date-header__toggle[aria-expanded="false"]' }
+    { path: '/pools.html', list: '#poolList', item: '.pool-card', toggle: '.pool-header__toggle[aria-expanded="false"]' },
+    { path: '/teams.html', list: '#teamList', item: '.team-card', toggle: '.team-header__toggle[aria-expanded="false"]' },
+    { path: '/meets.html', list: '#meetList', item: '.meet-date-card', toggle: '.meet-date-header__toggle[aria-expanded="false"]' }
   ];
   for (const scenario of scenarios) {
     await page.goto(scenario.path);
-    await expect(page.locator(scenario.ready)).toContainText(scenario.readyText);
+    await expect(page.locator(scenario.list)).toHaveAttribute('aria-busy', 'false');
+    await expect(page.locator(`${scenario.list} ${scenario.item}`).first()).toBeVisible();
     await page.locator(scenario.toggle).first().click();
   }
 
@@ -511,9 +515,9 @@ test('[WF-ANALYTICS-004] directory detail opens publish only a broad directory n
   ]);
   await page.evaluate(() => {
     const interactionType = globalThis.AnalyticsInteractionType.DIRECTORY_DETAIL_OPEN;
-    globalThis.cnslAnalytics.trackInteraction(interactionType, { directoryName: 'Bryant Woods' });
-    globalThis.cnslAnalytics.trackInteraction(interactionType, { directoryName: 'cfhss' });
-    globalThis.cnslAnalytics.trackInteraction(interactionType, { directoryName: '2026-06-20' });
+    globalThis.cnslAnalytics.trackInteraction(interactionType, { directoryName: 'arbitrary pool' });
+    globalThis.cnslAnalytics.trackInteraction(interactionType, { directoryName: 'arbitrary-team' });
+    globalThis.cnslAnalytics.trackInteraction(interactionType, { directoryName: '2099-12-31' });
   });
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_directory_detail_open'))).toHaveLength(3);
 });

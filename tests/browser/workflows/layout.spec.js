@@ -1,4 +1,5 @@
 const { test, expect } = require('../browser-test');
+const AppConfig = require('../../../scripts/adapters/app-config.js');
 const {
   MOBILE_VIEWPORT,
   prepareStableWeatherResponses
@@ -25,9 +26,9 @@ test('[WF-LAYOUT-002] shared attention notice appears directly below the header'
 
   await expect(notice).toBeVisible();
   await expect(notice).not.toContainText('Attention');
-  await expect(notice).toContainText('Some pools may be shown as "Closed for the season" on the official CA website at this time. This may be due to pre-season schedules until the main schedule starts June 20.');
-  await expect(timestamp).toHaveAttribute('datetime', '2026-06-15T12:31:18-04:00');
-  await expect(timestamp).toHaveText('June 15, 2026 at 12:31 PM');
+  await expect(notice).toContainText(AppConfig.APP_ATTENTION_NOTICE.MESSAGE);
+  await expect(timestamp).toHaveAttribute('datetime', AppConfig.APP_ATTENTION_NOTICE.UPDATED_AT);
+  await expect(timestamp).toHaveText(AppConfig.APP_ATTENTION_NOTICE.UPDATED_LABEL);
 
   const positions = await page.locator('.header, #attentionBanner').evaluateAll(elements => elements.map(element => element.getBoundingClientRect()));
   expect(Math.round(positions[1].top)).toBe(Math.round(positions[0].bottom));
@@ -39,7 +40,7 @@ test('[WF-LAYOUT-002] shared attention notice appears directly below the header'
   await page.keyboard.press('Enter');
   await expect(notice).toBeHidden();
   await expect.poll(() => page.evaluate(() => localStorage.getItem(globalThis.APP_ATTENTION_NOTICE_DISMISSED_STORAGE_KEY)))
-    .toBe('2026-06-15T12:31:18-04:00');
+    .toBe(AppConfig.APP_ATTENTION_NOTICE.UPDATED_AT);
 
   await page.reload();
   await expect(notice).toBeHidden();
@@ -51,7 +52,10 @@ test('[WF-LAYOUT-003] non-dismissible attention notice remains visible without a
     const body = (await response.text()).replace('DISMISSIBLE: true', 'DISMISSIBLE: false');
     await route.fulfill({ response, body });
   });
-  await page.addInitScript(() => localStorage.setItem('cnsl_attention_notice_dismissed', '2026-06-15T12:31:18-04:00'));
+  await page.addInitScript(({ storageKey, updatedAt }) => localStorage.setItem(storageKey, updatedAt), {
+    storageKey: AppConfig.APP_ATTENTION_NOTICE_DISMISSED_STORAGE_KEY,
+    updatedAt: AppConfig.APP_ATTENTION_NOTICE.UPDATED_AT
+  });
   await page.goto('/pools.html');
 
   await expect(page.locator('#attentionBanner')).toBeVisible();
@@ -59,13 +63,16 @@ test('[WF-LAYOUT-003] non-dismissible attention notice remains visible without a
 });
 
 test('[WF-LAYOUT-004] attention notice expires at the configured Eastern deadline', async ({ page }) => {
-  await page.clock.install({ time: new Date('2026-06-19T23:59:58-04:00') });
+  const expiryLeadMilliseconds = 30000;
+  const beforeExpiration = new Date(AppConfig.APP_ATTENTION_NOTICE.EXPIRES_AT);
+  beforeExpiration.setTime(beforeExpiration.getTime() - expiryLeadMilliseconds);
+  await page.clock.install({ time: beforeExpiration });
   await page.goto('/pools.html');
 
   const notice = page.locator('#attentionBanner');
   await expect(notice).toBeVisible();
 
-  await page.clock.fastForward(1001);
+  await page.clock.fastForward(expiryLeadMilliseconds + 1);
   await expect(notice).toBeHidden();
 
   await page.reload();

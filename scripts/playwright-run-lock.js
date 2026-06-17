@@ -128,9 +128,7 @@ function readOwner(lockDirectory) {
 }
 
 function writeOwner(lockDirectory, owner) {
-  const temporaryMetadataPath = path.join(lockDirectory, `${LOCK_METADATA_FILE}.${owner.token}.tmp`);
-  fs.writeFileSync(temporaryMetadataPath, JSON.stringify(owner));
-  fs.renameSync(temporaryMetadataPath, path.join(lockDirectory, LOCK_METADATA_FILE));
+  fs.writeFileSync(path.join(lockDirectory, LOCK_METADATA_FILE), JSON.stringify(owner));
 }
 
 function isRecentLock(lockDirectory, currentTime, gracePeriodMilliseconds) {

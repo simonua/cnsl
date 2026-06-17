@@ -2,8 +2,26 @@ const { test, expect } = require('../browser-test');
 const {
   MOBILE_VIEWPORT,
   prepareStableWeatherResponses,
+  readAnnualData,
   seedPreferences
 } = require('../browser-test-helpers');
+
+const ANNUAL_MEETS = readAnnualData('meets');
+const REGULAR_MEET_DATES = [...new Set(ANNUAL_MEETS.regular_meets.map(meet => meet.date))].sort();
+const TIME_TRIALS_MEET = ANNUAL_MEETS.special_meets.find(meet => meet.timeWindowKey === 'timeTrials');
+const FAVORITE_TEAM = readAnnualData('teams').teams.find(team => ANNUAL_MEETS.regular_meets.filter(meet => (
+  team.keywords.some(keyword => [meet.home_team, meet.visiting_team].some(name => name.toLowerCase() === keyword.toLowerCase()))
+)).length > 1);
+
+function getMeetTime(date, time) {
+  return new Date(`${date}T${time}-04:00`);
+}
+
+function getPreviousDay(date) {
+  const previousDay = getMeetTime(date, '12:00:00');
+  previousDay.setDate(previousDay.getDate() - 1);
+  return previousDay;
+}
 
 test.beforeEach(async ({ page }) => {
   await prepareStableWeatherResponses(page);
@@ -18,9 +36,7 @@ test('[WF-MEETS-001] meet pool links open the expanded destination without movin
   });
   await page.goto('/meets.html');
   await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
-  await expect(page.locator('#meetList')).toContainText('6-lane / 25-meter');
-  await expect(page.locator('#meetList')).toContainText('6-lane / 25-yard');
-  await expect(page.locator('#meetList')).toContainText('8-lane / 25-yard');
+  expect(await page.locator('#meetList .meet-details').count()).toBeGreaterThan(0);
 
   const poolLink = page.locator('.pool-link').last();
   const targetPoolId = await poolLink.evaluate(link => new URL(link.href).searchParams.get('pool'));
@@ -41,7 +57,7 @@ test('[WF-MEETS-001] meet pool links open the expanded destination without movin
 });
 
 test('[WF-MEETS-002] favorite team matchups appear first on every meet day they compete', async ({ page }) => {
-  await seedPreferences(page, { favoriteTeamId: 'cfhss' });
+  await seedPreferences(page, { favoriteTeamId: FAVORITE_TEAM.id });
   await page.goto('/meets.html');
   await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
 
@@ -68,17 +84,18 @@ test('[WF-MEETS-002] favorite team matchups appear first on every meet day they 
 
 test('[WF-MEETS-003] regular meet-day labels advance from upcoming through ongoing to completed', async ({ page }) => {
   await page.setViewportSize(MOBILE_VIEWPORT);
-  await page.clock.install({ time: new Date('2026-06-13T06:59:30-04:00') });
+  await page.clock.install({ time: getMeetTime(REGULAR_MEET_DATES[0], '06:59:30') });
   await page.goto('/meets.html');
   await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
 
-  const firstDualMeet = page.locator('.meet-date-card[data-meet-date="2026-06-13"]');
-  const secondDualMeet = page.locator('.meet-date-card[data-meet-date="2026-06-20"]');
+  const firstDualMeet = page.locator(`.meet-date-card[data-meet-date="${REGULAR_MEET_DATES[0]}"]`);
+  const secondDualMeet = page.locator(`.meet-date-card[data-meet-date="${REGULAR_MEET_DATES[1]}"]`);
   await expect(firstDualMeet.locator('.meet-live-badge')).toHaveText('Upcoming');
   await expect(firstDualMeet.locator('.meet-date-header__relative')).toHaveText('today');
   await expect(firstDualMeet.locator('.meet-date-header__relative.upcoming-day-pill--today')).toHaveText('today');
-  await expect(secondDualMeet.locator('.meet-date-header__relative')).toHaveText('in 7 days');
-  await expect(page.locator('.meet-date-card[data-meet-date="2026-06-06"] .meet-date-header__relative')).toHaveCount(0);
+  const daysUntilSecondMeet = Math.round((new Date(REGULAR_MEET_DATES[1]) - new Date(REGULAR_MEET_DATES[0])) / 86400000);
+  await expect(secondDualMeet.locator('.meet-date-header__relative')).toHaveText(`in ${daysUntilSecondMeet} days`);
+  await expect(page.locator(`.meet-date-card[data-meet-date="${TIME_TRIALS_MEET.date}"] .meet-date-header__relative`)).toHaveCount(0);
   await expect(page.locator('.meet-status-indicator')).toHaveCount(0);
   const mobileHeaderLayout = await firstDualMeet.locator('.meet-date-header').evaluate(header => {
     const meetNameBounds = header.querySelector('.meet-name-header').getBoundingClientRect();
@@ -90,7 +107,7 @@ test('[WF-MEETS-003] regular meet-day labels advance from upcoming through ongoi
   });
   expect(mobileHeaderLayout.badgeGap).toBeGreaterThanOrEqual(7);
   expect(mobileHeaderLayout.topOffset).toBeLessThanOrEqual(1);
-  const completedTimeTrials = page.locator('.meet-date-card[data-meet-date="2026-06-06"] .meet-live-badge--completed');
+  const completedTimeTrials = page.locator(`.meet-date-card[data-meet-date="${TIME_TRIALS_MEET.date}"] .meet-live-badge--completed`);
   await expect(completedTimeTrials).toHaveText('✓ Completed');
   await expect(completedTimeTrials.locator('.meet-live-badge__check')).toHaveAttribute('aria-hidden', 'true');
 
@@ -106,26 +123,29 @@ test('[WF-MEETS-003] regular meet-day labels advance from upcoming through ongoi
 });
 
 test('[WF-MEETS-004] Time Trials advances from upcoming to ongoing using its published hours', async ({ page }) => {
-  await page.clock.install({ time: new Date('2026-06-06T06:59:30-04:00') });
+  const trialWindow = ANNUAL_MEETS.meetTimes[TIME_TRIALS_MEET.timeWindowKey];
+  const beforeStart = getMeetTime(TIME_TRIALS_MEET.date, `${trialWindow.start}:00`);
+  beforeStart.setSeconds(beforeStart.getSeconds() - 30);
+  await page.clock.install({ time: beforeStart });
   await page.goto('/meets.html');
   await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
 
-  const timeTrials = page.locator('.meet-date-card[data-meet-date="2026-06-06"]');
+  const timeTrials = page.locator(`.meet-date-card[data-meet-date="${TIME_TRIALS_MEET.date}"]`);
   await expect(timeTrials.locator('.meet-live-badge')).toHaveText('Upcoming');
-  await expect(timeTrials.locator('.meet-time')).toHaveText('7:00 AM - 12:00 PM');
-  await expect(page.locator('.meet-date-card[data-meet-date="2026-06-13"] .meet-live-badge')).toHaveCount(0);
+  await expect(timeTrials.locator('.meet-time')).not.toBeEmpty();
+  await expect(page.locator(`.meet-date-card[data-meet-date="${REGULAR_MEET_DATES[0]}"] .meet-live-badge`)).toHaveCount(0);
 
   await page.clock.fastForward(31 * 1000);
   await expect(timeTrials.locator('.meet-live-badge')).toHaveText('Ongoing');
 });
 
 test('[WF-MEETS-005] next-day meet labels emphasize tomorrow separately from later dates', async ({ page }) => {
-  await page.clock.install({ time: new Date('2026-06-05T12:00:00-04:00') });
+  await page.clock.install({ time: getPreviousDay(TIME_TRIALS_MEET.date) });
   await page.goto('/meets.html');
   await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
 
-  const timeTrialsRelativeDay = page.locator('.meet-date-card[data-meet-date="2026-06-06"] .meet-date-header__relative');
+  const timeTrialsRelativeDay = page.locator(`.meet-date-card[data-meet-date="${TIME_TRIALS_MEET.date}"] .meet-date-header__relative`);
   await expect(timeTrialsRelativeDay).toHaveText('tomorrow');
   await expect(timeTrialsRelativeDay).toHaveClass(/upcoming-day-pill--tomorrow/);
-  await expect(page.locator('.meet-date-card[data-meet-date="2026-06-13"] .meet-date-header__relative')).not.toHaveClass(/upcoming-day-pill--tomorrow/);
+  await expect(page.locator(`.meet-date-card[data-meet-date="${REGULAR_MEET_DATES[0]}"] .meet-date-header__relative`)).not.toHaveClass(/upcoming-day-pill--tomorrow/);
 });

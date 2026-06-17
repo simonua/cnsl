@@ -37,7 +37,8 @@ test('[WF-DIR-001] directory disclosures work without rendered inline event hand
 for (const scenario of directoryScenarios) {
   test(`[WF-DIR-002-${scenario.reference}] ${scenario.path} directory tiles point, stay still, and expand from their surface`, async ({ page }) => {
     await page.goto(scenario.path);
-    await expect(page.locator(scenario.status)).toContainText('loaded.');
+    await expect(page.locator(scenario.list)).toHaveAttribute('aria-busy', 'false');
+    await expect(page.locator(`${scenario.list} ${scenario.item}`).first()).toBeVisible();
 
     const surface = page.locator(scenario.surface).first();
     const toggle = surface.locator(scenario.toggle);

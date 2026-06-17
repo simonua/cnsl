@@ -1,10 +1,14 @@
 const { test, expect } = require('../browser-test');
 const {
+  ACTIVE_SEASON_YEAR,
   MOBILE_VIEWPORT,
   initializeAnalyticsRecorder,
   prepareStableWeatherResponses,
   seedPreferences
 } = require('../browser-test-helpers');
+
+const WEATHER_CHECKED_AT = `${ACTIVE_SEASON_YEAR}-06-02T14:15:00-04:00`;
+const WEATHER_CHECKED_LABEL = `Jun 2, ${ACTIVE_SEASON_YEAR}, 2:15 PM`;
 
 test.beforeEach(async ({ page }) => {
   await prepareStableWeatherResponses(page);
@@ -231,8 +235,16 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
   ]);
 
   await page.locator('#favoriteSettings summary').click();
-  await page.locator('#favoritePool').selectOption({ label: 'Bryant Woods' });
-  await page.locator('#favoriteTeam').selectOption('cfhss');
+  const favoritePoolOption = await page.locator('#favoritePool option:not([value=""])').first().evaluate(option => ({
+    label: option.textContent,
+    value: option.value
+  }));
+  const favoriteTeamOption = await page.locator('#favoriteTeam option:not([value=""])').first().evaluate(option => ({
+    label: option.textContent,
+    value: option.value
+  }));
+  await page.locator('#favoritePool').selectOption(favoritePoolOption.value);
+  await page.locator('#favoriteTeam').selectOption(favoriteTeamOption.value);
   await page.locator('#favoritePool').selectOption('');
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_setting_change'))).toEqual([
     ['event', 'ca_setting_change', { setting_name: 'theme' }],
@@ -241,8 +253,8 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
     ['event', 'ca_setting_change', { setting_name: 'weather_refresh_minutes' }],
     ['event', 'ca_setting_change', { setting_name: 'practice_groups' }],
     ['event', 'ca_setting_change', { setting_name: 'practice_groups' }],
-    ['event', 'ca_setting_change', { setting_name: 'favorite_pool', selection: 'Bryant Woods' }],
-    ['event', 'ca_setting_change', { setting_name: 'favorite_team', selection: 'CHS Swim Sundevils' }],
+    ['event', 'ca_setting_change', { setting_name: 'favorite_pool', selection: favoritePoolOption.label }],
+    ['event', 'ca_setting_change', { setting_name: 'favorite_team', selection: favoriteTeamOption.label }],
     ['event', 'ca_setting_change', { setting_name: 'favorite_pool', selection: 'none' }]
   ]);
 
@@ -317,8 +329,8 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
     ['event', 'ca_setting_change', { setting_name: 'weather_refresh_minutes' }],
     ['event', 'ca_setting_change', { setting_name: 'practice_groups' }],
     ['event', 'ca_setting_change', { setting_name: 'practice_groups' }],
-    ['event', 'ca_setting_change', { setting_name: 'favorite_pool', selection: 'Bryant Woods' }],
-    ['event', 'ca_setting_change', { setting_name: 'favorite_team', selection: 'CHS Swim Sundevils' }],
+    ['event', 'ca_setting_change', { setting_name: 'favorite_pool', selection: favoritePoolOption.label }],
+    ['event', 'ca_setting_change', { setting_name: 'favorite_team', selection: favoriteTeamOption.label }],
     ['event', 'ca_setting_change', { setting_name: 'favorite_pool', selection: 'none' }],
     ['event', 'ca_setting_change', { setting_name: 'theme' }],
     ['event', 'ca_setting_change', { setting_name: 'pool_schedule_layout' }],
@@ -335,12 +347,15 @@ test('[WF-SETTINGS-011] experimental features are collapsed, tracked, and gated 
 
   const experiments = page.locator('#experimentalFeatures');
   const enabledCount = page.locator('#experimentalFeaturesCount');
+  const featureOptions = experiments.locator('input[name="experimentalFeatures"]');
+  const featureCount = await featureOptions.count();
+  expect(featureCount).toBeGreaterThan(0);
   await expect(experiments).not.toHaveAttribute('open', '');
-  await expect(enabledCount).toHaveText('0/1 enabled');
+  await expect(enabledCount).toHaveText(`0/${featureCount} enabled`);
   await expect(page.getByText('Experimental features may change or provide incomplete information.', { exact: false })).toBeHidden();
   await experiments.locator('summary').click();
   await expect(page.getByText('Please do not rely on them as your only source, and validate all information with your team and official sources.', { exact: false })).toBeVisible();
-  await expect(experiments.locator('input[name="experimentalFeatures"]')).toHaveCount(1);
+  await expect(featureOptions).toHaveCount(featureCount);
   await expect(experiments.getByText('My Meet Day', { exact: true })).toBeVisible();
   await expect(experiments.locator('.settings-experiment__description')).toHaveText("See personalized details for your favorite team's next meet, including key times and host-pool guidance when available.");
   const disclaimer = experiments.locator('.settings-experiments__disclaimer');
@@ -355,7 +370,7 @@ test('[WF-SETTINGS-011] experimental features are collapsed, tracked, and gated 
   await meetDaySwitch.check();
   await expect(meetDaySwitch).toBeChecked();
   await expect(experiments.locator('.settings-switch__state')).toHaveText('On');
-  await expect(enabledCount).toHaveText('1/1 enabled');
+  await expect(enabledCount).toHaveText(`1/${featureCount} enabled`);
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).experimentalFeatures)).toEqual(['my-meet-day']);
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_experimental_feature_change'))).toEqual([
     ['event', 'ca_experimental_feature_change', { feature_action: 'enabled', feature_name: 'my-meet-day' }]
@@ -387,7 +402,7 @@ test('[WF-SETTINGS-011] experimental features are collapsed, tracked, and gated 
   await experiments.locator('summary').click();
   await page.getByLabel('Enable My Meet Day').uncheck();
   await expect(experiments.locator('.settings-switch__state')).toHaveText('Off');
-  await expect(enabledCount).toHaveText('0/1 enabled');
+  await expect(enabledCount).toHaveText(`0/${featureCount} enabled`);
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).experimentalFeatures)).toEqual([]);
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_experimental_feature_change'))).toEqual([
     ['event', 'ca_experimental_feature_change', { feature_action: 'enabled', feature_name: 'my-meet-day' }],
@@ -498,15 +513,15 @@ test('[WF-SETTINGS-010] extra-large text reflows without page-level horizontal o
 
 test('[WF-SETTINGS-005] weather safety alerts show the most recent check after updates are turned off', async ({ page }) => {
   await seedPreferences(page, { weatherRefreshMinutes: 0 });
-  await page.addInitScript(() => {
-    localStorage.setItem('cnsl_weather_alert_last_successful_check', JSON.stringify({ updatedAt: '2026-06-02T14:15:00-04:00' }));
-  });
+  await page.addInitScript(updatedAt => {
+    localStorage.setItem('cnsl_weather_alert_last_successful_check', JSON.stringify({ updatedAt }));
+  }, WEATHER_CHECKED_AT);
   await page.goto('/settings.html');
   await page.locator('#poolVisitSettings summary').click();
 
   const weatherCheckStatus = page.locator('#weatherCheckStatus');
-  await expect(weatherCheckStatus).toHaveText('Most recent successful weather check: Jun 2, 2026, 2:15 PM. Weather safety alerts are currently off.');
-  await expect(weatherCheckStatus.locator('time')).toHaveAttribute('datetime', '2026-06-02T14:15:00-04:00');
+  await expect(weatherCheckStatus).toHaveText(`Most recent successful weather check: ${WEATHER_CHECKED_LABEL}. Weather safety alerts are currently off.`);
+  await expect(weatherCheckStatus.locator('time')).toHaveAttribute('datetime', WEATHER_CHECKED_AT);
   await expect(weatherCheckStatus.locator('time')).toHaveCSS('display', 'block');
   await expect(weatherCheckStatus).toHaveCSS('border-left-style', 'solid');
 });
@@ -514,15 +529,15 @@ test('[WF-SETTINGS-005] weather safety alerts show the most recent check after u
 test('[WF-SETTINGS-006] weather safety alerts retain the last successful check when the weather service is unavailable', async ({ page }) => {
   await page.unroute('https://api.weather.gov/**');
   await page.route('https://api.weather.gov/**', route => route.abort());
-  await page.addInitScript(() => {
-    localStorage.setItem('cnsl_weather_alert_last_successful_check', JSON.stringify({ updatedAt: '2026-06-02T14:15:00-04:00' }));
-  });
+  await page.addInitScript(updatedAt => {
+    localStorage.setItem('cnsl_weather_alert_last_successful_check', JSON.stringify({ updatedAt }));
+  }, WEATHER_CHECKED_AT);
   await page.goto('/settings.html');
   await page.locator('#poolVisitSettings summary').click();
-  await page.evaluate(async () => {
+  await page.evaluate(async year => {
     const poolData = { pools: [{ schedules: [{
-      startDate: '2026-01-01',
-      endDate: '2026-12-31',
+      startDate: `${year}-01-01`,
+      endDate: `${year}-12-31`,
       hours: [{ weekDays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], types: ['Rec Swim'], startTime: '12:00am', endTime: '11:59pm' }]
     }] }] };
     const status = await globalThis.WeatherAlertService.getCurrentStatus({
@@ -533,11 +548,11 @@ test('[WF-SETTINGS-006] weather safety alerts retain the last successful check w
     });
     globalThis.WeatherAlertService.setLatestStatus(status);
     globalThis.dispatchEvent(new CustomEvent('cnsl:weather-alert-status-changed'));
-  });
+  }, ACTIVE_SEASON_YEAR);
 
   const weatherCheckStatus = page.locator('#weatherCheckStatus');
-  await expect(weatherCheckStatus).toHaveText('Weather service is temporarily unavailable. Most recent successful weather check: Jun 2, 2026, 2:15 PM');
-  await expect(weatherCheckStatus.locator('time')).toHaveAttribute('datetime', '2026-06-02T14:15:00-04:00');
+  await expect(weatherCheckStatus).toHaveText(`Weather service is temporarily unavailable. Most recent successful weather check: ${WEATHER_CHECKED_LABEL}`);
+  await expect(weatherCheckStatus.locator('time')).toHaveAttribute('datetime', WEATHER_CHECKED_AT);
   await expect(page.locator('#weatherAlert')).toBeHidden();
 });
 

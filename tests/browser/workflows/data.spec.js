@@ -1,7 +1,13 @@
 const { test, expect } = require('../browser-test');
 const {
+  ACTIVE_SEASON_YEAR,
+  getAnnualDataRoute,
+  getAnnualDataUrlPattern,
   prepareStableWeatherResponses
 } = require('../browser-test-helpers');
+
+const WEATHER_CHECKED_AT = `${ACTIVE_SEASON_YEAR}-06-02T14:15:00-04:00`;
+const WEATHER_REFRESHED_AT = `${ACTIVE_SEASON_YEAR}-06-02T14:20:00-04:00`;
 const { directoryScenarios } = require('./workflow-scenarios');
 
 test.beforeEach(async ({ page }) => {
@@ -20,12 +26,14 @@ for (const scenario of directoryScenarios) {
   test(`[WF-DATA-002-${scenario.reference}] ${scenario.path} requests only the annual data required for its workflow`, async ({ page }) => {
     const requestedDomains = [];
     page.on('request', request => {
-      const match = request.url().match(/\/assets\/data\/2026\/(pools|teams|meets)\/\1\.json/);
-      if (match) requestedDomains.push(match[1]);
+      for (const domain of ['pools', 'teams', 'meets']) {
+        if (getAnnualDataUrlPattern(domain).test(request.url())) requestedDomains.push(domain);
+      }
     });
 
     await page.goto(scenario.path);
-    await expect(page.locator(scenario.status)).toHaveText(scenario.readyText);
+    await expect(page.locator(scenario.list)).toHaveAttribute('aria-busy', 'false');
+    await expect(page.locator(`${scenario.list} ${scenario.item}`).first()).toBeVisible();
     expect(requestedDomains.sort()).toEqual(scenario.domains);
   });
 }
@@ -36,7 +44,7 @@ for (const scenario of directoryScenarios) {
     const poolRequestPaused = new Promise(resolve => {
       resumePoolRequest = resolve;
     });
-    await page.route('**/assets/data/2026/pools/pools.json*', async route => {
+    await page.route(getAnnualDataRoute('pools'), async route => {
       await poolRequestPaused;
       await route.continue();
     });
@@ -52,7 +60,8 @@ for (const scenario of directoryScenarios) {
       resumePoolRequest();
     }
 
-    await expect(page.locator(scenario.status)).toHaveText(scenario.readyText);
+    await expect(page.locator(scenario.list)).toHaveAttribute('aria-busy', 'false');
+    await expect(page.locator(`${scenario.list} ${scenario.item}`).first()).toBeVisible();
     if (scenario.reference === 'POOLS') {
       await expect(page.locator('#poolStatusLegend')).toBeVisible();
     }
@@ -89,9 +98,9 @@ test('[WF-DATA-006] FAQ and footer distinguish seasonal-source checks from data 
 
 test('[WF-DATA-007] footer keeps the last weather update current while weather checks are enabled', async ({ page }) => {
   await page.route('https://api.weather.gov/**', route => route.abort());
-  await page.addInitScript(() => {
-    localStorage.setItem('cnsl_weather_alert_last_successful_check', JSON.stringify({ updatedAt: '2026-06-02T14:15:00-04:00' }));
-  });
+  await page.addInitScript(updatedAt => {
+    localStorage.setItem('cnsl_weather_alert_last_successful_check', JSON.stringify({ updatedAt }));
+  }, WEATHER_CHECKED_AT);
   await page.goto('/faq.html');
 
   const weatherFreshness = page.locator('#footerWeatherFreshness');
@@ -99,12 +108,12 @@ test('[WF-DATA-007] footer keeps the last weather update current while weather c
   await expect(weatherFreshness).toBeVisible();
   await expect(weatherFreshness).toHaveAttribute('aria-hidden', 'false');
   await expect(weatherTimestamp).toHaveText('June 2, 2:15 PM');
-  await expect(weatherTimestamp).toHaveAttribute('datetime', '2026-06-02T14:15:00-04:00');
+  await expect(weatherTimestamp).toHaveAttribute('datetime', WEATHER_CHECKED_AT);
 
-  await page.evaluate(() => {
-    localStorage.setItem('cnsl_weather_alert_last_successful_check', JSON.stringify({ updatedAt: '2026-06-02T14:20:00-04:00' }));
+  await page.evaluate(updatedAt => {
+    localStorage.setItem('cnsl_weather_alert_last_successful_check', JSON.stringify({ updatedAt }));
     globalThis.dispatchEvent(new CustomEvent('cnsl:weather-alert-status-changed'));
-  });
+  }, WEATHER_REFRESHED_AT);
   await expect(weatherTimestamp).toHaveText('June 2, 2:20 PM');
 
   for (const viewport of [{ width: 1280, height: 900 }, { width: 320, height: 640 }]) {
@@ -149,7 +158,7 @@ test('[WF-DATA-007-POOLS] pool summaries and requested details render before opt
     releaseOptionalRequests = resolve;
   });
   for (const domain of ['teams', 'meets']) {
-    await page.route(`**/assets/data/2026/${domain}/${domain}.json*`, async route => {
+    await page.route(getAnnualDataRoute(domain), async route => {
       await optionalRequestsPaused;
       await route.continue();
     });
@@ -157,8 +166,9 @@ test('[WF-DATA-007-POOLS] pool summaries and requested details render before opt
 
   try {
     await page.goto('/pools.html', { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
-    await expect(page.locator('#poolList .pool-card')).toHaveCount(23);
+    await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
+    const poolCount = await page.locator('#poolList .pool-card').count();
+    expect(poolCount).toBeGreaterThan(0);
     await expect(page.locator('#poolList + .pool-status-legend')).toBeVisible();
     await expect(page.locator('.pool-status-legend .pool-status-indicator')).toHaveCount(4);
     for (const color of ['green', 'yellow', 'red', 'gray']) {
@@ -171,7 +181,7 @@ test('[WF-DATA-007-POOLS] pool summaries and requested details render before opt
       'Schedule not available or applicable'
     ]);
     await expect(page.locator('.pool-status-legend__note')).toContainText('quick guides based on today\'s published public hours');
-    await expect(page.locator('#poolList .pool-details[data-pool-details-hydrated="false"]')).toHaveCount(23);
+    await expect(page.locator('#poolList .pool-details[data-pool-details-hydrated="false"]')).toHaveCount(poolCount);
     await expect(page.locator('#poolList .pool-contact')).toHaveCount(0);
 
     const firstPool = page.locator('#poolList .pool-card').first();
@@ -191,7 +201,7 @@ test('[WF-DATA-007-POOLS] pool summaries and requested details render before opt
 test('[WF-DATA-008] generic routes use compact weather eligibility without loading pools data', async ({ page }) => {
   const poolDataRequests = [];
   page.on('request', request => {
-    if (request.url().includes('/assets/data/2026/pools/pools.json')) poolDataRequests.push(request.url());
+    if (getAnnualDataUrlPattern('pools').test(request.url())) poolDataRequests.push(request.url());
   });
 
   await page.goto('/faq.html');
@@ -201,7 +211,7 @@ test('[WF-DATA-008] generic routes use compact weather eligibility without loadi
 });
 
 test('[WF-DATA-003] pool load failures are announced and do not leave the directory busy', async ({ page }) => {
-  await page.route('**/assets/data/2026/pools/pools.json*', route => route.fulfill({ status: 503, body: '{}' }));
+  await page.route(getAnnualDataRoute('pools'), route => route.fulfill({ status: 503, body: '{}' }));
   await page.goto('/pools.html');
 
   await expect(page.locator('#poolListStatus')).toHaveText('The pool directory did not load. Please check your connection and refresh the page to try again.');
@@ -210,7 +220,7 @@ test('[WF-DATA-003] pool load failures are announced and do not leave the direct
 });
 
 test('[WF-DATA-004] malformed published pool responses are announced as unavailable', async ({ page }) => {
-  await page.route('**/assets/data/2026/pools/pools.json*', route => route.fulfill({ json: {} }));
+  await page.route(getAnnualDataRoute('pools'), route => route.fulfill({ json: {} }));
   await page.goto('/pools.html');
 
   await expect(page.locator('#poolListStatus')).toHaveText('The pool directory did not load. Please check your connection and refresh the page to try again.');

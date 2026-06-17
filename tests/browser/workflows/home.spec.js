@@ -1,9 +1,16 @@
 const { test, expect } = require('../browser-test');
+const AppConfig = require('../../../scripts/adapters/app-config.js');
 const {
   MOBILE_VIEWPORT,
   initializeAnalyticsRecorder,
-  prepareStableWeatherResponses
+  prepareStableWeatherResponses,
+  readAnnualData
 } = require('../browser-test-helpers');
+
+const { seasonEndDate, seasonStartDate } = readAnnualData('pools');
+const seasonDateFormatter = new Intl.DateTimeFormat('en-US', { day: 'numeric', month: 'long', timeZone: AppConfig.APP_TIMEZONE });
+const seasonStartLabel = seasonDateFormatter.format(new Date(`${seasonStartDate}T12:00:00-04:00`));
+const seasonEndLabel = seasonDateFormatter.format(new Date(`${seasonEndDate}T12:00:00-04:00`));
 
 test.beforeEach(async ({ page }) => {
   await prepareStableWeatherResponses(page);
@@ -13,13 +20,13 @@ test('[WF-HOME-001] season summary and sharing actions appear only on the home p
   await initializeAnalyticsRecorder(page);
   await page.goto('/');
 
-  await expect(page.locator('.season-text')).toHaveText('The 2026 season runs from May 23 to September 7.');
-  await expect(page.getByRole('link', { name: "CA's 2026 Pool Season" })).toBeVisible();
+  await expect(page.locator('.season-text')).toHaveText(`The ${AppConfig.YEAR} season runs from ${seasonStartLabel} to ${seasonEndLabel}.`);
+  await expect(page.getByRole('link', { name: `CA's ${AppConfig.YEAR} Pool Season` })).toBeVisible();
   await expect(page.getByRole('button', { name: 'QR Code' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Text' })).toHaveAttribute('href', 'sms:?&body=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org%2F%3Futm_source%3Dapp%26utm_medium%3Dtext%26utm_campaign%3D2026_pool_season');
-  await expect(page.getByRole('link', { name: 'Email' })).toHaveAttribute('href', 'mailto:?subject=Columbia%20Pools%20and%20CNSL%20Schedules&body=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org%2F%3Futm_source%3Dapp%26utm_medium%3Demail%26utm_campaign%3D2026_pool_season');
-  await expect(page.getByRole('link', { name: 'Facebook (opens in new tab)' })).toHaveAttribute('href', 'https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fpools.longreachmarlins.org%2F%3Futm_source%3Dapp%26utm_medium%3Dfacebook%26utm_campaign%3D2026_pool_season');
-  await expect(page.getByRole('link', { name: 'X (opens in new tab)' })).toHaveAttribute('href', 'https://x.com/intent/post?text=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A&url=https%3A%2F%2Fpools.longreachmarlins.org%2F%3Futm_source%3Dapp%26utm_medium%3Dx%26utm_campaign%3D2026_pool_season');
+  await expect(page.getByRole('link', { name: 'Text' })).toHaveAttribute('href', AppConfig.EXTERNAL_LINKS.SMS_SHARE);
+  await expect(page.getByRole('link', { name: 'Email' })).toHaveAttribute('href', AppConfig.EXTERNAL_LINKS.EMAIL_SHARE);
+  await expect(page.getByRole('link', { name: 'Facebook (opens in new tab)' })).toHaveAttribute('href', AppConfig.EXTERNAL_LINKS.FACEBOOK_SHARE);
+  await expect(page.getByRole('link', { name: 'X (opens in new tab)' })).toHaveAttribute('href', AppConfig.EXTERNAL_LINKS.X_SHARE);
   await expect(page.getByRole('link', { name: 'Send Feedback' })).toHaveAttribute('href', 'contact.html');
   await page.getByRole('link', { name: 'Meets' }).focus();
   await page.keyboard.press('Tab');
@@ -27,8 +34,8 @@ test('[WF-HOME-001] season summary and sharing actions appear only on the home p
   await page.keyboard.press('Enter');
   const qrDialog = page.getByRole('dialog', { name: 'Scan to open site' });
   await expect(qrDialog).toBeVisible();
-  await expect(qrDialog.getByRole('img', { name: 'QR code for https://pools.longreachmarlins.org' })).toHaveAttribute('src', /assets\/images\/share-site-qr\.svg\?v=/);
-  await expect(qrDialog.getByRole('link', { name: 'https://pools.longreachmarlins.org' })).toHaveAttribute('href', 'https://pools.longreachmarlins.org/');
+  await expect(qrDialog.getByRole('img', { name: `QR code for ${AppConfig.HOME_PAGE_URL}` })).toHaveAttribute('src', /assets\/images\/share-site-qr\.svg\?v=/);
+  await expect(qrDialog.getByRole('link', { name: AppConfig.HOME_PAGE_URL })).toHaveAttribute('href', `${AppConfig.HOME_PAGE_URL}/`);
   await expect(page.getByRole('button', { name: 'Close QR code' })).toBeFocused();
   await page.keyboard.press('Escape');
   await expect(qrDialog).toBeHidden();
@@ -83,7 +90,7 @@ test('[WF-HOME-001] season summary and sharing actions appear only on the home p
 
   await page.goto('/pools.html');
   await expect(page.locator('.season-text')).toHaveCount(0);
-  await expect(page.getByRole('link', { name: "CA's 2026 Pool Season" })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: `CA's ${AppConfig.YEAR} Pool Season` })).toHaveCount(0);
   await expect(page.locator('.share-site')).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'Interactive CA Pool Directory' })).toBeVisible();
   await expect.poll(() => page.locator('#poolList, #seasonInfo').evaluateAll(elements => elements.map(element => element.id))).toEqual(['poolList', 'seasonInfo']);

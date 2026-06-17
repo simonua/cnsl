@@ -2,6 +2,7 @@ const { test, expect } = require('../browser-test');
 const AppConfig = require('../../../scripts/adapters/app-config.js');
 const {
   MOBILE_VIEWPORT,
+  getAnnualDataUrlPattern,
   prepareStableWeatherResponses,
   prepareVisibleWeatherAlert
 } = require('../browser-test-helpers');
@@ -23,7 +24,7 @@ test('[WF-WEATHER-001] desktop weather safety alerts restore collapsed details o
     await expect(page.locator('.weather-alert__title')).toHaveText('Weather alert');
     await expect(page.locator('#weatherAlertMessage')).toContainText('Severe Thunderstorm Warning');
     await expect(page.locator('#weatherAlertUpdated')).not.toHaveText('');
-    await expect(page.locator('#weatherAlertUpdated')).toHaveAttribute('datetime', /2026-/);
+    await expect(page.locator('#weatherAlertUpdated')).toHaveAttribute('datetime', /^\d{4}-/);
     await expect(page.locator('#weatherAlertDetails')).toBeHidden();
     await expect(page.getByRole('link', { name: 'Live pool status' })).toBeHidden();
     await expect(page.getByRole('link', { name: 'NWS local alerts' })).toBeHidden();
@@ -41,7 +42,7 @@ test('[WF-WEATHER-001] desktop weather safety alerts restore collapsed details o
   await expect(page.getByRole('link', { name: 'Live pool status' })).toBeVisible();
   const nwsAlertLink = page.getByRole('link', { name: 'NWS local alerts' });
   await expect(nwsAlertLink).toBeVisible();
-  await expect(nwsAlertLink).toHaveAttribute('href', 'https://forecast.weather.gov/MapClick.php?lat=39.2014&lon=-76.8610');
+  await expect(nwsAlertLink).toHaveAttribute('href', AppConfig.WEATHER_PUBLIC_ALERTS_URL);
   await expect(nwsAlertLink).toHaveAttribute('target', '_blank');
   await expect(nwsAlertLink).toHaveAttribute('rel', 'noopener noreferrer');
   const expandedAlertBox = await page.locator('#weatherAlert').boundingBox();
@@ -175,7 +176,7 @@ test('[WF-WEATHER-002] mobile weather safety alert keeps navigation visible and 
     banner.ownerDocument.defaultView.requestAnimationFrame(() => resolve(!banner.hidden));
   }));
   expect(bannerWasVisibleAtFirstPaint).toBe(true);
-  expect(navigationRequests.filter(url => url.includes('/assets/data/2026/pools/pools.json') || url.startsWith('https://api.weather.gov/'))).toEqual([]);
+  expect(navigationRequests.filter(url => getAnnualDataUrlPattern('pools').test(url) || url.startsWith(AppConfig.WEATHER_API_BASE_URL))).toEqual([]);
 
   await restoredToggle.focus();
   await page.keyboard.press('Enter');
