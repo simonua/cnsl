@@ -464,7 +464,7 @@ analyticsTest('[WF-ANALYTICS-003] unrecognized campaign input is neither consume
   });
 });
 
-analyticsTest('[WF-ANALYTICS-006] app QR campaign visits publish reviewed attribution without counting as flyer visits', async ({ page }) => {
+analyticsTest('[WF-ANALYTICS-006] app share campaigns publish reviewed attribution without counting as flyer visits', async ({ page }) => {
   await page.route('https://www.googletagmanager.com/**', route => route.fulfill({
     contentType: 'application/javascript',
     body: 'globalThis.cnslTagScriptLoaded = true;'
@@ -475,17 +475,19 @@ analyticsTest('[WF-ANALYTICS-006] app QR campaign visits publish reviewed attrib
     await route.fulfill({ response });
   });
 
-  await page.goto('https://pools.longreachmarlins.org/?utm_source=app&utm_medium=qr&utm_campaign=2026_pool_season', { waitUntil: 'domcontentloaded' });
-  await expect(page).toHaveURL('https://pools.longreachmarlins.org/');
+  for (const campaignMedium of ['email', 'facebook', 'qr', 'text', 'x']) {
+    await page.goto(`https://pools.longreachmarlins.org/?utm_source=app&utm_medium=${campaignMedium}&utm_campaign=2026_pool_season`, { waitUntil: 'domcontentloaded' });
+    await expect(page).toHaveURL('https://pools.longreachmarlins.org/');
 
-  const measurementCommands = await page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList)));
-  expect(JSON.stringify(measurementCommands)).not.toContain('utm_source=app');
-  expect(measurementCommands.find(argumentsList => argumentsList[0] === 'config')[2]).toMatchObject({
-    campaign_source: 'app',
-    campaign_medium: 'qr',
-    campaign_name: '2026_pool_season'
-  });
-  expect(measurementCommands.filter(argumentsList => argumentsList[1] === 'ca_flyer_visit')).toEqual([]);
+    const measurementCommands = await page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList)));
+    expect(JSON.stringify(measurementCommands)).not.toContain('utm_source=app');
+    expect(measurementCommands.find(argumentsList => argumentsList[0] === 'config')[2]).toMatchObject({
+      campaign_source: 'app',
+      campaign_medium: campaignMedium,
+      campaign_name: '2026_pool_season'
+    });
+    expect(measurementCommands.filter(argumentsList => argumentsList[1] === 'ca_flyer_visit')).toEqual([]);
+  }
 });
 
 test('[WF-ANALYTICS-004] directory detail opens publish only a broad directory name', async ({ page }) => {

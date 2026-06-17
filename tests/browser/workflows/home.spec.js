@@ -16,10 +16,10 @@ test('[WF-HOME-001] season summary and sharing actions appear only on the home p
   await expect(page.locator('.season-text')).toHaveText('The 2026 season runs from May 23 to September 7.');
   await expect(page.getByRole('link', { name: "CA's 2026 Pool Season" })).toBeVisible();
   await expect(page.getByRole('button', { name: 'QR Code' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Text' })).toHaveAttribute('href', 'sms:?&body=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org');
-  await expect(page.getByRole('link', { name: 'Email' })).toHaveAttribute('href', 'mailto:?subject=Columbia%20Pools%20and%20CNSL%20Schedules&body=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org');
-  await expect(page.getByRole('link', { name: 'Facebook (opens in new tab)' })).toHaveAttribute('href', 'https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fpools.longreachmarlins.org');
-  await expect(page.getByRole('link', { name: 'X (opens in new tab)' })).toHaveAttribute('href', 'https://x.com/intent/post?text=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org');
+  await expect(page.getByRole('link', { name: 'Text' })).toHaveAttribute('href', 'sms:?&body=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org%2F%3Futm_source%3Dapp%26utm_medium%3Dtext%26utm_campaign%3D2026_pool_season');
+  await expect(page.getByRole('link', { name: 'Email' })).toHaveAttribute('href', 'mailto:?subject=Columbia%20Pools%20and%20CNSL%20Schedules&body=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org%2F%3Futm_source%3Dapp%26utm_medium%3Demail%26utm_campaign%3D2026_pool_season');
+  await expect(page.getByRole('link', { name: 'Facebook (opens in new tab)' })).toHaveAttribute('href', 'https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fpools.longreachmarlins.org%2F%3Futm_source%3Dapp%26utm_medium%3Dfacebook%26utm_campaign%3D2026_pool_season');
+  await expect(page.getByRole('link', { name: 'X (opens in new tab)' })).toHaveAttribute('href', 'https://x.com/intent/post?text=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A&url=https%3A%2F%2Fpools.longreachmarlins.org%2F%3Futm_source%3Dapp%26utm_medium%3Dx%26utm_campaign%3D2026_pool_season');
   await expect(page.getByRole('link', { name: 'Send Feedback' })).toHaveAttribute('href', 'contact.html');
   await page.getByRole('link', { name: 'Meets' }).focus();
   await page.keyboard.press('Tab');

@@ -32,9 +32,11 @@ describe('FileHelper', () => {
 
     it('centralizes authored share and contact destinations', () => {
       assert.equal(AUTHOR_EMAIL, 'simonkurtz+pool-app@gmail.com');
-      assert.equal(EXTERNAL_LINKS.SMS_SHARE, 'sms:?&body=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org');
-      assert.equal(EXTERNAL_LINKS.EMAIL_SHARE, 'mailto:?subject=Columbia%20Pools%20and%20CNSL%20Schedules&body=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org');
-      assert.equal(EXTERNAL_LINKS.X_SHARE, 'https://x.com/intent/post?text=Find%20Columbia%20pools%20and%20CNSL%20schedules%3A%20https%3A%2F%2Fpools.longreachmarlins.org');
+      assert.equal(new URL(EXTERNAL_LINKS.SMS_SHARE).searchParams.get('body'), 'Find Columbia pools and CNSL schedules: https://pools.longreachmarlins.org/?utm_source=app&utm_medium=text&utm_campaign=2026_pool_season');
+      assert.equal(new URL(EXTERNAL_LINKS.EMAIL_SHARE).searchParams.get('body'), 'Find Columbia pools and CNSL schedules: https://pools.longreachmarlins.org/?utm_source=app&utm_medium=email&utm_campaign=2026_pool_season');
+      assert.equal(new URL(EXTERNAL_LINKS.FACEBOOK_SHARE).searchParams.get('u'), 'https://pools.longreachmarlins.org/?utm_source=app&utm_medium=facebook&utm_campaign=2026_pool_season');
+      assert.equal(new URL(EXTERNAL_LINKS.X_SHARE).searchParams.get('text'), 'Find Columbia pools and CNSL schedules:');
+      assert.equal(new URL(EXTERNAL_LINKS.X_SHARE).searchParams.get('url'), 'https://pools.longreachmarlins.org/?utm_source=app&utm_medium=x&utm_campaign=2026_pool_season');
       assert.equal(EXTERNAL_LINKS.AUTHOR_FEEDBACK_EMAIL_URL, 'mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Feedback');
       assert.ok(EXTERNAL_LINKS.AUTHOR_BUG_FEATURE_EMAIL_URL.startsWith('mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Bug%20%2F%20Feature%20-%20Version%20'));
       assert.equal(EXTERNAL_LINKS.AUTHOR_DATA_EMAIL_URL, 'mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Data');

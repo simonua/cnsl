@@ -27,13 +27,6 @@
     view: ANALYTICS_EVENT_NAMES.RESOURCE_VIEW
   });
 
-  // Campaign attribution
-
-  const PUBLISHED_CAMPAIGNS = Object.freeze([
-    Object.freeze({ medium: 'qr', name: '2026_pool_season', source: 'app' }),
-    Object.freeze({ medium: 'qr', name: '2026_pool_season', source: 'flyer' })
-  ]);
-
   // Interaction validation
 
   const BANNER_NAMES = Object.freeze({
@@ -211,7 +204,7 @@
     const landingUrl = new URL(window.location.href);
     if (landingUrl.pathname !== '/') return null;
 
-    const campaign = PUBLISHED_CAMPAIGNS.find(publishedCampaign => (
+    const campaign = globalThis.PUBLISHED_CAMPAIGNS.find(publishedCampaign => (
       landingUrl.searchParams.get('utm_source') === publishedCampaign.source
       && landingUrl.searchParams.get('utm_medium') === publishedCampaign.medium
       && landingUrl.searchParams.get('utm_campaign') === publishedCampaign.name

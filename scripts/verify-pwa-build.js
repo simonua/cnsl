@@ -284,9 +284,15 @@ assert.match(analytics, /publishEvent\(ANALYTICS_EVENT_NAMES\.INSTALL_INTERACTIO
 assert.match(analytics, /ALLOWED_INSTALL_ACTIONS\.has\(action\)/, 'Install measurement must allowlist coarse interaction actions.');
 assert.match(analytics, /install_action:\s*action/, 'Install measurement must publish only its coarse interaction action.');
 assert.match(analytics, /publishEvent\(ANALYTICS_EVENT_NAMES\.FLYER_VISIT\)/, 'Flyer visit measurement must use the centralized app-specific analytics event.');
-assert.match(analytics, /source:\s*'flyer'/, 'Flyer attribution must use the reviewed fixed campaign source.');
-assert.match(analytics, /medium:\s*'qr'/, 'Flyer attribution must use the reviewed fixed campaign medium.');
-assert.match(analytics, /name:\s*'2026_pool_season'/, 'Flyer attribution must use the reviewed fixed campaign name.');
+assert.deepEqual(JSON.parse(JSON.stringify(appConfigBrowserContext.PUBLISHED_CAMPAIGNS)), [
+  { medium: 'email', name: `${YEAR}_pool_season`, source: 'app' },
+  { medium: 'facebook', name: `${YEAR}_pool_season`, source: 'app' },
+  { medium: 'qr', name: `${YEAR}_pool_season`, source: 'app' },
+  { medium: 'text', name: `${YEAR}_pool_season`, source: 'app' },
+  { medium: 'x', name: `${YEAR}_pool_season`, source: 'app' },
+  { medium: 'qr', name: `${YEAR}_pool_season`, source: 'flyer' }
+], 'Delivered campaign attribution must contain only the reviewed app-share and flyer tuples.');
+assert.match(analytics, /globalThis\.PUBLISHED_CAMPAIGNS\.find\(/, 'Analytics must consume the campaign registry from delivered application configuration.');
 assert.match(analytics, /campaign_source:\s*publishedCampaign\.source/, 'Reviewed campaign attribution must be mapped to standard GA campaign source measurement.');
 assert.match(analytics, /campaign_medium:\s*publishedCampaign\.medium/, 'Reviewed campaign attribution must be mapped to standard GA campaign medium measurement.');
 assert.match(analytics, /campaign_name:\s*publishedCampaign\.name/, 'Reviewed campaign attribution must be mapped to standard GA campaign name measurement.');
