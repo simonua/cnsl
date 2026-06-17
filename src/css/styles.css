@@ -1475,6 +1475,50 @@ main h1 {
   margin: 0;
 }
 
+.my-meet-day__payment-methods {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 0.9rem;
+  margin-top: 0.5rem;
+  min-height: 1.8rem;
+}
+
+.my-meet-day__payment-method {
+  align-items: center;
+  color: var(--text-dark);
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 0.95rem;
+  font-weight: 700;
+  gap: 0.35rem;
+  min-height: 1.5rem;
+}
+
+.my-meet-day__payment-method:has(.my-meet-day__payment-icon) {
+  color: var(--success-text-color);
+}
+
+.my-meet-day__payment-icon {
+  height: 1.5rem;
+  stroke-width: 2;
+  width: 1.5rem;
+}
+
+.my-meet-day__payment-logo {
+  display: block;
+  height: auto;
+}
+
+.my-meet-day__payment-logo--paypal {
+  height: 1.5rem;
+  width: auto;
+}
+
+.my-meet-day__payment-logo--venmo {
+  width: 5.25rem;
+}
+
 .my-meet-day__concessions-menu {
   display: grid;
   gap: 0.75rem;

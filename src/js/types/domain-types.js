@@ -8,6 +8,8 @@
 
 /** @typedef {'pools'|'teams'|'meets'} AnnualDataDomain */
 
+/** @typedef {'cash'|'credit'|'other'|'paypal'|'venmo'} PaymentMethodValue */
+
 /**
  * @typedef {Object} PoolLocation
  * @property {string} street
@@ -110,7 +112,7 @@
  * @typedef {Object} HomeMeetGuide
  * @property {string} poolId
  * @property {Object} source
- * @property {Object} [general]
+ * @property {{concessions?: {paymentMethods?: PaymentMethodValue[]}}} [general]
  * @property {HomeMeetRoleGuide|null} homeTeam
  * @property {HomeMeetRoleGuide|null} visitingTeam
  */

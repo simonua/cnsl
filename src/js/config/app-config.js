@@ -13,8 +13,45 @@
   const HOME_PAGE_URL = `https://${HOME_PAGE_HOSTNAME}`;
   const AUTHOR_NAME = 'Simon Kurtz';
   const AUTHOR_EMAIL = 'simonkurtz+pool-app@gmail.com';
-  const SHARE_MESSAGE = `Find Columbia pools and CNSL schedules: ${HOME_PAGE_URL}`;
   const APP_ATTENTION_NOTICE_UPDATED_AT = '2026-06-15T12:31:18-04:00';
+
+  // Published campaign attribution and share destinations.
+  const PUBLISHED_CAMPAIGN_NAME = `${YEAR}_pool_season`;
+  const APP_SHARE_CAMPAIGNS = Object.freeze({
+    EMAIL: Object.freeze({ medium: 'email', name: PUBLISHED_CAMPAIGN_NAME, source: 'app' }),
+    FACEBOOK: Object.freeze({ medium: 'facebook', name: PUBLISHED_CAMPAIGN_NAME, source: 'app' }),
+    QR: Object.freeze({ medium: 'qr', name: PUBLISHED_CAMPAIGN_NAME, source: 'app' }),
+    TEXT: Object.freeze({ medium: 'text', name: PUBLISHED_CAMPAIGN_NAME, source: 'app' }),
+    X: Object.freeze({ medium: 'x', name: PUBLISHED_CAMPAIGN_NAME, source: 'app' })
+  });
+  const FLYER_QR_CAMPAIGN = Object.freeze({ medium: 'qr', name: PUBLISHED_CAMPAIGN_NAME, source: 'flyer' });
+  const PUBLISHED_CAMPAIGNS = Object.freeze([
+    ...Object.values(APP_SHARE_CAMPAIGNS),
+    FLYER_QR_CAMPAIGN
+  ]);
+  const SHARE_MESSAGE_PREFIX = 'Find Columbia pools and CNSL schedules:';
+
+  /**
+   * Builds the reviewed home-page destination for a published campaign.
+   * @param {{medium: string, name: string, source: string}} campaign - Approved campaign tuple
+   * @returns {string} Home-page URL with fixed attribution parameters
+   */
+  function buildPublishedCampaignUrl(campaign) {
+    const campaignUrl = new URL(HOME_PAGE_URL);
+    campaignUrl.searchParams.set('utm_source', campaign.source);
+    campaignUrl.searchParams.set('utm_medium', campaign.medium);
+    campaignUrl.searchParams.set('utm_campaign', campaign.name);
+    return campaignUrl.toString();
+  }
+
+  /**
+   * Builds concise share copy with its channel-specific destination.
+   * @param {{medium: string, name: string, source: string}} campaign - Approved campaign tuple
+   * @returns {string} Share message containing the tracked home-page URL
+   */
+  function buildShareMessage(campaign) {
+    return `${SHARE_MESSAGE_PREFIX} ${buildPublishedCampaignUrl(campaign)}`;
+  }
 
   // Visitor-facing feature availability.
   const EXPERIMENTAL_FEATURE_IDS = Object.freeze({
@@ -35,6 +72,7 @@
     'js/models/team.js',
     'js/managers/teams-manager.js',
     'js/types/meet-team-role.js',
+    'js/types/payment-method.js',
     'js/types/schedule-state.js',
     'js/models/meet.js',
     'js/managers/meets-manager.js',
@@ -157,9 +195,9 @@
     AUTHOR_DATA_EMAIL_URL: `mailto:${AUTHOR_EMAIL}?subject=${encodeURIComponent('CA Pool & CNSL Assistant - Data')}`,
     AUTHOR_FEEDBACK_EMAIL_URL: `mailto:${AUTHOR_EMAIL}?subject=${encodeURIComponent('CA Pool & CNSL Assistant - Feedback')}`,
     AUTHOR_LESSON_RECOMMENDATION_EMAIL_URL: `mailto:${AUTHOR_EMAIL}?subject=${encodeURIComponent('CA Pool & CNSL Assistant - Lesson Provider Recommendation')}`,
-    EMAIL_SHARE: `mailto:?subject=${encodeURIComponent('Columbia Pools and CNSL Schedules')}&body=${encodeURIComponent(SHARE_MESSAGE)}`,
+    EMAIL_SHARE: `mailto:?subject=${encodeURIComponent('Columbia Pools and CNSL Schedules')}&body=${encodeURIComponent(buildShareMessage(APP_SHARE_CAMPAIGNS.EMAIL))}`,
     AUTHOR_FACEBOOK_PROFILE_URL: 'https://www.facebook.com/simonkurtz82',
-    FACEBOOK_SHARE: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(HOME_PAGE_URL)}`,
+    FACEBOOK_SHARE: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(buildPublishedCampaignUrl(APP_SHARE_CAMPAIGNS.FACEBOOK))}`,
     GITHUB_DATA_DIRECTORY: 'https://github.com/simonua/cnsl/tree/main/src/assets/data',
     GITHUB_LICENSE: 'https://github.com/simonua/cnsl/blob/main/LICENSE',
     GITHUB_REPOSITORY: 'https://github.com/simonua/cnsl',
@@ -170,8 +208,8 @@
     NATIONAL_WEATHER_SERVICE_POINT: WEATHER_POINT_URL,
     OFFICIAL_CNSL_SITE: 'https://www.gomotionapp.com/team/reccnsl/page/home',
     USA_SWIMMING_RULES_POLICIES: 'https://www.usaswimming.org/resources/rules-regulations',
-    SMS_SHARE: `sms:?&body=${encodeURIComponent(SHARE_MESSAGE)}`,
-    X_SHARE: `https://x.com/intent/post?text=${encodeURIComponent(SHARE_MESSAGE)}`
+    SMS_SHARE: `sms:?&body=${encodeURIComponent(buildShareMessage(APP_SHARE_CAMPAIGNS.TEXT))}`,
+    X_SHARE: `https://x.com/intent/post?text=${encodeURIComponent(SHARE_MESSAGE_PREFIX)}&url=${encodeURIComponent(buildPublishedCampaignUrl(APP_SHARE_CAMPAIGNS.X))}`
   });
 
   // Weather alert experience policy.
@@ -239,6 +277,7 @@
     LOCAL_DEVELOPMENT_HOSTNAMES,
     LOCAL_DEVELOPMENT_PORT,
     MY_MEET_DAY_HOME_LOOKAHEAD_DAYS,
+    PUBLISHED_CAMPAIGNS,
     PREFERENCES_STORAGE_KEY,
     PWA_CACHE_PREFIX,
     SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY,

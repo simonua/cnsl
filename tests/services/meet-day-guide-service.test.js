@@ -8,12 +8,14 @@ const meetDayModule = require('../helpers/browser-module-loader.js').loadBrowser
 const {
   Meet,
   MeetDayGuideService,
-  MeetTeamRole
+  MeetTeamRole,
+  PaymentMethod
 } = meetDayModule;
 
 const teams = activeTeamsData.teams;
 const pools = activePoolsData.pools;
 const marlins = teams.find(team => team.id === 'lrm');
+const piranhas = teams.find(team => team.id === 'prp');
 const firstMarlinsMeetData = activeMeetsData.regular_meets.find(meet => meet.date === '2026-06-13' && meet.visiting_team === 'Long Reach');
 const firstMarlinsMeet = new Meet(firstMarlinsMeetData, activeMeetsData.meetTimes, 'dualMeets');
 const secondMarlinsMeetData = activeMeetsData.regular_meets.find(meet => meet.date === '2026-06-20' && meet.home_team === 'Long Reach');
@@ -179,13 +181,32 @@ describe('MeetDayGuideService', () => {
       assert.match(twoDaysAheadHtml, /upcoming-day-pill">in 2 days<\/span>/);
     });
 
-    it('renders the active Kendall Ridge concessions as meals and snacks', () => {
-      const guide = MeetDayGuideService.getGuide(marlins, teams, [secondMarlinsMeet], pools, new Date(2026, 5, 19, 12));
-      const html = MeetDayGuideService.renderGuide(guide);
+    it('renders the active Kendall Ridge shared and visitor guidance', () => {
+      const homeGuide = MeetDayGuideService.getGuide(marlins, teams, [secondMarlinsMeet], pools, new Date(2026, 5, 19, 12));
+      const homeHtml = MeetDayGuideService.renderGuide(homeGuide);
 
-      assert.match(html, />Meals<\/strong><span>breakfast sandwiches, hot dogs<\/span>/);
-      assert.match(html, />Snacks<\/strong><span>bagels, donuts, muffins, snow cones<\/span>/);
-      assert.doesNotMatch(html, />Food<\/strong>/);
+      assert.match(homeHtml, /Please park along Tamar Drive\./);
+      assert.match(homeHtml, /Please do not park in The Young School lot\./);
+      assert.match(homeHtml, /Please keep clear of fire hydrants; cars parked too close have been ticketed\./);
+      assert.match(homeHtml, /We accept cash, PayPal, Venmo\./);
+      assert.match(homeHtml, /href="#icon-banknote"/);
+      assert.match(homeHtml, /src="assets\/images\/payment-methods\/paypal-monogram-full-color\.png"/);
+      assert.match(homeHtml, /src="assets\/images\/payment-methods\/venmo-wordmark-blue\.png"/);
+      assert.doesNotMatch(homeHtml, /payment-logo-frame/);
+      assert.match(homeHtml, />Meals<\/strong><span>hot lunch food<\/span>/);
+      assert.match(homeHtml, />Snacks<\/strong><span>bagels, donuts, snacks, snow cones<\/span>/);
+      assert.match(homeHtml, /Visiting-team coaches may receive a few complimentary items\./);
+      assert.match(homeHtml, /The data table is under the large pavilion next to the baby pool\./);
+      assert.doesNotMatch(homeHtml, />Food<\/strong>/);
+
+      const awayGuide = MeetDayGuideService.getGuide(piranhas, teams, [secondMarlinsMeet], pools, new Date(2026, 5, 19, 12));
+      const awayHtml = MeetDayGuideService.renderGuide(awayGuide);
+
+      assert.equal(awayGuide.role, MeetTeamRole.AWAY);
+      assert.match(awayHtml, /Piranhas @ Marlins/);
+      assert.match(awayHtml, /Please tell the host team how many parking-lot spaces your team needs reserved\./);
+      assert.match(awayHtml, /Please set up on the left side from the pool entrance, on the shaded side of the pool\./);
+      assert.match(awayHtml, /Swimmers check in at the reserved table in the back corner by the diving board\./);
     });
 
     it('renders home timing, check-in, helpful notes, and the stronger volunteer reminder', () => {
@@ -260,13 +281,14 @@ describe('MeetDayGuideService', () => {
       assert.deepEqual(MeetDayGuideService.getCheckInLines(null), []);
       assert.deepEqual(MeetDayGuideService.getConcessionLines(null), []);
       assert.deepEqual(MeetDayGuideService.getConcessionLines({
-        paymentMethods: ['cash', 'credit', 'venmo', 'paypal'],
+        paymentMethods: [PaymentMethod.CASH, PaymentMethod.CREDIT, PaymentMethod.VENMO, PaymentMethod.PAYPAL],
         dietaryOptions: [{ type: 'vegetarian', availability: 'available' }],
         notes: ['Limited quantities.']
       }), ['We accept cash, credit, Venmo, PayPal.', 'Dietary options: vegetarian (available)', 'Limited quantities.']);
-      assert.deepEqual(MeetDayGuideService.getConcessionLines({
-        paymentMethods: ['custom']
-      }), ['We accept custom.']);
+      assert.deepEqual(MeetDayGuideService.getPaymentMethods({
+        paymentMethods: [PaymentMethod.VENMO, 'Venmo', PaymentMethod.CASH, PaymentMethod.VENMO]
+      }), [PaymentMethod.VENMO, PaymentMethod.CASH]);
+      assert.deepEqual(MeetDayGuideService.getConcessionLines({ paymentMethods: ['custom'] }), []);
       assert.deepEqual(MeetDayGuideService.getConcessionLines({
         smallBillsPreferred: true
       }), ['Small bills are preferred.']);
@@ -279,7 +301,13 @@ describe('MeetDayGuideService', () => {
       assert.equal(MeetDayGuideService.renderConcessionGroup('Food', []), '');
       assert.equal(MeetDayGuideService.renderConcessions(null), '');
       assert.equal(MeetDayGuideService.renderConcessions({}), '');
+      assert.equal(MeetDayGuideService.renderConcessions({ paymentMethods: ['custom'] }), '');
       assert.match(MeetDayGuideService.renderConcessions({ smallBillsPreferred: true }), /Small bills are preferred\./);
+      assert.match(MeetDayGuideService.renderPaymentMethods([
+        PaymentMethod.CASH, PaymentMethod.CREDIT, PaymentMethod.OTHER, PaymentMethod.PAYPAL, PaymentMethod.VENMO
+      ]), /Cash.*Credit.*Other methods.*paypal-monogram-full-color.*venmo-wordmark-blue/);
+      assert.equal(MeetDayGuideService.renderPaymentMethod('custom'), '');
+      assert.equal(MeetDayGuideService.renderPaymentMethods(['custom']), '');
       assert.match(MeetDayGuideService.renderConcessions({ foodItems: ['bagels'] }), />Food<\/strong><span>bagels<\/span>/);
       assert.equal(MeetDayGuideService.renderTimingFact('Empty', '', ''), '');
     });

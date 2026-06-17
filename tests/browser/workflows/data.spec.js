@@ -97,6 +97,7 @@ test('[WF-DATA-007] footer keeps the last weather update current while weather c
   const weatherFreshness = page.locator('#footerWeatherFreshness');
   const weatherTimestamp = page.locator('#footerWeatherUpdated');
   await expect(weatherFreshness).toBeVisible();
+  await expect(weatherFreshness).toHaveAttribute('aria-hidden', 'false');
   await expect(weatherTimestamp).toHaveText('June 2, 2:15 PM');
   await expect(weatherTimestamp).toHaveAttribute('datetime', '2026-06-02T14:15:00-04:00');
 
@@ -119,12 +120,27 @@ test('[WF-DATA-007] footer keeps the last weather update current while weather c
     })).toEqual({ heightFits: true, weatherOnOwnLine: true, widthFits: true });
   }
 
+  const visibleRowHeight = await weatherFreshness.evaluate(element => element.getBoundingClientRect().height);
+
   await page.evaluate(() => {
     const preferences = globalThis.PreferencesService.get();
     globalThis.PreferencesService.save({ ...preferences, weatherRefreshMinutes: 0 });
     globalThis.dispatchEvent(new CustomEvent('cnsl:preferences-changed'));
   });
   await expect(weatherFreshness).toBeHidden();
+  await expect(weatherFreshness).toHaveAttribute('aria-hidden', 'true');
+  expect(await weatherFreshness.evaluate(element => element.getBoundingClientRect().height)).toBe(visibleRowHeight);
+
+  await page.evaluate(() => {
+    localStorage.removeItem('cnsl_weather_alert_last_successful_check');
+    const preferences = globalThis.PreferencesService.get();
+    globalThis.PreferencesService.save({ ...preferences, weatherRefreshMinutes: 5 });
+    globalThis.dispatchEvent(new CustomEvent('cnsl:preferences-changed'));
+  });
+  await expect(weatherFreshness).toBeHidden();
+  await expect(weatherFreshness).toHaveAttribute('aria-hidden', 'true');
+  await expect(weatherFreshness).not.toContainText('Not checked yet');
+  expect(await weatherFreshness.evaluate(element => element.getBoundingClientRect().height)).toBe(visibleRowHeight);
 });
 
 test('[WF-DATA-007-POOLS] pool summaries and requested details render before optional enrichment settles', async ({ page }) => {

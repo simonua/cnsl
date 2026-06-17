@@ -249,7 +249,7 @@ test('[WF-AGENDA-008] dedicated My Meet Day route loads only after the experimen
   await expect(page.locator('#myMeetDay').getByText('Snacks', { exact: true })).toBeVisible();
   await expect(page.locator('#myMeetDay').getByText('Drinks', { exact: true })).toBeVisible();
   await expect(page.locator('#myMeetDayStatus')).toHaveText('Meet-day details loaded.');
-  await expect(page.locator('script[data-my-meet-day-dependency]')).toHaveCount(20);
+  await expect(page.locator('script[data-my-meet-day-dependency]')).toHaveCount(21);
   const controllerVersion = await page.locator('script[src*="js/my-meet-day.js"]').evaluate(script => new URL(script.src).searchParams.get('v'));
   const dependencyVersions = await page.locator('script[data-my-meet-day-dependency]').evaluateAll(scripts => (
     scripts.map(script => new URL(script.src).searchParams.get('v'))
@@ -283,6 +283,30 @@ test('[WF-AGENDA-009] completed meets advance only the dedicated My Meet Day rou
   await expect(page.locator('#myMeetDay')).toBeVisible();
   await expect(page.locator('#myMeetDay')).toContainText('Piranhas @ Marlins');
   await expect(page.locator('#myMeetDay')).toContainText('in 7 days');
+  const paymentMethods = page.locator('#myMeetDay .my-meet-day__payment-methods');
+  await expect(paymentMethods).toBeVisible();
+  await expect(paymentMethods.locator('use[href="#icon-banknote"]')).toHaveCount(1);
+  await expect(paymentMethods.locator('img[src*="paypal-monogram-full-color.png"]')).toBeVisible();
+  await expect(paymentMethods.locator('img[src*="venmo-wordmark-blue.png"]')).toBeVisible();
+  await expect.poll(() => paymentMethods.locator('img').evaluateAll(images => (
+    images.every(image => image.complete && image.naturalWidth > 0)
+  ))).toBe(true);
+  await expect.poll(() => paymentMethods.evaluate(element => {
+    const cashIcon = element.querySelector('.my-meet-day__payment-icon').getBoundingClientRect();
+    const paypalLogo = element.querySelector('.my-meet-day__payment-logo--paypal').getBoundingClientRect();
+    const venmoLogo = element.querySelector('.my-meet-day__payment-logo--venmo').getBoundingClientRect();
+    return {
+      cashColor: globalThis.getComputedStyle(element.querySelector('.my-meet-day__payment-method')).color,
+      cashHeight: Math.round(cashIcon.height),
+      paypalHeight: Math.round(paypalLogo.height),
+      venmoWidth: Math.round(venmoLogo.width)
+    };
+  })).toEqual({ cashColor: 'rgb(20, 108, 67)', cashHeight: 24, paypalHeight: 24, venmoWidth: 84 });
+  await page.setViewportSize({ width: 360, height: 780 });
+  await expect.poll(() => paymentMethods.evaluate(element => ({
+    pageOverflow: globalThis.document.documentElement.scrollWidth > globalThis.document.documentElement.clientWidth,
+    rowOverflow: element.scrollWidth > element.clientWidth
+  }))).toEqual({ pageOverflow: false, rowOverflow: false });
 });
 
 test('[WF-AGENDA-003] shared team agenda filters published practice times by selected group', async ({ page }) => {
@@ -314,7 +338,7 @@ test('[WF-AGENDA-004] home page loads agenda dependencies only after a favorite 
   });
 
   await expect(page.locator('#favoriteWeek')).toBeVisible();
-  await expect(page.locator('script[data-home-schedule-dependency]')).toHaveCount(20);
+  await expect(page.locator('script[data-home-schedule-dependency]')).toHaveCount(21);
   const homeScheduleVersion = await page.locator('script[src*="js/home-schedule.js"]').evaluate(script => new URL(script.src).searchParams.get('v'));
   const dependencyVersions = await page.locator('script[data-home-schedule-dependency]').evaluateAll(scripts => (
     scripts.map(script => new URL(script.src).searchParams.get('v'))

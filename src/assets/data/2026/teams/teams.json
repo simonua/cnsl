@@ -432,19 +432,34 @@
           "poolId": "krp",
           "source": {
             "type": "host-team-manager",
-            "receivedOn": "2026-06-13"
+            "receivedOn": "2026-06-17"
           },
           "general": {
+            "parkingLocation": "along Tamar Drive",
+            "parkingNotes": [
+              "Please do not park in The Young School lot.",
+              "Please keep clear of fire hydrants; cars parked too close have been ticketed."
+            ],
+            "helpfulNotes": [
+              "The data table is under the large pavilion next to the baby pool."
+            ],
             "concessions": {
+              "paymentMethods": [
+                "cash",
+                "paypal",
+                "venmo"
+              ],
               "mealItems": [
-                "breakfast sandwiches",
-                "hot dogs"
+                "hot lunch food"
               ],
               "snackItems": [
                 "bagels",
                 "donuts",
-                "muffins",
+                "snacks",
                 "snow cones"
+              ],
+              "notes": [
+                "Visiting-team coaches may receive a few complimentary items."
               ]
             }
           },
@@ -458,7 +473,11 @@
               "Please tell team managers or check-in volunteers before leaving early if a swimmer is in a relay."
             ]
           },
-          "visitingTeam": null
+          "visitingTeam": {
+            "reservedParking": "Please tell the host team how many parking-lot spaces your team needs reserved.",
+            "familySetupLocation": "on the left side from the pool entrance, on the shaded side of the pool",
+            "swimmerCheckInLocation": "at the reserved table in the back corner by the diving board"
+          }
         }
       ],
       "practicePools": ["Kendall Ridge", "Jeffers Hill", "Locust Park", "Stevens Forest"],

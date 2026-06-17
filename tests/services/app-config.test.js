@@ -68,6 +68,19 @@ describe('app-config', () => {
     assert.equal(Object.isFrozen(config.ANALYTICS_DEPLOYMENT_MODES), true);
   });
 
+  it('publishes immutable reviewed campaign tuples for every authored share channel', () => {
+    assert.deepEqual(config.PUBLISHED_CAMPAIGNS, [
+      { medium: 'email', name: '2026_pool_season', source: 'app' },
+      { medium: 'facebook', name: '2026_pool_season', source: 'app' },
+      { medium: 'qr', name: '2026_pool_season', source: 'app' },
+      { medium: 'text', name: '2026_pool_season', source: 'app' },
+      { medium: 'x', name: '2026_pool_season', source: 'app' },
+      { medium: 'qr', name: '2026_pool_season', source: 'flyer' }
+    ]);
+    assert.equal(Object.isFrozen(config.PUBLISHED_CAMPAIGNS), true);
+    assert.equal(config.PUBLISHED_CAMPAIGNS.every(campaign => Object.isFrozen(campaign)), true);
+  });
+
   it('publishes the immutable attention notice with an Eastern timestamp', () => {
     assert.deepEqual(config.APP_ATTENTION_NOTICE, {
       DISMISSIBLE: true,
@@ -81,11 +94,13 @@ describe('app-config', () => {
   });
 
   it('publishes one immutable dependency manifest for team agenda views', () => {
-    assert.equal(config.TEAM_AGENDA_DEPENDENCIES.length, 20);
+    assert.equal(config.TEAM_AGENDA_DEPENDENCIES.length, 21);
     assert.ok(config.TEAM_AGENDA_DEPENDENCIES.indexOf('js/types/schedule-state.js')
       < config.TEAM_AGENDA_DEPENDENCIES.indexOf('js/models/meet.js'));
     assert.ok(config.TEAM_AGENDA_DEPENDENCIES.indexOf('js/services/device-platform-service.js')
       < config.TEAM_AGENDA_DEPENDENCIES.indexOf('js/services/pool-link-helper.js'));
+    assert.ok(config.TEAM_AGENDA_DEPENDENCIES.indexOf('js/types/payment-method.js')
+      < config.TEAM_AGENDA_DEPENDENCIES.indexOf('js/services/meet-day-guide-service.js'));
     assert.equal(config.TEAM_AGENDA_DEPENDENCIES.at(-1), 'js/services/meet-day-guide-service.js');
     assert.equal(Object.isFrozen(config.TEAM_AGENDA_DEPENDENCIES), true);
   });

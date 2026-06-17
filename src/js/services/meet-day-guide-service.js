@@ -4,12 +4,23 @@
  */
 if (typeof globalThis.MeetDayGuideService === 'undefined') {
   const MEET_HEAT_NOTICE_MAX_LANES = 6;
-  const PAYMENT_METHOD_LABELS = Object.freeze({
-    cash: 'cash',
-    credit: 'credit',
-    other: 'other listed methods',
-    paypal: 'PayPal',
-    venmo: 'Venmo'
+  const PAYMENT_METHOD_ASSET_BASE_URL = 'assets/images/payment-methods';
+  const PAYMENT_METHOD_PRESENTATION = Object.freeze({
+    [globalThis.PaymentMethod.CASH]: Object.freeze({ label: 'cash', visualLabel: 'Cash', iconName: 'banknote' }),
+    [globalThis.PaymentMethod.CREDIT]: Object.freeze({ label: 'credit', visualLabel: 'Credit' }),
+    [globalThis.PaymentMethod.OTHER]: Object.freeze({ label: 'other listed methods', visualLabel: 'Other methods' }),
+    [globalThis.PaymentMethod.PAYPAL]: Object.freeze({
+      assetPath: `${PAYMENT_METHOD_ASSET_BASE_URL}/paypal-monogram-full-color.png`,
+      height: 60,
+      label: 'PayPal',
+      width: 50
+    }),
+    [globalThis.PaymentMethod.VENMO]: Object.freeze({
+      assetPath: `${PAYMENT_METHOD_ASSET_BASE_URL}/venmo-wordmark-blue.png`,
+      height: 36,
+      label: 'Venmo',
+      width: 190
+    })
   });
 
   /** Selects and renders meet-day guidance for a favorite team. */
@@ -185,6 +196,16 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
     }
 
     /**
+     * Returns unique canonical payment methods from published concession data.
+     * @param {Object|null} concessions - Published concessions guidance
+     * @returns {PaymentMethodValue[]} Canonical methods in source order
+     * @private
+     */
+    static getPaymentMethods(concessions) {
+      return globalThis.PaymentMethod.filterValid(concessions?.paymentMethods);
+    }
+
+    /**
      * Formats concessions guidance as concise visitor-facing sentences.
      * @param {Object|null} concessions - Published concessions guidance
      * @returns {string[]} Concessions guidance lines
@@ -196,8 +217,9 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
       const lines = [];
       const unavailableBills = concessions.denominationsNotAccepted?.map(value => `$${value} bills`).join(', ');
       const denominationNote = unavailableBills ? ` (no ${unavailableBills})` : '';
-      if (concessions.paymentMethods?.length) {
-        const paymentMethods = concessions.paymentMethods.map(method => PAYMENT_METHOD_LABELS[method] || method).join(', ');
+      const canonicalPaymentMethods = MeetDayGuideService.getPaymentMethods(concessions);
+      if (canonicalPaymentMethods.length) {
+        const paymentMethods = canonicalPaymentMethods.map(method => PAYMENT_METHOD_PRESENTATION[method].label).join(', ');
         const smallBills = concessions.smallBillsPreferred ? ' and prefer small bills' : '';
         lines.push(`We accept ${paymentMethods}${smallBills}${denominationNote}.`);
       } else if (concessions.smallBillsPreferred) {
@@ -211,6 +233,40 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
       }
       if (concessions.notes?.length) lines.push(...concessions.notes);
       return lines;
+    }
+
+    /**
+     * Renders one canonical payment method as decorative visual reinforcement.
+     * @param {PaymentMethodValue} method - Canonical payment method
+     * @returns {string} Payment-method markup or an empty string
+     * @private
+     */
+    static renderPaymentMethod(method) {
+      const presentation = PAYMENT_METHOD_PRESENTATION[method];
+      if (!presentation) return '';
+      if (presentation.assetPath) {
+        return `<span class="my-meet-day__payment-method my-meet-day__payment-method--brand"><img class="my-meet-day__payment-logo my-meet-day__payment-logo--${method}" src="${presentation.assetPath}" alt="" width="${presentation.width}" height="${presentation.height}"></span>`;
+      }
+
+      const icon = presentation.iconName
+        ? globalThis.IconCatalog.render(presentation.iconName, 'my-meet-day__payment-icon')
+        : '';
+      return `<span class="my-meet-day__payment-method">${icon}<span>${globalThis.HtmlSafety.escapeHtml(presentation.visualLabel)}</span></span>`;
+    }
+
+    /**
+     * Renders canonical payment methods as a decorative visual row.
+     * @param {*} methods - Candidate payment-method collection
+     * @returns {string} Payment-method row or an empty string
+     * @private
+     */
+    static renderPaymentMethods(methods) {
+      const methodMarkup = globalThis.PaymentMethod.filterValid(methods)
+        .map(method => MeetDayGuideService.renderPaymentMethod(method))
+        .join('');
+      return methodMarkup
+        ? `<div class="my-meet-day__payment-methods" aria-hidden="true">${methodMarkup}</div>`
+        : '';
     }
 
     /**
@@ -264,7 +320,8 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
       if (!concessions) return '';
 
       const detailLines = MeetDayGuideService.getConcessionLines(concessions);
-      const emphasizePayment = Boolean(concessions.paymentMethods?.length || concessions.smallBillsPreferred);
+      const paymentMethods = MeetDayGuideService.getPaymentMethods(concessions);
+      const emphasizePayment = Boolean(paymentMethods.length || concessions.smallBillsPreferred);
       const details = detailLines.map((line, index) => {
         const safeLine = globalThis.HtmlSafety.escapeHtml(line);
         return emphasizePayment && index === 0 ? `<strong>${safeLine}</strong>` : safeLine;
@@ -278,8 +335,9 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
       if (!details && !menuGroups) return '';
 
       const detailsMarkup = details ? `<p class="my-meet-day__concessions-details">${details}</p>` : '';
+      const paymentMethodsMarkup = MeetDayGuideService.renderPaymentMethods(paymentMethods);
       const menuMarkup = menuGroups ? `<div class="my-meet-day__concessions-menu">${menuGroups}</div>` : '';
-      return `<div class="my-meet-day__fact my-meet-day__fact--concessions"><dt>Concessions</dt><dd>${detailsMarkup}${menuMarkup}</dd></div>`;
+      return `<div class="my-meet-day__fact my-meet-day__fact--concessions"><dt>Concessions</dt><dd>${detailsMarkup}${paymentMethodsMarkup}${menuMarkup}</dd></div>`;
     }
 
     /**

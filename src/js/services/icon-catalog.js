@@ -3,7 +3,7 @@
  */
 if (typeof globalThis.IconCatalog === 'undefined') {
   const ICON_NAMES = new Set([
-    'book-open', 'calendar', 'clipboard-list', 'clock', 'facebook', 'globe',
+    'banknote', 'book-open', 'calendar', 'clipboard-list', 'clock', 'facebook', 'globe',
     'home', 'info', 'mail', 'map', 'map-pin', 'message-circle', 'moon',
     'phone', 'pool', 'qr-code', 'runner', 'settings', 'shirt', 'shirt-plus',
     'sparkles', 'stopwatch', 'sun', 'swimmer', 'trophy', 'warning-triangle', 'x-brand'

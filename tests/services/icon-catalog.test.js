@@ -13,6 +13,7 @@ describe('IconCatalog', () => {
     );
     assert.match(IconCatalog.render('clock'), /class="icon"/);
     assert.match(IconCatalog.render('clock', 'one two'), /class="icon one two"/);
+    assert.match(IconCatalog.render('banknote'), /href="#icon-banknote"/);
   });
 
   it('rejects unknown icon names and unsafe class names', () => {

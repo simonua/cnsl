@@ -2,6 +2,7 @@ const { createClassicScriptLoader, toHostValue } = require('../../scripts/lib/cl
 
 const CONFIG = 'config/app-config.js';
 const ICONS = 'services/icon-catalog.js';
+const PAYMENT_METHOD = 'types/payment-method.js';
 const SCHEDULE_STATE = 'types/schedule-state.js';
 const TIME = 'services/time-utils.js';
 const WEATHER_HAZARD = 'types/weather-hazard.js';
@@ -19,8 +20,9 @@ const BROWSER_MODULE_MANIFESTS = Object.freeze({
   'icon-catalog': { scripts: [ICONS], exports: ['IconCatalog'] },
   'lesson-provider-service': { scripts: ['services/lesson-provider-service.js'], exports: ['LessonProviderService'] },
   meet: { scripts: [SCHEDULE_STATE, 'models/meet.js'], exports: ['Meet', 'MeetLiveStatus'] },
-  'meet-day-guide-service': { scripts: [CONFIG, ICONS, TIME, SCHEDULE_STATE, 'models/meet.js', 'services/preferences-service.js', 'services/html-safety.js', 'services/device-platform-service.js', 'services/pool-link-helper.js', 'types/meet-team-role.js', 'services/team-schedule-service.js', 'services/team-agenda-display.js', 'services/meet-day-guide-service.js'], exports: ['Meet', 'MeetDayGuideService', 'MeetTeamRole', 'PreferencesService', 'TeamAgendaDisplay'] },
+  'meet-day-guide-service': { scripts: [CONFIG, ICONS, TIME, SCHEDULE_STATE, 'models/meet.js', 'services/preferences-service.js', 'services/html-safety.js', 'services/device-platform-service.js', 'services/pool-link-helper.js', 'types/meet-team-role.js', PAYMENT_METHOD, 'services/team-schedule-service.js', 'services/team-agenda-display.js', 'services/meet-day-guide-service.js'], exports: ['Meet', 'MeetDayGuideService', 'MeetTeamRole', 'PaymentMethod', 'PreferencesService', 'TeamAgendaDisplay'], realmExports: ['PaymentMethod'] },
   'meet-team-role': { scripts: ['types/meet-team-role.js'], exports: ['MeetTeamRole'] },
+  'payment-method': { scripts: [PAYMENT_METHOD], exports: ['PaymentMethod'], realmExports: ['PaymentMethod'] },
   'meets-manager': { scripts: [SCHEDULE_STATE, 'models/meet.js', 'managers/meets-manager.js'], exports: ['Meet', 'MeetsManager'] },
   pool: { scripts: [CONFIG, ICONS, TIME, 'types/pool-enums.js', SCHEDULE_STATE, 'models/pool-schedule.js', 'services/pool-period-schedule-service.js', 'models/pool.js'], exports: ['Pool', 'PoolStatus', 'TimeUtils', 'PoolPeriodScheduleService'], realmExports: ['PoolStatus'] },
   'pool-card-display': { scripts: [CONFIG, 'services/html-safety.js', ICONS, 'services/device-platform-service.js', 'services/pool-link-helper.js', SCHEDULE_STATE, 'services/pool-card-display.js'], exports: ['PoolCardDisplay'] },
