@@ -278,6 +278,22 @@ test('[WF-AGENDA-009] completed meets advance only the dedicated My Meet Day rou
       venmoWidth: Math.round(venmoLogo.width)
     };
   })).toEqual({ cashColor: 'rgb(20, 108, 67)', cashHeight: 24, paypalHeight: 24, venmoWidth: 84 });
+  const concessionGroups = page.locator('#myMeetDay .my-meet-day__concessions-group');
+  expect(await concessionGroups.count()).toBeGreaterThan(1);
+  await expect.poll(() => concessionGroups.evaluateAll(groups => {
+    const headingTops = groups.map(group => group.querySelector('strong').getBoundingClientRect().top);
+    const listTops = groups.map(group => group.querySelector('ul').getBoundingClientRect().top);
+    const sharesTopEdge = positions => positions.every(position => Math.abs(position - positions[0]) <= 1);
+    const itemsOccupySeparateRows = groups.every(group => {
+      const itemTops = [...group.querySelectorAll('li')].map(item => item.getBoundingClientRect().top);
+      return new Set(itemTops).size === itemTops.length;
+    });
+    return {
+      headingsTopAligned: sharesTopEdge(headingTops),
+      itemsOccupySeparateRows,
+      listsTopAligned: sharesTopEdge(listTops)
+    };
+  })).toEqual({ headingsTopAligned: true, itemsOccupySeparateRows: true, listsTopAligned: true });
   await page.setViewportSize({ width: 360, height: 780 });
   await expect.poll(() => paymentMethods.evaluate(element => ({
     pageOverflow: globalThis.document.documentElement.scrollWidth > globalThis.document.documentElement.clientWidth,

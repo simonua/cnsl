@@ -206,6 +206,18 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
     }
 
     /**
+     * Formats payment-method labels as a natural-language list.
+     * @param {string[]} labels - Payment-method labels in display order
+     * @returns {string} Labels joined with a final "and"
+     * @private
+     */
+    static formatPaymentMethods(labels) {
+      if (labels.length < 2) return labels[0] || '';
+      if (labels.length === 2) return `${labels[0]} and ${labels[1]}`;
+      return `${labels.slice(0, -1).join(', ')}, and ${labels.at(-1)}`;
+    }
+
+    /**
      * Formats concessions guidance as concise visitor-facing sentences.
      * @param {Object|null} concessions - Published concessions guidance
      * @returns {string[]} Concessions guidance lines
@@ -219,7 +231,9 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
       const denominationNote = unavailableBills ? ` (no ${unavailableBills})` : '';
       const canonicalPaymentMethods = MeetDayGuideService.getPaymentMethods(concessions);
       if (canonicalPaymentMethods.length) {
-        const paymentMethods = canonicalPaymentMethods.map(method => PAYMENT_METHOD_PRESENTATION[method].label).join(', ');
+        const paymentMethods = MeetDayGuideService.formatPaymentMethods(
+          canonicalPaymentMethods.map(method => PAYMENT_METHOD_PRESENTATION[method].label)
+        );
         const smallBills = concessions.smallBillsPreferred ? ' and prefer small bills' : '';
         lines.push(`We accept ${paymentMethods}${smallBills}${denominationNote}.`);
       } else if (concessions.smallBillsPreferred) {
@@ -307,7 +321,10 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
      */
     static renderConcessionGroup(label, items) {
       if (!Array.isArray(items) || items.length === 0) return '';
-      return `<div class="my-meet-day__concessions-group"><strong>${globalThis.HtmlSafety.escapeHtml(label)}</strong><span>${items.map(item => globalThis.HtmlSafety.escapeHtml(item)).join(', ')}</span></div>`;
+      const itemMarkup = items
+        .map(item => `<li>${globalThis.HtmlSafety.escapeHtml(item)}</li>`)
+        .join('');
+      return `<div class="my-meet-day__concessions-group"><strong>${globalThis.HtmlSafety.escapeHtml(label)}</strong><ul class="my-meet-day__concessions-items">${itemMarkup}</ul></div>`;
     }
 
     /**

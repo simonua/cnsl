@@ -188,14 +188,12 @@ describe('MeetDayGuideService', () => {
       assert.match(homeHtml, /Please park along Tamar Drive\./);
       assert.match(homeHtml, /Please do not park in The Young School lot\./);
       assert.match(homeHtml, /Please keep clear of fire hydrants; cars parked too close have been ticketed\./);
-      assert.match(homeHtml, /We accept cash, PayPal, Venmo\./);
+      assert.match(homeHtml, /We accept cash, PayPal, and Venmo\./);
       assert.match(homeHtml, /href="#icon-banknote"/);
       assert.match(homeHtml, /src="assets\/images\/payment-methods\/paypal-monogram-full-color\.png"/);
       assert.match(homeHtml, /src="assets\/images\/payment-methods\/venmo-wordmark-blue\.png"/);
       assert.doesNotMatch(homeHtml, /payment-logo-frame/);
-      assert.match(homeHtml, />Meals<\/strong><span>hot lunch food<\/span>/);
-      assert.match(homeHtml, />Snacks<\/strong><span>bagels, donuts, snacks, snow cones<\/span>/);
-      assert.match(homeHtml, /Visiting-team coaches may receive a few complimentary items\./);
+      assert.match(homeHtml, /class="my-meet-day__concessions-items"><li>/);
       assert.match(homeHtml, /The data table is under the large pavilion next to the baby pool\./);
       assert.doesNotMatch(homeHtml, />Food<\/strong>/);
 
@@ -280,11 +278,15 @@ describe('MeetDayGuideService', () => {
       }), ['Two spaces near the entrance are reserved for coaches and managers.']);
       assert.deepEqual(MeetDayGuideService.getCheckInLines(null), []);
       assert.deepEqual(MeetDayGuideService.getConcessionLines(null), []);
+      assert.equal(MeetDayGuideService.formatPaymentMethods([]), '');
       assert.deepEqual(MeetDayGuideService.getConcessionLines({
         paymentMethods: [PaymentMethod.CASH, PaymentMethod.CREDIT, PaymentMethod.VENMO, PaymentMethod.PAYPAL],
         dietaryOptions: [{ type: 'vegetarian', availability: 'available' }],
         notes: ['Limited quantities.']
-      }), ['We accept cash, credit, Venmo, PayPal.', 'Dietary options: vegetarian (available)', 'Limited quantities.']);
+      }), ['We accept cash, credit, Venmo, and PayPal.', 'Dietary options: vegetarian (available)', 'Limited quantities.']);
+      assert.deepEqual(MeetDayGuideService.getConcessionLines({
+        paymentMethods: [PaymentMethod.CASH, PaymentMethod.PAYPAL]
+      }), ['We accept cash and PayPal.']);
       assert.deepEqual(MeetDayGuideService.getPaymentMethods({
         paymentMethods: [PaymentMethod.VENMO, 'Venmo', PaymentMethod.CASH, PaymentMethod.VENMO]
       }), [PaymentMethod.VENMO, PaymentMethod.CASH]);
@@ -299,6 +301,10 @@ describe('MeetDayGuideService', () => {
       assert.match(MeetDayGuideService.renderFact('Mixed', ['', 'Visible']), /Visible/);
       assert.equal(MeetDayGuideService.renderConcessionGroup('Food'), '');
       assert.equal(MeetDayGuideService.renderConcessionGroup('Food', []), '');
+      assert.equal(
+        MeetDayGuideService.renderConcessionGroup('Food & drinks', ['Bagels', '<Coffee>']),
+        '<div class="my-meet-day__concessions-group"><strong>Food &amp; drinks</strong><ul class="my-meet-day__concessions-items"><li>Bagels</li><li>&lt;Coffee&gt;</li></ul></div>'
+      );
       assert.equal(MeetDayGuideService.renderConcessions(null), '');
       assert.equal(MeetDayGuideService.renderConcessions({}), '');
       assert.equal(MeetDayGuideService.renderConcessions({ paymentMethods: ['custom'] }), '');
@@ -308,7 +314,7 @@ describe('MeetDayGuideService', () => {
       ]), /Cash.*Credit.*Other methods.*paypal-monogram-full-color.*venmo-wordmark-blue/);
       assert.equal(MeetDayGuideService.renderPaymentMethod('custom'), '');
       assert.equal(MeetDayGuideService.renderPaymentMethods(['custom']), '');
-      assert.match(MeetDayGuideService.renderConcessions({ foodItems: ['bagels'] }), />Food<\/strong><span>bagels<\/span>/);
+      assert.match(MeetDayGuideService.renderConcessions({ foodItems: ['bagels'] }), />Food<\/strong><ul[^>]*><li>bagels<\/li><\/ul>/);
       assert.equal(MeetDayGuideService.renderTimingFact('Empty', '', ''), '');
     });
   });

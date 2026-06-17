@@ -1526,12 +1526,21 @@ main h1 {
 }
 
 .my-meet-day__concessions-group {
+  align-content: start;
   display: grid;
   gap: 0.15rem;
 }
 
 .my-meet-day__concessions-group strong {
   color: var(--primary-text-color);
+}
+
+.my-meet-day__concessions-items {
+  display: grid;
+  gap: 0.15rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .my-meet-day__volunteer {
