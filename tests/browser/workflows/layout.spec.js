@@ -17,6 +17,26 @@ test('[WF-LAYOUT-001] mobile pages retain the shared viewport gutter', async ({ 
   await expect(page.locator('#mainContent')).toHaveCSS('padding-right', '12px');
 });
 
+test('[WF-LAYOUT-005] mobile directory page titles remain compact', async ({ page }) => {
+  await page.setViewportSize(MOBILE_VIEWPORT);
+
+  for (const { path, title } of [
+    { path: '/pools.html', title: 'Pools & Hours' },
+    { path: '/teams.html', title: 'Swim Teams' }
+  ]) {
+    await page.goto(path);
+    const heading = page.getByRole('heading', { level: 1, name: title });
+    await expect(heading).toBeVisible();
+    await expect.poll(() => heading.evaluate(element => {
+      const styles = globalThis.getComputedStyle(element);
+      return {
+        fontSize: Number.parseFloat(styles.fontSize),
+        singleLine: element.getBoundingClientRect().height <= Number.parseFloat(styles.lineHeight) + 0.5
+      };
+    })).toEqual({ fontSize: 24, singleLine: true });
+  }
+});
+
 test('[WF-LAYOUT-002] shared attention notice appears directly below the header', async ({ page }) => {
   await page.setViewportSize(MOBILE_VIEWPORT);
   await page.goto('/pools.html');

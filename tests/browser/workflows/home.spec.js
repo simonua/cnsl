@@ -102,14 +102,23 @@ test('[WF-HOME-002] home page keeps compact link actions readable on narrow phon
 
   await expect.poll(() => page.locator('.quick-links-grid .quick-link-card').evaluateAll(elements => {
     const visibleElements = elements.filter(element => element.getClientRects().length > 0);
+    const iconDimensions = visibleElements.map(element => {
+      const bounds = element.querySelector('.quick-link-icon .icon').getBoundingClientRect();
+      return `${bounds.width.toFixed(2)}x${bounds.height.toFixed(2)}`;
+    });
     return {
       fits: visibleElements.every(element => {
         const bounds = element.getBoundingClientRect();
         return bounds.left >= 0 && bounds.right <= globalThis.innerWidth && bounds.height >= 44;
       }),
+      iconsMatch: new Set(iconDimensions).size === 1,
+      labelsFitOneLine: visibleElements.every(element => {
+        const label = element.querySelector('.quick-link-label');
+        return label.getBoundingClientRect().height <= Number.parseFloat(globalThis.getComputedStyle(label).lineHeight) + 0.5;
+      }),
       rows: new Set(visibleElements.map(element => Math.round(element.getBoundingClientRect().top))).size
     };
-  })).toEqual({ fits: true, rows: 1 });
+  })).toEqual({ fits: true, iconsMatch: true, labelsFitOneLine: true, rows: 1 });
   await expect.poll(() => page.locator('.share-site__links .share-site__link').evaluateAll(elements => (
     new Set(elements.map(element => Math.round(element.getBoundingClientRect().top))).size
   ))).toBe(2);
