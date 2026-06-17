@@ -14,18 +14,19 @@
 
   /**
    * Renders the footer's durable weather-check timestamp before paint and after updates.
+   * @returns {boolean} Whether the footer was available to render
    * @private
    */
   function renderFooterWeatherFreshness() {
     const freshness = document.getElementById('footerWeatherFreshness');
     const updated = document.getElementById('footerWeatherUpdated');
-    if (!freshness || !updated) return;
+    if (!freshness || !updated) return false;
 
     const latestStatus = globalThis.WeatherFreshnessService.read();
     const hasVisibleUpdate = getWeatherRefreshMinutes() !== 0 && Boolean(latestStatus);
     freshness.setAttribute('aria-hidden', String(!hasVisibleUpdate));
     updated.hidden = !hasVisibleUpdate;
-    if (!hasVisibleUpdate) return;
+    if (!hasVisibleUpdate) return true;
 
     const updatedAt = new Date(latestStatus.updatedAt);
     updated.dateTime = latestStatus.updatedAt;
@@ -40,10 +41,25 @@
       timeZone: globalThis.APP_TIMEZONE
     }).format(updatedAt);
     updated.textContent = `${updatedDate}, ${updatedTime}`;
+    return true;
+  }
+
+  /**
+   * Watches parser progress until the shared footer is available, then stops observing.
+   * @private
+   */
+  function observeFooterWeatherFreshness() {
+    if (renderFooterWeatherFreshness()) return;
+
+    const footerObserver = new MutationObserver(() => {
+      if (!renderFooterWeatherFreshness()) return;
+      footerObserver.disconnect();
+    });
+    footerObserver.observe(document.body, { childList: true, subtree: true });
   }
 
   globalThis.renderFooterWeatherFreshness = renderFooterWeatherFreshness;
-  renderFooterWeatherFreshness();
+  observeFooterWeatherFreshness();
 
   try {
     const refreshMinutes = getWeatherRefreshMinutes();
