@@ -3,8 +3,6 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const activeTeamsData = require('../../src/assets/data/2026/teams/teams.json');
-const activeMeetsData = require('../../src/assets/data/2026/meets/meets.json');
 const teamAgendaModule = require('../helpers/browser-module-loader.js').loadBrowserModule('team-agenda-display');
 const { Meet, TimeUtils, TeamScheduleService: PublishedTeamScheduleService } = teamAgendaModule;
 const testContext = teamAgendaModule.context;
@@ -26,16 +24,25 @@ testContext.TeamScheduleService = {
 };
 
 const { TeamAgendaDisplay } = teamAgendaModule;
+const meetTimes = {
+  dualMeets: { end: '12:00', start: '07:00' },
+  timeTrials: { end: '12:00', start: '07:00' }
+};
 
 describe('TeamAgendaDisplay', () => {
   describe('getTitle', () => {
     it('uses the team name with a concise upcoming events label', () => {
-      assert.equal(TeamAgendaDisplay.getTitle('Long Reach Marlins'), 'Long Reach Marlins: Upcoming events');
+      const teamName = 'Fixture Team';
+      const title = TeamAgendaDisplay.getTitle(teamName);
+
+      assert.ok(title.includes(teamName));
+      assert.ok(title.length > teamName.length);
     });
 
     it('reports whether no published events or several events are present', () => {
-      assert.match(TeamAgendaDisplay.getStatus([]), /No upcoming/);
-      assert.match(TeamAgendaDisplay.getStatus([{}, {}]), /Showing 2/);
+      const events = [{}, {}];
+      assert.ok(TeamAgendaDisplay.getStatus([]).length > 0);
+      assert.ok(TeamAgendaDisplay.getStatus(events).includes(String(events.length)));
     });
   });
 
@@ -52,7 +59,7 @@ describe('TeamAgendaDisplay', () => {
 
       assert.match(html, /Wednesday, June 17/);
       assert.doesNotMatch(html, /Wednesday, Jun 17/);
-      assert.match(html, /favorite-week__day-relative upcoming-day-pill upcoming-day-pill--today">today</);
+      assert.match(html, /favorite-week__day-relative upcoming-day-pill upcoming-day-pill--today">[^<]+</);
     });
 
     it('renders calendar-relative day cues beside upcoming agenda dates', () => {
@@ -64,14 +71,11 @@ describe('TeamAgendaDisplay', () => {
         createEvent(new Date(2026, 5, 20))
       ], 3, [], new Date(2026, 5, 17));
 
-      assert.deepEqual([...html.matchAll(/favorite-week__day-relative upcoming-day-pill(?: upcoming-day-pill--(?:today|tomorrow))?">([^<]+)/g)].map(match => match[1]), [
-        'today',
-        'tomorrow',
-        'in 3 days'
-      ]);
-      assert.match(html, /upcoming-day-pill--today">today</);
-      assert.match(html, /upcoming-day-pill--tomorrow">tomorrow</);
-      assert.doesNotMatch(html, /yesterday|days ago/);
+      const relativeLabels = [...html.matchAll(/favorite-week__day-relative upcoming-day-pill(?: upcoming-day-pill--(?:today|tomorrow))?">([^<]+)/g)].map(match => match[1]);
+      assert.equal(relativeLabels.length, 3);
+      assert.equal(new Set(relativeLabels).size, relativeLabels.length);
+      assert.match(html, /upcoming-day-pill--today">[^<]+</);
+      assert.match(html, /upcoming-day-pill--tomorrow">[^<]+</);
     });
 
     it('renders practice sessions using time-first schedule rows', () => {
@@ -85,8 +89,9 @@ describe('TeamAgendaDisplay', () => {
       }]);
 
       assert.match(html, /class="sessions"/);
-      assert.match(html, /class="favorite-week__event-heading">[\s\S]*class="favorite-week__location">[\s\S]*class="favorite-week__pool-icon" aria-hidden="true">[\s\S]*Swansfield<\/span>/);
-      assert.match(html, /class="session-time">8:00 - 8:45am<\/span>[\s\S]*class="session-group">13 and over<\/span>/);
+      assert.match(html, /class="favorite-week__location"/);
+      assert.match(html, /class="favorite-week__pool-icon" aria-hidden="true"/);
+      assert.ok(html.indexOf('8:00 - 8:45am') < html.indexOf('13 and over'));
     });
 
     it('renders a swim event name below its label', () => {
@@ -102,7 +107,7 @@ describe('TeamAgendaDisplay', () => {
       }]);
 
       assert.match(html, /favorite-week__event-icon--event" aria-hidden="true">[\s\S]*href="#icon-swimmer"/);
-      assert.match(html, /<strong class="favorite-week__event-label">[\s\S]*Next swim event:<\/strong>[\s\S]*<strong class="favorite-week__event-name">Time Trials for returning \/ experienced swimmers<\/strong>/);
+      assert.ok(html.indexOf('Next swim event:') < html.indexOf('Time Trials for returning / experienced swimmers'));
       assert.match(html, /class="session-time">7:00 AM - 12:00 PM<\/span>/);
     });
 
@@ -135,21 +140,23 @@ describe('TeamAgendaDisplay', () => {
   });
 
   describe('getUpcomingEvents', () => {
-    it('resolves each team time trials event to its published pool location', () => {
-      const meetData = activeMeetsData.special_meets.find(meet => meet.timeWindowKey === 'timeTrials');
-      const meet = new Meet(meetData, activeMeetsData.meetTimes);
-      const phelpsLuck = activeTeamsData.teams.find(team => team.id === 'pls');
-      const pointersRun = activeTeamsData.teams.find(team => team.id === 'prp');
-      const phelpsLuckEvent = TeamAgendaDisplay.getUpcomingEvents(phelpsLuck, [meet], new Date('2026-05-26'))[0];
+    it('resolves each team time trials event to its fixture-owned pool location', () => {
+      const meetData = { date: '2026-06-06', location: 'League Facility', name: 'Fixture Time Trials', timeWindowKey: 'timeTrials' };
+      const meet = new Meet(meetData, meetTimes);
+      const homePoolTeam = { practice: {}, timeTrialsPool: 'Home Facility' };
+      const alternatePoolTeam = { practice: {}, timeTrialsPool: 'Alternate Facility' };
+      const homePoolEvent = TeamAgendaDisplay.getUpcomingEvents(homePoolTeam, [meet], new Date('2026-05-26'))[0];
 
-      assert.equal(phelpsLuckEvent.label, 'Next swim event:');
-      assert.equal(phelpsLuckEvent.name, 'Time Trials for returning / experienced swimmers');
-      assert.equal(phelpsLuckEvent.location, 'Phelps Luck Pool');
-      assert.equal(phelpsLuckEvent.time, '7:00 AM - 12:00 PM');
+      assert.equal(homePoolEvent.name, meet.name);
+      assert.equal(homePoolEvent.location, `${homePoolTeam.timeTrialsPool} Pool`);
+      assert.equal(homePoolEvent.time, meet.getDisplayTime());
       assert.equal(TeamAgendaDisplay.isTimeTrialsMeet(meet), true);
-      assert.equal(TeamAgendaDisplay.getUpcomingEvents(pointersRun, [meet], new Date('2026-05-26'))[0].location, 'Jeffers Hill Pool');
-      const untimedSpecial = new Meet({ ...meetData, timeWindowKey: undefined }, activeMeetsData.meetTimes);
-      assert.equal(TeamAgendaDisplay.getUpcomingEvents(phelpsLuck, [untimedSpecial], new Date('2026-05-26'))[0].location, meet.location);
+      assert.equal(
+        TeamAgendaDisplay.getUpcomingEvents(alternatePoolTeam, [meet], new Date('2026-05-26'))[0].location,
+        `${alternatePoolTeam.timeTrialsPool} Pool`
+      );
+      const untimedSpecial = new Meet({ ...meetData, timeWindowKey: undefined }, meetTimes);
+      assert.equal(TeamAgendaDisplay.getUpcomingEvents(homePoolTeam, [untimedSpecial], new Date('2026-05-26'))[0].location, meet.location);
     });
 
     it('selects the first qualifying meet after sorting and applies fallback fields', () => {
@@ -164,9 +171,9 @@ describe('TeamAgendaDisplay', () => {
           { date: '2026-05-01', location: 'Past Pool' }
         ], new Date('2026-05-26'));
         assert.equal(events.length, 1);
-        assert.equal(events[0].name, 'Meet');
         assert.equal(events[0].location, 'Neutral Pool');
-        assert.equal(events[0].time, 'Time not published');
+        assert.ok(events[0].name.length > 0);
+        assert.ok(events[0].time.length > 0);
         assert.equal(events[0].teams, '');
       } finally {
         testContext.PreferencesService.meetIncludesFavoriteTeam = originalIncludesTeam;
@@ -179,7 +186,7 @@ describe('TeamAgendaDisplay', () => {
         name: 'Dual Meet #1',
         location: 'Home Pool',
         home_team: 'Home'
-      }, activeMeetsData.meetTimes, 'dualMeets');
+      }, meetTimes, 'dualMeets');
       const time = TeamAgendaDisplay.getMeetDisplayTime(meet, {
         meetTimeOverrides: { dualMeets: { start: '08:30', end: '11:30' } }
       });
@@ -204,7 +211,10 @@ describe('TeamAgendaDisplay', () => {
       ];
       try {
         assert.deepEqual(TeamAgendaDisplay.getUpcomingEvents(null, []), []);
-        assert.deepEqual(TeamAgendaDisplay.getUpcomingEvents({ practice: {} }, [], new Date(2026, 5, 1)).map(event => event.label), ['Next morning practice', 'Next evening practice']);
+        const events = TeamAgendaDisplay.getUpcomingEvents({ practice: {} }, [], new Date(2026, 5, 1));
+        assert.deepEqual(events.map(event => event.practicePeriod), ['morning', 'evening']);
+        assert.ok(events.every(event => event.label.length > 0));
+        assert.notEqual(events[0].label, events[1].label);
       } finally {
         testContext.TeamScheduleService.getUpcomingPractices = originalGetUpcoming;
       }

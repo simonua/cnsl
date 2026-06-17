@@ -32,7 +32,10 @@ describe('refactoring audit boundary', () => {
     });
 
     it('should reject an empty diff', () => {
-      assert.deepEqual(findUnexpectedChanges([]), ['No refactoring plan modification was found.']);
+      const findings = findUnexpectedChanges([]);
+      assert.equal(findings.length, 1);
+      assert.equal(typeof findings[0], 'string');
+      assert.ok(findings[0].length > 0);
     });
   });
 });

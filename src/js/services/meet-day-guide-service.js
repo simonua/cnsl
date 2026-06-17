@@ -3,6 +3,8 @@
  * Combines annual matchup, pool, and recurring host-team facts without DOM access.
  */
 if (typeof globalThis.MeetDayGuideService === 'undefined') {
+  const CASH_BILL_MAXIMUM_DENOMINATION = 20;
+  const CASH_BILL_PREFERRED_DENOMINATIONS = Object.freeze([5, 1]);
   const MEET_HEAT_NOTICE_MAX_LANES = 6;
   const PAYMENT_METHOD_ASSET_BASE_URL = 'assets/images/payment-methods';
   const PAYMENT_METHOD_PRESENTATION = Object.freeze({
@@ -227,18 +229,23 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
       if (!concessions) return [];
 
       const lines = [];
-      const unavailableBills = concessions.denominationsNotAccepted?.map(value => `$${value} bills`).join(', ');
-      const denominationNote = unavailableBills ? ` (no ${unavailableBills})` : '';
       const canonicalPaymentMethods = MeetDayGuideService.getPaymentMethods(concessions);
       if (canonicalPaymentMethods.length) {
         const paymentMethods = MeetDayGuideService.formatPaymentMethods(
           canonicalPaymentMethods.map(method => PAYMENT_METHOD_PRESENTATION[method].label)
         );
-        const smallBills = concessions.smallBillsPreferred ? ' and prefer small bills' : '';
-        lines.push(`We accept ${paymentMethods}${smallBills}${denominationNote}.`);
-      } else if (concessions.smallBillsPreferred) {
-        lines.push(`Small bills are preferred${denominationNote}.`);
-      } else if (unavailableBills) {
+        lines.push(`We accept ${paymentMethods}.`);
+      }
+      if (canonicalPaymentMethods.includes(globalThis.PaymentMethod.CASH)) {
+        const preferredBills = MeetDayGuideService.formatPaymentMethods(
+          CASH_BILL_PREFERRED_DENOMINATIONS.map(value => `$${value}`)
+        );
+        lines.push(`Please use bills of $${CASH_BILL_MAXIMUM_DENOMINATION} or less; ${preferredBills} bills are especially helpful.`);
+      }
+      const unavailableBills = MeetDayGuideService.formatPaymentMethods(
+        concessions.denominationsNotAccepted?.map(value => `$${value} bills`) || []
+      );
+      if (unavailableBills) {
         lines.push(`We cannot accept ${unavailableBills}.`);
       }
       if (concessions.opensAt) lines.push(`Concessions open at ${MeetDayGuideService.formatClockTime(concessions.opensAt)}.`);
@@ -338,7 +345,7 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
 
       const detailLines = MeetDayGuideService.getConcessionLines(concessions);
       const paymentMethods = MeetDayGuideService.getPaymentMethods(concessions);
-      const emphasizePayment = Boolean(paymentMethods.length || concessions.smallBillsPreferred);
+      const emphasizePayment = paymentMethods.length > 0;
       const details = detailLines.map((line, index) => {
         const safeLine = globalThis.HtmlSafety.escapeHtml(line);
         return emphasizePayment && index === 0 ? `<strong>${safeLine}</strong>` : safeLine;

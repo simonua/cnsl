@@ -457,6 +457,11 @@
                 "donuts",
                 "snacks",
                 "snow cones"
+              ],
+              "drinkItems": [
+                "coffee",
+                "water",
+                "soda"
               ]
             }
           },
@@ -471,9 +476,9 @@
             ]
           },
           "visitingTeam": {
-            "reservedParking": "Please tell the host team how many parking-lot spaces your team needs reserved.",
             "familySetupLocation": "on the left side from the pool entrance, on the shaded side of the pool",
-            "swimmerCheckInLocation": "at the reserved table in the back corner by the diving board"
+            "swimmerCheckInLocation": "at the reserved table in the back corner by the diving board",
+            "warmupTime": "07:25"
           }
         }
       ],
@@ -972,7 +977,6 @@
             "concessions": {
               "opensAt": "07:30",
               "paymentMethods": ["cash"],
-              "smallBillsPreferred": true,
               "denominationsNotAccepted": [100],
               "mealItems": [
                 "breakfast sandwiches",

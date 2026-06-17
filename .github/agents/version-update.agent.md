@@ -77,13 +77,12 @@ Because Release mode creates a release candidate, run the automated gate documen
 
 ```bash
 pnpm run lint
-pnpm test
 pnpm run validate:data
 pnpm audit --audit-level high
 pnpm run build
 pnpm run verify:pwa
 ```
 
-Do not run Playwright locally as part of release verification. The separate weekly browser-verification workflow runs it only after repository updates and does not block deployment.
+Also rerun the exact unit-test files and browser IDs established by the release candidate's changed features. Do not replace those scoped runs with a complete local suite. The separate CI workflows own complete unit and browser verification and do not block deployment.
 
 Report changed files, visitor-facing release highlights, and exact validation results. Identify any required HTTPS PWA, keyboard/screen reader, or privacy review that still needs to be completed on the delivered site; do not claim completion without evidence.

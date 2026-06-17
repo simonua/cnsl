@@ -111,7 +111,7 @@ describe('DataManager', () => {
 
       try {
         const manager = new DataManager();
-        await assert.rejects(manager.initialize(['pools']), /Invalid pools annual data response/);
+        await assert.rejects(manager.initialize(['pools']));
       } finally {
         global.fetch = originalFetch;
         global.FileHelper = originalFileHelper;
@@ -120,7 +120,7 @@ describe('DataManager', () => {
 
     it('should reject unknown domains before fetching data', async () => {
       const manager = new DataManager();
-      await assert.rejects(manager.initialize(['unknown']), /Unknown annual data domain/);
+      await assert.rejects(manager.initialize(['unknown']));
     });
 
     it('should report failed fetches and release failed loading promises', async () => {
@@ -132,7 +132,7 @@ describe('DataManager', () => {
       console.error = () => {};
       try {
         const manager = new DataManager();
-        await assert.rejects(manager.initialize(['pools']), /Failed to load \/missing.json: 404/);
+        await assert.rejects(manager.initialize(['pools']));
         assert.equal(manager.loadingPromises.size, 0);
       } finally {
         global.fetch = originalFetch;

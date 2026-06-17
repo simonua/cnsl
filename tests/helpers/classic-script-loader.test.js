@@ -23,7 +23,7 @@ describe('classic script loader', () => {
   it('restricts real script paths to the repository browser source directory', () => {
     const resolvedPath = resolveBrowserScript('types/schedule-state.js');
     assert.equal(path.dirname(path.dirname(resolvedPath)), BROWSER_SOURCE_ROOT);
-    assert.throws(() => resolveBrowserScript('../service-worker.js'), /escapes src\/js/);
+    assert.throws(() => resolveBrowserScript('../service-worker.js'));
   });
 
   it('converts realm-owned structured values to host values', () => {

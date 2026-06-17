@@ -3,7 +3,12 @@ name: meet-guidance-updater
 description: "Updates active-season My Meet Day guidance from team-manager welcome emails or meet instructions. Use for parking, team setup, check-in, warm-ups, concessions, venue notes, or other home/away meet guidance, and produce final home-team and away-team view outputs."
 argument-hint: "Provide the manager message and identify the sender's team or role when it is not clear from the message"
 target: github-copilot
-tools: [read, search, edit, execute, run_playwright_code]
+tools:
+   - read
+   - search
+   - edit
+   - execute
+   - run_playwright_code
 ---
 
 # Meet Guidance Updater
@@ -17,7 +22,7 @@ Follow all repository instructions, especially `.github/instructions/data.instru
 Use this agent for a team-manager welcome message, meet email, visiting-team instructions, or correction that supplies facts such as:
 
 - Arrival or warm-up times
-- Parking and reserved spaces
+- Public parking locations, restrictions, and fixed reserved-space rules useful to families
 - Family setup areas or poolside conditions
 - Swimmer, volunteer, data-team, or clerk check-in locations
 - Concessions, payment methods, dietary options, or opening times
@@ -36,8 +41,8 @@ Use `runlocal` mode unless the user explicitly requests publication. Do not crea
    - `general`: facts shown to both teams, including shared parking, venue conditions, data-table location, and concessions.
    - `homeTeam`: facts intended only for the host team.
    - `visitingTeam`: facts intended only for the away team.
-5. Normalize facts only through the existing schema and My Meet Day presentation contract. Preserve the source meaning and do not invent specificity. Map every concession payment method to a canonical value owned by `src/js/types/payment-method.js` and accepted by the active team schema; never store display casing such as `PayPal` or `Venmo` in annual JSON. If the source names an unsupported method, leave it unmodeled until the runtime owner and schema receive a deliberate reviewed extension. Use the established concession groups.
-6. Do not publish personal names, email addresses, phone numbers, private payment handles, or other contact details from the message. Omit lineup deadlines, entry-file requests, swimmer-count requests, staffing shortages, pep-rally details, and other matchup-only coordination unless the application deliberately gains a reviewed meet-specific data contract.
+5. Normalize facts only through the existing schema and My Meet Day presentation contract. Preserve the source meaning and do not invent specificity. Map every concession payment method to a canonical value owned by `src/js/types/payment-method.js` and accepted by the active team schema; never store display casing such as `PayPal` or `Venmo` in annual JSON. If the source names an unsupported method, leave it unmodeled until the runtime owner and schema receive a deliberate reviewed extension. Use the established concession groups. Do not model a generic small-bill preference or maximum bill denomination in annual data: canonical `cash` automatically renders the shared visitor guidance to use bills of $20 or less, with $5 and $1 bills especially preferred. Preserve explicit source-specific rejected denominations with `denominationsNotAccepted`.
+6. Do not publish personal names, email addresses, phone numbers, private payment handles, or other contact details from the message. Omit internal manager-to-manager coordination and any request for one team or manager to report information to another, including variable reserved-space needs, lineup deadlines, entry-file requests, swimmer or coach counts, and staffing needs. The fact that a message mentions parking or another supported topic does not make its manager-only coordination public guidance. Preserve fixed family-facing parking restrictions and reserved-space rules only when they directly help visitors without requiring a private response. Also omit pep-rally details and other matchup-only coordination unless the application deliberately gains a reviewed meet-specific data contract.
 7. Do not change a schema unless explicit `High`-confidence evidence proves that a useful recurring fact cannot be represented faithfully. Inspect all affected records and consumers before any schema change.
 
 ## Update Procedure
@@ -46,7 +51,7 @@ Use `runlocal` mode unless the user explicitly requests publication. Do not crea
 2. Add a concise evidence entry to `src/assets/data/<YEAR>/README.md` that records the source owner, affected fields, normalization decisions, superseded facts, omitted matchup-only or personal details, conflicts, confidence, and residual uncertainty.
 3. Append a local-correction entry to `.github/automation/season-data-monitor/check-log.md`. End the entry with the required `Area`, `Status`, and `Details` update table.
 4. A supplied manager message is not a comprehensive online source review. Unless the current task separately completes every required live source request, do not change `OFFICIAL_SOURCE_CHECKED_AT`, `OFFICIAL_SOURCE_UPDATED_AT`, or `.github/automation/season-data-monitor/source-state.json`. State that they remain unchanged.
-5. Update focused unit coverage in `tests/services/meet-day-guide-service.test.js` when active-data expectations changed. Exercise shared guidance through the home team's view and role-specific guidance through the away team's view. Assert semantic visitor-visible output, not raw object shape alone.
+5. Update focused unit coverage in `tests/services/meet-day-guide-service.test.js` only when behavior or a reusable rendering contract changed. Exercise shared guidance through a deterministic home-team fixture and role-specific guidance through an away-team fixture. Assert semantic role selection, fixture-value flow, escaping, omission, and accessible structure without pinning active-season entities or manager-supplied prose. Annual schema and integrity validation, not duplicated text assertions, covers ordinary active-data corrections.
 6. Do not edit generated `out/` files. Do not add a What's New item or version change for an ordinary data correction.
 
 ## Verification
@@ -57,26 +62,25 @@ Run:
 
 ```powershell
 pnpm run validate:data
-pnpm run test:coverage
 pnpm run lint
 pnpm run build
 pnpm dlx markdownlint-cli2 "src/assets/data/<YEAR>/README.md" ".github/automation/season-data-monitor/check-log.md"
 ```
 
-If no JavaScript file changed, `pnpm test` may replace the coverage command. If any `.js` file changed, including a test, the complete coverage command is mandatory. Fix failures caused by the update and rerun the affected gate. Report unrelated failures without changing unrelated code.
+Ordinary annual-data corrections do not require unit tests. If behavior or a reusable rendering contract changed, run only `node --test tests/services/meet-day-guide-service.test.js` plus any other specifically affected test file. If delivered JavaScript changed and focused coverage is needed, collect coverage only for those changed modules while executing the same affected tests. Fix failures caused by the update and rerun only the affected gate. Report unrelated failures without changing unrelated code.
 
 ## My Meet Day Outputs
 
 After the build passes, produce one home-team output and one away-team output from the local built site. Never navigate an automated browser to production.
 
 1. Reuse a healthy local server at `http://localhost:9090/`. If none exists, start the repository's local server and verify the URL responds before browser navigation.
-2. Use a fixed Eastern reference time on the day before the represented meet so the target matchup is active in My Meet Day. Use the dedicated `/my-meet-day.html` route.
-3. Block external requests. Fulfill any required weather request with a stable empty response. Do not contact production or third-party analytics.
-4. Ensure the generated `test-results/meet-guidance/` directory exists. Do not place screenshots under source-controlled application directories.
-5. Set a stable desktop viewport. Before navigation, seed `cnsl_preferences` with `experimentalFeatures: ["my-meet-day"]` and the home team's ID. Wait for `#myMeetDayStatus` to report `Meet-day details loaded.` and for `#myMeetDay` to be visible.
-6. Confirm the role label, matchup, and all newly accepted shared/home facts. Capture the complete `#myMeetDay` element to `test-results/meet-guidance/<meet-date>-<home-team-id>-home.png` and collect its normalized `innerText`.
-7. Repeat in a clean browser context with the away team's ID. Confirm the away role and all newly accepted shared/visitor facts. Capture `test-results/meet-guidance/<meet-date>-<away-team-id>-away.png` and collect its normalized `innerText`.
-8. Treat screenshots as generated verification artifacts; do not stage or commit them. If either role cannot render, mark the output `Not completed`, explain the blocker, and do not claim the workflow is complete.
+2. Run the reusable capture helper with the represented meet date and team IDs. Add each accepted fact through repeatable `--shared-text`, `--home-text`, or `--away-text` options according to its audience. Add every intentionally omitted or superseded phrase worth checking through `--exclude-text`. The helper derives a reference time on the day before the meet, uses clean home and away contexts, blocks external requests, stabilizes weather, asserts role-specific text, saves both screenshots, and prints structured JSON containing the normalized rendered views.
+
+```powershell
+pnpm run capture:meet-guidance -- --meet-date <YYYY-MM-DD> --home-team-id <home-id> --away-team-id <away-id> --shared-text "<shared fact>" --home-text "<home fact>" --away-text "<away fact>" --exclude-text "<omitted phrase>"
+```
+
+Run `pnpm run capture:meet-guidance -- --help` for the complete option list. Whitespace in expected text is normalized, so a compact phrase may assert content rendered across several lines. Treat screenshots under `test-results/meet-guidance/` as generated verification artifacts; do not stage or commit them. If either role cannot render or an expected assertion fails, mark the output `Not completed`, explain the blocker, and do not claim the workflow is complete.
 
 ## Completion Report
 

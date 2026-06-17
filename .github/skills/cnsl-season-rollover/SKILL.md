@@ -72,12 +72,13 @@ Run the repository checks after code, JSON, schema, or configuration changes:
 
 ```powershell
 pnpm run validate:data
-pnpm test
 pnpm run lint
 pnpm run build
 ```
 
 `pnpm run validate:data` targets the season selected by `YEAR`; run it after active-season corrections or after activating a newly completed year.
+
+Run only tests whose contracts changed during the rollover. Examples include `tests/services/season-data-validation.test.js` for validator/schema behavior and `tests/services/app-config.test.js` when active-season configuration changes. Add other test files only for directly affected consumers; do not run the broad unit suite for annual-record-only changes.
 
 After the build, verify:
 

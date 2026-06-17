@@ -53,7 +53,7 @@ Do not modify app behavior, generated `out/` content, dependencies, workflows, t
 
 ## Verification And Publication
 
-For a material update, run `pnpm run validate:data`, `pnpm test`, `pnpm run lint`, and `pnpm run build`. In `runlocal` mode, report the verified local files, modeled fields changed, and validation results without publishing. In explicit `publish` mode, open a pull request that identifies the official evidence, lists the modeled fields changed, and records validation results. If a check cannot be run, say so clearly in the completion report and, when publishing, in the pull request.
+For a material update, run `pnpm run validate:data`, `pnpm run lint`, and `pnpm run build`. Run only specifically affected tests when a schema, validator, configuration contract, or application behavior changed; annual-record-only edits do not trigger the broad unit suite. In `runlocal` mode, report the exact test files, verified local files, modeled fields changed, and validation results without publishing. In explicit `publish` mode, open a pull request that identifies the official evidence, lists the modeled fields changed, and records validation results. If a check cannot be run, say so clearly in the completion report and, when publishing, in the pull request.
 
 In the pull request description, include a `## Data Changes` section organized by only the categories that changed: `### Pools`, `### Teams`, and `### Meets`. Under each category, add a bullet for each affected pool, team, or meet, and beneath it add indented bullets for each changed modeled property. Begin every property bullet with a bold property name followed by a colon, for example:
 

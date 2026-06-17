@@ -105,7 +105,7 @@ Before publishing a new active year:
 - Confirm meet dates are real calendar dates, every application-used official source or destination is HTTPS when populated, every meet and team timing window ends after it starts, and standard dual-meet milestones are chronologically ordered.
 - Confirm each published JSON file has a sibling `.schema.json` file.
 - Run `pnpm run validate:data` to validate active JSON against its schemas, including ISO `YYYY-MM-DD` dates, source URLs, cross-domain references, and retained official PDF inventory.
-- Run `pnpm test` to validate seasonal path expectations and application logic.
+- Run only the test files for contracts changed by the rollover, such as season validation, active configuration, or a directly affected annual-data consumer. Annual-record-only changes do not require the broad unit suite.
 - Run `pnpm run lint`.
 - Run `pnpm run build`, then confirm the new active-year JSON and schemas appear under `out/assets/data/<YEAR>/`, archived years are absent, and retained annual PDF evidence is absent from the public build.
 - Load the pools, teams, and meets screens locally to catch missing active-domain JSON files before deployment.

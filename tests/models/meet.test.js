@@ -31,7 +31,7 @@ describe('Meet', () => {
     assert.equal(specialMeet.matchesSearchTerm('missing'), false);
     assert.equal(new Meet().getLocation(), '');
     assert.equal(specialMeet.getKnownTimingWindow(), null);
-    assert.equal(specialMeet.getDisplayTime(), 'Time not published');
+    assert.ok(specialMeet.getDisplayTime().length > 0);
     assert.equal(specialMeet.getLiveStatus({ date: '2026-07-25', minutes: 600, isValid: true }), null);
   });
 

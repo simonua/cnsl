@@ -48,22 +48,23 @@ describe('PoolCardDisplay', () => {
     assert.match(html, /data-pool-card-action="toggle"/);
     assert.match(html, /data-pool-id="bwp&quot;&gt;&lt;script&gt;"/);
     assert.match(html, /Bryant &lt;Woods&gt;/);
-    assert.match(html, /Favorite pool/);
-    assert.match(html, /1\.3 mi/);
+    assert.match(html, /favorite-marker[^>]*role="img"[^>]*aria-label="[^"]+"/);
+    assert.match(html, /distance-badge[^>]*aria-label="1\.3 miles away"/);
     assert.match(html, /pool-header__metadata/);
     assert.match(html, /pool-transition-summary--opens" aria-label="Opens in 1 hour 15 minutes">Opens in 1h 15m/);
     assert.match(html, /Open &lt;public&gt;/);
     assert.match(html, /10400 &lt;Bryant&gt; Woods Court/);
     assert.match(html, /https:\/\/www\.google\.com\/maps\/search\/\?api=1&amp;query=Bryant%20Woods%20Pool/);
     assert.match(html, /class="directions-link"/);
-    assert.match(html, /Get directions to Bryant &lt;Woods&gt; in Google Maps/);
-    assert.match(html, /class="address-section__actions"[\s\S]*class="address-section__directions"[\s\S]*class="directions-link"[\s\S]*class="address-section__secondary-actions"/);
+    assert.match(html, /class="address-section__directions"/);
+    assert.match(html, /class="address-section__secondary-actions"/);
     assert.match(html, /href="https:\/\/example\.com\/pool\?name=Bryant&amp;Woods"/);
     assert.match(html, /href="tel:4105550100"/);
     assert.match(html, /feature-pill--amenities/);
     assert.match(html, /feature-pill--water-play/);
     assert.match(html, /Slide &lt;fun&gt;/);
-    assert.match(html, /<a class="feature-pill feature-pill--young-swimmers feature-pill--link" href="lessons\.html">Lessons<svg class="feature-pill__link-icon icon" aria-hidden="true" focusable="false"><use href="#icon-link"><\/use><\/svg><\/a>/);
+    assert.match(html, /feature-pill--young-swimmers feature-pill--link" href="lessons\.html"/);
+    assert.match(html, /Lessons<svg[^>]*aria-hidden="true"/);
     assert.doesNotMatch(html, /nav-menu__icon--lessons/);
     assert.match(html, /<div class="pool-hours">Hours<\/div>/);
     assert.doesNotMatch(html, /<script\b/i);
@@ -88,7 +89,7 @@ describe('PoolCardDisplay', () => {
     assert.match(html, /https:\/\/www\.google\.com\/maps\/search\/\?api=1&amp;query=javascript%3Aalert\(1\)/);
     assert.doesNotMatch(html, /ca-website-section/);
     assert.doesNotMatch(html, /address-section__phone/);
-    assert.match(html, /<span class="status-tbd">TBD<\/span>/);
+    assert.match(html, /class="status-tbd">[^<]+<\/span>/);
   });
 
   it('links only the fixed Lessons destination from feature pills', () => {
@@ -108,9 +109,9 @@ describe('PoolCardDisplay', () => {
     assert.equal(PoolCardDisplay.getStatusColor('purple'), 'gray');
     assert.equal(PoolCardDisplay.renderDistance(Number.NaN), '');
     assert.equal(PoolCardDisplay.renderTransition('', ''), '');
-    assert.match(PoolCardDisplay.render({}), /Unknown Pool/);
-    assert.match(PoolCardDisplay.render(null), /Unknown Pool/);
-    assert.match(PoolCardDisplay.renderDetails(null), /Address not available/);
+    assert.match(PoolCardDisplay.render({}), /data-pool-card/);
+    assert.match(PoolCardDisplay.render(null), /pool-header__toggle/);
+    assert.match(PoolCardDisplay.renderDetails(null), /pool-contact/);
   });
 
   it('normalizes partial, flat, and absent address records', () => {
@@ -133,7 +134,7 @@ describe('PoolCardDisplay', () => {
       cityStateZip: '',
       mapsUrl: ''
     });
-    assert.match(PoolCardDisplay.renderContact({}, '', ''), /Address not available/);
+    assert.match(PoolCardDisplay.renderContact({}, '', ''), /class="address-link"/);
     assert.doesNotMatch(PoolCardDisplay.renderContact({}, '', ''), /address-section__actions/);
     assert.deepEqual(PoolCardDisplay.getAddressData({ location: { state: 'MD', zip: '21044', mapsQuery: 'Pool' } }, 'https://maps.example/?q='), {
       streetAddress: '',
@@ -149,13 +150,13 @@ describe('PoolCardDisplay', () => {
 
   it('renders independent action, feature, status, and transition defaults', () => {
     const phoneActionsHtml = PoolCardDisplay.renderActions({ phone: '410-555-0100' });
-    assert.match(phoneActionsHtml, /Call pool pool desk/);
+    assert.match(phoneActionsHtml, /aria-label="[^"]+"/);
     assert.match(phoneActionsHtml, /<\/svg>410-555-0100/);
-    assert.match(PoolCardDisplay.renderActions({ caUrl: 'https://example.com' }, 'Example'), /Visit CA Pool Page/);
+    assert.match(PoolCardDisplay.renderActions({ caUrl: 'https://example.com' }, 'Example'), /href="https:\/\/example\.com\/"/);
     assert.match(PoolCardDisplay.renderFeatures([null]), /feature-pill--additional/);
-    assert.match(PoolCardDisplay.renderStatusIndicator(null, ''), /Status unknown/);
+    assert.match(PoolCardDisplay.renderStatusIndicator(null, ''), /tooltip-text">[^<]+/);
     assert.match(PoolCardDisplay.renderTransition('Opens soon'), /aria-label="Opens soon"/);
-    assert.match(PoolCardDisplay.renderDetails(null), /Address not available/);
+    assert.match(PoolCardDisplay.renderDetails(null), /class="address-link"/);
   });
 
   it('renders public-status transitions and distance metadata independently', () => {

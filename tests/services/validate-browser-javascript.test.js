@@ -24,10 +24,10 @@ describe('validate browser JavaScript', () => {
   });
 
   it('rejects CommonJS and Node.js runtime code', () => {
-    assert.throws(() => assertBrowserOnly('process.cwd();', 'unsafe.js'), /Node\.js process global/);
-    assert.throws(() => assertBrowserOnly("require('./unsafe.js');", 'unsafe.js'), /CommonJS import/);
-    assert.throws(() => assertBrowserOnly('module.exports = {};', 'unsafe.js'), /CommonJS module global/);
-    assert.throws(() => assertBrowserOnly("if (typeof window === 'undefined') {}", 'unsafe.js'), /Node-only environment guard/);
+    assert.throws(() => assertBrowserOnly('process.cwd();', 'unsafe.js'));
+    assert.throws(() => assertBrowserOnly("require('./unsafe.js');", 'unsafe.js'));
+    assert.throws(() => assertBrowserOnly('module.exports = {};', 'unsafe.js'));
+    assert.throws(() => assertBrowserOnly("if (typeof window === 'undefined') {}", 'unsafe.js'));
   });
 
   it('ignores Node.js words in comments, strings, and property names', () => {

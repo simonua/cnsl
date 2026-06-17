@@ -34,7 +34,7 @@ Before inspecting sources, each run compares the UTC calendar year with the conf
 
 A future restored workflow would use the `CNSL_DATA_UPDATER_PR_TOKEN` repository secret only to create and query tracking issues when a previously unseen candidate is confirmed. Configure a fine-grained user token with repository read/write access to `Issues` plus the required metadata read permission. Its built-in workflow token should remain `contents: read` only for checkout. Automatic Copilot assignment through GitHub's API is not used because GitHub documents that API entry point for organizations with Copilot Business or Copilot Enterprise plans; users with an eligible Copilot plan can instead assign a generated issue to Copilot manually on GitHub.
 
-The reviewer is constrained to active-season annual data, retained official evidence, accepted-source metadata, and the monitor baseline. It runs `pnpm run validate:data`, `pnpm test`, `pnpm run lint`, and `pnpm run build` for a material update. Publication remains a separate, explicit `publish` step.
+The reviewer is constrained to active-season annual data, retained official evidence, accepted-source metadata, and the monitor baseline. It runs `pnpm run validate:data`, `pnpm run lint`, and `pnpm run build` for a material update, plus only the exact tests for any changed schema, validator, configuration, or consumer contract. Publication remains a separate, explicit `publish` step.
 
 ## Rollover
 

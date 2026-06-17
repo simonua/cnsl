@@ -7,6 +7,9 @@ const { createLocalStorageMock } = require('../helpers/test-helpers.js');
 const preferencesModule = require('../helpers/browser-module-loader.js').loadBrowserModule('preferences-service');
 const { PreferencesService, context: preferencesContext } = preferencesModule;
 
+const summarizeFeatureGroups = groups => groups.map(({ key, features }) => ({ key, features }));
+const summarizeFeatureColumns = columns => columns.map(column => summarizeFeatureGroups(column));
+
 describe('PreferencesService', () => {
   describe('get and save', () => {
     it('returns device defaults when no preferences are stored', () => {
@@ -198,37 +201,38 @@ describe('PreferencesService', () => {
     });
 
     it('groups known available features by visitor need and omits uncategorized features', () => {
-      assert.deepEqual(PreferencesService.groupPoolFeatures([
+      assert.deepEqual(summarizeFeatureGroups(PreferencesService.groupPoolFeatures([
         'pool lift', 'ADA compliant', 'basketball court', 'sand volleyball', 'yoga', 'lessons', 'wading pool slide',
         'main pool beach entry', 'lap', 'main pool slide', 'in-water basketball', '8 lanes', 'meter lanes', 'yard lanes', 'heated pool', 'wifi', 'new amenity'
-      ]), [
-        { key: 'accessibility', label: 'Accessibility & inclusion', features: ['ada compliant', 'pool lift'] },
-        { key: 'young-swimmers', label: 'Young swimmers & non-swimmers', features: ['lessons', 'main pool beach entry', 'wading pool slide'] },
-        { key: 'water-play', label: 'Swimming & water play', features: ['8 lanes', 'meter lanes', 'yard lanes', 'in-water basketball', 'lap', 'main pool slide'] },
-        { key: 'recreation', label: 'Sports & recreation', features: ['basketball court', 'sand volleyball', 'yoga'] },
-        { key: 'amenities', label: 'Amenities', features: ['heated pool', 'wifi'] }
+      ])), [
+        { key: 'accessibility', features: ['ada compliant', 'pool lift'] },
+        { key: 'young-swimmers', features: ['lessons', 'main pool beach entry', 'wading pool slide'] },
+        { key: 'water-play', features: ['8 lanes', 'meter lanes', 'yard lanes', 'in-water basketball', 'lap', 'main pool slide'] },
+        { key: 'recreation', features: ['basketball court', 'sand volleyball', 'yoga'] },
+        { key: 'amenities', features: ['heated pool', 'wifi'] }
       ]);
-      assert.deepEqual(PreferencesService.groupPoolFeatures(['pool lift']), [
-        { key: 'accessibility', label: 'Accessibility & inclusion', features: ['pool lift'] }
+      assert.deepEqual(summarizeFeatureGroups(PreferencesService.groupPoolFeatures(['pool lift'])), [
+        { key: 'accessibility', features: ['pool lift'] }
       ]);
+      assert.ok(PreferencesService.groupPoolFeatures(['pool lift']).every(group => group.label.length > 0));
     });
 
     it('arranges visible feature groups in the directory filter columns', () => {
-      assert.deepEqual(PreferencesService.getPoolFeatureFilterColumns([
+      assert.deepEqual(summarizeFeatureColumns(PreferencesService.getPoolFeatureFilterColumns([
         'pool lift', 'basketball court', 'lessons', 'lap', 'heated pool'
-      ]), [
+      ])), [
         [
-          { key: 'water-play', label: 'Swimming & water play', features: ['lap'] },
-          { key: 'young-swimmers', label: 'Young swimmers & non-swimmers', features: ['lessons'] }
+          { key: 'water-play', features: ['lap'] },
+          { key: 'young-swimmers', features: ['lessons'] }
         ],
         [
-          { key: 'amenities', label: 'Amenities', features: ['heated pool'] },
-          { key: 'recreation', label: 'Sports & recreation', features: ['basketball court'] },
-          { key: 'accessibility', label: 'Accessibility & inclusion', features: ['pool lift'] }
+          { key: 'amenities', features: ['heated pool'] },
+          { key: 'recreation', features: ['basketball court'] },
+          { key: 'accessibility', features: ['pool lift'] }
         ]
       ]);
-      assert.deepEqual(PreferencesService.getPoolFeatureFilterColumns(['lap']), [[
-        { key: 'water-play', label: 'Swimming & water play', features: ['lap'] }
+      assert.deepEqual(summarizeFeatureColumns(PreferencesService.getPoolFeatureFilterColumns(['lap'])), [[
+        { key: 'water-play', features: ['lap'] }
       ]]);
     });
 

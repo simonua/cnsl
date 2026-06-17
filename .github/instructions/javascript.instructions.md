@@ -97,6 +97,8 @@ Hard-coded literals remain appropriate when they are not application-owned seman
 
 - Keep DOM-free logic in services/models so it can be tested with Node.js.
 - Test browser modules through `tests/helpers/browser-module-loader.js` and its explicit dependency manifests. Use fresh realms and explicit injection or bridging for test dependencies; do not add CommonJS exports or Node.js dependency branches for test access.
+- Design public return values around semantic state so tests and consumers do not need to infer behavior from labels, CSS classes, complete HTML strings, or log messages.
+- Keep presentation formatting at focused rendering boundaries. Test an exact formatter result when serialization is the formatter's contract, but make higher-level tests assert that fixture-owned values, semantic attributes, accessibility state, and safe destinations flow through correctly without repeating mutable copy.
 - Services and models must not reference `$`, `document`, or `window` directly.
 - Published annual pool/team/meet names and schema enum vocabularies come from annual data and schemas; do not mirror them in JavaScript enums for validation or behavior.
 

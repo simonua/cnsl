@@ -210,7 +210,7 @@ while ($true) {
     Write-Host "  c) Clean build output"
     Write-Host ""
     Write-Host "Verify" -ForegroundColor Yellow
-    Write-Host "  6) Run quick checks (lint + unit tests)"
+    Write-Host "  6) Run quick checks (lint + choose affected unit test)"
     Write-Host "  7) Run release checks"
     Write-Host "  l) Run ESLint"
     Write-Host "  f) Run ESLint with auto-fix"
@@ -218,8 +218,8 @@ while ($true) {
     Write-Host "  p) Build and verify PWA output"
     Write-Host ""
     Write-Host "Tests" -ForegroundColor Yellow
-    Write-Host "  8) Run unit tests"
-    Write-Host "  9) Run unit tests with coverage"
+    Write-Host "  8) Run all unit tests (explicit full-suite investigation)"
+    Write-Host "  9) Run full unit coverage (explicit full-suite investigation)"
     Write-Host "  t) Run one unit-test file"
     Write-Host "  b) Run browser and accessibility tests"
     Write-Host ""
@@ -255,22 +255,20 @@ while ($true) {
             $null = Invoke-Cmd 'pnpm' 'run' 'clean'
         }
         '6' {
-            $steps = @(
-                [PSCustomObject]@{ Name = 'Lint'; Executable = 'pnpm'; Arguments = @('run', 'lint') }
-                [PSCustomObject]@{ Name = 'Unit tests'; Executable = 'pnpm'; Arguments = @('test') }
-            )
-            $null = Invoke-CheckSuite 'Quick checks' $steps
+            if (Invoke-Cmd 'pnpm' 'run' 'lint') {
+                Invoke-FocusedTest
+            }
         }
         '7' {
             $steps = @(
                 [PSCustomObject]@{ Name = 'Lint'; Executable = 'pnpm'; Arguments = @('run', 'lint') }
-                [PSCustomObject]@{ Name = 'Unit tests'; Executable = 'pnpm'; Arguments = @('test') }
                 [PSCustomObject]@{ Name = 'Season data'; Executable = 'pnpm'; Arguments = @('run', 'validate:data') }
                 [PSCustomObject]@{ Name = 'Dependency audit'; Executable = 'pnpm'; Arguments = @('audit', '--audit-level', 'high') }
                 [PSCustomObject]@{ Name = 'Build'; Executable = 'pnpm'; Arguments = @('run', 'build') }
                 [PSCustomObject]@{ Name = 'PWA output'; Executable = 'pnpm'; Arguments = @('run', 'verify:pwa') }
             )
             $null = Invoke-CheckSuite 'Release checks' $steps -StopOnFailure
+            Write-Host 'Run each affected unit-test file and browser ID separately for this release candidate.' -ForegroundColor Yellow
         }
         'l' {
             $null = Invoke-Cmd 'pnpm' 'run' 'lint'

@@ -205,11 +205,11 @@ The active annual contracts now require structured pool identity and location da
 
 **Result:** Local manager-supplied data correction; no new online official-source review performed.
 
-A directly supplied Long Reach host-team manager communication for the June 20 Pointers Run meet refreshed recurring Kendall Ridge visitor guidance. The accepted venue facts add shaded visitor setup on the left from the entrance, swimmer check-in at the reserved table by the diving board, the data table under the large pavilion by the baby pool, Tamar Drive parking cautions, and parking-lot spaces reserved according to the visiting team's stated need. The newer concession list supersedes the June 16 list with cash, PayPal, and Venmo payments; hot lunch food; bagels, donuts, snacks, and snow cones; and complimentary items for visiting coaches. Matchup-specific entry deadlines, attendance-count requests, and personal contact details remain unmodeled. The host-manager communication is authoritative for these field-owned facts, no conflicting source was identified, confidence is High, and there is no residual uncertainty. The official-source timestamps remain unchanged because this local correction was not a completed online source review.
+A directly supplied Long Reach host-team manager communication for the June 20 Pointers Run meet refreshed recurring Kendall Ridge visitor guidance. The accepted venue facts add shaded visitor setup on the left from the entrance, swimmer check-in at the reserved table by the diving board, the data table under the large pavilion by the baby pool, and Tamar Drive parking cautions. The newer concession list supersedes the June 16 list with cash, PayPal, and Venmo payments; hot lunch food; bagels, donuts, snacks, and snow cones; and complimentary items for visiting coaches. Internal manager coordination, matchup-specific entry deadlines, attendance-count requests, and personal contact details remain unmodeled because they are not public family guidance. The host-manager communication is authoritative for the accepted field-owned facts, no conflicting source was identified, confidence is High, and there is no residual uncertainty. The official-source timestamps remain unchanged because this local correction was not a completed online source review.
 
 | Area | Status | Details |
 | --- | --- | --- |
-| Modeled application data | Updated | Long Reach Marlins' Kendall Ridge `homeMeetGuides` source date, shared parking and concession details, and Pointers Run visitor setup, check-in, and reserved-parking guidance in `teams/teams.json`. |
+| Modeled application data | Updated | Long Reach Marlins' Kendall Ridge `homeMeetGuides` source date, shared parking and concession details, and Pointers Run visitor setup and check-in guidance in `teams/teams.json`; internal manager coordination was omitted. |
 | Application-used source destinations | Unchanged | None. |
 | Retained official PDFs | Unchanged | None. |
 | Visitor-facing records | Unchanged | None. |
@@ -239,3 +239,20 @@ CA regenerated 22 pool schedule PDFs and replaced Dickinson's unavailable docume
 | Visitor-facing records | Unchanged | None. |
 | Review records | Updated | `OFFICIAL_SOURCE_CHECKED_AT`, `OFFICIAL_SOURCE_UPDATED_AT`, annual README evidence, and this check-log entry. |
 | Reviewed source baseline | Updated | `source-state.json` refreshed with the accepted page fingerprints and current retained-PDF metadata. |
+
+## 2026-06-17 Local Manager Correction
+
+**Active season:** 2026
+
+**Result:** Local manager-supplied data correction; no new online official-source review performed.
+
+Directly supplied follow-up guidance from the Long Reach host-team manager added coffee, water, and soda to the shared Kendall Ridge concession list and established a 7:25 AM visiting-team warm-up. Juice remains unmodeled because the sender explicitly described its availability as uncertain. A follow-up product clarification keeps generic cash handling out of annual data: My Meet Day now asks visitors to use bills of $20 or less and identifies $5 and $1 bills as especially helpful whenever canonical `cash` is accepted. The active data and schema remove `smallBillsPreferred` and the transient `maximumBillDenomination`; Wilde Lake's explicit `denominationsNotAccepted: [100]` remains source-specific guidance. Teams schema V18 is retained because removing the V17 `smallBillsPreferred` contract is still a schema change. No conflicting accepted guidance was identified, confidence is High for the modeled manager-supplied facts, and the only residual uncertainty is the intentionally omitted juice availability. Personal and irrelevant conversational details were omitted. `OFFICIAL_SOURCE_CHECKED_AT`, `OFFICIAL_SOURCE_UPDATED_AT`, and the reviewed source baseline remain unchanged because this correction was not a completed online source review and did not add or replace retained source documents.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Updated | Long Reach Marlins' Kendall Ridge shared concession drinks and visiting-team warm-up time in `teams/teams.json`; removed `smallBillsPreferred` and `maximumBillDenomination` from active data and schema while retaining Wilde Lake's `denominationsNotAccepted: [100]`; teams schema remains V18. |
+| Application-used source destinations | Unchanged | None. |
+| Retained official PDFs | Unchanged | None. |
+| Visitor-facing records | Unchanged | None. |
+| Review records | Updated | Annual README evidence and this check-log entry; official-source timestamps are unchanged. |
+| Reviewed source baseline | Unchanged | None; `source-state.json` did not change. |

@@ -47,7 +47,7 @@ No active high-priority findings are supported by the current repository evidenc
 **Acceptance checks:**
 
 - Build validation proves every rendered route's dependency order is complete and the install-critical list contains every resource required by the documented offline shell.
-- `pnpm run lint`, `pnpm run test:coverage`, `pnpm run build`, `pnpm run verify:pwa`, and `pnpm run test:browser:nightly` pass after implementation.
+- `pnpm run lint`, the exact affected unit-test files, `pnpm run build`, `pnpm run verify:pwa`, and the affected browser workflow/accessibility IDs pass after implementation; CI supplies complete unit and browser-suite coverage.
 - `pnpm run measure:performance` records no regression in route usable medians, Pools phase order, annual-domain request counts, worker control, repeat navigation, or transferred bytes.
 - The install-critical resource/byte totals and affected directory request/decoded-byte totals improve from this audit baseline, or the investigation records why each remaining warning represents an intentional offline or route dependency.
 - Keyboard behavior, focus restoration, accessible loading state, and current offline commitments remain intact.

@@ -34,10 +34,15 @@ describe('PoolDirectoryService', () => {
   });
 
   it('describes fixed and rolling availability choices', () => {
-    assert.equal(PoolDirectoryService.getAvailabilityFilterDescription('opens-soon', '2026-06-15'), 'pools opening within the hour');
-    assert.equal(PoolDirectoryService.getAvailabilityFilterDescription('open-today', '2026-06-15'), 'pools with general-use hours today');
-    assert.equal(PoolDirectoryService.getAvailabilityFilterDescription('open-day-2', '2026-06-15'), 'pools with general-use hours Wednesday');
-    assert.equal(PoolDirectoryService.getAvailabilityFilterDescription('unknown', '2026-06-15'), 'all pools');
+    const referenceDate = '2026-06-15';
+    const openingSoon = PoolDirectoryService.getAvailabilityFilterDescription('opens-soon', referenceDate);
+    const openToday = PoolDirectoryService.getAvailabilityFilterDescription('open-today', referenceDate);
+    const rollingDay = PoolDirectoryService.getAvailabilityFilterDescription('open-day-2', referenceDate);
+    const unknown = PoolDirectoryService.getAvailabilityFilterDescription('unknown', referenceDate);
+
+    assert.ok([openingSoon, openToday, rollingDay, unknown].every(description => description.length > 0));
+    assert.equal(new Set([openingSoon, openToday, rollingDay, unknown]).size, 4);
+    assert.ok(rollingDay.includes(PoolDirectoryService.getUpcomingDayAvailabilityOptions(referenceDate)[0].label));
   });
 
   it('resolves only future day filters to positive offsets', () => {

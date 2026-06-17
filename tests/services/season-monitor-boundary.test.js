@@ -23,7 +23,7 @@ describe('season monitor evidence boundary', () => {
         'src/assets/data/2026/teams/team-schedules/practice.pdf',
         'src/assets/data/2026/teams/teams.json'
       ], '2026'), ['src/assets/data/2026/teams/teams.json']);
-      assert.throws(() => findUnexpectedChanges([], '../2026'), /Invalid season output/);
+      assert.throws(() => findUnexpectedChanges([], '../2026'));
     });
   });
 

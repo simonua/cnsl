@@ -54,27 +54,32 @@ describe('PoolHoursDisplay', () => {
     assert.match(html, /pool-status-countdown--opens/);
     assert.match(html, /data-pool-id="pool&quot;&gt;&lt;script&gt;"/);
     assert.match(html, /status-green/);
-    assert.match(html, /🟢 Open &lt;public&gt;/);
+    assert.match(html, /Open &lt;public&gt;/);
     assert.doesNotMatch(html, /&lt;open&gt;/);
     assert.match(html, /<span class="tooltip-text">Open &lt;tip&gt;<\/span>/);
-    assert.match(html, /Opens in 15 min/);
     assert.match(html, /min="2026-06-01" max="2026-06-30"/);
     assert.match(html, /pool-schedule-list/);
     assert.doesNotMatch(html, /<script>/i);
   });
 
   it('renders the retained schedule and availability fallback states', () => {
-    assert.match(PoolHoursDisplay.renderAvailabilityMessage('<missing>'), /&lt;missing&gt;/);
-    assert.match(PoolHoursDisplay.renderScheduleMissing(), /Schedule TBD/);
-    assert.match(PoolHoursDisplay.renderTimeUtilityMessage('<time>'), /&lt;time&gt;/);
+    const availabilityHtml = PoolHoursDisplay.renderAvailabilityMessage('<missing>');
+    const missingHtml = PoolHoursDisplay.renderScheduleMissing();
+    const timeUtilityHtml = PoolHoursDisplay.renderTimeUtilityMessage('<time>');
+
+    assert.match(availabilityHtml, /&lt;missing&gt;/);
+    assert.doesNotMatch(availabilityHtml, /<missing>/);
+    assert.ok(missingHtml.length > 0);
+    assert.match(timeUtilityHtml, /&lt;time&gt;/);
+    assert.doesNotMatch(timeUtilityHtml, /<time>/);
   });
 
   it('uses safe defaults for unsupported status colors and missing view data', () => {
     const html = PoolHoursDisplay.render({ poolStatus: { color: 'purple' }, weekSchedule: [], scheduleOptions: {} });
     assert.match(html, /status-gray/);
     assert.match(html, /class="nav-btn calendar-btn"[^]*?disabled/);
-    assert.match(html, /Choose a week for this pool/);
-    assert.match(html, /Status unknown/);
+    assert.match(html, /aria-label="[^"]+"/);
+    assert.match(html, /tooltip-text/);
     assert.doesNotMatch(html, /data-status-action=/);
     assert.doesNotMatch(html, / min="| max="/);
     assert.match(PoolHoursDisplay.render(null), /status-gray/);

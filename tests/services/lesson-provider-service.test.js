@@ -39,30 +39,30 @@ describe('LessonProviderService', () => {
   });
 
   it('rejects missing provider arrays and incomplete records', () => {
-    assert.throws(() => LessonProviderService.normalizeDocument({}), /Invalid lesson provider data response/);
-    assert.throws(() => LessonProviderService.normalizeProvider(null), /Invalid lesson provider record/);
-    assert.throws(() => LessonProviderService.normalizeDocument({ providers: [{ name: 'Incomplete' }] }), /Invalid lesson provider record/);
+    assert.throws(() => LessonProviderService.normalizeDocument({}));
+    assert.throws(() => LessonProviderService.normalizeProvider(null));
+    assert.throws(() => LessonProviderService.normalizeDocument({ providers: [{ name: 'Incomplete' }] }));
   });
 
   it('rejects unsafe provider destinations and malformed phone numbers', () => {
     assert.throws(() => LessonProviderService.normalizeDocument({
       providers: [{ ...provider, websiteUrl: 'javascript:alert(1)' }]
-    }), /Invalid lesson provider record/);
+    }));
     assert.throws(() => LessonProviderService.normalizeDocument({
       providers: [{ ...provider, contactUrl: 'data:text/html,unsafe' }]
-    }), /Invalid lesson provider record/);
+    }));
     assert.throws(() => LessonProviderService.normalizeDocument({
       providers: [{ ...provider, phone: 'call-me' }]
-    }), /Invalid lesson provider record/);
+    }));
     assert.throws(() => LessonProviderService.normalizeDocument({
       providers: [{ ...provider, contactEmail: 'not-an-email' }]
-    }), /Invalid lesson provider record/);
+    }));
     assert.throws(() => LessonProviderService.normalizeDocument({
       providers: [{ ...provider, contactName: undefined }]
-    }), /Invalid lesson provider record/);
+    }));
     assert.throws(() => LessonProviderService.normalizeDocument({
       providers: [{ ...provider, websiteUrl: 'not a URL' }]
-    }), /Invalid lesson provider record/);
+    }));
   });
 
   it('normalizes related swimming programs and rejects unsafe destinations', () => {

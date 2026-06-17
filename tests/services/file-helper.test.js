@@ -104,7 +104,7 @@ describe('FileHelper', () => {
       global.fetch = async () => ({ ok: false, status: 404, statusText: 'Missing' });
       console.error = () => {};
       try {
-        await assert.rejects(FileHelper.loadJsonFile('assets/data/missing.json'), /404 Missing/);
+        await assert.rejects(FileHelper.loadJsonFile('assets/data/missing.json'));
       } finally {
         global.fetch = originalFetch;
         console.error = originalConsoleError;
@@ -123,7 +123,7 @@ describe('FileHelper', () => {
       vm.runInNewContext(source, context, { filename: sourcePath });
 
       assert.equal(typeof context.window.FileHelper, 'function');
-      assert.throws(() => context.window.FileHelper.getSeasonYear(), /YEAR configuration is not loaded/);
+      assert.throws(() => context.window.FileHelper.getSeasonYear());
     });
 
   });

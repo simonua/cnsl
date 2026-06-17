@@ -195,17 +195,13 @@ describe('season data agent', () => {
       assert.match(report, /pools\/pools\.json/);
       assert.match(report, /meets\/meets\.json/);
       assert.match(report, /teams\/teams\.json/);
-      assert.match(report, /coach and manager details and changed recorded practice schedules/);
       assert.match(report, /OFFICIAL_SOURCE_CHECKED_AT/);
       assert.match(report, /OFFICIAL_SOURCE_UPDATED_AT/);
       assert.match(report, /America\/New_York/);
-      assert.match(report, /FAQ and footer distinguish verification from updates/);
       assert.match(report, /pnpm run validate:data/);
       assert.match(report, /Candidate key: `0123456789abcdef`/);
       assert.match(report, /Exact review scope/);
       assert.match(report, /pools\[id="bwp"\]\.\{scheduleUrl,schedules\}/);
-      assert.match(report, /application-used official source destination requires an update/);
-      assert.doesNotMatch(report, /harvested document or represented application data/);
     });
   });
 

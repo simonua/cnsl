@@ -62,10 +62,12 @@ The scheduled seasonal-source GitHub Actions workflow has been retired, but deli
 
 ### Verification
 
+Run tests by naming only the files or browser IDs affected by your changes. Complete unit and browser suites run in CI; local broad-suite commands are for explicitly requested investigations only.
+
 ```bash
 pnpm run lint
-pnpm test
-pnpm run test:coverage # Delivered JS coverage; excludes maintenance implementations in scripts/
+node --test tests/<area>/<affected-module>.test.js
+node scripts/run-playwright.js test <affected-spec> --grep "<stable IDs>"
 pnpm run validate:data
 pnpm run build
 pnpm run verify:pwa

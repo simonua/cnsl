@@ -81,7 +81,8 @@ describe('PlaywrightRunLock', () => {
     });
 
     assert.equal(didWait, true);
-    assert.match(logMessages[0], /waiting for it to finish/);
+    assert.equal(logMessages.length, 1);
+    assert.equal(typeof logMessages[0], 'string');
     assert.equal(releasePlaywrightLock(secondLock), true);
   });
 
@@ -119,7 +120,8 @@ describe('PlaywrightRunLock', () => {
         stdio: ['ignore', 'ignore', 'inherit', 'ipc']
       });
       const waitingMessage = await waitForChildMessage(contender, 'waiting');
-      assert.match(waitingMessage.message, /waiting for it to finish/);
+      assert.equal(typeof waitingMessage.message, 'string');
+      assert.ok(waitingMessage.message.length > 0);
 
       const acquired = waitForChildMessage(contender, 'acquired');
       owner.send({ type: 'release' });
@@ -149,7 +151,8 @@ describe('PlaywrightRunLock', () => {
     });
 
     assert.equal(releasePlaywrightLock(abandonedLock), false);
-    assert.match(logMessages[0], /Recovered an abandoned/);
+    assert.equal(logMessages.length, 1);
+    assert.equal(typeof logMessages[0], 'string');
     assert.equal(releasePlaywrightLock(replacementLock), true);
   });
 

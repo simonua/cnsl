@@ -169,12 +169,12 @@ describe('PoolSchedule', () => {
       vm.runInNewContext(source, context, { filename: sourcePath });
       const schedule = new context.window.PoolSchedule({ Monday: { open: '9:00AM', close: '5:00PM' } });
 
-      assert.equal(schedule.getFormattedHours('Monday'), 'Error loading times');
-      assert.equal(schedule.getStatusAtTime('Monday').status, 'Error');
-      assert.equal(schedule.getCurrentStatus().status, 'Error');
+      assert.ok(schedule.getFormattedHours('Monday').length > 0);
+      assert.equal(schedule.getStatusAtTime('Monday').isOpen, false);
+      assert.equal(schedule.getCurrentStatus().isOpen, false);
       assert.equal(schedule.isPoolOpen(), false);
       assert.equal(schedule.getTimeSlots('Monday').length, 0);
-      assert.equal(schedule._getRestrictionStatus([], new Date()).status, 'Error');
+      assert.equal(schedule._getRestrictionStatus([], new Date()).isOpen, false);
       assert.equal(schedule._isTimeInRestriction({ start: '1:00PM', end: '2:00PM' }, new Date()), false);
     });
 

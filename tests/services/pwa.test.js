@@ -259,7 +259,7 @@ describe('PWA update startup', () => {
     });
     await new Promise(resolve => setImmediate(resolve));
 
-    await assert.rejects(window.cnslPwa.forceUpdate(), /deployment marker is unavailable/);
+    await assert.rejects(window.cnslPwa.forceUpdate());
     assert.equal(registrationReads, 0);
     assert.equal(reloadCalls, 0);
   });

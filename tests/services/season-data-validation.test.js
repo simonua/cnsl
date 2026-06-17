@@ -17,6 +17,10 @@ const {
   validateSchema
 } = require('../../scripts/validate-season-data');
 
+function assertDiagnostic(errors, ...fragments) {
+  assert.ok(errors.some(error => fragments.every(fragment => error.includes(fragment))));
+}
+
 describe('season data validation', () => {
   describe('validateSchema', () => {
     it('should enforce date, URI, and email formats from annual schemas', () => {
@@ -113,6 +117,21 @@ describe('season data validation', () => {
       insecureTeamsData.teams[0].staff.sourceUrl = 'http://example.com/staff';
       assert.ok(validateSchema('teams', insecureTeamsData, teamsSchema).length > 0);
     });
+
+    it('should keep generic cash denomination guidance outside annual data', () => {
+      const concessionsSchema = {
+        $ref: '#/definitions/HomeMeetConcessions',
+        definitions: teamsSchema.definitions
+      };
+
+      assert.equal(teamsSchema.version, 'V18');
+      assert.deepEqual(validateSchema('concessions', {
+        denominationsNotAccepted: [100],
+        paymentMethods: ['cash']
+      }, concessionsSchema), []);
+      assert.ok(validateSchema('concessions', { smallBillsPreferred: true }, concessionsSchema).length > 0);
+      assert.ok(validateSchema('concessions', { maximumBillDenomination: 10 }, concessionsSchema).length > 0);
+    });
   });
 
   describe('collectIntegrityErrors', () => {
@@ -163,13 +182,14 @@ describe('season data validation', () => {
         }
       });
 
-      assert.ok(errors.includes('Known Team references unknown pool: Missing Pool.'));
-      assert.ok(errors.includes('Known Team references unknown pool: Missing Time Trials Pool.'));
-      assert.ok(errors.includes('Known Team calendar URL must use HTTPS: http://teams.test/calendar.'));
-      assert.ok(errors.includes('Known Team events subscription URL must use HTTPS: http://teams.test/Events.ics.'));
-      assert.ok(errors.includes('Known Team booster URL must use HTTPS: http://teams.test/booster.'));
-      assert.ok(errors.includes('Regular meet 1 references an unknown team alias: missing team.'));
-      assert.ok(!errors.some((error) => error.includes('Known Pool lane measurement')));
+      assert.equal(errors.length, 6);
+      assertDiagnostic(errors, 'Known Team', 'Missing Pool');
+      assertDiagnostic(errors, 'Known Team', 'Missing Time Trials Pool');
+      assertDiagnostic(errors, 'http://teams.test/calendar');
+      assertDiagnostic(errors, 'http://teams.test/Events.ics');
+      assertDiagnostic(errors, 'http://teams.test/booster');
+      assertDiagnostic(errors, 'Regular meet 1', 'missing team');
+      assert.equal(errors.some(error => error.includes('Known Pool') && error.includes('lane')), false);
     });
 
     it('should reject a known lane length without measurement units', () => {
@@ -188,7 +208,8 @@ describe('season data validation', () => {
         meetsData: { url: 'https://league.test/meets.pdf', regular_meets: [], special_meets: [] }
       });
 
-      assert.ok(errors.includes('Known Pool lane measurement units must be provided when lane length is known.'));
+      assert.equal(errors.length, 1);
+      assertDiagnostic(errors, 'Known Pool', 'lane');
     });
 
     it('should reject pool hours that do not end after their start time', () => {
@@ -215,8 +236,9 @@ describe('season data validation', () => {
         meetsData: { url: 'https://league.test/meets.pdf', regular_meets: [], special_meets: [] }
       });
 
-      assert.ok(errors.includes('Known Pool schedule 1 hours 1 must end after it starts: 7:00pm to 6:00pm.'));
-      assert.ok(errors.includes('Known Pool schedule override 1 hours 1 must end after it starts: 8:00pm to 8:00pm.'));
+      assert.equal(errors.length, 2);
+      assertDiagnostic(errors, 'Known Pool', '7:00pm', '6:00pm');
+      assertDiagnostic(errors, 'Known Pool', '8:00pm', '8:00pm');
     });
 
     it('should reject unordered meet and team timing windows', () => {
@@ -260,11 +282,10 @@ describe('season data validation', () => {
         }
       });
 
-      assert.ok(errors.includes('Known Team timeTrials timing window must end after it starts: 12:00 to 07:00.'));
-      assert.ok(errors.includes('Meet timeTrials timing window must end after it starts: 12:00 to 07:00.'));
-      assert.ok(errors.includes(
-        'Meet dualMeets timing must order start, relay check-in deadline, first swim, and end: 07:00, 08:05, 08:00, 12:00.'
-      ));
+      assert.equal(errors.length, 3);
+      assertDiagnostic(errors, 'Known Team', 'timeTrials', '12:00', '07:00');
+      assertDiagnostic(errors, 'Meet timeTrials', '12:00', '07:00');
+      assertDiagnostic(errors, 'Meet dualMeets', '07:00', '08:05', '08:00', '12:00');
     });
 
     it('should reject detailed practice recurrence text that cannot render', () => {
@@ -305,8 +326,9 @@ describe('season data validation', () => {
         }
       });
 
-      assert.ok(errors.includes('Known Team practice preseason entry 1 date range cannot be rendered: May 29 - May 26.'));
-      assert.ok(errors.includes('Known Team practice preseason entry 1 weekdays cannot be rendered: Business days.'));
+      assert.equal(errors.length, 2);
+      assertDiagnostic(errors, 'Known Team', 'May 29 - May 26');
+      assertDiagnostic(errors, 'Known Team', 'Business days');
     });
 
     it('should reject detailed practice locations outside the declared pool relationships', () => {
@@ -339,8 +361,9 @@ describe('season data validation', () => {
         meetsData: { url: 'https://league.test/meets.pdf', regular_meets: [], special_meets: [] }
       });
 
-      assert.ok(errors.includes('Missing Declaration detailed practice location is missing from practicePools: Known Pool.'));
-      assert.ok(errors.includes('Unknown Location detailed practice references unknown pool location: Absent Pool Pool.'));
+      assert.equal(errors.length, 2);
+      assertDiagnostic(errors, 'Missing Declaration', 'Known Pool');
+      assertDiagnostic(errors, 'Unknown Location', 'Absent Pool Pool');
     });
   });
 
@@ -370,9 +393,7 @@ describe('season data validation', () => {
           poolsData: { pools: [] }
         });
 
-        assert.ok(result.errors.includes(
-          'Retained official document is not referenced by active data or its annual README: teams/team-schedules/unlisted.pdf.'
-        ));
+        assertDiagnostic(result.errors, 'teams/team-schedules/unlisted.pdf');
       } finally {
         await fs.rm(dataRoot, { force: true, recursive: true });
       }

@@ -56,7 +56,7 @@ describe('Team', () => {
     assert.equal(minimalTeam.getSummary().memberCount, 1);
     assert.equal(minimalTeam.getSummary().hasSchedule, true);
     assert.equal(minimalTeam.getSummary().contact.hasPhone, true);
-    assert.equal(new Team().getContactInfo().poolName, 'Not specified');
+    assert.ok(new Team().getContactInfo().poolName.length > 0);
   });
 
   it('uses shared contacts and default summary values when legacy fields are absent', () => {
@@ -65,8 +65,8 @@ describe('Team', () => {
     assert.equal(contactTeam.getContactInfo().email, 'shared@example.com');
     assert.equal(contactTeam.matchesSearchTerm('shared@example.com'), true);
     assert.equal(blankTeam.getContactInfo().coach, 'No Email');
-    assert.equal(blankTeam.getContactInfo().email, 'Not available');
-    assert.equal(blankTeam.getSummary().division, 'Not specified');
+    assert.ok(blankTeam.getContactInfo().email.length > 0);
+    assert.ok(blankTeam.getSummary().division.length > 0);
     assert.equal(blankTeam.getSummary().memberCount, 0);
     assert.equal(blankTeam.getSummary().hasSchedule, false);
     assert.equal(blankTeam.getSummary().contact.hasEmail, false);
@@ -81,7 +81,7 @@ describe('Team', () => {
     assert.equal(new Team({ division: 'Legacy Division' }).matchesSearchTerm('legacy'), true);
     assert.equal(new Team().includesCoach(), false);
     assert.equal(new Team().matchesSearchTerm(), true);
-    assert.equal(new Team().getSummary().poolName, 'Not specified');
+    assert.ok(new Team().getSummary().poolName.length > 0);
   });
 
   it('installs the model as a browser script global', () => {

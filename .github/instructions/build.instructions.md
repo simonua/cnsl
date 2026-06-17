@@ -15,11 +15,11 @@ description: "Use when working with the build pipeline, dev server, testing, lin
 | --- | --- |
 | `pnpm start` | Clean, build, watch for changes, and serve with live reload (port 9090) |
 | `pnpm run build` | One-time clean build to `out/` |
-| `pnpm test` | Run all unit tests |
-| `pnpm run test:coverage` | Run unit tests with coverage for delivered application JavaScript (`src/js/**`, `service-worker.js`); omit `scripts/**` maintenance implementations from the report |
-| `node --test tests/<area>/<module>.test.js` | Run one affected unit-test file during iteration |
-| `node scripts/run-playwright.js test tests/browser/workflows/<area>.spec.js` | Run one browser workflow area through the serialized Playwright runner |
-| `pnpm run test:browser:nightly` | Run serialized Playwright workflow and WCAG A/AA checks for the conditional nightly workflow or required significant-refactor completion gate |
+| `node --test tests/<area>/<module>.test.js [additional-affected.test.js]` | Run the exact unit-test files affected by the change |
+| `node scripts/run-playwright.js test <spec> --grep "<stable IDs>"` | Run affected browser or accessibility IDs through the serialized Playwright runner |
+| `pnpm test` | Run all unit tests for CI parity or an explicitly requested full-suite investigation |
+| `pnpm run test:coverage` | Run full delivered-JavaScript coverage for CI parity or an explicitly requested full-suite investigation |
+| `pnpm run test:browser:nightly` | Run the complete serialized browser and WCAG suite for CI or an explicit full-suite request |
 | `pnpm run lint` | Run ESLint on all JS files |
 | `pnpm run lint:fix` | Auto-fix lint issues |
 
@@ -58,20 +58,22 @@ Run `\.\start.ps1` from PowerShell for the interactive developer menu. It covers
 - Test files follow the pattern `tests/**/*.test.js`.
 - Test-only loaders, manifests, fixtures, and mocks belong under `tests/` and must not be copied into `out/`. Narrow adapters for genuine build-time Node consumers belong under `scripts/adapters/`.
 - `pnpm run test:coverage` still executes tests that import `scripts/**`, but reports only delivered application JavaScript (`src/js/**` and `service-worker.js`) and excludes maintenance/validation implementations.
-- Choose local checks by affected behavior while iterating; do not run the complete test suite for a documentation-only change or an isolated edit already covered by one focused test file.
+- Coverage is a floor, not the assertion strategy. Follow `testing.instructions.md`: preserve confidence with semantic, relational, boundary, and trust-boundary assertions while avoiding incidental coupling to mutable copy, markup serialization, logs, and active annual records.
+- Choose every local test command by affected behavior and list its exact files or IDs. A focused passing run completes a focused change; do not run a complete suite afterward for reassurance.
+- When a shared contract affects multiple consumers, name their specific tests in one focused command. Add another test only when the changed dependency graph, integration path, or a failure shows that it belongs in scope.
 - Run `pnpm run lint` whenever executable JavaScript, JavaScript configuration, build scripts, or automation scripts change; combine it with the focused behavior check below when applicable.
 
 | Change Scope | Local Iteration Check | When To Widen Coverage |
 | --- | --- | --- |
 | Documentation or agent instructions only | Review the changed content and links; no application test is required. | Run the named command only if the edit changes a command, workflow, or release requirement. |
-| One service, model, manager, or type | `node --test tests/<area>/<module>.test.js` | Run `pnpm test` when shared contracts, utility behavior, or several consumers change. |
-| Visitor-facing view, CSS, or interaction | `pnpm run build` and inspect the affected workflow in the running site. | The next weekly browser-verification run covers Playwright workflows and automated accessibility after repository updates. |
-| Significant implemented refactor affecting delivered code or browser-facing contracts | Run focused checks while iterating, then `pnpm run build` and `pnpm run test:browser:nightly` when the refactor is complete. | Treat the serialized browser workflow and WCAG result as required completion evidence for the refactor. |
+| One service, model, manager, or type | `node --test tests/<area>/<module>.test.js` | Add exact tests for directly affected consumers or shared owners; do not switch to `pnpm test`. |
+| Visitor-facing view, CSS, or interaction | `pnpm run build`, then run the affected Playwright spec and stable IDs. | Add exact sibling workflow or accessibility IDs only when the changed behavior crosses those paths. |
+| Significant implemented refactor affecting delivered code or browser-facing contracts | Run affected unit files, then `pnpm run build` and affected Playwright workflow/accessibility IDs. | Add specific alternate-path tests until each changed contract is covered; CI owns the complete browser suite. |
 | Annual data or active-season configuration | Follow the season rollover verification, beginning with `pnpm run validate:data`. | Use its complete required checks when activating or publishing a season. |
-| Build, PWA/offline, privacy/analytics, shared navigation, or release candidate | Use the complete automated gate in the release checklist. | Complete secure-origin or manual review sections where required. |
+| Build, PWA/offline, privacy/analytics, shared navigation, or release candidate | Run the exact affected unit and browser tests plus the non-test gates in the release checklist. | CI provides complete-suite coverage; complete secure-origin or manual review where required. |
 
-- Do not run Playwright for ordinary local iteration or the general release gate. As an explicit exception, run `pnpm run test:browser:nightly` locally after a significant implemented refactor affecting delivered application behavior or browser-facing contracts.
-- Both the nightly workflow and the significant-refactor completion gate must run Playwright through `pnpm run test:browser:nightly`. The Playwright configuration serializes invocations for the same workspace, waiting for an existing browser-test process to finish and recovering locks abandoned by interrupted runs.
+- Do not run the complete Playwright suite for ordinary local iteration or local release verification. Run changed browser workflows through `node scripts/run-playwright.js test <spec> --grep "<stable IDs>"`; CI owns `pnpm run test:browser:nightly` unless the user explicitly requests it.
+- All focused and complete Playwright invocations must use `scripts/run-playwright.js`. The runner serializes invocations for the same workspace, waiting for an existing browser-test process to finish and recovering locks abandoned by interrupted runs.
 - The serialized runner validates the lock owner's PID and exact process instance before waiting. It recovers dead or PID-reused locks immediately, records Playwright lifecycle progress, and terminates only a verified CNSL Playwright process tree after 90 seconds without progress. This interval exceeds the configured test and server-startup timeouts. Do not manually terminate an active Playwright test execution or the shared development server.
 - The complete local release gate is defined in [docs/release-checklist.md](../../docs/release-checklist.md); it is a publishing checkpoint rather than the default iteration loop.
 - The GitHub Pages build contains no Playwright setup or execution. A weekly GitHub Actions workflow also runs `pnpm run test:browser:nightly` after a push to `main` in the preceding seven days, or when manually dispatched, and its result does not block deployment.

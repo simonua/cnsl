@@ -5,7 +5,6 @@ const path = require('node:path');
 const vm = require('node:vm');
 const { createSampleTeamsData } = require('../helpers/test-helpers.js');
 const { Team, TeamsManager } = require('../helpers/browser-module-loader.js').loadBrowserModule('teams-manager');
-const activeTeamsData = require('../../src/assets/data/2026/teams/teams.json');
 
 describe('TeamsManager', () => {
   let manager;
@@ -162,14 +161,15 @@ describe('TeamsManager', () => {
       assert.deepEqual(manager.getAllCoaches(), ['Jane Smith', 'John Doe', 'Legacy Coach']);
     });
 
-    it('keeps a public source and verification date for every active team', () => {
-      manager.loadData(activeTeamsData);
+    it('preserves public staff source metadata for every loaded fixture team', () => {
+      const data = createSampleTeamsData();
+      manager.loadData(data);
       const teams = manager.getAllTeams();
 
-      assert.equal(teams.length, 14);
-      teams.forEach(team => {
-        assert.match(team.staff.sourceUrl, /^https:\/\//);
-        assert.match(team.staff.verifiedOn, /^\d{4}-\d{2}-\d{2}$/);
+      assert.equal(teams.length, data.teams.length);
+      teams.forEach((team, index) => {
+        assert.equal(team.staff.sourceUrl, data.teams[index].staff.sourceUrl);
+        assert.equal(team.staff.verifiedOn, data.teams[index].staff.verifiedOn);
         assert.ok(Array.isArray(team.staff.coaches));
         assert.ok(Array.isArray(team.staff.managers));
         assert.ok(Array.isArray(team.staff.contacts));

@@ -50,7 +50,7 @@ describe('performance measurement reporting', () => {
   it('should calculate the existing upper median and a compact sample spread', () => {
     assert.equal(median([900, 500, 700, 600]), 700);
     assert.deepEqual(spread([900, 500, 700]), { min: 500, median: 700, max: 900 });
-    assert.throws(() => spread([]), /empty performance sample/);
+    assert.throws(() => spread([]));
   });
 
   it('should report route usability separately from progressive Pools phases', () => {

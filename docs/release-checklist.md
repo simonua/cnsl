@@ -8,14 +8,13 @@ Run before deploying:
 
 ```bash
 pnpm run lint
-pnpm test
 pnpm run validate:data
 pnpm audit --audit-level high
 pnpm run build
 pnpm run verify:pwa
 ```
 
-Record the command results in the pull request or release record. `pnpm run verify:pwa` reports the public artifact footprint, requires that only the configured active season's data is emitted, and prevents retained annual evidence PDFs from entering the deployment. GitHub Actions runs the high-severity dependency audit as a required pre-deployment gate. Playwright is intentionally excluded from local release verification and the Pages build: the weekly browser-verification workflow runs Chromium workflows and automated WCAG A/AA scans after a push to `main` in the preceding seven days, or when manually dispatched, without blocking deployment.
+Run the exact affected unit-test files and browser workflow/accessibility IDs identified by the release candidate's changes. Do not substitute `pnpm test`, `pnpm run test:coverage`, or `pnpm run test:browser:nightly` locally; CI owns complete-suite verification. Record every scoped test command and non-test gate result in the pull request or release record. `pnpm run verify:pwa` reports the public artifact footprint, requires that only the configured active season's data is emitted, and prevents retained annual evidence PDFs from entering the deployment. GitHub Actions runs the complete unit gate, high-severity dependency audit, and the scheduled Chromium/WCAG suite separately.
 
 ## Secure-Origin PWA Review
 
