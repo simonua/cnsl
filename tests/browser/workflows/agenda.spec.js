@@ -346,10 +346,29 @@ test('[WF-AGENDA-009] completed meets advance only the dedicated My Meet Day rou
     };
   })).toEqual({ headingsTopAligned: true, itemsOccupySeparateRows: true, listsTopAligned: true });
   await page.setViewportSize({ width: 360, height: 780 });
-  await expect.poll(() => paymentMethods.evaluate(element => ({
-    pageOverflow: globalThis.document.documentElement.scrollWidth > globalThis.document.documentElement.clientWidth,
-    rowOverflow: element.scrollWidth > element.clientWidth
-  }))).toEqual({ pageOverflow: false, rowOverflow: false });
+  await expect.poll(() => paymentMethods.evaluate(element => {
+    const menu = element.parentElement.querySelector('.my-meet-day__concessions-menu');
+    const groups = [...menu.querySelectorAll('.my-meet-day__concessions-group')];
+    const firstGroup = groups[0];
+    const headingTextLeft = firstGroup.querySelector('strong').getBoundingClientRect().right
+      - firstGroup.querySelector('strong').getBoundingClientRect().width
+      + firstGroup.querySelector('svg').getBoundingClientRect().width
+      + Number.parseFloat(globalThis.getComputedStyle(firstGroup.querySelector('strong')).columnGap || globalThis.getComputedStyle(firstGroup.querySelector('strong')).gap);
+    const firstItemLeft = firstGroup.querySelector('li').getBoundingClientRect().left;
+    const groupTops = groups.map(group => Math.round(group.getBoundingClientRect().top));
+
+    return {
+      firstRowGroupCount: groupTops.filter(top => top === groupTops[0]).length,
+      itemAlignedWithHeadingText: Math.abs(firstItemLeft - headingTextLeft) <= 1,
+      pageOverflow: globalThis.document.documentElement.scrollWidth > globalThis.document.documentElement.clientWidth,
+      rowOverflow: element.scrollWidth > element.clientWidth
+    };
+  })).toEqual({
+    firstRowGroupCount: 2,
+    itemAlignedWithHeadingText: true,
+    pageOverflow: false,
+    rowOverflow: false
+  });
 });
 
 test('[WF-AGENDA-003] shared team agenda filters published practice times by selected group', async ({ page }) => {
