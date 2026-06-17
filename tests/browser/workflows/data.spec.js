@@ -97,18 +97,31 @@ test('[WF-DATA-006] FAQ and footer distinguish seasonal-source checks from data 
 });
 
 test('[WF-DATA-007] footer keeps the last weather update current while weather checks are enabled', async ({ page }) => {
+  let releaseWeatherController;
+  const weatherControllerPaused = new Promise(resolve => {
+    releaseWeatherController = resolve;
+  });
+  await page.route('**/js/weather-alert.js', async route => {
+    await weatherControllerPaused;
+    await route.continue();
+  });
   await page.route('https://api.weather.gov/**', route => route.abort());
   await page.addInitScript(updatedAt => {
     localStorage.setItem('cnsl_weather_alert_last_successful_check', JSON.stringify({ updatedAt }));
   }, WEATHER_CHECKED_AT);
-  await page.goto('/faq.html');
+  await page.goto('/faq.html', { waitUntil: 'commit' });
 
   const weatherFreshness = page.locator('#footerWeatherFreshness');
   const weatherTimestamp = page.locator('#footerWeatherUpdated');
-  await expect(weatherFreshness).toBeVisible();
-  await expect(weatherFreshness).toHaveAttribute('aria-hidden', 'false');
-  await expect(weatherTimestamp).toHaveText('June 2, 2:15 PM');
-  await expect(weatherTimestamp).toHaveAttribute('datetime', WEATHER_CHECKED_AT);
+  try {
+    await expect(weatherFreshness).toBeVisible();
+    await expect(weatherFreshness).toHaveAttribute('aria-hidden', 'false');
+    await expect(weatherTimestamp).toHaveText('June 2, 2:15 PM');
+    await expect(weatherTimestamp).toHaveAttribute('datetime', WEATHER_CHECKED_AT);
+  } finally {
+    releaseWeatherController();
+  }
+  await page.waitForLoadState('domcontentloaded');
 
   await page.evaluate(updatedAt => {
     localStorage.setItem('cnsl_weather_alert_last_successful_check', JSON.stringify({ updatedAt }));

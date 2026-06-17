@@ -143,37 +143,6 @@
   }
 
   /**
-   * Renders the footer's latest successful weather-check timestamp.
-   * @private
-   */
-  function renderFooterWeatherFreshness() {
-    const freshness = document.getElementById('footerWeatherFreshness');
-    const updated = document.getElementById('footerWeatherUpdated');
-    if (!freshness || !updated || typeof WeatherAlertService === 'undefined') return;
-
-    const isEnabled = getWeatherRefreshMinutes() !== 0;
-    const latestStatus = WeatherAlertService.readLatestCheckedStatus();
-    const hasVisibleUpdate = isEnabled && Boolean(latestStatus);
-    freshness.setAttribute('aria-hidden', String(!hasVisibleUpdate));
-    updated.hidden = !hasVisibleUpdate;
-    if (!hasVisibleUpdate) return;
-
-    const updatedAt = new Date(latestStatus.updatedAt);
-    updated.dateTime = latestStatus.updatedAt;
-    const updatedDate = new Intl.DateTimeFormat('en-US', {
-      day: 'numeric',
-      month: 'long',
-      timeZone: WeatherAlertService.EASTERN_TIMEZONE
-    }).format(updatedAt);
-    const updatedTime = new Intl.DateTimeFormat('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      timeZone: WeatherAlertService.EASTERN_TIMEZONE
-    }).format(updatedAt);
-    updated.textContent = `${updatedDate}, ${updatedTime}`;
-  }
-
-  /**
    * Refreshes weather status and schedules the next eligible check.
    * @returns {Promise<void>} Promise settled after the current refresh attempt
    * @private
@@ -225,20 +194,20 @@
     const toggle = document.getElementById('weatherAlertToggle');
     if (toggle) toggle.addEventListener('click', toggleWeatherAlert);
 
-    renderFooterWeatherFreshness();
+    globalThis.renderFooterWeatherFreshness();
     refreshWeatherAlert();
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) refreshWeatherAlert();
     });
     window.addEventListener('cnsl:preferences-changed', refreshWeatherAlert);
-    window.addEventListener('cnsl:preferences-changed', renderFooterWeatherFreshness);
-    window.addEventListener('cnsl:weather-alert-status-changed', renderFooterWeatherFreshness);
+    window.addEventListener('cnsl:preferences-changed', globalThis.renderFooterWeatherFreshness);
+    window.addEventListener('cnsl:weather-alert-status-changed', globalThis.renderFooterWeatherFreshness);
     window.addEventListener('storage', event => {
       if (typeof PreferencesService !== 'undefined' && event.key === PreferencesService.STORAGE_KEY) {
         refreshWeatherAlert();
       }
       if (event.key === WeatherAlertService.LAST_SUCCESSFUL_CHECK_KEY) {
-        renderFooterWeatherFreshness();
+        globalThis.renderFooterWeatherFreshness();
       }
     });
   }

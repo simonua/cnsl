@@ -403,12 +403,7 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
      * @private
      */
     static getLocalStorage() {
-      let storage = null;
-      try {
-        storage = typeof localStorage === 'undefined' ? null : localStorage;
-      /* node:coverage ignore next */
-      } catch (_error) {} // eslint-disable-line no-empty
-      return storage;
+      return globalThis.WeatherFreshnessService.getStorage();
     }
 
     /**
@@ -429,14 +424,7 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
      * @returns {Object|null} Latest timestamp record
      */
     static readLatestCheckedStatus(storage = WeatherAlertService.getLocalStorage()) {
-      if (!storage) return null;
-      try {
-        const status = JSON.parse(storage.getItem(WeatherAlertService.LAST_SUCCESSFUL_CHECK_KEY));
-        const updatedAt = status && typeof status.updatedAt === 'string' ? new Date(status.updatedAt) : null;
-        return updatedAt && !Number.isNaN(updatedAt.getTime()) ? { updatedAt: status.updatedAt } : null;
-      } catch (_error) {
-        return null;
-      }
+      return globalThis.WeatherFreshnessService.read(storage);
     }
 
     /**
@@ -447,18 +435,7 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
      * @private
      */
     static rememberLatestCheckedStatus(status, storage = WeatherAlertService.getLocalStorage()) {
-      if (!storage || !status || typeof status.isInclement !== 'boolean' || typeof status.updatedAt !== 'string') return;
-      const updatedAt = new Date(status.updatedAt);
-      if (Number.isNaN(updatedAt.getTime())) return;
-
-      const latestStatus = WeatherAlertService.readLatestCheckedStatus(storage);
-      if (latestStatus && new Date(latestStatus.updatedAt) >= updatedAt) return;
-
-      try {
-        storage.setItem(WeatherAlertService.LAST_SUCCESSFUL_CHECK_KEY, JSON.stringify({ updatedAt: status.updatedAt }));
-      } catch (_error) {
-        return;
-      }
+      globalThis.WeatherFreshnessService.remember(status, storage);
     }
 
     /**

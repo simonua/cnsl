@@ -596,6 +596,7 @@ describe('WeatherAlertService', () => {
       const { context } = loader;
       Object.defineProperty(context, 'sessionStorage', { configurable: true, get: () => { throw new Error('blocked'); } });
       Object.defineProperty(context, 'localStorage', { configurable: true, get: () => { throw new Error('blocked'); } });
+      loader.load('services/weather-freshness-service.js');
       loader.load('services/weather-alert-service.js');
 
       assert.equal(context.WeatherAlertService.getSessionStorage(), null);
