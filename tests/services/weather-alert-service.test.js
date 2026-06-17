@@ -1,8 +1,5 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('node:fs');
-const path = require('node:path');
-const vm = require('node:vm');
 const { createClassicScriptLoader } = require('../../scripts/lib/classic-script-loader.js');
 const { createLocalStorageMock } = require('../helpers/test-helpers.js');
 const weatherAlertModule = require('../helpers/browser-module-loader.js').loadBrowserModule('weather-alert-service');
@@ -300,7 +297,11 @@ describe('WeatherAlertService', () => {
     it('should expose the expiry for a still-valid cached status', () => {
       const storage = createLocalStorageMock();
       const latestCheckedStorage = createLocalStorageMock();
-      const status = WeatherAlertService.withUpdatedAt({ isInclement: true, message: 'Storm warning.' }, now);
+      const status = WeatherAlertService.withUpdatedAt({
+        isInclement: true,
+        message: 'Storm warning.',
+        source: WeatherAlertSource.ALERT
+      }, now);
       WeatherAlertService.cacheStatus(storage, status, 10, now, latestCheckedStorage);
 
       const cached = WeatherAlertService.readCachedStatusEntry(storage, 10, new Date(now.getTime() + 60 * 1000));
@@ -510,6 +511,22 @@ describe('WeatherAlertService', () => {
       }
     });
 
+    it('rejects fresh cache entries whose status cannot be rendered safely', () => {
+      const storage = createLocalStorageMock();
+      storage.setItem(WeatherAlertService.CACHE_KEY, JSON.stringify({
+        expiresAt: now.getTime() + 60 * 1000,
+        refreshMinutes: 5,
+        status: {
+          isInclement: true,
+          message: 42,
+          source: WeatherAlertSource.ALERT,
+          updatedAt: now.toISOString()
+        }
+      }));
+
+      assert.equal(WeatherAlertService.readCachedStatusEntry(storage, 5, now), null);
+    });
+
     it('reports the durable latest checked timestamp after freshness expires or the interval changes', () => {
       const storage = createLocalStorageMock();
       const latestCheckedStorage = createLocalStorageMock();
@@ -581,14 +598,13 @@ describe('WeatherAlertService', () => {
     });
 
     it('installs weather evaluation as a browser script global', () => {
-      const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'weather-alert-service.js');
-      const source = fs.readFileSync(sourcePath, 'utf8');
-      const context = {};
-      context.globalThis = context;
-      context.self = context;
-      context.window = context;
-      vm.runInNewContext(source, context, { filename: sourcePath });
-      assert.equal(typeof context.window.WeatherAlertService, 'function');
+      const loader = createClassicScriptLoader({ name: 'test:weather-alert-browser-global' });
+      loader.load([
+        'types/weather-alert-source.js',
+        'services/weather-freshness-service.js',
+        'services/weather-alert-service.js'
+      ]);
+      assert.equal(typeof loader.context.window.WeatherAlertService, 'function');
     });
 
     it('handles throwing storage getters in its browser realm', () => {
@@ -596,6 +612,7 @@ describe('WeatherAlertService', () => {
       const { context } = loader;
       Object.defineProperty(context, 'sessionStorage', { configurable: true, get: () => { throw new Error('blocked'); } });
       Object.defineProperty(context, 'localStorage', { configurable: true, get: () => { throw new Error('blocked'); } });
+      loader.load('types/weather-alert-source.js');
       loader.load('services/weather-freshness-service.js');
       loader.load('services/weather-alert-service.js');
 

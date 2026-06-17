@@ -64,9 +64,9 @@
   try {
     const refreshMinutes = getWeatherRefreshMinutes();
     if (refreshMinutes === 0) return;
-    const cached = JSON.parse(sessionStorage.getItem(globalThis.WEATHER_ALERT_STATUS_STORAGE_KEY));
+    const cached = globalThis.WeatherAlertCacheService.read(refreshMinutes);
     const status = cached && cached.status;
-    if (!cached || cached.refreshMinutes !== refreshMinutes || cached.expiresAt <= Date.now() || !status || !status.isInclement) return;
+    if (!status || !status.isInclement) return;
 
     const isExpanded = sessionStorage.getItem(globalThis.WEATHER_ALERT_DISCLOSURE_STORAGE_KEY) !== 'false';
     WeatherAlertDisplay.render(status, isExpanded, globalThis.APP_TIMEZONE);

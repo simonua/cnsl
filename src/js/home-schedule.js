@@ -184,5 +184,5 @@
     initializeSectionToggle('favoriteWeekToggle', 'favoriteWeekContent');
     renderFavoriteWeek();
   });
-  window.addEventListener('cnsl:preferences-changed', renderFavoriteWeek);
+  window.addEventListener(globalThis.PREFERENCES_CHANGED_EVENT_NAME, renderFavoriteWeek);
 })();

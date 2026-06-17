@@ -182,6 +182,27 @@ test('[WF-SETTINGS-013] force update reports progress and recovers without chang
   await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_preferences'))).toBe(savedPreferences);
 });
 
+test('[WF-SETTINGS-014] preference changes update other open app tabs', async ({ page }) => {
+  const secondPage = await page.context().newPage();
+  await prepareStableWeatherResponses(secondPage);
+  await Promise.all([page.goto('/index.html'), secondPage.goto('/settings.html')]);
+  await page.evaluate(() => {
+    globalThis.crossTabPreferenceEvents = [];
+    globalThis.addEventListener(globalThis.PREFERENCES_CHANGED_EVENT_NAME, event => {
+      globalThis.crossTabPreferenceEvents.push(event.detail);
+    });
+  });
+
+  await secondPage.locator('#accessibilitySettings summary').click();
+  await secondPage.getByLabel('Dark').check();
+
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect.poll(() => page.evaluate(() => globalThis.crossTabPreferenceEvents)).toEqual([
+    { source: 'storage' }
+  ]);
+  await secondPage.close();
+});
+
 test('[WF-SETTINGS-012] settings dialog closes from the backdrop and restores launcher focus', async ({ page }) => {
   await page.setViewportSize(MOBILE_VIEWPORT);
   await page.goto('/settings.html');

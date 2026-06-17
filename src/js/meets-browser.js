@@ -455,5 +455,5 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-window.addEventListener('cnsl:preferences-changed', refreshMeetsForPreferences);
+window.addEventListener(globalThis.PREFERENCES_CHANGED_EVENT_NAME, refreshMeetsForPreferences);
 document.addEventListener('visibilitychange', handleMeetPageVisibilityChange);

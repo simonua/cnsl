@@ -760,4 +760,4 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-window.addEventListener('cnsl:preferences-changed', refreshTeamsForPreferences);
+window.addEventListener(globalThis.PREFERENCES_CHANGED_EVENT_NAME, refreshTeamsForPreferences);

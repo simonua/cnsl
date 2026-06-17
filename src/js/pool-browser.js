@@ -1173,7 +1173,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-window.addEventListener('cnsl:preferences-changed', refreshPoolsForPreferences);
+window.addEventListener(globalThis.PREFERENCES_CHANGED_EVENT_NAME, refreshPoolsForPreferences);
 document.addEventListener('visibilitychange', handlePoolPageVisibilityChange);
 
 // Make functions available globally

@@ -4,7 +4,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const { createLocalStorageMock } = require('../helpers/test-helpers.js');
-const { PreferencesService } = require('../helpers/browser-module-loader.js').loadBrowserModule('preferences-service');
+const preferencesModule = require('../helpers/browser-module-loader.js').loadBrowserModule('preferences-service');
+const { PreferencesService, context: preferencesContext } = preferencesModule;
 
 describe('PreferencesService', () => {
   describe('get and save', () => {
@@ -116,10 +117,29 @@ describe('PreferencesService', () => {
       const restrictedStorage = { setItem: () => { throw new Error('blocked'); }, removeItem: () => { throw new Error('blocked'); } };
       assert.deepEqual(PreferencesService.get(null), { ...PreferencesService.DEFAULT_PREFERENCES });
       assert.deepEqual(PreferencesService.save({ theme: 'dark' }, restrictedStorage).theme, 'dark');
+      assert.equal(PreferencesService.get(restrictedStorage).theme, 'dark');
+      assert.equal(PreferencesService.get(null).theme, 'dark');
       assert.doesNotThrow(() => PreferencesService.clear(null));
       assert.doesNotThrow(() => PreferencesService.clear(restrictedStorage));
       assert.equal(PreferencesService.getStorage(), null);
       assert.equal(PreferencesService.save({ theme: 'light' }, null).theme, 'light');
+      assert.equal(PreferencesService.get(null).theme, 'light');
+      PreferencesService.clear(null);
+    });
+
+    it('returns null when the browser local storage getter throws', () => {
+      const originalDescriptor = Object.getOwnPropertyDescriptor(preferencesContext, 'localStorage');
+      Object.defineProperty(preferencesContext, 'localStorage', {
+        configurable: true,
+        get: () => { throw new Error('blocked'); }
+      });
+      try {
+        assert.equal(PreferencesService.getStorage(), null);
+        assert.doesNotThrow(() => PreferencesService.get());
+      } finally {
+        if (originalDescriptor) Object.defineProperty(preferencesContext, 'localStorage', originalDescriptor);
+        else delete preferencesContext.localStorage;
+      }
     });
 
     it('discovers browser local storage when it is available', () => {

@@ -7,7 +7,7 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
     static OFFICIAL_STATUS_GUIDANCE = 'Check live pool status before leaving.';
     static BASE_URL = globalThis.WEATHER_API_BASE_URL;
     static COLUMBIA_MD_POINT = globalThis.WEATHER_LOCATION_POINT;
-    static CACHE_KEY = globalThis.WEATHER_ALERT_STATUS_STORAGE_KEY;
+    static CACHE_KEY = globalThis.WeatherAlertCacheService.STORAGE_KEY;
     static LAST_SUCCESSFUL_CHECK_KEY = globalThis.WEATHER_ALERT_LAST_SUCCESSFUL_CHECK_STORAGE_KEY;
     static DEFAULT_REFRESH_MINUTES = globalThis.WEATHER_ALERT_DEFAULT_REFRESH_MINUTES;
     static POOL_OPENING_LEAD_MINUTES = globalThis.WEATHER_ALERT_OPENING_LEAD_MINUTES;
@@ -389,12 +389,7 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
      * @private
      */
     static getSessionStorage() {
-      let storage = null;
-      try {
-        storage = typeof sessionStorage === 'undefined' ? null : sessionStorage;
-      /* node:coverage ignore next */
-      } catch (_error) {} // eslint-disable-line no-empty
-      return storage;
+      return globalThis.WeatherAlertCacheService.getStorage();
     }
 
     /**
@@ -447,13 +442,7 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
      * @private
      */
     static readCachedStatusEntry(storage, refreshMinutes, now = new Date()) {
-      if (!storage) return null;
-      try {
-        const cached = JSON.parse(storage.getItem(WeatherAlertService.CACHE_KEY));
-        return cached && cached.refreshMinutes === refreshMinutes && cached.expiresAt > now.getTime() ? cached : null;
-      } catch (_error) {
-        return null;
-      }
+      return globalThis.WeatherAlertCacheService.read(refreshMinutes, storage, now);
     }
 
     /**
@@ -468,16 +457,7 @@ if (typeof globalThis.WeatherAlertService === 'undefined') {
      */
     static cacheStatus(storage, status, refreshMinutes, now = new Date(), latestCheckedStorage = WeatherAlertService.getLocalStorage()) {
       WeatherAlertService.rememberLatestCheckedStatus(status, latestCheckedStorage);
-      if (!storage) return;
-      try {
-        storage.setItem(WeatherAlertService.CACHE_KEY, JSON.stringify({
-          expiresAt: now.getTime() + refreshMinutes * 60 * 1000,
-          refreshMinutes,
-          status
-        }));
-      } catch (_error) {
-        return;
-      }
+      globalThis.WeatherAlertCacheService.write(status, refreshMinutes, storage, now);
     }
   }
 

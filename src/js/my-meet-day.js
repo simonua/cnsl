@@ -180,5 +180,5 @@
     if (globalThis.cnslSeasonState && globalThis.cnslSeasonState.isOffSeason) return;
     renderMyMeetDay();
   });
-  globalThis.addEventListener('cnsl:preferences-changed', renderMyMeetDay);
+  globalThis.addEventListener(globalThis.PREFERENCES_CHANGED_EVENT_NAME, renderMyMeetDay);
 })();

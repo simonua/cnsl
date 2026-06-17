@@ -271,7 +271,9 @@
    * @private
    */
   function notifyPreferencesChanged() {
-    window.dispatchEvent(new CustomEvent('cnsl:preferences-changed', { detail: { source: 'settings-dialog' } }));
+    window.dispatchEvent(new CustomEvent(globalThis.PREFERENCES_CHANGED_EVENT_NAME, {
+      detail: { source: 'settings-dialog' }
+    }));
   }
 
   /**
@@ -514,6 +516,7 @@
 
       const existing = PreferencesService.get();
       await window.AppStorageService.clearAppData();
+      PreferencesService.clear();
       const cleared = PreferencesService.get();
       trackClearedSettings(existing, cleared, publishedPoolNames, publishedTeamNames);
       applyFormValues(form, cleared);

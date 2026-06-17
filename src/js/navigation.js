@@ -213,5 +213,5 @@ document.addEventListener('DOMContentLoaded', () => {
     updateNavigationOffset();
     handleStickyFooter();
   });
-  window.addEventListener('cnsl:preferences-changed', updateExperimentalNavigation);
+  window.addEventListener(globalThis.PREFERENCES_CHANGED_EVENT_NAME, updateExperimentalNavigation);
 });

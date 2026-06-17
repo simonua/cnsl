@@ -199,13 +199,10 @@
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) refreshWeatherAlert();
     });
-    window.addEventListener('cnsl:preferences-changed', refreshWeatherAlert);
-    window.addEventListener('cnsl:preferences-changed', globalThis.renderFooterWeatherFreshness);
+    window.addEventListener(globalThis.PREFERENCES_CHANGED_EVENT_NAME, refreshWeatherAlert);
+    window.addEventListener(globalThis.PREFERENCES_CHANGED_EVENT_NAME, globalThis.renderFooterWeatherFreshness);
     window.addEventListener('cnsl:weather-alert-status-changed', globalThis.renderFooterWeatherFreshness);
     window.addEventListener('storage', event => {
-      if (typeof PreferencesService !== 'undefined' && event.key === PreferencesService.STORAGE_KEY) {
-        refreshWeatherAlert();
-      }
       if (event.key === WeatherAlertService.LAST_SUCCESSFUL_CHECK_KEY) {
         globalThis.renderFooterWeatherFreshness();
       }

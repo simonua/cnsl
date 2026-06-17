@@ -18,6 +18,8 @@ if (typeof globalThis.PreferencesService === 'undefined') {
 
     static WEATHER_REFRESH_MINUTES = globalThis.WEATHER_ALERT_REFRESH_MINUTES_OPTIONS;
 
+    static volatilePreferences = null;
+
     static PRACTICE_GROUPS = Object.freeze([
       Object.freeze({ key: 'first-splash', label: 'First Splash', publishedLabels: Object.freeze(['first splash', 'first splash (new swimmers)']) }),
       Object.freeze({ key: '8-under', label: '8 and under', minimumAge: 0, maximumAge: 8 }),
@@ -93,13 +95,15 @@ if (typeof globalThis.PreferencesService === 'undefined') {
      * @returns {Object} Normalized preferences
      */
     static get(storage = PreferencesService.getStorage()) {
-      if (!storage) return { ...PreferencesService.DEFAULT_PREFERENCES };
+      if (!storage) return PreferencesService.getFallbackPreferences();
 
       try {
         const storedValue = storage.getItem(PreferencesService.STORAGE_KEY);
-        return storedValue ? PreferencesService.normalize(JSON.parse(storedValue)) : { ...PreferencesService.DEFAULT_PREFERENCES };
+        return storedValue
+          ? PreferencesService.normalize(JSON.parse(storedValue))
+          : PreferencesService.getFallbackPreferences();
       } catch (_error) {
-        return { ...PreferencesService.DEFAULT_PREFERENCES };
+        return PreferencesService.getFallbackPreferences();
       }
     }
 
@@ -115,9 +119,12 @@ if (typeof globalThis.PreferencesService === 'undefined') {
       if (storage) {
         try {
           storage.setItem(PreferencesService.STORAGE_KEY, JSON.stringify(normalized));
+          PreferencesService.volatilePreferences = null;
         } catch (_error) {
-          return normalized;
+          PreferencesService.volatilePreferences = normalized;
         }
+      } else {
+        PreferencesService.volatilePreferences = normalized;
       }
 
       return normalized;
@@ -128,6 +135,7 @@ if (typeof globalThis.PreferencesService === 'undefined') {
      * @param {Storage|null} storage - Browser storage or a test substitute
      */
     static clear(storage = PreferencesService.getStorage()) {
+      PreferencesService.volatilePreferences = null;
       if (!storage) return;
 
       try {
@@ -450,11 +458,27 @@ if (typeof globalThis.PreferencesService === 'undefined') {
     }
 
     /**
+     * Get the latest tab-memory preferences or device defaults.
+     * @returns {Object} Normalized fallback preferences
+     * @private
+     */
+    static getFallbackPreferences() {
+      return PreferencesService.volatilePreferences
+        ? { ...PreferencesService.volatilePreferences }
+        : { ...PreferencesService.DEFAULT_PREFERENCES };
+    }
+
+    /**
      * Get browser local storage when it is available.
      * @returns {Storage|null} Browser storage or null
      */
     static getStorage() {
-      return typeof localStorage !== 'undefined' ? localStorage : null;
+      let storage = null;
+      try {
+        storage = typeof localStorage === 'undefined' ? null : localStorage;
+      /* node:coverage ignore next */
+      } catch (_error) {} // eslint-disable-line no-empty
+      return storage;
     }
   }
 

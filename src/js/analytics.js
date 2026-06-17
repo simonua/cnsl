@@ -417,19 +417,23 @@
   }
 
   /**
-   * Publishes and clears a prepared application upgrade path.
-   * @param {string|null} upgradePath - Validated path prepared during initialization
+   * Publishes and clears the current profile's prepared application upgrade path.
    * @private
    */
-  function publishUpgrade(upgradePath) {
-    const validUpgradePath = getValidUpgradePath(upgradePath);
+  function publishUpgradeIfNeeded() {
+    let validUpgradePath;
+    try {
+      validUpgradePath = getValidUpgradePath(
+        window.localStorage.getItem(window.ANALYTICS_UPGRADE_PATH_STORAGE_KEY)
+      );
+    } catch (_error) {
+      return;
+    }
     if (!validUpgradePath) return;
 
     publishEvent(ANALYTICS_EVENT_NAMES.UPGRADE, { upgrade_path: validUpgradePath });
     try {
-      if (window.localStorage.getItem(window.ANALYTICS_UPGRADE_PATH_STORAGE_KEY) === validUpgradePath) {
-        window.localStorage.removeItem(window.ANALYTICS_UPGRADE_PATH_STORAGE_KEY);
-      }
+      window.localStorage.removeItem(window.ANALYTICS_UPGRADE_PATH_STORAGE_KEY);
     } catch (_error) {
       return;
     }
@@ -456,23 +460,35 @@
   }
 
   /**
-   * Serializes application-version publication across same-origin browser contexts.
-   * @returns {Promise<void>} Completion after the profile marker has been checked
+   * Publishes profile-scoped version and upgrade analytics from one storage snapshot.
    * @private
    */
-  async function publishVersionWhenChanged() {
+  function publishVersionAndUpgradeIfNeeded() {
+    publishVersionIfNeeded();
+    publishUpgradeIfNeeded();
+  }
+
+  /**
+   * Serializes application version and upgrade publication across same-origin contexts.
+   * @returns {Promise<void>} Completion after profile reporting state has been checked
+   * @private
+   */
+  async function publishVersionAndUpgradeWhenChanged() {
     if (typeof window.gtag !== 'function') return;
 
     const lockManager = window.navigator.locks;
     if (!lockManager || typeof lockManager.request !== 'function') {
-      publishVersionIfNeeded();
+      publishVersionAndUpgradeIfNeeded();
       return;
     }
 
     try {
-      await lockManager.request(window.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, publishVersionIfNeeded);
+      await lockManager.request(
+        window.ANALYTICS_VERSION_REPORTED_STORAGE_KEY,
+        publishVersionAndUpgradeIfNeeded
+      );
     } catch (_error) {
-      publishVersionIfNeeded();
+      publishVersionAndUpgradeIfNeeded();
     }
   }
 
@@ -759,7 +775,7 @@
     && isProductionSite()
     && !isAnalyticsDisabled();
   const publishedCampaign = isAnalyticsEligible ? consumePublishedCampaign() : null;
-  const pendingUpgradePath = isAnalyticsEligible ? prepareUpgradeTracking() : null;
+  if (isAnalyticsEligible) prepareUpgradeTracking();
 
   // Public API
 
@@ -848,8 +864,7 @@
       page_title: getMeasuredPageTitle(),
       ...getMeasuredPageParameters()
     });
-    await publishVersionWhenChanged();
-    publishUpgrade(pendingUpgradePath);
+    await publishVersionAndUpgradeWhenChanged();
     if (publishedCampaign?.source === 'flyer') {
       publishEvent(ANALYTICS_EVENT_NAMES.FLYER_VISIT);
     }

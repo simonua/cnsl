@@ -157,7 +157,7 @@ analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and each publi
   expect(blockedExternalRequests).toEqual([]);
 });
 
-analyticsTest('[WF-ANALYTICS-014] concurrent browser contexts publish one app-version event per profile', async ({
+analyticsTest('[WF-ANALYTICS-014] concurrent browser contexts publish one app-version and upgrade event per profile', async ({
   page
 }) => {
   const browserContext = page.context();
@@ -180,9 +180,13 @@ analyticsTest('[WF-ANALYTICS-014] concurrent browser contexts publish one app-ve
     const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
     await route.fulfill({ response });
   });
-  await browserContext.addInitScript(({ reportedVersionKey }) => {
+  await browserContext.addInitScript(({ analyticsVersionKey, reportedVersionKey }) => {
     if (globalThis.location.pathname === '/index.html') localStorage.removeItem(reportedVersionKey);
-  }, { reportedVersionKey: AppConfig.ANALYTICS_VERSION_REPORTED_STORAGE_KEY });
+    localStorage.setItem(analyticsVersionKey, '2.8.4');
+  }, {
+    analyticsVersionKey: AppConfig.ANALYTICS_APP_VERSION_STORAGE_KEY,
+    reportedVersionKey: AppConfig.ANALYTICS_VERSION_REPORTED_STORAGE_KEY
+  });
 
   const secondPage = await browserContext.newPage();
   await Promise.all([
@@ -201,6 +205,16 @@ analyticsTest('[WF-ANALYTICS-014] concurrent browser contexts publish one app-ve
     return eventCommands.flat();
   }).toEqual([
     ['event', 'ca_version', { app_version: AppConfig.APP_VERSION }]
+  ]);
+  await expect.poll(async () => {
+    const eventCommands = await Promise.all([page, secondPage].map(currentPage => currentPage.evaluate(() => (
+      globalThis.dataLayer
+        .map(argumentsList => Array.from(argumentsList))
+        .filter(command => command[0] === 'event' && command[1] === 'ca_upgrade')
+    ))));
+    return eventCommands.flat();
+  }).toEqual([
+    ['event', 'ca_upgrade', { upgrade_path: `2.8.4 -> ${AppConfig.APP_VERSION}` }]
   ]);
   await expect.poll(() => page.evaluate(() => localStorage.getItem(
     globalThis.ANALYTICS_VERSION_REPORTED_STORAGE_KEY

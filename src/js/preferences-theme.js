@@ -36,6 +36,9 @@
   window.addEventListener('storage', event => {
     if (event.key === PreferencesService.STORAGE_KEY) {
       applyPreferenceTheme(PreferencesService.get());
+      window.dispatchEvent(new CustomEvent(globalThis.PREFERENCES_CHANGED_EVENT_NAME, {
+        detail: { source: 'storage' }
+      }));
     }
   });
 

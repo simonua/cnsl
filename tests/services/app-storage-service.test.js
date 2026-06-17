@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const { createClassicScriptLoader } = require('../../scripts/lib/classic-script-loader.js');
+const AppConfig = require('../../scripts/adapters/app-config.js');
 const { createLocalStorageMock } = require('../helpers/test-helpers.js');
 const appStorageModule = require('../helpers/browser-module-loader.js').loadBrowserModule('app-storage-service');
 const { AppStorageService, context: appStorageContext } = appStorageModule;
@@ -19,36 +20,16 @@ describe('AppStorageService', () => {
         delete: async name => { deletedCaches.push(name); return true; }
       };
 
-      [
-        'cnsl_analytics_current_version',
-        'cnsl_analytics_pending_upgrade_path',
-        'cnsl_attention_notice_dismissed',
-        'cnsl_preferences',
-        'cnsl_current_version',
-        'cnsl_settings_notice_dismissed',
-        'cnsl_weather_alert_last_successful_check',
-        'unrelated'
-      ].forEach(key => localStorage.setItem(key, 'saved'));
-      [
-        'cnsl_service_worker_upgrade_from_version',
-        'cnsl_weather_alert_status',
-        'cnsl_weather_alert_expanded',
-        'unrelated'
-      ].forEach(key => sessionStorage.setItem(key, 'saved'));
+      [...AppConfig.APP_LOCAL_STORAGE_KEYS, 'unrelated']
+        .forEach(key => localStorage.setItem(key, 'saved'));
+      [...AppConfig.APP_SESSION_STORAGE_KEYS, 'unrelated']
+        .forEach(key => sessionStorage.setItem(key, 'saved'));
 
       await AppStorageService.clearAppData({ localStorage, sessionStorage, cacheStorage });
 
-      assert.equal(localStorage.getItem('cnsl_analytics_current_version'), null);
-      assert.equal(localStorage.getItem('cnsl_analytics_pending_upgrade_path'), null);
-      assert.equal(localStorage.getItem('cnsl_attention_notice_dismissed'), null);
-      assert.equal(localStorage.getItem('cnsl_preferences'), null);
-      assert.equal(localStorage.getItem('cnsl_current_version'), null);
-      assert.equal(localStorage.getItem('cnsl_settings_notice_dismissed'), null);
-      assert.equal(localStorage.getItem('cnsl_weather_alert_last_successful_check'), null);
+      AppConfig.APP_LOCAL_STORAGE_KEYS.forEach(key => assert.equal(localStorage.getItem(key), null));
       assert.equal(localStorage.getItem('unrelated'), 'saved');
-      assert.equal(sessionStorage.getItem('cnsl_service_worker_upgrade_from_version'), null);
-      assert.equal(sessionStorage.getItem('cnsl_weather_alert_status'), null);
-      assert.equal(sessionStorage.getItem('cnsl_weather_alert_expanded'), null);
+      AppConfig.APP_SESSION_STORAGE_KEYS.forEach(key => assert.equal(sessionStorage.getItem(key), null));
       assert.equal(sessionStorage.getItem('unrelated'), 'saved');
       assert.deepEqual(deletedCaches, ['cnsl-static-current']);
     });

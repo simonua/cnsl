@@ -218,6 +218,9 @@
   const WEATHER_ALERT_OPENING_LEAD_MINUTES = 60;
   const WEATHER_ALERT_MOBILE_MEDIA_QUERY = '(max-width: 48rem)';
 
+  // Shared browser event contracts.
+  const PREFERENCES_CHANGED_EVENT_NAME = 'cnsl:preferences-changed';
+
   // Device-local preference and presentation state keys.
   const ANALYTICS_APP_VERSION_STORAGE_KEY = 'cnsl_analytics_current_version';
   const ANALYTICS_UPGRADE_PATH_STORAGE_KEY = 'cnsl_analytics_pending_upgrade_path';
@@ -278,6 +281,7 @@
     LOCAL_DEVELOPMENT_PORT,
     MY_MEET_DAY_HOME_LOOKAHEAD_DAYS,
     PUBLISHED_CAMPAIGNS,
+    PREFERENCES_CHANGED_EVENT_NAME,
     PREFERENCES_STORAGE_KEY,
     PWA_CACHE_PREFIX,
     SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY,
