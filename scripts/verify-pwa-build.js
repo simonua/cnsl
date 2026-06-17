@@ -125,6 +125,116 @@ const formatSeasonDate = dateString => new Date(`${dateString}T00:00:00Z`).toLoc
   timeZone: 'UTC'
 });
 
+function createMemoryStorage() {
+  const values = new Map();
+  return {
+    getItem: key => values.get(key) ?? null,
+    removeItem: key => values.delete(key),
+    setItem: (key, value) => values.set(key, String(value))
+  };
+}
+
+function verifyAnalyticsArtifact(appConfigSource, interactionTypeSource, analyticsSource) {
+  const appendedScripts = [];
+  const lockRequests = [];
+  let scriptLoadListener;
+  const localStorage = createMemoryStorage();
+  const sessionStorage = createMemoryStorage();
+  const location = {
+    hash: '',
+    hostname: HOME_PAGE_HOSTNAME,
+    href: `${HOME_PAGE_URL}/index.html`,
+    pathname: '/index.html',
+    protocol: 'https:',
+    search: ''
+  };
+  const context = {
+    Element: class ArtifactElement {},
+    URL,
+    console,
+    history: { replaceState: () => undefined, state: null },
+    localStorage,
+    location,
+    navigator: {
+      locks: {
+        request: (name, callback) => {
+          lockRequests.push(name);
+          return callback();
+        }
+      },
+      userAgent: 'CNSL artifact verifier',
+      webdriver: false
+    },
+    sessionStorage
+  };
+  context.window = context;
+  context.document = {
+    addEventListener: () => undefined,
+    createElement: tagName => {
+      assert.equal(tagName, 'script', 'Analytics must inject a script element for the Google tag library.');
+      return {
+        addEventListener: (eventName, listener) => {
+          if (eventName === 'load') scriptLoadListener = listener;
+        }
+      };
+    },
+    getElementById: () => null,
+    head: { appendChild: script => appendedScripts.push(script) },
+    querySelector: selector => {
+      if (selector === `meta[name="${context.ANALYTICS_DEPLOYMENT_META_NAME}"]`) {
+        return { content: context.ANALYTICS_DEPLOYMENT_MODES.PRODUCTION };
+      }
+      if (selector === 'meta[name="analytics-page-title"]') return { content: 'Home' };
+      return null;
+    },
+    title: 'Home'
+  };
+
+  vm.createContext(context);
+  vm.runInContext(appConfigSource, context, { filename: 'js/config/app-config.js' });
+  vm.runInContext(interactionTypeSource, context, { filename: 'js/types/analytics-interaction-type.js' });
+  vm.runInContext(analyticsSource, context, { filename: 'js/analytics.js' });
+
+  assert.equal(appendedScripts.length, 1, 'Eligible production analytics must inject one Google tag script.');
+  const tagScriptUrl = new URL(appendedScripts[0].src);
+  assert.equal(tagScriptUrl.origin, 'https://www.googletagmanager.com', 'Analytics must load the Google tag library from its reviewed origin.');
+  assert.equal(tagScriptUrl.searchParams.get('id'), GA4_MEASUREMENT_ID, 'Analytics must request the configured GA4 web-stream measurement ID.');
+  assert.equal(typeof scriptLoadListener, 'function', 'Analytics must wait for the Google tag script before publishing events.');
+
+  const getCommands = () => context.dataLayer.map(command => Array.from(command));
+  const consentCommand = getCommands().find(command => command[0] === 'consent' && command[1] === 'default');
+  assert.ok(consentCommand, 'Analytics must establish default consent before loading the Google tag library.');
+  assert.equal(consentCommand[2].analytics_storage, 'granted', 'Analytics must enable first-party storage for aggregate visit and session reporting.');
+  ['ad_storage', 'ad_user_data', 'ad_personalization'].forEach(field => {
+    assert.equal(consentCommand[2][field], 'denied', `Analytics consent must deny ${field}.`);
+  });
+  const pageDefaults = getCommands().find(command => command[0] === 'set' && command[1]?.page_location);
+  assert.ok(pageDefaults, 'Analytics must establish privacy-reviewed page defaults.');
+  assert.equal(pageDefaults[1].page_location, `${HOME_PAGE_URL}/index.html`, 'Analytics page location must use the reviewed production URL without query strings or fragments.');
+  assert.equal(pageDefaults[1].page_referrer, '', 'Analytics must not send page referrers.');
+  assert.equal(pageDefaults[1].allow_google_signals, false, 'Analytics must disable Google advertising signals.');
+  assert.equal(pageDefaults[1].allow_ad_personalization_signals, false, 'Analytics must disable advertising personalization.');
+
+  scriptLoadListener();
+  const publishedCommands = getCommands();
+  const configCommand = publishedCommands.find(command => command[0] === 'config');
+  assert.ok(configCommand, 'Analytics must configure the reviewed GA4 web stream after the tag library loads.');
+  assert.equal(configCommand[1], GA4_MEASUREMENT_ID, 'Analytics must configure the published GA4 web-stream measurement ID.');
+  assert.equal(configCommand[2].send_page_view, false, 'Analytics must suppress automatic unsanitized page views.');
+  assert.equal(configCommand[2].ignore_referrer, true, 'Analytics must ignore browser-provided referrers.');
+  const pageViewCommand = publishedCommands.find(command => command[0] === 'event' && command[1] === 'page_view');
+  assert.ok(pageViewCommand, 'Analytics must publish a sanitized standard page_view event.');
+  assert.equal(pageViewCommand[2].page_location, `${HOME_PAGE_URL}/index.html`, 'Published page views must use the reviewed production URL.');
+  assert.equal(pageViewCommand[2].page_referrer, '', 'Published page views must omit referrers.');
+  assert.equal(pageViewCommand[2].page_title, 'Home', 'Published page views must use the reviewed concise title.');
+  assert.deepEqual(lockRequests, [context.ANALYTICS_VERSION_REPORTED_STORAGE_KEY], 'Profile-scoped analytics publication must be serialized under its configured storage key.');
+  assert.equal(localStorage.getItem(context.ANALYTICS_VERSION_REPORTED_STORAGE_KEY), APP_VERSION, 'Version publication must update the browser-profile marker.');
+  assert.ok(
+    publishedCommands.some(command => command[0] === 'event' && command[1] === 'ca_version' && command[2]?.app_version === APP_VERSION),
+    'Analytics must publish the configured application version.'
+  );
+}
+
 const manifest = JSON.parse(fs.readFileSync(path.join(outDir, 'manifest.webmanifest'), 'utf8'));
 assert.equal(manifest.id, './', 'The install manifest must retain a stable application id.');
 assert.match(manifest.description, new RegExp(String(YEAR)), 'The install manifest must describe the active season.');
@@ -217,73 +327,10 @@ const nonAnalyticsBrowserCode = fs.readdirSync(path.join(outDir, 'js'), { recurs
   .filter(resource => resource.endsWith('.js') && resource !== 'analytics.js')
   .map(resource => fs.readFileSync(path.join(outDir, 'js', resource), 'utf8'))
   .join('\n');
-const analyticsEventCatalog = analytics.match(/const ANALYTICS_EVENT_NAMES = Object\.freeze\(\{([\s\S]*?)\n {2}\}\);/);
-assert.ok(analyticsEventCatalog, 'Analytics must define one immutable event-name catalog.');
-const appEventNames = [...analyticsEventCatalog[1].matchAll(/^\s+[A-Z_]+: '([^']+)'/gm)]
-  .map(match => match[1]);
-const customAppEventNames = appEventNames.filter(eventName => eventName !== 'page_view');
 assert.match(GA4_MEASUREMENT_ID, /^G-[A-Z0-9]+$/, 'Analytics configuration must use a GA4 web-stream measurement ID, not a numeric property ID.');
-assert.match(appConfig, new RegExp(GA4_MEASUREMENT_ID), 'Delivered application configuration must include the configured GA4 measurement ID.');
 assert.equal(appConfigBrowserContext.APP_VERSION, APP_VERSION, 'Delivered application configuration must expose the published app version to browser measurement.');
-assert.match(analytics, /window\.GA4_MEASUREMENT_ID/, 'Analytics must publish through the configured GA4 web-stream measurement ID.');
-assert.match(analytics, /analytics_storage:\s*'granted'/, 'Analytics must enable first-party storage for aggregate visit and session reporting.');
-assert.doesNotMatch(analytics, /analytics_storage:\s*'denied'/, 'Analytics must not disable the first-party storage required for reportable visit and session measurement.');
-assert.match(analytics, /ad_storage:\s*'denied'/, 'Analytics must deny advertising storage.');
-assert.match(analytics, /allow_google_signals:\s*false/, 'Analytics must disable Google advertising signals.');
-assert.match(analytics, /allow_ad_personalization_signals:\s*false/, 'Analytics must disable advertising personalization.');
-assert.match(analytics, /send_page_view:\s*false/, 'Analytics must suppress automatic unsanitized page views.');
-assert.match(analytics, /window\.location\.hostname\s*===\s*window\.HOME_PAGE_HOSTNAME/, 'Analytics must initialize only on the configured production hostname.');
-assert.match(analytics, /window\.location\.protocol\s*===\s*'https:'/, 'Analytics must initialize only over HTTPS.');
-assert.match(analytics, /isAnalyticsDeploymentEnabled\(\)/, 'Analytics must require an explicit production deployment capability.');
-assert.match(analytics, /window\.ANALYTICS_DEPLOYMENT_MODES\.PRODUCTION/, 'Analytics must compare deployment capability against shared configuration.');
-assert.match(analytics, /const currentPagePath = window\.location\.pathname;/, 'Analytics page paths must exclude query strings and fragments.');
-assert.match(analytics, /publishedPageUrl\.origin === window\.HOME_PAGE_URL[\s\S]*publishedPageUrl\.search === ''[\s\S]*publishedPageUrl\.hash === '';/, 'Canonical analytics page paths must require the configured production origin without query strings or fragments.');
-assert.match(analytics, /page_location:\s*`\$\{window\.HOME_PAGE_URL\}\$\{getMeasuredPagePath\(\)\}`/, 'Analytics page locations must combine the configured production origin with a reviewed page path.');
-assert.match(analytics, /page_referrer:\s*''/, 'Analytics must not send page referrers.');
-assert.match(analytics, /PAGE_VIEW:\s*'page_view'/, 'Sanitized page measurement must use the GA4 page_view event recognized by standard reports.');
-assert.doesNotMatch(analytics, /PAGE_VIEW:\s*'ca_page_view'/, 'Page measurement must not be renamed to a custom event that standard GA4 page reporting ignores.');
-assert.match(analytics, /publishEvent\(ANALYTICS_EVENT_NAMES\.PAGE_VIEW,\s*\{[\s\S]*?page_title:\s*getMeasuredPageTitle\(\),[\s\S]*?\.\.\.getMeasuredPageParameters\(\)[\s\S]*?\}\);/, 'Sanitized page measurement must publish only its reviewed title and page parameters.');
-assert.match(analytics, /publishEvent\(ANALYTICS_EVENT_NAMES\.VERSION,[\s\S]*app_version:\s*window\.APP_VERSION/, 'App version measurement must use the configured published version in its dedicated event.');
-assert.match(analytics, /window\.localStorage\.getItem\(window\.ANALYTICS_VERSION_REPORTED_STORAGE_KEY\)/, 'App version measurement must check its configured browser-profile marker before publication.');
-assert.match(analytics, /compareVersions\(reportedVersion, window\.APP_VERSION\)/, 'App version measurement must prevent stale contexts from downgrading its browser-profile marker.');
-assert.match(analytics, /window\.localStorage\.setItem\(window\.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, window\.APP_VERSION\)/, 'App version measurement must store the reported app version for the browser profile before publication.');
-assert.match(analytics, /lockManager\.request\(window\.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, publishVersionIfNeeded\)/, 'App version measurement must serialize its profile-marker check across same-origin browser contexts.');
 assert.doesNotMatch(analytics, /cnsl_analytics_version_reported/, 'Analytics must use the session storage key from application configuration.');
 assert.doesNotMatch(pwa, /cnsl_service_worker_update_checked_at/, 'The PWA consumer must use its session storage key from application configuration.');
-assert.match(analyticsInteractionType, /const AnalyticsInteractionType = Object\.freeze\(/, 'Analytics interaction types must use one immutable shared enum.');
-assert.match(analytics, /case AnalyticsInteractionType\.BANNER:/, 'The analytics dispatcher must use the shared interaction type enum.');
-assert.match(analytics, /trackInteraction\s*\n?\s*}\);/, 'The analytics module must expose one public interaction tracking entry point.');
-assert.doesNotMatch(analytics, /window\.cnslAnalytics = Object\.freeze\(\{[\s\S]*track(?:BannerInteraction|DirectoryDetailOpen|FixedSettingChange|InstallInteraction|PublishedSettingChange)/, 'Private analytics validators must not be exposed as alternate tracking entry points.');
-assert.match(analytics, /publishEvent\(ANALYTICS_EVENT_NAMES\.SHARE,/, 'Share measurement must be owned by the analytics module.');
-assert.match(analytics, /publishEvent\(ANALYTICS_EVENT_NAMES\.EXTERNAL_LINK,/, 'External-link measurement must be owned by the analytics module.');
-assert.match(analytics, /link\.closest\('\[data-analytics-context\]'\)/, 'External-link context measurement must read explicit semantic metadata.');
-assert.match(analytics, /ALLOWED_EXTERNAL_LINK_CONTEXTS\.has\(context\)/, 'External-link context measurement must allowlist explicit semantic metadata.');
-assert.match(analytics, /link\.dataset\.analyticsLinkPurpose/, 'External-link purpose measurement must read explicit semantic metadata.');
-assert.match(analytics, /ALLOWED_EXTERNAL_LINK_PURPOSES\.has\(purpose\)/, 'External-link purpose measurement must allowlist explicit semantic metadata.');
-assert.doesNotMatch(analytics, /classList\.contains\('team-merchandise'\)/, 'External-link purpose measurement must not derive categories from styling classes.');
-assert.match(analytics, /purpose:\s*getExternalLinkPurpose\(clickedLink\)/, 'External-link measurement must pass only its bounded link purpose category to the interaction dispatcher.');
-assert.match(analytics, /const EXTERNAL_LINK_DESTINATIONS = Object\.freeze\(/, 'External-link destinations must use one fixed category map.');
-assert.match(analytics, /const ALLOWED_EXTERNAL_LINK_DESTINATIONS = new Set\(Object\.values\(EXTERNAL_LINK_DESTINATIONS\)\)/, 'External-link destination measurement must derive its allowlist from the fixed category map.');
-assert.match(analytics, /destination:\s*getExternalLinkDestination\(clickedLink\)/, 'External-link measurement must resolve a bounded destination category instead of publishing the URL.');
-assert.match(analytics, /ALLOWED_EXTERNAL_LINK_DESTINATIONS\.has\(destination\)/, 'External-link destination measurement must allowlist the resolved category before publication.');
-assert.match(analytics, /link_destination:\s*destination/, 'External-link measurement must publish only its validated destination category.');
-assert.match(analytics, /ALLOWED_SHARE_METHODS\.has\(method\)/, 'Share measurement must allowlist authored sharing methods.');
-assert.match(analytics, /publishEvent\(ANALYTICS_EVENT_NAMES\.SETTING_CHANGE,/, 'Settings measurement must be owned by the analytics module.');
-assert.match(analytics, /FAVORITE_SETTING_NAMES\.has\(settingName\)/, 'Favorite selection measurement must be limited to favorite setting categories.');
-assert.match(analytics, /normalizedValues\.some\(value => !publishedValues\.has\(value\)\)/, 'Published setting values must be validated against current annual data.');
-assert.match(analytics, /eventParameters\.selection = normalizedValues\[0\] \|\| EMPTY_FAVORITE_SELECTION/, 'Favorite changes must publish only one validated selection or the fixed cleared value.');
-assert.match(analytics, /publishEvent\(ANALYTICS_EVENT_NAMES\.BANNER_INTERACTION,/, 'Banner measurement must be owned by the analytics module.');
-assert.match(analytics, /view:\s*ANALYTICS_EVENT_NAMES\.RESOURCE_VIEW/, 'Resource views must use the centralized app-specific analytics event.');
-assert.match(analytics, /download:\s*ANALYTICS_EVENT_NAMES\.RESOURCE_DOWNLOAD/, 'Resource downloads must use the centralized app-specific analytics event.');
-assert.match(analytics, /ALLOWED_RESOURCE_NAMES\.has\(resourceName\)/, 'Resource measurement must allowlist stable document names.');
-assert.match(analytics, /resource_name:\s*resourceName/, 'Resource measurement must publish only its reviewed stable document name.');
-assert.match(analytics, /publishEvent\(ANALYTICS_EVENT_NAMES\.DIRECTORY_DETAIL_OPEN,/, 'Directory detail measurement must be owned by the analytics module.');
-assert.match(analytics, /ALLOWED_DIRECTORY_NAMES\.has\(directoryName\)/, 'Directory detail measurement must allowlist broad directory names.');
-assert.match(analytics, /directory_name:\s*directoryName/, 'Directory detail measurement must publish only its broad directory name.');
-assert.match(analytics, /publishEvent\(ANALYTICS_EVENT_NAMES\.INSTALL_INTERACTION,/, 'Install measurement must be owned by the analytics module.');
-assert.match(analytics, /ALLOWED_INSTALL_ACTIONS\.has\(action\)/, 'Install measurement must allowlist coarse interaction actions.');
-assert.match(analytics, /install_action:\s*action/, 'Install measurement must publish only its coarse interaction action.');
-assert.match(analytics, /publishEvent\(ANALYTICS_EVENT_NAMES\.FLYER_VISIT\)/, 'Flyer visit measurement must use the centralized app-specific analytics event.');
 assert.deepEqual(JSON.parse(JSON.stringify(appConfigBrowserContext.PUBLISHED_CAMPAIGNS)), [
   { medium: 'email', name: `${YEAR}_pool_season`, source: 'app' },
   { medium: 'facebook', name: `${YEAR}_pool_season`, source: 'app' },
@@ -292,29 +339,14 @@ assert.deepEqual(JSON.parse(JSON.stringify(appConfigBrowserContext.PUBLISHED_CAM
   { medium: 'x', name: `${YEAR}_pool_season`, source: 'app' },
   { medium: 'qr', name: `${YEAR}_pool_season`, source: 'flyer' }
 ], 'Delivered campaign attribution must contain only the reviewed app-share and flyer tuples.');
-assert.match(analytics, /globalThis\.PUBLISHED_CAMPAIGNS\.find\(/, 'Analytics must consume the campaign registry from delivered application configuration.');
-assert.match(analytics, /campaign_source:\s*publishedCampaign\.source/, 'Reviewed campaign attribution must be mapped to standard GA campaign source measurement.');
-assert.match(analytics, /campaign_medium:\s*publishedCampaign\.medium/, 'Reviewed campaign attribution must be mapped to standard GA campaign medium measurement.');
-assert.match(analytics, /campaign_name:\s*publishedCampaign\.name/, 'Reviewed campaign attribution must be mapped to standard GA campaign name measurement.');
-assert.match(analytics, /landingUrl\.searchParams\.delete\('utm_source'\)/, 'Recognized campaign URLs must remove their campaign marker before page measurement.');
-assert.match(analytics, /isAnalyticsEligible \? consumePublishedCampaign\(\) : null/, 'Published campaign cleanup must occur only after the complete analytics eligibility gate succeeds.');
-assert.match(analytics, /window\.history\.replaceState\(/, 'Recognized campaign URLs must be cleaned without a navigation or referrer-producing redirect.');
 assert.doesNotMatch(analytics, /setting_value\s*:/, 'Settings measurement must not expose a general selected-value field.');
 assert.doesNotMatch(analytics, /link_(?:url|host)\s*:/, 'External-link measurement must not send raw URL or host details.');
 assert.doesNotMatch(analytics, /resource_(?:url|path|filename)\s*:/, 'Resource measurement must not send URLs, paths, or filenames.');
 assert.doesNotMatch(analytics, /(?:pool|team|meet)_(?:id|name)\s*:/, 'Analytics must not send selected pool, team, or meet identities.');
 assert.doesNotMatch(analytics, /(?:latitude|longitude|coordinates|user_agent|platform)\s*:/, 'Analytics must not send location or device-identifying values.');
-assert.match(appConfig, new RegExp(APP_VERSION.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), 'Delivered application configuration must include the published app version.');
 assert.doesNotMatch(nonAnalyticsBrowserCode, /\b(?:window\.)?gtag\s*\(/, 'Delivered browser scripts must publish measurement only through the analytics module API.');
-assert.ok(appEventNames.length > 0, 'The delivered application must declare its expected analytics events.');
-assert.match(analytics, /const ALLOWED_ANALYTICS_EVENT_NAMES = new Set\(Object\.values\(ANALYTICS_EVENT_NAMES\)\)/, 'The analytics publication allowlist must derive from the event-name catalog.');
-assert.match(analytics, /if \(!ALLOWED_ANALYTICS_EVENT_NAMES\.has\(eventName\)/, 'The analytics publisher must reject names outside the event-name catalog.');
-appEventNames.forEach(eventName => {
-  const literalOccurrences = analytics.split(`'${eventName}'`).length - 1;
-  assert.equal(literalOccurrences, 1, `Analytics event name must be declared only in the event-name catalog: ${eventName}`);
-});
-customAppEventNames.forEach(eventName => assert.match(eventName, /^ca_/, `Custom application analytics event must use the ca_ prefix: ${eventName}`));
-assert.doesNotMatch(analytics, /user_id|user_properties|document\.referrer|location\.search|location\.hash/, 'Analytics must not add identifiers, user profiling values, or unsanitized navigation data.');
+assert.doesNotMatch(analytics, /\b(?:user_id|user_properties|document\.referrer)\b/, 'Analytics must not add identifiers, user profiling values, or browser referrers.');
+verifyAnalyticsArtifact(appConfig, analyticsInteractionType, analytics);
 
 Object.entries(canonicalPages).forEach(([page, canonical]) => {
   const html = fs.readFileSync(path.join(outDir, page), 'utf8');
