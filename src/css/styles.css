@@ -1464,10 +1464,12 @@ main h1 {
   min-width: 0;
 }
 
-.my-meet-day__fact--concessions {
+.my-meet-day__fact--concessions,
+.my-meet-day__fact--volunteer {
   background: var(--primary-soft-bg);
   border: 1px solid var(--primary-color);
   border-radius: var(--border-radius);
+  margin-inline: -0.85rem;
   padding: 0.85rem;
 }
 
@@ -5592,6 +5594,10 @@ button.pool-filter__clear:focus-visible {
 .lessons-related > p {
   line-height: 1.6;
   margin-bottom: 1rem;
+}
+
+.lessons-related .lessons-provider-list {
+  grid-template-columns: minmax(0, 28rem);
 }
 
 .lessons-related .lesson-provider-card h3 {
