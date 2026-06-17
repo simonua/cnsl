@@ -353,7 +353,7 @@
           "morning": [
             { "days": "Tuesday - Friday", "location": "Huntington Pool", "sessions": [
               { "time": "8:00 - 8:30am", "group": "8 & Under" },
-              { "time": "8:30 - 9:15am", "group": "9 & 10 Year Olds" },
+              { "time": "8:30 - 9:15am", "group": "9 & 10 Age Group" },
               { "time": "9:15 - 10:00am", "group": "11 & Older" }
             ] }
           ],

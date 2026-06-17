@@ -1,7 +1,20 @@
 {
   "season": 2026,
-  "acceptedOn": "2026-06-16",
+  "acceptedOn": "2026-06-17",
   "documents": [
+    {
+      "domain": "pools",
+      "label": "Dickinson pool schedule",
+      "localPath": "pools/pool-schedules/Dickenson.pdf",
+      "url": "https://columbiaassociation.org/wp-content/uploads/Dickenson.pdf",
+      "sourceIds": [
+        "pool:dcp:schedule"
+      ],
+      "etag": "\"6a316181-e038\"",
+      "lastModified": "Tue, 16 Jun 2026 14:45:21 GMT",
+      "contentLength": "57400",
+      "sha256": "8ac85ef116d892f89cff290551052eab9bcdc738a6ee7d1cdf1ab0e2e3827e22"
+    },
     {
       "domain": "pools",
       "label": "Bryant Woods pool schedule",
@@ -10,10 +23,10 @@
       "sourceIds": [
         "pool:bwp:schedule"
       ],
-      "etag": "\"6a07767c-6d804\"",
-      "lastModified": "Fri, 15 May 2026 19:39:40 GMT",
-      "contentLength": "448516",
-      "sha256": "581fa9eb7122f2a71299be75b05fb1dd36acde71bc9b45fa2fea90090d7068cc"
+      "etag": "\"6a31617d-da79\"",
+      "lastModified": "Tue, 16 Jun 2026 14:45:17 GMT",
+      "contentLength": "55929",
+      "sha256": "3751e539278ba8d7b4223270609bfe703e2f0cdde8903b94f1bb8c295e875833"
     },
     {
       "domain": "pools",
@@ -23,10 +36,10 @@
       "sourceIds": [
         "pool:cfp:schedule"
       ],
-      "etag": "\"6a07767d-6d978\"",
-      "lastModified": "Fri, 15 May 2026 19:39:41 GMT",
-      "contentLength": "448888",
-      "sha256": "dba709f06688f9271fc0ca601586fdb0ff458f5ea4810ea313d2972601573f72"
+      "etag": "\"6a31617e-e07b\"",
+      "lastModified": "Tue, 16 Jun 2026 14:45:18 GMT",
+      "contentLength": "57467",
+      "sha256": "f7821e70f27d44414c8e8756fb92db8786f7fb38f6ba3925b35502c4e7cdc613"
     },
     {
       "domain": "pools",
@@ -36,10 +49,10 @@
       "sourceIds": [
         "pool:ccp:schedule"
       ],
-      "etag": "\"6a07767f-6dc38\"",
-      "lastModified": "Fri, 15 May 2026 19:39:43 GMT",
-      "contentLength": "449592",
-      "sha256": "2cdaa235cc5f4d218262306996fc421b745baa44e2d08c08c3f0f3c7404feb44"
+      "etag": "\"6a31617f-e6fc\"",
+      "lastModified": "Tue, 16 Jun 2026 14:45:19 GMT",
+      "contentLength": "59132",
+      "sha256": "112a294a714fe78815df1606d6a84fc40c0fc41f48348b0f37669bcf3ea46136"
     },
     {
       "domain": "pools",
@@ -49,23 +62,10 @@
       "sourceIds": [
         "pool:dgp:schedule"
       ],
-      "etag": "\"6a077680-6df69\"",
-      "lastModified": "Fri, 15 May 2026 19:39:44 GMT",
-      "contentLength": "450409",
-      "sha256": "41ca56a37fb2bb1b8f4a9072a3c28ed1b4f0b2e7fa3d545fa826cb825f8d5afc"
-    },
-    {
-      "domain": "pools",
-      "label": "Dickinson pool schedule",
-      "localPath": "pools/pool-schedules/Dickinson_Pool.pdf",
-      "url": "https://www.columbiaassociation.org/wp-content/uploads/Dickinson_Pool.pdf",
-      "sourceIds": [
-        "pool:dcp:schedule"
-      ],
-      "etag": "\"6a077681-6d98b\"",
-      "lastModified": "Fri, 15 May 2026 19:39:45 GMT",
-      "contentLength": "448907",
-      "sha256": "2cad66f7331e90c400ce6b43ebb45c6f9064d17ebd8a5f49c166cddc30ac475a"
+      "etag": "\"6a316180-e96b\"",
+      "lastModified": "Tue, 16 Jun 2026 14:45:20 GMT",
+      "contentLength": "59755",
+      "sha256": "35ff7942dbcf577eb1f941a30830eae3bbbe50f383f971d550305557d003c933"
     },
     {
       "domain": "pools",
@@ -75,10 +75,10 @@
       "sourceIds": [
         "pool:dhp:schedule"
       ],
-      "etag": "\"6a077683-6df7e\"",
-      "lastModified": "Fri, 15 May 2026 19:39:47 GMT",
-      "contentLength": "450430",
-      "sha256": "81f0203507eb5c07da58dd91cacdf71654fe29abae2a79a105a0266406087aa4"
+      "etag": "\"6a316182-eb1f\"",
+      "lastModified": "Tue, 16 Jun 2026 14:45:22 GMT",
+      "contentLength": "60191",
+      "sha256": "dcb17ce6fb44260477616d8ccb067cf3ad3895db586cc04684cc2e2ec878afef"
     },
     {
       "domain": "pools",
@@ -88,10 +88,10 @@
       "sourceIds": [
         "pool:frp:schedule"
       ],
-      "etag": "\"6a077685-6eeaa\"",
-      "lastModified": "Fri, 15 May 2026 19:39:49 GMT",
-      "contentLength": "454314",
-      "sha256": "fff0fb7ea4fb342ff0c89bbc855c85be9c11f10e18c387a6603d00f8c3200d72"
+      "etag": "\"6a316184-10103\"",
+      "lastModified": "Tue, 16 Jun 2026 14:45:24 GMT",
+      "contentLength": "65795",
+      "sha256": "a4fb4c6f2908212ac099ce9aa445dd97bf8c83a4b35c4e919cc674da357f7f9c"
     },
     {
       "domain": "pools",
@@ -101,10 +101,10 @@
       "sourceIds": [
         "pool:hap:schedule"
       ],
-      "etag": "\"6a077687-6d842\"",
-      "lastModified": "Fri, 15 May 2026 19:39:51 GMT",
-      "contentLength": "448578",
-      "sha256": "fe3b5904ce8648b85e36e9b0ef4b681a3ca51162104e62f22dabb537bfc9f5c2"
+      "etag": "\"6a316185-de0c\"",
+      "lastModified": "Tue, 16 Jun 2026 14:45:25 GMT",
+      "contentLength": "56844",
+      "sha256": "f126352012af87d61113acb03287b13b3253c7c270d758f9e0a3c40ffcf4a725"
     },
     {
       "domain": "pools",
@@ -114,10 +114,10 @@
       "sourceIds": [
         "pool:hgp:schedule"
       ],
-      "etag": "\"6a077689-6d838\"",
-      "lastModified": "Fri, 15 May 2026 19:39:53 GMT",
-      "contentLength": "448568",
-      "sha256": "0f1732bce24c033b466df3e29ede9cc6b585983721632755d6e2e8dc16090332"
+      "etag": "\"6a316186-da4e\"",
+      "lastModified": "Tue, 16 Jun 2026 14:45:26 GMT",
+      "contentLength": "55886",
+      "sha256": "9308a916c23e77820a65ffab156c2d49a46a40e684975f5014a2b320a31c72f6"
     },
     {
       "domain": "pools",
@@ -127,10 +127,10 @@
       "sourceIds": [
         "pool:hwp:schedule"
       ],
-      "etag": "\"6a07768b-6da1a\"",
-      "lastModified": "Fri, 15 May 2026 19:39:55 GMT",
-      "contentLength": "449050",
-      "sha256": "396aa3ce6a7d331f1609a747e2340dd52ad2ec69eff6fefdf04eee512ebe2266"
+      "etag": "\"6a316187-dcaa\"",
+      "lastModified": "Tue, 16 Jun 2026 14:45:27 GMT",
+      "contentLength": "56490",
+      "sha256": "6066a5c335c0f2b1c328a3c8d4c80c6ce3dec718f0a2db722fb75b6949c371fe"
     },
     {
       "domain": "pools",
@@ -140,10 +140,10 @@
       "sourceIds": [
         "pool:hup:schedule"
       ],
-      "etag": "\"6a07768d-6e077\"",
-      "lastModified": "Fri, 15 May 2026 19:39:57 GMT",
-      "contentLength": "450679",
-      "sha256": "5cd38a9e21624f2f74edca800360628a428d7db29de00e318b9c0ffc659abc81"
+      "etag": "\"6a316188-e943\"",
+      "lastModified": "Tue, 16 Jun 2026 14:45:28 GMT",
+      "contentLength": "59715",
+      "sha256": "f05cca48eee10085c6feff4012c155fdbc7a68f03c7850f923f7f27a8060fd8d"
     },
     {
       "domain": "pools",
@@ -153,10 +153,10 @@
       "sourceIds": [
         "pool:jhp:schedule"
       ],
-      "etag": "\"6a0773e1-15055\"",
-      "lastModified": "Fri, 15 May 2026 19:28:33 GMT",
-      "contentLength": "86101",
-      "sha256": "1eaf86fae620f367135a6a6b90220cf440a6a508af995bbc926252cef792b625"
+      "etag": "\"6a316189-14cfc\"",
+      "lastModified": "Tue, 16 Jun 2026 14:45:29 GMT",
+      "contentLength": "85244",
+      "sha256": "98250421bbe449440036571ffa8298de60f030d245007b5d49daf9060cd02a36"
     },
     {
       "domain": "pools",
@@ -166,10 +166,10 @@
       "sourceIds": [
         "pool:krp:schedule"
       ],
-      "etag": "\"6a0773e3-1559b\"",
-      "lastModified": "Fri, 15 May 2026 19:28:35 GMT",
-      "contentLength": "87451",
-      "sha256": "85b1051ee37c471c61fb01aa32d6247c2e124bd856e1bc77546eb13b519ed3be"
+      "etag": "\"6a31618a-1570a\"",
+      "lastModified": "Tue, 16 Jun 2026 14:45:30 GMT",
+      "contentLength": "87818",
+      "sha256": "6d5902f2a53848386eee076037e59cccd78734bb277a54651c2fdb29f4655bc0"
     },
     {
       "domain": "pools",
@@ -179,10 +179,10 @@
       "sourceIds": [
         "pool:lpp:schedule"
       ],
-      "etag": "\"6a0773e5-151c3\"",
-      "lastModified": "Fri, 15 May 2026 19:28:37 GMT",
-      "contentLength": "86467",
-      "sha256": "57664eb35e1aba7586d53dbe3619771d61ee57af4737a867981d28d919bc822e"
+      "etag": "\"6a31618b-15119\"",
+      "lastModified": "Tue, 16 Jun 2026 14:45:31 GMT",
+      "contentLength": "86297",
+      "sha256": "f0bc9a941d11457eb25576688c8f0f5b9b7d614e1d8bc581c268e905061e2fcc"
     },
     {
       "domain": "pools",
@@ -192,10 +192,10 @@
       "sourceIds": [
         "pool:lfp:schedule"
       ],
-      "etag": "\"6a0773e7-15191\"",
-      "lastModified": "Fri, 15 May 2026 19:28:39 GMT",
-      "contentLength": "86417",
-      "sha256": "9a9cf7c3c0eae27e8dfbaee1df0700f89d1c92e781af4842688d3f73403ae3cd"
+      "etag": "\"6a31618c-15130\"",
+      "lastModified": "Tue, 16 Jun 2026 14:45:32 GMT",
+      "contentLength": "86320",
+      "sha256": "dfee7292d2ca25574741eae51d8306380409f1c54569e92c3038c4ef34326bd0"
     },
     {
       "domain": "pools",
@@ -205,10 +205,10 @@
       "sourceIds": [
         "pool:mcp:schedule"
       ],
-      "etag": "\"6a0773e8-1517f\"",
-      "lastModified": "Fri, 15 May 2026 19:28:40 GMT",
-      "contentLength": "86399",
-      "sha256": "33524268a93534a22a737ba6e051bebc6f27506f32b766ce6ba9f0557823cbeb"
+      "etag": "\"6a31618e-15076\"",
+      "lastModified": "Tue, 16 Jun 2026 14:45:34 GMT",
+      "contentLength": "86134",
+      "sha256": "947c25165444a45757cb13759d1e8d93ddf6aed24dd8d4a7c8b265c86c125519"
     },
     {
       "domain": "pools",
@@ -218,10 +218,10 @@
       "sourceIds": [
         "pool:plp:schedule"
       ],
-      "etag": "\"6a0773eb-151ed\"",
-      "lastModified": "Fri, 15 May 2026 19:28:43 GMT",
-      "contentLength": "86509",
-      "sha256": "7a8ed5045ca13d0c56202701c2d97fa061e07399a11cbf2a1dea067e50689df4"
+      "etag": "\"6a31618f-14dfd\"",
+      "lastModified": "Tue, 16 Jun 2026 14:45:35 GMT",
+      "contentLength": "85501",
+      "sha256": "cb8d9a6c93fba5307a482cf845ebcb5dd4a42e70a1afae3e0eb9261a8a81d1b1"
     },
     {
       "domain": "pools",
@@ -231,10 +231,10 @@
       "sourceIds": [
         "pool:rhp:schedule"
       ],
-      "etag": "\"6a0773ec-15cb9\"",
-      "lastModified": "Fri, 15 May 2026 19:28:44 GMT",
-      "contentLength": "89273",
-      "sha256": "63219946a905bf7435ad42806a3060de9dc332fcaa2bd288ab577d55be29f5b9"
+      "etag": "\"6a316191-16108\"",
+      "lastModified": "Tue, 16 Jun 2026 14:45:37 GMT",
+      "contentLength": "90376",
+      "sha256": "8212bef842472675901993c8d89bff848b13d4d87038e61c46c0f8c6d9776727"
     },
     {
       "domain": "pools",
@@ -244,10 +244,10 @@
       "sourceIds": [
         "pool:rbp:schedule"
       ],
-      "etag": "\"6a0773ee-14b05\"",
-      "lastModified": "Fri, 15 May 2026 19:28:46 GMT",
-      "contentLength": "84741",
-      "sha256": "702ea903415f43efa261337b7d679c8f0014b595ecd9e5033cb926882dcac997"
+      "etag": "\"6a316193-14524\"",
+      "lastModified": "Tue, 16 Jun 2026 14:45:39 GMT",
+      "contentLength": "83236",
+      "sha256": "6d2f01fc191b51323c696a88e579e8ee24b27b443b5d82bb8179c3a0dd81eef9"
     },
     {
       "domain": "pools",
@@ -257,10 +257,10 @@
       "sourceIds": [
         "pool:sfp:schedule"
       ],
-      "etag": "\"6a0cccb9-588ac\"",
-      "lastModified": "Tue, 19 May 2026 20:48:57 GMT",
-      "contentLength": "362668",
-      "sha256": "52be6a70cf7755a26fa806bd590eacc389db7514e324d9420c427ffeb43c1c9b"
+      "etag": "\"6a316195-198c6\"",
+      "lastModified": "Tue, 16 Jun 2026 14:45:41 GMT",
+      "contentLength": "104646",
+      "sha256": "0d84158dea852a0f7e552f9a11c7ce2d5a50625354a25d68d69b8af6b5d3a7b2"
     },
     {
       "domain": "pools",
@@ -270,10 +270,10 @@
       "sourceIds": [
         "pool:swp:schedule"
       ],
-      "etag": "\"6a0773f1-161fa\"",
-      "lastModified": "Fri, 15 May 2026 19:28:49 GMT",
-      "contentLength": "90618",
-      "sha256": "a28364b625b9510a5ec520ba11b46e71d4c6da27c2788f122389cfc272e84631"
+      "etag": "\"6a316197-168b4\"",
+      "lastModified": "Tue, 16 Jun 2026 14:45:43 GMT",
+      "contentLength": "92340",
+      "sha256": "05f843ab1472eb738212dfc405bb4a3b038e15c4c5506bb9ca30a487722eed53"
     },
     {
       "domain": "pools",
@@ -283,10 +283,10 @@
       "sourceIds": [
         "pool:tsp:schedule"
       ],
-      "etag": "\"6a0773f3-15168\"",
-      "lastModified": "Fri, 15 May 2026 19:28:51 GMT",
-      "contentLength": "86376",
-      "sha256": "af6c772ffebab0647dbec8ddd6c3e09bcd4bbe999c333ab10dbadd0d29cb655f"
+      "etag": "\"6a316199-14e40\"",
+      "lastModified": "Tue, 16 Jun 2026 14:45:45 GMT",
+      "contentLength": "85568",
+      "sha256": "6193a79e1c75727640aff20742cd1393f5b0598386b7a188a274f5610b446a29"
     },
     {
       "domain": "pools",
@@ -296,10 +296,10 @@
       "sourceIds": [
         "pool:thp:schedule"
       ],
-      "etag": "\"6a0773f4-6552d\"",
-      "lastModified": "Fri, 15 May 2026 19:28:52 GMT",
-      "contentLength": "415021",
-      "sha256": "6115a77358727876cad509ddf91b5741c227e0e15d5782cecbacebe7bf2c56fe"
+      "etag": "\"6a31619b-14cae\"",
+      "lastModified": "Tue, 16 Jun 2026 14:45:47 GMT",
+      "contentLength": "85166",
+      "sha256": "0aca8453bd71fa736de3c92cc51f0e70c6a0b7b80436f021d02a90d599449fda"
     },
     {
       "domain": "meets",
@@ -349,7 +349,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Columbia Association outdoor swim lessons page",
-      "sha256": "2c01e3d8a1767d92fcdc3046f7694d74b26e4f7caec1353adb6eaf56ddff93c4",
+      "sha256": "9e7bcfc8646331f78b4a8d8df7464e5cfee743d43c902356d60f0dfc405a15a6",
       "sourceIds": [
         "lessons:outdoor-swim-programs"
       ],
@@ -758,7 +758,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Huntington Dolphins practice schedule page",
-      "sha256": "b6f50cf8a62f8bde830b7d1d10487f1d6e631ed953c21833b93ee18cc14f28bd",
+      "sha256": "fe6bf67477f5f5dc76870f4fea76ef9db58d0240cfa41cd54416c21c6ba43b42",
       "sourceIds": [
         "team:hd:practice"
       ],

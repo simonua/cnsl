@@ -215,3 +215,27 @@ A directly supplied Long Reach host-team manager communication for the June 20 P
 | Visitor-facing records | Unchanged | None. |
 | Review records | Updated | Annual README evidence and this check-log entry; official-source timestamps are unchanged. |
 | Reviewed source baseline | Unchanged | None; no online source review or retained-document change occurred. |
+
+## 2026-06-17T09:58:31-04:00
+
+**Active season:** 2026
+
+**Result:** Complete under the existing explicit maintainer exception for merchandise-store and booster-site availability.
+
+Checked the 139-source inventory:
+
+- 76 modeled-evidence URLs were covered by `pnpm run check:data-updates` or direct retrieval of CA's replacement Dickinson document.
+- 63 uncovered official sources and application-used destinations were reached separately with live GET requests.
+- 136 required sources were successfully verified.
+- 3 application-used destinations were attempted and retained their availability exception: the Long Reach and Phelps Luck merchandise stores and the Long Reach booster site returned HTTP 403.
+
+CA regenerated 22 pool schedule PDFs and replaced Dickinson's unavailable document destination. Comparison found no schedule-table changes: the regenerated documents changed only contact-email or punctuation boilerplate, or their binary export. The current CA schedule index and replacement Dickinson PDF established the new application destination with High confidence and no conflicting source. Huntington's official practice page changed the regular-morning 9-10 label to `9 & 10 Age Group`; its dates, locations, days, and times were unchanged. The central CNSL practice PDF does not represent that age-group detail, so the team page is the definitive source. The outdoor lessons page retained all represented planning details and destinations. No conflict or residual uncertainty remains.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Updated | Huntington Dolphins' regular-morning 9-10 practice group in `teams/teams.json`. |
+| Application-used source destinations | Updated | Dickinson `scheduleUrl` now targets CA's current `Dickenson.pdf`. |
+| Retained official PDFs | Updated | All 23 pool schedule PDFs refreshed; obsolete `Dickinson_Pool.pdf` replaced by `Dickenson.pdf`. Meet and team PDFs were unchanged. |
+| Visitor-facing records | Unchanged | None. |
+| Review records | Updated | `OFFICIAL_SOURCE_CHECKED_AT`, `OFFICIAL_SOURCE_UPDATED_AT`, annual README evidence, and this check-log entry. |
+| Reviewed source baseline | Updated | `source-state.json` refreshed with the accepted page fingerprints and current retained-PDF metadata. |
