@@ -153,22 +153,24 @@ test('[WF-AGENDA-007] home page follows the My Meet Day experimental opt-in', as
   const agenda = page.locator('#favoriteWeek');
   await expect(agenda).toBeVisible();
   await expect.poll(() => page.evaluate(() => {
+    const meetDayBounds = globalThis.document.getElementById('myMeetDay').getBoundingClientRect();
+    const agendaBounds = globalThis.document.getElementById('favoriteWeek').getBoundingClientRect();
     const concessionsBounds = globalThis.document.querySelector('.my-meet-day__fact--concessions').getBoundingClientRect();
-    const agendaDay = globalThis.document.querySelector('#favoriteWeek .favorite-week__day');
-    const agendaHeadingBounds = agendaDay.querySelector('h3').getBoundingClientRect();
-    const agendaEventBounds = agendaDay.querySelector('.favorite-week__event-heading').getBoundingClientRect();
-    const agendaSessionBounds = agendaDay.querySelector('.sessions').getBoundingClientRect();
-    const matchesConcessions = bounds => (
-      Math.abs(bounds.left - concessionsBounds.left) <= 1
-      && Math.abs(bounds.width - concessionsBounds.width) <= 1
-    );
 
     return {
-      eventMatches: matchesConcessions(agendaEventBounds),
-      headingMatches: matchesConcessions(agendaHeadingBounds),
-      sessionMatches: matchesConcessions(agendaSessionBounds)
+      aligned: Math.abs(meetDayBounds.left - agendaBounds.left) <= 1,
+      concessionsContained: concessionsBounds.left >= meetDayBounds.left
+        && concessionsBounds.right <= meetDayBounds.right,
+      equalWidth: Math.abs(meetDayBounds.width - agendaBounds.width) <= 1,
+      hasHorizontalOverflow: globalThis.document.documentElement.scrollWidth
+        > globalThis.document.documentElement.clientWidth
     };
-  })).toEqual({ eventMatches: true, headingMatches: true, sessionMatches: true });
+  })).toEqual({
+    aligned: true,
+    concessionsContained: true,
+    equalWidth: true,
+    hasHorizontalOverflow: false
+  });
   const poolLinks = meetDay.locator('a[href^="pools.html?pool="]');
   expect(await poolLinks.count()).toBeGreaterThan(0);
   const directionsLink = meetDay.locator('a[href*="google.com/maps/dir/"]');
