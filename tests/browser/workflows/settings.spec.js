@@ -118,16 +118,16 @@ test('[WF-SETTINGS-001] settings dialog is evenly inset on mobile and centered o
   const closeButtonBounds = await page.getByRole('button', { name: 'Close settings' }).boundingBox();
   expect(closeButtonBounds.width).toBeLessThan(closeButtonBounds.height);
   let forceUpdateButtonBounds = await page.getByRole('button', { name: 'Force update' }).boundingBox();
-  let clearButtonBounds = await page.getByRole('button', { name: 'Clear all app data' }).boundingBox();
+  let resetButtonBounds = await page.getByRole('button', { name: 'Reset all settings' }).boundingBox();
   let clearActionsBounds = await page.locator('.settings-actions').boundingBox();
   expect(forceUpdateButtonBounds.x).toBeGreaterThanOrEqual(clearActionsBounds.x);
   expect(forceUpdateButtonBounds.x + forceUpdateButtonBounds.width).toBeLessThanOrEqual(clearActionsBounds.x + clearActionsBounds.width);
-  expect(clearButtonBounds.x).toBeGreaterThanOrEqual(clearActionsBounds.x);
-  expect(clearButtonBounds.x + clearButtonBounds.width).toBeLessThanOrEqual(clearActionsBounds.x + clearActionsBounds.width);
-  expect(forceUpdateButtonBounds.y + forceUpdateButtonBounds.height <= clearButtonBounds.y
-    || clearButtonBounds.y + clearButtonBounds.height <= forceUpdateButtonBounds.y
-    || forceUpdateButtonBounds.x + forceUpdateButtonBounds.width <= clearButtonBounds.x
-    || clearButtonBounds.x + clearButtonBounds.width <= forceUpdateButtonBounds.x).toBe(true);
+  expect(resetButtonBounds.x).toBeGreaterThanOrEqual(clearActionsBounds.x);
+  expect(resetButtonBounds.x + resetButtonBounds.width).toBeLessThanOrEqual(clearActionsBounds.x + clearActionsBounds.width);
+  expect(forceUpdateButtonBounds.y + forceUpdateButtonBounds.height <= resetButtonBounds.y
+    || resetButtonBounds.y + resetButtonBounds.height <= forceUpdateButtonBounds.y
+    || forceUpdateButtonBounds.x + forceUpdateButtonBounds.width <= resetButtonBounds.x
+    || resetButtonBounds.x + resetButtonBounds.width <= forceUpdateButtonBounds.x).toBe(true);
   await page.getByRole('button', { name: 'Close settings' }).click();
   await expect(dialog).not.toBeVisible();
   await page.getByRole('button', { name: 'Open settings' }).click();
@@ -144,16 +144,16 @@ test('[WF-SETTINGS-001] settings dialog is evenly inset on mobile and centered o
   expect(Math.abs(bounds.x + (bounds.width / 2) - (desktopViewport.width / 2))).toBeLessThanOrEqual(1);
   expect(Math.abs(bounds.y + (bounds.height / 2) - (desktopViewport.height / 2))).toBeLessThanOrEqual(1);
   forceUpdateButtonBounds = await page.getByRole('button', { name: 'Force update' }).boundingBox();
-  clearButtonBounds = await page.getByRole('button', { name: 'Clear all app data' }).boundingBox();
+  resetButtonBounds = await page.getByRole('button', { name: 'Reset all settings' }).boundingBox();
   clearActionsBounds = await page.locator('.settings-actions').boundingBox();
   expect(forceUpdateButtonBounds.x).toBeGreaterThanOrEqual(clearActionsBounds.x);
   expect(forceUpdateButtonBounds.x + forceUpdateButtonBounds.width).toBeLessThanOrEqual(clearActionsBounds.x + clearActionsBounds.width);
-  expect(clearButtonBounds.x).toBeGreaterThanOrEqual(clearActionsBounds.x);
-  expect(clearButtonBounds.x + clearButtonBounds.width).toBeLessThanOrEqual(clearActionsBounds.x + clearActionsBounds.width);
-  expect(forceUpdateButtonBounds.y + forceUpdateButtonBounds.height <= clearButtonBounds.y
-    || clearButtonBounds.y + clearButtonBounds.height <= forceUpdateButtonBounds.y
-    || forceUpdateButtonBounds.x + forceUpdateButtonBounds.width <= clearButtonBounds.x
-    || clearButtonBounds.x + clearButtonBounds.width <= forceUpdateButtonBounds.x).toBe(true);
+  expect(resetButtonBounds.x).toBeGreaterThanOrEqual(clearActionsBounds.x);
+  expect(resetButtonBounds.x + resetButtonBounds.width).toBeLessThanOrEqual(clearActionsBounds.x + clearActionsBounds.width);
+  expect(forceUpdateButtonBounds.y + forceUpdateButtonBounds.height <= resetButtonBounds.y
+    || resetButtonBounds.y + resetButtonBounds.height <= forceUpdateButtonBounds.y
+    || forceUpdateButtonBounds.x + forceUpdateButtonBounds.width <= resetButtonBounds.x
+    || resetButtonBounds.x + resetButtonBounds.width <= forceUpdateButtonBounds.x).toBe(true);
 });
 
 test('[WF-SETTINGS-013] force update reports progress and recovers without changing preferences', async ({ page }) => {
@@ -219,7 +219,7 @@ test('[WF-SETTINGS-012] settings dialog closes from the backdrop and restores la
   await expect(launcher).toBeFocused();
 });
 
-test('[WF-SETTINGS-002] settings persist choices locally and confirm before clearing all app data', async ({ page }) => {
+test('[WF-SETTINGS-002] settings persist choices locally and reset without clearing app lifecycle data', async ({ page }) => {
   await initializeAnalyticsRecorder(page);
   await page.goto('/settings.html');
   await expect(page.locator('#favoritePool')).toBeEnabled();
@@ -289,58 +289,66 @@ test('[WF-SETTINGS-002] settings persist choices locally and confirm before clea
   });
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_setting_change'))).toHaveLength(9);
 
-  const dismissedClearPrompt = page.waitForEvent('dialog').then(async dialog => {
+  const dismissedResetPrompt = page.waitForEvent('dialog').then(async dialog => {
     expect(dialog.type()).toBe('confirm');
-    expect(dialog.message()).toBe('Clear all app data from this device?');
+    expect(dialog.message()).toBe('Reset all settings to their defaults on this device?');
     await dialog.dismiss();
   });
-  await page.getByRole('button', { name: 'Clear all app data' }).click();
-  await dismissedClearPrompt;
+  await page.getByRole('button', { name: 'Reset all settings' }).click();
+  await dismissedResetPrompt;
   await expect(page.getByLabel('Dark')).toBeChecked();
   await expect(page.getByLabel('First Splash')).not.toBeChecked();
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_setting_change'))).toHaveLength(9);
 
-  await page.evaluate(async () => {
-    localStorage.setItem('cnsl_current_version', 'saved');
-    localStorage.setItem('cnsl_settings_notice_dismissed', 'true');
-    localStorage.setItem('cnsl_weather_alert_last_successful_check', 'saved');
+  const preservedState = await page.evaluate(async () => {
+    const localEntries = globalThis.APP_LOCAL_STORAGE_KEYS
+      .filter(key => key !== globalThis.PREFERENCES_STORAGE_KEY)
+      .map(key => [key, key.includes('version') ? globalThis.APP_VERSION : `saved:${key}`]);
+    const sessionEntries = globalThis.APP_SESSION_STORAGE_KEYS
+      .map(key => [key, `saved:${key}`]);
+    localEntries.forEach(([key, value]) => localStorage.setItem(key, value));
+    sessionEntries.forEach(([key, value]) => sessionStorage.setItem(key, value));
     localStorage.setItem('unrelated_local_key', 'saved');
-    sessionStorage.setItem('cnsl_weather_alert_status', 'saved');
-    sessionStorage.setItem('cnsl_weather_alert_expanded', 'false');
     sessionStorage.setItem('unrelated_session_key', 'saved');
     await globalThis.caches.open('cnsl-static-test-reset');
     await globalThis.caches.open('unrelated-cache');
+    return {
+      local: Object.fromEntries(localEntries),
+      session: Object.fromEntries(sessionEntries),
+      versionEventCount: globalThis.recordedAnalyticsEvents
+        .filter(eventArguments => eventArguments[1] === 'ca_version').length
+    };
   });
-  const acceptedClearPrompt = page.waitForEvent('dialog').then(async dialog => {
+  const acceptedResetPrompt = page.waitForEvent('dialog').then(async dialog => {
     expect(dialog.type()).toBe('confirm');
-    expect(dialog.message()).toBe('Clear all app data from this device?');
+    expect(dialog.message()).toBe('Reset all settings to their defaults on this device?');
     await dialog.accept();
   });
-  await page.getByRole('button', { name: 'Clear all app data' }).click();
-  await acceptedClearPrompt;
-  await expect(page.locator('#settingsStatus')).toHaveText('All app data has been cleared from this device.');
+  await page.getByRole('button', { name: 'Reset all settings' }).click();
+  await acceptedResetPrompt;
+  await expect(page.locator('#settingsStatus')).toHaveText('All settings have been reset to their defaults.');
   await expect.poll(() => page.locator('#settingsStatus').evaluate(status => globalThis.getComputedStyle(status).textAlign)).toBe('center');
   await expect.poll(() => page.evaluate(async () => ({
     preferences: localStorage.getItem('cnsl_preferences'),
-    currentVersion: localStorage.getItem('cnsl_current_version'),
-    settingsNotice: localStorage.getItem('cnsl_settings_notice_dismissed'),
-    weatherLastSuccessfulCheck: localStorage.getItem('cnsl_weather_alert_last_successful_check'),
+    local: Object.fromEntries(globalThis.APP_LOCAL_STORAGE_KEYS
+      .filter(key => key !== globalThis.PREFERENCES_STORAGE_KEY)
+      .map(key => [key, localStorage.getItem(key)])),
     unrelatedLocal: localStorage.getItem('unrelated_local_key'),
-    weatherStatus: sessionStorage.getItem('cnsl_weather_alert_status'),
-    weatherDisclosure: sessionStorage.getItem('cnsl_weather_alert_expanded'),
+    session: Object.fromEntries(globalThis.APP_SESSION_STORAGE_KEYS
+      .map(key => [key, sessionStorage.getItem(key)])),
     unrelatedSession: sessionStorage.getItem('unrelated_session_key'),
     caches: await globalThis.caches.keys()
   }))).toMatchObject({
     preferences: null,
-    currentVersion: null,
-    settingsNotice: null,
-    weatherLastSuccessfulCheck: null,
+    local: preservedState.local,
     unrelatedLocal: 'saved',
-    weatherStatus: null,
-    weatherDisclosure: null,
+    session: preservedState.session,
     unrelatedSession: 'saved',
-    caches: expect.not.arrayContaining(['cnsl-static-test-reset'])
+    caches: expect.arrayContaining(['cnsl-static-test-reset', 'unrelated-cache'])
   });
+  await page.reload();
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents
+    .filter(eventArguments => eventArguments[1] === 'ca_version').length)).toBe(preservedState.versionEventCount);
   await expect(page.getByLabel('First Splash')).toBeChecked();
   await expect(page.getByLabel('8 and under')).toBeChecked();
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_setting_change'))).toEqual([

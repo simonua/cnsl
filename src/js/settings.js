@@ -233,37 +233,37 @@
   }
 
   /**
-   * Tracks settings changed by clearing all stored application data.
-   * @param {Object} existing - Preferences before clearing
-   * @param {Object} cleared - Default preferences after clearing
+   * Tracks settings changed by restoring preference defaults.
+   * @param {Object} existing - Preferences before resetting
+   * @param {Object} reset - Default preferences after resetting
    * @param {Set<string>} publishedPoolNames - Published pool names
-  * @param {Set<string>} publishedTeamNames - Published team names
+   * @param {Set<string>} publishedTeamNames - Published team names
    * @private
    */
-  function trackClearedSettings(existing, cleared, publishedPoolNames, publishedTeamNames) {
-    if (existing.theme !== cleared.theme) trackFixedSettingChange('theme', cleared.theme);
-    if (existing.textSize !== cleared.textSize) trackFixedSettingChange('text_size', cleared.textSize);
-    if (existing.contrast !== cleared.contrast) trackFixedSettingChange('contrast', cleared.contrast);
-    if (existing.motion !== cleared.motion) trackFixedSettingChange('motion', cleared.motion);
-    if (existing.underlineLinks !== cleared.underlineLinks) trackFixedSettingChange('underline_links', 'disabled');
+  function trackResetSettings(existing, reset, publishedPoolNames, publishedTeamNames) {
+    if (existing.theme !== reset.theme) trackFixedSettingChange('theme', reset.theme);
+    if (existing.textSize !== reset.textSize) trackFixedSettingChange('text_size', reset.textSize);
+    if (existing.contrast !== reset.contrast) trackFixedSettingChange('contrast', reset.contrast);
+    if (existing.motion !== reset.motion) trackFixedSettingChange('motion', reset.motion);
+    if (existing.underlineLinks !== reset.underlineLinks) trackFixedSettingChange('underline_links', 'disabled');
     existing.experimentalFeatures
-      .filter(featureId => !cleared.experimentalFeatures.includes(featureId))
+      .filter(featureId => !reset.experimentalFeatures.includes(featureId))
       .forEach(featureId => trackExperimentalFeatureChange(featureId, false));
-    if (existing.poolScheduleLayout !== cleared.poolScheduleLayout) trackFixedSettingChange('pool_schedule_layout', cleared.poolScheduleLayout);
-    if (existing.locationAwarenessEnabled !== cleared.locationAwarenessEnabled) trackFixedSettingChange('location_awareness', 'disabled');
-    if (existing.weatherRefreshMinutes !== cleared.weatherRefreshMinutes) trackFixedSettingChange('weather_refresh_minutes', cleared.weatherRefreshMinutes);
-    if (existing.practiceGroups.join('|') !== cleared.practiceGroups.join('|')) trackFixedSettingChange('practice_groups', 'changed');
-    if (existing.favoritePoolExpanded !== cleared.favoritePoolExpanded) trackFixedSettingChange('favorite_pool_expanded', 'expanded');
-    if (existing.favoriteTeamExpanded !== cleared.favoriteTeamExpanded) trackFixedSettingChange('favorite_team_expanded', 'expanded');
-    if (existing.poolFeatureFilters.length !== cleared.poolFeatureFilters.length && window.cnslAnalytics) {
+    if (existing.poolScheduleLayout !== reset.poolScheduleLayout) trackFixedSettingChange('pool_schedule_layout', reset.poolScheduleLayout);
+    if (existing.locationAwarenessEnabled !== reset.locationAwarenessEnabled) trackFixedSettingChange('location_awareness', 'disabled');
+    if (existing.weatherRefreshMinutes !== reset.weatherRefreshMinutes) trackFixedSettingChange('weather_refresh_minutes', reset.weatherRefreshMinutes);
+    if (existing.practiceGroups.join('|') !== reset.practiceGroups.join('|')) trackFixedSettingChange('practice_groups', 'changed');
+    if (existing.favoritePoolExpanded !== reset.favoritePoolExpanded) trackFixedSettingChange('favorite_pool_expanded', 'expanded');
+    if (existing.favoriteTeamExpanded !== reset.favoriteTeamExpanded) trackFixedSettingChange('favorite_team_expanded', 'expanded');
+    if (existing.poolFeatureFilters.length !== reset.poolFeatureFilters.length && window.cnslAnalytics) {
       window.cnslAnalytics.trackInteraction(AnalyticsInteractionType.PUBLISHED_SETTING_CHANGE, {
         publishedValues: new Set(),
         selectedValues: [],
         settingName: 'pool_feature_filters'
       });
     }
-    if (existing.favoritePoolName !== cleared.favoritePoolName) trackPublishedSettingChange('favorite_pool', cleared.favoritePoolName, publishedPoolNames);
-    if (existing.favoriteTeamId !== cleared.favoriteTeamId) trackPublishedSettingChange('favorite_team', cleared.favoriteTeamId, publishedTeamNames);
+    if (existing.favoritePoolName !== reset.favoritePoolName) trackPublishedSettingChange('favorite_pool', reset.favoritePoolName, publishedPoolNames);
+    if (existing.favoriteTeamId !== reset.favoriteTeamId) trackPublishedSettingChange('favorite_team', reset.favoriteTeamId, publishedTeamNames);
   }
 
   /**
@@ -511,19 +511,18 @@
       status.textContent = '';
     });
 
-    document.getElementById('clearSettings').addEventListener('click', async () => {
-      if (!window.confirm('Clear all app data from this device?')) return;
+    document.getElementById('resetSettings').addEventListener('click', () => {
+      if (!window.confirm('Reset all settings to their defaults on this device?')) return;
 
       const existing = PreferencesService.get();
-      await window.AppStorageService.clearAppData();
       PreferencesService.clear();
-      const cleared = PreferencesService.get();
-      trackClearedSettings(existing, cleared, publishedPoolNames, publishedTeamNames);
-      applyFormValues(form, cleared);
-      window.applyPreferenceTheme(cleared);
+      const reset = PreferencesService.get();
+      trackResetSettings(existing, reset, publishedPoolNames, publishedTeamNames);
+      applyFormValues(form, reset);
+      window.applyPreferenceTheme(reset);
       renderWeatherCheckStatus();
-      preferencesChanged = preferencesChanged || JSON.stringify(existing) !== JSON.stringify(cleared);
-      status.textContent = 'All app data has been cleared from this device.';
+      preferencesChanged = preferencesChanged || JSON.stringify(existing) !== JSON.stringify(reset);
+      status.textContent = 'All settings have been reset to their defaults.';
     });
 
     document.getElementById('forceUpdate').addEventListener('click', async event => {
