@@ -2203,7 +2203,7 @@ nav a:focus {
 }
 
 .quick-link-card .quick-link-icon--raised {
-  transform: translateY(-0.0625rem);
+  transform: translateY(-0.03125rem);
 }
 
 .quick-link-card .quick-link-label {
