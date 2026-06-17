@@ -11,6 +11,8 @@ const DOMAINS = Object.freeze(['pools', 'meets', 'teams']);
 const REPOSITORY_ROOT = path.resolve(__dirname, '..');
 const CLOCK_TIME_PATTERN = /^([01]\d|2[0-3]):([0-5]\d)$/;
 const TIME_PATTERN = /^(0?[1-9]|1[0-2]):([0-5][0-9])(AM|PM)$/i;
+const CONCESSION_ITEM_FIELDS = Object.freeze(['mealItems', 'snackItems', 'drinkItems']);
+const ALPHABETICAL_COLLATOR = new Intl.Collator('en', { sensitivity: 'base' });
 
 async function readJson(filePath) {
   return JSON.parse(await fs.readFile(filePath, 'utf8'));
@@ -101,6 +103,14 @@ function validateTimingWindow(errors, label, timingWindow) {
   const endMinutes = parseClockMinutes(timingWindow.end);
   if (startMinutes !== null && endMinutes !== null && startMinutes >= endMinutes) {
     errors.push(`${label} must end after it starts: ${timingWindow.start} to ${timingWindow.end}.`);
+  }
+}
+
+function validateAlphabeticalOrder(errors, label, values) {
+  if (!values) return;
+  const sortedValues = [...values].sort(ALPHABETICAL_COLLATOR.compare);
+  if (values.some((value, index) => value !== sortedValues[index])) {
+    errors.push(`${label} must be sorted A-to-Z: ${values.join(', ')}.`);
   }
 }
 
@@ -210,6 +220,16 @@ function collectIntegrityErrors({ meetsData, poolsData, season, teamsData }) {
       } else if (!team.practicePools.includes(poolName)) {
         errors.push(`${team.name} detailed practice location is missing from practicePools: ${poolName}.`);
       }
+    });
+    (team.homeMeetGuides || []).forEach((guide) => {
+      const concessions = guide.general && guide.general.concessions;
+      CONCESSION_ITEM_FIELDS.forEach((field) => {
+        validateAlphabeticalOrder(
+          errors,
+          `${team.name} ${guide.poolId} concessions ${field}`,
+          concessions && concessions[field]
+        );
+      });
     });
     [...team.homePools, ...team.practicePools, team.timeTrialsPool].filter(Boolean).forEach((poolName) => {
       if (!poolNames.has(poolName)) {

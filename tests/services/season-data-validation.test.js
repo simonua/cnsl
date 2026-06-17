@@ -288,6 +288,51 @@ describe('season data validation', () => {
       assertDiagnostic(errors, 'Meet dualMeets', '07:00', '08:05', '08:00', '12:00');
     });
 
+    it('should reject concession categories that are not sorted A-to-Z', () => {
+      const errors = collectIntegrityErrors({
+        season: 2026,
+        poolsData: {
+          caPoolDirectoryUrl: 'https://pools.test/directory',
+          caPoolGuideUrl: 'https://pools.test/guide',
+          seasonStartDate: '2026-05-23',
+          seasonEndDate: '2026-09-07',
+          pools: []
+        },
+        teamsData: {
+          teams: [{
+            id: 'team',
+            name: 'Known Team',
+            keywords: ['known'],
+            url: 'https://teams.test/known',
+            homePools: [],
+            timeTrialsPool: '',
+            practicePools: [],
+            staff: { sourceUrl: 'https://teams.test/staff' },
+            homeMeetGuides: [{
+              poolId: 'fixture-pool',
+              general: {
+                concessions: {
+                  mealItems: ['waffles', 'eggs'],
+                  snackItems: ['Muffins', 'donuts'],
+                  drinkItems: ['water', 'coffee']
+                }
+              }
+            }]
+          }]
+        },
+        meetsData: {
+          url: 'https://league.test/meets.pdf',
+          regular_meets: [],
+          special_meets: []
+        }
+      });
+
+      assert.equal(errors.length, 3);
+      assertDiagnostic(errors, 'Known Team', 'mealItems', 'waffles', 'eggs');
+      assertDiagnostic(errors, 'Known Team', 'snackItems', 'Muffins', 'donuts');
+      assertDiagnostic(errors, 'Known Team', 'drinkItems', 'water', 'coffee');
+    });
+
     it('should reject detailed practice recurrence text that cannot render', () => {
       const errors = collectIntegrityErrors({
         season: 2026,
