@@ -6,6 +6,11 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
   const CASH_BILL_MAXIMUM_DENOMINATION = 20;
   const CASH_BILL_PREFERRED_DENOMINATIONS = Object.freeze([5, 1]);
   const MEET_HEAT_NOTICE_MAX_LANES = 6;
+  const CONCESSION_GROUP_PRESENTATION = Object.freeze({
+    Drinks: 'cup-soda',
+    Meals: 'utensils',
+    Snacks: 'cookie'
+  });
   const PAYMENT_METHOD_ASSET_BASE_URL = 'assets/images/payment-methods';
   const PAYMENT_METHOD_PRESENTATION = Object.freeze({
     [globalThis.PaymentMethod.CASH]: Object.freeze({ label: 'cash', visualLabel: 'Cash', iconName: 'banknote' }),
@@ -328,10 +333,13 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
      */
     static renderConcessionGroup(label, items) {
       if (!Array.isArray(items) || items.length === 0) return '';
+      const icon = CONCESSION_GROUP_PRESENTATION[label]
+        ? globalThis.IconCatalog.render(CONCESSION_GROUP_PRESENTATION[label], 'my-meet-day__concessions-icon')
+        : '';
       const itemMarkup = items
         .map(item => `<li>${globalThis.HtmlSafety.escapeHtml(item)}</li>`)
         .join('');
-      return `<div class="my-meet-day__concessions-group"><strong>${globalThis.HtmlSafety.escapeHtml(label)}</strong><ul class="my-meet-day__concessions-items">${itemMarkup}</ul></div>`;
+      return `<div class="my-meet-day__concessions-group"><strong>${icon}${globalThis.HtmlSafety.escapeHtml(label)}</strong><ul class="my-meet-day__concessions-items">${itemMarkup}</ul></div>`;
     }
 
     /**
@@ -345,23 +353,29 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
 
       const detailLines = MeetDayGuideService.getConcessionLines(concessions);
       const paymentMethods = MeetDayGuideService.getPaymentMethods(concessions);
-      const emphasizePayment = paymentMethods.length > 0;
-      const details = detailLines.map((line, index) => {
-        const safeLine = globalThis.HtmlSafety.escapeHtml(line);
-        return emphasizePayment && index === 0 ? `<strong>${safeLine}</strong>` : safeLine;
-      }).join('<br>');
+      const hasPaymentMethods = paymentMethods.length > 0;
+      const paymentIntroduction = hasPaymentMethods ? detailLines[0] : '';
+      const supportingLines = hasPaymentMethods ? detailLines.slice(1) : detailLines;
+      const supportingDetails = supportingLines
+        .map(line => globalThis.HtmlSafety.escapeHtml(line))
+        .join('<br>');
       const menuGroups = [
         MeetDayGuideService.renderConcessionGroup('Meals', concessions.mealItems),
         MeetDayGuideService.renderConcessionGroup('Snacks', concessions.snackItems),
         MeetDayGuideService.renderConcessionGroup('Food', concessions.foodItems),
         MeetDayGuideService.renderConcessionGroup('Drinks', concessions.drinkItems)
       ].filter(Boolean).join('');
-      if (!details && !menuGroups) return '';
+      if (!paymentIntroduction && !supportingDetails && !menuGroups) return '';
 
-      const detailsMarkup = details ? `<p class="my-meet-day__concessions-details">${details}</p>` : '';
+      const introductionMarkup = paymentIntroduction
+        ? `<p class="my-meet-day__concessions-details"><strong>${globalThis.HtmlSafety.escapeHtml(paymentIntroduction)}</strong></p>`
+        : '';
       const paymentMethodsMarkup = MeetDayGuideService.renderPaymentMethods(paymentMethods);
+      const supportingMarkup = supportingDetails
+        ? `<p class="my-meet-day__concessions-details my-meet-day__concessions-details--supporting">${supportingDetails}</p>`
+        : '';
       const menuMarkup = menuGroups ? `<div class="my-meet-day__concessions-menu">${menuGroups}</div>` : '';
-      return `<div class="my-meet-day__fact my-meet-day__fact--concessions"><dt>Concessions</dt><dd>${detailsMarkup}${paymentMethodsMarkup}${menuMarkup}</dd></div>`;
+      return `<div class="my-meet-day__fact my-meet-day__fact--concessions"><dt>Concessions</dt><dd>${introductionMarkup}${paymentMethodsMarkup}${supportingMarkup}${menuMarkup}</dd></div>`;
     }
 
     /**
@@ -422,9 +436,14 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
       if (roleGuide?.familySetupLocation) setupLines.push(`Please set up ${roleGuide.familySetupLocation}.`);
       const concessions = generalGuide?.concessions;
       const helpfulNotes = [...(generalGuide?.poolsideConditions || []), ...(generalGuide?.helpfulNotes || []), ...(roleGuide?.helpfulNotes || [])];
-      const volunteerMessage = guide.role === globalThis.MeetTeamRole.HOME
-        ? 'Home meets depend on volunteers. Please check your team signup and help fill any open role.'
-        : 'Swim meets depend on volunteers from both teams. Please check your team signup for any open role.';
+      const isHomeMeet = guide.role === globalThis.MeetTeamRole.HOME;
+      const volunteerLead = isHomeMeet
+        ? 'Home meets depend on volunteers.'
+        : 'Swim meets depend on volunteers from both teams.';
+      const volunteerDetail = isHomeMeet
+        ? 'Please check your team signup and help fill any open role.'
+        : 'Please check your team signup for any open role.';
+      const volunteerMarkup = `${isHomeMeet ? `<strong>${globalThis.HtmlSafety.escapeHtml(volunteerLead)}</strong>` : globalThis.HtmlSafety.escapeHtml(volunteerLead)} ${globalThis.HtmlSafety.escapeHtml(volunteerDetail)}`;
       const dayPillClass = guide.dayLabel === 'Today'
         ? ' upcoming-day-pill--today'
         : guide.dayLabel === 'Tomorrow' ? ' upcoming-day-pill--tomorrow' : '';
@@ -454,8 +473,8 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
           ${MeetDayGuideService.renderFact('Clerk of course', [roleGuide?.clerkGuidance])}
           ${MeetDayGuideService.renderConcessions(concessions)}
           ${MeetDayGuideService.renderFact('Good to know', helpfulNotes)}
+          <div class="my-meet-day__fact my-meet-day__fact--volunteer"><dt>Volunteer reminder</dt><dd>${volunteerMarkup}</dd></div>
         </dl>
-        <p class="my-meet-day__volunteer"><strong>Volunteer reminder:</strong> ${globalThis.HtmlSafety.escapeHtml(volunteerMessage)}</p>
       `;
     }
   }

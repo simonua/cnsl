@@ -258,12 +258,52 @@ test('[WF-AGENDA-009] completed meets advance only the dedicated My Meet Day rou
   await page.getByRole('link', { name: /My Meet Day/ }).click();
 
   await expect(page.locator('#myMeetDay')).toBeVisible();
+  await expect.poll(() => page.locator('#myMeetDay').evaluate(element => {
+    const panelWidth = element.getBoundingClientRect().width;
+    const main = element.closest('main');
+    const mainStyle = globalThis.getComputedStyle(main);
+    const mainContentWidth = main.clientWidth
+      - Number.parseFloat(mainStyle.paddingLeft)
+      - Number.parseFloat(mainStyle.paddingRight);
+    return Math.round(mainContentWidth - panelWidth);
+  })).toBe(0);
+  const volunteerReminder = page.locator('#myMeetDay .my-meet-day__fact--volunteer');
+  await expect(volunteerReminder.locator('dt')).toHaveText('Volunteer reminder');
+  await expect(volunteerReminder.locator('dd')).not.toBeEmpty();
+  await expect.poll(() => volunteerReminder.evaluate(element => {
+    const concessions = element.parentElement.querySelector('.my-meet-day__fact--concessions');
+    const concessionsStyle = globalThis.getComputedStyle(concessions);
+    const volunteerStyle = globalThis.getComputedStyle(element);
+    return {
+      matchingBackground: volunteerStyle.backgroundColor === concessionsStyle.backgroundColor,
+      matchingBorder: volunteerStyle.border === concessionsStyle.border,
+      matchingColumns: volunteerStyle.gridTemplateColumns === concessionsStyle.gridTemplateColumns
+    };
+  })).toEqual({
+    matchingBackground: true,
+    matchingBorder: true,
+    matchingColumns: true
+  });
+  await expect.poll(() => page.locator('#myMeetDay .my-meet-day__facts').evaluate(facts => {
+    const ordinaryFact = facts.querySelector('.my-meet-day__fact:not(.my-meet-day__fact--concessions):not(.my-meet-day__fact--volunteer)');
+    const blueFact = facts.querySelector('.my-meet-day__fact--concessions');
+    const ordinaryLabelLeft = ordinaryFact.querySelector('dt').getBoundingClientRect().left;
+    const ordinaryValueLeft = ordinaryFact.querySelector('dd').getBoundingClientRect().left;
+    const blueLabelLeft = blueFact.querySelector('dt').getBoundingClientRect().left;
+    const blueValueLeft = blueFact.querySelector('dd').getBoundingClientRect().left;
+    return {
+      labelsAligned: Math.abs(ordinaryLabelLeft - blueLabelLeft) <= 1,
+      valuesAligned: Math.abs(ordinaryValueLeft - blueValueLeft) <= 1
+    };
+  })).toEqual({ labelsAligned: true, valuesAligned: true });
   await expect(page.locator('#myMeetDay a[href^="pools.html?pool="]').first()).toBeVisible();
   const paymentMethods = page.locator('#myMeetDay .my-meet-day__payment-methods');
   await expect(paymentMethods).toBeVisible();
   await expect(paymentMethods.locator('use[href="#icon-banknote"]')).toHaveCount(1);
   await expect(paymentMethods.locator('img[src*="paypal-monogram-full-color.png"]')).toBeVisible();
   await expect(paymentMethods.locator('img[src*="venmo-wordmark-blue.png"]')).toBeVisible();
+  await expect(paymentMethods.locator('xpath=preceding-sibling::*[1]')).toContainText('We accept');
+  await expect(paymentMethods.locator('xpath=following-sibling::*[1]')).toContainText('Please use bills');
   await expect.poll(() => paymentMethods.locator('img').evaluateAll(images => (
     images.every(image => image.complete && image.naturalWidth > 0)
   ))).toBe(true);
@@ -280,6 +320,9 @@ test('[WF-AGENDA-009] completed meets advance only the dedicated My Meet Day rou
   })).toEqual({ cashColor: 'rgb(20, 108, 67)', cashHeight: 24, paypalHeight: 24, venmoWidth: 84 });
   const concessionGroups = page.locator('#myMeetDay .my-meet-day__concessions-group');
   expect(await concessionGroups.count()).toBeGreaterThan(1);
+  await expect(concessionGroups.locator('use[href="#icon-utensils"]')).toHaveCount(1);
+  await expect(concessionGroups.locator('use[href="#icon-cookie"]')).toHaveCount(1);
+  await expect(concessionGroups.locator('use[href="#icon-cup-soda"]')).toHaveCount(1);
   await expect.poll(() => concessionGroups.evaluateAll(groups => {
     const headingTops = groups.map(group => group.querySelector('strong').getBoundingClientRect().top);
     const listTops = groups.map(group => group.querySelector('ul').getBoundingClientRect().top);

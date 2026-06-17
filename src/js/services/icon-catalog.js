@@ -3,10 +3,10 @@
  */
 if (typeof globalThis.IconCatalog === 'undefined') {
   const ICON_NAMES = new Set([
-    'banknote', 'book-open', 'calendar', 'clipboard-list', 'clock', 'facebook', 'globe',
+    'banknote', 'book-open', 'calendar', 'clipboard-list', 'clock', 'cookie', 'cup-soda', 'facebook', 'globe',
     'home', 'info', 'mail', 'map', 'map-pin', 'message-circle', 'moon',
     'phone', 'pool', 'qr-code', 'runner', 'settings', 'shirt', 'shirt-plus',
-    'sparkles', 'stopwatch', 'sun', 'swimmer', 'trophy', 'warning-triangle', 'x-brand'
+    'sparkles', 'stopwatch', 'sun', 'swimmer', 'trophy', 'utensils', 'warning-triangle', 'x-brand'
   ]);
   const TEXT_GLYPHS = Object.freeze({
     error: '❌',

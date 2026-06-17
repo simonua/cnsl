@@ -1312,6 +1312,7 @@ main h1 {
 
 .my-meet-day--page {
   margin-top: 1.25rem;
+  max-width: 75rem;
 }
 
 .my-meet-day-view__state {
@@ -1475,6 +1476,10 @@ main h1 {
   margin: 0;
 }
 
+.my-meet-day__concessions-details--supporting {
+  margin-top: 0.5rem;
+}
+
 .my-meet-day__payment-methods {
   align-items: center;
   display: flex;
@@ -1522,7 +1527,7 @@ main h1 {
 .my-meet-day__concessions-menu {
   display: grid;
   gap: 0.75rem;
-  margin-top: 0.85rem;
+  margin-top: 1.1rem;
 }
 
 .my-meet-day__concessions-group {
@@ -1532,7 +1537,16 @@ main h1 {
 }
 
 .my-meet-day__concessions-group strong {
+  align-items: center;
   color: var(--primary-text-color);
+  display: inline-flex;
+  gap: 0.35rem;
+}
+
+.my-meet-day__concessions-icon {
+  height: 1.15rem;
+  stroke-width: 2;
+  width: 1.15rem;
 }
 
 .my-meet-day__concessions-items {
@@ -5583,10 +5597,6 @@ button.pool-filter__clear:focus-visible {
 .lessons-related .lesson-provider-card h3 {
   color: var(--primary-color);
   font-size: 1.2rem;
-}
-
-.lessons-related .lessons-provider-list {
-  grid-template-columns: minmax(0, 28rem);
 }
 
 @media (max-width: 40rem) {

@@ -14,6 +14,9 @@ describe('IconCatalog', () => {
     assert.match(IconCatalog.render('clock'), /class="icon"/);
     assert.match(IconCatalog.render('clock', 'one two'), /class="icon one two"/);
     assert.match(IconCatalog.render('banknote'), /href="#icon-banknote"/);
+    assert.match(IconCatalog.render('cookie'), /href="#icon-cookie"/);
+    assert.match(IconCatalog.render('cup-soda'), /href="#icon-cup-soda"/);
+    assert.match(IconCatalog.render('utensils'), /href="#icon-utensils"/);
   });
 
   it('rejects unknown icon names and unsafe class names', () => {

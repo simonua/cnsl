@@ -321,6 +321,10 @@ describe('MeetDayGuideService', () => {
       assert.ok(html.includes(Meet.formatClockTime(meetTimes.dualMeets.firstSwimTime)));
       assert.match(html, /href="pools\.html\?pool=host-pool"/);
       assert.match(html, /class="my-meet-day__directions"/);
+      assert.match(html, /class="my-meet-day__fact my-meet-day__fact--volunteer"><dt>Volunteer reminder<\/dt><dd>/);
+      assert.match(html, /<strong>Home meets depend on volunteers\.<\/strong> Please check your team signup/);
+      assert.doesNotMatch(awayHtml, /<strong>Swim meets depend on volunteers from both teams\.<\/strong>/);
+      assert.doesNotMatch(html, /my-meet-day__volunteer/);
       assert.notEqual(html, awayHtml);
       assert.doesNotMatch(html, /more heats/);
     });
@@ -406,12 +410,15 @@ describe('MeetDayGuideService', () => {
         MeetDayGuideService.renderConcessionGroup('Food & drinks', ['Bagels', '<Coffee>']),
         '<div class="my-meet-day__concessions-group"><strong>Food &amp; drinks</strong><ul class="my-meet-day__concessions-items"><li>Bagels</li><li>&lt;Coffee&gt;</li></ul></div>'
       );
+      assert.match(MeetDayGuideService.renderConcessionGroup('Meals', ['Pizza']), /href="#icon-utensils"/);
+      assert.match(MeetDayGuideService.renderConcessionGroup('Snacks', ['Cookies']), /href="#icon-cookie"/);
+      assert.match(MeetDayGuideService.renderConcessionGroup('Drinks', ['Water']), /href="#icon-cup-soda"/);
       assert.equal(MeetDayGuideService.renderConcessions(null), '');
       assert.equal(MeetDayGuideService.renderConcessions({}), '');
       assert.equal(MeetDayGuideService.renderConcessions({ paymentMethods: ['custom'] }), '');
       assert.match(
         MeetDayGuideService.renderConcessions({ paymentMethods: [PaymentMethod.CASH] }),
-        /<strong>We accept cash\.<\/strong><br>Please use bills of \$20 or less; \$5 and \$1 bills are especially helpful\./
+        /<strong>We accept cash\.<\/strong><\/p><div class="my-meet-day__payment-methods"[^>]*>.*<\/div><p class="my-meet-day__concessions-details my-meet-day__concessions-details--supporting">Please use bills of \$20 or less; \$5 and \$1 bills are especially helpful\.<\/p>/
       );
       assert.match(MeetDayGuideService.renderPaymentMethods([
         PaymentMethod.CASH, PaymentMethod.CREDIT, PaymentMethod.OTHER, PaymentMethod.PAYPAL, PaymentMethod.VENMO
