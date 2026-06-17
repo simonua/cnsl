@@ -415,7 +415,7 @@ const settingsHtml = fs.readFileSync(path.join(outDir, 'settings.html'), 'utf8')
 assert.doesNotMatch(settingsHtml, /name="analyticsEnabled"/, 'Settings must not expose a removed analytics-consent choice.');
 
 const homeHtml = fs.readFileSync(path.join(outDir, 'index.html'), 'utf8');
-assert.match(homeHtml, /<title>CA Outdoor Pools &amp; CNSL Swim Teams<\/title>/, 'Home search title must emphasize CA outdoor pools and CNSL swim teams.');
+assert.ok(homeHtml.includes(`<title>${YEAR} CA Outdoor Pools &amp; CNSL Swim Teams</title>`), 'Home search title must emphasize the active season, CA outdoor pools, and CNSL swim teams.');
 assert.match(homeHtml, /<meta name="description" content="[^"]*Columbia Association outdoor pool[^"]*CNSL swim teams[^"]*">/, 'Home search description must explain its CA outdoor pool and CNSL swim team coverage.');
 assert.match(homeHtml, /<h1 class="welcome-title">CA Outdoor Pools &amp; CNSL Swim Teams<\/h1>/, 'Home heading must clearly identify its primary pool and swim team topics.');
 assert.ok(homeHtml.includes(`href="${activeSeasonPools.caPoolGuideUrl}"`), 'Home page must render its official pool-schedule destination from active annual metadata.');
