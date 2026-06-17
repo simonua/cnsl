@@ -198,3 +198,20 @@ The active annual contracts now require structured pool identity and location da
 | Visitor-facing records | Unchanged | None. |
 | Review records | Updated | Active annual README and this check-log entry document the schema contract maintenance; official-source timestamps are unchanged. |
 | Reviewed source baseline | Unchanged | None; no online source review or retained-document change occurred. |
+
+## 2026-06-17T06:39:31-04:00
+
+**Active season:** 2026
+
+**Result:** Local manager-supplied data correction; no new online official-source review performed.
+
+A directly supplied Long Reach host-team manager communication for the June 20 Pointers Run meet refreshed recurring Kendall Ridge visitor guidance. The accepted venue facts add shaded visitor setup on the left from the entrance, swimmer check-in at the reserved table by the diving board, the data table under the large pavilion by the baby pool, Tamar Drive parking cautions, and parking-lot spaces reserved according to the visiting team's stated need. The newer concession list supersedes the June 16 list with cash, PayPal, and Venmo payments; hot lunch food; bagels, donuts, snacks, and snow cones; and complimentary items for visiting coaches. Matchup-specific entry deadlines, attendance-count requests, and personal contact details remain unmodeled. The host-manager communication is authoritative for these field-owned facts, no conflicting source was identified, confidence is High, and there is no residual uncertainty. The official-source timestamps remain unchanged because this local correction was not a completed online source review.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Updated | Long Reach Marlins' Kendall Ridge `homeMeetGuides` source date, shared parking and concession details, and Pointers Run visitor setup, check-in, and reserved-parking guidance in `teams/teams.json`. |
+| Application-used source destinations | Unchanged | None. |
+| Retained official PDFs | Unchanged | None. |
+| Visitor-facing records | Unchanged | None. |
+| Review records | Updated | Annual README evidence and this check-log entry; official-source timestamps are unchanged. |
+| Reviewed source baseline | Unchanged | None; no online source review or retained-document change occurred. |
