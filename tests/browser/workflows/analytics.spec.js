@@ -177,12 +177,20 @@ analyticsTest('[WF-ANALYTICS-014] concurrent browser contexts publish one app-ve
   });
   await browserContext.route('https://pools.longreachmarlins.org/**', async route => {
     const requestedUrl = new URL(route.request().url());
+    if (requestedUrl.pathname === '/analytics-profile-fixture.html') {
+      await route.fulfill({
+        contentType: 'text/html',
+        body: '<!doctype html><title>Analytics profile fixture</title>'
+      });
+      return;
+    }
     const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
     await route.fulfill({ response });
   });
-  await browserContext.addInitScript(({ analyticsVersionKey, reportedVersionKey }) => {
-    if (globalThis.location.pathname === '/index.html') localStorage.removeItem(reportedVersionKey);
+  await page.goto('https://pools.longreachmarlins.org/analytics-profile-fixture.html');
+  await page.evaluate(({ analyticsVersionKey, reportedVersionKey }) => {
     localStorage.setItem(analyticsVersionKey, '2.8.4');
+    localStorage.removeItem(reportedVersionKey);
   }, {
     analyticsVersionKey: AppConfig.ANALYTICS_APP_VERSION_STORAGE_KEY,
     reportedVersionKey: AppConfig.ANALYTICS_VERSION_REPORTED_STORAGE_KEY
