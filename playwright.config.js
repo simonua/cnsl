@@ -31,7 +31,7 @@ module.exports = defineConfig({
     ? [['github'], ['list'], [PROGRESS_REPORTER]]
     : [['list'], [PROGRESS_REPORTER]],
   workers: getPlaywrightWorkerCount(),
-  timeout: 45000,
+  timeout: 15000,
   expect: {
     timeout: 10000
   },

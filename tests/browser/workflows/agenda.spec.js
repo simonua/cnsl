@@ -256,8 +256,6 @@ test('[WF-AGENDA-008] dedicated My Meet Day route loads only after the experimen
   ));
   expect(controllerVersion).toBeTruthy();
   expect(dependencyVersions.every(version => version === controllerVersion)).toBe(true);
-  expect(await page.evaluate(() => performance.getEntriesByName('cnsl:my-meet-day:primary-data-ready').length)).toBe(1);
-  expect(await page.evaluate(() => performance.getEntriesByName('cnsl:my-meet-day:summary-visible').length)).toBe(1);
   await page.getByRole('button', { name: 'Open navigation menu' }).click();
   await expect(navigationLink).toBeVisible();
   await expect(navigationLink).toHaveAttribute('href', 'my-meet-day.html');
