@@ -4,10 +4,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const previewButton = document.getElementById('flyerPreviewButton');
   const dialog = document.getElementById('flyerDialog');
   const closeButton = document.getElementById('flyerDialogClose');
+  const documentFrame = dialog?.querySelector('.flyer-dialog__document');
 
-  if (!previewButton || !dialog || !closeButton) return;
+  if (!previewButton || !dialog || !closeButton || !documentFrame) return;
 
   previewButton.addEventListener('click', () => {
+    if (!documentFrame.hasAttribute('src') && documentFrame.dataset.documentSrc) {
+      documentFrame.src = documentFrame.dataset.documentSrc;
+    }
     if (!dialog.open) dialog.showModal();
   });
 

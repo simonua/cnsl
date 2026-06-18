@@ -259,6 +259,10 @@ describe('MeetDayGuideService', () => {
         ...hostTeam.homeMeetGuides[0].general.concessions.snackItems
       ]);
       assert.match(html, /href="pools\.html\?pool=host-pool"/);
+      assert.match(html, /<dt>Arm markings<\/dt>/);
+      assert.match(html, /Before leaving home for the meet/);
+      assert.match(html, /Event \(E\).*Heat \(H\).*Lane \(L\)/);
+      assert.match(html, /href="swim-meet-resources\.html#arm-markings"/);
       assert.match(html, /class="my-meet-day__directions"/);
       assert.match(html, /aria-label="Key times"/);
       assert.doesNotMatch(html, /<dt>Pool<\/dt>/);

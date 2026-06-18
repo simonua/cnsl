@@ -1,24 +1,24 @@
 <extends src="base.html">
   <block name="metadata">
     <title>Resources</title>
-    <meta name="description" content="Access swim meet operations guides and forms for judges, timers, and timesheet runners supporting summer swim meets in Columbia, Maryland." />
+    <meta name="description" content="Find practical swim meet preparation guidance, volunteer tools, and shareable materials for swimmers, families, and teams in Columbia, Maryland." />
     <meta name="robots" content="noindex, follow" />
     <link rel="canonical" href="{{ HOME_PAGE_URL }}/" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Resources" />
-    <meta property="og:description" content="Access swim meet operations guides and forms for judges, timers, and timesheet runners supporting summer swim meets in Columbia, Maryland." />
+    <meta property="og:description" content="Find practical swim meet preparation guidance, volunteer tools, and shareable materials for swimmers, families, and teams in Columbia, Maryland." />
     <meta property="og:url" content="{{ HOME_PAGE_URL }}/swim-meet-resources.html" />
     <meta name="twitter:title" content="Resources" />
-    <meta name="twitter:description" content="Access swim meet operations guides and forms for judges, timers, and timesheet runners supporting summer swim meets in Columbia, Maryland." />
+    <meta name="twitter:description" content="Find practical swim meet preparation guidance, volunteer tools, and shareable materials for swimmers, families, and teams in Columbia, Maryland." />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "CollectionPage",
-        "name": "CNSL Swim Meet Volunteer Resources",
+        "name": "CNSL Swim Meet Resources",
         "url": "{{ HOME_PAGE_URL }}/swim-meet-resources.html",
-        "description": "Swim meet operations guides and forms for judges, timers, and timesheet runners.",
+        "description": "Swim meet preparation guidance, volunteer tools, and shareable materials for swimmers, families, and teams.",
         "isPartOf": { "@id": "{{ HOME_PAGE_URL }}/#website" },
-        "about": { "@type": "Thing", "name": "Swim meet volunteer operations" }
+        "about": { "@type": "Thing", "name": "Swim meet preparation and operations" }
       }
     </script>
   </block>
@@ -27,12 +27,31 @@
     <div class="container">
       <section class="prose-section" aria-labelledby="resourcesIntroductionTitle">
         <h2 class="visually-hidden" id="resourcesIntroductionTitle">About these resources</h2>
-        <p>These resources have been developed to streamline data operations and significantly reduce data issues and time to meet results.
-           The Long Reach Marlins have successfully used these tools to improve their meet management efficiency.</p>
-        <p>Each document provides standardized procedures and templates to help ensure accurate, timely swim meet operations.</p>
+        <p>Prepare for meet day with practical guidance for swimmers and families, helpful tools for volunteers, and materials teams can share.</p>
+        <p>Use the resources below to mark swimmer arms, understand meet roles, organize line-ups, and help families find the web app.</p>
       </section>
 
       <div class="resources-grid">
+        <section class="resource-card resource-card--arm-marking arm-marking-guide" id="arm-markings" aria-labelledby="armMarkingsTitle">
+          <div class="arm-marking-guide__content">
+            <h2 id="armMarkingsTitle">Mark swimmer arms</h2>
+            <p><strong>Please complete all arm markings at home before leaving for the meet.</strong> The swimmer's arm must be completely dry, and a black SHARPIE permanent marker must be used so the markings stay clear in the water.</p>
+            <ol>
+              <li>Draw three columns labeled <strong>E</strong>, <strong>H</strong>, and <strong>L</strong> for <em>Event</em>, <em>Heat</em>, and <em>Lane</em>.</li>
+              <li>Write each swim on its own row using the numbers from the meet line-up.</li>
+              <li>Check every row against the line-up, then let the ink dry before the swimmer gets wet.</li>
+            </ol>
+            <p>Adding the distance and stroke beside the grid can help swimmers and clerk-of-course volunteers confirm each race.</p>
+          </div>
+          <figure class="arm-marking-guide__figure">
+            <picture>
+              <source media="(max-width: 48rem)" srcset="assets/images/event-heat-lane-arm-markings-mobile.jpg" type="image/jpeg" />
+              <img src="assets/images/event-heat-lane-arm-markings.jpg" alt="Example swimmer arm marked with Event, Heat, and Lane columns and the distance and stroke for each race" width="943" height="692" loading="lazy" decoding="async" />
+            </picture>
+            <figcaption>Example E/H/L arm markings for three races</figcaption>
+          </figure>
+        </section>
+
         <div class="resource-card">
           <h2><svg class="icon icon--heading" aria-hidden="true" focusable="false"><use href="#icon-clipboard-list"></use></svg> Judge</h2>
           <p>Comprehensive guide and forms for meet judges, including scoring procedures and documentation standards.</p>
@@ -122,7 +141,7 @@
         <h2 id="flyerDialogTitle">Web App Flyer</h2>
         <button type="button" class="btn-secondary flyer-dialog__close" id="flyerDialogClose">Close</button>
       </div>
-      <iframe class="flyer-dialog__document" src="assets/swim-meet-resources/ca-pool-cnsl-assistant-flyer.pdf" title="CA Pool and CNSL Assistant flyer PDF"></iframe>
+      <iframe class="flyer-dialog__document" data-document-src="assets/swim-meet-resources/ca-pool-cnsl-assistant-flyer.pdf" title="CA Pool and CNSL Assistant flyer PDF"></iframe>
       <p class="flyer-dialog__fallback">If the preview is unavailable, <a href="assets/swim-meet-resources/ca-pool-cnsl-assistant-flyer.pdf" download data-analytics-resource-name="web_app_flyer" data-analytics-resource-action="download">download the flyer PDF</a>.</p>
     </dialog>
   </block>

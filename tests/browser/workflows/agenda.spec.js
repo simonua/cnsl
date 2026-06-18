@@ -268,6 +268,7 @@ test('[WF-AGENDA-008] dedicated My Meet Day route loads only after the experimen
   await expect(page.locator('#myMeetDay')).toBeVisible();
   expect(await page.locator('#myMeetDay .my-meet-day__fact').count()).toBeGreaterThan(0);
   await expect(page.locator('#myMeetDay a[href^="pools.html?pool="]')).not.toHaveCount(0);
+  await expect(page.locator('#myMeetDay').getByRole('link', { name: 'See how to mark an arm' })).toHaveAttribute('href', 'swim-meet-resources.html#arm-markings');
   await expect(page.locator('#myMeetDay').getByRole('heading', { name: 'Key times' })).toHaveCount(0);
   await expect(page.locator('#myMeetDayStatus')).toHaveText('Meet-day details loaded.');
   await expect(page.locator('script[data-my-meet-day-dependency]')).toHaveCount(

@@ -3,6 +3,7 @@
  * Combines annual matchup, pool, and recurring host-team facts without DOM access.
  */
 if (typeof globalThis.MeetDayGuideService === 'undefined') {
+  const ARM_MARKING_GUIDE_URL = 'swim-meet-resources.html#arm-markings';
   const CASH_BILL_MAXIMUM_DENOMINATION = 20;
   const CASH_BILL_PREFERRED_DENOMINATIONS = Object.freeze([5, 1]);
   const CONCESSION_GROUP_PRESENTATION = Object.freeze({
@@ -516,6 +517,7 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
           ${MeetDayGuideService.renderGuidanceFact('Parking', MeetDayGuideService.getParkingLines(generalGuide, roleGuide))}
           ${MeetDayGuideService.renderGuidanceFact('Team setup', setupLines)}
           ${MeetDayGuideService.renderGuidanceFact('Check-in', MeetDayGuideService.getCheckInLines(roleGuide))}
+          ${MeetDayGuideService.renderFact('Arm markings', [`Before leaving home for the meet, use a black SHARPIE permanent marker on a completely dry arm. Label the grid Event (E), Heat (H), and Lane (L). <a href="${ARM_MARKING_GUIDE_URL}">See how to mark an arm</a>.`], true)}
           ${MeetDayGuideService.renderGuidanceFact('Clerk of course', [roleGuide?.clerkGuidance])}
           ${MeetDayGuideService.renderConcessions(concessions)}
           ${MeetDayGuideService.renderGuidanceFact('Good to know', helpfulNotes)}

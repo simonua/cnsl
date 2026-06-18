@@ -11,13 +11,24 @@ test.beforeEach(async ({ page }) => {
 
 test('[WF-RESOURCES-001] flyer preview can be closed and restores thumbnail focus', async ({ page }) => {
   await page.setViewportSize(MOBILE_VIEWPORT);
+  const flyerRequests = [];
+  page.on('request', request => {
+    if (new URL(request.url()).pathname.endsWith('/ca-pool-cnsl-assistant-flyer.pdf')) {
+      flyerRequests.push(request.url());
+    }
+  });
   await page.goto('/swim-meet-resources.html');
 
   const previewButton = page.getByRole('button', { name: 'Preview the CA Pool and CNSL Assistant flyer (PDF)' });
+  const documentFrame = page.getByTitle('CA Pool and CNSL Assistant flyer PDF');
+  expect(flyerRequests).toHaveLength(0);
+  await expect(documentFrame).not.toHaveAttribute('src');
   await previewButton.click();
 
   const dialog = page.getByRole('dialog', { name: 'Web App Flyer' });
   await expect(dialog).toBeVisible();
+  await expect(documentFrame).toHaveAttribute('src', 'assets/swim-meet-resources/ca-pool-cnsl-assistant-flyer.pdf');
+  await expect.poll(() => flyerRequests.length).toBe(1);
   await page.getByRole('button', { name: 'Close' }).click();
   await expect(dialog).not.toBeVisible();
   await expect(previewButton).toBeFocused();
@@ -56,4 +67,30 @@ test('[WF-RESOURCES-002] resource views and downloads publish only reviewed docu
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => (
     eventArguments[1] === 'ca_resource_view' || eventArguments[1] === 'ca_resource_download'
   )).length)).toBe(4);
+});
+
+test('[WF-RESOURCES-003] arm-marking guidance uses the mobile image without overflowing', async ({ page }) => {
+  await page.setViewportSize(MOBILE_VIEWPORT);
+  await page.goto('/swim-meet-resources.html#arm-markings');
+
+  const guide = page.locator('#arm-markings');
+  const image = guide.getByRole('img', { name: /Event, Heat, and Lane columns/ });
+
+  await expect(guide).toHaveClass(/resource-card--arm-marking/);
+  await expect(guide.getByRole('heading', { name: 'Mark swimmer arms' })).toBeVisible();
+  await expect(guide).toContainText('at home before leaving for the meet');
+  await expect(image).toBeVisible();
+  await expect.poll(() => image.evaluate(element => ({
+    complete: element.complete,
+    currentSourcePath: element.currentSrc ? new URL(element.currentSrc).pathname : '',
+    naturalWidth: element.naturalWidth
+  }))).toEqual({
+    complete: true,
+    currentSourcePath: '/assets/images/event-heat-lane-arm-markings-mobile.jpg',
+    naturalWidth: 640
+  });
+  await expect.poll(() => guide.evaluate(element => {
+    const bounds = element.getBoundingClientRect();
+    return bounds.left >= 0 && bounds.right <= globalThis.innerWidth;
+  })).toBe(true);
 });

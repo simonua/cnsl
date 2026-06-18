@@ -5528,6 +5528,51 @@ html[data-hide-home-intro="true"] .welcome-section {
   margin-bottom: 0;
 }
 
+.arm-marking-guide {
+  scroll-margin-top: calc(var(--header-height) + 1rem);
+}
+
+.arm-marking-guide__content p,
+.arm-marking-guide__content li {
+  line-height: 1.6;
+}
+
+.arm-marking-guide__content p {
+  margin-bottom: 0.75rem;
+}
+
+.arm-marking-guide__content ol {
+  margin: 0 0 0.75rem;
+  padding-left: 1.5rem;
+}
+
+.arm-marking-guide__content li + li {
+  margin-top: 0.35rem;
+}
+
+.arm-marking-guide__figure {
+  margin: 0;
+}
+
+.arm-marking-guide__figure picture,
+.arm-marking-guide__figure img {
+  display: block;
+  width: 100%;
+}
+
+.arm-marking-guide__figure img {
+  border-radius: var(--border-radius);
+  height: auto;
+}
+
+.arm-marking-guide__figure figcaption {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-style: italic;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
 .resources-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -5751,6 +5796,28 @@ html[data-hide-home-intro="true"] .welcome-section {
   margin-bottom: 1.5rem;
   line-height: 1.5;
   flex: 1;
+}
+
+.resource-card--arm-marking {
+  display: grid;
+  gap: 1.5rem;
+  grid-column: 1 / -1;
+}
+
+.resource-card--arm-marking .arm-marking-guide__content p {
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+}
+
+.resource-card--arm-marking .arm-marking-guide__content p:last-child {
+  margin-bottom: 0;
+}
+
+@media (min-width: 48.01rem) {
+  .resource-card--arm-marking {
+    align-items: start;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  }
 }
 
 .resource-card__preview-link {
