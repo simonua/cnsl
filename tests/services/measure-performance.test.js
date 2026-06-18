@@ -58,7 +58,7 @@ describe('performance measurement reporting', () => {
   it('should define measurable progressive lifecycles for optimized routes', () => {
     assert.deepEqual(ROUTE_PHASE_MARKS, {
       Meets: ['primary-data-ready', 'summary-visible', 'optional-enrichment-settled'],
-      'My Meet Day': ['primary-data-ready', 'summary-visible'],
+      'My Meet Day': ['primary-data-ready', 'summary-visible', 'optional-enrichment-settled'],
       Pools: ['primary-data-ready', 'summary-visible', 'optional-enrichment-settled'],
       Teams: ['primary-data-ready', 'summary-visible', 'optional-enrichment-settled']
     });

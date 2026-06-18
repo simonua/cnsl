@@ -182,6 +182,28 @@ describe('MeetDayGuideService', () => {
       assert.equal(MeetDayGuideService.getGuide(host, null, [meet], null, new Date(2026, 5, 19, 12)).pool, null);
     });
 
+    it('retains unambiguous host guidance before pool records are available', () => {
+      const host = {
+        id: 'host',
+        name: 'Host Team',
+        keywords: ['Host'],
+        homePools: ['Host Pool'],
+        homeMeetGuides: [{
+          poolId: 'host-pool',
+          general: { helpfulNotes: ['Fixture guidance'] },
+          homeTeam: { arrivalTime: '06:30' }
+        }]
+      };
+      const visitor = { id: 'visitor', name: 'Visitor Team', keywords: ['Visitor'] };
+      const meet = new Meet({ date: '2026-06-20', home_team: 'Host', visiting_team: 'Visitor', location: 'Host Pool' }, meetTimes, 'dualMeets');
+
+      const guide = MeetDayGuideService.getGuide(host, [host, visitor], [meet], [], new Date(2026, 5, 19, 12));
+
+      assert.equal(guide.pool, null);
+      assert.equal(guide.generalGuide.helpfulNotes[0], 'Fixture guidance');
+      assert.equal(guide.roleGuide.arrivalTime, '06:30');
+    });
+
     it('accepts compatible camelCase meet records and skips malformed or unrelated candidates', () => {
       const host = {
         id: 'host', name: 'Host Team', keywords: ['Host'],

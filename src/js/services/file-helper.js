@@ -54,7 +54,7 @@ if (typeof globalThis.FileHelper === 'undefined') {
    * @returns {string} Full path to pools.json
    */
   static getPoolsDataPath() {
-    return this.getSeasonDataBasePath('pools') + 'pools.json';
+    return globalThis.ANNUAL_DATA_PATHS.pools;
   }
 
   /**
@@ -62,7 +62,7 @@ if (typeof globalThis.FileHelper === 'undefined') {
    * @returns {string} Full path to teams.json
    */
   static getTeamsDataPath() {
-    return this.getSeasonDataBasePath('teams') + 'teams.json';
+    return globalThis.ANNUAL_DATA_PATHS.teams;
   }
 
   /**
@@ -70,7 +70,7 @@ if (typeof globalThis.FileHelper === 'undefined') {
    * @returns {string} Full path to meets.json
    */
   static getMeetsDataPath() {
-    return this.getSeasonDataBasePath('meets') + 'meets.json';
+    return globalThis.ANNUAL_DATA_PATHS.meets;
   }
 
   /**

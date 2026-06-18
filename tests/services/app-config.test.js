@@ -61,6 +61,15 @@ describe('app-config', () => {
     assert.equal(config.MY_MEET_DAY_HOME_LOOKAHEAD_DAYS, 2);
   });
 
+  it('publishes immutable active-season annual data paths', () => {
+    assert.deepEqual(config.ANNUAL_DATA_PATHS, {
+      meets: `assets/data/${config.YEAR}/meets/meets.json`,
+      pools: `assets/data/${config.YEAR}/pools/pools.json`,
+      teams: `assets/data/${config.YEAR}/teams/teams.json`
+    });
+    assert.equal(Object.isFrozen(config.ANNUAL_DATA_PATHS), true);
+  });
+
   it('publishes the immutable route warm-up readiness contract', () => {
     assert.equal(config.ROUTE_WARMUP_CHANNEL_NAME, 'cnsl:route-warmup');
     assert.deepEqual(config.ROUTE_WARMUP_READINESS_STATES, {
@@ -114,6 +123,14 @@ describe('app-config', () => {
       < config.TEAM_AGENDA_DEPENDENCIES.indexOf('js/services/meet-day-guide-service.js'));
     assert.equal(config.TEAM_AGENDA_DEPENDENCIES.at(-1), 'js/services/meet-day-guide-service.js');
     assert.equal(Object.isFrozen(config.TEAM_AGENDA_DEPENDENCIES), true);
+    assert.ok(config.MY_MEET_DAY_PRIMARY_DEPENDENCIES.every(source => config.TEAM_AGENDA_DEPENDENCIES.includes(source)));
+    assert.ok(config.MY_MEET_DAY_OPTIONAL_DEPENDENCIES.every(source => config.TEAM_AGENDA_DEPENDENCIES.includes(source)));
+    assert.equal(config.MY_MEET_DAY_PRIMARY_DEPENDENCIES.includes('js/managers/pools-manager.js'), false);
+    assert.equal(config.MY_MEET_DAY_PRIMARY_DEPENDENCIES.includes('js/services/team-agenda-display.js'), false);
+    assert.equal(config.MY_MEET_DAY_PRIMARY_DEPENDENCIES.includes('js/services/team-schedule-service.js'), false);
+    assert.equal(config.MY_MEET_DAY_OPTIONAL_DEPENDENCIES.includes('js/managers/pools-manager.js'), true);
+    assert.equal(Object.isFrozen(config.MY_MEET_DAY_PRIMARY_DEPENDENCIES), true);
+    assert.equal(Object.isFrozen(config.MY_MEET_DAY_OPTIONAL_DEPENDENCIES), true);
   });
 
   it('publishes named app-owned session storage keys', () => {

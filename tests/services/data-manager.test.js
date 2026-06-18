@@ -103,6 +103,30 @@ describe('DataManager', () => {
       }
     });
 
+    it('should validate and load preloaded domain data without fetching it again', async () => {
+      const originalFetch = global.fetch;
+      let fetchCount = 0;
+      global.fetch = async () => {
+        fetchCount += 1;
+        throw new Error('Unexpected fetch');
+      };
+
+      try {
+        const manager = new DataManager();
+        await manager.initialize(['teams', 'meets'], {
+          meets: Promise.resolve({ ...createSampleMeetsData(), special_meets: [] }),
+          teams: createSampleTeamsData()
+        });
+
+        assert.equal(fetchCount, 0);
+        assert.equal(manager.isInitialized(['teams', 'meets']), true);
+        assert.ok(manager.getTeams().getAllTeams().length > 0);
+        assert.ok(manager.getMeets().getAllMeets().length > 0);
+      } finally {
+        global.fetch = originalFetch;
+      }
+    });
+
     it('should reject malformed published domain responses', async () => {
       const originalFetch = global.fetch;
       const originalFileHelper = global.FileHelper;

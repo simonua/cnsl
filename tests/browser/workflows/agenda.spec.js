@@ -267,10 +267,12 @@ test('[WF-AGENDA-008] dedicated My Meet Day route loads only after the experimen
   dependencyRequests.releaseFirstDependency();
   await expect(page.locator('#myMeetDay')).toBeVisible();
   expect(await page.locator('#myMeetDay .my-meet-day__fact').count()).toBeGreaterThan(0);
-  expect(await page.locator('#myMeetDay a[href^="pools.html?pool="]').count()).toBeGreaterThan(0);
+  await expect(page.locator('#myMeetDay a[href^="pools.html?pool="]')).not.toHaveCount(0);
   await expect(page.locator('#myMeetDay').getByRole('heading', { name: 'Key times' })).toHaveCount(0);
   await expect(page.locator('#myMeetDayStatus')).toHaveText('Meet-day details loaded.');
-  await expect(page.locator('script[data-my-meet-day-dependency]')).toHaveCount(AppConfig.TEAM_AGENDA_DEPENDENCIES.length);
+  await expect(page.locator('script[data-my-meet-day-dependency]')).toHaveCount(
+    AppConfig.MY_MEET_DAY_PRIMARY_DEPENDENCIES.length + AppConfig.MY_MEET_DAY_OPTIONAL_DEPENDENCIES.length
+  );
   const controllerVersion = await page.locator('script[src*="js/my-meet-day.js"]').evaluate(script => new URL(script.src).searchParams.get('v'));
   const dependencyVersions = await page.locator('script[data-my-meet-day-dependency]').evaluateAll(scripts => (
     scripts.map(script => new URL(script.src).searchParams.get('v'))
@@ -288,6 +290,31 @@ test('[WF-AGENDA-008] dedicated My Meet Day route loads only after the experimen
   await expect(page.locator('#myMeetDay')).toBeHidden();
   await expect(page.locator('#myMeetDayNoFavorite')).toBeVisible();
   await expect(page.getByRole('link', { name: 'Choose favorite team' })).toHaveAttribute('href', 'settings.html');
+});
+
+test('[WF-AGENDA-010] dedicated My Meet Day route is usable before pool enrichment settles', async ({ page }) => {
+  await page.clock.setFixedTime(getMeetReferenceTime(0, -2));
+  await seedPreferences(page, { experimentalFeatures: ['my-meet-day'], favoriteTeamId: MEET_DAY_TEAM.id });
+  let releasePools;
+  const poolsPaused = new Promise(resolve => {
+    releasePools = resolve;
+  });
+  await page.route(getAnnualDataRoute('pools'), async route => {
+    await poolsPaused;
+    await route.continue();
+  });
+
+  try {
+    await page.goto('/my-meet-day.html', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('#myMeetDay')).toBeVisible();
+    await expect(page.locator('#myMeetDayStatus')).toHaveText('Meet-day details loaded.');
+    expect(await page.locator('#myMeetDay .my-meet-day__fact').count()).toBeGreaterThan(0);
+    await expect(page.locator('#myMeetDay a[href^="pools.html?pool="]')).toHaveCount(0);
+  } finally {
+    releasePools();
+  }
+
+  await expect(page.locator('#myMeetDay a[href^="pools.html?pool="]')).not.toHaveCount(0);
 });
 
 test('[WF-AGENDA-009] completed meets advance only the dedicated My Meet Day route beyond two days', async ({ page }) => {

@@ -15,7 +15,9 @@
     ? new URL(document.currentScript.src, document.baseURI)
     : null;
   const assetVersion = controllerSource ? controllerSource.searchParams.get('v') : '';
-  let dependenciesPromise;
+  let optionalDependenciesPromise;
+  let primaryDependenciesPromise;
+  let renderSequence = 0;
 
   /**
    * Applies the controller asset version to a lazily loaded dependency URL.
@@ -50,17 +52,31 @@
   }
 
   /**
-   * Loads the meet-day guide dependencies once in their required order.
+   * Loads dependencies required for the primary meet-day guide.
    * @returns {Promise<void>} Promise settled when all dependencies have loaded
    * @private
    */
-  function loadGuideDependencies() {
-    if (!dependenciesPromise) {
-      dependenciesPromise = Promise.all(
-        globalThis.TEAM_AGENDA_DEPENDENCIES.map(source => loadScript(source))
+  function loadPrimaryDependencies() {
+    if (!primaryDependenciesPromise) {
+      primaryDependenciesPromise = Promise.all(
+        globalThis.MY_MEET_DAY_PRIMARY_DEPENDENCIES.map(source => loadScript(source))
       ).then(() => undefined);
     }
-    return dependenciesPromise;
+    return primaryDependenciesPromise;
+  }
+
+  /**
+   * Loads pool-specific dependencies after the primary guide is visible.
+   * @returns {Promise<void>} Promise settled when optional dependencies have loaded
+   * @private
+   */
+  function loadOptionalDependencies() {
+    if (!optionalDependenciesPromise) {
+      optionalDependenciesPromise = Promise.all(
+        globalThis.MY_MEET_DAY_OPTIONAL_DEPENDENCIES.map(source => loadScript(source))
+      ).then(() => undefined);
+    }
+    return optionalDependenciesPromise;
   }
 
   /**
@@ -72,6 +88,17 @@
     if (globalThis.performance && typeof globalThis.performance.mark === 'function') {
       globalThis.performance.mark(`cnsl:my-meet-day:${phaseName}`);
     }
+  }
+
+  /**
+   * Allows the primary guide to paint before optional enrichment starts.
+   * @returns {Promise<void>} Promise resolved after the next paint opportunity
+   * @private
+   */
+  function waitForPrimaryGuidePaint() {
+    return new Promise(resolve => {
+      globalThis.requestAnimationFrame(() => globalThis.requestAnimationFrame(() => resolve()));
+    });
   }
 
   /**
@@ -125,6 +152,7 @@
    * @private
    */
   async function renderMyMeetDay() {
+    const renderId = ++renderSequence;
     const content = document.getElementById('myMeetDayContent');
     const guideView = document.getElementById('myMeetDay');
     const status = document.getElementById('myMeetDayStatus');
@@ -143,12 +171,12 @@
     }
 
     try {
-      await loadGuideDependencies();
-      if (globalThis.PreferencesService.get().favoriteTeamId !== favoriteTeamId) return;
+      await loadPrimaryDependencies();
+      if (renderId !== renderSequence || globalThis.PreferencesService.get().favoriteTeamId !== favoriteTeamId) return;
 
       const dataManager = globalThis.getDataManager();
-      await dataManager.initialize(['pools', 'teams', 'meets']);
-      if (globalThis.PreferencesService.get().favoriteTeamId !== favoriteTeamId) return;
+      await dataManager.initialize(['teams', 'meets']);
+      if (renderId !== renderSequence || globalThis.PreferencesService.get().favoriteTeamId !== favoriteTeamId) return;
       markMyMeetDayPerformance('primary-data-ready');
 
       const teams = dataManager.getTeams().getAllTeams();
@@ -162,7 +190,7 @@
         team,
         teams,
         dataManager.getMeets().getAllMeets(),
-        dataManager.getPools().getAllPools(),
+        [],
         globalThis.TimeUtils.getEasternTime()
       );
       const guideMarkup = globalThis.MeetDayGuideService.renderGuide(guide);
@@ -176,6 +204,7 @@
             || 'No meet-day details are available in the configured window.'
         );
         markMyMeetDayPerformance('summary-visible');
+        markMyMeetDayPerformance('optional-enrichment-settled');
         return;
       }
 
@@ -183,9 +212,29 @@
       guideView.hidden = false;
       status.textContent = 'Meet-day details loaded.';
       markMyMeetDayPerformance('summary-visible');
+
+      try {
+        await waitForPrimaryGuidePaint();
+        await loadOptionalDependencies();
+        await dataManager.initialize(['pools']);
+        if (renderId !== renderSequence || globalThis.PreferencesService.get().favoriteTeamId !== favoriteTeamId) return;
+        const enrichedGuide = globalThis.MeetDayGuideService.getGuide(
+          team,
+          teams,
+          dataManager.getMeets().getAllMeets(),
+          dataManager.getPools().getAllPools(),
+          globalThis.TimeUtils.getEasternTime()
+        );
+        const enrichedMarkup = globalThis.MeetDayGuideService.renderGuide(enrichedGuide);
+        if (enrichedMarkup) content.innerHTML = enrichedMarkup;
+      } catch (error) {
+        console.error('Failed to enrich My Meet Day pool details:', error);
+      } finally {
+        if (renderId === renderSequence) markMyMeetDayPerformance('optional-enrichment-settled');
+      }
     } catch (error) {
       console.error('Failed to load My Meet Day:', error);
-      if (globalThis.PreferencesService.get().favoriteTeamId !== favoriteTeamId) return;
+      if (renderId !== renderSequence || globalThis.PreferencesService.get().favoriteTeamId !== favoriteTeamId) return;
       showState('myMeetDayUnavailable', 'Meet-day details did not load. Please refresh the page to try again.');
     }
   }

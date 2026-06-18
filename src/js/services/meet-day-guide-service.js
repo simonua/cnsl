@@ -63,8 +63,29 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
      * @private
      */
     static findPool(pools, location) {
+      if (!Array.isArray(pools) || pools.length === 0) return null;
       const poolId = globalThis.getPoolIdFromLocation(location, pools);
       return pools.find(pool => pool.id === poolId) || null;
+    }
+
+    /**
+     * Resolves host guidance before optional pool records are available.
+     * @param {Object|null} homeTeam - Published host team
+     * @param {Object|null} pool - Resolved pool record
+     * @param {string} location - Published meet location
+     * @returns {Object|null} Matching host guide or null
+     * @private
+     */
+    static findHostGuide(homeTeam, pool, location) {
+      const guides = homeTeam?.homeMeetGuides || [];
+      if (pool) return guides.find(guide => guide.poolId === pool.id) || null;
+      if (guides.length !== 1) return null;
+
+      const meetLocation = String(location || '').trim().toLowerCase().replace(/\s+pool\s*$/i, '');
+      const isPublishedHomePool = (homeTeam?.homePools || []).some(homePool => (
+        String(homePool || '').trim().toLowerCase().replace(/\s+pool\s*$/i, '') === meetLocation
+      ));
+      return isPublishedHomePool ? guides[0] : null;
     }
 
     /**
@@ -141,7 +162,7 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
       const homeTeam = MeetDayGuideService.findTeam(publishedTeams, homeLabel);
       const visitingTeam = MeetDayGuideService.findTeam(publishedTeams, visitingLabel);
       const pool = MeetDayGuideService.findPool(publishedPools, meet.location);
-      const hostGuide = (homeTeam?.homeMeetGuides || []).find(guide => guide.poolId === pool?.id) || null;
+      const hostGuide = MeetDayGuideService.findHostGuide(homeTeam, pool, meet.location);
       const roleGuide = role === globalThis.MeetTeamRole.HOME ? hostGuide?.homeTeam : hostGuide?.visitingTeam;
       const relativeDayLabel = globalThis.TimeUtils.formatRelativeFutureDay(
         globalThis.TimeUtils.parseDateOnly(meet.date),
@@ -171,6 +192,21 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
      */
     static formatClockTime(value) {
       return globalThis.Meet.formatClockTime(value) || String(value || '');
+    }
+
+    /**
+     * Resolves a meet's published display time with any team-specific override.
+     * @param {Object} meet - Published meet model or record
+     * @param {Object|null} team - Favorite team model or record
+     * @returns {string} Display-ready meet time
+     * @private
+     */
+    static getMeetDisplayTime(meet, team) {
+      const timeWindowKey = typeof meet.getTimeWindowKey === 'function' ? meet.getTimeWindowKey() : '';
+      const overrideTimingWindow = timeWindowKey && team
+        ? (typeof team.getMeetTimeOverride === 'function' ? team.getMeetTimeOverride(timeWindowKey) : team.meetTimeOverrides?.[timeWindowKey])
+        : null;
+      return typeof meet.getDisplayTime === 'function' ? meet.getDisplayTime(overrideTimingWindow) : meet.time || 'Time not published';
     }
 
     /**
@@ -422,7 +458,7 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
       const meetDate = new Date(`${guide.date}T12:00:00`);
       const dateLabel = meetDate.toLocaleDateString('en-US', { day: 'numeric', month: 'long', weekday: 'long' });
       const matchup = `${visitingName} @ ${homeName}`;
-      const meetTime = globalThis.TeamAgendaDisplay.getMeetDisplayTime(meet, guide.team);
+      const meetTime = MeetDayGuideService.getMeetDisplayTime(meet, guide.team);
       const locationName = pool?.name ? `${pool.name} Pool` : meet.location;
       const locationLink = pool?.id
         ? globalThis.generatePoolsPageLink(pool.id, locationName)

@@ -29,16 +29,17 @@ if (typeof globalThis.DataManager === 'undefined') {
   /**
    * Initialize only the annual data required by a page or feature.
     * @param {AnnualDataDomain[]} requiredDomains - Annual data domains needed by the caller
+    * @param {Object} preloadedData - Optional domain data values or promises already requested by the caller
     * @returns {Promise<void>} - Promise that resolves when all data is loaded
    */
-  async initialize(requiredDomains = DATA_DOMAINS) {
+  async initialize(requiredDomains = DATA_DOMAINS, preloadedData = {}) {
     const domains = [...new Set(requiredDomains)];
     const unknownDomain = domains.find(domain => !DATA_DOMAINS.includes(domain));
     if (unknownDomain) {
       throw new Error(`Unknown annual data domain: ${unknownDomain}`);
     }
 
-    await Promise.all(domains.map(domain => this._loadDomain(domain)));
+    await Promise.all(domains.map(domain => this._loadDomain(domain, preloadedData[domain])));
     this.initialized = DATA_DOMAINS.every(domain => this.loadedDomains.has(domain));
   }
 
@@ -46,13 +47,15 @@ if (typeof globalThis.DataManager === 'undefined') {
    * Load one annual data domain and share its pending request between consumers.
    * @private
     * @param {AnnualDataDomain} domain - Annual data domain to load
+    * @param {*|Promise<*>} preloadedData - Optional already-requested domain data
     * @returns {Promise<void>} - Promise that resolves when all data is loaded
    */
-  async _loadDomain(domain) {
+  async _loadDomain(domain, preloadedData) {
     if (this.loadedDomains.has(domain)) return;
     if (this.loadingPromises.has(domain)) return this.loadingPromises.get(domain);
 
-    const loadingPromise = this._fetchDomain(domain)
+    const dataPromise = preloadedData === undefined ? this._fetchDomain(domain) : Promise.resolve(preloadedData);
+    const loadingPromise = dataPromise
       .then(data => {
         this._validateDomainData(domain, data);
         this._getManager(domain).loadData(data);

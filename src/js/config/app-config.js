@@ -6,6 +6,11 @@
   const APP_LAST_UPDATED_ON = '2026-06-18';
   // Published site and active season metadata.
   const YEAR = 2026;
+  const ANNUAL_DATA_PATHS = Object.freeze({
+    meets: `assets/data/${YEAR}/meets/meets.json`,
+    pools: `assets/data/${YEAR}/pools/pools.json`,
+    teams: `assets/data/${YEAR}/teams/teams.json`
+  });
   const APP_TIMEZONE = 'America/New_York';
   const OFFICIAL_SOURCE_CHECKED_AT = '2026-06-18T11:53:27-04:00';
   const OFFICIAL_SOURCE_UPDATED_AT = '2026-06-17T09:58:31-04:00';
@@ -82,6 +87,23 @@
     'js/services/team-agenda-display.js',
     'js/services/meet-day-guide-service.js'
   ]);
+  const MY_MEET_DAY_OPTIONAL_DEPENDENCIES = Object.freeze([
+    'js/services/device-platform-service.js',
+    'js/services/pool-link-helper.js',
+    'js/types/pool-enums.js',
+    'js/models/pool-schedule.js',
+    'js/services/pool-period-schedule-service.js',
+    'js/models/pool.js',
+    'js/managers/pools-manager.js'
+  ]);
+  const MY_MEET_DAY_EXCLUDED_DEPENDENCIES = Object.freeze([
+    ...MY_MEET_DAY_OPTIONAL_DEPENDENCIES,
+    'js/services/team-schedule-service.js',
+    'js/services/team-agenda-display.js'
+  ]);
+  const MY_MEET_DAY_PRIMARY_DEPENDENCIES = Object.freeze(
+    TEAM_AGENDA_DEPENDENCIES.filter(source => !MY_MEET_DAY_EXCLUDED_DEPENDENCIES.includes(source))
+  );
 
   // External services and regional behavior.
   const ANALYTICS_DEPLOYMENT_META_NAME = 'cnsl-analytics-deployment';
@@ -263,6 +285,7 @@
   const LOCAL_DEVELOPMENT_PORT = '9090';
 
   const RUNTIME_CONFIG = Object.freeze({
+    ANNUAL_DATA_PATHS,
     ANALYTICS_DEPLOYMENT_META_NAME,
     ANALYTICS_DEPLOYMENT_MODES,
     ANALYTICS_APP_VERSION_STORAGE_KEY,
@@ -285,6 +308,8 @@
     LOCAL_DEVELOPMENT_HOSTNAMES,
     LOCAL_DEVELOPMENT_PORT,
     MY_MEET_DAY_HOME_LOOKAHEAD_DAYS,
+    MY_MEET_DAY_OPTIONAL_DEPENDENCIES,
+    MY_MEET_DAY_PRIMARY_DEPENDENCIES,
     PUBLISHED_CAMPAIGNS,
     PREFERENCES_CHANGED_EVENT_NAME,
     PREFERENCES_STORAGE_KEY,
