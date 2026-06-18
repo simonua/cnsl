@@ -53,13 +53,13 @@ test('[WF-WEATHER-001] desktop weather safety alerts restore collapsed details o
   expect(collapsedAlertBox.height).toBeCloseTo(70, 1);
   expect(expandedAlertBox.height).toBeGreaterThanOrEqual(collapsedAlertBox.height);
   expect(expandedTitleBox.height).toBe(collapsedTitleBox.height);
-  expect(collapsedToggleBox.height).toBe(collapsedTitleBox.height);
+  expect(collapsedToggleBox.width).toBe(collapsedToggleBox.height);
+  expect(collapsedToggleBox.height).toBeGreaterThanOrEqual(44);
   expect(expandedToggleBox.height).toBe(collapsedToggleBox.height);
   expect(expandedToggleBox.y - collapsedToggleBox.y).toBeCloseTo(expandedTitleBox.y - collapsedTitleBox.y, 1);
-  expect(expandedActionBox.y).toBe(expandedToggleBox.y);
-  expect(expandedActionBox.height).toBe(expandedToggleBox.height);
-  expect(expandedNwsActionBox.y).toBe(expandedToggleBox.y);
-  expect(expandedNwsActionBox.height).toBe(expandedToggleBox.height);
+  expect(expandedActionBox.y + expandedActionBox.height / 2).toBeCloseTo(expandedToggleBox.y + expandedToggleBox.height / 2, 1);
+  expect(expandedNwsActionBox.y).toBe(expandedActionBox.y);
+  expect(expandedNwsActionBox.height).toBe(expandedActionBox.height);
   await expect.poll(() => page.evaluate(() => sessionStorage.getItem('cnsl_weather_alert_expanded'))).toBe('true');
 });
 
@@ -130,10 +130,11 @@ test('[WF-WEATHER-002] mobile weather safety alert keeps navigation visible and 
   const expandedActionBox = await action.boundingBox();
   const expandedNwsActionBox = await nwsAlertLink.boundingBox();
   expect(expandedToggleSize.width).toBe(expandedToggleSize.height);
-  expect(expandedToggleSize.height).toBe(expandedTitleBox.height);
-  expect(expandedToggleSize.height).toBe(expandedActionBox.height);
+  expect(expandedToggleSize.height).toBeGreaterThanOrEqual(44);
+  expect(expandedActionBox.height).toBe(expandedTitleBox.height);
   expect(expandedActionBox.y).toBeGreaterThanOrEqual(expandedTitleBox.y + expandedTitleBox.height);
   expect(expandedNwsActionBox.y).toBe(expandedActionBox.y);
+  expect(expandedNwsActionBox.height).toBe(expandedActionBox.height);
   const expandedAlertBackground = await alert.evaluate(element => element.ownerDocument.defaultView.getComputedStyle(element).backgroundColor);
   await expect(icon).toHaveCSS('transform', 'none');
   await expect(icon).toHaveCSS('transition-duration', '0s');

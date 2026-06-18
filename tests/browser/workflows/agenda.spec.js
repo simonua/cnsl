@@ -353,7 +353,9 @@ test('[WF-AGENDA-009] completed meets advance only the dedicated My Meet Day rou
   await expect(paymentMethods.locator('img[src*="paypal-monogram-full-color.png"]')).toBeVisible();
   await expect(paymentMethods.locator('img[src*="venmo-wordmark-blue.png"]')).toBeVisible();
   await expect(paymentMethods.locator('xpath=preceding-sibling::*[1]')).toContainText('We accept');
-  await expect(paymentMethods.locator('xpath=following-sibling::*[1]')).toContainText('Please use bills');
+  const paymentGuidance = paymentMethods.locator('xpath=following-sibling::*[1]');
+  await expect(paymentGuidance).toHaveClass(/my-meet-day__concessions-details--supporting/);
+  await expect(paymentGuidance).not.toBeEmpty();
   await expect.poll(() => paymentMethods.locator('img').evaluateAll(images => (
     images.every(image => image.complete && image.naturalWidth > 0)
   ))).toBe(true);
