@@ -136,6 +136,7 @@ if (typeof globalThis.PoolCardDisplay === 'undefined') {
       const safePool = pool && typeof pool === 'object' ? pool : {};
       const safePoolName = HtmlSafety.escapeHtml(poolName || 'pool');
       const caUrl = HtmlSafety.safeHttpUrl(safePool.caUrl);
+      const scheduleUrl = HtmlSafety.safeHttpUrl(safePool.scheduleUrl);
       const phoneUrl = HtmlSafety.safeTelephoneUrl(safePool.phone);
       const directionsHtml = globalThis.generatePoolDirectionsLink(safePool, poolName);
       const caLinkHtml = caUrl
@@ -148,6 +149,16 @@ if (typeof globalThis.PoolCardDisplay === 'undefined') {
           </a>
         </div>`
         : '';
+      const scheduleLinkHtml = scheduleUrl
+        ? `<div class="ca-website-section">
+          <a href="${scheduleUrl}"
+             target="_blank"
+             rel="noopener"
+             class="ca-link">
+            CA Pool Schedule
+          </a>
+        </div>`
+        : '';
       const phoneHtml = phoneUrl
         ? `<div class="address-section__phone">
           <a href="${phoneUrl}" class="phone-link" aria-label="Call ${safePoolName} pool desk at ${HtmlSafety.escapeHtml(safePool.phone)}">
@@ -155,7 +166,7 @@ if (typeof globalThis.PoolCardDisplay === 'undefined') {
           </a>
         </div>`
         : '';
-      const secondaryActionsHtml = `${phoneHtml}${caLinkHtml}`;
+      const secondaryActionsHtml = `${phoneHtml}${caLinkHtml}${scheduleLinkHtml}`;
       return `${directionsHtml ? `<div class="address-section__directions">${directionsHtml}</div>` : ''}${secondaryActionsHtml ? `<div class="address-section__secondary-actions">${secondaryActionsHtml}</div>` : ''}`;
     }
 

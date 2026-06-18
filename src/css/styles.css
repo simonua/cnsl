@@ -2970,10 +2970,14 @@ button.pool-filter__clear:focus-visible {
 
 /* CA Pool Website Link Styling */
 .ca-link {
+  box-sizing: border-box;
   color: var(--primary-color);
   text-decoration: none;
   display: inline-block;
+  inline-size: 10.75rem;
+  max-inline-size: 100%;
   margin-top: 0.25rem;
+  text-align: center;
   transition: var(--transition);
   border-radius: 4px;
   padding: 4px 8px;
@@ -3049,6 +3053,10 @@ button.pool-filter__clear:focus-visible {
     grid-column: 2;
     grid-row: 1 / span 2;
     justify-self: end;
+  }
+
+  .ca-link {
+    inline-size: 12rem;
   }
 }
 

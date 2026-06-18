@@ -15,6 +15,7 @@ const viewModel = {
       mapsQuery: 'Bryant Woods Pool'
     },
     caUrl: 'https://example.com/pool?name=Bryant&Woods',
+    scheduleUrl: 'https://example.com/schedules/Bryant_Woods.pdf?season=current&view=official',
     phone: '(410) 555-0100'
   },
   poolName: 'Bryant <Woods>',
@@ -59,6 +60,8 @@ describe('PoolCardDisplay', () => {
     assert.match(html, /class="address-section__directions"/);
     assert.match(html, /class="address-section__secondary-actions"/);
     assert.match(html, /href="https:\/\/example\.com\/pool\?name=Bryant&amp;Woods"/);
+    assert.match(html, /href="https:\/\/example\.com\/schedules\/Bryant_Woods\.pdf\?season=current&amp;view=official"/);
+    assert.match(html, />\s*CA Pool Schedule\s*<\/a>/);
     assert.match(html, /href="tel:4105550100"/);
     assert.match(html, /feature-pill--amenities/);
     assert.match(html, /feature-pill--water-play/);
@@ -77,6 +80,7 @@ describe('PoolCardDisplay', () => {
         address: '1 Main Street, Columbia, MD 21044',
         mapsQuery: 'javascript:alert(1)',
         caUrl: 'javascript:alert(1)',
+        scheduleUrl: 'data:text/html,<script>alert(1)</script>',
         phone: '410-555-0100 onclick=bad'
       },
       featureItems: [],
@@ -88,6 +92,7 @@ describe('PoolCardDisplay', () => {
     assert.match(html, /<span class="pool-status-indicator gray status-tooltip"/);
     assert.match(html, /https:\/\/www\.google\.com\/maps\/search\/\?api=1&amp;query=javascript%3Aalert\(1\)/);
     assert.doesNotMatch(html, /ca-website-section/);
+    assert.doesNotMatch(html, /data:text\/html/i);
     assert.doesNotMatch(html, /address-section__phone/);
     assert.match(html, /class="status-tbd">[^<]+<\/span>/);
   });

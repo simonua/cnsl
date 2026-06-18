@@ -31,6 +31,7 @@ const ENRICHED_PRACTICE_TEAM = ANNUAL_TEAMS.find(team => team.practice?.regular?
 const ENRICHED_PRACTICE_POOL = ANNUAL_POOLS.find(pool => (
   ENRICHED_PRACTICE_TEAM.practice.regular.morning[0].location === `${pool.name} Pool`
 ));
+const OFFICIAL_SCHEDULE_FIXTURE_URL = 'https://official-pools.example/schedules/current-pool.pdf';
 
 function getRelativeDate(date, dayOffset) {
   const relativeDate = new Date(`${date}T12:00:00-04:00`);
@@ -400,8 +401,12 @@ test('[WF-POOLS-006] location distances recover after a transient lookup timeout
   await expect.poll(() => page.evaluate(() => sessionStorage.getItem('cnsl_location_request_count'))).toBe('2');
 });
 
-test('[WF-POOLS-023] desktop expanded pool details group contact links and fit the weekly calendar', async ({ page }) => {
+test('[WF-POOLS-023] desktop expanded pool details group official links and fit the weekly calendar', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
+  await routeAnnualData(page, 'pools', poolData => {
+    const contactPool = poolData.pools.find(pool => pool.id === CONTACT_POOL.id);
+    contactPool.scheduleUrl = OFFICIAL_SCHEDULE_FIXTURE_URL;
+  });
   await seedPreferences(page, {
     favoritePoolName: CONTACT_POOL.name,
     poolScheduleLayout: 'calendar'
@@ -415,6 +420,18 @@ test('[WF-POOLS-023] desktop expanded pool details group contact links and fit t
   await expect(favoriteCard.locator('.address-section__phone')).not.toContainText('Pool Desk');
   await expect(favoriteCard.locator('.phone-link')).toHaveAttribute('aria-label', /^Call .+ pool desk at .+/);
   await expect(favoriteCard.getByRole('link', { name: /^Get directions to .+ in Google Maps$/ })).toBeVisible();
+  const poolPageLink = favoriteCard.getByRole('link', { name: 'Visit CA Pool Page' });
+  const scheduleLink = favoriteCard.getByRole('link', { name: 'CA Pool Schedule' });
+  await expect(scheduleLink).toHaveAttribute('href', OFFICIAL_SCHEDULE_FIXTURE_URL);
+  await expect(scheduleLink).toHaveAttribute('target', '_blank');
+  await expect(scheduleLink).toHaveAttribute('rel', 'noopener');
+  await expect.poll(async () => {
+    const [poolPageBox, scheduleBox] = await Promise.all([
+      poolPageLink.boundingBox(),
+      scheduleLink.boundingBox()
+    ]);
+    return [poolPageBox?.width, scheduleBox?.width];
+  }).toEqual([192, 192]);
   const layout = await favoriteCard.evaluate(card => {
     const contactBox = card.querySelector('.pool-contact').getBoundingClientRect();
     const addressSection = card.querySelector('.address-section');
@@ -465,6 +482,10 @@ test('[WF-POOLS-022] mobile expanded pool details keep directions in the compact
   await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
 
   const favoriteCard = page.locator('.favorite-card');
+  const officialLinkWidths = await favoriteCard.locator('.ca-link').evaluateAll(links => (
+    links.map(link => link.getBoundingClientRect().width)
+  ));
+  expect(officialLinkWidths).toEqual([172, 172]);
   const layout = await favoriteCard.evaluate(card => {
     const addressLinkBox = card.querySelector('.address-link').getBoundingClientRect();
     const directionsBox = card.querySelector('.directions-link').getBoundingClientRect();
