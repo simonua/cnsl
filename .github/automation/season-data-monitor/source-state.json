@@ -1,6 +1,6 @@
 {
   "season": 2026,
-  "acceptedOn": "2026-06-17",
+  "acceptedOn": "2026-06-18",
   "documents": [
     {
       "domain": "pools",
@@ -349,7 +349,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Columbia Association outdoor swim lessons page",
-      "sha256": "9e7bcfc8646331f78b4a8d8df7464e5cfee743d43c902356d60f0dfc405a15a6",
+      "sha256": "5450bd4869c69654798d851d0d9f69039cdbb14b133e22f2e0251dbb80a6d9f4",
       "sourceIds": [
         "lessons:outdoor-swim-programs"
       ],

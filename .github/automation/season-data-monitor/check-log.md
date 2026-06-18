@@ -256,3 +256,27 @@ Directly supplied follow-up guidance from the Long Reach host-team manager added
 | Visitor-facing records | Unchanged | None. |
 | Review records | Updated | Annual README evidence and this check-log entry; official-source timestamps are unchanged. |
 | Reviewed source baseline | Unchanged | None; `source-state.json` did not change. |
+
+## 2026-06-18T11:53:27-04:00
+
+**Active season:** 2026
+
+**Result:** Complete under the existing explicit maintainer exception for merchandise-store availability.
+
+Checked the 139-source inventory:
+
+- 76 modeled-evidence URLs were reached by `pnpm run check:data-updates`.
+- 63 uncovered official sources and application-used destinations were requested separately with live `HEAD` or `GET` requests.
+- 137 required sources were successfully verified.
+- 2 application-used destinations were attempted and retained their availability exception: the Long Reach and Phelps Luck merchandise stores returned HTTP 403. The Long Reach booster site returned HTTP 200.
+
+The monitor reported one candidate for CA's Outdoor Swim Lessons page. The current field-owning page retained all represented locations, weekdays, formats, dates, preparation guidance, weather policy, and destinations. CA's main Swim Lessons and Leagues page independently corroborated the morning and evening formats and the outdoor and Personal Swim Training destinations; the published registration destination also remained reachable. No normalization or schema change was needed, no conflicting official source was identified, confidence is High, and there is no residual uncertainty. The page-fingerprint difference was therefore non-material to application data.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Unchanged | None. |
+| Application-used source destinations | Unchanged | None. |
+| Retained official PDFs | Unchanged | None. |
+| Visitor-facing records | Unchanged | None. |
+| Review records | Updated | `OFFICIAL_SOURCE_CHECKED_AT`, active annual README evidence, and this check-log entry. |
+| Reviewed source baseline | Updated | `source-state.json` refreshed with the accepted June 18 fingerprints and retained-PDF metadata. |

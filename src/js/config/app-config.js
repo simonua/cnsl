@@ -7,7 +7,7 @@
   // Published site and active season metadata.
   const YEAR = 2026;
   const APP_TIMEZONE = 'America/New_York';
-  const OFFICIAL_SOURCE_CHECKED_AT = '2026-06-17T09:58:31-04:00';
+  const OFFICIAL_SOURCE_CHECKED_AT = '2026-06-18T11:53:27-04:00';
   const OFFICIAL_SOURCE_UPDATED_AT = '2026-06-17T09:58:31-04:00';
   const HOME_PAGE_HOSTNAME = 'pools.longreachmarlins.org';
   const HOME_PAGE_URL = `https://${HOME_PAGE_HOSTNAME}`;
