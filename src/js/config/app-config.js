@@ -2,7 +2,7 @@
  * Application configuration shared by browser pages and the service worker.
  */
 (function initializeAppConfig(globalScope) {
-  const APP_VERSION = '2.20.0';
+  const APP_VERSION = '2.21.0';
   const APP_LAST_UPDATED_ON = '2026-06-18';
   // Published site and active season metadata.
   const YEAR = 2026;
