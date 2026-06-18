@@ -19,6 +19,8 @@ describe('PreferencesService', () => {
         contrast: 'system',
         motion: 'system',
         underlineLinks: false,
+        hideHomeIntro: false,
+        hidePageHeadings: false,
         experimentalFeatures: [],
         favoriteTeamId: '',
         favoritePoolName: '',
@@ -40,6 +42,8 @@ describe('PreferencesService', () => {
         contrast: 'high',
         motion: 'reduced',
         underlineLinks: true,
+        hideHomeIntro: true,
+        hidePageHeadings: true,
         experimentalFeatures: ['my-meet-day', 'unknown', 'my-meet-day'],
         favoriteTeamId: '  lrm ',
         favoritePoolName: ' Kendall Ridge ',
@@ -55,6 +59,7 @@ describe('PreferencesService', () => {
 
       assert.deepEqual(saved, {
         theme: 'dark', textSize: 'extra-large', contrast: 'high', motion: 'reduced', underlineLinks: true,
+        hideHomeIntro: true, hidePageHeadings: true,
         experimentalFeatures: ['my-meet-day'],
         favoriteTeamId: 'lrm', favoritePoolName: 'Kendall Ridge', favoriteTeamExpanded: false,
         favoritePoolExpanded: false, poolScheduleLayout: 'calendar',
@@ -72,6 +77,7 @@ describe('PreferencesService', () => {
       assert.deepEqual(PreferencesService.get(storage), PreferencesService.DEFAULT_PREFERENCES);
       assert.deepEqual(PreferencesService.normalize({ theme: 'unsupported', favoriteTeamId: 10 }), {
         theme: 'system', textSize: 'default', contrast: 'system', motion: 'system', underlineLinks: false,
+        hideHomeIntro: false, hidePageHeadings: false,
         experimentalFeatures: [],
         favoriteTeamId: '', favoritePoolName: '', favoriteTeamExpanded: true,
         favoritePoolExpanded: true, poolScheduleLayout: 'list', poolFeatureFilters: [],
@@ -91,19 +97,25 @@ describe('PreferencesService', () => {
         textSize: 'large',
         contrast: 'high',
         motion: 'reduced',
-        underlineLinks: true
+        underlineLinks: true,
+        hideHomeIntro: true,
+        hidePageHeadings: true
       }), {
         ...PreferencesService.DEFAULT_PREFERENCES,
         textSize: 'large',
         contrast: 'high',
         motion: 'reduced',
-        underlineLinks: true
+        underlineLinks: true,
+        hideHomeIntro: true,
+        hidePageHeadings: true
       });
       assert.deepEqual(PreferencesService.normalize({
         textSize: '200%',
         contrast: 'maximum',
         motion: 'none',
-        underlineLinks: 'true'
+        underlineLinks: 'true',
+        hideHomeIntro: 'true',
+        hidePageHeadings: 1
       }), PreferencesService.DEFAULT_PREFERENCES);
     });
 

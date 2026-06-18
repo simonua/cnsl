@@ -26,6 +26,8 @@
     document.documentElement.setAttribute('data-motion', selectedMotion);
     document.documentElement.setAttribute('data-motion-mode', selectedMotion === 'reduced' || reducedMotion.matches ? 'reduced' : 'default');
     document.documentElement.setAttribute('data-underline-links', preferences && preferences.underlineLinks === true ? 'true' : 'false');
+    document.documentElement.setAttribute('data-hide-home-intro', preferences && preferences.hideHomeIntro === true ? 'true' : 'false');
+    document.documentElement.setAttribute('data-hide-page-headings', preferences && preferences.hidePageHeadings === true ? 'true' : 'false');
     document.documentElement.classList.toggle('has-saved-favorite-team', Boolean(preferences && preferences.favoriteTeamId));
   }
 

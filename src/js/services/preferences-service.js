@@ -77,6 +77,8 @@ if (typeof globalThis.PreferencesService === 'undefined') {
       contrast: 'system',
       motion: 'system',
       underlineLinks: false,
+      hideHomeIntro: false,
+      hidePageHeadings: false,
       experimentalFeatures: Object.freeze([]),
       favoriteTeamId: '',
       favoritePoolName: '',
@@ -156,6 +158,8 @@ if (typeof globalThis.PreferencesService === 'undefined') {
       const contrast = PreferencesService.CONTRASTS.includes(preferences.contrast) ? preferences.contrast : 'system';
       const motion = PreferencesService.MOTIONS.includes(preferences.motion) ? preferences.motion : 'system';
       const underlineLinks = preferences.underlineLinks === true;
+      const hideHomeIntro = preferences.hideHomeIntro === true;
+      const hidePageHeadings = preferences.hidePageHeadings === true;
       const experimentalFeatures = PreferencesService.normalizeExperimentalFeatures(preferences.experimentalFeatures);
       const favoriteTeamId = typeof preferences.favoriteTeamId === 'string' ? preferences.favoriteTeamId.trim() : '';
       const favoritePoolName = typeof preferences.favoritePoolName === 'string' ? preferences.favoritePoolName.trim() : '';
@@ -179,6 +183,8 @@ if (typeof globalThis.PreferencesService === 'undefined') {
         contrast,
         motion,
         underlineLinks,
+        hideHomeIntro,
+        hidePageHeadings,
         experimentalFeatures,
         favoriteTeamId,
         favoritePoolName,

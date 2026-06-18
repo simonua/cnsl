@@ -3656,7 +3656,9 @@ button.pool-filter__clear:focus-visible {
 .mt-2 { margin-top: 1rem; }
 .mt-3 { margin-top: 1.5rem; }
 
-.visually-hidden {
+.visually-hidden,
+html[data-hide-home-intro="true"] .welcome-title,
+html[data-hide-page-headings="true"] main.container > h1 {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -3666,6 +3668,11 @@ button.pool-filter__clear:focus-visible {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+html[data-hide-home-intro="true"] .welcome-message,
+html[data-hide-home-intro="true"] .season-text {
+  display: none;
 }
 
 /* ==========================================================================
@@ -6413,6 +6420,11 @@ button.settings-dialog__close:focus {
   gap: 0.65rem 1.5rem;
   grid-template-columns: repeat(2, minmax(0, 9.5rem));
   justify-content: center;
+}
+
+.settings-checkbox-list--stacked {
+  grid-template-columns: minmax(0, 1fr);
+  justify-content: stretch;
 }
 
 .settings-hint {

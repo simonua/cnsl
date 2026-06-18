@@ -125,6 +125,8 @@
     contrast: new Set(['high', 'system']),
     favorite_pool_expanded: new Set(['collapsed', 'expanded']),
     favorite_team_expanded: new Set(['collapsed', 'expanded']),
+    hide_home_intro: new Set(['disabled', 'enabled']),
+    hide_page_headings: new Set(['disabled', 'enabled']),
     location_awareness: new Set(['disabled', 'enabled']),
     motion: new Set(['reduced', 'system']),
     pool_schedule_layout: new Set(['calendar', 'list']),

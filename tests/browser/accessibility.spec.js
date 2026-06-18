@@ -1,6 +1,7 @@
 const { test, expect } = require('./browser-test');
 const AxeBuilder = require('@axe-core/playwright').default;
 const {
+  AUDIENCE_VIEWPORTS,
   MOBILE_VIEWPORT,
   getOffSeasonReferenceTime,
   prepareStableWeatherResponses,
@@ -106,7 +107,7 @@ for (const theme of ['light', 'dark']) {
 }
 
 test('[AX-SETTINGS-002] accessibility preferences have no WCAG A or AA automated violations', async ({ page }) => {
-  await page.setViewportSize({ width: 360, height: 780 });
+  await page.setViewportSize(AUDIENCE_VIEWPORTS.COMPACT_PHONE);
   await prepareStableWeatherResponses(page);
   await seedPreferences(page, {
     contrast: 'high',
@@ -121,6 +122,20 @@ test('[AX-SETTINGS-002] accessibility preferences have no WCAG A or AA automated
   await page.locator('#experimentalFeatures summary').click();
 
   await expectNoAccessibilityViolations(page);
+});
+
+test('[AX-SETTINGS-003] personalized page content has no WCAG A or AA automated violations', async ({ page }) => {
+  await prepareStableWeatherResponses(page);
+  await seedPreferences(page, {
+    hideHomeIntro: true,
+    hidePageHeadings: true
+  });
+
+  for (const path of ['/index.html', '/pools.html']) {
+    await page.goto(path);
+    await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
+    await expectNoAccessibilityViolations(page);
+  }
 });
 
 test('[AX-SEASON-001] off-season views have no WCAG A or AA automated violations', async ({ page }) => {

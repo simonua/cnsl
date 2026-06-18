@@ -509,6 +509,59 @@ test('[WF-SETTINGS-008] accessibility settings apply immediately, persist locall
   await expect(root).toHaveAttribute('data-text-size', 'extra-large');
 });
 
+test('[WF-SETTINGS-015] page content preferences hide visual introductions while preserving semantic headings', async ({ page }) => {
+  await initializeAnalyticsRecorder(page);
+  await page.goto('/settings.html');
+  const root = page.locator('html');
+  const accessibilitySettings = page.locator('#accessibilitySettings');
+
+  await accessibilitySettings.locator('summary').click();
+  await expect(page.getByLabel('Hide the welcome and season introduction on Home')).not.toBeChecked();
+  await expect(page.getByLabel('Hide headings at the top of individual pages')).not.toBeChecked();
+
+  await page.getByLabel('Hide the welcome and season introduction on Home').focus();
+  await page.getByLabel('Hide the welcome and season introduction on Home').press('Space');
+  await page.getByLabel('Hide headings at the top of individual pages').check();
+  await expect(root).toHaveAttribute('data-hide-home-intro', 'true');
+  await expect(root).toHaveAttribute('data-hide-page-headings', 'true');
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')))).toMatchObject({
+    hideHomeIntro: true,
+    hidePageHeadings: true
+  });
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_setting_change'))).toEqual([
+    ['event', 'ca_setting_change', { setting_name: 'hide_home_intro' }],
+    ['event', 'ca_setting_change', { setting_name: 'hide_page_headings' }]
+  ]);
+
+  const settingsHeading = page.getByRole('heading', { level: 1, name: 'Settings' });
+  await expect(settingsHeading).toHaveCount(1);
+  await expect.poll(() => settingsHeading.evaluate(heading => {
+    const styles = globalThis.getComputedStyle(heading);
+    return { clip: styles.clip, height: styles.height, position: styles.position, width: styles.width };
+  })).toEqual({ clip: 'rect(0px, 0px, 0px, 0px)', height: '1px', position: 'absolute', width: '1px' });
+
+  await page.goto('/index.html');
+  await expect(page.getByRole('heading', { level: 1, name: 'CA Outdoor Pools & CNSL Swim Teams' })).toHaveCount(1);
+  await expect(page.locator('.welcome-message')).toBeHidden();
+  await expect(page.locator('.season-text')).toBeHidden();
+  await expect(page.getByRole('link', { name: /Pool Season/ })).toBeVisible();
+
+  await page.goto('/pools.html');
+  const poolsHeading = page.getByRole('heading', { level: 1, name: 'Pools & Hours' });
+  await expect(poolsHeading).toHaveCount(1);
+  await expect.poll(() => poolsHeading.evaluate(heading => globalThis.getComputedStyle(heading).position)).toBe('absolute');
+
+  await page.goto('/settings.html');
+  const acceptedResetPrompt = page.waitForEvent('dialog').then(dialog => dialog.accept());
+  await page.getByRole('button', { name: 'Reset all settings' }).click();
+  await acceptedResetPrompt;
+  await expect(root).toHaveAttribute('data-hide-home-intro', 'false');
+  await expect(root).toHaveAttribute('data-hide-page-headings', 'false');
+  await page.locator('#accessibilitySettings summary').click();
+  await expect(page.getByLabel('Hide the welcome and season introduction on Home')).not.toBeChecked();
+  await expect(page.getByLabel('Hide headings at the top of individual pages')).not.toBeChecked();
+});
+
 test('[WF-SETTINGS-009] device contrast, reduced motion, and forced colors update effective accessibility modes', async ({ page }) => {
   await page.emulateMedia({ contrast: 'more', reducedMotion: 'reduce' });
   await page.goto('/settings.html');

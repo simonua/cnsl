@@ -52,6 +52,17 @@ applyTo: "src/js/**/*.js"
 - Preserve performance characteristics while consolidating paths. Shared code must not turn pre-paint work into deferred work, cause hidden views to render eagerly, add duplicate requests, or make route-specific dependencies load globally without measured justification.
 - Test the extracted contract directly and retain integration coverage for each materially different entry path. Include accessibility state and trust-boundary behavior when the shared contract renders external data or controls interactive UI.
 
+## Compatibility And Code Retirement
+
+- Treat removal as part of the implementation, not a future cleanup phase. When a new JavaScript path replaces an old path, search definitions, references, script lists, globals, browser-module manifests, adapters, tests, fixtures, configuration, validators, service-worker resources, documentation, and generated-resource policy before declaring the refactor complete.
+- Classify each old surface as a current supported contract, a temporary migration boundary, or obsolete. Remove obsolete classes, methods, branches, aliases, fallback shapes, feature flags, constants, globals, adapters, and dependencies together with the tests and documentation that exist only to support them.
+- Do not keep browser code for test fixtures. Update fixtures and browser-module manifests to the current published contract unless they deliberately cover a verified public compatibility requirement.
+- Compatibility requires evidence of a current consumer. A repository test, stale documentation, historical payload, hypothetical downgrade, or unreferenced export does not establish that requirement. Inspect runtime consumers, published data/contracts, persisted browser state, service-worker handoff behavior, and any documented external caller before preserving it.
+- When compatibility is genuinely required, isolate it at the narrowest boundary and document the consumer, accepted legacy scope, migration owner, and objective removal condition. Add focused coverage for both migration and eventual rejection; do not let a broad model or manager carry an indefinite second representation.
+- Validation and consumption must agree. Never accept a legacy payload, status, option, or field that the downstream manager silently ignores or converts into an empty successful result.
+- After removal, search for the retired symbols and values, verify unsupported legacy input fails or is intentionally migrated, and run the focused current-contract and alternate-path tests. Remove newly unused script tags, globals, dependency declarations, cache entries, and test-loader registrations.
+- Preserve immutable historical annual assets and published release history. Retiring runtime compatibility does not authorize rewriting archived source data or dated visitor-facing records.
+
 ## Style Rules
 
 - Target ECMAScript 2023 (`ES2023`) for delivered JavaScript, Node scripts, tests, and the service worker. Keep `jsconfig.json` `target`/`lib` and every `eslint.config.js` `ecmaVersion` aligned to that baseline.

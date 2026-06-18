@@ -1,6 +1,7 @@
 const { test, expect } = require('../browser-test');
 const AppConfig = require('../../../scripts/adapters/app-config.js');
 const {
+  AUDIENCE_VIEWPORTS,
   getAnnualDataRoute,
   prepareStableWeatherResponses,
   readAnnualData,
@@ -345,7 +346,7 @@ test('[WF-AGENDA-009] completed meets advance only the dedicated My Meet Day rou
       listsTopAligned: sharesTopEdge(listTops)
     };
   })).toEqual({ headingsTopAligned: true, itemsOccupySeparateRows: true, listsTopAligned: true });
-  await page.setViewportSize({ width: 360, height: 780 });
+  await page.setViewportSize(AUDIENCE_VIEWPORTS.COMPACT_PHONE);
   await expect.poll(() => paymentMethods.evaluate(element => {
     const menu = element.parentElement.querySelector('.my-meet-day__concessions-menu');
     const groups = [...menu.querySelectorAll('.my-meet-day__concessions-group')];

@@ -62,6 +62,27 @@ This guide records the visual decisions for the CA Pool & CNSL Assistant. Apply 
 - Keep text and controls within their containers at supported phone and desktop widths.
 - Verify affected views in light and dark themes and at mobile and desktop sizes before completion.
 
+## Audience Viewports
+
+Use CSS-pixel viewport dimensions and fluid layouts. The supported responsive range begins at 320 CSS pixels wide; content and controls must not overflow horizontally at or above that floor.
+
+The shared browser harness owns the current audience-derived representatives in `tests/browser/browser-test-helpers.js`:
+
+| Role | Viewport | Use |
+| --- | --- | --- |
+| Narrow phone | 320 by 693 | Minimum-width and overflow boundary checks |
+| Compact phone | 360 by 780 | Compact navigation, controls, and wrapping |
+| Primary phone | 393 by 852 | Default mobile workflow and accessibility checks |
+| Large phone | 440 by 956 | Upper end of the high-volume phone range |
+| Tablet portrait | 820 by 1180 | Phone-to-desktop layout transition |
+| Laptop | 1440 by 900 | Default desktop layout with limited vertical space |
+| Wide desktop | 1920 by 1080 | Maximum-width, alignment, and line-length checks |
+
+- Treat the primary 393 by 852 viewport as representative of the adjacent high-volume 390 through 402 CSS-pixel audience cluster. Do not create separate breakpoints or duplicate every workflow for nearby resolutions unless a measured layout boundary requires it.
+- Run ordinary mobile workflow coverage at the primary phone viewport. Use the focused responsive layout matrix for the full representative set, and add narrow, compact, large-phone, tablet, or desktop variants to a feature workflow only when its behavior or layout depends on that range.
+- Keep performance comparisons at 390 by 844 so historical performance samples remain comparable. Performance dimensions and responsive browser-test dimensions have different purposes and need not be identical.
+- Reassess the representative set when a meaningful new analytics sample shows an audience shift. Exclude confirmed development and strongly anomalous synthetic traffic before changing design support or test coverage.
+
 ## Review Checklist
 
 - Is ordinary prose unframed and free of decorative accent borders?
@@ -69,5 +90,6 @@ This guide records the visual decisions for the CA Pool & CNSL Assistant. Apply 
 - Is that meaning available without relying on color or position?
 - Does the page reuse existing tokens, components, spacing, and typography?
 - Are keyboard, responsive layout, contrast, and accessible naming preserved?
+- Does responsive verification cover the affected audience viewport tier without adding redundant nearby-width cases?
 - Do requests and recovery guidance sound courteous without becoming wordy or repetitive?
 - Does the copy thank visitors where they have offered help, feedback, or a correction?

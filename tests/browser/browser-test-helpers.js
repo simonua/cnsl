@@ -5,8 +5,16 @@ const AppConfig = require('../../scripts/adapters/app-config.js');
 const ALLOWED_ANNUAL_DATA_DOMAINS = new Set(['meets', 'pools', 'teams']);
 const ACTIVE_SEASON_YEAR = AppConfig.YEAR;
 
-// Compact modern Android baseline; recent standard iPhone portrait widths are wider.
-const MOBILE_VIEWPORT = Object.freeze({ width: 360, height: 780 });
+const AUDIENCE_VIEWPORTS = Object.freeze({
+  COMPACT_PHONE: Object.freeze({ width: 360, height: 780 }),
+  LARGE_PHONE: Object.freeze({ width: 440, height: 956 }),
+  LAPTOP: Object.freeze({ width: 1440, height: 900 }),
+  NARROW_PHONE: Object.freeze({ width: 320, height: 693 }),
+  PRIMARY_PHONE: Object.freeze({ width: 393, height: 852 }),
+  TABLET_PORTRAIT: Object.freeze({ width: 820, height: 1180 }),
+  WIDE_DESKTOP: Object.freeze({ width: 1920, height: 1080 })
+});
+const MOBILE_VIEWPORT = AUDIENCE_VIEWPORTS.PRIMARY_PHONE;
 
 function getAnnualDataRoute(domain) {
   if (!ALLOWED_ANNUAL_DATA_DOMAINS.has(domain)) {
@@ -103,6 +111,7 @@ async function setAgendaReferenceTime(page) {
 
 module.exports = {
   ACTIVE_SEASON_YEAR,
+  AUDIENCE_VIEWPORTS,
   MOBILE_VIEWPORT,
   activeSeasonDate,
   getAnnualDataRoute,

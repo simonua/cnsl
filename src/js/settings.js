@@ -118,6 +118,8 @@
     const selectedMotion = form.querySelector(`input[name="motion"][value="${preferences.motion}"]`);
     if (selectedMotion) selectedMotion.checked = true;
     form.elements.underlineLinks.checked = preferences.underlineLinks;
+    form.elements.hideHomeIntro.checked = preferences.hideHomeIntro;
+    form.elements.hidePageHeadings.checked = preferences.hidePageHeadings;
     form.querySelectorAll('input[name="experimentalFeatures"]').forEach(featureToggle => {
       featureToggle.checked = preferences.experimentalFeatures.includes(featureToggle.value);
       const state = featureToggle.closest('.settings-experiment')?.querySelector('.settings-switch__state');
@@ -213,6 +215,10 @@
       trackFixedSettingChange('motion', saved.motion);
     } else if (changedField.name === 'underlineLinks' && saved.underlineLinks !== existing.underlineLinks) {
       trackFixedSettingChange('underline_links', saved.underlineLinks ? 'enabled' : 'disabled');
+    } else if (changedField.name === 'hideHomeIntro' && saved.hideHomeIntro !== existing.hideHomeIntro) {
+      trackFixedSettingChange('hide_home_intro', saved.hideHomeIntro ? 'enabled' : 'disabled');
+    } else if (changedField.name === 'hidePageHeadings' && saved.hidePageHeadings !== existing.hidePageHeadings) {
+      trackFixedSettingChange('hide_page_headings', saved.hidePageHeadings ? 'enabled' : 'disabled');
     } else if (changedField.name === 'experimentalFeatures'
       && saved.experimentalFeatures.join('|') !== existing.experimentalFeatures.join('|')) {
       trackExperimentalFeatureChange(changedField.value, saved.experimentalFeatures.includes(changedField.value));
@@ -246,6 +252,8 @@
     if (existing.contrast !== reset.contrast) trackFixedSettingChange('contrast', reset.contrast);
     if (existing.motion !== reset.motion) trackFixedSettingChange('motion', reset.motion);
     if (existing.underlineLinks !== reset.underlineLinks) trackFixedSettingChange('underline_links', 'disabled');
+    if (existing.hideHomeIntro !== reset.hideHomeIntro) trackFixedSettingChange('hide_home_intro', 'disabled');
+    if (existing.hidePageHeadings !== reset.hidePageHeadings) trackFixedSettingChange('hide_page_headings', 'disabled');
     existing.experimentalFeatures
       .filter(featureId => !reset.experimentalFeatures.includes(featureId))
       .forEach(featureId => trackExperimentalFeatureChange(featureId, false));
@@ -484,6 +492,8 @@
         contrast: contrast ? contrast.value : 'system',
         motion: motion ? motion.value : 'system',
         underlineLinks: form.elements.underlineLinks.checked,
+        hideHomeIntro: form.elements.hideHomeIntro.checked,
+        hidePageHeadings: form.elements.hidePageHeadings.checked,
         experimentalFeatures: Array.from(form.querySelectorAll('input[name="experimentalFeatures"]:checked'), featureToggle => featureToggle.value),
         favoriteTeamId: favoriteTeam.disabled ? existing.favoriteTeamId : favoriteTeam.value,
         favoritePoolName: favoritePool.disabled ? existing.favoritePoolName : favoritePool.value,
