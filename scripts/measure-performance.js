@@ -21,6 +21,7 @@ const PERFORMANCE_PROFILE_NAME = process.env.CNSL_PERF_PROFILE || 'desktop';
 const PERFORMANCE_PROFILE = PERFORMANCE_PROFILES[PERFORMANCE_PROFILE_NAME];
 const PWA_CRITICAL_RESOURCE_BUDGET = 75;
 const ROUTE_PHASE_MARKS = Object.freeze({
+  Meets: Object.freeze(['primary-data-ready', 'summary-visible', 'optional-enrichment-settled']),
   'My Meet Day': Object.freeze(['primary-data-ready', 'summary-visible']),
   Pools: Object.freeze(['primary-data-ready', 'summary-visible', 'optional-enrichment-settled']),
   Teams: Object.freeze(['primary-data-ready', 'summary-visible', 'optional-enrichment-settled'])

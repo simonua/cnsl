@@ -2406,6 +2406,11 @@ nav a:focus {
   color: var(--primary-text-color);
 }
 
+.meet-date-header__toggle:hover,
+.meet-date-header__toggle:focus {
+  color: var(--primary-text-color);
+}
+
 .pool-header__toggle:focus-visible {
   outline: 2px solid var(--primary-color);
   outline-offset: 2px;

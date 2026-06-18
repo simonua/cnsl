@@ -48,26 +48,16 @@
   </block>
 
   <block name="scripts">
-    <!-- Critical dependencies must load synchronously to ensure availability -->
+    <!-- Summary dependencies load before the directory controller. -->
     <script src="js/services/time-utils.js"></script>
-    <script src="js/types/pool-enums.js"></script>
     <script src="js/types/schedule-state.js"></script>
-    <script src="js/models/pool-schedule.js"></script>
-    <script src="js/services/pool-period-schedule-service.js"></script>
     <script src="js/services/html-safety.js"></script>
-    <script src="js/services/pool-link-helper.js"></script>
-    <script src="js/models/pool.js"></script>
-    <script src="js/models/team.js"></script>
     <script src="js/models/meet.js"></script>
-    <script src="js/managers/pools-manager.js"></script>
-    <script src="js/managers/teams-manager.js"></script>
     <script src="js/managers/meets-manager.js"></script>
     <script src="js/services/data-manager.js"></script>
 
-    <!-- Other services can load deferred -->
+    <!-- Fetch paths and the controller preserve their dependency order. -->
     <script src="js/services/file-helper.js" defer></script>
-
-    <!-- Application scripts -->
     <script src="js/meets-browser.js" defer></script>
   </block>
 </extends>

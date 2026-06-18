@@ -36,7 +36,7 @@ test('[WF-MEETS-001] meet pool links open the expanded destination without movin
   });
   await page.goto('/meets.html');
   await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
-  expect(await page.locator('#meetList .meet-details').count()).toBeGreaterThan(0);
+  await expect(page.locator('#meetList .meet-details').first()).toBeVisible();
 
   const poolLink = page.locator('.pool-link').last();
   const targetPoolId = await poolLink.evaluate(link => new URL(link.href).searchParams.get('pool'));
@@ -60,6 +60,14 @@ test('[WF-MEETS-002] favorite team matchups appear first on every meet day they 
   await seedPreferences(page, { favoriteTeamId: FAVORITE_TEAM.id });
   await page.goto('/meets.html');
   await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
+
+  const dateCards = page.locator('.meet-date-card');
+  for (let index = 0; index < await dateCards.count(); index += 1) {
+    const card = dateCards.nth(index);
+    const toggle = card.locator('.meet-date-header__toggle');
+    if (await toggle.getAttribute('aria-expanded') !== 'true') await toggle.click();
+    await expect(card.locator('.meet-date-details')).toHaveAttribute('data-meet-details-hydrated', 'true');
+  }
 
   const favoriteDayPlacement = await page.locator('.meet-date-card').evaluateAll(cards => cards
     .filter(card => card.querySelector('.favorite-meet'))

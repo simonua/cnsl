@@ -34,10 +34,11 @@ for (const scenario of directoryScenarios) {
     await page.goto(scenario.path);
     await expect(page.locator(scenario.list)).toHaveAttribute('aria-busy', 'false');
     await expect(page.locator(`${scenario.list} ${scenario.item}`).first()).toBeVisible();
-    if (scenario.reference === 'TEAMS') {
-      await expect.poll(() => page.evaluate(() => (
-        performance.getEntriesByName('cnsl:teams:optional-enrichment-settled').length
-      ))).toBe(1);
+    if (scenario.reference === 'TEAMS' || scenario.reference === 'MEETS') {
+      const enrichmentMark = `cnsl:${scenario.reference.toLowerCase()}:optional-enrichment-settled`;
+      await expect.poll(() => page.evaluate(markName => (
+        performance.getEntriesByName(markName).length
+      ), enrichmentMark)).toBe(1);
     }
     expect(requestedDomains.sort()).toEqual(scenario.domains);
   });
@@ -56,9 +57,12 @@ for (const scenario of directoryScenarios.filter(({ reference }) => reference !=
 
     try {
       await page.goto(scenario.path, { waitUntil: 'domcontentloaded' });
-      await expect(page.locator(scenario.list)).toHaveAttribute('aria-busy', 'true');
-      await expect(page.locator(scenario.list)).toBeEmpty();
-      if (scenario.reference === 'POOLS') {
+      if (scenario.reference === 'MEETS') {
+        await expect(page.locator(scenario.list)).toHaveAttribute('aria-busy', 'false');
+        await expect(page.locator(`${scenario.list} ${scenario.item}`).first()).toBeVisible();
+      } else {
+        await expect(page.locator(scenario.list)).toHaveAttribute('aria-busy', 'true');
+        await expect(page.locator(scenario.list)).toBeEmpty();
         await expect(page.locator('#poolStatusLegend')).toBeHidden();
       }
     } finally {
@@ -269,6 +273,70 @@ test('[WF-DATA-010-TEAMS] team summaries remain usable when optional detail scri
   await expect(firstTeam.locator('.team-details')).toHaveAttribute('aria-busy', 'false');
   await expect(firstTeam.locator('.team-details')).toHaveAttribute('data-team-details-hydrated', 'true');
   await expect(firstTeam.locator('.team-details')).toContainText('Team details are unavailable.');
+});
+
+test('[WF-DATA-011-MEETS] meet date summaries render before requested details enrichment settles', async ({ page }) => {
+  let releaseOptionalRequests;
+  let requestedDate;
+  const optionalRequestsPaused = new Promise(resolve => {
+    releaseOptionalRequests = resolve;
+  });
+  for (const domain of ['pools', 'teams']) {
+    await page.route(getAnnualDataRoute(domain), async route => {
+      await optionalRequestsPaused;
+      await route.continue();
+    });
+  }
+
+  try {
+    await page.goto('/meets.html', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('#meetList')).toHaveAttribute('aria-busy', 'false');
+    const dateCount = await page.locator('#meetList .meet-date-card').count();
+    expect(dateCount).toBeGreaterThan(1);
+    await expect(page.locator('#meetList .meet-date-details[data-meet-details-hydrated="false"]')).toHaveCount(dateCount);
+    await expect(page.locator('#meetList .meet-date-card.collapsed .meet-date-details > *')).toHaveCount(0);
+    expect(await page.evaluate(() => performance.getEntriesByName('cnsl:meets:primary-data-ready').length)).toBe(1);
+    expect(await page.evaluate(() => performance.getEntriesByName('cnsl:meets:summary-visible').length)).toBe(1);
+    expect(await page.evaluate(() => performance.getEntriesByName('cnsl:meets:optional-enrichment-settled').length)).toBe(0);
+
+    const requestedCard = page.locator('#meetList .meet-date-card.collapsed').first();
+    requestedDate = await requestedCard.getAttribute('data-meet-date');
+    await requestedCard.locator('.meet-date-header__toggle').click();
+    const stableRequestedCard = page.locator(`#meetList .meet-date-card[data-meet-date="${requestedDate}"]`);
+    await expect(stableRequestedCard.locator('.meet-date-details')).toBeVisible();
+    await expect(stableRequestedCard.locator('.meet-date-details')).toHaveAttribute('aria-busy', 'true');
+    await expect(stableRequestedCard.locator('.meet-date-details')).toHaveAttribute('data-meet-details-hydrated', 'false');
+  } finally {
+    releaseOptionalRequests();
+  }
+
+  const requestedCard = page.locator(`#meetList .meet-date-card[data-meet-date="${requestedDate}"]`);
+  await expect(requestedCard.locator('.meet-date-details')).toHaveAttribute('aria-busy', 'false');
+  await expect(requestedCard.locator('.meet-date-details')).toHaveAttribute('data-meet-details-hydrated', 'true');
+  await expect(requestedCard.locator('.meet-details').first()).toBeVisible();
+  expect(await page.evaluate(() => getDataManager().isInitialized(['pools', 'teams']))).toBe(true);
+  await expect(page.locator('script[data-meets-enrichment-dependency]')).toHaveCount(8);
+  await expect.poll(() => page.evaluate(() => performance.getEntriesByName('cnsl:meets:optional-enrichment-settled').length)).toBe(1);
+});
+
+test('[WF-DATA-012-MEETS] meet summaries and plain requested details survive optional script failure', async ({ page }) => {
+  await page.route('**/js/types/pool-enums.js*', route => route.fulfill({ status: 503, body: '' }));
+  await page.goto('/meets.html');
+
+  await expect(page.locator('#meetList')).toHaveAttribute('aria-busy', 'false');
+  await expect(page.locator('#meetList .meet-date-card').first()).toBeVisible();
+  await expect.poll(() => page.evaluate(() => (
+    performance.getEntriesByName('cnsl:meets:optional-enrichment-settled').length
+  ))).toBe(1);
+
+  const requestedCard = page.locator('#meetList .meet-date-card.collapsed').first();
+  const requestedDate = await requestedCard.getAttribute('data-meet-date');
+  await requestedCard.locator('.meet-date-header__toggle').click();
+  const stableRequestedCard = page.locator(`#meetList .meet-date-card[data-meet-date="${requestedDate}"]`);
+  await expect(stableRequestedCard.locator('.meet-date-details')).toHaveAttribute('aria-busy', 'false');
+  await expect(stableRequestedCard.locator('.meet-date-details')).toHaveAttribute('data-meet-details-hydrated', 'true');
+  await expect(stableRequestedCard.locator('.meet-details').first()).toBeVisible();
+  await expect(stableRequestedCard.locator('.pool-link')).toHaveCount(0);
 });
 
 test('[WF-DATA-008] generic routes use compact weather eligibility without loading pools data', async ({ page }) => {

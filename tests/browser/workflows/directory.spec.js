@@ -29,8 +29,10 @@ test('[WF-DIR-001] directory disclosures work without rendered inline event hand
   await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
   const meetToggle = page.locator('.meet-date-header__toggle').first();
   const initiallyExpanded = await meetToggle.getAttribute('aria-expanded');
-  await meetToggle.click();
+  await meetToggle.focus();
+  await page.keyboard.press('Enter');
   await expect(meetToggle).toHaveAttribute('aria-expanded', String(initiallyExpanded !== 'true'));
+  await expect(meetToggle).toBeFocused();
   await expect(page.locator('#meetList [onclick], #meetList [onerror]')).toHaveCount(0);
 });
 

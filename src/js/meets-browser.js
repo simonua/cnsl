@@ -1,10 +1,29 @@
 // Global data manager instance for meets browser
 let meetsBrowserDataManager = null;
+let meetsBrowserDependenciesPromise = null;
+let meetsBrowserEnrichmentPromise = null;
+let meetsBrowserMeetGroups = new Map();
 let meetsPoolLocationIndex = new Map();
 let meetsBrowserMeets = [];
 let meetLiveStatusRefreshTimeout = null;
 let meetLiveStatusSignature = '';
 const MeetsBrowserSafety = HtmlSafety;
+const MEET_DETAILS_LOADING_HTML = '<p>Loading meet details.</p>';
+const MEETS_ENRICHMENT_DEPENDENCIES = Object.freeze([
+  'js/types/pool-enums.js',
+  'js/models/pool-schedule.js',
+  'js/services/pool-period-schedule-service.js',
+  'js/services/pool-link-helper.js',
+  'js/models/pool.js',
+  'js/models/team.js',
+  'js/managers/pools-manager.js',
+  'js/managers/teams-manager.js'
+]);
+const meetsControllerSource = document.currentScript && document.currentScript.src
+  ? new URL(document.currentScript.src, document.baseURI)
+  : null;
+const meetsAssetVersion = meetsControllerSource ? meetsControllerSource.searchParams.get('v') : '';
+const meetDetailsHydrationPromises = new WeakMap();
 
 
 // ------------------------------
@@ -18,9 +37,93 @@ const MeetsBrowserSafety = HtmlSafety;
 async function initializeMeetsBrowser() {
   if (!meetsBrowserDataManager) {
     meetsBrowserDataManager = getDataManager();
-    await meetsBrowserDataManager.initialize(['pools', 'teams', 'meets']);
-    meetsPoolLocationIndex = globalThis.createPoolLocationIndex(meetsBrowserDataManager.getPools().getAllPools());
+    await meetsBrowserDataManager.initialize(['meets']);
   }
+}
+
+/**
+ * Records one Meets route readiness boundary for performance measurement.
+ * @param {string} phaseName - Route lifecycle phase
+ * @returns {void}
+ */
+function markMeetPerformance(phaseName) {
+  if (globalThis.performance && typeof globalThis.performance.mark === 'function') {
+    globalThis.performance.mark(`cnsl:meets:${phaseName}`);
+  }
+}
+
+/**
+ * Applies the controller asset version to a lazily loaded dependency URL.
+ * @param {string} source - Relative dependency source
+ * @returns {string} Versioned dependency URL or the unchanged relative source
+ */
+function getMeetsDependencySource(source) {
+  if (!meetsAssetVersion) return source;
+
+  const dependencySource = new URL(source, document.baseURI);
+  dependencySource.searchParams.set('v', meetsAssetVersion);
+  return dependencySource.toString();
+}
+
+/**
+ * Appends one ordered classic-script dependency for concurrent download.
+ * @param {string} source - Relative dependency source
+ * @returns {Promise<void>} Promise settled after the script loads
+ */
+function loadMeetsDependency(source) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = getMeetsDependencySource(source);
+    script.async = false;
+    script.dataset.meetsEnrichmentDependency = source;
+    script.addEventListener('load', resolve, { once: true });
+    script.addEventListener('error', () => reject(new Error(`Unable to load ${source}.`)), { once: true });
+    document.head.appendChild(script);
+  });
+}
+
+/**
+ * Loads optional pool and team presentation dependencies once in execution order.
+ * @returns {Promise<void>} Promise settled after every dependency loads
+ */
+function loadMeetsEnrichmentDependencies() {
+  if (!meetsBrowserDependenciesPromise) {
+    meetsBrowserDependenciesPromise = Promise.all(
+      MEETS_ENRICHMENT_DEPENDENCIES.map(source => loadMeetsDependency(source))
+    ).then(() => undefined);
+  }
+  return meetsBrowserDependenciesPromise;
+}
+
+/**
+ * Loads optional pool and team records once without blocking date summaries.
+ * @returns {Promise<void>} Promise settled after enrichment succeeds or degrades to plain details
+ */
+function startMeetsBrowserEnrichment() {
+  if (!meetsBrowserEnrichmentPromise) {
+    meetsBrowserEnrichmentPromise = (async () => {
+      try {
+        await loadMeetsEnrichmentDependencies();
+        const results = await Promise.allSettled([
+          meetsBrowserDataManager.initialize(['pools']),
+          meetsBrowserDataManager.initialize(['teams'])
+        ]);
+        if (meetsBrowserDataManager.isInitialized(['pools'])) {
+          meetsPoolLocationIndex = globalThis.createPoolLocationIndex(
+            meetsBrowserDataManager.getPools().getAllPools()
+          );
+        }
+        if (results.some(result => result.status === 'rejected')) {
+          console.warn('Some optional Meet schedule details did not load.');
+        }
+      } catch (error) {
+        console.warn('Optional Meet schedule details are unavailable:', error);
+      } finally {
+        markMeetPerformance('optional-enrichment-settled');
+      }
+    })();
+  }
+  return meetsBrowserEnrichmentPromise;
 }
 
 /**
@@ -65,6 +168,162 @@ function getMeetLiveStatusSignature(meets) {
   return target ? `${target.date}:${target.kind}` : '';
 }
 
+/**
+ * Resolves the saved favorite against optional team enrichment when available.
+ * @returns {Object|null} Favorite team model or null before team enrichment
+ */
+function getMeetFavoriteTeam() {
+  if (!meetsBrowserDataManager?.isInitialized(['teams'])) return null;
+  return PreferencesService.findFavoriteTeam(
+    meetsBrowserDataManager.getTeams().getAllTeams(),
+    PreferencesService.get().favoriteTeamId
+  );
+}
+
+/**
+ * Formats one meet team label with an optional semantic favorite marker.
+ * @param {string} label - Published team label
+ * @param {string} className - CSS class for the team role
+ * @param {Object|null} favoriteTeam - Resolved favorite team
+ * @returns {string} Escaped team-label HTML
+ */
+function formatMeetTeamLabel(label, className, favoriteTeam) {
+  const displayLabel = label || (className === 'home-team' ? 'Home Team' : 'Visiting Team');
+  const isFavorite = PreferencesService.teamMatchesLabel(favoriteTeam, displayLabel);
+  const favoriteMarker = isFavorite
+    ? ' <span class="favorite-marker" role="img" aria-label="Favorite team" title="Favorite team">&#9733;</span>'
+    : '';
+  return `<span class="${className}">${MeetsBrowserSafety.escapeHtml(displayLabel)}${favoriteMarker}</span>`;
+}
+
+/**
+ * Renders the requested date's meet details from current optional enrichment.
+ * @param {Array} meets - Meet models for one published date
+ * @returns {string} Safe meet detail markup
+ */
+function renderMeetDateDetails(meets) {
+  const favoriteTeam = getMeetFavoriteTeam();
+  const orderedMeets = PreferencesService.sortMeetsWithFavorite(meets, favoriteTeam);
+  const easternTimeInfo = TimeUtils.getCurrentEasternTimeInfo();
+  const today = easternTimeInfo.isValid ? TimeUtils.parseDateOnly(easternTimeInfo.date) : new Date();
+  today.setHours(0, 0, 0, 0);
+  const meetDate = TimeUtils.parseDateOnly(orderedMeets[0]?.date);
+  const dateLiveStatuses = orderedMeets.map(meet => meet.getLiveStatus(easternTimeInfo));
+  const isCompleted = meetDate < today || (orderedMeets[0]?.date === easternTimeInfo.date
+    && dateLiveStatuses.length > 0
+    && dateLiveStatuses.every(status => status === MeetLiveStatus.CONCLUDED));
+  const isUpcoming = !isCompleted && meetDate >= today;
+  const canUsePoolEnrichment = meetsBrowserDataManager?.isInitialized(['pools'])
+    && typeof globalThis.generateEnhancedPoolLink === 'function';
+
+  return orderedMeets.map(meet => {
+    const location = meet.location || 'TBA';
+    const time = meet.getDisplayTime();
+    let poolData = null;
+    let locationLink = MeetsBrowserSafety.escapeHtml(location);
+    let courseLabel = '';
+
+    if (canUsePoolEnrichment) {
+      try {
+        locationLink = globalThis.generateEnhancedPoolLink(location, meetsBrowserDataManager, {
+          preferPoolsPage: true,
+          showBothLinks: false
+        }, meetsPoolLocationIndex);
+        poolData = globalThis.getPoolDataFromLocation(location, meetsBrowserDataManager, meetsPoolLocationIndex);
+        courseLabel = globalThis.formatPoolCourseLabel(poolData);
+        const safeMapsUrl = poolData?.location
+          ? MeetsBrowserSafety.safeHttpUrl(poolData.location.googleMapsUrl)
+          : '';
+        if (safeMapsUrl) {
+          locationLink += ` <a href="${safeMapsUrl}" target="_blank" rel="noopener" class="maps-icon" aria-label="View ${MeetsBrowserSafety.escapeHtml(location)} on Google Maps">${IconCatalog.render('map')}</a>`;
+        }
+      } catch (error) {
+        console.warn('Error generating pool link for', location, ':', error);
+        locationLink = MeetsBrowserSafety.escapeHtml(location);
+      }
+    }
+
+    const courseInfo = courseLabel
+      ? `<span class="meet-course">${MeetsBrowserSafety.escapeHtml(courseLabel)}</span>`
+      : '';
+    const weatherInfo = meet.weather?.forecast && isUpcoming
+      ? `<div class="weather-info"><span class="weather-temp">${MeetsBrowserSafety.escapeHtml(meet.weather.forecast.temperature)}°F</span><span class="weather-desc">${MeetsBrowserSafety.escapeHtml(meet.weather.forecast.shortForecast)}</span></div>`
+      : '';
+    const safeMeetPoolId = poolData && /^[a-zA-Z0-9_-]+$/.test(poolData.id || '')
+      ? MeetsBrowserSafety.escapeHtml(poolData.id)
+      : '';
+    const meetPoolAttribute = safeMeetPoolId ? ` data-meet-pool-id="${safeMeetPoolId}"` : '';
+
+    if (meet.isSpecialMeet()) {
+      return `
+        <div class="meet-details special-meet"${meetPoolAttribute}>
+          <div class="meet-info">
+            <div class="special-meet-title"><strong>${MeetsBrowserSafety.escapeHtml(meet.name || 'Special Meet')}</strong></div>
+            <div class="meet-location-time">
+              <div class="meet-location-row"><span class="meet-location">${locationLink}</span>${courseInfo}</div>
+              <div class="meet-time-row"><span class="meet-time">${MeetsBrowserSafety.escapeHtml(time)}</span></div>
+            </div>
+            ${weatherInfo}
+          </div>
+        </div>`;
+    }
+
+    const isFavoriteMeet = PreferencesService.meetIncludesFavoriteTeam(meet, favoriteTeam);
+    return `
+      <div class="meet-details${isFavoriteMeet ? ' favorite-meet' : ''}"${meetPoolAttribute}>
+        <div class="meet-info">
+          <div class="meet-teams">
+            ${formatMeetTeamLabel(meet.getHomeTeam(), 'home-team', favoriteTeam)}
+            <span class="vs">vs.</span>
+            ${formatMeetTeamLabel(meet.getVisitingTeam(), 'visiting-team', favoriteTeam)}
+          </div>
+          <div class="meet-location-time">
+            <div class="meet-location-row"><span class="meet-location">${locationLink}</span>${courseInfo}</div>
+            <div class="meet-time-row"><span class="meet-time">${MeetsBrowserSafety.escapeHtml(time)}</span></div>
+          </div>
+          ${weatherInfo}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/**
+ * Hydrates one requested meet-date disclosure after optional enrichment settles.
+ * @param {Element} meetCard - Meet date card to hydrate
+ * @returns {Promise<Element|null>} Hydrated detail container or null
+ */
+function hydrateMeetDateDetails(meetCard) {
+  const details = meetCard?.querySelector('.meet-date-details');
+  if (!details || details.dataset.meetDetailsHydrated === 'true') return Promise.resolve(details || null);
+  if (meetDetailsHydrationPromises.has(details)) return meetDetailsHydrationPromises.get(details);
+
+  details.setAttribute('aria-busy', 'true');
+  if (!details.hidden) details.innerHTML = MEET_DETAILS_LOADING_HTML;
+  const hydrationPromise = startMeetsBrowserEnrichment()
+    .then(() => {
+      const meets = meetsBrowserMeetGroups.get(meetCard.dataset.meetDate) || [];
+      details.innerHTML = renderMeetDateDetails(meets);
+      details.dataset.meetDetailsHydrated = 'true';
+      details.setAttribute('aria-busy', 'false');
+      return details;
+    })
+    .finally(() => meetDetailsHydrationPromises.delete(details));
+  meetDetailsHydrationPromises.set(details, hydrationPromise);
+  return hydrationPromise;
+}
+
+/**
+ * Refreshes only date details that a visitor already requested.
+ * @returns {void}
+ */
+function refreshHydratedMeetDateDetails() {
+  document.querySelectorAll('.meet-date-card').forEach(meetCard => {
+    const details = meetCard.querySelector('.meet-date-details[data-meet-details-hydrated="true"]');
+    if (!details) return;
+    details.innerHTML = renderMeetDateDetails(meetsBrowserMeetGroups.get(meetCard.dataset.meetDate) || []);
+  });
+}
+
 // ------------------------------
 //    EXISTING FUNCTIONS (Updated to use pool link helper)
 // ------------------------------
@@ -85,23 +344,6 @@ async function renderMeets(meets, preserveExpansion = false) {
     return;
   }
 
-  const favoriteTeamId = PreferencesService.get().favoriteTeamId;
-  const favoriteTeam = PreferencesService.findFavoriteTeam(meetsBrowserDataManager.getTeams().getAllTeams(), favoriteTeamId);
-  /**
-   * Formats a meet team label and marks the selected favorite team.
-   * @param {string} label - Published team label
-   * @param {string} className - CSS class for the team role
-   * @returns {string} Escaped team-label HTML
-   * @private
-   */
-  const formatTeamLabel = (label, className) => {
-    const displayLabel = label || (className === 'home-team' ? 'Home Team' : 'Visiting Team');
-    const isFavorite = PreferencesService.teamMatchesLabel(favoriteTeam, displayLabel);
-    const favoriteMarker = isFavorite
-      ? ' <span class="favorite-marker" role="img" aria-label="Favorite team" title="Favorite team">&#9733;</span>'
-      : '';
-    return `<span class="${className}">${MeetsBrowserSafety.escapeHtml(displayLabel)}${favoriteMarker}</span>`;
-  };
   const expandedDateValues = preserveExpansion
     ? new Set(Array.from(list.querySelectorAll('.meet-date-card')).filter(card => (
       card.querySelector('.meet-date-header__toggle')?.getAttribute('aria-expanded') === 'true'
@@ -140,9 +382,7 @@ async function renderMeets(meets, preserveExpansion = false) {
     meetsByDate[dateKey].push(meet);
   });
 
-  Object.keys(meetsByDate).forEach(dateKey => {
-    meetsByDate[dateKey] = PreferencesService.sortMeetsWithFavorite(meetsByDate[dateKey], favoriteTeam);
-  });
+  meetsBrowserMeetGroups = new Map(Object.values(meetsByDate).map(dateMeets => [dateMeets[0].date, dateMeets]));
 
   // Find the next upcoming meet date to expand
   let nextUpcomingDateKey = null;
@@ -165,7 +405,6 @@ async function renderMeets(meets, preserveExpansion = false) {
     const isCompleted = meetDate < today || (meetDateValue === easternTimeInfo.date
       && dateLiveStatuses.length > 0
       && dateLiveStatuses.every(status => status === MeetLiveStatus.CONCLUDED));
-    const isUpcoming = !isCompleted && meetDate >= today;
     const isToday = meetDate.toDateString() === today.toDateString();
     const relativeDayOffset = TimeUtils.getRelativeFutureDayOffset(meetDate, today);
     const relativeDay = TimeUtils.formatRelativeFutureDay(meetDate, today);
@@ -201,110 +440,9 @@ async function renderMeets(meets, preserveExpansion = false) {
             ${isCompleted ? '' : `<span class="visually-hidden">${isToday ? 'Meet is today' : 'Upcoming meet'}</span>`}
           </div>
         </div>
-        <div class="meet-date-details" id="${detailsId}"${shouldExpand ? '' : ' hidden'}>
+        <div class="meet-date-details" id="${detailsId}" data-meet-details-hydrated="false" aria-busy="${String(shouldExpand)}"${shouldExpand ? '' : ' hidden'}>
+          ${shouldExpand ? MEET_DETAILS_LOADING_HTML : ''}
     `;
-
-    meetsByDate[dateKey].forEach(meet => {
-      const location = meet.location || 'TBA';
-      const time = meet.getDisplayTime();
-      let poolData = null;
-
-      // Generate enhanced location link that links to pools.html page
-      let locationLink = MeetsBrowserSafety.escapeHtml(location);
-      let courseLabel = '';
-      if (meetsBrowserDataManager && typeof generateEnhancedPoolLink === 'function') {
-        try {
-          locationLink = generateEnhancedPoolLink(location, meetsBrowserDataManager, {
-            preferPoolsPage: true,
-            showBothLinks: false
-          }, meetsPoolLocationIndex);
-
-          // Add maps link for the maps icon
-          if (typeof getPoolDataFromLocation === 'function') {
-            poolData = getPoolDataFromLocation(location, meetsBrowserDataManager, meetsPoolLocationIndex);
-            courseLabel = formatPoolCourseLabel(poolData);
-            const safeMapsUrl = poolData && poolData.location
-              ? MeetsBrowserSafety.safeHttpUrl(poolData.location.googleMapsUrl)
-              : '';
-            if (safeMapsUrl) {
-              locationLink += ` <a href="${safeMapsUrl}" target="_blank" rel="noopener" class="maps-icon" aria-label="View ${MeetsBrowserSafety.escapeHtml(location)} on Google Maps">${IconCatalog.render('map')}</a>`;
-            }
-          }
-        } catch (error) {
-          console.warn('Error generating pool link for', location, ':', error);
-          locationLink = MeetsBrowserSafety.escapeHtml(location); // Fall back to plain text
-        }
-      }
-      const courseInfo = courseLabel
-        ? `<span class="meet-course">${MeetsBrowserSafety.escapeHtml(courseLabel)}</span>`
-        : '';
-
-      // Generate weather information for upcoming meets
-      let weatherInfo = '';
-      if (meet.weather && meet.weather.forecast && isUpcoming) {
-        const forecast = meet.weather.forecast;
-        weatherInfo = `
-          <div class="weather-info">
-            <span class="weather-temp">${MeetsBrowserSafety.escapeHtml(forecast.temperature)}°F</span>
-            <span class="weather-desc">${MeetsBrowserSafety.escapeHtml(forecast.shortForecast)}</span>
-          </div>
-        `;
-      }
-
-      const isSpecialMeet = meet.isSpecialMeet();
-      const isFavoriteMeet = PreferencesService.meetIncludesFavoriteTeam(meet, favoriteTeam);
-      const safeMeetPoolId = poolData && /^[a-zA-Z0-9_-]+$/.test(poolData.id || '')
-        ? MeetsBrowserSafety.escapeHtml(poolData.id)
-        : '';
-      const meetPoolAttribute = safeMeetPoolId ? ` data-meet-pool-id="${safeMeetPoolId}"` : '';
-
-      let meetContent;
-      if (isSpecialMeet) {
-        meetContent = `
-          <div class="meet-details special-meet"${meetPoolAttribute}>
-            <div class="meet-info">
-              <div class="special-meet-title">
-                <strong>${MeetsBrowserSafety.escapeHtml(meet.name || 'Special Meet')}</strong>
-              </div>
-              <div class="meet-location-time">
-                <div class="meet-location-row">
-                  <span class="meet-location">${locationLink}</span>
-                  ${courseInfo}
-                </div>
-                <div class="meet-time-row">
-                  <span class="meet-time">${MeetsBrowserSafety.escapeHtml(time)}</span>
-                </div>
-              </div>
-              ${weatherInfo}
-            </div>
-          </div>
-        `;
-      } else {
-        meetContent = `
-          <div class="meet-details${isFavoriteMeet ? ' favorite-meet' : ''}"${meetPoolAttribute}>
-            <div class="meet-info">
-              <div class="meet-teams">
-                ${formatTeamLabel(meet.getHomeTeam(), 'home-team')}
-                <span class="vs">vs.</span>
-                ${formatTeamLabel(meet.getVisitingTeam(), 'visiting-team')}
-              </div>
-              <div class="meet-location-time">
-                <div class="meet-location-row">
-                  <span class="meet-location">${locationLink}</span>
-                  ${courseInfo}
-                </div>
-                <div class="meet-time-row">
-                  <span class="meet-time">${MeetsBrowserSafety.escapeHtml(time)}</span>
-                </div>
-              </div>
-              ${weatherInfo}
-            </div>
-          </div>
-        `;
-      }
-
-      html += meetContent;
-    });
 
     html += `
         </div>
@@ -318,6 +456,9 @@ async function renderMeets(meets, preserveExpansion = false) {
   }
 
   list.innerHTML = html;
+  list.querySelectorAll('.meet-date-header__toggle[aria-expanded="true"]').forEach(toggle => {
+    void hydrateMeetDateDetails(toggle.closest('.meet-date-card'));
+  });
 }
 
 /**
@@ -325,7 +466,7 @@ async function renderMeets(meets, preserveExpansion = false) {
  */
 function refreshMeetsForPreferences() {
   if (!meetsBrowserDataManager || !document.getElementById('meetList')) return;
-  renderMeets(meetsBrowserMeets, true);
+  refreshHydratedMeetDateDetails();
 }
 
 /**
@@ -392,13 +533,17 @@ function toggleMeetDate(header) {
       { directoryName: 'meets' }
     );
   }
-  if (details) details.hidden = isExpanded;
+  if (details) {
+    details.hidden = isExpanded;
+    if (!isExpanded) void hydrateMeetDateDetails(meetCard);
+  }
 }
 
 /**
  * Expands and highlights a meet selected by validated URL parameters.
+ * @returns {Promise<void>} Promise settled after a valid linked meet is hydrated
  */
-function handleMeetUrlParameters() {
+async function handleMeetUrlParameters() {
   const urlParams = new URLSearchParams(window.location.search);
   const meetDate = urlParams.get('date');
   const poolId = urlParams.get('pool');
@@ -406,15 +551,18 @@ function handleMeetUrlParameters() {
 
   const meetCard = Array.from(document.querySelectorAll('.meet-date-card'))
     .find(card => card.dataset.meetDate === meetDate);
-  const linkedMeet = meetCard && Array.from(meetCard.querySelectorAll('.meet-details'))
-    .find(meet => meet.dataset.meetPoolId === poolId);
-  if (!meetCard || !linkedMeet) return;
+  if (!meetCard) return;
 
   meetCard.classList.remove('collapsed');
   const toggleButton = meetCard.querySelector('.meet-date-header__toggle');
   const details = meetCard.querySelector('.meet-date-details');
   if (toggleButton) toggleButton.setAttribute('aria-expanded', 'true');
   if (details) details.hidden = false;
+  await hydrateMeetDateDetails(meetCard);
+
+  const linkedMeet = Array.from(meetCard.querySelectorAll('.meet-details'))
+    .find(meet => meet.dataset.meetPoolId === poolId);
+  if (!linkedMeet) return;
 
   linkedMeet.classList.add('highlighted');
   linkedMeet.scrollIntoView({
@@ -441,10 +589,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   try {
     await initializeMeetsBrowser();
+    markMeetPerformance('primary-data-ready');
     const allMeets = meetsBrowserDataManager.getMeets().getAllMeets();
     meetsBrowserMeets = allMeets;
     await renderMeets(allMeets);
-    handleMeetUrlParameters();
+    markMeetPerformance('summary-visible');
+    void startMeetsBrowserEnrichment();
+    void handleMeetUrlParameters();
     scheduleNextMeetLiveStatusRefresh();
     setMeetListStatus(`Meet schedule loaded. ${allMeets.length} meets available.`, false);
 

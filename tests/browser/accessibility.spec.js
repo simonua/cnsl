@@ -100,9 +100,33 @@ for (const theme of ['light', 'dark']) {
           await expect(subscriptionCard.getByRole('link', { name: 'Subscribe to team events calendar' })).toBeVisible();
         }
 
+        if (scenario.name === 'meets') {
+          const meetCard = page.locator('.meet-date-card').first();
+          const meetToggle = meetCard.locator('.meet-date-header__toggle');
+          if (await meetToggle.getAttribute('aria-expanded') !== 'true') await meetToggle.click();
+          await expect(meetCard.locator('.meet-date-details')).toHaveAttribute('data-meet-details-hydrated', 'true');
+        }
+
         await expectNoAccessibilityViolations(page);
       });
     }
+  });
+}
+
+for (const theme of ['light', 'dark']) {
+  test(`[AX-MEETS-001-${theme.toUpperCase()}-HIGH-CONTRAST] meet disclosure focus and details pass WCAG in ${theme} high contrast`, async ({ page }) => {
+    await prepareStableWeatherResponses(page);
+    await seedPreferences(page, { theme, contrast: 'high' });
+    await page.goto('/meets.html');
+    await expect(page.locator('#meetList')).toHaveAttribute('aria-busy', 'false');
+
+    const meetCard = page.locator('.meet-date-card').first();
+    const meetToggle = meetCard.locator('.meet-date-header__toggle');
+    await meetToggle.hover();
+    await meetToggle.focus();
+    if (await meetToggle.getAttribute('aria-expanded') !== 'true') await page.keyboard.press('Enter');
+    await expect(meetCard.locator('.meet-date-details')).toHaveAttribute('data-meet-details-hydrated', 'true');
+    await expectNoAccessibilityViolations(page);
   });
 }
 
