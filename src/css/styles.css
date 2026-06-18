@@ -6458,6 +6458,10 @@ button.settings-dialog__close:focus {
   line-height: 1.45;
 }
 
+.settings-section .settings-checkbox {
+  padding-inline-start: 0.5rem;
+}
+
 .settings-checkbox input {
   accent-color: var(--primary-color);
   flex: 0 0 auto;
