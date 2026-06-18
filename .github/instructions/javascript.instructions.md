@@ -10,7 +10,7 @@ applyTo: "src/js/**/*.js"
 - Classes and functions become globals. Declare them with `class` or `function` at the top level.
 - Use the singleton pattern for managers: expose a `getXxxManager()` factory that caches the instance.
 - Standardize on `getDataManager()` for DataManager access — never `new DataManager()` directly.
-- Route templates list first-load dependencies explicitly. Optional interaction-driven dependencies may be loaded lazily when the loading boundary and resulting workflow are covered by browser tests.
+- Route templates list only summary-critical first-load dependencies explicitly. Optional interaction-driven dependencies may be loaded lazily when their order, build-version propagation, loading boundary, failure recovery, and resulting workflow are covered by browser tests.
 - Treat `src/js/` as browser application code. New runtime dependencies must come from explicit script order and `globalThis`, never from `require()`, `module.exports`, `process`, `__dirname`, or another Node.js API.
 - When a browser script begins referencing a global owned by another delivered script, treat that provider as a new explicit dependency. Search every route template, shared layout, lazy loader, and test browser-module manifest that loads the consumer; hoist the provider before the consumer in each applicable script list in the same change. Do not rely on the consumer's functions running only after a later script happens to load.
 - Do not add test-only behavior to a delivered browser module. Put fixtures, adapters, loaders, mocks, and export shims under `tests/`; put build-time Node.js code under `scripts/`.
@@ -21,7 +21,16 @@ applyTo: "src/js/**/*.js"
 
 - Use native DOM APIs (`document.getElementById`, `querySelector`, and event listeners) consistently with the existing controllers.
 - Do not add a DOM library for new behavior unless a broader architecture decision explicitly introduces one.
-- Prefer `DOMContentLoaded` for initialization when a deferred script is not sufficient.
+- A deferred route script may initialize immediately when its required DOM appears earlier in the document and every provider is already loaded; do not wait for `DOMContentLoaded` when that only delays primary data and useful summaries behind unrelated deferred work. Use `DOMContentLoaded` when the script is not deferred or its required DOM/lifecycle is not yet available.
+
+## Progressive Directory Loading
+
+- Distinguish network loading from model construction, summary rendering, optional enrichment, detail hydration, and paint. Add or preserve ordered performance marks for primary data ready, summaries visible, and optional enrichment settled when a route has those phases.
+- When a shared annual document contains all directory records, fetch and parse it once. Do not split it into per-card requests without measured byte or readiness benefit and a reviewed offline/cache contract.
+- Render lightweight summaries as the primary usable state. Keep collapsed detail containers empty and hydrate only the requested, favorite-expanded, or deep-linked card; do not generate large hidden subtrees during initial rendering.
+- Load optional detail scripts once in deterministic classic-script order, preserve the controller's build-version query, share pending data requests through `DataManager`, and settle `aria-busy` plus a helpful unavailable state when a dependency or enrichment step fails.
+- Start optional enrichment after summaries are visible so it cannot block primary readiness. Verify that paused optional requests still leave summaries usable and that enrichment does not replace focused controls, collapse disclosures, move scroll unexpectedly, duplicate annual-domain requests, or break offline details.
+- Treat below-the-fold rendering as a separate optimization from data loading. Use `content-visibility`, incremental insertion, or virtualization only with measured benefit and stable intrinsic sizing; verify keyboard order, browser find, deep-link scrolling, favorites, filtering/sorting counts, accessibility inspection, and desktop/mobile layout before retaining it.
 
 ## Code Organization
 

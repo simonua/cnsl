@@ -1,16 +1,14 @@
+const { DEVELOPMENT_BUILD_MARKER } = require('./scripts/lib/development-server.js');
+
 module.exports = {
-  files: [
-    'src/views/**/*.html',
-    'src/css/**/*.css',
-    'src/js/**/*.js',
-    'src/assets/data/2026/**/*.json'
-  ],
+  // posthtml.js writes this stable marker only after the complete output is ready.
+  files: [DEVELOPMENT_BUILD_MARKER],
   injectChanges: false,
   notify: false,
   open: false,
   port: 9090,
-  reloadDebounce: 1250,
-  reloadDelay: 2500,
+  reloadDebounce: 250,
+  reloadDelay: 0,
   script: {
     domain: () => ''
   },

@@ -20,6 +20,7 @@ description: "Use when working with the build pipeline, dev server, testing, lin
 | `pnpm test` | Run all unit tests for CI parity or an explicitly requested full-suite investigation |
 | `pnpm run test:coverage` | Run full delivered-JavaScript coverage for CI parity or an explicitly requested full-suite investigation |
 | `pnpm run test:browser:nightly` | Run the complete serialized browser and WCAG suite for CI or an explicit full-suite request |
+| `pnpm run measure:performance` | Clean build and measure the default desktop route, phase, request, byte, long-task, and PWA metrics |
 | `pnpm run lint` | Run ESLint on all JS files |
 | `pnpm run lint:fix` | Auto-fix lint issues |
 
@@ -27,9 +28,30 @@ Before starting a server or test command, inspect VS Code tasks and operating-sy
 
 Before opening any local page, confirm that port 9090 is listening and make a lightweight HTTP request to `http://localhost:9090/`. Reuse a healthy `CNSL: Start Development Server` process across chat sessions. If a task or process is recorded but the health check fails, inspect its output and process state, then recover the shared server rather than navigating to an unavailable page or launching a competing live-reload server.
 
+The development watcher uses nodemon's polling mode so source edits are detected reliably on Windows. After a successful development build, `posthtml.js` writes `tmp/development-build.txt`; BrowserSync watches only that stable marker and forces one full browser refresh against the complete `out/` artifact. The marker must stay outside `out/` because every build replaces that directory and would drop a file-specific watch. Do not disable nodemon's `legacyWatch` while polling or point BrowserSync directly at source files or the whole `out/` tree. Source events can reload before a rebuild finishes, and output-tree events can reload repeatedly while the directory is replaced.
+
 ## Dev CLI
 
 Run `\.\start.ps1` from PowerShell for the interactive developer menu. It covers environment setup, local servers, focused and complete verification, tests, PWA checks, and performance measurement.
+
+## Performance Measurement
+
+- The default `desktop` profile uses the standard browser context. The `mobile` profile uses a 390 by 844 viewport, and `mobile-slow` adds 4x CPU slowdown to that viewport.
+- Use at least three runs when drawing an optimization conclusion. Keep the profile, run count, built commit or working-tree state, and local machine comparable between before and after samples.
+- In PowerShell, run a slower-device diagnostic with:
+
+   ```powershell
+   $env:CNSL_PERF_PROFILE = 'mobile-slow'
+   $env:CNSL_PERF_RUNS = '3'
+   pnpm run measure:performance
+   Remove-Item Env:CNSL_PERF_PROFILE
+   Remove-Item Env:CNSL_PERF_RUNS
+   ```
+
+- Compare useful-route readiness and phase deltas before interpreting totals. `primary-data-ready` isolates the initial dependency/data path, `summary-visible` isolates primary rendering, and `optional-enrichment-settled` measures background completeness where supported.
+- Record median and spread, first contentful paint, DOM readiness, long-task time, annual-domain request counts, decoded/transferred bytes, installed first/repeat navigation, and PWA core/optional tiers. Do not treat `transferSize === 0` alone as proof of a service-worker cache hit.
+- A slower `mobile-slow` result demonstrates CPU sensitivity, not a viewport-only defect. Use the unthrottled `mobile` profile when the distinction affects the recommendation.
+- Performance budgets are warning thresholds until reviewed variance supports a blocking gate. Explain warnings and regressions rather than weakening a budget to make a run pass.
 
 ## Build Pipeline
 

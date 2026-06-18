@@ -11,12 +11,18 @@ const COLD_ORIGIN = 'http://127.0.0.1:4174';
 const PWA_ORIGIN = 'http://cnsl.test:4174';
 const RUN_COUNT = Number.parseInt(process.env.CNSL_PERF_RUNS || '5', 10);
 const BUDGET_SCALE = Number.parseFloat(process.env.CNSL_PERF_BUDGET_SCALE || '1');
+const PERFORMANCE_PROFILES = Object.freeze({
+  desktop: Object.freeze({ cpuSlowdownRate: 1, viewport: null }),
+  mobile: Object.freeze({ cpuSlowdownRate: 1, viewport: Object.freeze({ width: 390, height: 844 }) }),
+  'mobile-slow': Object.freeze({ cpuSlowdownRate: 4, viewport: Object.freeze({ width: 390, height: 844 }) })
+});
+const PERFORMANCE_PROFILE_NAME = process.env.CNSL_PERF_PROFILE || 'desktop';
+const PERFORMANCE_PROFILE = PERFORMANCE_PROFILES[PERFORMANCE_PROFILE_NAME];
 const PWA_CRITICAL_RESOURCE_BUDGET = 75;
-const POOL_PHASE_MARKS = Object.freeze([
-  'primary-data-ready',
-  'summary-visible',
-  'optional-enrichment-settled'
-]);
+const DIRECTORY_PHASE_MARKS = Object.freeze({
+  Pools: Object.freeze(['primary-data-ready', 'summary-visible', 'optional-enrichment-settled']),
+  Teams: Object.freeze(['primary-data-ready', 'summary-visible', 'optional-enrichment-settled'])
+});
 const ROUTES = [
   { budgetBytes: 500000, budgetRequests: 45, budgetUsableMs: 1200, name: 'Home', path: '/index.html', readySelector: '.home-view' },
   { budgetBytes: 900000, budgetRequests: 55, budgetUsableMs: 2000, name: 'Pools', path: '/pools.html', readySelector: '#poolList[aria-busy="false"]' },
@@ -141,7 +147,22 @@ async function configurePage(page, origin) {
   });
 }
 
+async function createMeasurementPage(browser, serviceWorkers) {
+  const context = await browser.newContext({
+    reducedMotion: 'reduce',
+    serviceWorkers,
+    ...(PERFORMANCE_PROFILE.viewport ? { viewport: PERFORMANCE_PROFILE.viewport } : {})
+  });
+  const page = await context.newPage();
+  if (PERFORMANCE_PROFILE.cpuSlowdownRate > 1) {
+    const session = await context.newCDPSession(page);
+    await session.send('Emulation.setCPUThrottlingRate', { rate: PERFORMANCE_PROFILE.cpuSlowdownRate });
+  }
+  return { context, page };
+}
+
 async function collectPageMetrics(page, route, usableMs, responseMetrics = null) {
+  const phaseNames = DIRECTORY_PHASE_MARKS[route.name] || [];
   const browserMetrics = await page.evaluate(({ phaseNames, routeName }) => {
     const resources = performance.getEntriesByType('resource');
     const navigation = performance.getEntriesByType('navigation')[0];
@@ -160,11 +181,12 @@ async function collectPageMetrics(page, route, usableMs, responseMetrics = null)
       if (resource.transferSize === 0 && resource.decodedBodySize > 0) cacheHits += 1;
     });
 
-    const phases = routeName === 'Pools' ? Object.fromEntries(phaseNames.map(phaseName => {
-      const entries = performance.getEntriesByName(`cnsl:pools:${phaseName}`, 'mark');
+    const routeMarkPrefix = routeName.toLowerCase();
+    const phases = Object.fromEntries(phaseNames.map(phaseName => {
+      const entries = performance.getEntriesByName(`cnsl:${routeMarkPrefix}:${phaseName}`, 'mark');
       const latestEntry = entries[entries.length - 1];
       return [phaseName, latestEntry ? Math.round(latestEntry.startTime) : null];
-    })) : {};
+    }));
 
     return {
       annualDomainRequests,
@@ -178,15 +200,14 @@ async function collectPageMetrics(page, route, usableMs, responseMetrics = null)
       transferredBytes,
       workerControlled: Boolean(navigator.serviceWorker?.controller)
     };
-  }, { phaseNames: POOL_PHASE_MARKS, routeName: route.name });
+  }, { phaseNames, routeName: route.name });
 
-  const missingPhase = POOL_PHASE_MARKS.find(phaseName => route.name === 'Pools'
-    && !Number.isFinite(browserMetrics.phases[phaseName]));
-  if (missingPhase) throw new Error(`Pools performance mark is missing: ${missingPhase}.`);
-  if (route.name === 'Pools') {
-    const phaseTimings = POOL_PHASE_MARKS.map(phaseName => browserMetrics.phases[phaseName]);
+  const missingPhase = phaseNames.find(phaseName => !Number.isFinite(browserMetrics.phases[phaseName]));
+  if (missingPhase) throw new Error(`${route.name} performance mark is missing: ${missingPhase}.`);
+  if (phaseNames.length > 0) {
+    const phaseTimings = phaseNames.map(phaseName => browserMetrics.phases[phaseName]);
     if (phaseTimings.some((timing, index) => index > 0 && timing < phaseTimings[index - 1])) {
-      throw new Error('Pools performance marks are not in lifecycle order.');
+      throw new Error(`${route.name} performance marks are not in lifecycle order.`);
     }
   }
 
@@ -211,8 +232,7 @@ async function navigateAndMeasure(page, origin, route, responseMetrics = null) {
 async function measureRoute(browser, route) {
   const samples = [];
   for (let run = 0; run < RUN_COUNT; run += 1) {
-    const context = await browser.newContext({ reducedMotion: 'reduce', serviceWorkers: 'block' });
-    const page = await context.newPage();
+    const { context, page } = await createMeasurementPage(browser, 'block');
     const responseJobs = [];
     const annualDomainRequests = new Map();
     const responseMetrics = { annualDomainRequests: {}, decodedBytes: 0, failedBodyReads: 0, requests: 0 };
@@ -275,8 +295,7 @@ async function measureWarmNavigation(browser) {
   const samples = [];
   const homeRoute = ROUTES.find(route => route.name === 'Home');
   for (let run = 0; run < RUN_COUNT; run += 1) {
-    const context = await browser.newContext({ reducedMotion: 'reduce', serviceWorkers: 'allow' });
-    const page = await context.newPage();
+    const { context, page } = await createMeasurementPage(browser, 'allow');
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
     await configurePage(page, PWA_ORIGIN);
@@ -378,17 +397,23 @@ async function main() {
       memoryBytes: os.totalmem(),
       node: process.version,
       platform: `${process.platform}-${process.arch}`,
+      profile: PERFORMANCE_PROFILE_NAME,
+      cpuSlowdownRate: PERFORMANCE_PROFILE.cpuSlowdownRate,
+      viewport: PERFORMANCE_PROFILE.viewport,
       runCount: RUN_COUNT
     })}`);
     console.log('Cold uncontrolled navigation:');
     printRouteTable(routeResults);
-    const poolMeasurement = routeResults.find(({ route }) => route.name === 'Pools').measurement;
-    console.table(Object.entries(poolMeasurement.phases).map(([phase, timing]) => ({
-      phase,
-      minMs: timing.min,
-      medianMs: timing.median,
-      maxMs: timing.max
-    })));
+    routeResults.filter(({ measurement }) => Object.keys(measurement.phases).length > 0)
+      .forEach(({ measurement, route }) => {
+        console.log(`${route.name} progressive phases:`);
+        console.table(Object.entries(measurement.phases).map(([phase, timing]) => ({
+          phase,
+          minMs: timing.min,
+          medianMs: timing.median,
+          maxMs: timing.max
+        })));
+      });
     console.log('Installed/controlled navigation in a persistent context:');
     printWarmTable(warmMeasurement);
     console.log(`Worker ${warmMeasurement.workerVersion}: ready median ${warmMeasurement.workerReadyMs.median} ms (${warmMeasurement.workerReadyMs.min}-${warmMeasurement.workerReadyMs.max} ms), cache resources median ${warmMeasurement.cacheResources.median}.`);
@@ -405,6 +430,9 @@ async function main() {
 function assertBuildExists() {
   if (!Number.isInteger(RUN_COUNT) || RUN_COUNT < 1) throw new Error('CNSL_PERF_RUNS must be a positive integer.');
   if (!Number.isFinite(BUDGET_SCALE) || BUDGET_SCALE <= 0) throw new Error('CNSL_PERF_BUDGET_SCALE must be a positive number.');
+  if (!PERFORMANCE_PROFILE) {
+    throw new Error(`CNSL_PERF_PROFILE must be one of: ${Object.keys(PERFORMANCE_PROFILES).join(', ')}.`);
+  }
   if (!fs.existsSync(path.join(OUT_DIR, 'precache-manifest.js'))) {
     throw new Error('Build output is missing. Run pnpm run build before measuring performance.');
   }
@@ -418,7 +446,9 @@ if (require.main === module) {
 }
 
 module.exports = {
+  DIRECTORY_PHASE_MARKS,
   DIRECTORY_ROUTES,
+  PERFORMANCE_PROFILES,
   PWA_CRITICAL_RESOURCE_BUDGET,
   ROUTES,
   maximumDomainRequests,

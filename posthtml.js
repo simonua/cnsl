@@ -4,6 +4,7 @@ const posthtml = require('posthtml');
 const { copyBrowserJavaScript } = require('./scripts/validate-browser-javascript');
 const appConfig = require('./scripts/adapters/app-config.js');
 const WeatherAlertService = require('./scripts/adapters/weather-alert-service.js');
+const { DEVELOPMENT_BUILD_MARKER } = require('./scripts/lib/development-server.js');
 const { CACHE_ON_USE_SCRIPT_RESOURCES, INSTALL_CRITICAL_PAGES } = require('./scripts/lib/pwa-resource-policy.js');
 const annualDataSourceDir = './src/assets/data';
 const activeSeason = String(appConfig.YEAR);
@@ -344,6 +345,12 @@ function writePwaArtifacts() {
   console.log(`Updated and copied service-worker.js with cache version: ${cacheVersion}`);
 }
 
+function writeDevelopmentBuildMarker() {
+  if (process.env.NODE_ENV !== 'development') return;
+  fs.mkdirSync(path.dirname(DEVELOPMENT_BUILD_MARKER), { recursive: true });
+  fs.writeFileSync(DEVELOPMENT_BUILD_MARKER, cacheVersion);
+}
+
 // Get all HTML files from src directory
 const files = fs.readdirSync(srcDir)
   .filter(file => file.endsWith('.html'));
@@ -377,6 +384,7 @@ const pageBuilds = files.map(file => {
 Promise.all(pageBuilds)
   .then(() => {
     writePwaArtifacts();
+    writeDevelopmentBuildMarker();
     console.log(`✅ [${timestamp()}] Build completed! Processed ${totalFiles} HTML files.`);
   })
   .catch(() => {

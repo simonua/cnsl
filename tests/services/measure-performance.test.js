@@ -1,7 +1,9 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const {
+  DIRECTORY_PHASE_MARKS,
   DIRECTORY_ROUTES,
+  PERFORMANCE_PROFILES,
   PWA_CRITICAL_RESOURCE_BUDGET,
   ROUTES,
   maximumDomainRequests,
@@ -53,7 +55,22 @@ describe('performance measurement reporting', () => {
     assert.throws(() => spread([]));
   });
 
-  it('should report route usability separately from progressive Pools phases', () => {
+  it('should define the same progressive lifecycle for Pools and Teams', () => {
+    assert.deepEqual(DIRECTORY_PHASE_MARKS, {
+      Pools: ['primary-data-ready', 'summary-visible', 'optional-enrichment-settled'],
+      Teams: ['primary-data-ready', 'summary-visible', 'optional-enrichment-settled']
+    });
+  });
+
+  it('should provide desktop, mobile viewport, and slower-mobile measurement profiles', () => {
+    assert.deepEqual(PERFORMANCE_PROFILES, {
+      desktop: { cpuSlowdownRate: 1, viewport: null },
+      mobile: { cpuSlowdownRate: 1, viewport: { width: 390, height: 844 } },
+      'mobile-slow': { cpuSlowdownRate: 4, viewport: { width: 390, height: 844 } }
+    });
+  });
+
+  it('should report route usability separately from progressive directory phases', () => {
     const summary = summarizeRouteSamples([
       createSample({
         annualDomainRequests: { pools: 1, teams: 1 },

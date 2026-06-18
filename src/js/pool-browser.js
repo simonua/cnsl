@@ -190,9 +190,10 @@ function loadSeasonInfo() {
 /**
  * Normalize the current pool status for card rendering.
  * @param {Object} pool - Pool data object
+ * @param {Pool|null} [poolModel] - Pre-resolved pool model
  * @returns {Object} - Status object with semantic kind, isOpen, status, and color
  */
-function getPoolStatus(pool) {
+function getPoolStatus(pool, poolModel = null) {
   if (!poolBrowserDataManager) {
     console.warn('Data manager not initialized');
     return {
@@ -203,7 +204,7 @@ function getPoolStatus(pool) {
     };
   }
 
-  const poolObj = poolBrowserDataManager.getPool(pool.name);
+  const poolObj = poolModel || poolBrowserDataManager.getPool(pool.name);
   if (!poolObj) {
     return {
       kind: 'closed',
@@ -225,11 +226,12 @@ function getPoolStatus(pool) {
 /**
  * Resolve the status indicator shown for the active availability filter.
  * @param {Object} pool - Pool data object
+ * @param {Pool|null} [poolModel] - Pre-resolved pool model
  * @returns {Object} Current status or a neutral future-day status
  */
-function getPoolCardStatus(pool) {
+function getPoolCardStatus(pool, poolModel = null) {
   return PoolDirectoryService.getFutureAvailabilityDayOffset(poolAvailabilityFilter) === null
-    ? getPoolStatus(pool)
+    ? getPoolStatus(pool, poolModel)
     : PoolStatus.STATUS_NOT_APPLICABLE;
 }
 
@@ -312,32 +314,6 @@ function getPoolRecord(poolId) {
 }
 
 /**
- * Formats the next public-use transition for a pool model.
- * @param {Pool|null} poolModel - Pool domain model
- * @param {Object} [options] - Status-summary formatting options
- * @returns {string} Public-use transition summary
- */
-function getPoolStatusSummary(poolModel, options = {}) {
-  if (!poolModel) return '';
-  return PoolScheduleDisplay.formatPublicStatusSummary(
-    poolModel.getPublicStatusTransitionToday(),
-    poolModel.isClosedToPublicAllDayToday(),
-    poolModel.isClosedToPublicForDay(),
-    options
-  );
-}
-
-/**
- * Gets a validated transition action from a pool model.
- * @param {Pool|null} poolModel - Pool domain model
- * @returns {string} Valid transition action, or an empty string
- */
-function getPoolTransitionAction(poolModel) {
-  const action = poolModel?.getPublicStatusTransitionToday()?.action;
-  return PoolTransitionAction.isValid(action) ? action : '';
-}
-
-/**
  * Build the collapsed-card availability summary for the active filter.
  * @param {Pool|null} poolModel - Pool domain model
  * @returns {{ text: string, label: string, action: string }} Display-ready availability summary
@@ -352,10 +328,19 @@ function getPoolCardAvailabilitySummary(poolModel) {
     return { ...summary, action: '' };
   }
 
+  const transition = poolModel.getPublicStatusTransitionToday();
+  const isClosedAllDay = poolModel.isClosedToPublicAllDayToday();
+  const isClosedForDay = poolModel.isClosedToPublicForDay();
+  const action = transition?.action;
   return {
-    text: getPoolStatusSummary(poolModel),
-    label: getPoolStatusSummary(poolModel, { useLongUnits: true }),
-    action: getPoolTransitionAction(poolModel)
+    text: PoolScheduleDisplay.formatPublicStatusSummary(transition, isClosedAllDay, isClosedForDay),
+    label: PoolScheduleDisplay.formatPublicStatusSummary(
+      transition,
+      isClosedAllDay,
+      isClosedForDay,
+      { useLongUnits: true }
+    ),
+    action: PoolTransitionAction.isValid(action) ? action : ''
   };
 }
 
@@ -901,9 +886,9 @@ function renderPools(pools) {
     const isExpanded = (isInitialRender && poolId === linkedPoolId)
       || (isFavorite ? preferences.favoritePoolExpanded : expandedPoolIds.has(poolId));
 
-    const poolStatus = getPoolCardStatus(pool);
-    const tooltipText = getStatusTooltip(poolStatus.kind);
     const poolModel = poolBrowserDataManager.getPool(poolName);
+    const poolStatus = getPoolCardStatus(pool, poolModel);
+    const tooltipText = getStatusTooltip(poolStatus.kind);
     const availabilitySummary = getPoolCardAvailabilitySummary(poolModel);
     const detailsViewModel = isExpanded ? createPoolDetailsViewModel(pool) : {};
 
@@ -1121,7 +1106,11 @@ function handlePoolDatePickerChange(event) {
   PoolCalendarControls.handleChange(event, { selectedWeek: navigatePoolToSelectedWeek });
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
+/**
+ * Starts the pool directory as soon as its deferred controller executes.
+ * @returns {Promise<void>} Promise settled after initial summaries and background enrichment begin
+ */
+async function startPoolBrowser() {
   if (globalThis.cnslSeasonState && globalThis.cnslSeasonState.isOffSeason) return;
   // Check if we're on the pools page before fetching data
   if (!document.getElementById("poolList")) {
@@ -1171,7 +1160,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     setPoolListStatus('The pool directory did not load. Please check your connection and refresh the page to try again.', false);
   }
-});
+}
+
+void startPoolBrowser();
 
 window.addEventListener(globalThis.PREFERENCES_CHANGED_EVENT_NAME, refreshPoolsForPreferences);
 document.addEventListener('visibilitychange', handlePoolPageVisibilityChange);

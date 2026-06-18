@@ -18,7 +18,7 @@
   "pollingInterval": 2000,
   "verbose": false,
   "colours": true,
-  "legacyWatch": false,
+  "legacyWatch": true,
   "runOnChangeOnly": false,
   "nodeArgs": [],
   "exec": "node posthtml.js",

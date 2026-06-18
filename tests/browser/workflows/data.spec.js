@@ -34,6 +34,11 @@ for (const scenario of directoryScenarios) {
     await page.goto(scenario.path);
     await expect(page.locator(scenario.list)).toHaveAttribute('aria-busy', 'false');
     await expect(page.locator(`${scenario.list} ${scenario.item}`).first()).toBeVisible();
+    if (scenario.reference === 'TEAMS') {
+      await expect.poll(() => page.evaluate(() => (
+        performance.getEntriesByName('cnsl:teams:optional-enrichment-settled').length
+      ))).toBe(1);
+    }
     expect(requestedDomains.sort()).toEqual(scenario.domains);
   });
 }
@@ -209,6 +214,61 @@ test('[WF-DATA-007-POOLS] pool summaries and requested details render before opt
   }
 
   await expect.poll(() => page.evaluate(() => performance.getEntriesByName('cnsl:pools:optional-enrichment-settled').length)).toBe(1);
+});
+
+test('[WF-DATA-009-TEAMS] team summaries render before optional details enrichment settles', async ({ page }) => {
+  let releaseOptionalRequests;
+  const optionalRequestsPaused = new Promise(resolve => {
+    releaseOptionalRequests = resolve;
+  });
+  for (const domain of ['pools', 'meets']) {
+    await page.route(getAnnualDataRoute(domain), async route => {
+      await optionalRequestsPaused;
+      await route.continue();
+    });
+  }
+
+  try {
+    await page.goto('/teams.html', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('#teamList')).toHaveAttribute('aria-busy', 'false');
+    const teamCount = await page.locator('#teamList .team-card').count();
+    expect(teamCount).toBeGreaterThan(0);
+    await expect(page.locator('#teamList .team-details[data-team-details-hydrated="false"]')).toHaveCount(teamCount);
+    await expect(page.locator('#teamList .team-details > *')).toHaveCount(0);
+    expect(await page.evaluate(() => performance.getEntriesByName('cnsl:teams:summary-visible').length)).toBe(1);
+    expect(await page.evaluate(() => performance.getEntriesByName('cnsl:teams:optional-enrichment-settled').length)).toBe(0);
+
+    const firstTeam = page.locator('#teamList .team-card').first();
+    await firstTeam.locator('.team-header__toggle').click();
+    await expect(firstTeam.locator('.team-details')).toBeVisible();
+    await expect(firstTeam.locator('.team-details')).toHaveAttribute('aria-busy', 'true');
+    await expect(firstTeam.locator('.team-details')).toHaveAttribute('data-team-details-hydrated', 'false');
+  } finally {
+    releaseOptionalRequests();
+  }
+
+  const firstTeam = page.locator('#teamList .team-card').first();
+  await expect(firstTeam.locator('.team-details')).toHaveAttribute('aria-busy', 'false');
+  await expect(firstTeam.locator('.team-details')).toHaveAttribute('data-team-details-hydrated', 'true');
+  await expect(firstTeam.locator('.favorite-week')).toBeVisible();
+  await expect.poll(() => page.evaluate(() => performance.getEntriesByName('cnsl:teams:optional-enrichment-settled').length)).toBe(1);
+});
+
+test('[WF-DATA-010-TEAMS] team summaries remain usable when optional detail scripts fail', async ({ page }) => {
+  await page.route('**/js/services/time-utils.js*', route => route.fulfill({ status: 503, body: '' }));
+  await page.goto('/teams.html');
+
+  await expect(page.locator('#teamList')).toHaveAttribute('aria-busy', 'false');
+  await expect(page.locator('#teamList .team-card').first()).toBeVisible();
+  await expect.poll(() => page.evaluate(() => (
+    performance.getEntriesByName('cnsl:teams:optional-enrichment-settled').length
+  ))).toBe(1);
+
+  const firstTeam = page.locator('#teamList .team-card').first();
+  await firstTeam.locator('.team-header__toggle').click();
+  await expect(firstTeam.locator('.team-details')).toHaveAttribute('aria-busy', 'false');
+  await expect(firstTeam.locator('.team-details')).toHaveAttribute('data-team-details-hydrated', 'true');
+  await expect(firstTeam.locator('.team-details')).toContainText('Team details are unavailable.');
 });
 
 test('[WF-DATA-008] generic routes use compact weather eligibility without loading pools data', async ({ page }) => {

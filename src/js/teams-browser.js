@@ -1,10 +1,89 @@
 // Global data manager instance for teams browser
 let teamsBrowserDataManager = null;
 let teamsPoolLocationIndex = new Map();
+let teamsBrowserTeams = [];
+let teamsBrowserEnrichmentPromise = null;
+const teamDetailsHydrationPromises = new Map();
 const TeamsBrowserSafety = HtmlSafety;
 const AVAILABLE_TEAM_LOGOS = new Set([
   'ccc', 'cfhss', 'dsd', 'hcc', 'hd', 'kcw', 'lrm', 'obb', 'omts', 'pls', 'prp', 'prr', 'thl', 'wlw'
 ]);
+const TEAM_DETAILS_LOADING_HTML = '<p class="team-details__loading" role="status">Loading team details...</p>';
+const TEAM_DETAILS_UNAVAILABLE_HTML = '<p class="team-details__loading" role="status">Team details are unavailable. Please refresh the page to try again.</p>';
+const TEAM_DETAILS_DEPENDENCIES = Object.freeze([
+  'js/services/time-utils.js',
+  'js/types/pool-enums.js',
+  'js/types/schedule-state.js',
+  'js/models/pool-schedule.js',
+  'js/services/pool-period-schedule-service.js',
+  'js/services/pool-link-helper.js',
+  'js/services/team-schedule-service.js',
+  'js/models/pool.js',
+  'js/models/meet.js',
+  'js/managers/pools-manager.js',
+  'js/managers/meets-manager.js',
+  'js/services/team-agenda-display.js'
+]);
+const teamsBrowserControllerSource = document.currentScript && document.currentScript.src
+  ? new URL(document.currentScript.src, document.baseURI)
+  : null;
+const teamsBrowserAssetVersion = teamsBrowserControllerSource
+  ? teamsBrowserControllerSource.searchParams.get('v')
+  : '';
+let teamsBrowserDependenciesPromise = null;
+
+/**
+ * Records a team-directory performance milestone when the Performance API is available.
+ * @param {string} markName - Team milestone name
+ */
+function markTeamPerformance(markName) {
+  if (globalThis.performance && typeof globalThis.performance.mark === 'function') {
+    globalThis.performance.mark(`cnsl:teams:${markName}`);
+  }
+}
+
+/**
+ * Applies the controller asset version to a team-detail dependency URL.
+ * @param {string} source - Relative dependency source
+ * @returns {string} Versioned dependency URL or the unchanged relative source
+ */
+function getTeamDependencySource(source) {
+  if (!teamsBrowserAssetVersion) return source;
+
+  const dependencySource = new URL(source, document.baseURI);
+  dependencySource.searchParams.set('v', teamsBrowserAssetVersion);
+  return dependencySource.toString();
+}
+
+/**
+ * Appends one classic team-detail dependency and resolves after it loads.
+ * @param {string} source - Relative dependency source
+ * @returns {Promise<void>} Promise settled when the dependency loads or fails
+ */
+function loadTeamDependency(source) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = getTeamDependencySource(source);
+    script.dataset.teamDetailsDependency = source;
+    script.addEventListener('load', resolve, { once: true });
+    script.addEventListener('error', () => reject(new Error(`Unable to load ${source}.`)), { once: true });
+    document.head.appendChild(script);
+  });
+}
+
+/**
+ * Loads team-detail dependencies once in their classic-script order.
+ * @returns {Promise<void>} Promise settled when all team-detail dependencies load
+ */
+function loadTeamDetailDependencies() {
+  if (!teamsBrowserDependenciesPromise) {
+    teamsBrowserDependenciesPromise = TEAM_DETAILS_DEPENDENCIES.reduce(
+      (loadPromise, source) => loadPromise.then(() => loadTeamDependency(source)),
+      Promise.resolve()
+    );
+  }
+  return teamsBrowserDependenciesPromise;
+}
 
 
 // ------------------------------
@@ -18,9 +97,38 @@ const AVAILABLE_TEAM_LOGOS = new Set([
 async function initializeTeamsBrowser() {
   if (!teamsBrowserDataManager) {
     teamsBrowserDataManager = getDataManager();
-    await teamsBrowserDataManager.initialize(['pools', 'teams', 'meets']);
-    teamsPoolLocationIndex = globalThis.createPoolLocationIndex(teamsBrowserDataManager.getPools().getAllPools());
+    await teamsBrowserDataManager.initialize(['teams']);
+    markTeamPerformance('primary-data-ready');
   }
+}
+
+/**
+ * Loads pool and meet context once without blocking the initial team summaries.
+ * @returns {Promise<boolean>} Promise resolving whether team-detail dependencies are available
+ */
+function startTeamsBrowserEnrichment() {
+  if (teamsBrowserEnrichmentPromise) return teamsBrowserEnrichmentPromise;
+
+  teamsBrowserEnrichmentPromise = loadTeamDetailDependencies().then(() => Promise.allSettled([
+    teamsBrowserDataManager.initialize(['pools']),
+    teamsBrowserDataManager.initialize(['meets'])
+  ])).then(([poolsResult, meetsResult]) => {
+    if (poolsResult.status === 'fulfilled') {
+      teamsPoolLocationIndex = globalThis.createPoolLocationIndex(teamsBrowserDataManager.getPools().getAllPools());
+    } else {
+      console.warn('[Teams Browser] Pool links are unavailable:', poolsResult.reason);
+    }
+    if (meetsResult.status === 'rejected') {
+      console.warn('[Teams Browser] Meet schedules are unavailable:', meetsResult.reason);
+    }
+    markTeamPerformance('optional-enrichment-settled');
+    return true;
+  }).catch(error => {
+    console.warn('[Teams Browser] Team details are unavailable:', error);
+    markTeamPerformance('optional-enrichment-settled');
+    return false;
+  });
+  return teamsBrowserEnrichmentPromise;
 }
 
 /**
@@ -510,6 +618,116 @@ function formatTeamStaff(staff) {
 }
 
 /**
+ * Builds the detail markup for one team after pool and meet context has settled.
+ * @param {Object} team - Published team record
+ * @returns {string} Team detail HTML
+ */
+function renderTeamDetails(team) {
+  const teamName = team.name || 'Unknown Team';
+  const safeShortName = TeamsBrowserSafety.escapeHtml(team.shortName || teamName);
+  const teamId = String(team.id || '');
+  const teamUrl = TeamsBrowserSafety.safeHttpUrl(team.url);
+  const practiceUrl = TeamsBrowserSafety.safeHttpUrl(team.practice && team.practice.url);
+  const calendarUrl = TeamsBrowserSafety.safeHttpUrl(team.calendarUrl);
+  const eventsSubscriptionUrl = TeamsBrowserSafety.safeHttpUrl(team.eventsSubscriptionUrl);
+  const resultsUrl = TeamsBrowserSafety.safeHttpUrl(team.resultsUrl);
+  const merchandiseUrl = TeamsBrowserSafety.safeHttpUrl(team.merchandiseUrl);
+  const boosterUrl = TeamsBrowserSafety.safeHttpUrl(team.booster && team.booster.url);
+  const homePools = Array.isArray(team.homePools) ? team.homePools : [];
+  const homePool = homePools[0] || '';
+  const poolData = homePool ? findPoolByName(homePool) : null;
+  const meets = teamsBrowserDataManager.getMeets().getAllMeets();
+  const upcomingEvents = globalThis.TeamAgendaDisplay.getUpcomingEvents(team, meets);
+  const agendaTitleId = `team-agenda-title-${String(teamId || teamName).replace(/[^a-zA-Z0-9_-]/g, '-')}`;
+  const schedulesHtml = formatSchedules(team, meets);
+  const staffHtml = formatTeamStaff(team.staff);
+  const upcomingEventsHtml = `
+    <section class="favorite-week" aria-labelledby="${agendaTitleId}">
+      <div class="favorite-week__heading">
+        <h3 id="${agendaTitleId}">Upcoming events</h3>
+      </div>
+      ${upcomingEvents.length === 0 ? `<p class="favorite-week__status">${TeamsBrowserSafety.escapeHtml(globalThis.TeamAgendaDisplay.getStatus(upcomingEvents))}</p>` : ''}
+      ${globalThis.TeamAgendaDisplay.renderEvents(upcomingEvents, 4, teamsPoolLocationIndex)}
+    </section>
+  `;
+
+  return `
+    ${merchandiseUrl ? `
+      <a href="${merchandiseUrl}" target="_blank" rel="noopener noreferrer" class="team-merchandise" data-analytics-link-purpose="merchandise">
+        <span class="team-merchandise__icon" aria-hidden="true">${IconCatalog.render('shirt-plus')}</span>
+        <span>Get Your Official ${safeShortName} Gear!<span class="visually-hidden"> (opens in new tab)</span></span>
+      </a>
+    ` : ''}
+
+    ${upcomingEventsHtml}
+
+    ${homePool ? `
+      <div class="detail-item">
+        <strong><span class="detail-item__icon" aria-hidden="true">${IconCatalog.render('pool')}</span> Home Pool:</strong> ${poolData ?
+          getEnhancedPoolLink(homePool) :
+          TeamsBrowserSafety.escapeHtml(homePool)
+        }
+      </div>
+    ` : ''}
+
+    ${staffHtml}
+
+    ${schedulesHtml}
+
+    ${teamUrl || practiceUrl || boosterUrl ? `
+      <div class="team-actions team-actions--website">
+        ${teamUrl ? `<a href="${teamUrl}" target="_blank" rel="noopener" class="btn">${IconCatalog.render('globe')}Team Website</a>` : ''}
+        ${practiceUrl ? `<a href="${practiceUrl}" target="_blank" rel="noopener" class="btn">${IconCatalog.render('calendar')}Practice Schedule</a>` : ''}
+        ${boosterUrl ? `<a href="${boosterUrl}" target="_blank" rel="noopener noreferrer" class="btn">Booster Club</a>` : ''}
+      </div>
+    ` : ''}
+
+    ${calendarUrl || eventsSubscriptionUrl ? `
+      <div class="team-actions team-actions--calendar">
+        ${calendarUrl ? `<a href="${calendarUrl}" target="_blank" rel="noopener" class="btn">${IconCatalog.render('calendar')}Team Calendar</a>` : ''}
+        ${eventsSubscriptionUrl ? `<a href="${eventsSubscriptionUrl}" target="_blank" rel="noopener" class="btn">${IconCatalog.render('calendar')}Subscribe<span class="visually-hidden"> to team events calendar</span></a>` : ''}
+      </div>
+    ` : ''}
+
+    ${resultsUrl ? `
+      <div class="team-actions">
+        <a href="${resultsUrl}" target="_blank" rel="noopener" class="btn">${IconCatalog.render('trophy')}Swim Meet Results</a>
+      </div>
+    ` : ''}
+  `;
+}
+
+/**
+ * Populates one team's details after shared enrichment without rendering hidden siblings.
+ * @param {Element} teamCard - Team card whose detail region should be populated
+ * @returns {Promise<Element|null>} Hydrated detail region, when present
+ */
+async function hydrateTeamDetails(teamCard) {
+  const details = teamCard && teamCard.querySelector('.team-details');
+  if (!details || details.dataset.teamDetailsHydrated === 'true') return details;
+
+  const teamId = teamCard.dataset.teamId;
+  let hydrationPromise = teamDetailsHydrationPromises.get(teamId);
+  if (!hydrationPromise) {
+    hydrationPromise = startTeamsBrowserEnrichment().then(detailsAvailable => {
+      if (!detailsAvailable) return TEAM_DETAILS_UNAVAILABLE_HTML;
+      const team = teamsBrowserTeams.find(candidate => String(candidate.id || '') === teamId);
+      return team ? renderTeamDetails(team) : '';
+    }).finally(() => teamDetailsHydrationPromises.delete(teamId));
+    teamDetailsHydrationPromises.set(teamId, hydrationPromise);
+  }
+
+  details.setAttribute('aria-busy', 'true');
+  if (!details.hidden) details.innerHTML = TEAM_DETAILS_LOADING_HTML;
+  const detailsHtml = await hydrationPromise;
+  if (!details.isConnected) return null;
+  details.innerHTML = detailsHtml;
+  details.dataset.teamDetailsHydrated = 'true';
+  details.setAttribute('aria-busy', 'false');
+  return details;
+}
+
+/**
  * Toggles the collapsed state of a team card
  * @param {Element} toggleButton - The disclosure button
  */
@@ -519,6 +737,13 @@ function toggleTeamCard(toggleButton) {
   const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
   teamCard.classList.toggle('collapsed', isExpanded);
   toggleButton.setAttribute('aria-expanded', String(!isExpanded));
+  if (details) {
+    details.hidden = isExpanded;
+    if (!isExpanded) {
+      details.innerHTML = details.dataset.teamDetailsHydrated === 'true' ? details.innerHTML : TEAM_DETAILS_LOADING_HTML;
+      void hydrateTeamDetails(teamCard);
+    }
+  }
   if (!isExpanded && window.cnslAnalytics) {
     window.cnslAnalytics.trackInteraction(
       AnalyticsInteractionType.DIRECTORY_DETAIL_OPEN,
@@ -535,7 +760,6 @@ function toggleTeamCard(toggleButton) {
       });
     }
   }
-  if (details) details.hidden = isExpanded;
 }
 
 /**
@@ -555,6 +779,10 @@ function renderTeams(teams) {
   const preferences = PreferencesService.get();
   const favoriteTeamId = preferences.favoriteTeamId;
   const favoriteTeamExpanded = preferences.favoriteTeamExpanded;
+  const expandedTeamIds = new Set(Array.from(list.querySelectorAll('.team-header__toggle[aria-expanded="true"]'))
+    .map(toggle => toggle.closest('.team-card')?.dataset.teamId)
+    .filter(Boolean));
+  const linkedTeamId = new URLSearchParams(window.location.search).get('team');
   /**
    * Compares team records by display name.
     * @param {Object} a - First team record
@@ -573,43 +801,16 @@ function renderTeams(teams) {
   const html = sortedTeams.map(team => {
     const teamName = team.name || 'Unknown Team';
     const safeTeamName = TeamsBrowserSafety.escapeHtml(teamName);
-    const safeShortName = TeamsBrowserSafety.escapeHtml(team.shortName || teamName);
     const teamId = String(team.id || '');
     const safeTeamId = TeamsBrowserSafety.escapeHtml(teamId);
     const detailsId = `team-details-${String(teamId || teamName).replace(/[^a-zA-Z0-9_-]/g, '-')}`;
-    const teamUrl = TeamsBrowserSafety.safeHttpUrl(team.url);
-    const practiceUrl = TeamsBrowserSafety.safeHttpUrl(team.practice && team.practice.url);
-    const calendarUrl = TeamsBrowserSafety.safeHttpUrl(team.calendarUrl);
-    const eventsSubscriptionUrl = TeamsBrowserSafety.safeHttpUrl(team.eventsSubscriptionUrl);
-    const resultsUrl = TeamsBrowserSafety.safeHttpUrl(team.resultsUrl);
-    const merchandiseUrl = TeamsBrowserSafety.safeHttpUrl(team.merchandiseUrl);
-    const boosterUrl = TeamsBrowserSafety.safeHttpUrl(team.booster && team.booster.url);
     const isFavorite = teamId === favoriteTeamId;
-    const isExpanded = isFavorite && favoriteTeamExpanded;
-    const homePools = Array.isArray(team.homePools) ? team.homePools : [];
-    const homePool = homePools[0] || '';
+    const isExpanded = expandedTeamIds.has(teamId)
+      || teamId === linkedTeamId
+      || (isFavorite && favoriteTeamExpanded);
 
     // Create team logo HTML
     const logoHtml = createTeamLogo(teamId);
-
-    // Find pool data for the home pool using data manager
-    const poolData = homePool ? findPoolByName(homePool) : null;
-
-    const upcomingEvents = globalThis.TeamAgendaDisplay.getUpcomingEvents(team, teamsBrowserDataManager.getMeets().getAllMeets());
-    const agendaTitleId = `team-agenda-title-${String(teamId || teamName).replace(/[^a-zA-Z0-9_-]/g, '-')}`;
-
-    const schedulesHtml = formatSchedules(team, teamsBrowserDataManager.getMeets().getAllMeets());
-    const staffHtml = formatTeamStaff(team.staff);
-
-    const upcomingEventsHtml = `
-      <section class="favorite-week" aria-labelledby="${agendaTitleId}">
-        <div class="favorite-week__heading">
-          <h3 id="${agendaTitleId}">Upcoming events</h3>
-        </div>
-        ${upcomingEvents.length === 0 ? `<p class="favorite-week__status">${TeamsBrowserSafety.escapeHtml(globalThis.TeamAgendaDisplay.getStatus(upcomingEvents))}</p>` : ''}
-        ${globalThis.TeamAgendaDisplay.renderEvents(upcomingEvents, 4, teamsPoolLocationIndex)}
-      </section>
-    `;
 
     return `
       <div class="team-card ${isFavorite ? `favorite-card${isExpanded ? '' : ' collapsed'}` : 'collapsed'}" data-team-card data-team-id="${safeTeamId}" data-analytics-context="team_details">
@@ -620,58 +821,18 @@ function renderTeams(teams) {
           </div>
         </div>
 
-        <div class="team-details" id="${detailsId}"${isExpanded ? '' : ' hidden'}>
-          ${merchandiseUrl ? `
-            <a href="${merchandiseUrl}" target="_blank" rel="noopener noreferrer" class="team-merchandise" data-analytics-link-purpose="merchandise">
-              <span class="team-merchandise__icon" aria-hidden="true">${IconCatalog.render('shirt-plus')}</span>
-              <span>Get Your Official ${safeShortName} Gear!<span class="visually-hidden"> (opens in new tab)</span></span>
-            </a>
-          ` : ''}
-
-          ${upcomingEventsHtml}
-
-          ${homePool ? `
-            <div class="detail-item">
-              <strong><span class="detail-item__icon" aria-hidden="true">${IconCatalog.render('pool')}</span> Home Pool:</strong> ${poolData ?
-                getEnhancedPoolLink(homePool) :
-                TeamsBrowserSafety.escapeHtml(homePool)
-              }
-            </div>
-          ` : ''}
-
-          ${staffHtml}
-
-          ${schedulesHtml}
-
-          ${teamUrl || practiceUrl || boosterUrl ? `
-            <div class="team-actions team-actions--website">
-              ${teamUrl ? `<a href="${teamUrl}" target="_blank" rel="noopener" class="btn">${IconCatalog.render('globe')}Team Website</a>` : ''}
-              ${practiceUrl ? `<a href="${practiceUrl}" target="_blank" rel="noopener" class="btn">${IconCatalog.render('calendar')}Practice Schedule</a>` : ''}
-              ${boosterUrl ? `<a href="${boosterUrl}" target="_blank" rel="noopener noreferrer" class="btn">Booster Club</a>` : ''}
-            </div>
-          ` : ''}
-
-          ${calendarUrl || eventsSubscriptionUrl ? `
-            <div class="team-actions team-actions--calendar">
-              ${calendarUrl ? `<a href="${calendarUrl}" target="_blank" rel="noopener" class="btn">${IconCatalog.render('calendar')}Team Calendar</a>` : ''}
-              ${eventsSubscriptionUrl ? `<a href="${eventsSubscriptionUrl}" target="_blank" rel="noopener" class="btn">${IconCatalog.render('calendar')}Subscribe<span class="visually-hidden"> to team events calendar</span></a>` : ''}
-            </div>
-          ` : ''}
-
-          ${resultsUrl ? `
-            <div class="team-actions">
-              ${resultsUrl ?
-                `<a href="${resultsUrl}" target="_blank" rel="noopener" class="btn">${IconCatalog.render('trophy')}Swim Meet Results</a>` :
-                ''
-              }
-            </div>
-          ` : ''}
+        <div class="team-details" id="${detailsId}" data-team-details-hydrated="false" aria-busy="${String(isExpanded)}"${isExpanded ? '' : ' hidden'}>
+          ${isExpanded ? TEAM_DETAILS_LOADING_HTML : ''}
         </div>
       </div>
     `;
   }).join('');
 
-    list.innerHTML = html;
+  list.innerHTML = html;
+  list.querySelectorAll('.team-header__toggle[aria-expanded="true"]').forEach(toggle => {
+    const teamCard = toggle.closest('.team-card');
+    if (teamCard) void hydrateTeamDetails(teamCard);
+  });
 }
 
   /**
@@ -679,7 +840,8 @@ function renderTeams(teams) {
    */
 function refreshTeamsForPreferences() {
   if (!teamsBrowserDataManager || !document.getElementById('teamList')) return;
-  renderTeams(teamsBrowserDataManager.getTeams().getAllTeams());
+  teamsBrowserTeams = teamsBrowserDataManager.getTeams().getAllTeams();
+  renderTeams(teamsBrowserTeams);
 }
 
 /**
@@ -701,7 +863,11 @@ function handleTeamUrlParameter() {
   const toggleButton = teamCard.querySelector('.team-header__toggle');
   const details = teamCard.querySelector('.team-details');
   if (toggleButton) toggleButton.setAttribute('aria-expanded', 'true');
-  if (details) details.hidden = false;
+  if (details) {
+    details.hidden = false;
+    details.innerHTML = details.dataset.teamDetailsHydrated === 'true' ? details.innerHTML : TEAM_DETAILS_LOADING_HTML;
+    void hydrateTeamDetails(teamCard);
+  }
 
   teamCard.classList.add('highlighted');
   teamCard.scrollIntoView({
@@ -714,7 +880,11 @@ function handleTeamUrlParameter() {
   }, 3000);
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
+/**
+ * Starts the team directory as soon as its deferred controller executes.
+ * @returns {Promise<void>} Promise settled after initial summaries and background enrichment begin
+ */
+async function startTeamsBrowser() {
   if (globalThis.cnslSeasonState && globalThis.cnslSeasonState.isOffSeason) return;
   // Check if we're on the teams page before fetching data
   if (!document.getElementById("teamList")) {
@@ -743,9 +913,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Get teams from the data manager
     const teamsManager = teamsBrowserDataManager.getTeams();
     const teams = teamsManager.getAllTeams();
+    teamsBrowserTeams = teams;
 
     renderTeams(teams);
+    markTeamPerformance('summary-visible');
     setTeamListStatus(`Team directory loaded. ${teams.length} teams available.`, false);
+    void startTeamsBrowserEnrichment();
 
     // Handle team URL parameter for direct linking
     handleTeamUrlParameter();
@@ -758,6 +931,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     setTeamListStatus('The team directory did not load. Please check your connection and refresh the page to try again.', false);
   }
-});
+}
+
+void startTeamsBrowser();
 
 window.addEventListener(globalThis.PREFERENCES_CHANGED_EVENT_NAME, refreshTeamsForPreferences);
