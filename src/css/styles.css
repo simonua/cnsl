@@ -3750,6 +3750,12 @@ html[data-hide-home-intro="true"] .welcome-section {
   white-space: nowrap;
 }
 
+@media (min-width: 48.0625rem) {
+  .pool-hours .pool-status-countdown {
+    font-size: 1rem;
+  }
+}
+
 .pool-hours .pool-status-countdown--opens {
   color: var(--success-text-color);
 }
