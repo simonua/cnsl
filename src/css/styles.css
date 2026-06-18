@@ -1087,7 +1087,7 @@ main.container {
 }
 
 .home-view {
-  padding-inline: 0.5rem;
+  padding-inline: 0.25rem;
 }
 
 .off-season-message {
@@ -2045,25 +2045,35 @@ button.share-qr-dialog__close:focus {
 }
 
 @media (max-width: 30rem) {
+  main.container:has(.home-view) {
+    padding-inline: 0.5rem;
+  }
+
   .share-site__links {
     display: grid;
-    gap: 0.5rem;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0.375rem;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
   }
 
   .share-site__links .share-site__link {
-    grid-column: span 2;
+    gap: 0.25rem;
+    grid-column: span 4;
     min-width: 0;
-    padding-inline: 0.5rem;
+    padding-inline: 0.25rem;
+    white-space: nowrap;
     width: 100%;
   }
 
   .share-site__links .share-site__link:nth-child(4) {
-    grid-column: 2 / span 2;
+    grid-column: 2 / span 6;
   }
 
   .share-site__links .share-site__link:nth-child(5) {
-    grid-column: 4 / span 2;
+    grid-column: 8 / span 4;
+  }
+
+  .share-site {
+    padding-inline: 0;
   }
 }
 
@@ -4309,6 +4319,10 @@ html[data-hide-home-intro="true"] .welcome-section {
   color: var(--text-dark);
 }
 
+.footer__data-freshness time {
+  white-space: nowrap;
+}
+
 .footer__weather-freshness[aria-hidden="true"] {
   visibility: hidden;
 }
@@ -5402,7 +5416,7 @@ html[data-hide-home-intro="true"] .welcome-section {
 
   .season-info {
     margin-bottom: 1.5rem;
-    padding: 0 0.5rem;
+    padding: 0;
   }
 
   .season-text {

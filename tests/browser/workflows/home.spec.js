@@ -122,4 +122,28 @@ test('[WF-HOME-002] home page keeps compact link actions readable on narrow phon
   await expect.poll(() => page.locator('.share-site__links .share-site__link').evaluateAll(elements => (
     new Set(elements.map(element => Math.round(element.getBoundingClientRect().top))).size
   ))).toBe(2);
+  await expect.poll(() => page.evaluate(() => {
+    const qrLabel = globalThis.document.querySelector('#shareQrButton span');
+    const facebookLink = globalThis.document.querySelector('[data-analytics-share-method="facebook"]');
+    const xLink = globalThis.document.querySelector('[data-analytics-share-method="x"]');
+    const updatedTime = globalThis.document.querySelector('.footer__data-freshness time:last-of-type');
+    const lineCount = element => new Set([...element.getClientRects()].map(rect => Math.round(rect.top))).size;
+
+    return {
+      facebookIsWider: facebookLink.getBoundingClientRect().width > xLink.getBoundingClientRect().width,
+      fitsViewport: globalThis.document.documentElement.scrollWidth <= globalThis.innerWidth,
+      qrLabelLines: lineCount(qrLabel),
+      updatedDateLines: lineCount(updatedTime)
+    };
+  })).toEqual({
+    facebookIsWider: true,
+    fitsViewport: true,
+    qrLabelLines: 1,
+    updatedDateLines: 1
+  });
+
+  await page.setViewportSize(MOBILE_VIEWPORT);
+  await expect.poll(() => page.locator('.season-text').evaluate(element => (
+    element.getBoundingClientRect().height <= Number.parseFloat(globalThis.getComputedStyle(element).lineHeight) + 0.5
+  ))).toBe(true);
 });
