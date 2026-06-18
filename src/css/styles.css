@@ -331,6 +331,12 @@ html {
   overflow-y: scroll;
 }
 
+@media (min-width: 40rem) {
+  html {
+    scrollbar-gutter: stable both-edges;
+  }
+}
+
 html[data-text-size="large"] {
   font-size: 112.5%;
 }
