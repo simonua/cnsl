@@ -1,5 +1,6 @@
 ---
 applyTo: "src/js/**/*.js"
+description: "Use when changing browser JavaScript under src/js, including runtime architecture, DOM behavior, progressive loading, semantic constants, JSDoc, or analytics boundaries."
 ---
 
 # JavaScript Conventions

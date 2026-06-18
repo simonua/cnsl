@@ -1,4 +1,5 @@
 ---
+applyTo: "src/assets/data/**"
 description: "Use when working with JSON data files, schemas, data loading, source authority, evidence confidence, or conflicting official data."
 ---
 

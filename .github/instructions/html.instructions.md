@@ -1,5 +1,6 @@
 ---
 applyTo: "src/views/**/*.html"
+description: "Use when changing PostHTML views, layouts, components, semantic structure, accessibility markup, or browser-script ordering under src/views."
 ---
 
 # HTML & PostHTML Conventions

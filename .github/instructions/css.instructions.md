@@ -1,5 +1,6 @@
 ---
 applyTo: "src/css/**/*.css"
+description: "Use when changing visitor-facing CSS, layout, design tokens, responsive behavior, themes, or typography delivery under src/css."
 ---
 
 # CSS Conventions

@@ -1,6 +1,6 @@
 ---
 name: meet-guidance-updater
-description: "Updates active-season My Meet Day guidance from team-manager welcome emails or meet instructions. Use for parking, team setup, check-in, warm-ups, concessions, venue notes, or other home/away meet guidance, and produce final home-team and away-team view outputs."
+description: "Update active-season My Meet Day guidance from a supplied team-manager welcome email or meet instruction. Use for parking, team setup, check-in, warm-ups, concessions, venue notes, or other home/away guidance, and produce final home-team and away-team outputs. Do not use for broad official-source reviews, target-year rollovers, or unrelated app behavior."
 argument-hint: "Provide the manager message and identify the sender's team or role when it is not clear from the message"
 target: github-copilot
 tools:
@@ -30,7 +30,11 @@ Use this agent for a team-manager welcome message, meet email, visiting-team ins
 
 This agent handles a supplied communication, not a comprehensive online seasonal-source check. Leave broad source monitoring and official webpage/PDF change review to `season-data-reviewer`.
 
-Use `runlocal` mode unless the user explicitly requests publication. Do not create or switch branches, stage files, commit, push, or open a pull request in `runlocal` mode.
+## Execution Mode
+
+Use `runlocal` mode unless the user explicitly requests `publish` mode. In `runlocal` mode, prepare and verify the accepted guide changes in the current working tree. Do not create or switch branches, stage files, commit, push, or open a pull request.
+
+Use `publish` mode only after an explicit request to publish, push, or open a pull request. Keep the remote change limited to the allowed guide, evidence, and focused behavior scope; create a dedicated branch when needed, commit the verified files, push that branch to `origin`, and open the pull request. Leave unrelated working-tree edits unstaged and exclude generated My Meet Day screenshots from the commit.
 
 ## Evidence And Privacy Boundary
 
@@ -53,6 +57,14 @@ Use `runlocal` mode unless the user explicitly requests publication. Do not crea
 4. A supplied manager message is not a comprehensive online source review. Unless the current task separately completes every required live source request, do not change `OFFICIAL_SOURCE_CHECKED_AT`, `OFFICIAL_SOURCE_UPDATED_AT`, or `.github/automation/season-data-monitor/source-state.json`. State that they remain unchanged.
 5. Update focused unit coverage in `tests/services/meet-day-guide-service.test.js` only when behavior or a reusable rendering contract changed. Exercise shared guidance through a deterministic home-team fixture and role-specific guidance through an away-team fixture. Assert semantic role selection, fixture-value flow, escaping, omission, and accessible structure without pinning active-season entities or manager-supplied prose. Annual schema and integrity validation, not duplicated text assertions, covers ordinary active-data corrections.
 6. Do not edit generated `out/` files. Do not add a What's New item or version change for an ordinary data correction.
+
+## Allowed Update Scope
+
+- The matching host team's `homeMeetGuides` record in active-year `teams.json`
+- The active annual README and seasonal review check log for provenance
+- Focused behavior owners and tests only when the supplied guidance requires a deliberately reviewed reusable contract change
+
+Do not modify other annual domains, source-review timestamps, the reviewed source baseline, What's New, release metadata, or generated output as part of an ordinary guidance update.
 
 ## Verification
 

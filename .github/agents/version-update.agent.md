@@ -1,6 +1,6 @@
 ---
 name: version-update
-description: "Maintain CNSL release metadata and What's New content. Use when completing significant visitor-facing functionality, preparing an Upcoming note, releasing, bumping APP_VERSION, or documenting changes since the last app release."
+description: "Maintain CNSL release metadata and What's New content. Use when completing significant visitor-facing functionality, preparing an Upcoming feature note, releasing, bumping APP_VERSION, or documenting changes since the last app release. Do not use to interpret annual-source evidence or author the initial note for a material data correction; season-data-reviewer owns that work."
 argument-hint: "Describe unreleased feature changes, or supply a new stable release version such as 2.2.0"
 target: github-copilot
 tools: [read, search, edit, execute]
@@ -21,6 +21,8 @@ Choose the mode from the request:
 
 When the intent is unclear, use Upcoming mode and do not change published version metadata.
 
+Both modes prepare verified changes in the current working tree only. Creating or switching a branch, staging, committing, pushing, and opening a pull request are separate Git publication tasks and are not part of this agent's release-content responsibility.
+
 ## Published History
 
 - Treat the wording and item membership of every dated version article in `src/views/whats-new.html` as a published historical record. Never edit, remove, or append bullets to an existing dated entry.
@@ -40,6 +42,7 @@ When the intent is unclear, use Upcoming mode and do not change published versio
 In Upcoming mode:
 
 - Update only the undated `Upcoming` section in `src/views/whats-new.html`, creating it above dated entries if needed.
+- Leave interpretation of annual-source evidence and the initial note for a material data correction to `season-data-reviewer`. You may later re-rank that existing note with other `Upcoming` items when reviewing the full list.
 - Do not modify `APP_VERSION`, `APP_LAST_UPDATED_ON`, or any dated release article.
 
 In Release mode:
