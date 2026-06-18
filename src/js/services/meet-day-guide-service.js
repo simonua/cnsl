@@ -5,7 +5,6 @@
 if (typeof globalThis.MeetDayGuideService === 'undefined') {
   const CASH_BILL_MAXIMUM_DENOMINATION = 20;
   const CASH_BILL_PREFERRED_DENOMINATIONS = Object.freeze([5, 1]);
-  const MEET_HEAT_NOTICE_MAX_LANES = 6;
   const CONCESSION_GROUP_PRESENTATION = Object.freeze({
     Drinks: 'cup-soda',
     Meals: 'utensils',
@@ -195,7 +194,7 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
      */
     static getParkingLines(generalGuide, roleGuide) {
       const lines = [];
-      if (generalGuide?.parkingLocation) lines.push(`Please park ${generalGuide.parkingLocation}.`);
+      if (generalGuide?.parkingLocation) lines.push(`Park ${generalGuide.parkingLocation}.`);
       lines.push(...(generalGuide?.parkingNotes || []));
       if (roleGuide?.parkingLocation) lines.push(`Team parking is ${roleGuide.parkingLocation}.`);
       if (roleGuide?.reservedParking) lines.push(roleGuide.reservedParking);
@@ -245,7 +244,7 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
         const preferredBills = MeetDayGuideService.formatPaymentMethods(
           CASH_BILL_PREFERRED_DENOMINATIONS.map(value => `$${value}`)
         );
-        lines.push(`Please use bills of $${CASH_BILL_MAXIMUM_DENOMINATION} or less; ${preferredBills} bills are especially helpful.`);
+        lines.push(`Use bills of $${CASH_BILL_MAXIMUM_DENOMINATION} or less; ${preferredBills} bills are especially helpful.`);
       }
       const unavailableBills = MeetDayGuideService.formatPaymentMethods(
         concessions.denominationsNotAccepted?.map(value => `$${value} bills`) || []
@@ -432,16 +431,12 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
         ? globalThis.generatePoolDirectionsLink(pool, locationName)
         : '';
       const safePoolAddress = globalThis.HtmlSafety.escapeHtml(guide.poolAddress);
-      const course = globalThis.formatPoolCourseLabel(pool);
-      const courseLabel = course && pool?.laneCount && pool.laneCount <= MEET_HEAT_NOTICE_MAX_LANES
-        ? `${course} (may mean more heats & longer meet time)`
-        : course;
       const arrivalTime = roleGuide?.arrivalTime ? MeetDayGuideService.formatClockTime(roleGuide.arrivalTime) : '';
       const arrivalPrimary = arrivalTime
         ? `Arrive by ${arrivalTime}`
         : roleGuide?.arrivalGuidance ? 'Arrive early' : roleGuide ? 'Arrival time not provided' : '';
       const arrivalDetail = roleGuide?.arrivalGuidance
-        || (roleGuide ? 'Please allow enough time to get settled before warm-ups.' : '');
+        || (roleGuide ? 'Allow enough time to get settled before warm-ups.' : '');
       const relayCheckInDeadline = typeof meet.getRelayCheckInDeadlineDisplayTime === 'function'
         ? meet.getRelayCheckInDeadlineDisplayTime()
         : MeetDayGuideService.formatClockTime(meet.timingWindow?.relayCheckInDeadline);
@@ -449,7 +444,7 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
         ? meet.getFirstSwimDisplayTime()
         : MeetDayGuideService.formatClockTime(meet.timingWindow?.firstSwimTime);
       const setupLines = [];
-      if (roleGuide?.familySetupLocation) setupLines.push(`Please set up ${roleGuide.familySetupLocation}.`);
+      if (roleGuide?.familySetupLocation) setupLines.push(`Set up ${roleGuide.familySetupLocation}.`);
       const concessions = generalGuide?.concessions;
       const helpfulNotes = [...(generalGuide?.poolsideConditions || []), ...(generalGuide?.helpfulNotes || []), ...(roleGuide?.helpfulNotes || [])];
       const isHomeMeet = guide.role === globalThis.MeetTeamRole.HOME;
@@ -457,8 +452,8 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
         ? 'Home meets depend on volunteers.'
         : 'Swim meets depend on volunteers from both teams.';
       const volunteerDetail = isHomeMeet
-        ? 'Please check your team signup and help fill any open role.'
-        : 'Please check your team signup for any open role.';
+        ? 'Check your team signup and help fill any open role.'
+        : 'Check your team signup for any open role.';
       const volunteerMarkup = `${isHomeMeet ? `<strong>${globalThis.HtmlSafety.escapeHtml(volunteerLead)}</strong>` : globalThis.HtmlSafety.escapeHtml(volunteerLead)} ${globalThis.HtmlSafety.escapeHtml(volunteerDetail)}`;
       const dayPillClass = guide.dayLabel === 'Today'
         ? ' upcoming-day-pill--today'
@@ -470,7 +465,7 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
           <p class="my-meet-day__matchup"><strong>${globalThis.HtmlSafety.escapeHtml(matchup)}</strong></p>
           <p class="my-meet-day__location">${locationLink}</p>
           ${directionsLink ? `<p class="my-meet-day__directions">${directionsLink}</p>` : ''}
-          <p class="my-meet-day__schedule"><time datetime="${globalThis.HtmlSafety.escapeHtml(guide.date)}">${globalThis.HtmlSafety.escapeHtml(dateLabel)}</time><span class="upcoming-day-pill${dayPillClass}">${globalThis.HtmlSafety.escapeHtml(guide.dayLabel.toLowerCase())}</span><span class="my-meet-day__meet-time">${globalThis.HtmlSafety.escapeHtml(meetTime)}</span></p>
+          <p class="my-meet-day__schedule"><span class="my-meet-day__schedule-details"><time datetime="${globalThis.HtmlSafety.escapeHtml(guide.date)}">${globalThis.HtmlSafety.escapeHtml(dateLabel)}</time><span class="my-meet-day__meet-time">${globalThis.HtmlSafety.escapeHtml(meetTime)}</span></span><span class="upcoming-day-pill${dayPillClass}">${globalThis.HtmlSafety.escapeHtml(guide.dayLabel.toLowerCase())}</span></p>
         </div>
         <section class="my-meet-day__timing" aria-label="Key times">
           <dl>
@@ -482,7 +477,6 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
         </section>
         <dl class="my-meet-day__facts">
           ${MeetDayGuideService.renderFact('Where', [locationLink, safePoolAddress], true)}
-          ${MeetDayGuideService.renderFact('Pool', [courseLabel])}
           ${MeetDayGuideService.renderGuidanceFact('Parking', MeetDayGuideService.getParkingLines(generalGuide, roleGuide))}
           ${MeetDayGuideService.renderGuidanceFact('Team setup', setupLines)}
           ${MeetDayGuideService.renderGuidanceFact('Check-in', MeetDayGuideService.getCheckInLines(roleGuide))}

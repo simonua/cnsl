@@ -1365,11 +1365,18 @@ main h1 {
 
 .my-meet-day__schedule {
   align-items: center;
+  display: grid;
+  gap: 0.45rem;
+  justify-items: center;
+  line-height: 1.45;
+}
+
+.my-meet-day__schedule-details {
+  align-items: center;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.45rem 0.65rem;
+  gap: 0.65rem;
   justify-content: center;
-  line-height: 1.45;
 }
 
 .my-meet-day__meet-time {
@@ -1606,6 +1613,13 @@ main h1 {
   margin-inline: auto;
   max-width: 42rem;
   position: relative;
+}
+
+@media (min-width: 64rem) {
+  #favoriteWeek,
+  .my-meet-day--home {
+    max-width: 75rem;
+  }
 }
 
 html.has-saved-favorite-team #favoriteWeek:not([hidden]) {

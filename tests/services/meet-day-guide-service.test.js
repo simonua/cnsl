@@ -217,7 +217,7 @@ describe('MeetDayGuideService', () => {
   });
 
   describe('renderGuide', () => {
-    it('renders fixture-owned away guidance with course, timing, and host details', () => {
+    it('renders fixture-owned away guidance with timing and host details', () => {
       const guide = MeetDayGuideService.getGuide(favoriteTeam, teams, [firstFavoriteMeet], pools, new Date(2026, 5, 12, 12));
       const html = MeetDayGuideService.renderGuide(guide);
 
@@ -239,6 +239,7 @@ describe('MeetDayGuideService', () => {
       assert.match(html, /href="pools\.html\?pool=host-pool"/);
       assert.match(html, /class="my-meet-day__directions"/);
       assert.match(html, /aria-label="Key times"/);
+      assert.doesNotMatch(html, /<dt>Pool<\/dt>/);
       assert.match(html, /<dt>Parking<\/dt><dd><ul class="my-meet-day__guidance-list"><li>/);
       assert.match(html, /<dt>Good to know<\/dt><dd><ul class="my-meet-day__guidance-list"><li>/);
       assert.ok(html.includes(Meet.formatClockTime(guide.roleGuide.warmupTime)));
@@ -324,7 +325,7 @@ describe('MeetDayGuideService', () => {
       assert.match(html, /href="pools\.html\?pool=host-pool"/);
       assert.match(html, /class="my-meet-day__directions"/);
       assert.match(html, /class="my-meet-day__fact my-meet-day__fact--volunteer"><dt>Volunteer reminder<\/dt><dd>/);
-      assert.match(html, /<strong>Home meets depend on volunteers\.<\/strong> Please check your team signup/);
+      assert.match(html, /<strong>Home meets depend on volunteers\.<\/strong> Check your team signup/);
       assert.doesNotMatch(awayHtml, /<strong>Swim meets depend on volunteers from both teams\.<\/strong>/);
       assert.doesNotMatch(html, /my-meet-day__volunteer/);
       assert.notEqual(html, awayHtml);
@@ -376,7 +377,7 @@ describe('MeetDayGuideService', () => {
         notes: ['Limited quantities.']
       }), [
         'We accept cash, credit, Venmo, and PayPal.',
-        'Please use bills of $20 or less; $5 and $1 bills are especially helpful.',
+        'Use bills of $20 or less; $5 and $1 bills are especially helpful.',
         'Dietary options: vegetarian (available)',
         'Limited quantities.'
       ]);
@@ -384,7 +385,7 @@ describe('MeetDayGuideService', () => {
         paymentMethods: [PaymentMethod.CASH, PaymentMethod.PAYPAL]
       }), [
         'We accept cash and PayPal.',
-        'Please use bills of $20 or less; $5 and $1 bills are especially helpful.'
+        'Use bills of $20 or less; $5 and $1 bills are especially helpful.'
       ]);
       assert.deepEqual(MeetDayGuideService.getConcessionLines({
         paymentMethods: [PaymentMethod.PAYPAL]
@@ -401,7 +402,7 @@ describe('MeetDayGuideService', () => {
         paymentMethods: [PaymentMethod.CASH]
       }), [
         'We accept cash.',
-        'Please use bills of $20 or less; $5 and $1 bills are especially helpful.',
+        'Use bills of $20 or less; $5 and $1 bills are especially helpful.',
         'We cannot accept $100 bills.'
       ]);
       assert.equal(MeetDayGuideService.renderFact('Empty', []), '');
@@ -425,7 +426,7 @@ describe('MeetDayGuideService', () => {
       assert.equal(MeetDayGuideService.renderConcessions({ paymentMethods: ['custom'] }), '');
       assert.match(
         MeetDayGuideService.renderConcessions({ paymentMethods: [PaymentMethod.CASH] }),
-        /<strong>We accept cash\.<\/strong><\/p><div class="my-meet-day__payment-methods"[^>]*>.*<\/div><p class="my-meet-day__concessions-details my-meet-day__concessions-details--supporting">Please use bills of \$20 or less; \$5 and \$1 bills are especially helpful\.<\/p>/
+        /<strong>We accept cash\.<\/strong><\/p><div class="my-meet-day__payment-methods"[^>]*>.*<\/div><p class="my-meet-day__concessions-details my-meet-day__concessions-details--supporting">Use bills of \$20 or less; \$5 and \$1 bills are especially helpful\.<\/p>/
       );
       assert.match(MeetDayGuideService.renderPaymentMethods([
         PaymentMethod.CASH, PaymentMethod.CREDIT, PaymentMethod.OTHER, PaymentMethod.PAYPAL, PaymentMethod.VENMO

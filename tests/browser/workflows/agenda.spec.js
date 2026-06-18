@@ -157,7 +157,7 @@ test('[WF-AGENDA-002] home page shows the next practices and swim event for a se
 });
 
 test('[WF-AGENDA-007] home page follows the My Meet Day experimental opt-in', async ({ page }) => {
-  await page.clock.setFixedTime(getMeetReferenceTime(0, -1));
+  await page.clock.setFixedTime(getMeetReferenceTime(0, -2));
   await seedPreferences(page, { experimentalFeatures: ['my-meet-day'], favoriteTeamId: MEET_DAY_TEAM.id });
   await page.goto('/index.html');
 
@@ -166,26 +166,42 @@ test('[WF-AGENDA-007] home page follows the My Meet Day experimental opt-in', as
   await expect(meetDay.getByRole('heading', { name: /My Meet Day/ })).toBeVisible();
   await expect(meetDay.locator('.experimental-badge')).toHaveText('Experimental');
   await expect(meetDay).toContainText('Away meet');
+  const relativeDayPill = meetDay.locator('.my-meet-day__schedule > .upcoming-day-pill');
+  await expect(relativeDayPill).toHaveText('in 2 days');
+  await expect.poll(() => meetDay.locator('.my-meet-day__schedule').evaluate(schedule => {
+    const dateBounds = schedule.querySelector('time').getBoundingClientRect();
+    const timeBounds = schedule.querySelector('.my-meet-day__meet-time').getBoundingClientRect();
+    const pillBounds = schedule.querySelector('.upcoming-day-pill').getBoundingClientRect();
+    return pillBounds.top >= Math.max(dateBounds.bottom, timeBounds.bottom);
+  })).toBe(true);
   expect(await meetDay.locator('.my-meet-day__fact').count()).toBeGreaterThan(0);
+  await expect(meetDay.locator('.my-meet-day__fact dt').filter({ hasText: /^Pool$/ })).toHaveCount(0);
   const agenda = page.locator('#favoriteWeek');
   await expect(agenda).toBeVisible();
   await expect.poll(() => page.evaluate(() => {
     const meetDayBounds = globalThis.document.getElementById('myMeetDay').getBoundingClientRect();
     const agendaBounds = globalThis.document.getElementById('favoriteWeek').getBoundingClientRect();
+    const home = globalThis.document.querySelector('.home-view');
+    const homeStyle = globalThis.getComputedStyle(home);
+    const homeContentWidth = home.clientWidth
+      - Number.parseFloat(homeStyle.paddingLeft)
+      - Number.parseFloat(homeStyle.paddingRight);
     const concessionsBounds = globalThis.document.querySelector('.my-meet-day__fact--concessions').getBoundingClientRect();
 
     return {
-      aligned: Math.abs(meetDayBounds.left - agendaBounds.left) <= 1,
+      agendaUsesHomeWidth: Math.abs(agendaBounds.width - homeContentWidth) <= 1,
       concessionsContained: concessionsBounds.left >= meetDayBounds.left
         && concessionsBounds.right <= meetDayBounds.right,
-      equalWidth: Math.abs(meetDayBounds.width - agendaBounds.width) <= 1,
+      meetDayUsesHomeWidth: Math.abs(meetDayBounds.width - homeContentWidth) <= 1,
+      sameWidth: Math.abs(meetDayBounds.width - agendaBounds.width) <= 1,
       hasHorizontalOverflow: globalThis.document.documentElement.scrollWidth
         > globalThis.document.documentElement.clientWidth
     };
   })).toEqual({
-    aligned: true,
+    agendaUsesHomeWidth: true,
     concessionsContained: true,
-    equalWidth: true,
+    meetDayUsesHomeWidth: true,
+    sameWidth: true,
     hasHorizontalOverflow: false
   });
   const poolLinks = meetDay.locator('a[href^="pools.html?pool="]');
@@ -200,6 +216,11 @@ test('[WF-AGENDA-007] home page follows the My Meet Day experimental opt-in', as
   await poolLink.focus();
   await expect(poolLink).toBeFocused();
   await page.setViewportSize({ width: 390, height: 844 });
+  await expect.poll(() => meetDay.locator('.my-meet-day__schedule').evaluate(schedule => {
+    const detailsBounds = schedule.querySelector('.my-meet-day__schedule-details').getBoundingClientRect();
+    const pillBounds = schedule.querySelector('.upcoming-day-pill').getBoundingClientRect();
+    return pillBounds.top >= detailsBounds.bottom;
+  })).toBe(true);
   await expect.poll(() => page.evaluate(() => {
     const sectionRect = globalThis.document.getElementById('myMeetDay').getBoundingClientRect();
     const toggle = globalThis.document.getElementById('myMeetDayToggle');
