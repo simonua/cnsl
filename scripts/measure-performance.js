@@ -4,6 +4,7 @@ const path = require('node:path');
 const { spawn } = require('node:child_process');
 const vm = require('node:vm');
 const { chromium } = require('@playwright/test');
+const AppConfig = require('./adapters/app-config.js');
 
 const ROOT_DIR = path.join(__dirname, '..');
 const OUT_DIR = path.join(ROOT_DIR, 'out');
@@ -19,16 +20,32 @@ const PERFORMANCE_PROFILES = Object.freeze({
 const PERFORMANCE_PROFILE_NAME = process.env.CNSL_PERF_PROFILE || 'desktop';
 const PERFORMANCE_PROFILE = PERFORMANCE_PROFILES[PERFORMANCE_PROFILE_NAME];
 const PWA_CRITICAL_RESOURCE_BUDGET = 75;
-const DIRECTORY_PHASE_MARKS = Object.freeze({
+const ROUTE_PHASE_MARKS = Object.freeze({
+  'My Meet Day': Object.freeze(['primary-data-ready', 'summary-visible']),
   Pools: Object.freeze(['primary-data-ready', 'summary-visible', 'optional-enrichment-settled']),
   Teams: Object.freeze(['primary-data-ready', 'summary-visible', 'optional-enrichment-settled'])
 });
+const PERFORMANCE_FAVORITE_TEAM_ID = JSON.parse(fs.readFileSync(
+  path.join(ROOT_DIR, 'src', 'assets', 'data', String(AppConfig.YEAR), 'teams', 'teams.json'),
+  'utf8'
+)).teams[0].id;
 const ROUTES = [
   { budgetBytes: 500000, budgetRequests: 45, budgetUsableMs: 1200, name: 'Home', path: '/index.html', readySelector: '.home-view' },
   { budgetBytes: 900000, budgetRequests: 55, budgetUsableMs: 2000, name: 'Pools', path: '/pools.html', readySelector: '#poolList[aria-busy="false"]' },
   { budgetBytes: 1100000, budgetRequests: 50, budgetUsableMs: 1800, name: 'Teams', path: '/teams.html', readySelector: '#teamList[aria-busy="false"]' },
   { budgetBytes: 800000, budgetRequests: 45, budgetUsableMs: 1800, name: 'Meets', path: '/meets.html', readySelector: '#meetList[aria-busy="false"]' },
-  { budgetBytes: 500000, budgetRequests: 45, budgetUsableMs: 1200, name: 'My Meet Day', path: '/my-meet-day.html', readySelector: '#myMeetDayDisabled:not([hidden])' }
+  {
+    budgetBytes: 500000,
+    budgetRequests: 45,
+    budgetUsableMs: 1200,
+    initialPreferences: Object.freeze({
+      experimentalFeatures: Object.freeze([AppConfig.EXPERIMENTAL_FEATURE_IDS.MY_MEET_DAY]),
+      favoriteTeamId: PERFORMANCE_FAVORITE_TEAM_ID
+    }),
+    name: 'My Meet Day',
+    path: '/my-meet-day.html',
+    readySelector: '#myMeetDay:not([hidden]), #myMeetDayNoMeet:not([hidden])'
+  }
 ];
 const DIRECTORY_ROUTES = ROUTES.filter(route => route.name !== 'Home' && route.name !== 'My Meet Day');
 
@@ -127,7 +144,7 @@ function measurePwaTiers() {
   };
 }
 
-async function configurePage(page, origin) {
+async function configurePage(page, origin, route = null) {
   await page.addInitScript(() => {
     globalThis.__cnslLongTasks = [];
     if (typeof PerformanceObserver !== 'undefined') {
@@ -145,6 +162,14 @@ async function configurePage(page, origin) {
     const requestUrl = new URL(requestRoute.request().url());
     return requestUrl.origin === origin ? requestRoute.continue() : requestRoute.abort();
   });
+  if (route?.initialPreferences) {
+    await page.addInitScript(({ preferences, storageKey }) => {
+      globalThis.localStorage.setItem(storageKey, JSON.stringify(preferences));
+    }, {
+      preferences: route.initialPreferences,
+      storageKey: AppConfig.PREFERENCES_STORAGE_KEY
+    });
+  }
 }
 
 async function createMeasurementPage(browser, serviceWorkers) {
@@ -162,7 +187,7 @@ async function createMeasurementPage(browser, serviceWorkers) {
 }
 
 async function collectPageMetrics(page, route, usableMs, responseMetrics = null) {
-  const phaseNames = DIRECTORY_PHASE_MARKS[route.name] || [];
+  const phaseNames = ROUTE_PHASE_MARKS[route.name] || [];
   const browserMetrics = await page.evaluate(({ phaseNames, routeName }) => {
     const resources = performance.getEntriesByType('resource');
     const navigation = performance.getEntriesByType('navigation')[0];
@@ -181,7 +206,7 @@ async function collectPageMetrics(page, route, usableMs, responseMetrics = null)
       if (resource.transferSize === 0 && resource.decodedBodySize > 0) cacheHits += 1;
     });
 
-    const routeMarkPrefix = routeName.toLowerCase();
+    const routeMarkPrefix = routeName.toLowerCase().replaceAll(' ', '-');
     const phases = Object.fromEntries(phaseNames.map(phaseName => {
       const entries = performance.getEntriesByName(`cnsl:${routeMarkPrefix}:${phaseName}`, 'mark');
       const latestEntry = entries[entries.length - 1];
@@ -236,7 +261,7 @@ async function measureRoute(browser, route) {
     const responseJobs = [];
     const annualDomainRequests = new Map();
     const responseMetrics = { annualDomainRequests: {}, decodedBytes: 0, failedBodyReads: 0, requests: 0 };
-    await configurePage(page, COLD_ORIGIN);
+    await configurePage(page, COLD_ORIGIN, route);
     page.on('response', response => {
       const responseUrl = new URL(response.url());
       if (responseUrl.origin !== COLD_ORIGIN) return;
@@ -446,10 +471,10 @@ if (require.main === module) {
 }
 
 module.exports = {
-  DIRECTORY_PHASE_MARKS,
   DIRECTORY_ROUTES,
   PERFORMANCE_PROFILES,
   PWA_CRITICAL_RESOURCE_BUDGET,
+  ROUTE_PHASE_MARKS,
   ROUTES,
   maximumDomainRequests,
   median,

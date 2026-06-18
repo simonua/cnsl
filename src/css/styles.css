@@ -3681,8 +3681,13 @@ html[data-hide-page-headings="true"] main.container > h1 {
 }
 
 html[data-hide-home-intro="true"] .welcome-message,
-html[data-hide-home-intro="true"] .season-text {
+html[data-hide-home-intro="true"] .home-view .season-info {
   display: none;
+}
+
+html[data-hide-home-intro="true"] .welcome-section {
+  margin-bottom: 0;
+  padding: 0;
 }
 
 /* ==========================================================================

@@ -34,6 +34,7 @@
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
       script.src = getDependencySource(source);
+      script.async = false;
       script.dataset.homeScheduleDependency = source;
       script.addEventListener('load', resolve, { once: true });
       script.addEventListener('error', () => reject(new Error(`Unable to load ${source}.`)), { once: true });
@@ -48,10 +49,9 @@
    */
   function loadAgendaDependencies() {
     if (!dependenciesPromise) {
-      dependenciesPromise = globalThis.TEAM_AGENDA_DEPENDENCIES.reduce(
-        (loadPromise, source) => loadPromise.then(() => loadScript(source)),
-        Promise.resolve()
-      );
+      dependenciesPromise = Promise.all(
+        globalThis.TEAM_AGENDA_DEPENDENCIES.map(source => loadScript(source))
+      ).then(() => undefined);
     }
     return dependenciesPromise;
   }

@@ -41,6 +41,7 @@
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
       script.src = getDependencySource(source);
+      script.async = false;
       script.dataset.myMeetDayDependency = source;
       script.addEventListener('load', resolve, { once: true });
       script.addEventListener('error', () => reject(new Error(`Unable to load ${source}.`)), { once: true });
@@ -55,12 +56,22 @@
    */
   function loadGuideDependencies() {
     if (!dependenciesPromise) {
-      dependenciesPromise = globalThis.TEAM_AGENDA_DEPENDENCIES.reduce(
-        (loadPromise, source) => loadPromise.then(() => loadScript(source)),
-        Promise.resolve()
-      );
+      dependenciesPromise = Promise.all(
+        globalThis.TEAM_AGENDA_DEPENDENCIES.map(source => loadScript(source))
+      ).then(() => undefined);
     }
     return dependenciesPromise;
+  }
+
+  /**
+   * Records one dedicated-route readiness boundary for performance measurement.
+   * @param {string} phaseName - Route lifecycle phase
+   * @private
+   */
+  function markMyMeetDayPerformance(phaseName) {
+    if (globalThis.performance && typeof globalThis.performance.mark === 'function') {
+      globalThis.performance.mark(`cnsl:my-meet-day:${phaseName}`);
+    }
   }
 
   /**
@@ -138,6 +149,7 @@
       const dataManager = globalThis.getDataManager();
       await dataManager.initialize(['pools', 'teams', 'meets']);
       if (globalThis.PreferencesService.get().favoriteTeamId !== favoriteTeamId) return;
+      markMyMeetDayPerformance('primary-data-ready');
 
       const teams = dataManager.getTeams().getAllTeams();
       const team = globalThis.PreferencesService.findFavoriteTeam(teams, favoriteTeamId);
@@ -163,12 +175,14 @@
           noMeetState?.querySelector('p')?.textContent.trim()
             || 'No meet-day details are available in the configured window.'
         );
+        markMyMeetDayPerformance('summary-visible');
         return;
       }
 
       content.innerHTML = guideMarkup;
       guideView.hidden = false;
       status.textContent = 'Meet-day details loaded.';
+      markMyMeetDayPerformance('summary-visible');
     } catch (error) {
       console.error('Failed to load My Meet Day:', error);
       if (globalThis.PreferencesService.get().favoriteTeamId !== favoriteTeamId) return;
