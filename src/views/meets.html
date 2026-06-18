@@ -19,13 +19,12 @@
         "url": "{{ HOME_PAGE_URL }}/meets.html",
         "description": "Published regular and special Columbia Neighborhood Swim League meet schedules for {{ YEAR }}.",
         "isPartOf": { "@id": "{{ HOME_PAGE_URL }}/#website" },
-        "about": { "@type": "SportsEvent", "name": "CNSL swim meets" }
+        "about": { "@type": "Thing", "name": "CNSL swim meets" }
       }
     </script>
   </block>
   <block name="content">
-    <h1 data-seasonal-content>{{ YEAR }} Meet Schedule</h1>
-    <h1 data-off-season-content hidden>Meet Schedule</h1>
+    <h1><span data-seasonal-content>{{ YEAR }} </span>Meet Schedule</h1>
     <include src="components/off-season-message.html"></include>
     <div class="container">
       <div class="cnsl-link-section">

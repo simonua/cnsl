@@ -20,6 +20,7 @@ test('[WF-SEASON-001] off-season pages replace date-sensitive content with the s
 
   for (const route of routes) {
     await page.goto(route.path);
+    await expect(page.locator('h1')).toHaveCount(1);
     const message = page.locator('.off-season-message');
     await expect(message).toBeVisible();
     await expect(message.getByRole('heading')).toBeVisible();

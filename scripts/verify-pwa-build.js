@@ -68,6 +68,22 @@ const analyticsPageTitles = {
   'teams.html': 'Teams',
   'meets.html': 'Meets'
 };
+const singleEventPages = new Set();
+
+function findEventStructuredDataNodes(value, eventNodes = []) {
+  if (Array.isArray(value)) {
+    value.forEach(item => findEventStructuredDataNodes(item, eventNodes));
+    return eventNodes;
+  }
+  if (!value || typeof value !== 'object') return eventNodes;
+
+  const schemaTypes = Array.isArray(value['@type']) ? value['@type'] : [value['@type']];
+  if (schemaTypes.some(schemaType => typeof schemaType === 'string' && /Event$/.test(schemaType))) {
+    eventNodes.push(value);
+  }
+  Object.values(value).forEach(item => findEventStructuredDataNodes(item, eventNodes));
+  return eventNodes;
+}
 
 assert.ok(fs.existsSync(outDir), 'Build output is missing. Run pnpm run build before verifying the PWA artifact.');
 requiredArtifacts.forEach(resource => {
@@ -347,6 +363,30 @@ assert.doesNotMatch(analytics, /(?:latitude|longitude|coordinates|user_agent|pla
 assert.doesNotMatch(nonAnalyticsBrowserCode, /\b(?:window\.)?gtag\s*\(/, 'Delivered browser scripts must publish measurement only through the analytics module API.');
 assert.doesNotMatch(analytics, /\b(?:user_id|user_properties|document\.referrer)\b/, 'Analytics must not add identifiers, user profiling values, or browser referrers.');
 verifyAnalyticsArtifact(appConfig, analyticsInteractionType, analytics);
+
+const generatedViewPages = fs.readdirSync(path.join(__dirname, '..', 'src', 'views'), { withFileTypes: true })
+  .filter(entry => entry.isFile() && entry.name.endsWith('.html'))
+  .map(entry => entry.name);
+generatedViewPages.forEach(page => {
+  const html = fs.readFileSync(path.join(outDir, page), 'utf8');
+  const primaryHeadings = html.match(/<h1(?:\s|>)/g) || [];
+  const structuredDataBlocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
+  assert.equal(primaryHeadings.length, 1, `${page} must publish exactly one h1 element in its HTML source.`);
+
+  structuredDataBlocks.forEach(([, structuredData]) => {
+    const eventNodes = findEventStructuredDataNodes(JSON.parse(structuredData));
+    if (!singleEventPages.has(page)) {
+      assert.equal(eventNodes.length, 0, `${page} must not publish Event structured data because it is not a single-event leaf page.`);
+      return;
+    }
+    eventNodes.forEach(eventNode => {
+      assert.ok(eventNode.name, `${page} Event structured data must include name.`);
+      assert.ok(eventNode.startDate, `${page} Event structured data must include startDate.`);
+      assert.ok(eventNode.location, `${page} Event structured data must include location.`);
+      assert.ok(eventNode.url, `${page} Event structured data must include its unique leaf-page URL.`);
+    });
+  });
+});
 
 Object.entries(canonicalPages).forEach(([page, canonical]) => {
   const html = fs.readFileSync(path.join(outDir, page), 'utf8');
