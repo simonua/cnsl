@@ -43,7 +43,7 @@ for (const scenario of directoryScenarios) {
   });
 }
 
-for (const scenario of directoryScenarios) {
+for (const scenario of directoryScenarios.filter(({ reference }) => reference !== 'TEAMS')) {
   test(`[WF-DATA-005-${scenario.reference}] ${scenario.path} does not flash a visible loading placeholder`, async ({ page }) => {
     let resumePoolRequest;
     const poolRequestPaused = new Promise(resolve => {

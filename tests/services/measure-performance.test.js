@@ -1,10 +1,10 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const {
-  DIRECTORY_PHASE_MARKS,
   DIRECTORY_ROUTES,
   PERFORMANCE_PROFILES,
   PWA_CRITICAL_RESOURCE_BUDGET,
+  ROUTE_PHASE_MARKS,
   ROUTES,
   maximumDomainRequests,
   median,
@@ -44,7 +44,7 @@ describe('performance measurement reporting', () => {
         { name: 'Pools', readySelector: '#poolList[aria-busy="false"]' },
         { name: 'Teams', readySelector: '#teamList[aria-busy="false"]' },
         { name: 'Meets', readySelector: '#meetList[aria-busy="false"]' },
-        { name: 'My Meet Day', readySelector: '#myMeetDayDisabled:not([hidden])' }
+        { name: 'My Meet Day', readySelector: '#myMeetDay:not([hidden]), #myMeetDayNoMeet:not([hidden])' }
       ]
     );
   });
@@ -55,8 +55,9 @@ describe('performance measurement reporting', () => {
     assert.throws(() => spread([]));
   });
 
-  it('should define the same progressive lifecycle for Pools and Teams', () => {
-    assert.deepEqual(DIRECTORY_PHASE_MARKS, {
+  it('should define measurable progressive lifecycles for optimized routes', () => {
+    assert.deepEqual(ROUTE_PHASE_MARKS, {
+      'My Meet Day': ['primary-data-ready', 'summary-visible'],
       Pools: ['primary-data-ready', 'summary-visible', 'optional-enrichment-settled'],
       Teams: ['primary-data-ready', 'summary-visible', 'optional-enrichment-settled']
     });

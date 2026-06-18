@@ -562,12 +562,23 @@ test('[WF-SETTINGS-015] page content preferences hide visual introductions while
   await expect(page.getByRole('heading', { level: 1, name: 'CA Outdoor Pools & CNSL Swim Teams' })).toHaveCount(1);
   await expect(page.locator('.welcome-message')).toBeHidden();
   await expect(page.locator('.season-text')).toBeHidden();
-  await expect(page.getByRole('link', { name: /Pool Season/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Pool Season/ })).toBeHidden();
+  await expect.poll(() => page.locator('.welcome-section').evaluate(element => {
+    const styles = globalThis.getComputedStyle(element);
+    return {
+      height: element.getBoundingClientRect().height,
+      marginBottom: styles.marginBottom,
+      paddingBottom: styles.paddingBottom,
+      paddingTop: styles.paddingTop
+    };
+  })).toEqual({ height: 0, marginBottom: '0px', paddingBottom: '0px', paddingTop: '0px' });
+  await expect(page.locator('.season-info')).toHaveCSS('display', 'none');
 
   await page.goto('/pools.html');
   const poolsHeading = page.getByRole('heading', { level: 1, name: 'Pools & Hours' });
   await expect(poolsHeading).toHaveCount(1);
   await expect.poll(() => poolsHeading.evaluate(heading => globalThis.getComputedStyle(heading).position)).toBe('absolute');
+  await expect(page.locator('#seasonInfo')).toBeVisible();
 
   await page.goto('/settings.html');
   await page.locator('#maintenanceSettings summary').click();

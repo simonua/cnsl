@@ -30,6 +30,22 @@ function getMeetReferenceTime(meetIndex, dayOffset, time = '12:00:00') {
   return referenceTime;
 }
 
+async function pauseFirstAgendaDependency(page) {
+  let releaseFirstDependency;
+  let reportLastDependencyRequest;
+  const firstDependencyReleased = new Promise(resolve => { releaseFirstDependency = resolve; });
+  const lastDependencyRequested = new Promise(resolve => { reportLastDependencyRequest = resolve; });
+  await page.route('**/js/services/html-safety.js*', async route => {
+    await firstDependencyReleased;
+    await route.continue();
+  });
+  await page.route('**/js/services/meet-day-guide-service.js*', async route => {
+    reportLastDependencyRequest();
+    await route.continue();
+  });
+  return { lastDependencyRequested, releaseFirstDependency };
+}
+
 test.beforeEach(async ({ page }) => {
   await prepareStableWeatherResponses(page);
 });
@@ -208,6 +224,7 @@ test('[WF-AGENDA-007] home page follows the My Meet Day experimental opt-in', as
 
 test('[WF-AGENDA-008] dedicated My Meet Day route loads only after the experiment is enabled', async ({ page }) => {
   await page.clock.setFixedTime(getMeetReferenceTime(0, -2));
+  const dependencyRequests = await pauseFirstAgendaDependency(page);
   await page.goto('/my-meet-day.html');
 
   await expect(page.getByRole('heading', { name: /My Meet Day/ })).toBeVisible();
@@ -224,6 +241,9 @@ test('[WF-AGENDA-008] dedicated My Meet Day route loads only after the experimen
     globalThis.dispatchEvent(new globalThis.CustomEvent('cnsl:preferences-changed'));
   }, MEET_DAY_TEAM.id);
 
+  await dependencyRequests.lastDependencyRequested;
+  await expect(page.locator('#myMeetDay')).toBeHidden();
+  dependencyRequests.releaseFirstDependency();
   await expect(page.locator('#myMeetDay')).toBeVisible();
   expect(await page.locator('#myMeetDay .my-meet-day__fact').count()).toBeGreaterThan(0);
   expect(await page.locator('#myMeetDay a[href^="pools.html?pool="]').count()).toBeGreaterThan(0);
@@ -236,6 +256,8 @@ test('[WF-AGENDA-008] dedicated My Meet Day route loads only after the experimen
   ));
   expect(controllerVersion).toBeTruthy();
   expect(dependencyVersions.every(version => version === controllerVersion)).toBe(true);
+  expect(await page.evaluate(() => performance.getEntriesByName('cnsl:my-meet-day:primary-data-ready').length)).toBe(1);
+  expect(await page.evaluate(() => performance.getEntriesByName('cnsl:my-meet-day:summary-visible').length)).toBe(1);
   await page.getByRole('button', { name: 'Open navigation menu' }).click();
   await expect(navigationLink).toBeVisible();
   await expect(navigationLink).toHaveAttribute('href', 'my-meet-day.html');
@@ -385,6 +407,7 @@ test('[WF-AGENDA-003] shared team agenda filters published practice times by sel
 
 test('[WF-AGENDA-004] home page loads agenda dependencies only after a favorite team is selected', async ({ page }) => {
   await setAgendaReferenceTime(page);
+  const dependencyRequests = await pauseFirstAgendaDependency(page);
   await page.goto('/index.html');
 
   await expect(page.locator('#favoriteWeek')).toBeHidden();
@@ -396,6 +419,9 @@ test('[WF-AGENDA-004] home page loads agenda dependencies only after a favorite 
     globalThis.dispatchEvent(new globalThis.CustomEvent('cnsl:preferences-changed'));
   }, AGENDA_TEAM.id);
 
+  await dependencyRequests.lastDependencyRequested;
+  await expect(page.locator('#favoriteWeek')).toBeHidden();
+  dependencyRequests.releaseFirstDependency();
   await expect(page.locator('#favoriteWeek')).toBeVisible();
   await expect(page.locator('script[data-home-schedule-dependency]')).toHaveCount(AppConfig.TEAM_AGENDA_DEPENDENCIES.length);
   const homeScheduleVersion = await page.locator('script[src*="js/home-schedule.js"]').evaluate(script => new URL(script.src).searchParams.get('v'));
