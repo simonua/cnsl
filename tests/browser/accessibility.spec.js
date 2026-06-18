@@ -122,6 +122,9 @@ test('[AX-SETTINGS-002] accessibility preferences have no WCAG A or AA automated
   await page.locator('#experimentalFeatures summary').click();
 
   await expectNoAccessibilityViolations(page);
+  await page.locator('#maintenanceSettings summary').click();
+
+  await expectNoAccessibilityViolations(page);
 });
 
 test('[AX-SETTINGS-003] personalized page content has no WCAG A or AA automated violations', async ({ page }) => {

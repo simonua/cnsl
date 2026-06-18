@@ -91,9 +91,16 @@ test('[WF-SETTINGS-001] settings dialog is evenly inset on mobile and centered o
     'Favorites',
     'Schedules',
     'Pool visits',
-    'Display and accessibility',
-    'Experimental Features'
+    'Display & Accessibility',
+    'Experimental Features',
+    'App Maintenance'
   ]);
+  const lightHeaderColors = await page.locator('#favoriteSettings, #experimentalFeatures').evaluateAll(sections => sections.map(section => ({
+    content: globalThis.getComputedStyle(section.querySelector(':scope > div')).backgroundColor,
+    header: globalThis.getComputedStyle(section.querySelector(':scope > summary')).backgroundColor
+  })));
+  expect(lightHeaderColors.every(colors => colors.header !== colors.content)).toBe(true);
+  expect(lightHeaderColors[0].header).not.toBe(lightHeaderColors[1].header);
   const favoriteSettings = page.locator('#favoriteSettings');
   const scheduleSettings = page.locator('#scheduleSettings');
   await expect(favoriteSettings).toHaveAttribute('open', '');
@@ -115,15 +122,20 @@ test('[WF-SETTINGS-001] settings dialog is evenly inset on mobile and centered o
   await expect(page.getByLabel('Extra large')).toBeVisible();
   await accessibilitySummary.press('Enter');
   await expect(accessibilitySettings).not.toHaveAttribute('open', '');
+  const maintenanceSettings = page.locator('#maintenanceSettings');
+  await expect(maintenanceSettings).not.toHaveAttribute('open', '');
+  await expect(page.getByRole('button', { name: 'Force update' })).toBeHidden();
+  await maintenanceSettings.locator('summary').press('Enter');
+  await expect(maintenanceSettings).toHaveAttribute('open', '');
   const closeButtonBounds = await page.getByRole('button', { name: 'Close settings' }).boundingBox();
   expect(closeButtonBounds.width).toBeLessThan(closeButtonBounds.height);
   let forceUpdateButtonBounds = await page.getByRole('button', { name: 'Force update' }).boundingBox();
   let resetButtonBounds = await page.getByRole('button', { name: 'Reset all settings' }).boundingBox();
-  let clearActionsBounds = await page.locator('.settings-actions').boundingBox();
-  expect(forceUpdateButtonBounds.x).toBeGreaterThanOrEqual(clearActionsBounds.x);
-  expect(forceUpdateButtonBounds.x + forceUpdateButtonBounds.width).toBeLessThanOrEqual(clearActionsBounds.x + clearActionsBounds.width);
-  expect(resetButtonBounds.x).toBeGreaterThanOrEqual(clearActionsBounds.x);
-  expect(resetButtonBounds.x + resetButtonBounds.width).toBeLessThanOrEqual(clearActionsBounds.x + clearActionsBounds.width);
+  let maintenanceBounds = await maintenanceSettings.locator('.settings-section__content').boundingBox();
+  expect(forceUpdateButtonBounds.x).toBeGreaterThanOrEqual(maintenanceBounds.x);
+  expect(forceUpdateButtonBounds.x + forceUpdateButtonBounds.width).toBeLessThanOrEqual(maintenanceBounds.x + maintenanceBounds.width);
+  expect(resetButtonBounds.x).toBeGreaterThanOrEqual(maintenanceBounds.x);
+  expect(resetButtonBounds.x + resetButtonBounds.width).toBeLessThanOrEqual(maintenanceBounds.x + maintenanceBounds.width);
   expect(forceUpdateButtonBounds.y + forceUpdateButtonBounds.height <= resetButtonBounds.y
     || resetButtonBounds.y + resetButtonBounds.height <= forceUpdateButtonBounds.y
     || forceUpdateButtonBounds.x + forceUpdateButtonBounds.width <= resetButtonBounds.x
@@ -133,6 +145,7 @@ test('[WF-SETTINGS-001] settings dialog is evenly inset on mobile and centered o
   await page.getByRole('button', { name: 'Open settings' }).click();
   await expect(favoriteSettings).toHaveAttribute('open', '');
   await expect(accessibilitySettings).not.toHaveAttribute('open', '');
+  await expect(maintenanceSettings).not.toHaveAttribute('open', '');
   await page.getByRole('button', { name: 'Close settings' }).click();
 
   const desktopViewport = { width: 1280, height: 800 };
@@ -143,13 +156,14 @@ test('[WF-SETTINGS-001] settings dialog is evenly inset on mobile and centered o
   expect(Math.abs(bounds.height - (desktopViewport.height * 0.75))).toBeLessThanOrEqual(1);
   expect(Math.abs(bounds.x + (bounds.width / 2) - (desktopViewport.width / 2))).toBeLessThanOrEqual(1);
   expect(Math.abs(bounds.y + (bounds.height / 2) - (desktopViewport.height / 2))).toBeLessThanOrEqual(1);
+  await maintenanceSettings.locator('summary').click();
   forceUpdateButtonBounds = await page.getByRole('button', { name: 'Force update' }).boundingBox();
   resetButtonBounds = await page.getByRole('button', { name: 'Reset all settings' }).boundingBox();
-  clearActionsBounds = await page.locator('.settings-actions').boundingBox();
-  expect(forceUpdateButtonBounds.x).toBeGreaterThanOrEqual(clearActionsBounds.x);
-  expect(forceUpdateButtonBounds.x + forceUpdateButtonBounds.width).toBeLessThanOrEqual(clearActionsBounds.x + clearActionsBounds.width);
-  expect(resetButtonBounds.x).toBeGreaterThanOrEqual(clearActionsBounds.x);
-  expect(resetButtonBounds.x + resetButtonBounds.width).toBeLessThanOrEqual(clearActionsBounds.x + clearActionsBounds.width);
+  maintenanceBounds = await maintenanceSettings.locator('.settings-section__content').boundingBox();
+  expect(forceUpdateButtonBounds.x).toBeGreaterThanOrEqual(maintenanceBounds.x);
+  expect(forceUpdateButtonBounds.x + forceUpdateButtonBounds.width).toBeLessThanOrEqual(maintenanceBounds.x + maintenanceBounds.width);
+  expect(resetButtonBounds.x).toBeGreaterThanOrEqual(maintenanceBounds.x);
+  expect(resetButtonBounds.x + resetButtonBounds.width).toBeLessThanOrEqual(maintenanceBounds.x + maintenanceBounds.width);
   expect(forceUpdateButtonBounds.y + forceUpdateButtonBounds.height <= resetButtonBounds.y
     || resetButtonBounds.y + resetButtonBounds.height <= forceUpdateButtonBounds.y
     || forceUpdateButtonBounds.x + forceUpdateButtonBounds.width <= resetButtonBounds.x
@@ -170,6 +184,7 @@ test('[WF-SETTINGS-013] force update reports progress and recovers without chang
   });
 
   const forceUpdateButton = page.getByRole('button', { name: 'Force update' });
+  await page.locator('#maintenanceSettings summary').click();
   await forceUpdateButton.click();
   await expect(forceUpdateButton).toBeDisabled();
   await expect(forceUpdateButton).toHaveAttribute('aria-busy', 'true');
@@ -294,6 +309,7 @@ test('[WF-SETTINGS-002] settings persist choices locally and reset without clear
     expect(dialog.message()).toBe('Reset all settings to their defaults on this device?');
     await dialog.dismiss();
   });
+  await page.locator('#maintenanceSettings summary').click();
   await page.getByRole('button', { name: 'Reset all settings' }).click();
   await dismissedResetPrompt;
   await expect(page.getByLabel('Dark')).toBeChecked();
@@ -447,9 +463,11 @@ test('[WF-SETTINGS-004] system theme follows OS color scheme changes while expli
   await expect(root).toHaveAttribute('data-theme', 'system');
   await expect(root).toHaveAttribute('data-color-scheme', 'dark');
   await expect.poll(() => root.evaluate(element => globalThis.getComputedStyle(element).getPropertyValue('--light-bg').trim())).toBe('#101820');
+  const darkHeaderColor = await page.locator('#favoriteSettings > summary').evaluate(summary => globalThis.getComputedStyle(summary).backgroundColor);
 
   await page.emulateMedia({ colorScheme: 'light' });
   await expect(root).toHaveAttribute('data-color-scheme', 'light');
+  await expect.poll(() => page.locator('#favoriteSettings > summary').evaluate(summary => globalThis.getComputedStyle(summary).backgroundColor)).not.toBe(darkHeaderColor);
 
   await page.locator('#accessibilitySettings summary').click();
   await page.getByLabel('Dark').check();
@@ -552,6 +570,7 @@ test('[WF-SETTINGS-015] page content preferences hide visual introductions while
   await expect.poll(() => poolsHeading.evaluate(heading => globalThis.getComputedStyle(heading).position)).toBe('absolute');
 
   await page.goto('/settings.html');
+  await page.locator('#maintenanceSettings summary').click();
   const acceptedResetPrompt = page.waitForEvent('dialog').then(dialog => dialog.accept());
   await page.getByRole('button', { name: 'Reset all settings' }).click();
   await acceptedResetPrompt;

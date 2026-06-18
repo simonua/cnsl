@@ -130,6 +130,9 @@
   --release-team-bg: var(--feature-recreation-bg);
   --release-team-border: var(--feature-recreation-border);
   --release-team-text: var(--feature-recreation-text);
+  --release-performance-bg: var(--feature-young-swimmers-bg);
+  --release-performance-border: var(--feature-young-swimmers-border);
+  --release-performance-text: var(--feature-young-swimmers-text);
   --release-bugfix-bg: var(--error-soft-bg);
   --release-bugfix-border: var(--error-color);
   --release-bugfix-text: var(--error-text-color);
@@ -3575,6 +3578,12 @@ button.pool-filter__clear:focus-visible {
   color: var(--release-team-text);
 }
 
+.release-label--performance {
+  background: var(--release-performance-bg);
+  border-color: var(--release-performance-border);
+  color: var(--release-performance-text);
+}
+
 .release-label--bugfix {
   background: var(--release-bugfix-bg);
   border-color: var(--release-bugfix-border);
@@ -6122,8 +6131,24 @@ button.settings-dialog__close:focus {
 }
 
 .settings-section > summary {
+  background-color: var(--primary-soft-bg);
+  border-radius: 5px;
   margin: 0;
   padding: 0.9rem;
+}
+
+.settings-section[open] > summary {
+  border-radius: 5px 5px 0 0;
+}
+
+.settings-section > summary:hover {
+  background-color: var(--primary-soft-bg-strong);
+}
+
+.settings-section > summary:focus-visible {
+  background-color: var(--primary-soft-bg-strong);
+  outline: 3px solid var(--primary-color);
+  outline-offset: 2px;
 }
 
 .settings-section > .settings-section__content {
@@ -6148,9 +6173,15 @@ button.settings-dialog__close:focus {
 }
 
 .settings-experiments > summary {
+  background-color: color-mix(in srgb, var(--experimental-control) 10%, var(--experimental-bg));
   grid-template-columns: minmax(0, 1fr) auto auto;
   margin: 0;
   padding: 0.9rem;
+}
+
+.settings-experiments > summary:hover,
+.settings-experiments > summary:focus-visible {
+  background-color: color-mix(in srgb, var(--experimental-control) 18%, var(--experimental-bg));
 }
 
 .settings-experiments__heading {
@@ -6457,14 +6488,31 @@ button.settings-dialog__close:focus {
   display: block;
 }
 
-.settings-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  justify-content: center;
+.settings-maintenance__item {
+  align-items: center;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr) auto;
 }
 
-.settings-actions .btn {
+.settings-maintenance__item + .settings-maintenance__item {
+  border-top: 1px solid var(--border-color);
+  margin-top: 1rem;
+  padding-top: 1rem;
+}
+
+.settings-maintenance__item .settings-sublabel {
+  margin-bottom: 0.25rem;
+}
+
+.settings-maintenance__description {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.settings-maintenance__item .btn {
   cursor: pointer;
   min-height: 3rem;
 }
@@ -6544,8 +6592,13 @@ button.settings-dialog__close:focus {
     grid-template-columns: 1fr;
   }
 
-  .settings-actions .btn {
-    width: auto;
+  .settings-maintenance__item {
+    align-items: stretch;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .settings-maintenance__item .btn {
+    justify-self: start;
   }
 
   .settings-experiment {
