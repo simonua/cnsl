@@ -59,21 +59,25 @@ if (typeof globalThis.WeatherAlertDisplay === 'undefined') {
      * @returns {void}
      */
     static renderMessage(message, status) {
+      const forecast = document.createElement('span');
+      forecast.className = 'weather-alert__forecast';
       const guidance = document.createElement('span');
       guidance.className = 'weather-alert__guidance';
       guidance.textContent = status.guidance || '';
-      const guidanceContent = status.guidance ? [' ', guidance] : [];
+      const guidanceContent = status.guidance ? [guidance] : [];
+      const forecastSuffix = status.guidance ? ' ' : '';
 
       if (status.source === WeatherAlertSource.ALERT && typeof status.alertLabel === 'string') {
         const alertIndex = status.message.indexOf(status.alertLabel);
         if (alertIndex !== -1) {
           const alertType = WeatherAlertDisplay.createWeatherType(status.alertLabel, 'warning');
-          message.replaceChildren(
+          forecast.replaceChildren(
             status.message.slice(0, alertIndex),
             alertType,
             status.message.slice(alertIndex + status.alertLabel.length),
-            ...guidanceContent
+            forecastSuffix
           );
+          message.replaceChildren(forecast, ...guidanceContent);
           return;
         }
       }
@@ -84,7 +88,8 @@ if (typeof globalThis.WeatherAlertDisplay === 'undefined') {
       const hazards = Array.isArray(status.hazards) ? status.hazards.filter(WeatherHazard.isValid) : [];
       const hazardIndex = hazardLabel ? status.message.indexOf(hazardLabel) : -1;
       if (hazardIndex === -1 || hazards.length === 0) {
-        message.replaceChildren(status.message, ...guidanceContent);
+        forecast.replaceChildren(status.message, forecastSuffix);
+        message.replaceChildren(forecast, ...guidanceContent);
         return;
       }
 
@@ -93,12 +98,13 @@ if (typeof globalThis.WeatherAlertDisplay === 'undefined') {
         if (index > 0) hazardList.append(index === hazards.length - 1 ? ' and ' : ', ');
         hazardList.append(WeatherAlertDisplay.createWeatherType(hazard, WeatherAlertDisplay.getHazardGlyphName(hazard)));
       });
-      message.replaceChildren(
+      forecast.replaceChildren(
         status.message.slice(0, hazardIndex),
         hazardList,
         status.message.slice(hazardIndex + hazardLabel.length),
-        ...guidanceContent
+        forecastSuffix
       );
+      message.replaceChildren(forecast, ...guidanceContent);
     }
 
     /**
