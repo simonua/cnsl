@@ -3,7 +3,10 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const { AnalyticsInteractionType } = require('../helpers/browser-module-loader.js').loadBrowserModule('analytics-interaction-type');
+const {
+  AnalyticsExternalLinkPurpose,
+  AnalyticsInteractionType
+} = require('../helpers/browser-module-loader.js').loadBrowserModule('analytics-interaction-type');
 
 describe('AnalyticsInteractionType', () => {
   it('defines the supported interaction categories as an immutable enum', () => {
@@ -21,6 +24,12 @@ describe('AnalyticsInteractionType', () => {
     assert.equal(Object.isFrozen(AnalyticsInteractionType), true);
   });
 
+  it('defines immutable external-link purposes shared by producers and analytics', () => {
+    assert.equal(AnalyticsExternalLinkPurpose.POOL_PAGE, 'pool_page');
+    assert.equal(AnalyticsExternalLinkPurpose.POOL_SCHEDULE, 'pool_schedule');
+    assert.equal(Object.isFrozen(AnalyticsExternalLinkPurpose), true);
+  });
+
   it('installs the enum as a browser global', () => {
     const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'types', 'analytics-interaction-type.js');
     const source = fs.readFileSync(sourcePath, 'utf8');
@@ -29,6 +38,7 @@ describe('AnalyticsInteractionType', () => {
     context.self = context;
     context.window = context;
     vm.runInNewContext(source, context, { filename: sourcePath });
+    assert.equal(context.window.AnalyticsExternalLinkPurpose.POOL_SCHEDULE, 'pool_schedule');
     assert.equal(context.window.AnalyticsInteractionType.DIRECTORY_DETAIL_OPEN, 'directory_detail_open');
   });
 });

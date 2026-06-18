@@ -14,5 +14,18 @@
     SHARE: 'share'
   });
 
+  /** @type {Readonly<Record<string, string>>} */
+  const AnalyticsExternalLinkPurpose = Object.freeze({
+    GENERAL: 'general',
+    MERCHANDISE: 'merchandise',
+    POOL_PAGE: 'pool_page',
+    POOL_SCHEDULE: 'pool_schedule',
+    PROVIDER_CONTACT: 'provider_contact',
+    PROVIDER_RECOMMENDATION: 'provider_recommendation',
+    PROVIDER_WEBSITE: 'provider_website',
+    RELATED_PROGRAM: 'related_program'
+  });
+
+  globalScope.AnalyticsExternalLinkPurpose = AnalyticsExternalLinkPurpose;
   globalScope.AnalyticsInteractionType = AnalyticsInteractionType;
 }(globalThis));

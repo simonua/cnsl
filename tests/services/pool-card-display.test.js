@@ -60,7 +60,9 @@ describe('PoolCardDisplay', () => {
     assert.match(html, /class="address-section__directions"/);
     assert.match(html, /class="address-section__secondary-actions"/);
     assert.match(html, /href="https:\/\/example\.com\/pool\?name=Bryant&amp;Woods"/);
+    assert.match(html, /data-analytics-link-purpose="pool_page"/);
     assert.match(html, /href="https:\/\/example\.com\/schedules\/Bryant_Woods\.pdf\?season=current&amp;view=official"/);
+    assert.match(html, /data-analytics-link-purpose="pool_schedule"/);
     assert.match(html, />\s*CA Pool Schedule\s*<\/a>/);
     assert.match(html, /href="tel:4105550100"/);
     assert.match(html, /feature-pill--amenities/);

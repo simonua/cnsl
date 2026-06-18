@@ -550,6 +550,7 @@ test('[WF-ANALYTICS-007] external links publish fixed destinations without URL d
   await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
 
   const poolCard = page.locator('[data-pool-card]').first();
+  const poolId = await poolCard.getAttribute('data-pool-id');
   const toggle = poolCard.locator('.pool-header__toggle');
   if (await toggle.getAttribute('aria-expanded') === 'false') await toggle.click();
 
@@ -560,6 +561,8 @@ test('[WF-ANALYTICS-007] external links publish fixed destinations without URL d
   await clickWithoutNavigation(poolCard.locator('.phone-link'));
   await clickWithoutNavigation(poolCard.locator('.address-link'));
   await clickWithoutNavigation(poolCard.locator('.directions-link'));
+  await clickWithoutNavigation(poolCard.getByRole('link', { name: 'Visit CA Pool Page' }));
+  await clickWithoutNavigation(poolCard.getByRole('link', { name: 'CA Pool Schedule' }));
   await poolCard.evaluate(card => {
     const appleMapsLink = globalThis.document.createElement('a');
     appleMapsLink.href = 'https://maps.apple.com/?daddr=private+address';
@@ -579,6 +582,8 @@ test('[WF-ANALYTICS-007] external links publish fixed destinations without URL d
     ['event', 'ca_external_link', { link_context: 'pool_details', link_purpose: 'general', link_destination: 'phone_call' }],
     ['event', 'ca_external_link', { link_context: 'pool_details', link_purpose: 'general', link_destination: 'google_maps' }],
     ['event', 'ca_external_link', { link_context: 'pool_details', link_purpose: 'general', link_destination: 'google_maps' }],
+    ['event', 'ca_external_link', { link_context: 'pool_details', link_purpose: 'pool_page', link_destination: 'columbia_association', pool_id: poolId }],
+    ['event', 'ca_external_link', { link_context: 'pool_details', link_purpose: 'pool_schedule', link_destination: 'columbia_association', pool_id: poolId }],
     ['event', 'ca_external_link', { link_context: 'pool_details', link_purpose: 'general', link_destination: 'apple_maps' }],
     ['event', 'ca_external_link', { link_context: 'pool_details', link_purpose: 'general', link_destination: 'other' }]
   ]);
@@ -589,8 +594,14 @@ test('[WF-ANALYTICS-007] external links publish fixed destinations without URL d
       purpose: 'general'
     });
   });
+  await poolCard.evaluate(card => {
+    card.dataset.poolId = 'injected-pool';
+    const scheduleLink = Array.from(card.querySelectorAll('a')).find(link => link.textContent.trim() === 'CA Pool Schedule');
+    scheduleLink.addEventListener('click', event => event.preventDefault(), { once: true });
+    scheduleLink.click();
+  });
   const externalEvents = await page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_external_link'));
-  expect(externalEvents).toHaveLength(5);
+  expect(externalEvents).toHaveLength(7);
   expect(JSON.stringify(externalEvents)).not.toContain('secret');
   expect(JSON.stringify(externalEvents)).not.toContain('410-');
 });

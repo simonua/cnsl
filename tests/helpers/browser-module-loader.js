@@ -1,6 +1,7 @@
 const { createClassicScriptLoader, toHostValue } = require('../../scripts/lib/classic-script-loader.js');
 
 const CONFIG = 'config/app-config.js';
+const ANALYTICS_TYPES = 'types/analytics-interaction-type.js';
 const ICONS = 'services/icon-catalog.js';
 const PAYMENT_METHOD = 'types/payment-method.js';
 const SCHEDULE_STATE = 'types/schedule-state.js';
@@ -9,7 +10,7 @@ const WEATHER_HAZARD = 'types/weather-hazard.js';
 const WEATHER_SOURCE = 'types/weather-alert-source.js';
 
 const BROWSER_MODULE_MANIFESTS = Object.freeze({
-  'analytics-interaction-type': { scripts: ['types/analytics-interaction-type.js'], exports: ['AnalyticsInteractionType'] },
+  'analytics-interaction-type': { scripts: [ANALYTICS_TYPES], exports: ['AnalyticsExternalLinkPurpose', 'AnalyticsInteractionType'] },
   'app-config': { scripts: [CONFIG], exports: ['AppConfig'] },
   'data-manager': { scripts: [CONFIG, ICONS, TIME, 'types/pool-enums.js', SCHEDULE_STATE, 'models/pool-schedule.js', 'services/pool-period-schedule-service.js', 'models/pool.js', 'models/team.js', 'models/meet.js', 'managers/pools-manager.js', 'managers/teams-manager.js', 'managers/meets-manager.js', 'services/data-manager.js'], exports: ['DataManager', 'getDataManager', 'initializeDataManager'] },
   'device-platform-service': { scripts: ['services/device-platform-service.js'], exports: ['DevicePlatformService'] },
@@ -24,7 +25,7 @@ const BROWSER_MODULE_MANIFESTS = Object.freeze({
   'payment-method': { scripts: [PAYMENT_METHOD], exports: ['PaymentMethod'], realmExports: ['PaymentMethod'] },
   'meets-manager': { scripts: [SCHEDULE_STATE, 'models/meet.js', 'managers/meets-manager.js'], exports: ['Meet', 'MeetsManager'] },
   pool: { scripts: [CONFIG, ICONS, TIME, 'types/pool-enums.js', SCHEDULE_STATE, 'models/pool-schedule.js', 'services/pool-period-schedule-service.js', 'models/pool.js'], exports: ['Pool', 'PoolStatus', 'TimeUtils', 'PoolPeriodScheduleService'], realmExports: ['PoolStatus'] },
-  'pool-card-display': { scripts: [CONFIG, 'services/html-safety.js', ICONS, 'services/device-platform-service.js', 'services/pool-link-helper.js', SCHEDULE_STATE, 'services/pool-card-display.js'], exports: ['PoolCardDisplay'] },
+  'pool-card-display': { scripts: [CONFIG, ANALYTICS_TYPES, 'services/html-safety.js', ICONS, 'services/device-platform-service.js', 'services/pool-link-helper.js', SCHEDULE_STATE, 'services/pool-card-display.js'], exports: ['PoolCardDisplay'] },
   'pool-calendar-service': { scripts: ['services/pool-calendar-service.js'], exports: ['PoolCalendarService'] },
   'pool-directory-service': { scripts: ['services/pool-directory-service.js'], exports: ['PoolDirectoryService'] },
   'pool-hours-display': { scripts: ['services/html-safety.js', ICONS, SCHEDULE_STATE, 'services/pool-schedule-display.js', 'services/pool-hours-display.js'], exports: ['PoolHoursDisplay'] },

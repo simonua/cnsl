@@ -144,7 +144,8 @@ if (typeof globalThis.PoolCardDisplay === 'undefined') {
           <a href="${caUrl}"
              target="_blank"
              rel="noopener"
-             class="ca-link">
+             class="ca-link"
+             data-analytics-link-purpose="${globalThis.AnalyticsExternalLinkPurpose.POOL_PAGE}">
             Visit CA Pool Page
           </a>
         </div>`
@@ -154,7 +155,8 @@ if (typeof globalThis.PoolCardDisplay === 'undefined') {
           <a href="${scheduleUrl}"
              target="_blank"
              rel="noopener"
-             class="ca-link">
+             class="ca-link"
+             data-analytics-link-purpose="${globalThis.AnalyticsExternalLinkPurpose.POOL_SCHEDULE}">
             CA Pool Schedule
           </a>
         </div>`

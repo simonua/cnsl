@@ -54,15 +54,12 @@
 
   // External-link classification
 
-  const EXTERNAL_LINK_PURPOSES = Object.freeze({
-    GENERAL: 'general',
-    MERCHANDISE: 'merchandise',
-    PROVIDER_CONTACT: 'provider_contact',
-    PROVIDER_RECOMMENDATION: 'provider_recommendation',
-    PROVIDER_WEBSITE: 'provider_website',
-    RELATED_PROGRAM: 'related_program'
-  });
+  const EXTERNAL_LINK_PURPOSES = globalThis.AnalyticsExternalLinkPurpose;
   const ALLOWED_EXTERNAL_LINK_PURPOSES = new Set(Object.values(EXTERNAL_LINK_PURPOSES));
+  const POOL_EXTERNAL_LINK_PURPOSES = new Set([
+    EXTERNAL_LINK_PURPOSES.POOL_PAGE,
+    EXTERNAL_LINK_PURPOSES.POOL_SCHEDULE
+  ]);
   const ALLOWED_EXTERNAL_LINK_CONTEXTS = new Set([
     'feedback', 'lesson_resources', 'meet_details', 'official_information', 'other', 'pool_details',
     'project_information', 'team_details', 'weather_status'
@@ -544,18 +541,44 @@
    * @param {string} context - Approved link context
    * @param {string} purpose - Approved link purpose
    * @param {string} destination - Approved destination label
+   * @param {string} poolId - Candidate public pool identifier
    * @private
    */
-  function trackExternalLinkInteraction(context, purpose, destination) {
+  function trackExternalLinkInteraction(context, purpose, destination, poolId) {
     if (!ALLOWED_EXTERNAL_LINK_CONTEXTS.has(context)
       || !ALLOWED_EXTERNAL_LINK_PURPOSES.has(purpose)
       || !ALLOWED_EXTERNAL_LINK_DESTINATIONS.has(destination)) return;
 
-    publishEvent(ANALYTICS_EVENT_NAMES.EXTERNAL_LINK, {
+    const isPoolAction = POOL_EXTERNAL_LINK_PURPOSES.has(purpose);
+    const publishedPoolId = isPoolAction ? getPublishedPoolId(poolId) : null;
+    if (isPoolAction && (context !== 'pool_details' || !publishedPoolId)) return;
+
+    const eventParameters = {
       link_context: context,
       link_purpose: purpose,
       link_destination: destination
-    });
+    };
+    if (publishedPoolId) eventParameters.pool_id = publishedPoolId;
+    publishEvent(ANALYTICS_EVENT_NAMES.EXTERNAL_LINK, eventParameters);
+  }
+
+  /**
+   * Validates a public pool identifier against the loaded annual directory.
+   * @param {string} poolId - Candidate pool identifier
+   * @returns {string|null} Published pool identifier or null
+   * @private
+   */
+  function getPublishedPoolId(poolId) {
+    if (typeof poolId !== 'string' || typeof globalThis.getDataManager !== 'function') return null;
+
+    try {
+      const dataManager = globalThis.getDataManager();
+      if (!dataManager.isInitialized(['pools'])) return null;
+      const publishedPool = dataManager.getPools().getAllPools().find(pool => pool.id === poolId);
+      return publishedPool ? publishedPool.id : null;
+    } catch (_error) {
+      return null;
+    }
   }
 
   /**
@@ -666,6 +689,17 @@
   }
 
   /**
+   * Resolves the public pool identifier carried by a pool-directory card.
+   * @param {Element} link - External link element
+   * @returns {string} Candidate pool identifier
+   * @private
+   */
+  function getExternalLinkPoolId(link) {
+    const poolCard = link.closest('[data-pool-card][data-pool-id]');
+    return poolCard ? poolCard.dataset.poolId : '';
+  }
+
+  /**
    * Resolves a privacy-safe destination label without reporting the link URL.
    * @param {Element} link - External link element
    * @returns {string} Approved destination label
@@ -732,6 +766,7 @@
         trackInteraction(AnalyticsInteractionType.EXTERNAL_LINK, {
           context: getExternalLinkContext(clickedLink),
           destination: getExternalLinkDestination(clickedLink),
+          poolId: getExternalLinkPoolId(clickedLink),
           purpose: getExternalLinkPurpose(clickedLink)
         });
       }
@@ -798,7 +833,7 @@
         trackExperimentalFeatureChange(parameters.featureId, parameters.action);
         break;
       case AnalyticsInteractionType.EXTERNAL_LINK:
-        trackExternalLinkInteraction(parameters.context, parameters.purpose, parameters.destination);
+        trackExternalLinkInteraction(parameters.context, parameters.purpose, parameters.destination, parameters.poolId);
         break;
       case AnalyticsInteractionType.FIXED_SETTING_CHANGE:
         trackFixedSettingChange(parameters.settingName, parameters.settingValue);
