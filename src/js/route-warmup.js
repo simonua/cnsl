@@ -17,7 +17,17 @@
   const POOLS_ROUTE_WARMUP = Object.freeze({
     document: 'pools.html'
   });
-  const ACTIVE_ROUTE_WARMUPS = Object.freeze([POOLS_ROUTE_WARMUP]);
+  const TEAMS_ROUTE_WARMUP = Object.freeze({
+    document: 'teams.html'
+  });
+  const MEETS_ROUTE_WARMUP = Object.freeze({
+    document: 'meets.html'
+  });
+  const ACTIVE_ROUTE_WARMUPS = Object.freeze([
+    POOLS_ROUTE_WARMUP,
+    TEAMS_ROUTE_WARMUP,
+    MEETS_ROUTE_WARMUP
+  ]);
   const installedRouteUrls = new Set();
   const routeReadinessByUrl = new Map();
   const routeReadinessWaiters = new Map();

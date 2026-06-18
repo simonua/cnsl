@@ -314,7 +314,7 @@ test('[WF-DATA-011-MEETS] meet date summaries render before requested details en
   await expect(requestedCard.locator('.meet-date-details')).toHaveAttribute('aria-busy', 'false');
   await expect(requestedCard.locator('.meet-date-details')).toHaveAttribute('data-meet-details-hydrated', 'true');
   await expect(requestedCard.locator('.meet-details').first()).toBeVisible();
-  expect(await page.evaluate(() => getDataManager().isInitialized(['pools', 'teams']))).toBe(true);
+  expect(await page.evaluate(() => globalThis.getDataManager().isInitialized(['pools', 'teams']))).toBe(true);
   await expect(page.locator('script[data-meets-enrichment-dependency]')).toHaveCount(8);
   await expect.poll(() => page.evaluate(() => performance.getEntriesByName('cnsl:meets:optional-enrichment-settled').length)).toBe(1);
 });

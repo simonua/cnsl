@@ -10,28 +10,12 @@ let poolLiveStatusSignature = '';
 let poolBrowserEnrichmentPromise = null;
 let poolLocationRequestInFlight = false;
 const PoolBrowserSafety = HtmlSafety;
-const poolRouteWarmupChannel = document.prerendering && typeof globalThis.BroadcastChannel === 'function'
-  ? new globalThis.BroadcastChannel(globalThis.ROUTE_WARMUP_CHANNEL_NAME)
-  : null;
 const POOL_LOCATION_REQUEST_OPTIONS = Object.freeze([
   Object.freeze({ enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 }),
   Object.freeze({ enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 })
 ]);
 
-/**
- * Reports primary Pools render readiness to the page that initiated this prerender.
- * @param {string} state - Shared route warm-up readiness state
- */
-function reportPoolRouteWarmupReadiness(state) {
-  if (!poolRouteWarmupChannel) return;
-
-  poolRouteWarmupChannel.postMessage({
-    route: globalThis.location.href,
-    state
-  });
-}
-
-reportPoolRouteWarmupReadiness(globalThis.ROUTE_WARMUP_READINESS_STATES.PREPARING);
+globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.PREPARING);
 
 /**
  * Records a pool-directory performance milestone when the Performance API is available.
@@ -1155,9 +1139,13 @@ function schedulePoolBrowserActivationWork() {
  * @returns {Promise<void>} Promise settled after initial summaries and activation work is scheduled
  */
 async function startPoolBrowser() {
-  if (globalThis.cnslSeasonState && globalThis.cnslSeasonState.isOffSeason) return;
+  if (globalThis.cnslSeasonState && globalThis.cnslSeasonState.isOffSeason) {
+    globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.READY);
+    return;
+  }
   // Check if we're on the pools page before fetching data
   if (!document.getElementById("poolList")) {
+    globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.READY);
     return;
   }
 
@@ -1181,7 +1169,7 @@ async function startPoolBrowser() {
     markPoolPerformance('summary-visible');
     startPoolLiveStatusUpdates();
     setPoolListStatus(`Pool directory loaded. ${poolRecords.length} pools available.`, false);
-    reportPoolRouteWarmupReadiness(globalThis.ROUTE_WARMUP_READINESS_STATES.READY);
+    globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.READY);
     schedulePoolBrowserActivationWork();
 
     // Set up pool-specific navigation event handlers
@@ -1197,7 +1185,7 @@ async function startPoolBrowser() {
       list.innerHTML = `<p>${IconCatalog.getTextGlyph('warning')} The pool directory did not load. Please check your connection and refresh the page to try again.</p>`;
     }
     setPoolListStatus('The pool directory did not load. Please check your connection and refresh the page to try again.', false);
-    reportPoolRouteWarmupReadiness(globalThis.ROUTE_WARMUP_READINESS_STATES.READY);
+    globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.READY);
   }
 }
 

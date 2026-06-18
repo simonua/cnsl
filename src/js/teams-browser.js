@@ -32,6 +32,8 @@ const teamsBrowserAssetVersion = teamsBrowserControllerSource
   : '';
 let teamsBrowserDependenciesPromise = null;
 
+globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.PREPARING);
+
 /**
  * Records a team-directory performance milestone when the Performance API is available.
  * @param {string} markName - Team milestone name
@@ -129,6 +131,37 @@ function startTeamsBrowserEnrichment() {
     return false;
   });
   return teamsBrowserEnrichmentPromise;
+}
+
+/**
+ * Hydrates team details that are already expanded after optional work is allowed.
+ */
+function hydrateExpandedTeamDetails() {
+  document.querySelectorAll('.team-header__toggle[aria-expanded="true"]').forEach(toggle => {
+    const teamCard = toggle.closest('.team-card');
+    if (teamCard) void hydrateTeamDetails(teamCard);
+  });
+}
+
+/**
+ * Starts optional team-detail work after a prerendered route activates.
+ */
+function startTeamsBrowserActivationWork() {
+  void startTeamsBrowserEnrichment();
+  hydrateExpandedTeamDetails();
+  handleTeamUrlParameter();
+}
+
+/**
+ * Defers optional Teams work while the route is being prepared in a hidden prerender.
+ */
+function scheduleTeamsBrowserActivationWork() {
+  if (!document.prerendering) {
+    startTeamsBrowserActivationWork();
+    return;
+  }
+
+  document.addEventListener('prerenderingchange', startTeamsBrowserActivationWork, { once: true });
 }
 
 /**
@@ -829,10 +862,7 @@ function renderTeams(teams) {
   }).join('');
 
   list.innerHTML = html;
-  list.querySelectorAll('.team-header__toggle[aria-expanded="true"]').forEach(toggle => {
-    const teamCard = toggle.closest('.team-card');
-    if (teamCard) void hydrateTeamDetails(teamCard);
-  });
+  if (!document.prerendering) hydrateExpandedTeamDetails();
 }
 
   /**
@@ -885,9 +915,13 @@ function handleTeamUrlParameter() {
  * @returns {Promise<void>} Promise settled after initial summaries and background enrichment begin
  */
 async function startTeamsBrowser() {
-  if (globalThis.cnslSeasonState && globalThis.cnslSeasonState.isOffSeason) return;
+  if (globalThis.cnslSeasonState && globalThis.cnslSeasonState.isOffSeason) {
+    globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.READY);
+    return;
+  }
   // Check if we're on the teams page before fetching data
   if (!document.getElementById("teamList")) {
+    globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.READY);
     return;
   }
 
@@ -918,10 +952,8 @@ async function startTeamsBrowser() {
     renderTeams(teams);
     markTeamPerformance('summary-visible');
     setTeamListStatus(`Team directory loaded. ${teams.length} teams available.`, false);
-    void startTeamsBrowserEnrichment();
-
-    // Handle team URL parameter for direct linking
-    handleTeamUrlParameter();
+    globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.READY);
+    scheduleTeamsBrowserActivationWork();
 
   } catch (error) {
     console.error("Failed to load team data:", error);
@@ -930,6 +962,7 @@ async function startTeamsBrowser() {
       list.innerHTML = `<p>${IconCatalog.getTextGlyph('warning')} The team directory did not load. Please check your connection and refresh the page to try again.</p>`;
     }
     setTeamListStatus('The team directory did not load. Please check your connection and refresh the page to try again.', false);
+    globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.READY);
   }
 }
 

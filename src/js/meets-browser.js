@@ -25,6 +25,7 @@ const meetsControllerSource = document.currentScript && document.currentScript.s
 const meetsAssetVersion = meetsControllerSource ? meetsControllerSource.searchParams.get('v') : '';
 const meetDetailsHydrationPromises = new WeakMap();
 
+globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.PREPARING);
 
 // ------------------------------
 //    INITIALIZATION
@@ -124,6 +125,36 @@ function startMeetsBrowserEnrichment() {
     })();
   }
   return meetsBrowserEnrichmentPromise;
+}
+
+/**
+ * Hydrates meet-date details that are already expanded after optional work is allowed.
+ */
+function hydrateExpandedMeetDateDetails() {
+  document.querySelectorAll('.meet-date-header__toggle[aria-expanded="true"]').forEach(toggle => {
+    void hydrateMeetDateDetails(toggle.closest('.meet-date-card'));
+  });
+}
+
+/**
+ * Starts optional meet-detail work after a prerendered route activates.
+ */
+function startMeetsBrowserActivationWork() {
+  void startMeetsBrowserEnrichment();
+  hydrateExpandedMeetDateDetails();
+  void handleMeetUrlParameters();
+}
+
+/**
+ * Defers optional Meets work while the route is being prepared in a hidden prerender.
+ */
+function scheduleMeetsBrowserActivationWork() {
+  if (!document.prerendering) {
+    startMeetsBrowserActivationWork();
+    return;
+  }
+
+  document.addEventListener('prerenderingchange', startMeetsBrowserActivationWork, { once: true });
 }
 
 /**
@@ -456,9 +487,7 @@ async function renderMeets(meets, preserveExpansion = false) {
   }
 
   list.innerHTML = html;
-  list.querySelectorAll('.meet-date-header__toggle[aria-expanded="true"]').forEach(toggle => {
-    void hydrateMeetDateDetails(toggle.closest('.meet-date-card'));
-  });
+  if (!document.prerendering) hydrateExpandedMeetDateDetails();
 }
 
 /**
@@ -573,9 +602,13 @@ async function handleMeetUrlParameters() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  if (globalThis.cnslSeasonState && globalThis.cnslSeasonState.isOffSeason) return;
+  if (globalThis.cnslSeasonState && globalThis.cnslSeasonState.isOffSeason) {
+    globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.READY);
+    return;
+  }
   // Check if we're on the meets page before fetching data
   if (!document.getElementById("meetList")) {
+    globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.READY);
     return;
   }
 
@@ -594,15 +627,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     meetsBrowserMeets = allMeets;
     await renderMeets(allMeets);
     markMeetPerformance('summary-visible');
-    void startMeetsBrowserEnrichment();
-    void handleMeetUrlParameters();
     scheduleNextMeetLiveStatusRefresh();
     setMeetListStatus(`Meet schedule loaded. ${allMeets.length} meets available.`, false);
+    globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.READY);
+    scheduleMeetsBrowserActivationWork();
 
   } catch (error) {
     console.error("Error loading meets:", error);
     meetList.innerHTML = `<p>${IconCatalog.getTextGlyph('warning')} The meet schedule did not load. Please check your connection and refresh the page to try again.</p>`;
     setMeetListStatus('The meet schedule did not load. Please check your connection and refresh the page to try again.', false);
+    globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.READY);
   }
 });
 

@@ -15,6 +15,7 @@ const ACCESSIBILITY_TEST_TIMEOUT_MS = 90000;
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 const ANNUAL_TEAMS = readAnnualData('teams').teams;
 const AGENDA_TEAM = ANNUAL_TEAMS.find(team => team.practice?.preseason?.length && team.practice?.regular);
+const CALENDAR_TEAM = ANNUAL_TEAMS.find(team => team.calendarUrl);
 const SUBSCRIPTION_TEAM = ANNUAL_TEAMS.find(team => team.eventsSubscriptionUrl);
 const MEET_DAY_TEAM = ANNUAL_TEAMS.find(team => team.homeMeetGuides?.some(guide => {
   const paymentMethods = guide.general?.concessions?.paymentMethods || [];
@@ -90,7 +91,7 @@ for (const theme of ['light', 'dark']) {
         }
 
         if (scenario.name === 'teams') {
-          const calendarCard = page.locator('.team-card:has(.team-actions--calendar)').first();
+          const calendarCard = page.locator(`.team-card[data-team-id="${CALENDAR_TEAM.id}"]`);
           const calendarToggle = calendarCard.locator('.team-header__toggle');
           if (await calendarToggle.getAttribute('aria-expanded') !== 'true') await calendarToggle.click();
           await expect(calendarCard.getByRole('link', { name: 'Team Calendar' })).toBeVisible();
