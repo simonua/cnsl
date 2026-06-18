@@ -13,6 +13,7 @@ This guide records the visual decisions for the CA Pool & CNSL Assistant. Apply 
 
 - Write like a helpful local swim parent: warm, familiar, straightforward, and respectful.
 - Use first person when the maintainer is speaking and address visitors directly as `you` when guidance is clearer that way.
+- Refer to the software as `the web app` when describing what it does. Reserve `CNSL` for the league or proper names, and do not use `CNSL` as the actor for web-app behavior.
 - Use `please` for requests, corrections, and troubleshooting steps. Thank visitors when they share feedback, report a correction, or recommend a community resource.
 - Keep manners natural. Do not repeat `please` in every sentence or add it to concise control labels, navigation, headings, status labels, or urgent safety instructions.
 - Never blame visitors for errors or missing information. Briefly explain what happened, mention anything that still works, and offer a polite next step when one is available.

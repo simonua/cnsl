@@ -45,6 +45,7 @@ describe('app-config', () => {
     assert.equal(context.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY, config.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY);
     assert.equal(context.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY, config.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY);
     assert.equal(context.PREFERENCES_CHANGED_EVENT_NAME, config.PREFERENCES_CHANGED_EVENT_NAME);
+    assert.equal(context.ROUTE_WARMUP_CHANNEL_NAME, config.ROUTE_WARMUP_CHANNEL_NAME);
     assert.equal(context.EXPERIMENTAL_SETTINGS_URL, config.EXPERIMENTAL_SETTINGS_URL);
     assert.equal(context.MY_MEET_DAY_HOME_LOOKAHEAD_DAYS, 2);
     assert.equal(
@@ -58,6 +59,15 @@ describe('app-config', () => {
     assert.equal(Object.isFrozen(config.EXPERIMENTAL_FEATURE_IDS), true);
     assert.equal(config.EXPERIMENTAL_SETTINGS_URL, 'assets/experimental-settings.json');
     assert.equal(config.MY_MEET_DAY_HOME_LOOKAHEAD_DAYS, 2);
+  });
+
+  it('publishes the immutable route warm-up readiness contract', () => {
+    assert.equal(config.ROUTE_WARMUP_CHANNEL_NAME, 'cnsl:route-warmup');
+    assert.deepEqual(config.ROUTE_WARMUP_READINESS_STATES, {
+      PREPARING: 'preparing',
+      READY: 'ready'
+    });
+    assert.equal(Object.isFrozen(config.ROUTE_WARMUP_READINESS_STATES), true);
   });
 
   it('publishes immutable analytics deployment modes', () => {

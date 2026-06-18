@@ -10,6 +10,7 @@ CNSL (Columbia Neighborhood Swim League) is a PWA for pool directories, team sch
 
 - Write FAQs and other visitor-facing text for parents, pool visitors, and swim team members.
 - Explain technical topics concisely in clear, understandable language, and avoid technical jargon.
+- Refer to the software as `the web app` when describing what it does. Reserve `CNSL` for the league or proper names, and do not use `CNSL` as the actor for web-app behavior.
 - Keep all visitor-facing language friendly and courteous.
 - Use good manners in visitor-facing prose. Phrase requests and corrective guidance with `please`, thank visitors when they contribute information or feedback, and avoid language that sounds demanding, scolding, dismissive, or blaming.
 - Keep courtesy natural rather than repetitive. One well-placed `please` is enough for a set of related steps, and concise button labels, navigation labels, headings, status labels, and urgent safety instructions do not need courtesy words.

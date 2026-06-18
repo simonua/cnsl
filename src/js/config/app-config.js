@@ -220,6 +220,11 @@
 
   // Shared browser event contracts.
   const PREFERENCES_CHANGED_EVENT_NAME = 'cnsl:preferences-changed';
+  const ROUTE_WARMUP_CHANNEL_NAME = 'cnsl:route-warmup';
+  const ROUTE_WARMUP_READINESS_STATES = Object.freeze({
+    PREPARING: 'preparing',
+    READY: 'ready'
+  });
 
   // Device-local preference and presentation state keys.
   const ANALYTICS_APP_VERSION_STORAGE_KEY = 'cnsl_analytics_current_version';
@@ -284,6 +289,8 @@
     PREFERENCES_CHANGED_EVENT_NAME,
     PREFERENCES_STORAGE_KEY,
     PWA_CACHE_PREFIX,
+    ROUTE_WARMUP_CHANNEL_NAME,
+    ROUTE_WARMUP_READINESS_STATES,
     SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY,
     SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY,
     SETTINGS_NOTICE_DISMISSED_STORAGE_KEY,
