@@ -53,6 +53,9 @@ This guide records the visual decisions for the CA Pool & CNSL Assistant. Apply 
 
 - Use the existing system font stack and established heading scale.
 - Match heading size to its context; compact panels and cards use compact headings.
+- Use title case for concise page, section, card, and dialog names. Capitalize the first and last words and principal words; lowercase articles, coordinating conjunctions, and short prepositions unless they begin or end the heading.
+- Keep sentence case for complete questions, sentences, alerts, status messages, and instructional prompts, even when they use heading markup for semantic structure.
+- Preserve the official capitalization of proper names, abbreviations, and branded terms.
 - Use familiar icons that support the adjacent label. Keep decorative icons out of accessible names with `aria-hidden="true"`.
 - Keep icon dimensions stable so labels and navigation items do not shift.
 
