@@ -252,12 +252,20 @@ siteVerificationFiles.forEach(file => {
   console.log(`Copied site verification file: ${file}`);
 });
 
-const rootFaviconSource = path.join('src', 'assets', 'favicons', 'favicon.ico');
-if (!fs.existsSync(rootFaviconSource)) {
-  throw new Error(`Required favicon not found: ${rootFaviconSource}`);
-}
-fs.copyFileSync(rootFaviconSource, path.join(outDir, 'favicon.ico'));
-console.log('Copied root favicon alias: favicon.ico');
+const rootIconAliases = Object.freeze({
+  'apple-touch-icon-120x120-precomposed.png': path.join('src', 'assets', 'favicons', 'apple-touch-icon.png'),
+  'apple-touch-icon-120x120.png': path.join('src', 'assets', 'favicons', 'apple-touch-icon.png'),
+  'apple-touch-icon-precomposed.png': path.join('src', 'assets', 'favicons', 'apple-touch-icon.png'),
+  'apple-touch-icon.png': path.join('src', 'assets', 'favicons', 'apple-touch-icon.png'),
+  'favicon.ico': path.join('src', 'assets', 'favicons', 'favicon.ico')
+});
+Object.entries(rootIconAliases).forEach(([alias, sourcePath]) => {
+  if (!fs.existsSync(sourcePath)) {
+    throw new Error(`Required icon not found: ${sourcePath}`);
+  }
+  fs.copyFileSync(sourcePath, path.join(outDir, alias));
+  console.log(`Copied root icon alias: ${alias}`);
+});
 
 function collectPrecacheResources(directory, rootDirectory = directory) {
   const resources = [];

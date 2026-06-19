@@ -22,12 +22,19 @@ const unpublishedAnnualEvidenceDirectories = [
   `assets/data/${YEAR}/meets/meet-schedules`,
   `assets/data/${YEAR}/teams/team-schedules`
 ];
+const rootIconAliases = Object.freeze({
+  'apple-touch-icon-120x120-precomposed.png': 'apple-touch-icon.png',
+  'apple-touch-icon-120x120.png': 'apple-touch-icon.png',
+  'apple-touch-icon-precomposed.png': 'apple-touch-icon.png',
+  'apple-touch-icon.png': 'apple-touch-icon.png',
+  'favicon.ico': 'favicon.ico'
+});
 const requiredArtifacts = [
   'BingSiteAuth.xml',
   'b95676755a0a47f2965553d9f994f87f.txt',
   'CNAME',
   DEPLOYMENT_VERSION_FILE,
-  'favicon.ico',
+  ...Object.keys(rootIconAliases),
   'google3dd9d57115818ebb.html',
   'index.html',
   'lessons.html',
@@ -88,6 +95,11 @@ function findEventStructuredDataNodes(value, eventNodes = []) {
 assert.ok(fs.existsSync(outDir), 'Build output is missing. Run pnpm run build before verifying the PWA artifact.');
 requiredArtifacts.forEach(resource => {
   assert.ok(fs.existsSync(path.join(outDir, resource)), `Required published artifact is missing: ${resource}`);
+});
+Object.entries(rootIconAliases).forEach(([alias, sourceFile]) => {
+  const sourceContent = fs.readFileSync(path.join(__dirname, '..', 'src', 'assets', 'favicons', sourceFile));
+  const publishedContent = fs.readFileSync(path.join(outDir, alias));
+  assert.deepEqual(publishedContent, sourceContent, `Published root icon alias is invalid: ${alias}`);
 });
 const siteVerificationFiles = ['BingSiteAuth.xml', 'b95676755a0a47f2965553d9f994f87f.txt', 'google3dd9d57115818ebb.html'];
 siteVerificationFiles.forEach(file => {
