@@ -16,7 +16,7 @@ test('[WF-LESSONS-001] lesson provider actions publish only reviewed categories'
   const caCard = page.locator('.lesson-provider-card--featured');
   await expect(caCard.getByRole('heading').first()).toBeVisible();
   expect(await caCard.locator('.lesson-provider-card__outdoor-option').count()).toBeGreaterThan(0);
-  await expect(page.getByRole('heading', { name: 'Class types' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Class Types' })).toBeVisible();
   const publishedDestinations = await page.locator('.lesson-provider-card a[href]').evaluateAll(links => links.map(link => link.href));
   expect(publishedDestinations.length).toBeGreaterThan(0);
   expect(publishedDestinations.every(destination => ['http:', 'https:', 'mailto:', 'tel:'].includes(new URL(destination).protocol))).toBe(true);

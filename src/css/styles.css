@@ -1426,6 +1426,7 @@ main h1 {
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   margin-bottom: 1rem;
+  margin-inline: -0.85rem;
   padding: 0.85rem 1rem;
 }
 
@@ -1464,7 +1465,7 @@ main h1 {
 
 .my-meet-day__timing-item strong {
   color: var(--text-dark);
-  font-size: 1.15rem;
+  font-size: 1.25rem;
 }
 
 .my-meet-day__timing-item span {
@@ -1480,7 +1481,7 @@ main h1 {
 .my-meet-day__fact {
   display: grid;
   gap: 0.2rem;
-  grid-template-columns: minmax(7.5rem, 0.35fr) minmax(0, 1fr);
+  grid-template-columns: minmax(10rem, 0.2fr) minmax(0, 1fr);
   padding: 0.55rem 0;
 }
 
@@ -1520,12 +1521,25 @@ main h1 {
   margin-top: 0.5rem;
 }
 
+.my-meet-day__payment-summary {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.my-meet-day__payment-summary .my-meet-day__concessions-details {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .my-meet-day__payment-methods {
   align-items: center;
   display: flex;
-  flex-wrap: wrap;
+  flex: 0 0 auto;
   gap: 0.55rem 0.9rem;
-  margin-top: 0.5rem;
+  margin-inline-start: auto;
   min-height: 1.8rem;
 }
 
@@ -1700,6 +1714,29 @@ button.favorite-week__toggle {
 button.favorite-week__toggle .favorite-week__toggle-icon {
   position: absolute;
   right: 0;
+}
+
+button.my-meet-day__toggle {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+}
+
+.my-meet-day__toggle-title {
+  grid-column: 2;
+}
+
+.my-meet-day__toggle-controls {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.55rem;
+  grid-column: 3;
+  justify-self: end;
+  min-width: 0;
+}
+
+button.my-meet-day__toggle .favorite-week__toggle-icon {
+  position: relative;
+  right: auto;
 }
 
 .favorite-week__toggle-icon {
@@ -6414,6 +6451,21 @@ button.settings-dialog__close:focus {
 
 .experimental-heading .experimental-badge {
   transform: translateY(-0.1rem);
+}
+
+@media (max-width: 32rem) {
+  .my-meet-day__toggle-title {
+    font-size: 1.2rem;
+  }
+
+  .my-meet-day__toggle-controls {
+    gap: 0.35rem;
+  }
+
+  .my-meet-day__toggle .experimental-badge {
+    font-size: 0.68rem;
+    padding: 0.08rem 0.25rem;
+  }
 }
 
 .experimental-surface {

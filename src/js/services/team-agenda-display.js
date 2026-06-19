@@ -165,7 +165,7 @@
    * @returns {string} Agenda title
    */
   function getTitle(teamName) {
-    return `${teamName}: Upcoming events`;
+    return `${teamName}: Upcoming Events`;
   }
 
   /**

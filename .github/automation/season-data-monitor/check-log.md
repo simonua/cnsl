@@ -281,6 +281,23 @@ The monitor reported one candidate for CA's Outdoor Swim Lessons page. The curre
 | Review records | Updated | `OFFICIAL_SOURCE_CHECKED_AT`, active annual README evidence, and this check-log entry. |
 | Reviewed source baseline | Updated | `source-state.json` refreshed with the accepted June 18 fingerprints and retained-PDF metadata. |
 
+## 2026-06-19 Local Manager Correction
+
+**Active season:** 2026
+
+**Result:** Local manager-supplied data correction; no new online official-source review performed.
+
+Directly supplied guidance from the Long Reach host-team manager for the June 20 Pointers Run meet established a 6:50 AM Long Reach team-arrival time. `homeTeam.arrivalTime` keeps this guidance specific to the Marlins, and My Meet Day labels arrival with the selected team's short name for clarity. The new arrival time supplements the existing setup and check-in guidance, and no prior accepted fact was contradicted or superseded. No personal details or manager-only coordination were present in the supplied fact. The host manager owns this operational fact, no conflicting source was identified, confidence is High, and there is no residual uncertainty. `OFFICIAL_SOURCE_CHECKED_AT`, `OFFICIAL_SOURCE_UPDATED_AT`, and the reviewed source baseline remain unchanged because this correction was not a completed online source review and did not add or replace retained source documents.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Updated | Long Reach Marlins' Kendall Ridge guide source date, home-team `arrivalTime`, and My Meet Day's short-name arrival label. Teams schema remains V19. |
+| Application-used source destinations | Unchanged | None. |
+| Retained official PDFs | Unchanged | None. |
+| Visitor-facing records | Unchanged | None; What's New and sitemap were not changed for this operational data correction. |
+| Review records | Updated | Active annual README evidence and this check-log entry; official-source timestamps remain unchanged. |
+| Reviewed source baseline | Unchanged | None; `source-state.json` did not change. |
+
 ## 2026-06-19T08:57:44-04:00 Pool Schedule Audit
 
 **Active season:** 2026
@@ -301,3 +318,88 @@ Bryant Woods' regenerated PDF newly and explicitly states that its July 4 Aqua F
 | Visitor-facing records | Updated | Pool schedule resolution and display now honor `replace-day`, and the undated Upcoming note documents the correction. |
 | Review records | Updated | Updated `OFFICIAL_SOURCE_CHECKED_AT`, `OFFICIAL_SOURCE_UPDATED_AT`, active annual README evidence, and this check-log entry. |
 | Reviewed source baseline | Updated | `source-state.json` refreshed after accepting the 23-PDF review and Bryant Woods replacement. |
+
+## 2026-06-19 Role-Specific Parking Correction
+
+**Active season:** 2026
+
+**Result:** Local manager-supplied data correction; no new online official-source review performed.
+
+A directly supplied Long Reach host-team manager correction replaced Kendall Ridge's three shared parking sentences with role-specific guidance. Home-team families may use open pool spaces or Tamar Drive, while visiting families are directed to Tamar Drive; both roles retain the fire-hydrant and Young School restrictions. Teams schema V20 permits `parkingNotes` on the home and visiting role guides while retaining `general.parkingNotes` for genuinely shared venue guidance. My Meet Day now combines shared parking only with the selected role's parking, and the superseded shared wording was removed without restoring the retired `parkingLocation` or `reservedParking` compatibility fields. No personal details or manager-only coordination were present. The host manager owns this operational guidance, no conflicting source was identified, confidence is High, and there is no residual uncertainty. `OFFICIAL_SOURCE_CHECKED_AT`, `OFFICIAL_SOURCE_UPDATED_AT`, and the reviewed source baseline remain unchanged because this correction was not a completed online source review and did not add or replace retained source documents.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Updated | Long Reach Marlins' Kendall Ridge `general.parkingNotes` moved to exact home-team and visiting-team `parkingNotes`; teams schema advanced to V20, and My Meet Day selects parking by role. |
+| Application-used source destinations | Unchanged | None. |
+| Retained official PDFs | Unchanged | None. |
+| Visitor-facing records | Unchanged | None; What's New and sitemap were not changed for this operational data correction. |
+| Review records | Updated | Active annual README evidence and this check-log entry; official-source timestamps remain unchanged. |
+| Reviewed source baseline | Unchanged | This correction did not change `source-state.json`; pre-existing worktree edits were preserved. |
+
+## 2026-06-19 Home-Team Helpful-Note Ordering Correction
+
+**Active season:** 2026
+
+**Result:** Local presentation correction for accepted manager-supplied guidance; no new online official-source review performed.
+
+A user-directed My Meet Day correction made accepted home-team `helpfulNotes` render before shared `general` notes for the home perspective. The Long Reach Kendall Ridge home view now leads Good to know with the relay early-departure reminder, followed by the Marlins merchandise location and shared data-table location. The away perspective retains its existing shared-first ordering and content, and all guide facts remain unchanged. No source date, schema field, personal detail, manager-only coordination, conflict, or superseded fact was introduced. The existing host-manager provenance remains authoritative at High confidence with no residual uncertainty. `OFFICIAL_SOURCE_CHECKED_AT`, `OFFICIAL_SOURCE_UPDATED_AT`, and the reviewed source baseline remain unchanged because this presentation correction was not a completed online source review and did not add or replace retained source documents.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Unchanged | None; the accepted Long Reach Kendall Ridge guide properties and values did not change. |
+| Application-used source destinations | Unchanged | None. |
+| Retained official PDFs | Unchanged | None. |
+| Visitor-facing records | Unchanged | None; What's New and sitemap were not changed for this ordering correction. |
+| Review records | Updated | Active annual README evidence and this check-log entry; official-source timestamps remain unchanged. |
+| Reviewed source baseline | Unchanged | This correction did not change `source-state.json`; pre-existing worktree edits were preserved. |
+
+## 2026-06-19 Home-Team Merchandise Guidance Correction
+
+**Active season:** 2026
+
+**Result:** Local manager-supplied data correction; no new online official-source review performed.
+
+Directly supplied guidance from the Long Reach host-team manager added the Marlins merchandise location under the large pavilion next to the baby pool. The exact sentence is stored in `homeTeam.helpfulNotes`, limiting it to Long Reach families; it was not added to `general` or `visitingTeam`. The existing shared data-table note and all other guide data remain unchanged. No personal details, manager-only coordination, conflicting guidance, or superseded facts were present. The identified host manager owns this operational guidance, confidence is High, and there is no residual uncertainty. `OFFICIAL_SOURCE_CHECKED_AT`, `OFFICIAL_SOURCE_UPDATED_AT`, and the reviewed source baseline remain unchanged because this correction was not a completed online source review and did not add or replace retained source documents.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Updated | Long Reach Marlins' Kendall Ridge `homeTeam.helpfulNotes` adds the home-team-only merchandise location; shared and visiting-team guidance are unchanged. |
+| Application-used source destinations | Unchanged | None. |
+| Retained official PDFs | Unchanged | None. |
+| Visitor-facing records | Unchanged | None; What's New and sitemap were not changed for this operational data correction. |
+| Review records | Updated | Active annual README evidence and this check-log entry; official-source timestamps remain unchanged. |
+| Reviewed source baseline | Unchanged | This correction did not change `source-state.json`; pre-existing worktree edits were preserved. |
+
+## 2026-06-19 Home-Team Setup Wording Correction
+
+**Active season:** 2026
+
+**Result:** Local wording correction to accepted manager-supplied guidance; no new online official-source review performed.
+
+A user-directed correction to the accepted Long Reach host-team manager guidance changed Kendall Ridge's home-team `familySetupLocation` from `on the right side from the pool entrance` to `on the right side of the pool from the entrance`. The unchanged reusable My Meet Day renderer continues to prepend `Set up` followed by a separating space and append punctuation, producing `Set up on the right side of the pool from the entrance.` exactly. The visiting-team setup guidance and all other guide data remain unchanged. No schema field, source date, personal detail, manager-only coordination, conflict, or other superseded fact was introduced. The existing host-manager provenance remains authoritative at High confidence with no residual uncertainty. `OFFICIAL_SOURCE_CHECKED_AT`, `OFFICIAL_SOURCE_UPDATED_AT`, and the reviewed source baseline remain unchanged because this correction was not a completed online source review and did not add or replace retained source documents.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Updated | Long Reach Marlins' Kendall Ridge `homeTeam.familySetupLocation` wording in `teams/teams.json`; visiting-team setup guidance is unchanged. |
+| Application-used source destinations | Unchanged | None. |
+| Retained official PDFs | Unchanged | None. |
+| Visitor-facing records | Unchanged | None; What's New and sitemap were not changed for this operational wording correction. |
+| Review records | Updated | Active annual README evidence and this check-log entry; official-source timestamps remain unchanged. |
+| Reviewed source baseline | Unchanged | This correction did not change `source-state.json`; pre-existing worktree edits were preserved. |
+
+## 2026-06-19 Universal Relay Reminder Normalization
+
+**Active season:** 2026
+
+**Result:** Local application-guidance normalization; no new online official-source review performed.
+
+A user-directed My Meet Day cleanup made the relay early-departure reminder universal for every home and away perspective. The web app now owns the reminder and places it first under Good to know before existing role-aware venue notes. Two identical seasonal copies were removed from role-specific `helpfulNotes`, including the Long Reach Kendall Ridge home guide and the Clary's Forest visiting guide. The accepted operational meaning, schema, source dates, and source authority remain unchanged. `OFFICIAL_SOURCE_CHECKED_AT`, `OFFICIAL_SOURCE_UPDATED_AT`, and the reviewed source baseline remain unchanged because this ownership cleanup was not a completed online source review and did not add or replace retained source documents.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Updated | Removed two duplicate relay early-departure reminder strings from role-specific `helpfulNotes`; no venue-specific fact changed. |
+| Application-used source destinations | Unchanged | None. |
+| Retained official PDFs | Unchanged | None. |
+| Visitor-facing records | Unchanged | None; What's New and sitemap were not changed for this ownership cleanup. |
+| Review records | Updated | Active annual README evidence and this check-log entry; official-source timestamps remain unchanged. |
+| Reviewed source baseline | Unchanged | This normalization did not change `source-state.json`; pre-existing worktree edits were preserved. |

@@ -72,7 +72,7 @@
     const section = document.createElement('section');
     section.className = 'lesson-provider-card__outdoor';
     const sectionHeading = document.createElement('h3');
-    sectionHeading.textContent = 'Outdoor lessons at CA pools';
+    sectionHeading.textContent = 'Outdoor Lessons at CA Pools';
     const introduction = document.createElement('p');
     introduction.textContent = 'Compare CA\'s morning camp format and evening lesson series.';
     const options = document.createElement('div');
@@ -150,7 +150,7 @@
     }
 
     const classHeading = document.createElement('h3');
-    classHeading.textContent = 'Class types';
+    classHeading.textContent = 'Class Types';
     const classList = document.createElement('ul');
     classList.className = 'lesson-provider-card__classes';
     provider.classTypes.forEach(classType => {
@@ -196,7 +196,7 @@
     details.append(createDetail('Summer league', program.summerLeagueFit));
 
     const highlightsHeading = document.createElement('h4');
-    highlightsHeading.textContent = 'Program highlights';
+    highlightsHeading.textContent = 'Program Highlights';
     const highlights = document.createElement('ul');
     highlights.className = 'lesson-provider-card__highlights';
     program.highlights.forEach(highlight => {

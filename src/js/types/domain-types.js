@@ -105,6 +105,7 @@
  * @typedef {Object} HomeMeetRoleGuide
  * @property {string} [arrivalTime]
  * @property {string} [arrivalGuidance]
+ * @property {string[]} [parkingNotes]
  * @property {string} [warmupTime]
  */
 
@@ -112,7 +113,7 @@
  * @typedef {Object} HomeMeetGuide
  * @property {string} poolId
  * @property {Object} source
- * @property {{concessions?: {paymentMethods?: PaymentMethodValue[]}}} [general]
+ * @property {{concessions?: {paymentMethods?: PaymentMethodValue[]}, parkingNotes?: string[]}} [general]
  * @property {HomeMeetRoleGuide|null} homeTeam
  * @property {HomeMeetRoleGuide|null} visitingTeam
  */

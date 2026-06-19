@@ -135,7 +135,7 @@
           meetDaySection.hidden = false;
         }
       }
-      title.textContent = `Upcoming ${team.shortName || team.name} events`;
+      title.textContent = `Upcoming ${team.shortName || team.name} Events`;
       if (events.length === 0) {
         status.hidden = false;
         status.textContent = globalThis.TeamAgendaDisplay.getStatus(events);

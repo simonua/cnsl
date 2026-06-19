@@ -74,11 +74,31 @@ test('[WF-RESOURCES-003] arm-marking guidance uses the mobile image without over
   await page.goto('/swim-meet-resources.html#arm-markings');
 
   const guide = page.locator('#arm-markings');
+  const introduction = page.locator('.resources-introduction');
   const image = guide.getByRole('img', { name: /Event, Heat, and Lane columns/ });
 
   await expect(guide).toHaveClass(/resource-card--arm-marking/);
-  await expect(guide.getByRole('heading', { name: 'Mark swimmer arms' })).toBeVisible();
+  await expect(guide.getByRole('heading', { name: 'Mark Swimmer Arms' })).toBeVisible();
   await expect(guide).toContainText('at home before leaving for the meet');
+  await expect(guide).toContainText("arm must be completely dry");
+  await expect(guide.locator('ol > li').nth(1)).toContainText("relay position in parentheses");
+  await expect.poll(() => introduction.evaluate(element => {
+    const guideElement = document.getElementById('arm-markings');
+    const introductionBounds = element.getBoundingClientRect();
+    const guideBounds = guideElement.getBoundingClientRect();
+    const styles = getComputedStyle(element);
+    return {
+      leftInset: Math.round(introductionBounds.left - guideBounds.left),
+      rightInset: Math.round(guideBounds.right - introductionBounds.right),
+      paddingLeft: Math.round(Number.parseFloat(styles.paddingLeft)),
+      paddingRight: Math.round(Number.parseFloat(styles.paddingRight))
+    };
+  })).toEqual({
+    leftInset: 0,
+    rightInset: 0,
+    paddingLeft: 24,
+    paddingRight: 24
+  });
   await expect(image).toBeVisible();
   await expect.poll(() => image.evaluate(element => ({
     complete: element.complete,

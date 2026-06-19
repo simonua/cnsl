@@ -29,6 +29,8 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
       width: 190
     })
   });
+  const RELAY_EARLY_DEPARTURE_GUIDANCE = 'Please tell team managers or check-in volunteers before leaving early if a swimmer is in a relay.';
+  const VOLUNTEER_REMINDER_MARKUP = '<strong>Swim meets depend on volunteers.</strong> Please check your team signup and help fill any open role. <strong>Thank you! 🙏</strong>';
 
   /** Selects and renders meet-day guidance for a favorite team. */
   class MeetDayGuideService {
@@ -87,21 +89,6 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
         String(homePool || '').trim().toLowerCase().replace(/\s+pool\s*$/i, '') === meetLocation
       ));
       return isPublishedHomePool ? guides[0] : null;
-    }
-
-    /**
-     * Formats a pool address from a model or annual record.
-     * @param {Object|null} pool - Published pool
-     * @returns {string} Display address
-     * @private
-     */
-    static getPoolAddress(pool) {
-      if (!pool) return '';
-      const location = pool.location || {};
-      const cityAndState = [location.city, location.state].filter(Boolean).join(', ');
-      const locality = [cityAndState, location.zip].filter(Boolean).join(' ');
-      const modeledAddress = [location.street, locality].filter(Boolean).join(', ');
-      return modeledAddress || pool.address || '';
     }
 
     /**
@@ -177,7 +164,6 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
         homeTeam,
         meet,
         pool,
-        poolAddress: MeetDayGuideService.getPoolAddress(pool),
         role,
         roleGuide: roleGuide || null,
         team,
@@ -223,19 +209,17 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
     }
 
     /**
-     * Formats parking guidance from general and role-specific facts.
+     * Returns shared parking guidance plus guidance for the selected team role.
      * @param {Object|null} generalGuide - General host guidance
-     * @param {Object|null} roleGuide - Role-specific host guidance
+     * @param {Object|null} roleGuide - Selected role-specific host guidance
      * @returns {string[]} Parking guidance lines
      * @private
      */
     static getParkingLines(generalGuide, roleGuide) {
-      const lines = [];
-      if (generalGuide?.parkingLocation) lines.push(`Park ${generalGuide.parkingLocation}.`);
-      lines.push(...(generalGuide?.parkingNotes || []));
-      if (roleGuide?.parkingLocation) lines.push(`Team parking is ${roleGuide.parkingLocation}.`);
-      if (roleGuide?.reservedParking) lines.push(roleGuide.reservedParking);
-      return lines;
+      return [
+        ...(generalGuide?.parkingNotes || []),
+        ...(roleGuide?.parkingNotes || [])
+      ];
     }
 
     /**
@@ -263,10 +247,11 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
     /**
      * Formats concessions guidance as concise visitor-facing sentences.
      * @param {Object|null} concessions - Published concessions guidance
+     * @param {string} homeTeamName - Short name of the team providing concessions
      * @returns {string[]} Concessions guidance lines
      * @private
      */
-    static getConcessionLines(concessions) {
+    static getConcessionLines(concessions, homeTeamName = '') {
       if (!concessions) return [];
 
       const lines = [];
@@ -275,13 +260,14 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
         const paymentMethods = MeetDayGuideService.formatPaymentMethods(
           canonicalPaymentMethods.map(method => PAYMENT_METHOD_PRESENTATION[method].label)
         );
-        lines.push(`We accept ${paymentMethods}.`);
+        const paymentProvider = homeTeamName ? `${homeTeamName} accept` : 'The home team accepts';
+        lines.push(`${paymentProvider} ${paymentMethods}.`);
       }
       if (canonicalPaymentMethods.includes(globalThis.PaymentMethod.CASH)) {
         const preferredBills = MeetDayGuideService.formatPaymentMethods(
           CASH_BILL_PREFERRED_DENOMINATIONS.map(value => `$${value}`)
         );
-        lines.push(`Use bills of $${CASH_BILL_MAXIMUM_DENOMINATION} or less; ${preferredBills} bills are especially helpful.`);
+        lines.push(`Please use bills of $${CASH_BILL_MAXIMUM_DENOMINATION} or less; ${preferredBills} bills are especially helpful.`);
       }
       const unavailableBills = MeetDayGuideService.formatPaymentMethods(
         concessions.denominationsNotAccepted?.map(value => `$${value} bills`) || []
@@ -334,15 +320,37 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
     /**
      * Formats role-specific swimmer and volunteer check-in instructions.
      * @param {Object|null} roleGuide - Role-specific host guidance
+     * @param {string} teamShortName - Short name of the team receiving the guidance
      * @returns {string[]} Check-in guidance lines
      * @private
      */
-    static getCheckInLines(roleGuide) {
+    static getCheckInLines(roleGuide, teamShortName = '') {
       const lines = [];
+      const swimmerLabel = teamShortName || 'Swimmers';
       if (roleGuide?.checkInGuidance) lines.push(roleGuide.checkInGuidance);
-      if (roleGuide?.swimmerCheckInLocation) lines.push(`Swimmers check in ${roleGuide.swimmerCheckInLocation}.`);
+      if (roleGuide?.swimmerCheckInLocation) lines.push(`${swimmerLabel} check in ${roleGuide.swimmerCheckInLocation}.`);
       if (roleGuide?.volunteerCheckInLocation) lines.push(`Volunteers check in ${roleGuide.volunteerCheckInLocation}.`);
       return lines;
+    }
+
+    /**
+     * Orders helpful notes for the selected team perspective.
+     * @param {Object|null} generalGuide - Shared host guidance
+     * @param {Object|null} roleGuide - Selected role-specific host guidance
+     * @param {string} role - Selected meet-team role
+     * @returns {string[]} Helpful notes in display order
+     * @private
+     */
+    static getHelpfulNotes(generalGuide, roleGuide, role) {
+      const sharedNotes = [
+        ...(generalGuide?.poolsideConditions || []),
+        ...(generalGuide?.helpfulNotes || [])
+      ];
+      const roleNotes = [...(roleGuide?.helpfulNotes || [])];
+      const perspectiveNotes = role === globalThis.MeetTeamRole.HOME
+        ? [...roleNotes, ...sharedNotes]
+        : [...sharedNotes, ...roleNotes];
+      return [RELAY_EARLY_DEPARTURE_GUIDANCE, ...perspectiveNotes];
     }
 
     /**
@@ -361,18 +369,19 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
     }
 
     /**
-     * Renders guidance lines as a semantic bulleted fact.
+     * Renders one guidance line as prose or multiple lines as a semantic list.
      * @param {string} label - Guidance label
      * @param {string[]} lines - Guidance items
      * @returns {string} Guidance fact HTML or an empty string
      * @private
      */
     static renderGuidanceFact(label, lines) {
-      const items = lines
-        .filter(Boolean)
+      const visibleLines = lines.filter(Boolean);
+      if (visibleLines.length === 0) return '';
+      if (visibleLines.length === 1) return MeetDayGuideService.renderFact(label, visibleLines);
+      const items = visibleLines
         .map(line => `<li>${globalThis.HtmlSafety.escapeHtml(line)}</li>`)
         .join('');
-      if (!items) return '';
       return `<div class="my-meet-day__fact"><dt>${globalThis.HtmlSafety.escapeHtml(label)}</dt><dd><ul class="my-meet-day__guidance-list">${items}</ul></dd></div>`;
     }
 
@@ -397,13 +406,14 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
     /**
      * Renders the concessions details and semantic menu groups as one emphasized fact.
      * @param {Object|null} concessions - Published concessions guidance
+     * @param {string} homeTeamName - Short name of the team providing concessions
      * @returns {string} Concessions fact HTML or an empty string
      * @private
      */
-    static renderConcessions(concessions) {
+    static renderConcessions(concessions, homeTeamName = '') {
       if (!concessions) return '';
 
-      const detailLines = MeetDayGuideService.getConcessionLines(concessions);
+      const detailLines = MeetDayGuideService.getConcessionLines(concessions, homeTeamName);
       const paymentMethods = MeetDayGuideService.getPaymentMethods(concessions);
       const hasPaymentMethods = paymentMethods.length > 0;
       const paymentIntroduction = hasPaymentMethods ? detailLines[0] : '';
@@ -419,15 +429,15 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
       ].filter(Boolean).join('');
       if (!paymentIntroduction && !supportingDetails && !menuGroups) return '';
 
-      const introductionMarkup = paymentIntroduction
-        ? `<p class="my-meet-day__concessions-details"><strong>${globalThis.HtmlSafety.escapeHtml(paymentIntroduction)}</strong></p>`
-        : '';
       const paymentMethodsMarkup = MeetDayGuideService.renderPaymentMethods(paymentMethods);
+      const paymentSummaryMarkup = paymentIntroduction
+        ? `<div class="my-meet-day__payment-summary"><p class="my-meet-day__concessions-details"><strong>${globalThis.HtmlSafety.escapeHtml(paymentIntroduction)}</strong></p>${paymentMethodsMarkup}</div>`
+        : '';
       const supportingMarkup = supportingDetails
         ? `<p class="my-meet-day__concessions-details my-meet-day__concessions-details--supporting">${supportingDetails}</p>`
         : '';
       const menuMarkup = menuGroups ? `<div class="my-meet-day__concessions-menu">${menuGroups}</div>` : '';
-      return `<div class="my-meet-day__fact my-meet-day__fact--concessions"><dt>Concessions</dt><dd>${introductionMarkup}${paymentMethodsMarkup}${supportingMarkup}${menuMarkup}</dd></div>`;
+      return `<div class="my-meet-day__fact my-meet-day__fact--concessions"><dt>Concessions</dt><dd>${paymentSummaryMarkup}${supportingMarkup}${menuMarkup}</dd></div>`;
     }
 
     /**
@@ -467,10 +477,10 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
       const directionsLink = pool
         ? globalThis.generatePoolDirectionsLink(pool, locationName)
         : '';
-      const safePoolAddress = globalThis.HtmlSafety.escapeHtml(guide.poolAddress);
       const arrivalTime = roleGuide?.arrivalTime ? MeetDayGuideService.formatClockTime(roleGuide.arrivalTime) : '';
+      const arrivalLabel = `${guide.team?.shortName || 'Team'} Arrival`;
       const arrivalPrimary = arrivalTime
-        ? `Arrive by ${arrivalTime}`
+        ? `By ${arrivalTime}`
         : roleGuide?.arrivalGuidance ? 'Arrive early' : roleGuide ? 'Arrival time not provided' : '';
       const arrivalDetail = roleGuide?.arrivalGuidance
         || (roleGuide ? 'Allow enough time to get settled before warm-ups.' : '');
@@ -483,15 +493,10 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
       const setupLines = [];
       if (roleGuide?.familySetupLocation) setupLines.push(`Set up ${roleGuide.familySetupLocation}.`);
       const concessions = generalGuide?.concessions;
-      const helpfulNotes = [...(generalGuide?.poolsideConditions || []), ...(generalGuide?.helpfulNotes || []), ...(roleGuide?.helpfulNotes || [])];
       const isHomeMeet = guide.role === globalThis.MeetTeamRole.HOME;
-      const volunteerLead = isHomeMeet
-        ? 'Home meets depend on volunteers.'
-        : 'Swim meets depend on volunteers from both teams.';
-      const volunteerDetail = isHomeMeet
-        ? 'Check your team signup and help fill any open role.'
-        : 'Check your team signup for any open role.';
-      const volunteerMarkup = `${isHomeMeet ? `<strong>${globalThis.HtmlSafety.escapeHtml(volunteerLead)}</strong>` : globalThis.HtmlSafety.escapeHtml(volunteerLead)} ${globalThis.HtmlSafety.escapeHtml(volunteerDetail)}`;
+      const helpfulNotes = MeetDayGuideService.getHelpfulNotes(generalGuide, roleGuide, guide.role);
+      const perspectiveTeam = isHomeMeet ? guide.homeTeam : guide.visitingTeam;
+      const teamShortName = perspectiveTeam?.shortName || guide.team?.shortName || '';
       const dayPillClass = guide.dayLabel === 'Today'
         ? ' upcoming-day-pill--today'
         : guide.dayLabel === 'Tomorrow' ? ' upcoming-day-pill--tomorrow' : '';
@@ -506,22 +511,21 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
         </div>
         <section class="my-meet-day__timing" aria-label="Key times">
           <dl>
-            ${MeetDayGuideService.renderTimingFact('Team arrival', arrivalPrimary, arrivalDetail)}
+            ${MeetDayGuideService.renderTimingFact(arrivalLabel, arrivalPrimary, arrivalDetail)}
             ${MeetDayGuideService.renderTimingFact('Warm-ups', MeetDayGuideService.formatWarmups(roleGuide), '')}
-            ${MeetDayGuideService.renderTimingFact('Relay check-in', relayCheckInDeadline ? `By ${relayCheckInDeadline}` : '', '')}
+            ${MeetDayGuideService.renderTimingFact('Relay check-in', relayCheckInDeadline ? `By ${relayCheckInDeadline}` : '', 'Swimmers not checked in will be dropped from relays.')}
             ${MeetDayGuideService.renderTimingFact('First swim', firstSwimTime ? `Starts at ${firstSwimTime}` : '', '')}
           </dl>
         </section>
         <dl class="my-meet-day__facts">
-          ${MeetDayGuideService.renderFact('Where', [locationLink, safePoolAddress], true)}
-          ${MeetDayGuideService.renderGuidanceFact('Parking', MeetDayGuideService.getParkingLines(generalGuide, roleGuide))}
-          ${MeetDayGuideService.renderGuidanceFact('Team setup', setupLines)}
-          ${MeetDayGuideService.renderGuidanceFact('Check-in', MeetDayGuideService.getCheckInLines(roleGuide))}
-          ${MeetDayGuideService.renderFact('Arm markings', [`Before leaving home for the meet, use a black SHARPIE permanent marker on a completely dry arm. Label the grid Event (E), Heat (H), and Lane (L). <a href="${ARM_MARKING_GUIDE_URL}">See how to mark an arm</a>.`], true)}
+          ${MeetDayGuideService.renderFact('Parking', MeetDayGuideService.getParkingLines(generalGuide, roleGuide))}
+          ${MeetDayGuideService.renderFact('Check-in', MeetDayGuideService.getCheckInLines(roleGuide, teamShortName))}
+          ${MeetDayGuideService.renderFact('Team setup', setupLines)}
+          ${MeetDayGuideService.renderFact('Arm markings', [`Please see <a href="${ARM_MARKING_GUIDE_URL}">how to mark a swimmer's arm</a> for detailed instructions.`], true)}
           ${MeetDayGuideService.renderGuidanceFact('Clerk of course', [roleGuide?.clerkGuidance])}
-          ${MeetDayGuideService.renderConcessions(concessions)}
           ${MeetDayGuideService.renderGuidanceFact('Good to know', helpfulNotes)}
-          <div class="my-meet-day__fact my-meet-day__fact--volunteer"><dt>Volunteer reminder</dt><dd>${volunteerMarkup}</dd></div>
+          <div class="my-meet-day__fact my-meet-day__fact--volunteer"><dt>Volunteer reminder</dt><dd>${VOLUNTEER_REMINDER_MARKUP}</dd></div>
+          ${MeetDayGuideService.renderConcessions(concessions, homeName)}
         </dl>
       `;
     }

@@ -58,7 +58,7 @@ test('[WF-AGENDA-001] team directory shows the same next practices and swim even
   const teamCard = page.locator(`.team-card[data-team-id="${AGENDA_TEAM.id}"]`);
   await teamCard.locator('.team-header__toggle').click();
   const agenda = teamCard.locator('.favorite-week');
-  await expect(agenda.getByRole('heading', { name: 'Upcoming events' })).toBeVisible();
+  await expect(agenda.getByRole('heading', { name: 'Upcoming Events' })).toBeVisible();
   await expect(agenda.locator('.favorite-week__status')).toHaveCount(0);
   const teamEvents = await agenda.locator('.favorite-week__events li').allTextContents();
   expect(teamEvents.length).toBeGreaterThan(0);
@@ -130,7 +130,7 @@ test('[WF-AGENDA-002] home page shows the next practices and swim event for a se
   await expect(agenda).not.toContainText("Your team's upcoming events");
   resolveTeamRequest();
   await expect(agenda).toBeVisible();
-  await expect(agenda.getByRole('heading', { name: /Upcoming .+ events/ })).toBeVisible();
+  await expect(agenda.getByRole('heading', { name: /Upcoming .+ Events/ })).toBeVisible();
   await expect(agenda.locator('.favorite-badge')).toHaveCount(0);
   await expect(agenda.getByRole('link', { name: 'Team details' })).toHaveCount(0);
   await expect(page.locator('#favoriteWeekStatus')).toBeHidden();
@@ -224,17 +224,21 @@ test('[WF-AGENDA-007] home page follows the My Meet Day experimental opt-in', as
   await expect.poll(() => page.evaluate(() => {
     const sectionRect = globalThis.document.getElementById('myMeetDay').getBoundingClientRect();
     const toggle = globalThis.document.getElementById('myMeetDayToggle');
+    const badge = toggle.querySelector('.experimental-badge');
     const iconRect = toggle.querySelector('.favorite-week__toggle-icon').getBoundingClientRect();
-    const labelRect = toggle.querySelector('.experimental-heading').getBoundingClientRect();
+    const badgeRect = badge.getBoundingClientRect();
+    const labelRect = toggle.querySelector('.my-meet-day__toggle-title').getBoundingClientRect();
     const toggleRect = toggle.getBoundingClientRect();
     const sectionCenter = sectionRect.left + (sectionRect.width / 2);
     const labelCenter = labelRect.left + (labelRect.width / 2);
     return {
+      badgeBeforeArrow: badgeRect.right < iconRect.left,
       iconAlignedRight: Math.abs(toggleRect.right - iconRect.right) <= 1,
       isCentered: Math.abs(sectionCenter - labelCenter) <= 1,
+      titleClearOfBadge: labelRect.right < badgeRect.left,
       hasHorizontalOverflow: globalThis.document.documentElement.scrollWidth > globalThis.document.documentElement.clientWidth
     };
-  })).toEqual({ iconAlignedRight: true, isCentered: true, hasHorizontalOverflow: false });
+  })).toEqual({ badgeBeforeArrow: true, iconAlignedRight: true, isCentered: true, titleClearOfBadge: true, hasHorizontalOverflow: false });
   const meetDayToggle = page.locator('#myMeetDayToggle');
   await meetDayToggle.press('Enter');
   await expect(meetDayToggle).toHaveAttribute('aria-expanded', 'false');
@@ -268,7 +272,7 @@ test('[WF-AGENDA-008] dedicated My Meet Day route loads only after the experimen
   await expect(page.locator('#myMeetDay')).toBeVisible();
   expect(await page.locator('#myMeetDay .my-meet-day__fact').count()).toBeGreaterThan(0);
   await expect(page.locator('#myMeetDay a[href^="pools.html?pool="]')).not.toHaveCount(0);
-  await expect(page.locator('#myMeetDay').getByRole('link', { name: 'See how to mark an arm' })).toHaveAttribute('href', 'swim-meet-resources.html#arm-markings');
+  await expect(page.locator('#myMeetDay').getByRole('link', { name: "how to mark a swimmer's arm" })).toHaveAttribute('href', 'swim-meet-resources.html#arm-markings');
   await expect(page.locator('#myMeetDay').getByRole('heading', { name: 'Key times' })).toHaveCount(0);
   await expect(page.locator('#myMeetDayStatus')).toHaveText('Meet-day details loaded.');
   await expect(page.locator('script[data-my-meet-day-dependency]')).toHaveCount(
@@ -380,8 +384,19 @@ test('[WF-AGENDA-009] completed meets advance only the dedicated My Meet Day rou
   await expect(paymentMethods.locator('use[href="#icon-banknote"]')).toHaveCount(1);
   await expect(paymentMethods.locator('img[src*="paypal-monogram-full-color.png"]')).toBeVisible();
   await expect(paymentMethods.locator('img[src*="venmo-wordmark-blue.png"]')).toBeVisible();
-  await expect(paymentMethods.locator('xpath=preceding-sibling::*[1]')).toContainText('We accept');
-  const paymentGuidance = paymentMethods.locator('xpath=following-sibling::*[1]');
+  const paymentSummary = paymentMethods.locator('..');
+  await expect(paymentSummary).toHaveClass(/my-meet-day__payment-summary/);
+  await expect(paymentSummary.locator('.my-meet-day__concessions-details')).toContainText(`${MEET_DAY_TEAM.shortName} accept`);
+  await expect.poll(() => paymentSummary.evaluate(element => {
+    const summaryBounds = element.getBoundingClientRect();
+    const methodsBounds = element.querySelector('.my-meet-day__payment-methods').getBoundingClientRect();
+    const introductionBounds = element.querySelector('.my-meet-day__concessions-details').getBoundingClientRect();
+    return {
+      methodsRightAligned: Math.abs(summaryBounds.right - methodsBounds.right) <= 1,
+      sameRow: Math.abs(introductionBounds.top - methodsBounds.top) <= 1
+    };
+  })).toEqual({ methodsRightAligned: true, sameRow: true });
+  const paymentGuidance = paymentSummary.locator('xpath=following-sibling::*[1]');
   await expect(paymentGuidance).toHaveClass(/my-meet-day__concessions-details--supporting/);
   await expect(paymentGuidance).not.toBeEmpty();
   await expect.poll(() => paymentMethods.locator('img').evaluateAll(images => (
@@ -488,7 +503,7 @@ test('[WF-AGENDA-005] changing to an unavailable favorite does not display the p
   await page.goto('/index.html');
 
   const priorHeading = await page.locator('#favoriteWeekTitle').textContent();
-  expect(priorHeading).toMatch(/^Upcoming .+ events$/);
+  expect(priorHeading).toMatch(/^Upcoming .+ Events$/);
 
   await page.evaluate(() => {
     localStorage.setItem('cnsl_preferences', JSON.stringify({ favoriteTeamId: 'former-team' }));

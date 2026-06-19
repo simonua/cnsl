@@ -132,6 +132,24 @@ function validateDualMeetMilestones(errors, timingWindow) {
   }
 }
 
+function validateHomeMeetGuideTimes(errors, label, guide) {
+  const roleGuides = [
+    ['home team', guide.homeTeam],
+    ['visiting team', guide.visitingTeam]
+  ];
+  roleGuides.forEach(([roleLabel, roleGuide]) => {
+    if (!roleGuide) return;
+    const arrivalMinutes = parseClockMinutes(roleGuide.arrivalTime);
+    const warmupMinutes = parseClockMinutes(roleGuide.warmupTime);
+    if (arrivalMinutes !== null && warmupMinutes !== null && arrivalMinutes > warmupMinutes) {
+      errors.push(
+        `${label} ${roleLabel} arrival time must not be after warm-ups: ` +
+        `${roleGuide.arrivalTime} to ${roleGuide.warmupTime}.`
+      );
+    }
+  });
+}
+
 function validatePoolScheduleHours(errors, poolName, scope, schedules) {
   schedules.forEach((schedule, scheduleIndex) => {
     schedule.hours.forEach((hours, hoursIndex) => {
@@ -223,6 +241,7 @@ function collectIntegrityErrors({ meetsData, poolsData, season, teamsData }) {
     });
     (team.homeMeetGuides || []).forEach((guide) => {
       const concessions = guide.general && guide.general.concessions;
+      validateHomeMeetGuideTimes(errors, `${team.name} ${guide.poolId}`, guide);
       CONCESSION_ITEM_FIELDS.forEach((field) => {
         validateAlphabeticalOrder(
           errors,

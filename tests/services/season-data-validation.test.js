@@ -124,13 +124,36 @@ describe('season data validation', () => {
         definitions: teamsSchema.definitions
       };
 
-      assert.equal(teamsSchema.version, 'V18');
       assert.deepEqual(validateSchema('concessions', {
         denominationsNotAccepted: [100],
         paymentMethods: ['cash']
       }, concessionsSchema), []);
       assert.ok(validateSchema('concessions', { smallBillsPreferred: true }, concessionsSchema).length > 0);
       assert.ok(validateSchema('concessions', { maximumBillDenomination: 10 }, concessionsSchema).length > 0);
+    });
+
+    it('should enforce the current role-specific home-meet guidance contract', () => {
+      const generalGuideSchema = {
+        $ref: '#/definitions/HomeMeetGeneralGuide',
+        definitions: teamsSchema.definitions
+      };
+      const homeTeamGuideSchema = {
+        $ref: '#/definitions/HomeTeamMeetGuide',
+        definitions: teamsSchema.definitions
+      };
+      const visitingTeamGuideSchema = {
+        $ref: '#/definitions/VisitingTeamMeetGuide',
+        definitions: teamsSchema.definitions
+      };
+
+      assert.equal(teamsSchema.version, 'V20');
+      assert.deepEqual(validateSchema('generalGuide', { parkingNotes: ['Shared parking.'] }, generalGuideSchema), []);
+      assert.deepEqual(validateSchema('homeTeamGuide', { parkingNotes: ['Home parking.'] }, homeTeamGuideSchema), []);
+      assert.deepEqual(validateSchema('visitingTeamGuide', { parkingNotes: ['Away parking.'] }, visitingTeamGuideSchema), []);
+      assert.ok(validateSchema('generalGuide', { gatesOpenTime: '06:30' }, generalGuideSchema).length > 0);
+      assert.ok(validateSchema('generalGuide', { parkingLocation: 'Legacy lot' }, generalGuideSchema).length > 0);
+      assert.ok(validateSchema('homeTeamGuide', { parkingLocation: 'Legacy lot' }, homeTeamGuideSchema).length > 0);
+      assert.ok(validateSchema('visitingTeamGuide', { reservedParking: 'Legacy spaces' }, visitingTeamGuideSchema).length > 0);
     });
   });
 
@@ -286,6 +309,36 @@ describe('season data validation', () => {
       assertDiagnostic(errors, 'Known Team', 'timeTrials', '12:00', '07:00');
       assertDiagnostic(errors, 'Meet timeTrials', '12:00', '07:00');
       assertDiagnostic(errors, 'Meet dualMeets', '07:00', '08:05', '08:00', '12:00');
+    });
+
+    it('should reject role-specific arrival times after warm-ups', () => {
+      const errors = collectIntegrityErrors({
+        season: 2026,
+        poolsData: {
+          caPoolDirectoryUrl: 'https://pools.test/directory',
+          caPoolGuideUrl: 'https://pools.test/guide',
+          seasonStartDate: '2026-05-23',
+          seasonEndDate: '2026-09-07',
+          pools: []
+        },
+        teamsData: {
+          teams: [{
+            id: 'team', name: 'Known Team', keywords: ['known'],
+            url: 'https://teams.test/known', homePools: [], practicePools: [],
+            staff: { sourceUrl: 'https://teams.test/staff' },
+            homeMeetGuides: [{
+              poolId: 'fixture-pool',
+              homeTeam: { arrivalTime: '07:10', warmupTime: '07:00' },
+              visitingTeam: { arrivalTime: '07:30', warmupTime: '07:25' }
+            }]
+          }]
+        },
+        meetsData: { url: 'https://league.test/meets.pdf', regular_meets: [], special_meets: [] }
+      });
+
+      assert.equal(errors.length, 2);
+      assertDiagnostic(errors, 'Known Team', 'home team', '07:10', '07:00');
+      assertDiagnostic(errors, 'Known Team', 'visiting team', '07:30', '07:25');
     });
 
     it('should reject concession categories that are not sorted A-to-Z', () => {

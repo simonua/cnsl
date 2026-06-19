@@ -38,11 +38,7 @@
             "arrivalTime": "07:10",
             "familySetupLocation": "on the right side from the pool entrance, near the slide",
             "swimmerCheckInLocation": "on the visiting-team side of the pool",
-            "warmupTime": "07:30",
-            "helpfulNotes": [
-              "Please mark each swimmer with their event, heat, and lane (E/H/L) before arrival.",
-              "Please tell team managers or check-in volunteers before leaving early if a swimmer is in a relay."
-            ]
+            "warmupTime": "07:30"
           }
         }
       ],
@@ -229,8 +225,9 @@
             "receivedOn": "2024-07-18"
           },
           "general": {
-            "parkingLocation": "at the Longfellow Elementary School parking lot or along Eliot's Oak Road and Hesperus Drive",
             "parkingNotes": [
+              "Please park at the Longfellow Elementary School parking lot or along Eliot's Oak Road and Hesperus Drive.",
+              "Four spaces in the pool parking lot are reserved for coaches and managers.",
               "A path to the left of Longfellow Elementary School leads to the pool."
             ],
             "concessions": {
@@ -243,7 +240,6 @@
           },
           "homeTeam": null,
           "visitingTeam": {
-            "reservedParking": "Four spaces in the pool parking lot are reserved for coaches and managers.",
             "familySetupLocation": "on the right side of the pool at the shallow end",
             "clerkGuidance": "The host team will reserve a table for your clerk of course.",
             "warmupTime": "07:25",
@@ -432,14 +428,9 @@
           "poolId": "krp",
           "source": {
             "type": "host-team-manager",
-            "receivedOn": "2026-06-17"
+            "receivedOn": "2026-06-19"
           },
           "general": {
-            "parkingLocation": "along Tamar Drive",
-            "parkingNotes": [
-              "Please do not park in The Young School lot.",
-              "Please keep clear of fire hydrants; cars parked too close have been ticketed."
-            ],
             "helpfulNotes": [
               "The data table is under the large pavilion next to the baby pool."
             ],
@@ -466,16 +457,22 @@
             }
           },
           "homeTeam": {
-            "arrivalGuidance": "Please allow enough time to find parking, set up, and check in so your swimmer is ready to enter the pool when warm-ups begin promptly at 7:00 AM.",
-            "familySetupLocation": "on the right side from the pool entrance",
+            "arrivalTime": "06:50",
+            "arrivalGuidance": "Please allow enough time to park, check in, and set up.",
+            "parkingNotes": [
+              "Please park in open spaces at the pool and along Tamar Drive. Stay clear of fire hydrants, and do not park in The Young School lot."
+            ],
+            "familySetupLocation": "on the right side of the pool from the entrance",
             "swimmerCheckInLocation": "under the large canopy next to the baby pool",
             "warmupTime": "07:00",
             "helpfulNotes": [
-              "Please mark each swimmer with their event, heat, and lane before arrival.",
-              "Please tell team managers or check-in volunteers before leaving early if a swimmer is in a relay."
+              "Marlins merchandise is under the large pavilion next to the baby pool."
             ]
           },
           "visitingTeam": {
+            "parkingNotes": [
+              "Please park along Tamar Drive. Stay clear of fire hydrants, and do not park in The Young School lot."
+            ],
             "familySetupLocation": "on the left side from the pool entrance, on the shaded side of the pool",
             "swimmerCheckInLocation": "at the reserved table in the back corner by the diving board",
             "warmupTime": "07:25"
@@ -973,7 +970,10 @@
             "receivedOn": "2026-06-09"
           },
           "general": {
-            "parkingLocation": "by the neighborhood center behind the pool",
+            "parkingNotes": [
+              "Please park by the neighborhood center behind the pool.",
+              "The six spaces near the pool entrance are reserved for coaches and managers."
+            ],
             "concessions": {
               "opensAt": "07:30",
               "paymentMethods": ["cash"],
@@ -1006,7 +1006,6 @@
           "visitingTeam": {
             "arrivalTime": "07:15",
             "arrivalGuidance": "Please allow enough time to park, set up, check in, and be ready for warm-ups.",
-            "reservedParking": "The six spaces near the pool entrance are reserved for coaches and managers.",
             "familySetupLocation": "behind the wading pool, just to the right of the entrance. If more space is needed, please use the area outside the side gates",
             "clerkGuidance": "Your team's clerk of course will have a table behind the wading pool.",
             "checkInGuidance": "Please check in after setting up. The host team did not provide a check-in location.",

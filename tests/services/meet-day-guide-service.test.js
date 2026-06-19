@@ -31,8 +31,7 @@ const hostTeam = {
         snackItems: ['fixture snack']
       },
       helpfulNotes: ['Fixture shared note.'],
-      parkingLocation: 'in the fixture overflow lot',
-      parkingNotes: ['Fixture parking caution.'],
+      parkingNotes: ['Park in the fixture overflow lot.', 'Fixture parking caution.', 'Fixture reserved parking guidance.'],
       poolsideConditions: ['Fixture poolside condition.']
     },
     poolId: 'host-pool',
@@ -41,7 +40,7 @@ const hostTeam = {
       arrivalTime: '07:15',
       clerkGuidance: 'Fixture clerk location.',
       familySetupLocation: 'in the fixture visitor area',
-      reservedParking: 'Fixture reserved parking guidance.',
+      swimmerCheckInLocation: 'at the fixture check-in table',
       warmupTime: '07:25'
     }
   }],
@@ -57,14 +56,17 @@ const favoriteTeam = {
         drinkItems: ['fixture soda', 'fixture water'],
         paymentMethods: [PaymentMethod.CASH, PaymentMethod.PAYPAL, PaymentMethod.VENMO],
       },
-      parkingNotes: ['Fixture home parking note.'],
       volunteerCheckInLocation: 'Fixture data table.'
     },
-    homeTeam: { arrivalTime: '06:30', warmupTime: '07:00' },
+    homeTeam: {
+      arrivalTime: '06:30',
+      parkingNotes: ['Fixture home parking note.', 'Fixture home <script> parking note.'],
+      warmupTime: '07:00'
+    },
     poolId: 'favorite-pool',
     visitingTeam: {
       familySetupLocation: 'in the fixture shaded area',
-      reservedParking: 'Fixture visitor parking reservation.',
+      parkingNotes: ['Fixture visitor parking note.'],
       swimmerCheckInLocation: 'at the fixture check-in table',
       warmupTime: '07:25'
     }
@@ -119,7 +121,6 @@ describe('MeetDayGuideService', () => {
       assert.equal(guide.pool, pools[0]);
       assert.equal(guide.roleGuide, hostTeam.homeMeetGuides[0].visitingTeam);
       assert.equal(guide.meet.timingWindow.relayCheckInDeadline, meetTimes.dualMeets.relayCheckInDeadline);
-      assert.ok(guide.poolAddress.includes(pools[0].location.street));
     });
 
     it('applies an optional inclusive look-ahead window', () => {
@@ -178,7 +179,6 @@ describe('MeetDayGuideService', () => {
       const guide = MeetDayGuideService.getGuide(host, [host, visitor], [meet], [pool], new Date(2026, 5, 19, 12));
 
       assert.equal(guide.role, MeetTeamRole.HOME);
-      assert.equal(guide.poolAddress, '1 Main Street, Columbia, MD 21044');
       assert.equal(MeetDayGuideService.getGuide(host, null, [meet], null, new Date(2026, 5, 19, 12)).pool, null);
     });
 
@@ -210,10 +210,10 @@ describe('MeetDayGuideService', () => {
         homeMeetGuides: [{
           poolId: 'host-pool',
           general: {
-            parkingLocation: 'Main lot', parkingNotes: ['Overflow on Main Street'],
+            parkingNotes: ['Park in the main lot.', 'Overflow on Main Street'],
             poolsideConditions: ['Sunny in the morning.']
           },
-          homeTeam: { parkingLocation: 'Volunteer row' }
+          homeTeam: {}
         }]
       };
       const visitor = { id: 'visitor', name: 'Visitor Team', keywords: ['Visitor'] };
@@ -228,13 +228,10 @@ describe('MeetDayGuideService', () => {
       assert.equal(guide.meet, meet);
       assert.equal(guide.homeTeam, host);
       assert.equal(guide.visitingTeam, visitor);
-      assert.equal(guide.poolAddress, '1 Main Street');
       assert.match(MeetDayGuideService.renderGuide(guide), /Host Team/);
       assert.match(MeetDayGuideService.renderGuide(guide), /Visitor Team/);
       assert.match(MeetDayGuideService.renderGuide(guide), /Overflow on Main Street/);
-      assert.match(MeetDayGuideService.renderGuide(guide), /Volunteer row/);
       assert.match(MeetDayGuideService.renderGuide(guide), /Sunny in the morning/);
-      assert.equal(MeetDayGuideService.getPoolAddress({ name: 'Pool without location' }), '');
     });
   });
 
@@ -247,29 +244,35 @@ describe('MeetDayGuideService', () => {
       assertIncludesFixtureValues(html, [
         hostTeam.shortName,
         favoriteTeam.shortName,
-        pools[0].location.street,
         hostTeam.homeMeetGuides[0].general.parkingNotes[0],
         hostTeam.homeMeetGuides[0].general.helpfulNotes[0],
         guide.roleGuide.arrivalGuidance,
         guide.roleGuide.clerkGuidance,
         guide.roleGuide.familySetupLocation,
-        guide.roleGuide.reservedParking,
         ...hostTeam.homeMeetGuides[0].general.concessions.drinkItems,
         ...hostTeam.homeMeetGuides[0].general.concessions.mealItems,
         ...hostTeam.homeMeetGuides[0].general.concessions.snackItems
       ]);
+      assert.match(html, /Favorites check in at the fixture check-in table\./);
       assert.match(html, /href="pools\.html\?pool=host-pool"/);
       assert.match(html, /<dt>Arm markings<\/dt>/);
-      assert.match(html, /Before leaving home for the meet/);
-      assert.match(html, /Event \(E\).*Heat \(H\).*Lane \(L\)/);
-      assert.match(html, /href="swim-meet-resources\.html#arm-markings"/);
+      assert.match(html, /Please see <a href="swim-meet-resources\.html#arm-markings">how to mark a swimmer's arm<\/a> for detailed instructions\./);
+      assert.doesNotMatch(html, /arm must be completely dry|Before leaving home for the meet|relay position in parentheses|Event \(E\)/);
       assert.match(html, /class="my-meet-day__directions"/);
+      assert.doesNotMatch(html, /<dt>Where<\/dt>/);
+      assert.doesNotMatch(html, new RegExp(pools[0].location.street));
       assert.match(html, /aria-label="Key times"/);
+      assert.match(html, /<dt>Favorites Arrival<\/dt>/);
+      assert.doesNotMatch(html, /Gates open/);
       assert.doesNotMatch(html, /<dt>Pool<\/dt>/);
-      assert.match(html, /<dt>Parking<\/dt><dd><ul class="my-meet-day__guidance-list"><li>/);
+      assert.match(html, /<dt>Parking<\/dt><dd>[^<]/);
+      assert.doesNotMatch(html, /<dt>Parking<\/dt><dd><ul/);
       assert.match(html, /<dt>Good to know<\/dt><dd><ul class="my-meet-day__guidance-list"><li>/);
+      assert.ok(html.indexOf('<dt>Good to know</dt>') < html.indexOf('<dt>Volunteer reminder</dt>'));
+      assert.ok(html.indexOf('<dt>Volunteer reminder</dt>') < html.indexOf('<dt>Concessions</dt>'));
       assert.ok(html.includes(Meet.formatClockTime(guide.roleGuide.warmupTime)));
       assert.ok(html.includes(Meet.formatClockTime(meetTimes.dualMeets.relayCheckInDeadline)));
+      assert.match(html, /Swimmers not checked in will be dropped from relays\./);
       assert.ok(html.includes(Meet.formatClockTime(meetTimes.dualMeets.firstSwimTime)));
 
       const guidanceOnlyHtml = MeetDayGuideService.renderGuide({
@@ -290,10 +293,15 @@ describe('MeetDayGuideService', () => {
       const concessions = favoriteTeam.homeMeetGuides[0].general.concessions;
 
       assertIncludesFixtureValues(homeHtml, [
-        ...favoriteTeam.homeMeetGuides[0].general.parkingNotes,
+        favoriteTeam.homeMeetGuides[0].homeTeam.parkingNotes[0],
         ...concessions.drinkItems
       ]);
+      assert.match(homeHtml, /Fixture home &lt;script&gt; parking note\./);
+      assert.doesNotMatch(homeHtml, /Fixture visitor parking note\.|<script>/);
+      assert.match(homeHtml, /<dt>Favorites Arrival<\/dt>/);
+      assert.doesNotMatch(homeHtml, /Gates open/);
       assert.match(homeHtml, /href="#icon-banknote"/);
+      assert.match(homeHtml, /<strong>Favorites accept cash, PayPal, and Venmo\.<\/strong>/);
       assert.match(homeHtml, /src="assets\/images\/payment-methods\/paypal-monogram-full-color\.png"/);
       assert.match(homeHtml, /src="assets\/images\/payment-methods\/venmo-wordmark-blue\.png"/);
       assert.doesNotMatch(homeHtml, /payment-logo-frame/);
@@ -308,10 +316,16 @@ describe('MeetDayGuideService', () => {
         favoriteTeam.shortName,
         secondVisitorTeam.shortName,
         awayGuide.roleGuide.familySetupLocation,
-        awayGuide.roleGuide.reservedParking,
+        favoriteTeam.homeMeetGuides[0].visitingTeam.parkingNotes[0],
         awayGuide.roleGuide.swimmerCheckInLocation
       ]);
+      assert.match(awayHtml, /Visitors check in at the fixture check-in table\./);
+      assert.doesNotMatch(awayHtml, /Fixture home parking note\.|Fixture home &lt;script&gt; parking note\./);
       assert.ok(awayHtml.includes(Meet.formatClockTime(awayGuide.roleGuide.warmupTime)));
+      assert.match(awayHtml, /<dt>Visitors Arrival<\/dt>/);
+      assert.match(awayHtml, /<strong>Favorites accept cash, PayPal, and Venmo\.<\/strong>/);
+      assert.doesNotMatch(awayHtml, /Visitors accept/);
+      assert.doesNotMatch(awayHtml, /Gates open/);
     });
 
     it('renders home timing, check-in, helpful notes, and role-specific content', () => {
@@ -322,13 +336,12 @@ describe('MeetDayGuideService', () => {
         homeTeam: { name: 'Host Team', shortName: 'Hosts' },
         meet: new Meet({ date: '2026-06-20', home_team: 'Host', visiting_team: 'Visitor', location: 'Host Pool' }, meetTimes, 'dualMeets'),
         pool: { id: 'host-pool', name: 'Host', laneCount: 8, laneLength: 25, laneLengthUnits: 'yards' },
-        poolAddress: '1 Main Street',
         role: MeetTeamRole.HOME,
         roleGuide: {
-          arrivalTime: '06:30', checkInGuidance: 'Fixture check-in guidance.', clerkGuidance: 'Fixture clerk guidance.', helpfulNotes: ['Fixture role note.'],
+          arrivalTime: '06:30', checkInGuidance: 'Fixture check-in guidance.', clerkGuidance: 'Fixture clerk guidance.', familySetupLocation: 'in the fixture setup area', helpfulNotes: ['Fixture role note.'],
           swimmerCheckInLocation: 'at the fixture swimmer area', volunteerCheckInLocation: 'at the fixture volunteer area', warmupTime: '07:00'
         },
-        team: { meetTimeOverrides: {} },
+        team: { meetTimeOverrides: {}, shortName: 'Hosts' },
         visitingTeam: { name: 'Visitor Team', shortName: 'Visitors' }
       };
       const html = MeetDayGuideService.renderGuide(guide);
@@ -345,14 +358,24 @@ describe('MeetDayGuideService', () => {
         guide.roleGuide.swimmerCheckInLocation,
         guide.roleGuide.volunteerCheckInLocation
       ]);
+      assert.match(html, /Hosts check in at the fixture swimmer area\./);
       assert.ok(html.includes(Meet.formatClockTime(guide.roleGuide.arrivalTime)));
+      assert.match(html, /<dt>Hosts Arrival<\/dt>/);
+      assert.match(html, /<strong>By 6:30 AM<\/strong>/);
+      assert.doesNotMatch(html, /Arrive by/);
       assert.ok(html.includes(Meet.formatClockTime(guide.roleGuide.warmupTime)));
       assert.ok(html.includes(Meet.formatClockTime(meetTimes.dualMeets.firstSwimTime)));
       assert.match(html, /href="pools\.html\?pool=host-pool"/);
       assert.match(html, /class="my-meet-day__directions"/);
+      assert.ok(html.indexOf('<dt>Parking</dt>') < html.indexOf('<dt>Check-in</dt>'));
+      assert.ok(html.indexOf('<dt>Check-in</dt>') < html.indexOf('<dt>Team setup</dt>'));
+      assert.doesNotMatch(html, /<dt>(?:Parking|Check-in|Team setup)<\/dt><dd><ul/);
       assert.match(html, /class="my-meet-day__fact my-meet-day__fact--volunteer"><dt>Volunteer reminder<\/dt><dd>/);
-      assert.match(html, /<strong>Home meets depend on volunteers\.<\/strong> Check your team signup/);
-      assert.doesNotMatch(awayHtml, /<strong>Swim meets depend on volunteers from both teams\.<\/strong>/);
+      assert.match(html, /<strong>Swim meets depend on volunteers\.<\/strong> Please check your team signup and help fill any open role\. <strong>Thank you! 🙏<\/strong>/);
+      const volunteerFactPattern = /<div class="my-meet-day__fact my-meet-day__fact--volunteer">.*?<\/div>/;
+      assert.equal(html.match(volunteerFactPattern)?.[0], awayHtml.match(volunteerFactPattern)?.[0]);
+      assert.ok(html.indexOf(guide.roleGuide.helpfulNotes[0]) < html.indexOf(guide.generalGuide.helpfulNotes[0]));
+      assert.ok(awayHtml.indexOf(guide.generalGuide.helpfulNotes[0]) < awayHtml.indexOf(guide.roleGuide.helpfulNotes[0]));
       assert.doesNotMatch(html, /my-meet-day__volunteer/);
       assert.notEqual(html, awayHtml);
       assert.doesNotMatch(html, /more heats/);
@@ -363,7 +386,7 @@ describe('MeetDayGuideService', () => {
         date: '2026-06-20"><ScRiPt>', dayLabel: 'Today', generalGuide: null,
         homeTeam: null, visitingTeam: null,
         meet: { homeTeam: '<Home>', awayTeam: '<Visitor>', location: '<Pool>', time: '<Time>' },
-        pool: null, poolAddress: '<Address>', role: MeetTeamRole.AWAY, roleGuide: null,
+        pool: null, role: MeetTeamRole.AWAY, roleGuide: null,
         team: {}
       });
 
@@ -375,7 +398,7 @@ describe('MeetDayGuideService', () => {
         date: '2026-06-20', dayLabel: 'Today', generalGuide: null,
         homeTeam: null, visitingTeam: null,
         meet: { homeTeam: 'Home', awayTeam: 'Visitor', location: 'Pool', timingWindow: { relayCheckInDeadline: '07:55', firstSwimTime: '08:00' } },
-        pool: null, poolAddress: '', role: MeetTeamRole.AWAY, roleGuide: null,
+        pool: null, role: MeetTeamRole.AWAY, roleGuide: null,
         team: {}
       });
       assert.ok(plainRecordHtml.includes(Meet.formatClockTime('07:55')));
@@ -386,36 +409,81 @@ describe('MeetDayGuideService', () => {
 
   describe('formatting helpers', () => {
     it('formats fallback guide values and optional concessions fields', () => {
+      assert.equal(MeetDayGuideService.findPool([{ id: 'other-pool' }], 'Missing Pool'), null);
+      assert.equal(MeetDayGuideService.findHostGuide({
+        homeMeetGuides: [{ poolId: 'other-pool' }]
+      }, { id: 'host-pool' }, 'Host Pool'), null);
+      assert.equal(MeetDayGuideService.findHostGuide({
+        homeMeetGuides: [{ poolId: 'only-guide' }]
+      }, null, null), null);
+      assert.equal(MeetDayGuideService.findHostGuide({
+        homeMeetGuides: [{ poolId: 'only-guide' }],
+        homePools: [null]
+      }, null, 'Host Pool'), null);
+      assert.equal(MeetDayGuideService.getMeetDisplayTime({
+        getDisplayTime: override => override,
+        getTimeWindowKey: () => 'dualMeets'
+      }, {
+        getMeetTimeOverride: key => key
+      }), 'dualMeets');
       assert.equal(MeetDayGuideService.formatClockTime('bad'), 'bad');
       assert.equal(MeetDayGuideService.formatClockTime(), '');
       assert.equal(MeetDayGuideService.formatWarmups({ warmupTime: '07:25' }), 'Start at 7:25 AM');
       assert.equal(MeetDayGuideService.formatWarmups(null), '');
       assert.deepEqual(MeetDayGuideService.getParkingLines(null, null), []);
-      assert.deepEqual(MeetDayGuideService.getParkingLines(null, {
-        reservedParking: 'Two spaces near the entrance are reserved for coaches and managers.'
-      }), ['Two spaces near the entrance are reserved for coaches and managers.']);
+      assert.deepEqual(MeetDayGuideService.getParkingLines({
+        parkingNotes: ['Shared parking guidance.']
+      }, {
+        parkingNotes: ['Role parking guidance.']
+      }), ['Shared parking guidance.', 'Role parking guidance.']);
       assert.deepEqual(MeetDayGuideService.getCheckInLines(null), []);
+      assert.deepEqual(MeetDayGuideService.getCheckInLines({
+        swimmerCheckInLocation: 'at the fixture table'
+      }, 'Fixture Team'), ['Fixture Team check in at the fixture table.']);
+      assert.deepEqual(MeetDayGuideService.getCheckInLines({
+        swimmerCheckInLocation: 'at the fixture table'
+      }), ['Swimmers check in at the fixture table.']);
+      assert.deepEqual(MeetDayGuideService.getHelpfulNotes({
+        helpfulNotes: ['Shared note.'], poolsideConditions: ['Shared condition.']
+      }, {
+        helpfulNotes: ['Home note.']
+      }, MeetTeamRole.HOME), [
+        'Please tell team managers or check-in volunteers before leaving early if a swimmer is in a relay.',
+        'Home note.',
+        'Shared condition.',
+        'Shared note.'
+      ]);
+      assert.deepEqual(MeetDayGuideService.getHelpfulNotes({
+        helpfulNotes: ['Shared note.'], poolsideConditions: ['Shared condition.']
+      }, {
+        helpfulNotes: ['Away note.']
+      }, MeetTeamRole.AWAY), [
+        'Please tell team managers or check-in volunteers before leaving early if a swimmer is in a relay.',
+        'Shared condition.',
+        'Shared note.',
+        'Away note.'
+      ]);
       assert.deepEqual(MeetDayGuideService.getConcessionLines(null), []);
       assert.equal(MeetDayGuideService.formatPaymentMethods([]), '');
       assert.deepEqual(MeetDayGuideService.getConcessionLines({
         paymentMethods: [PaymentMethod.CASH, PaymentMethod.CREDIT, PaymentMethod.VENMO, PaymentMethod.PAYPAL],
         dietaryOptions: [{ type: 'vegetarian', availability: 'available' }],
         notes: ['Limited quantities.']
-      }), [
-        'We accept cash, credit, Venmo, and PayPal.',
-        'Use bills of $20 or less; $5 and $1 bills are especially helpful.',
+      }, 'Marlins'), [
+        'Marlins accept cash, credit, Venmo, and PayPal.',
+        'Please use bills of $20 or less; $5 and $1 bills are especially helpful.',
         'Dietary options: vegetarian (available)',
         'Limited quantities.'
       ]);
       assert.deepEqual(MeetDayGuideService.getConcessionLines({
         paymentMethods: [PaymentMethod.CASH, PaymentMethod.PAYPAL]
-      }), [
-        'We accept cash and PayPal.',
-        'Use bills of $20 or less; $5 and $1 bills are especially helpful.'
+      }, 'Marlins'), [
+        'Marlins accept cash and PayPal.',
+        'Please use bills of $20 or less; $5 and $1 bills are especially helpful.'
       ]);
       assert.deepEqual(MeetDayGuideService.getConcessionLines({
         paymentMethods: [PaymentMethod.PAYPAL]
-      }), ['We accept PayPal.']);
+      }, 'Marlins'), ['Marlins accept PayPal.']);
       assert.deepEqual(MeetDayGuideService.getPaymentMethods({
         paymentMethods: [PaymentMethod.VENMO, 'Venmo', PaymentMethod.CASH, PaymentMethod.VENMO]
       }), [PaymentMethod.VENMO, PaymentMethod.CASH]);
@@ -426,14 +494,18 @@ describe('MeetDayGuideService', () => {
       assert.deepEqual(MeetDayGuideService.getConcessionLines({
         denominationsNotAccepted: [100],
         paymentMethods: [PaymentMethod.CASH]
-      }), [
-        'We accept cash.',
-        'Use bills of $20 or less; $5 and $1 bills are especially helpful.',
+      }, 'Marlins'), [
+        'Marlins accept cash.',
+        'Please use bills of $20 or less; $5 and $1 bills are especially helpful.',
         'We cannot accept $100 bills.'
       ]);
       assert.equal(MeetDayGuideService.renderFact('Empty', []), '');
       assert.match(MeetDayGuideService.renderFact('Mixed', ['', 'Visible']), /Visible/);
       assert.equal(MeetDayGuideService.renderGuidanceFact('Empty', []), '');
+      assert.equal(
+        MeetDayGuideService.renderGuidanceFact('Good to know', ['', '<Single note>']),
+        '<div class="my-meet-day__fact"><dt>Good to know</dt><dd>&lt;Single note&gt;</dd></div>'
+      );
       assert.equal(
         MeetDayGuideService.renderGuidanceFact('Parking', ['', 'Main lot', '<Overflow lot>']),
         '<div class="my-meet-day__fact"><dt>Parking</dt><dd><ul class="my-meet-day__guidance-list"><li>Main lot</li><li>&lt;Overflow lot&gt;</li></ul></dd></div>'
@@ -451,8 +523,8 @@ describe('MeetDayGuideService', () => {
       assert.equal(MeetDayGuideService.renderConcessions({}), '');
       assert.equal(MeetDayGuideService.renderConcessions({ paymentMethods: ['custom'] }), '');
       assert.match(
-        MeetDayGuideService.renderConcessions({ paymentMethods: [PaymentMethod.CASH] }),
-        /<strong>We accept cash\.<\/strong><\/p><div class="my-meet-day__payment-methods"[^>]*>.*<\/div><p class="my-meet-day__concessions-details my-meet-day__concessions-details--supporting">Use bills of \$20 or less; \$5 and \$1 bills are especially helpful\.<\/p>/
+        MeetDayGuideService.renderConcessions({ paymentMethods: [PaymentMethod.CASH] }, '<Marlins>'),
+        /<div class="my-meet-day__payment-summary"><p[^>]*><strong>&lt;Marlins&gt; accept cash\.<\/strong><\/p><div class="my-meet-day__payment-methods"[^>]*>.*<\/div><\/div><p class="my-meet-day__concessions-details my-meet-day__concessions-details--supporting">Please use bills of \$20 or less; \$5 and \$1 bills are especially helpful\.<\/p>/
       );
       assert.match(MeetDayGuideService.renderPaymentMethods([
         PaymentMethod.CASH, PaymentMethod.CREDIT, PaymentMethod.OTHER, PaymentMethod.PAYPAL, PaymentMethod.VENMO

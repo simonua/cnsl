@@ -677,7 +677,7 @@ function renderTeamDetails(team) {
   const upcomingEventsHtml = `
     <section class="favorite-week" aria-labelledby="${agendaTitleId}">
       <div class="favorite-week__heading">
-        <h3 id="${agendaTitleId}">Upcoming events</h3>
+        <h3 id="${agendaTitleId}">Upcoming Events</h3>
       </div>
       ${upcomingEvents.length === 0 ? `<p class="favorite-week__status">${TeamsBrowserSafety.escapeHtml(globalThis.TeamAgendaDisplay.getStatus(upcomingEvents))}</p>` : ''}
       ${globalThis.TeamAgendaDisplay.renderEvents(upcomingEvents, 4, teamsPoolLocationIndex)}
