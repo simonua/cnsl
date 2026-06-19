@@ -9,7 +9,7 @@ description: "Use when changing PostHTML views, layouts, components, semantic st
 
 - All pages extend `src/views/layouts/base.html` using `<block name="content">`.
 - Reusable fragments go in `src/views/components/` and are included via `<include src="components/name.html">`.
-- PostHTML plugins used: `posthtml-extend` (layouts), `posthtml-include` (components).
+- PostHTML uses `posthtml-extend` for layouts and the local `includePlugin` in `posthtml.js` for components.
 
 ## Structure
 

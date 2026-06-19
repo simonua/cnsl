@@ -44,39 +44,12 @@ function _getTimeUtils() {
 // ------------------------------
 
 /**
- * Compatibility delegate for existing browser callers.
- * @param {Date} date - Any date in the week
- * @returns {Date} Monday for that week
- */
-function getMondayOfWeek(date) {
-  return PoolCalendarService.getMondayOfWeek(date);
-}
-
-/**
- * Compatibility delegate for existing browser callers.
- * @param {Object} dateRange - Published season date range
- * @returns {boolean} True when today is within the range
- */
-function isTodayInSeason(dateRange) {
-  return PoolCalendarService.isTodayInSeason(dateRange);
-}
-
-/**
  * Get or initialize the week start for a specific pool
  * @param {string} poolId - Pool identifier
  * @returns {Date} - Week start date for this pool
  */
 function getPoolWeekStart(poolId) {
   return PoolWeekStateService.getWeekStart(poolId);
-}
-
-/**
- * Set the week start for a specific pool
- * @param {string} poolId - Pool identifier
- * @param {Date} weekStart - New week start date
- */
-function setPoolWeekStart(poolId, weekStart) {
-  PoolWeekStateService.setWeekStart(poolId, weekStart);
 }
 
 /**
@@ -1195,10 +1168,3 @@ window.addEventListener(globalThis.PREFERENCES_CHANGED_EVENT_NAME, refreshPoolsF
 document.addEventListener('visibilitychange', handlePoolPageVisibilityChange);
 
 // Make functions available globally
-window.getMondayOfWeek = getMondayOfWeek;
-window.isTodayInSeason = isTodayInSeason;
-window.getPoolWeekStart = getPoolWeekStart;
-window.setPoolWeekStart = setPoolWeekStart;
-window.getStatusTooltip = getStatusTooltip;
-window.initializePoolBrowser = initializePoolBrowser;
-window.loadSeasonInfo = loadSeasonInfo;

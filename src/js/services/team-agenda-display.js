@@ -128,7 +128,7 @@
     return meets.filter(meet => {
       if (!meet.date) return false;
       const meetDate = startOfDay(`${meet.date}T12:00:00`);
-      const hasMatchup = Boolean(meet.visiting_team || meet.awayTeam || meet.home_team || meet.homeTeam);
+      const hasMatchup = Boolean(meet.visiting_team || meet.home_team);
       return meetDate >= firstDate && (!hasMatchup || globalThis.PreferencesService.meetIncludesFavoriteTeam(meet, team));
     }).map(meet => ({
       date: startOfDay(`${meet.date}T12:00:00`),
@@ -137,7 +137,7 @@
       location: getMeetLocation(meet, team),
       time: getMeetDisplayTime(meet, team),
       sessions: [],
-      teams: meet.visiting_team || meet.awayTeam ? `${meet.visiting_team || meet.awayTeam} at ${meet.home_team || meet.homeTeam}` : '',
+      teams: meet.visiting_team ? `${meet.visiting_team} at ${meet.home_team}` : '',
       type: 'meet'
     })).sort((first, second) => first.date - second.date).slice(0, 1);
   }

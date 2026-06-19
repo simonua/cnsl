@@ -70,7 +70,6 @@
     'js/services/pool-link-helper.js',
     'js/services/time-utils.js',
     'js/types/pool-enums.js',
-    'js/models/pool-schedule.js',
     'js/services/pool-period-schedule-service.js',
     'js/models/pool.js',
     'js/managers/pools-manager.js',
@@ -91,7 +90,6 @@
     'js/services/device-platform-service.js',
     'js/services/pool-link-helper.js',
     'js/types/pool-enums.js',
-    'js/models/pool-schedule.js',
     'js/services/pool-period-schedule-service.js',
     'js/models/pool.js',
     'js/managers/pools-manager.js'

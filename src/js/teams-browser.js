@@ -14,7 +14,6 @@ const TEAM_DETAILS_DEPENDENCIES = Object.freeze([
   'js/services/time-utils.js',
   'js/types/pool-enums.js',
   'js/types/schedule-state.js',
-  'js/models/pool-schedule.js',
   'js/services/pool-period-schedule-service.js',
   'js/services/pool-link-helper.js',
   'js/services/team-schedule-service.js',
@@ -445,12 +444,12 @@ function formatMeetsSchedule(team, meets) {
   if (teamMeets.length === 0) return '';
 
   const safeTeamName = TeamsBrowserSafety.escapeHtml(team.name || 'team');
-  const hasHomeMeet = teamMeets.some(meet => PreferencesService.teamMatchesLabel(team, meet.home_team || meet.homeTeam || ''));
+  const hasHomeMeet = teamMeets.some(meet => PreferencesService.teamMatchesLabel(team, meet.home_team || ''));
   const rows = teamMeets.map(meet => {
     const isTimeTrials = globalThis.TeamAgendaDisplay.isTimeTrialsMeet(meet);
     const isSpecialMeet = !(meet.home_team || meet.visiting_team);
-    const awayTeam = meet.visiting_team || meet.awayTeam || 'Away Team';
-    const homeTeam = meet.home_team || meet.homeTeam || 'Home Team';
+    const awayTeam = meet.visiting_team || 'Away Team';
+    const homeTeam = meet.home_team || 'Home Team';
     const isHomeMeet = PreferencesService.teamMatchesLabel(team, homeTeam);
     const location = isTimeTrials ? globalThis.TeamAgendaDisplay.getMeetLocation(meet, team) : meet.location;
     const time = globalThis.TeamAgendaDisplay.getMeetDisplayTime(meet, team);

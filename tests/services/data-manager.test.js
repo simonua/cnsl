@@ -6,7 +6,7 @@ const vm = require('node:vm');
 const { createSampleMeetsData, createSamplePoolsManagerData, createSampleTeamsData } = require('../helpers/test-helpers.js');
 
 const dataManagerModule = require('../helpers/browser-module-loader.js').loadBrowserModule('data-manager');
-const { DataManager, getDataManager, initializeDataManager } = dataManagerModule;
+const { DataManager, getDataManager } = dataManagerModule;
 
 describe('DataManager', () => {
   describe('initialize', () => {
@@ -177,17 +177,16 @@ describe('DataManager', () => {
       assert.equal(manager.getSeasonInfo(), null);
     });
 
-    it('accepts the legacy meets collection shape and refreshes loaded domains by default', async () => {
+    it('rejects the legacy meets collection shape without reporting an empty successful collection', async () => {
       const originalFetch = global.fetch;
       const originalFileHelper = global.FileHelper;
-      let loads = 0;
       global.FileHelper = { getMeetsDataPath: () => '/data/meets.json' };
-      global.fetch = async () => { loads += 1; return { ok: true, json: async () => ({ meets: [] }) }; };
+      global.fetch = async () => ({ ok: true, json: async () => ({ meets: [] }) });
       try {
         const manager = new DataManager();
-        await manager.initialize(['meets']);
-        await manager.refresh();
-        assert.equal(loads, 2);
+        await assert.rejects(manager.initialize(['meets']), /Invalid meets annual data response/);
+        assert.equal(manager.isInitialized(['meets']), false);
+        assert.equal(manager.getMeets().getMeetCount(), 0);
       } finally {
         global.fetch = originalFetch;
         global.FileHelper = originalFileHelper;
@@ -196,19 +195,8 @@ describe('DataManager', () => {
   });
 
   describe('global and browser registration', () => {
-    it('reuses and initializes the global data manager helper', async () => {
-      const originalFetch = global.fetch;
-      const originalFileHelper = global.FileHelper;
-      global.FileHelper = { getTeamsDataPath: () => '/data/teams.json' };
-      global.fetch = async () => ({ ok: true, json: async () => ({ teams: [] }) });
-      try {
-        assert.equal(getDataManager(), getDataManager());
-        await initializeDataManager(['teams']);
-        assert.equal(getDataManager().isInitialized(['teams']), true);
-      } finally {
-        global.fetch = originalFetch;
-        global.FileHelper = originalFileHelper;
-      }
+    it('reuses the global data manager helper', () => {
+      assert.equal(getDataManager(), getDataManager());
     });
 
     it('installs DataManager in the browser global scope', () => {

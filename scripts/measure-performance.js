@@ -20,6 +20,7 @@ const PERFORMANCE_PROFILES = Object.freeze({
 const PERFORMANCE_PROFILE_NAME = process.env.CNSL_PERF_PROFILE || 'desktop';
 const PERFORMANCE_PROFILE = PERFORMANCE_PROFILES[PERFORMANCE_PROFILE_NAME];
 const PWA_CRITICAL_RESOURCE_BUDGET = 75;
+const ROUTE_PHASE_TIMEOUT_MS = 30000;
 const ROUTE_PHASE_MARKS = Object.freeze({
   Meets: Object.freeze(['primary-data-ready', 'summary-visible', 'optional-enrichment-settled']),
   'My Meet Day': Object.freeze(['primary-data-ready', 'summary-visible', 'optional-enrichment-settled']),
@@ -246,12 +247,52 @@ async function collectPageMetrics(page, route, usableMs, responseMetrics = null)
   };
 }
 
+/**
+ * Wait for every declared lifecycle phase before collecting route metrics.
+ * @param {import('@playwright/test').Page} page - Measurement page
+ * @param {Object} route - Route measurement configuration
+ * @param {number} timeoutMs - Maximum wait for background route phases
+ * @returns {Promise<void>} Promise settled when all route phases are present
+ * @throws {Error} When declared phases do not settle before the deadline
+ */
+async function waitForRoutePhases(page, route, timeoutMs = ROUTE_PHASE_TIMEOUT_MS) {
+  const phaseNames = ROUTE_PHASE_MARKS[route.name] || [];
+  if (phaseNames.length === 0) return;
+
+  const routeMarkPrefix = route.name.toLowerCase().replaceAll(' ', '-');
+  try {
+    await page.waitForFunction(({ markPrefix, requiredPhases }) => requiredPhases.every(phaseName => (
+      performance.getEntriesByName(`cnsl:${markPrefix}:${phaseName}`, 'mark').length > 0
+    )), { markPrefix: routeMarkPrefix, requiredPhases: phaseNames }, { timeout: timeoutMs });
+  } catch (error) {
+    const diagnostics = await page.evaluate(({ markPrefix, requiredPhases }) => {
+      const observedPhases = requiredPhases.filter(phaseName => (
+        performance.getEntriesByName(`cnsl:${markPrefix}:${phaseName}`, 'mark').length > 0
+      ));
+      return {
+        documentReadyState: globalThis.document.readyState,
+        missingPhases: requiredPhases.filter(phaseName => !observedPhases.includes(phaseName)),
+        observedPhases,
+        resourceCount: performance.getEntriesByType('resource').length
+      };
+    }, { markPrefix: routeMarkPrefix, requiredPhases: phaseNames });
+    throw new Error(
+      `${route.name} performance phases did not settle within ${timeoutMs} ms. `
+      + `Missing: ${diagnostics.missingPhases.join(', ') || 'none'}; `
+      + `observed: ${diagnostics.observedPhases.join(', ') || 'none'}; `
+      + `document: ${diagnostics.documentReadyState}; resources: ${diagnostics.resourceCount}.`,
+      { cause: error }
+    );
+  }
+}
+
 async function navigateAndMeasure(page, origin, route, responseMetrics = null) {
   const startedAt = performance.now();
   await page.goto(`${origin}${route.path}`, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector(route.readySelector);
   const usableMs = Math.round(performance.now() - startedAt);
   await page.waitForLoadState('networkidle');
+  await waitForRoutePhases(page, route);
   return collectPageMetrics(page, route, usableMs, responseMetrics);
 }
 
@@ -475,11 +516,13 @@ module.exports = {
   DIRECTORY_ROUTES,
   PERFORMANCE_PROFILES,
   PWA_CRITICAL_RESOURCE_BUDGET,
+  ROUTE_PHASE_TIMEOUT_MS,
   ROUTE_PHASE_MARKS,
   ROUTES,
   maximumDomainRequests,
   median,
   spread,
   summarizeRouteSamples,
-  summarizeWarmSamples
+  summarizeWarmSamples,
+  waitForRoutePhases
 };

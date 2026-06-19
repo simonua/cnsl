@@ -106,29 +106,21 @@ describe('PoolsManager', () => {
       assert.deepEqual(manager.getPoolsByStatus({ ...PoolStatus.OPEN, status: 'Different visible copy' }), [openPool]);
     });
 
-    it('filters features, amenities, and special pool facilities', () => {
+    it('filters and reports published features', () => {
       manager.loadData(createSamplePoolsManagerData([
-        { name: 'A', features: ['Lap lanes', 'Slides'], amenities: ['Parking'], divingBoard: true, babyPool: false },
-        { name: 'B', features: ['Lap lanes'], amenities: ['Parking', 'Wi-Fi'], divingBoard: false, babyPool: true }
+        { name: 'A', features: ['Lap lanes', 'Slides'] },
+        { name: 'B', features: ['Lap lanes'] }
       ]));
 
       assert.equal(manager.filterByFeatures([]).length, 2);
       assert.deepEqual(manager.filterByFeatures(['Lap lanes', 'Slides']).map(pool => pool.name), ['A']);
-      assert.equal(manager.filterByAmenities(null).length, 2);
-      assert.deepEqual(manager.filterByAmenities(['Wi-Fi']).map(pool => pool.name), ['B']);
-      assert.deepEqual(manager.getPoolsWithDivingBoards().map(pool => pool.name), ['A']);
-      assert.deepEqual(manager.getPoolsWithBabyPools().map(pool => pool.name), ['B']);
       assert.deepEqual(manager.getAllFeatures(), ['Lap lanes', 'Slides']);
-      assert.deepEqual(manager.getAllAmenities(), ['Parking', 'Wi-Fi']);
       assert.deepEqual(manager.getStatistics(), {
         totalPools: 2,
         openPools: 0,
         closedPools: 2,
         openPercentage: 0,
         uniqueFeatures: 2,
-        uniqueAmenities: 2,
-        poolsWithDivingBoards: 1,
-        poolsWithBabyPools: 1,
         lastUpdated: manager.lastUpdated
       });
     });
@@ -150,17 +142,9 @@ describe('PoolsManager', () => {
     });
   });
 
-  describe('summaries, events, and export', () => {
-    it('delegates summaries and today-event filtering to loaded pools', () => {
+  describe('export', () => {
+    it('exports canonical loaded pools', () => {
       manager.loadData(createSamplePoolsManagerData([{ name: 'A' }, { name: 'B' }]));
-      const [first, second] = manager.getAllPools();
-      first.getSummary = () => ({ name: 'A' });
-      second.getSummary = () => ({ name: 'B' });
-      first.getTodaysEvents = () => [{}];
-      second.getTodaysEvents = () => [];
-
-      assert.deepEqual(manager.getPoolsSummary(), [{ name: 'A' }, { name: 'B' }]);
-      assert.deepEqual(manager.getPoolsWithTodaysEvents(), [first]);
       assert.equal(manager.exportData().pools.length, 2);
     });
   });

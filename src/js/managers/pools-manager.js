@@ -134,37 +134,6 @@ if (typeof globalThis.PoolsManager === 'undefined') {
   }
 
   /**
-   * Filter pools by amenities
-    * @param {string[]} amenities - Array of amenities to filter by
-    * @returns {Pool[]} - Array of pools with specified amenities
-   */
-  filterByAmenities(amenities) {
-    if (!amenities || amenities.length === 0) {
-      return this.getAllPools();
-    }
-
-    return this.getAllPools().filter(pool => {
-      return amenities.every(amenity => pool.hasAmenity(amenity));
-    });
-  }
-
-  /**
-   * Get pools with diving boards
-    * @returns {Pool[]} - Array of pools with diving boards
-   */
-  getPoolsWithDivingBoards() {
-    return this.getAllPools().filter(pool => pool.divingBoard);
-  }
-
-  /**
-   * Get pools with baby pools
-    * @returns {Pool[]} - Array of pools with baby pools
-   */
-  getPoolsWithBabyPools() {
-    return this.getAllPools().filter(pool => pool.babyPool);
-  }
-
-  /**
    * Get pool statistics
    * @returns {Object} - Statistics about all pools
    */
@@ -175,15 +144,8 @@ if (typeof globalThis.PoolsManager === 'undefined') {
 
     // Feature statistics
     const allFeatures = new Set();
-    const allAmenities = new Set();
-    let divingBoardCount = 0;
-    let babyPoolCount = 0;
-
     allPools.forEach(pool => {
       pool.getFeatures().forEach(feature => allFeatures.add(feature));
-      pool.getAmenities().forEach(amenity => allAmenities.add(amenity));
-      if (pool.divingBoard) divingBoardCount++;
-      if (pool.babyPool) babyPoolCount++;
     });
 
     return {
@@ -192,30 +154,8 @@ if (typeof globalThis.PoolsManager === 'undefined') {
       closedPools: closedPools.length,
       openPercentage: allPools.length > 0 ? Math.round((openPools.length / allPools.length) * 100) : 0,
       uniqueFeatures: allFeatures.size,
-      uniqueAmenities: allAmenities.size,
-      poolsWithDivingBoards: divingBoardCount,
-      poolsWithBabyPools: babyPoolCount,
       lastUpdated: this.lastUpdated
     };
-  }
-
-  /**
-   * Get pools summary for dashboard
-   * @returns {Array} - Array of pool summaries
-   */
-  getPoolsSummary() {
-    return this.getAllPools().map(pool => pool.getSummary());
-  }
-
-  /**
-   * Get pools with events today
-   * @returns {Array} - Array of pools with events today
-   */
-  getPoolsWithTodaysEvents() {
-    return this.getAllPools().filter(pool => {
-      const todaysEvents = pool.getTodaysEvents();
-      return todaysEvents.length > 0;
-    });
   }
 
   /**
@@ -228,18 +168,6 @@ if (typeof globalThis.PoolsManager === 'undefined') {
       pool.getFeatures().forEach(feature => features.add(feature));
     });
     return Array.from(features).sort();
-  }
-
-  /**
-   * Get all unique amenities across all pools
-    * @returns {string[]} - Array of unique amenities
-   */
-  getAllAmenities() {
-    const amenities = new Set();
-    this.getAllPools().forEach(pool => {
-      pool.getAmenities().forEach(amenity => amenities.add(amenity));
-    });
-    return Array.from(amenities).sort();
   }
 
   /**

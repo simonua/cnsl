@@ -110,7 +110,7 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
         minutes: (referenceDate.getHours() * 60) + referenceDate.getMinutes()
       };
       const candidates = meets.filter(candidate => {
-        const hasDualMatchup = Boolean(candidate && (candidate.home_team || candidate.homeTeam) && (candidate.visiting_team || candidate.awayTeam));
+        const hasDualMatchup = Boolean(candidate && candidate.home_team && candidate.visiting_team);
         return hasDualMatchup && globalThis.PreferencesService.meetIncludesFavoriteTeam(candidate, team);
       }).sort((left, right) => left.date.localeCompare(right.date));
 
@@ -142,8 +142,8 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
       if (!relevantMeet) return null;
 
       const { meet } = relevantMeet;
-      const homeLabel = meet.home_team || meet.homeTeam;
-      const visitingLabel = meet.visiting_team || meet.awayTeam;
+      const homeLabel = meet.home_team;
+      const visitingLabel = meet.visiting_team;
       const role = globalThis.PreferencesService.teamMatchesLabel(team, homeLabel)
         ? globalThis.MeetTeamRole.HOME
         : globalThis.MeetTeamRole.AWAY;
@@ -464,8 +464,8 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
 
       const { generalGuide, meet, pool, roleGuide } = guide;
       const roleLabel = guide.role === globalThis.MeetTeamRole.HOME ? 'Home meet' : 'Away meet';
-      const homeName = guide.homeTeam?.shortName || guide.homeTeam?.name || meet.home_team || meet.homeTeam;
-      const visitingName = guide.visitingTeam?.shortName || guide.visitingTeam?.name || meet.visiting_team || meet.awayTeam;
+      const homeName = guide.homeTeam?.shortName || guide.homeTeam?.name || meet.home_team;
+      const visitingName = guide.visitingTeam?.shortName || guide.visitingTeam?.name || meet.visiting_team;
       const meetDate = new Date(`${guide.date}T12:00:00`);
       const dateLabel = meetDate.toLocaleDateString('en-US', { day: 'numeric', month: 'long', weekday: 'long' });
       const matchup = `${visitingName} @ ${homeName}`;

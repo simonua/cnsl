@@ -114,15 +114,6 @@ if (typeof globalThis.TeamsManager === 'undefined') {
   }
 
   /**
-   * Get teams by division
-   * @param {string} division - Division name
-    * @returns {Team[]} - Array of teams in division
-   */
-  getTeamsByDivision(division) {
-    return this.getAllTeams().filter(team => team.division === division);
-  }
-
-  /**
    * Get teams by coach
    * @param {string} coachName - Coach name
     * @returns {Team[]} - Array of teams coached by specified coach
@@ -159,20 +150,6 @@ if (typeof globalThis.TeamsManager === 'undefined') {
   }
 
   /**
-   * Get all divisions
-    * @returns {string[]} - Array of unique divisions
-   */
-  getAllDivisions() {
-    const divisions = new Set();
-    this.getAllTeams().forEach(team => {
-      if (team.division) {
-        divisions.add(team.division);
-      }
-    });
-    return Array.from(divisions).sort();
-  }
-
-  /**
    * Get all coaches
     * @returns {string[]} - Array of unique coaches
    */
@@ -180,9 +157,6 @@ if (typeof globalThis.TeamsManager === 'undefined') {
     const coaches = new Set();
     this.getAllTeams().forEach(team => {
       this.getTeamCoaches(team).forEach(coach => coaches.add(coach.name));
-      if (team.coach) {
-        coaches.add(team.coach);
-      }
     });
     return Array.from(coaches).sort();
   }
@@ -205,7 +179,6 @@ if (typeof globalThis.TeamsManager === 'undefined') {
    */
   getStatistics() {
     const allTeams = this.getAllTeams();
-    const divisions = this.getAllDivisions();
     const coaches = this.getAllCoaches();
     const managers = this.getAllManagers();
 
@@ -218,43 +191,13 @@ if (typeof globalThis.TeamsManager === 'undefined') {
       }
     });
 
-    // Division distribution
-    const divisionDistribution = {};
-    allTeams.forEach(team => {
-      if (team.division) {
-        divisionDistribution[team.division] = (divisionDistribution[team.division] || 0) + 1;
-      }
-    });
-
     return {
       totalTeams: allTeams.length,
-      totalDivisions: divisions.length,
       totalCoaches: coaches.length,
       totalManagers: managers.length,
       poolDistribution,
-      divisionDistribution,
       lastUpdated: this.lastUpdated
     };
-  }
-
-  /**
-   * Get team roster information (if available)
-   * @param {string} teamName - Team name
-   * @returns {Object|null} - Team roster or null
-   */
-  getTeamRoster(teamName) {
-    const team = this.getTeam(teamName);
-    return team && team.roster ? team.roster : null;
-  }
-
-  /**
-   * Get team schedule (if available)
-   * @param {string} teamName - Team name
-   * @returns {Array} - Team schedule array
-   */
-  getTeamSchedule(teamName) {
-    const team = this.getTeam(teamName);
-    return team && team.schedule ? team.schedule : [];
   }
 
   /**

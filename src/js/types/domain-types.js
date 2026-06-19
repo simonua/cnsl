@@ -1,9 +1,7 @@
 /**
  * Shared JSDoc contracts for annual data and the manager boundary.
  *
- * These declarations mirror the published JSON schemas while retaining the
- * legacy fields still accepted by the application. They intentionally contain
- * no runtime code.
+ * These declarations mirror the published JSON schemas and contain no runtime code.
  */
 
 /** @typedef {'pools'|'teams'|'meets'} AnnualDataDomain */
@@ -46,25 +44,13 @@
  * @property {string} [caUrl]
  * @property {string} scheduleUrl
  * @property {PoolLocation} [location]
- * @property {string} [address]
- * @property {string} [mapsQuery]
- * @property {number} [lat]
- * @property {number} [lng]
  * @property {string} [phone]
- * @property {string} [website]
  * @property {number} laneCount
  * @property {'meters'|'yards'|null} laneLengthUnits
  * @property {number|null} laneLength
  * @property {string[]} features
- * @property {string[]} [amenities]
- * @property {boolean} [divingBoard]
- * @property {boolean} [babyPool]
  * @property {PoolScheduleRecord[]} schedules
  * @property {PoolScheduleRecord[]} [scheduleOverrides]
- * @property {Object} [hours]
- * @property {Object[]} [restrictions]
- * @property {Object[]} [specialEvents]
- * @property {string} [lastUpdated]
  */
 
 /**
@@ -136,13 +122,6 @@
  * @property {string[]} practicePools
  * @property {TeamStaffRecord} staff
  * @property {Object} [practice]
- * @property {string} [poolName] Legacy pool reference accepted by managers.
- * @property {string} [coach] Legacy coach value accepted by managers.
- * @property {string} [division] Legacy division value accepted by managers.
- * @property {Object[]} [roster] Legacy roster value accepted by managers.
- * @property {Object[]} [schedule] Legacy schedule value accepted by managers.
- * @property {string} [email] Legacy shared email accepted by managers.
- * @property {string} [phone] Legacy phone value accepted by managers.
  */
 
 /**
@@ -158,11 +137,6 @@
  * @property {string} [location]
  * @property {string} [home_team]
  * @property {string} [visiting_team]
- * @property {string} [homeTeam] Legacy home-team value accepted by managers.
- * @property {string} [awayTeam] Legacy away-team value accepted by managers.
- * @property {string} [homePool] Legacy home-pool value accepted by managers.
- * @property {string} [awayPool] Legacy away-pool value accepted by managers.
- * @property {string} [time] Legacy meet time accepted by managers.
  * @property {'timeTrials'} [timeWindowKey]
  */
 
@@ -178,9 +152,8 @@
  * @typedef {Object} MeetsDocument
  * @property {string} [url]
  * @property {{dualMeets: MeetTimingWindow, timeTrials: MeetTimingWindow}} meetTimes
- * @property {MeetRecord[]} [regular_meets]
- * @property {MeetRecord[]} [special_meets]
- * @property {MeetRecord[]} [meets] Legacy combined meet list accepted by managers.
+ * @property {MeetRecord[]} regular_meets
+ * @property {MeetRecord[]} special_meets
  * @property {string} [lastUpdated]
  */
 

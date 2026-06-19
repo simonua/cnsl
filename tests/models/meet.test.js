@@ -10,11 +10,12 @@ describe('Meet', () => {
   const sampleMeetsData = createSampleMeetsData();
   const meet = new Meet(sampleMeetsData.regular_meets[0], sampleMeetsData.meetTimes, 'dualMeets');
 
-  it('exposes published fields with compatibility aliases', () => {
+  it('exposes only the published matchup fields', () => {
     assert.equal(meet.getHomeTeam(), 'Bryant Woods Barracudas');
     assert.equal(meet.getVisitingTeam(), 'Kendall Ridge Krakens');
-    assert.equal(meet.homeTeam, meet.home_team);
-    assert.equal(meet.awayTeam, meet.visiting_team);
+    assert.equal(Object.hasOwn(meet, 'homeTeam'), false);
+    assert.equal(Object.hasOwn(meet, 'awayTeam'), false);
+    assert.equal(Object.hasOwn(meet, 'homePool'), false);
   });
 
   it('matches participating teams and pool locations', () => {
@@ -65,11 +66,11 @@ describe('Meet', () => {
     assert.equal(compositeMeet.includesTeam('Swansfield'), true);
   });
 
-  it('normalizes pool suffixes and searches optional meet fields', () => {
-    const timedMeet = new Meet({ location: 'Bryant Woods Pool', time: '9:00 AM', home_team: 'A', visiting_team: 'B' });
-    assert.equal(timedMeet.occursAtPool('  bryant woods  '), true);
-    assert.equal(timedMeet.isSpecialMeet(), false);
-    assert.equal(timedMeet.matchesSearchTerm('9:00'), true);
+  it('normalizes pool suffixes and searches published meet fields', () => {
+    const locatedMeet = new Meet({ location: 'Bryant Woods Pool', home_team: 'A', visiting_team: 'B' });
+    assert.equal(locatedMeet.occursAtPool('  bryant woods  '), true);
+    assert.equal(locatedMeet.isSpecialMeet(), false);
+    assert.equal(locatedMeet.matchesSearchTerm('bryant'), true);
     assert.equal(new Meet({ location: '' }).occursAtPool(''), false);
   });
 

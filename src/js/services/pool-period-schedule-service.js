@@ -42,37 +42,6 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
       this.getPoolStatus = typeof options.getPoolStatus === 'function' ? options.getPoolStatus : () => null;
     }
 
-    /** @returns {Object} Active schedule normalized by full weekday name */
-    normalizeActiveSchedule() {
-      const timeUtils = this.getTimeUtils();
-      if (!timeUtils) return {};
-
-      const currentDate = timeUtils.getCurrentEasternTimeInfo().date;
-      const activeSchedule = this.schedulePeriods.find(schedule => currentDate >= schedule.startDate && currentDate <= schedule.endDate);
-      if (!activeSchedule || !Array.isArray(activeSchedule.hours)) return {};
-
-      const normalizedSchedule = {};
-      Object.values(PoolPeriodScheduleService.DAY_NAMES).forEach(day => {
-        normalizedSchedule[day] = { closed: true };
-      });
-      activeSchedule.hours.forEach(hour => {
-        if (!Array.isArray(hour.weekDays) || !hour.startTime || !hour.endTime) return;
-        hour.weekDays.forEach(shortDay => {
-          const fullDay = PoolPeriodScheduleService.DAY_NAMES[shortDay];
-          if (!fullDay || !normalizedSchedule[fullDay].closed) return;
-          normalizedSchedule[fullDay] = {
-            closed: false,
-            open: hour.startTime,
-            close: hour.endTime,
-            activities: hour.types || [],
-            notes: hour.notes || '',
-            accessStatus: hour.accessStatus
-          };
-        });
-      });
-      return normalizedSchedule;
-    }
-
     /** @returns {Object} Current semantic pool status */
     getCurrentStatus() {
       const poolStatus = this.getPoolStatus();

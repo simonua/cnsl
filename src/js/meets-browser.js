@@ -11,7 +11,6 @@ const MeetsBrowserSafety = HtmlSafety;
 const MEET_DETAILS_LOADING_HTML = '<p>Loading meet details.</p>';
 const MEETS_ENRICHMENT_DEPENDENCIES = Object.freeze([
   'js/types/pool-enums.js',
-  'js/models/pool-schedule.js',
   'js/services/pool-period-schedule-service.js',
   'js/services/pool-link-helper.js',
   'js/models/pool.js',

@@ -40,30 +40,6 @@ function createTimeUtils(overrides = {}) {
 
 describe('PoolPeriodScheduleService', () => {
   describe('schedule projection', () => {
-    it('normalizes the active schedule and returns closed defaults', () => {
-      const service = createService({ getTimeUtils: () => createTimeUtils({ getCurrentEasternTimeInfo: () => ({ date: '2026-06-01' }) }) });
-      const normalized = service.normalizeActiveSchedule();
-      assert.deepEqual(normalized.Monday.activities, ['Rec Swim']);
-      assert.equal(normalized.Monday.accessStatus, 'public');
-      assert.equal(normalized.Wednesday.closed, true);
-      assert.deepEqual(createService({ getTimeUtils: () => null }).normalizeActiveSchedule(), {});
-      const malformed = createService({
-        schedulePeriods: [{
-          startDate: '2026-06-01',
-          endDate: '2026-06-01',
-          hours: [{}, { weekDays: ['Mon'], startTime: '1:00PM', endTime: '2:00PM' }, {
-            weekDays: ['Mon', 'Bad'], startTime: '2:00PM', endTime: '3:00PM'
-          }]
-        }],
-        getTimeUtils: () => createTimeUtils({ getCurrentEasternTimeInfo: () => ({ date: '2026-06-01' }) })
-      }).normalizeActiveSchedule();
-      assert.deepEqual(malformed.Monday.activities, []);
-      assert.deepEqual(createService({
-        schedulePeriods: [{ startDate: '2026-06-01', endDate: '2026-06-01' }],
-        getTimeUtils: () => createTimeUtils({ getCurrentEasternTimeInfo: () => ({ date: '2026-06-01' }) })
-      }).normalizeActiveSchedule(), {});
-    });
-
     it('maps public access statuses without interpreting labels', () => {
       const service = createService();
       assert.equal(service.getSlotStatus({ accessStatus: 'public', types: ['Closed-looking label'] }), PoolStatus.OPEN);
@@ -233,7 +209,6 @@ describe('PoolPeriodScheduleService', () => {
     it('uses safe dependency fallbacks when no collaborators are supplied', () => {
       const service = new PoolPeriodScheduleService();
 
-      assert.deepEqual(service.normalizeActiveSchedule(), {});
       assert.deepEqual(service.getCurrentStatus(), { kind: 'unavailable', isOpen: false, status: 'Error', color: 'gray' });
     });
   });

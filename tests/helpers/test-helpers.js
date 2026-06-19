@@ -28,7 +28,7 @@ function createSamplePoolData(overrides = {}) {
     caUrl: 'https://example.com/bwp',
     scheduleUrl: 'https://example.com/bwp/schedule',
     location: {
-      address: '10400 Bryant Woods Court',
+      street: '10400 Bryant Woods Court',
       city: 'Columbia',
       state: 'MD',
       zip: '21044',
@@ -37,6 +37,11 @@ function createSamplePoolData(overrides = {}) {
       googleMapsUrl: 'https://maps.google.com/?q=Bryant+Woods+Pool'
     },
     phone: '410-555-1234',
+    laneCount: 6,
+    laneLengthUnits: 'meters',
+    laneLength: 25,
+    features: [],
+    schedules: [],
     ...overrides
   };
 }
@@ -103,31 +108,22 @@ function createSampleMeetsData() {
     },
     regular_meets: [
       {
-        id: 'meet-1',
         date: tomorrow.toISOString().split('T')[0],
-        time: '6:00PM',
         home_team: 'Bryant Woods Barracudas',
         visiting_team: 'Kendall Ridge Krakens',
-        location: 'Bryant Woods Pool',
-        type: 'Regular'
+        location: 'Bryant Woods Pool'
       },
       {
-        id: 'meet-2',
         date: nextWeek.toISOString().split('T')[0],
-        time: '9:00AM',
         home_team: 'Kendall Ridge Krakens',
         visiting_team: 'Bryant Woods Barracudas',
-        location: 'Kendall Ridge Pool',
-        type: 'Regular'
+        location: 'Kendall Ridge Pool'
       },
       {
-        id: 'meet-3',
         date: lastWeek.toISOString().split('T')[0],
-        time: '6:00PM',
         home_team: 'Bryant Woods Barracudas',
         visiting_team: 'Kendall Ridge Krakens',
-        location: 'Bryant Woods Pool',
-        type: 'Regular'
+        location: 'Bryant Woods Pool'
       }
     ]
   };

@@ -11,11 +11,21 @@ if (typeof globalThis.Team === 'undefined') {
      * @param {TeamRecord} teamData - Published annual team record
      */
     constructor(teamData = {}) {
-      Object.assign(this, teamData);
       this.id = teamData.id || '';
       this.name = teamData.name || '';
+      this.shortName = teamData.shortName || '';
+      this.keywords = Array.isArray(teamData.keywords) ? [...teamData.keywords] : [];
+      this.url = teamData.url || '';
+      this.resultsUrl = teamData.resultsUrl || '';
+      this.calendarUrl = teamData.calendarUrl || '';
+      this.eventsSubscriptionUrl = teamData.eventsSubscriptionUrl || '';
+      this.merchandiseUrl = teamData.merchandiseUrl || '';
+      this.booster = teamData.booster || null;
       this.homePools = Array.isArray(teamData.homePools) ? [...teamData.homePools] : [];
+      this.timeTrialsPool = teamData.timeTrialsPool || '';
       this.practicePools = Array.isArray(teamData.practicePools) ? [...teamData.practicePools] : [];
+      this.homeMeetGuides = Array.isArray(teamData.homeMeetGuides) ? [...teamData.homeMeetGuides] : [];
+      this.practice = teamData.practice || null;
       this.meetTimeOverrides = Object.fromEntries(Object.entries(teamData.meetTimeOverrides || {})
         .map(([key, timingWindow]) => [key, { ...timingWindow }]));
       const staff = teamData.staff || {};
@@ -78,11 +88,11 @@ if (typeof globalThis.Team === 'undefined') {
     }
 
     /**
-     * Gets the team's primary home pool, including the legacy pool fallback.
+    * Gets the team's primary home pool.
      * @returns {string} Primary pool name, or an empty string when unavailable
      */
     getPrimaryPoolName() {
-      return this.homePools[0] || this.poolName || '';
+      return this.homePools[0] || '';
     }
 
     /**
@@ -91,7 +101,7 @@ if (typeof globalThis.Team === 'undefined') {
      * @returns {boolean} Whether the team includes the pool
      */
     includesPool(poolName) {
-      return [...this.homePools, ...this.practicePools, this.poolName].filter(Boolean).includes(poolName);
+      return [...this.homePools, ...this.practicePools].includes(poolName);
     }
 
     /**
@@ -101,12 +111,11 @@ if (typeof globalThis.Team === 'undefined') {
      */
     includesCoach(coachName) {
       const term = String(coachName || '').toLowerCase();
-      return this.staff.coaches.some(coach => coach.name.toLowerCase().includes(term))
-        || Boolean(this.coach && this.coach.toLowerCase().includes(term));
+      return this.staff.coaches.some(coach => String(coach.name || '').toLowerCase().includes(term));
     }
 
     /**
-     * Searches the team's identifying, pool, staff, and legacy fields.
+    * Searches the team's identifying, pool, and staff fields.
      * @param {string} searchTerm - Case-insensitive term to match
      * @returns {boolean} Whether any searchable team field matches
      */
@@ -115,11 +124,8 @@ if (typeof globalThis.Team === 'undefined') {
       const staff = [...this.staff.coaches, ...this.staff.managers];
       return this.name.toLowerCase().includes(term)
         || [...this.homePools, ...this.practicePools].some(pool => pool.toLowerCase().includes(term))
-        || staff.some(member => member.name.toLowerCase().includes(term) || Boolean(member.email && member.email.toLowerCase().includes(term)))
-        || this.staff.contacts.some(contact => contact.email.toLowerCase().includes(term))
-        || Boolean(this.poolName && this.poolName.toLowerCase().includes(term))
-        || Boolean(this.coach && this.coach.toLowerCase().includes(term))
-        || Boolean(this.division && this.division.toLowerCase().includes(term));
+        || staff.some(member => String(member.name || '').toLowerCase().includes(term) || Boolean(member.email && member.email.toLowerCase().includes(term)))
+        || this.staff.contacts.some(contact => String(contact.email || '').toLowerCase().includes(term));
     }
 
     /**
@@ -138,9 +144,8 @@ if (typeof globalThis.Team === 'undefined') {
         coaches,
         managers,
         contacts,
-        coach: (coaches[0] && coaches[0].name) || this.coach || 'Not specified',
-        email: (staffWithEmail && staffWithEmail.email) || (sharedContact && sharedContact.email) || this.email || 'Not available',
-        phone: this.phone || 'Not available',
+        coach: (coaches[0] && coaches[0].name) || 'Not specified',
+        email: (staffWithEmail && staffWithEmail.email) || (sharedContact && sharedContact.email) || 'Not available',
         poolName: this.getPrimaryPoolName() || 'Not specified'
       };
     }
@@ -156,16 +161,12 @@ if (typeof globalThis.Team === 'undefined') {
       return {
         name: this.name,
         poolName: this.getPrimaryPoolName() || 'Not specified',
-        division: this.division || 'Not specified',
         coaches,
         managers,
         contacts,
-        coach: (coaches[0] && coaches[0].name) || this.coach || 'Not specified',
-        memberCount: this.roster ? this.roster.length : 0,
-        hasSchedule: Boolean(this.schedule && this.schedule.length > 0),
+        coach: (coaches[0] && coaches[0].name) || 'Not specified',
         contact: {
-          hasEmail: Boolean(this.email) || [...coaches, ...managers].some(member => Boolean(member.email)) || contacts.length > 0,
-          hasPhone: Boolean(this.phone)
+          hasEmail: [...coaches, ...managers].some(member => Boolean(member.email)) || contacts.length > 0
         }
       };
     }

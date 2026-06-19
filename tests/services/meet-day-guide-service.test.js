@@ -204,7 +204,7 @@ describe('MeetDayGuideService', () => {
       assert.equal(guide.roleGuide.arrivalTime, '06:30');
     });
 
-    it('accepts compatible camelCase meet records and skips malformed or unrelated candidates', () => {
+    it('accepts canonical meet records and skips malformed or unrelated candidates', () => {
       const host = {
         id: 'host', name: 'Host Team', keywords: ['Host'],
         homeMeetGuides: [{
@@ -217,11 +217,11 @@ describe('MeetDayGuideService', () => {
         }]
       };
       const visitor = { id: 'visitor', name: 'Visitor Team', keywords: ['Visitor'] };
-      const meet = { date: '2026-06-20', homeTeam: 'Host', awayTeam: 'Visitor', location: 'Host Pool', time: '8:00 AM' };
+      const meet = { date: '2026-06-20', home_team: 'Host', visiting_team: 'Visitor', location: 'Host Pool' };
       const guide = MeetDayGuideService.getGuide(host, [host, visitor], [
         null,
-        { date: '2026-06-20', homeTeam: '', awayTeam: 'Visitor' },
-        { date: '2026-06-20', homeTeam: 'Other', awayTeam: 'Visitor' },
+        { date: '2026-06-20', home_team: '', visiting_team: 'Visitor' },
+        { date: '2026-06-20', home_team: 'Other', visiting_team: 'Visitor' },
         meet
       ], [{ id: 'host-pool', name: 'Host', address: '1 Main Street' }], new Date(2026, 5, 19, 12));
 
@@ -385,7 +385,7 @@ describe('MeetDayGuideService', () => {
       const html = MeetDayGuideService.renderGuide({
         date: '2026-06-20"><ScRiPt>', dayLabel: 'Today', generalGuide: null,
         homeTeam: null, visitingTeam: null,
-        meet: { homeTeam: '<Home>', awayTeam: '<Visitor>', location: '<Pool>', time: '<Time>' },
+        meet: { home_team: '<Home>', visiting_team: '<Visitor>', location: '<Pool>', time: '<Time>' },
         pool: null, role: MeetTeamRole.AWAY, roleGuide: null,
         team: {}
       });
@@ -397,7 +397,7 @@ describe('MeetDayGuideService', () => {
       const plainRecordHtml = MeetDayGuideService.renderGuide({
         date: '2026-06-20', dayLabel: 'Today', generalGuide: null,
         homeTeam: null, visitingTeam: null,
-        meet: { homeTeam: 'Home', awayTeam: 'Visitor', location: 'Pool', timingWindow: { relayCheckInDeadline: '07:55', firstSwimTime: '08:00' } },
+        meet: { home_team: 'Home', visiting_team: 'Visitor', location: 'Pool', timingWindow: { relayCheckInDeadline: '07:55', firstSwimTime: '08:00' } },
         pool: null, role: MeetTeamRole.AWAY, roleGuide: null,
         team: {}
       });

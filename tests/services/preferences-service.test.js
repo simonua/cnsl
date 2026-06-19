@@ -376,11 +376,11 @@ describe('PreferencesService', () => {
       assert.equal(PreferencesService.meetIncludesFavoriteTeam(meet, favoriteTeam), true);
     });
 
-    it('matches full team names in legacy meet fields and rejects unrelated meets', () => {
-      assert.equal(PreferencesService.meetIncludesFavoriteTeam({ homeTeam: 'CHS Swim Sundevils' }, favoriteTeam), true);
+    it('matches full team names in canonical meet fields and rejects unrelated meets', () => {
+      assert.equal(PreferencesService.meetIncludesFavoriteTeam({ home_team: 'CHS Swim Sundevils' }, favoriteTeam), true);
       assert.equal(PreferencesService.meetIncludesFavoriteTeam({ home_team: 'Long Reach', visiting_team: 'Wilde Lake' }, favoriteTeam), false);
       assert.equal(PreferencesService.meetIncludesFavoriteTeam({ name: 'Time Trials' }, favoriteTeam), false);
-      assert.equal(PreferencesService.meetIncludesFavoriteTeam({ homeTeam: 'Sundevils' }, { name: 'CHS Swim Sundevils', keywords: [null, 'sd'] }), true);
+      assert.equal(PreferencesService.meetIncludesFavoriteTeam({ home_team: 'Sundevils' }, { name: 'CHS Swim Sundevils', keywords: [null, 'sd'] }), true);
       assert.equal(PreferencesService.meetIncludesFavoriteTeam({}, null), false);
       assert.equal(PreferencesService.teamMatchesLabel({ name: 'Marlins', keywords: null }, 'Marlins'), true);
     });

@@ -145,20 +145,14 @@ describe('TeamsManager', () => {
       assert.deepEqual(manager.getAllManagers(), ['Alex Rivera']);
     });
 
-    it('returns direct staff projections, divisions, and retained legacy coaches', () => {
-      const data = createSampleTeamsData();
-      data.teams[0].division = 'Division 1';
-      data.teams[1].division = 'Division 2';
-      data.teams[1].coach = 'Legacy Coach';
-      manager.loadData(data);
+    it('returns direct structured staff projections', () => {
+      manager.loadData(createSampleTeamsData());
       const firstTeam = manager.getTeam('Bryant Woods Barracudas');
 
       assert.deepEqual(manager.getTeamCoaches(firstTeam), firstTeam.getCoaches());
       assert.deepEqual(manager.getTeamManagers(firstTeam), firstTeam.getManagers());
       assert.deepEqual(manager.getTeamContacts(firstTeam), firstTeam.getContacts());
-      assert.deepEqual(manager.getTeamsByDivision('Division 1').map(team => team.name), ['Bryant Woods Barracudas']);
-      assert.deepEqual(manager.getAllDivisions(), ['Division 1', 'Division 2']);
-      assert.deepEqual(manager.getAllCoaches(), ['Jane Smith', 'John Doe', 'Legacy Coach']);
+      assert.deepEqual(manager.getAllCoaches(), ['Jane Smith', 'John Doe']);
     });
 
     it('preserves public staff source metadata for every loaded fixture team', () => {
@@ -179,16 +173,13 @@ describe('TeamsManager', () => {
 
   describe('getStatistics', () => {
     it('returns statistics object', () => {
-      const data = createSampleTeamsData();
-      data.teams[0].division = 'Division 1';
-      manager.loadData(data);
+      manager.loadData(createSampleTeamsData());
       const stats = manager.getStatistics();
       assert.equal(typeof stats, 'object');
       assert.equal(stats.totalTeams, 2);
       assert.equal(stats.totalCoaches, 2);
       assert.equal(stats.totalManagers, 1);
       assert.equal(stats.poolDistribution['Bryant Woods'], 1);
-      assert.equal(stats.divisionDistribution['Division 1'], 1);
     });
   });
 
@@ -210,19 +201,7 @@ describe('TeamsManager', () => {
     });
   });
 
-  describe('rosters, schedules, exports, and mutations', () => {
-    it('returns optional roster and schedule collections with absent-data fallbacks', () => {
-      const data = createSampleTeamsData();
-      data.teams[0].roster = [{ name: 'Swimmer' }];
-      data.teams[0].schedule = [{ date: '2026-06-20' }];
-      manager.loadData(data);
-
-      assert.deepEqual(manager.getTeamRoster('Bryant Woods Barracudas'), [{ name: 'Swimmer' }]);
-      assert.deepEqual(manager.getTeamSchedule('Bryant Woods Barracudas'), [{ date: '2026-06-20' }]);
-      assert.equal(manager.getTeamRoster('Unknown Team'), null);
-      assert.deepEqual(manager.getTeamSchedule('Unknown Team'), []);
-    });
-
+  describe('exports and mutations', () => {
     it('adds, updates, removes, and exports model-backed teams', () => {
       manager.addOrUpdateTeam({ name: 'Added Team', homePools: ['New Pool'] });
       const existing = new Team({ name: 'Existing Team' });
@@ -244,7 +223,6 @@ describe('TeamsManager', () => {
       assert.equal(summaries.length, 2);
       assert.ok('name' in summaries[0]);
       assert.ok('poolName' in summaries[0]);
-      assert.ok('division' in summaries[0]);
       assert.equal(summaries[0].coach, 'Jane Smith');
       assert.deepEqual(summaries[0].managers, [{ name: 'Alex Rivera', role: 'Team Manager' }]);
       assert.deepEqual(summaries[0].contacts, [{ audience: 'managers', label: 'Team managers', email: 'managers@example.com' }]);

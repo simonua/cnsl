@@ -433,7 +433,7 @@ if (typeof globalThis.PreferencesService === 'undefined') {
      */
     static meetIncludesFavoriteTeam(meet, favoriteTeam) {
       if (!meet || !favoriteTeam) return false;
-      const labels = [meet.home_team, meet.visiting_team, meet.homeTeam, meet.awayTeam];
+      const labels = [meet.home_team, meet.visiting_team];
       return labels.some(label => PreferencesService.teamMatchesLabel(favoriteTeam, label));
     }
 

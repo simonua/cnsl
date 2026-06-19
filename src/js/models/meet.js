@@ -13,7 +13,6 @@ if (typeof globalThis.Meet === 'undefined') {
      * @param {string} defaultTimeWindowKey - Default timing key assigned by the meet collection
      */
     constructor(meetData = {}, meetTimes = {}, defaultTimeWindowKey = '') {
-      Object.assign(this, meetData);
       this.date = meetData.date || '';
       this.name = meetData.name || '';
       this.home_team = meetData.home_team || '';
@@ -21,10 +20,6 @@ if (typeof globalThis.Meet === 'undefined') {
       this.location = meetData.location || '';
       this.timeWindowKey = meetData.timeWindowKey || defaultTimeWindowKey;
       this.timingWindow = meetTimes[this.timeWindowKey] ? { ...meetTimes[this.timeWindowKey] } : null;
-
-      this.homeTeam = this.home_team;
-      this.awayTeam = this.visiting_team;
-      this.homePool = this.location;
     }
 
     /**
@@ -164,7 +159,7 @@ if (typeof globalThis.Meet === 'undefined') {
     getDisplayTime(overrideTimingWindow = null) {
       const knownTimingWindow = this.getKnownTimingWindow(overrideTimingWindow);
       if (overrideTimingWindow && knownTimingWindow) return knownTimingWindow.displayTime;
-      return this.time || (knownTimingWindow ? knownTimingWindow.displayTime : 'Time not published');
+      return knownTimingWindow ? knownTimingWindow.displayTime : 'Time not published';
     }
 
     /**
@@ -193,7 +188,7 @@ if (typeof globalThis.Meet === 'undefined') {
      */
     matchesSearchTerm(searchTerm) {
       const term = String(searchTerm || '').toLowerCase();
-      return [this.home_team, this.visiting_team, this.location, this.date, this.time, this.name]
+      return [this.home_team, this.visiting_team, this.location, this.date, this.name]
         .some(value => Boolean(value && value.toLowerCase().includes(term)));
     }
   }

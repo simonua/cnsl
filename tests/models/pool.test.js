@@ -33,8 +33,8 @@ describe('Pool', () => {
 
     it('formats partial structured locations', () => {
       assert.equal(new Pool({ location: { street: '123 Main Street' } }).address, '123 Main Street');
-      assert.equal(new Pool({ location: { state: 'MD' } }).address, ', MD');
-      assert.equal(new Pool({ location: { zip: '21044' } }).address, ',  21044');
+      assert.equal(new Pool({ location: { state: 'MD' } }).address, 'MD');
+      assert.equal(new Pool({ location: { zip: '21044' } }).address, '21044');
     });
 
     it('provides model dependencies to period schedules', () => {
@@ -44,12 +44,6 @@ describe('Pool', () => {
       assert.equal(pool.periodSchedule.getPoolStatus(), PoolStatus);
     });
 
-    it('retains supported legacy flat location fields', () => {
-      const pool = new Pool({ name: 'Legacy', address: 'Address', lat: 1, lng: 2, mapsQuery: 'Legacy Pool' });
-      assert.equal(pool.address, 'Address');
-      assert.equal(pool.toJSON().lat, 1);
-      assert.equal(pool.toJSON().mapsQuery, 'Legacy Pool');
-    });
   });
 
   describe('getName', () => {
@@ -60,59 +54,38 @@ describe('Pool', () => {
   });
 
   describe('published details', () => {
-    it('returns feature, amenity, and contact values without exposing mutable arrays', () => {
+    it('returns feature and contact values without exposing mutable arrays', () => {
       const pool = new Pool(createSamplePoolData({
         features: ['Lap lanes'],
-        amenities: ['Bathhouse'],
-        website: 'https://example.com/pool'
+        caUrl: 'https://example.com/pool'
       }));
       const features = pool.getFeatures();
-      const amenities = pool.getAmenities();
       features.push('Changed');
-      amenities.push('Changed');
 
       assert.deepEqual(pool.getFeatures(), ['Lap lanes']);
-      assert.deepEqual(pool.getAmenities(), ['Bathhouse']);
       assert.equal(pool.hasFeature('Lap lanes'), true);
-      assert.equal(pool.hasAmenity('Bathhouse'), true);
       assert.deepEqual(pool.getContactInfo(), {
-        address: 'Columbia, MD 21044',
+        address: '10400 Bryant Woods Court, Columbia, MD 21044',
         phone: '410-555-1234',
         website: 'https://example.com/pool'
       });
     });
 
-    it('searches name, address, feature, and amenity content case insensitively', () => {
+    it('searches name, address, and feature content case insensitively', () => {
       const pool = new Pool(createSamplePoolData({
-        features: ['Beach entry'],
-        amenities: ['Changing room']
+        features: ['Beach entry']
       }));
 
       assert.equal(pool.search('bRyAnT').matches.name, true);
       assert.equal(pool.search('columbia').matches.address, true);
       assert.equal(pool.search('beach').matches.features, true);
-      assert.equal(pool.search('changing').matches.amenities, true);
       assert.equal(pool.search('not present').hasMatch, false);
     });
   });
 
   describe('schedule output', () => {
-    it('delegates new-format hours and status checks to the schedule model', () => {
-      const pool = new Pool(createSamplePoolData({
-        hours: { Monday: { open: '9:00AM', close: '5:00PM' } }
-      }));
-      pool.schedule.getCurrentStatus = () => PoolStatus.CLOSED;
-
-      assert.equal(pool.getHoursForDay('Monday'), '9:00AM - 5:00PM');
-      assert.equal(pool.getStatusAtTime('Monday', new Date(2026, 5, 1, 12, 0)), PoolStatus.OPEN);
-      assert.equal(pool.getWeekSchedule().length, 7);
-      assert.equal(pool.getWeekScheduleForDate(new Date(2026, 5, 1)).length, 7);
-      assert.equal(pool.getTimeSlots('Monday').length, 8);
-      assert.equal(pool.getCurrentStatus(), PoolStatus.CLOSED);
-    });
-
-    it('reports schedule missing when new-format data is empty', () => {
-      assert.equal(new Pool({ name: 'No hours' }).getCurrentStatus(), PoolStatus.SCHEDULE_NOT_FOUND);
+    it('reports schedule missing when published period data is empty', () => {
+      assert.equal(new Pool({ name: 'No schedules' }).getCurrentStatus(), PoolStatus.SCHEDULE_NOT_FOUND);
     });
 
     it('splits regular hours around a dated swim meet override', () => {
@@ -297,116 +270,6 @@ describe('Pool', () => {
       }
     });
 
-    it('finds new-format same-day public transitions and continuous availability', () => {
-      const original = {
-        getEasternTime: TimeUtils.getEasternTime,
-        getDayName: TimeUtils.getDayName,
-        formatTimeForComparison: TimeUtils.formatTimeForComparison
-      };
-      TimeUtils.getEasternTime = () => new Date(2026, 5, 1, 8, 0);
-      TimeUtils.getDayName = () => 'Monday';
-      TimeUtils.formatTimeForComparison = () => 8 * 60;
-      try {
-        const pool = new Pool(createSamplePoolData({ hours: { Monday: { open: '9:00AM', close: '5:00PM' } } }));
-        assert.deepEqual(pool.getPublicStatusTransitionToday(), { action: 'opens', minutes: 60 });
-        TimeUtils.getEasternTime = () => new Date(2026, 5, 1, 10, 0);
-        TimeUtils.formatTimeForComparison = () => 10 * 60;
-        assert.deepEqual(pool.getPublicStatusTransitionToday(), { action: 'closes', minutes: 420 });
-        assert.equal(pool.isOpenForNextMinutes(2), true);
-        assert.equal(pool.isOpenForNextMinutes(-1), false);
-        const restricted = new Pool(createSamplePoolData({ hours: { Monday: { open: '9:00AM', close: '5:00PM', restrictions: [{}, { start: '2:00PM' }] } } }));
-        restricted.getCurrentStatus = () => PoolStatus.OPEN;
-        assert.deepEqual(restricted.getPublicStatusTransitionToday(), { action: 'closes', minutes: 240 });
-        const closed = new Pool(createSamplePoolData({ hours: { Tuesday: { open: '9:00AM', close: '5:00PM' } } }));
-        closed.getCurrentStatus = () => PoolStatus.CLOSED;
-        assert.equal(closed.getPublicStatusTransitionToday(), null);
-        assert.equal(closed.isClosedToPublicAllDayToday(), false);
-        assert.equal(closed.hasPublicUseToday(), false);
-        assert.equal(closed.isClosedToPublicForDay(), false);
-        const explicitlyClosed = new Pool(createSamplePoolData({ hours: { Monday: { closed: true } } }));
-        assert.equal(explicitlyClosed.isClosedToPublicAllDayToday(), true);
-        assert.equal(explicitlyClosed.hasPublicUseToday(), false);
-        assert.equal(explicitlyClosed.isClosedToPublicForDay(), false);
-      } finally {
-        Object.assign(TimeUtils, original);
-      }
-    });
-
-    it('checks continuous availability across day-hours compatibility schedules', () => {
-      const original = {
-        getEasternTime: TimeUtils.getEasternTime,
-        getDayName: TimeUtils.getDayName
-      };
-      TimeUtils.getEasternTime = () => new Date(2026, 5, 1, 8, 0);
-      TimeUtils.getDayName = () => 'Monday';
-      try {
-        const pool = new Pool(createSamplePoolData({ hours: { Monday: { open: '8:00AM', close: '5:00PM' } } }));
-        pool.schedule.getStatusAtTime = (_dayName, date) => date.getMinutes() < 2 ? PoolStatus.OPEN : PoolStatus.CLOSED;
-
-        assert.equal(pool.isOpenForNextMinutes(2), true);
-        assert.equal(pool.isOpenForNextMinutes(3), false);
-      } finally {
-        Object.assign(TimeUtils, original);
-      }
-    });
-
-    it('handles incomplete day-hours transitions and end-of-day closure', () => {
-      const original = {
-        getEasternTime: TimeUtils.getEasternTime,
-        getDayName: TimeUtils.getDayName,
-        formatTimeForComparison: TimeUtils.formatTimeForComparison
-      };
-      TimeUtils.getEasternTime = () => new Date(2026, 5, 1, 14, 0);
-      TimeUtils.getDayName = () => 'Monday';
-      TimeUtils.formatTimeForComparison = () => 14 * 60;
-      try {
-        const noOpening = new Pool(createSamplePoolData({ hours: { Monday: { closed: true } } }));
-        noOpening.getCurrentStatus = () => PoolStatus.CLOSED;
-        assert.equal(noOpening.getPublicStatusTransitionToday(), null);
-
-        const elapsedOpening = new Pool(createSamplePoolData({ hours: { Monday: { open: '1:00PM', close: '5:00PM' } } }));
-        elapsedOpening.getCurrentStatus = () => PoolStatus.CLOSED;
-        assert.equal(elapsedOpening.getPublicStatusTransitionToday(), null);
-
-        const noClosing = new Pool(createSamplePoolData({ hours: { Monday: { open: '1:00PM' } } }));
-        noClosing.getCurrentStatus = () => PoolStatus.OPEN;
-        assert.equal(noClosing.getPublicStatusTransitionToday(), null);
-
-        const ended = new Pool(createSamplePoolData({ hours: { Monday: { open: '9:00AM', close: '1:00PM' } } }));
-        ended.getCurrentStatus = () => PoolStatus.CLOSED;
-        assert.equal(ended.hasPublicUseToday(), true);
-        assert.equal(ended.isClosedToPublicForDay(), true);
-
-        ended._getTimeUtils = () => null;
-        assert.equal(ended.isClosedToPublicForDay(), false);
-      } finally {
-        Object.assign(TimeUtils, original);
-      }
-    });
-
-    it('validates partial day-hours public-use records', () => {
-      const original = {
-        getEasternTime: TimeUtils.getEasternTime,
-        getDayName: TimeUtils.getDayName
-      };
-      TimeUtils.getEasternTime = () => new Date(2026, 5, 1, 12, 0);
-      TimeUtils.getDayName = () => 'Monday';
-      try {
-        assert.equal(new Pool(createSamplePoolData({ hours: { Monday: { open: '9:00AM' } } })).hasPublicUseToday(), false);
-        assert.equal(new Pool(createSamplePoolData({ hours: { Monday: { close: '5:00PM' } } })).hasPublicUseToday(), false);
-
-        const noClose = new Pool(createSamplePoolData({ hours: { Monday: { open: '9:00AM' } } }));
-        noClose.getCurrentStatus = () => PoolStatus.CLOSED;
-        assert.equal(noClose.isClosedToPublicForDay(), false);
-
-        const noOpen = new Pool(createSamplePoolData({ hours: { Monday: { close: '5:00PM' } } }));
-        noOpen.getCurrentStatus = () => PoolStatus.CLOSED;
-        assert.equal(noOpen.isClosedToPublicForDay(), false);
-      } finally {
-        Object.assign(TimeUtils, original);
-      }
-    });
-
     it('uses overrides without active periods and delegates schedule merging', () => {
       const originalGetInfo = TimeUtils.getCurrentEasternTimeInfo;
       TimeUtils.getCurrentEasternTimeInfo = () => ({ date: '2026-06-08', day: 'Mon', minutes: 600, isValid: true });
@@ -500,8 +363,6 @@ describe('Pool', () => {
       assert.equal(pool._getPeriodSlotStatus({ types: ['Rec Swim'] }), PoolStatus.RESTRICTED);
       assert.equal(pool._getPeriodStatusAtMinutes([], 0).isOpen, false);
       assert.equal(pool.getPublicStatusTransitionToday(), null);
-      assert.equal(pool.getCurrentRestrictions().length, 0);
-      assert.equal(pool.getTodaysEvents().length, 0);
       pool._getPoolStatus = originalGetPoolStatus;
       pool._getTimeUtils = originalGetTimeUtils;
       assert.equal(pool._getScheduleOverrideForDate('2026-06-01', 'Mon'), undefined);
@@ -517,7 +378,6 @@ describe('Pool', () => {
       assert.equal(pool.getPublicStatusTransitionToday(), null);
       assert.equal(pool.isClosedToPublicAllDayToday(), false);
       assert.equal(pool.hasPublicUseToday(), false);
-      assert.ok(pool.getSummary().todaysHours.length > 0);
       pool._getTimeUtils = originalGetTimeUtils;
 
       pool.periodSchedule = null;
@@ -550,27 +410,6 @@ describe('Pool', () => {
         assert.equal(pool.hasPublicUseTomorrow(), false);
         TimeUtils.getCurrentEasternTimeInfo = () => ({ date: '2026-02-31', day: 'Tue', isValid: true });
         assert.equal(pool.hasPublicUseTomorrow(), false);
-      } finally {
-        TimeUtils.getCurrentEasternTimeInfo = originalGetInfo;
-      }
-    });
-
-    it('checks tomorrow against day-hours compatibility schedules', () => {
-      const originalGetInfo = TimeUtils.getCurrentEasternTimeInfo;
-      TimeUtils.getCurrentEasternTimeInfo = () => ({ date: '2026-06-01', day: 'Monday', isValid: true });
-      try {
-        const openTomorrow = new Pool(createSamplePoolData({
-          hours: {
-            Tuesday: { open: '9:00AM', close: '5:00PM' },
-            Wednesday: { open: '10:00AM', close: '6:00PM' }
-          }
-        }));
-        const closedTomorrow = new Pool(createSamplePoolData({
-          hours: { Tuesday: { closed: true } }
-        }));
-        assert.equal(openTomorrow.hasPublicUseTomorrow(), true);
-        assert.equal(openTomorrow.hasPublicUseOnDayOffset(2), true);
-        assert.equal(closedTomorrow.hasPublicUseTomorrow(), false);
       } finally {
         TimeUtils.getCurrentEasternTimeInfo = originalGetInfo;
       }
@@ -679,27 +518,14 @@ describe('Pool', () => {
       }
     });
 
-    it('rejects inactive period dates and elapsed day-hours closings', () => {
-      const original = {
-        getCurrentEasternTimeInfo: TimeUtils.getCurrentEasternTimeInfo,
-        getEasternTime: TimeUtils.getEasternTime,
-        getDayName: TimeUtils.getDayName,
-        formatTimeForComparison: TimeUtils.formatTimeForComparison
-      };
+    it('rejects inactive period dates', () => {
+      const originalGetCurrentEasternTimeInfo = TimeUtils.getCurrentEasternTimeInfo;
       try {
         TimeUtils.getCurrentEasternTimeInfo = () => ({ date: '2027-01-01', day: 'Fri', minutes: 600, isValid: true });
         const periodPool = new Pool(createSamplePoolData({ schedules: [{ startDate: '2026-06-01', endDate: '2026-06-07', hours: [] }] }));
         assert.equal(periodPool.isClosedToPublicAllDayToday(), false);
-
-        TimeUtils.getEasternTime = () => new Date(2026, 5, 1, 18, 0);
-        TimeUtils.getDayName = () => 'Monday';
-        TimeUtils.formatTimeForComparison = () => 18 * 60;
-        const dayPool = new Pool(createSamplePoolData({ hours: { Monday: { open: '9:00AM', close: '5:00PM' } } }));
-        dayPool.getCurrentStatus = () => PoolStatus.OPEN;
-        assert.equal(dayPool.getPublicStatusTransitionToday(), null);
-        assert.equal(dayPool.isClosedToPublicForDay(), false);
       } finally {
-        Object.assign(TimeUtils, original);
+        TimeUtils.getCurrentEasternTimeInfo = originalGetCurrentEasternTimeInfo;
       }
     });
 
@@ -713,7 +539,7 @@ describe('Pool', () => {
       assert.ok(Array.isArray(merged));
     });
 
-    it('sorts period days safely without TimeUtils and reports absent optional projections', () => {
+    it('sorts period days safely without TimeUtils', () => {
       const pool = new Pool(createSamplePoolData({
         schedules: [{ startDate: '2026-06-01', endDate: '2026-06-07', hours: [
           { weekDays: ['Mon'], startTime: '2:00PM', endTime: '3:00PM', types: ['Rec Swim'] },
@@ -729,9 +555,6 @@ describe('Pool', () => {
         pool._getTimeUtils = originalGetTimeUtils;
       }
       assert.equal(pool._getPeriodWeekScheduleForDate(new Date(2026, 5, 1))[0].timeSlots.length, 2);
-      const noOptions = new Pool(createSamplePoolData({ hours: { Monday: { open: '9:00AM', close: '5:00PM' } }, specialEvents: [] }));
-      assert.deepEqual(noOptions.getCurrentRestrictions(), []);
-      assert.deepEqual(noOptions.getTodaysEvents(), []);
       const originalGetCurrentEasternTimeInfo = TimeUtils.getCurrentEasternTimeInfo;
       TimeUtils.getCurrentEasternTimeInfo = () => ({ date: '2026-08-01' });
       try {
@@ -769,45 +592,6 @@ describe('Pool', () => {
     });
   });
 
-  describe('getSummary', () => {
-    it('returns a summary object', () => {
-      suppressConsole(() => {
-        const pool = new Pool(createSamplePoolData());
-        const summary = pool.getSummary();
-        assert.equal(typeof summary, 'object');
-        assert.ok('name' in summary);
-      });
-    });
-
-    it('reports current restrictions, events, upcoming events, and detailed projections', () => {
-      const originalGetDayName = TimeUtils.getDayName;
-      const originalFormatDate = TimeUtils.formatDate;
-      TimeUtils.getDayName = () => 'Monday';
-      TimeUtils.formatDate = () => '2026-05-28';
-      try {
-        const tomorrow = new Date(Date.now() + (24 * 60 * 60 * 1000)).toISOString();
-        const pool = new Pool(createSamplePoolData({
-          hours: { Monday: { open: '12:00AM', close: '11:59PM', restrictions: [{ type: 'practice', start: '12:00AM', end: '11:59PM' }] } },
-          specialEvents: [{ date: '2026-05-28', name: 'Today' }, { date: tomorrow, name: 'Upcoming' }],
-          divingBoard: true,
-          babyPool: true
-        }));
-        assert.equal(pool.getCurrentStatus(), PoolStatus.PRACTICE_ONLY);
-        assert.equal(pool.isOpenNow(), true);
-        assert.equal(pool.getCurrentRestrictions().length, 1);
-        assert.equal(pool.getTodaysEvents().length, 1);
-        assert.equal(pool.getUpcomingEvents().length, 1);
-        assert.equal(pool.getSummary().hasEvents, true);
-        const detail = pool.getDetailedInfo();
-        assert.equal(detail.divingBoard, true);
-        assert.equal(detail.restrictions.length, 1);
-      } finally {
-        TimeUtils.getDayName = originalGetDayName;
-        TimeUtils.formatDate = originalFormatDate;
-      }
-    });
-  });
-
   describe('date ranges', () => {
     it('reports the first and last published schedule dates', () => {
       const pool = new Pool(createSamplePoolData({ schedules: [
@@ -820,14 +604,14 @@ describe('Pool', () => {
       assert.equal(range.endDate.toISOString().slice(0, 10), '2026-06-14');
     });
 
-    it('returns current period details and null for unscoped hours', () => {
+    it('returns current period details and null without published schedules', () => {
       const originalGetCurrentEasternTimeInfo = TimeUtils.getCurrentEasternTimeInfo;
       TimeUtils.getCurrentEasternTimeInfo = () => ({ date: '2026-06-01' });
       try {
         const pool = new Pool(createSamplePoolData({ schedules: [{ name: 'Summer', startDate: '2026-06-01', endDate: '2026-06-14', hours: [] }] }));
         assert.deepEqual(pool.getCurrentSchedulePeriod(), { name: 'Summer', startDate: '2026-06-01', endDate: '2026-06-14' });
-        assert.equal(new Pool(createSamplePoolData({ hours: {} })).getCurrentSchedulePeriod(), null);
-        assert.equal(new Pool(createSamplePoolData({ hours: {} })).getValidDateRange(), null);
+        assert.equal(new Pool(createSamplePoolData({ schedules: [] })).getCurrentSchedulePeriod(), null);
+        assert.equal(new Pool(createSamplePoolData({ schedules: [] })).getValidDateRange(), null);
       } finally {
         TimeUtils.getCurrentEasternTimeInfo = originalGetCurrentEasternTimeInfo;
       }
@@ -838,7 +622,7 @@ describe('Pool', () => {
     it('installs the model as a browser script global', () => {
       const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'models', 'pool.js');
       const source = fs.readFileSync(sourcePath, 'utf8');
-      const context = { window: {}, PoolSchedule: class {}, PoolPeriodScheduleService, TimeUtils, PoolStatus };
+      const context = { window: {}, PoolPeriodScheduleService, TimeUtils, PoolStatus };
       Object.assign(context, context.globalThis || {}, context.window || {});
       context.globalThis = context; context.self = context; context.window = context;
       vm.runInNewContext(source, context, { filename: sourcePath });
@@ -848,15 +632,11 @@ describe('Pool', () => {
     it('uses browser dependencies and degrades safely when they are absent', () => {
       const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'models', 'pool.js');
       const source = fs.readFileSync(sourcePath, 'utf8');
-      class ScheduleStub {
-        constructor(data) { this.data = data; }
-        hasScheduleData() { return false; }
-      }
-      const context = { window: { TimeUtils, PoolStatus }, PoolSchedule: ScheduleStub, PoolPeriodScheduleService, console: { error: () => {} } };
+      const context = { window: { TimeUtils, PoolStatus }, PoolPeriodScheduleService, console: { error: () => {} } };
       Object.assign(context, context.globalThis || {}, context.window || {});
       context.globalThis = context; context.self = context; context.window = context;
       vm.runInNewContext(source, context, { filename: sourcePath });
-      const pool = new context.window.Pool({ hours: {} });
+      const pool = new context.window.Pool({ schedules: [] });
       assert.equal(pool._getTimeUtils(), context.window.TimeUtils);
       assert.equal(pool._getPoolStatus(), context.window.PoolStatus);
       delete context.window.TimeUtils;
@@ -864,7 +644,6 @@ describe('Pool', () => {
       assert.equal(pool._getTimeUtils(), null);
       assert.equal(pool._getPoolStatus(), null);
       assert.equal(pool.getCurrentStatus().status, 'Error');
-      assert.equal(Object.keys(new context.window.Pool({ schedules: [] }).schedule.data).length, 0);
       context.window.PoolStatus = PoolStatus;
       assert.equal(new context.window.Pool({ schedules: [] }).getCurrentStatus(), PoolStatus.SCHEDULE_NOT_FOUND);
       assert.equal(new context.window.Pool({ schedules: [{ startDate: '2026-01-01', endDate: '2026-12-31', hours: [] }] }).getCurrentSchedulePeriod(), null);

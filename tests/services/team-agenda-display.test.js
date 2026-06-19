@@ -159,14 +159,14 @@ describe('TeamAgendaDisplay', () => {
       assert.equal(TeamAgendaDisplay.getUpcomingEvents(homePoolTeam, [untimedSpecial], new Date('2026-05-26'))[0].location, meet.location);
     });
 
-    it('selects the first qualifying meet after sorting and applies fallback fields', () => {
+    it('selects the first qualifying canonical meet after sorting and applies display fallbacks', () => {
       const originalIncludesTeam = testContext.PreferencesService.meetIncludesFavoriteTeam;
-      testContext.PreferencesService.meetIncludesFavoriteTeam = meet => meet.homeTeam === 'Marlins';
+      testContext.PreferencesService.meetIncludesFavoriteTeam = meet => meet.home_team === 'Marlins';
       try {
         const events = TeamAgendaDisplay.getUpcomingEvents({ practice: {}, timeTrialsPool: '' }, [
           { date: '', name: 'Missing Date' },
-          { date: '2026-06-11', awayTeam: 'Visitors', homeTeam: 'Other', location: 'Away Pool' },
-          { date: '2026-06-10', awayTeam: 'Visitors', homeTeam: 'Marlins', location: 'Home Pool' },
+          { date: '2026-06-11', visiting_team: 'Visitors', home_team: 'Other', location: 'Away Pool' },
+          { date: '2026-06-10', visiting_team: 'Visitors', home_team: 'Marlins', location: 'Home Pool' },
           { date: '2026-06-09', location: 'Neutral Pool' },
           { date: '2026-05-01', location: 'Past Pool' }
         ], new Date('2026-05-26'));

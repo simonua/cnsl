@@ -99,7 +99,7 @@ if (typeof globalThis.DataManager === 'undefined') {
   _validateDomainData(domain, data) {
     const hasArray = (key) => data && Array.isArray(data[key]);
     const isUsable = domain === 'meets'
-      ? hasArray('meets') || (hasArray('regular_meets') && hasArray('special_meets'))
+      ? hasArray('regular_meets') && hasArray('special_meets')
       : hasArray(domain);
     if (!isUsable) {
       throw new Error(`Invalid ${domain} annual data response.`);
@@ -248,8 +248,6 @@ if (typeof globalThis.DataManager === 'undefined') {
 
 }
 
-// Create global instance for backward compatibility
-// This allows existing code to continue working while new code can use the class directly
 let globalDataManager = null;
 
 /**
@@ -263,18 +261,7 @@ function getDataManager() {
   return globalDataManager;
 }
 
-/**
- * Initialize the global DataManager (for backward compatibility)
- * @param {AnnualDataDomain[]} requiredDomains - Annual data domains needed by the caller
- * @returns {Promise<void>} Promise that resolves when data is loaded
- */
-async function initializeDataManager(requiredDomains) {
-  const manager = getDataManager();
-  return manager.initialize(requiredDomains);
-}
-
 globalThis.DataManager = DataManager;
 globalThis.getDataManager = getDataManager;
-globalThis.initializeDataManager = initializeDataManager;
 
 }

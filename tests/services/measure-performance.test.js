@@ -4,13 +4,15 @@ const {
   DIRECTORY_ROUTES,
   PERFORMANCE_PROFILES,
   PWA_CRITICAL_RESOURCE_BUDGET,
+  ROUTE_PHASE_TIMEOUT_MS,
   ROUTE_PHASE_MARKS,
   ROUTES,
   maximumDomainRequests,
   median,
   spread,
   summarizeRouteSamples,
-  summarizeWarmSamples
+  summarizeWarmSamples,
+  waitForRoutePhases
 } = require('../../scripts/measure-performance.js');
 
 function createSample(overrides = {}) {
@@ -62,6 +64,47 @@ describe('performance measurement reporting', () => {
       Pools: ['primary-data-ready', 'summary-visible', 'optional-enrichment-settled'],
       Teams: ['primary-data-ready', 'summary-visible', 'optional-enrichment-settled']
     });
+    assert.equal(ROUTE_PHASE_TIMEOUT_MS, 30000);
+  });
+
+  it('should wait for every declared phase while leaving routes without phases unchanged', async () => {
+    let waitArguments = null;
+    const page = {
+      waitForFunction: async (_predicate, argument, options) => { waitArguments = { argument, options }; }
+    };
+
+    await waitForRoutePhases(page, ROUTES.find(route => route.name === 'Home'));
+    assert.equal(waitArguments, null);
+
+    await waitForRoutePhases(page, ROUTES.find(route => route.name === 'My Meet Day'), 4321);
+    assert.deepEqual(waitArguments, {
+      argument: {
+        markPrefix: 'my-meet-day',
+        requiredPhases: ['primary-data-ready', 'summary-visible', 'optional-enrichment-settled']
+      },
+      options: { timeout: 4321 }
+    });
+  });
+
+  it('should report route phase and request diagnostics after a bounded timeout', async () => {
+    const timeoutError = new Error('timed out');
+    const page = {
+      waitForFunction: async () => { throw timeoutError; },
+      evaluate: async () => ({
+        documentReadyState: 'complete',
+        missingPhases: ['optional-enrichment-settled'],
+        observedPhases: ['primary-data-ready', 'summary-visible'],
+        resourceCount: 17
+      })
+    };
+
+    await assert.rejects(
+      waitForRoutePhases(page, ROUTES.find(route => route.name === 'My Meet Day'), 25),
+      error => error.cause === timeoutError
+        && /My Meet Day/.test(error.message)
+        && /optional-enrichment-settled/.test(error.message)
+        && /resources: 17/.test(error.message)
+    );
   });
 
   it('should provide desktop, mobile viewport, and slower-mobile measurement profiles', () => {

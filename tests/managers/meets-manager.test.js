@@ -27,7 +27,7 @@ describe('MeetsManager', () => {
       assert.equal(manager.isDataLoaded(), true);
       assert.deepEqual(manager.getMeetTimes(), sampleData.meetTimes);
       assert.equal(manager.getAllMeets()[0].getTimeWindowKey(), 'dualMeets');
-      assert.equal(manager.getAllMeets()[0].getDisplayTime(), '6:00PM');
+      assert.equal(manager.getAllMeets()[0].getDisplayTime(), '7:00 AM - 12:00 PM');
     });
 
     it('does not mark an empty annual document as loaded', () => {
@@ -55,7 +55,7 @@ describe('MeetsManager', () => {
       suppressConsole(() => manager.loadData(sampleData));
       assert.equal(manager.getAllMeets().length, 3);
       assert.equal(manager.getAllMeets()[0] instanceof Meet, true);
-      assert.equal(manager.getAllMeets()[0].homeTeam, 'Bryant Woods Barracudas');
+      assert.equal(manager.getAllMeets()[0].home_team, 'Bryant Woods Barracudas');
     });
   });
 
@@ -165,12 +165,15 @@ describe('MeetsManager', () => {
         const summaries = manager.getMeetsSummary();
         assert.equal(summaries[0].formattedDate, `display:${today}`);
         assert.equal(summaries[1].time, 'TBD');
-        assert.equal(summaries[1].homeTeam, 'TBD');
+        assert.equal(summaries[1].home_team, 'TBD');
         assert.equal(summaries[1].location, 'TBD');
         assert.equal(manager.exportData().meets.length, 2);
         assert.deepEqual(manager.exportData().meetTimes, {});
-        manager.loadData({ regular_meets: [{ date: today, home_team: 'Home', visiting_team: 'Away', time: '6:00 PM' }] });
-        assert.equal(manager.getMeetsSummary()[0].time, '6:00 PM');
+        manager.loadData({
+          meetTimes: { dualMeets: { start: '07:00', end: '12:00' } },
+          regular_meets: [{ date: today, home_team: 'Home', visiting_team: 'Away' }]
+        });
+        assert.equal(manager.getMeetsSummary()[0].time, '7:00 AM - 12:00 PM');
       } finally {
         meetsManagerContext.TimeUtils = originalTimeUtils;
       }

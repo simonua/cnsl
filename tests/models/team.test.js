@@ -42,43 +42,39 @@ describe('Team', () => {
   });
 
   it('provides stable empty/default projections for optional published data', () => {
-    const minimalTeam = new Team({ name: 'Minimal Team', poolName: 'Legacy Pool', coach: 'Legacy Coach', email: 'team@example.com', phone: '410-555-0100', roster: [{}], schedule: [{}], division: 'A' });
+    const minimalTeam = new Team({ name: 'Minimal Team', homePools: ['Home Pool'] });
 
-    assert.equal(minimalTeam.getPrimaryPoolName(), 'Legacy Pool');
-    assert.equal(minimalTeam.includesPool('Legacy Pool'), true);
-    assert.equal(minimalTeam.includesCoach('legacy'), true);
-    assert.equal(minimalTeam.matchesSearchTerm('a'), true);
+    assert.equal(minimalTeam.getPrimaryPoolName(), 'Home Pool');
+    assert.equal(minimalTeam.includesPool('Home Pool'), true);
+    assert.equal(minimalTeam.includesCoach('missing'), false);
+    assert.equal(minimalTeam.matchesSearchTerm('minimal'), true);
     assert.deepEqual(minimalTeam.getManagers(), []);
     assert.deepEqual(minimalTeam.getContacts(), []);
     assert.deepEqual(minimalTeam.getContactInfo(), {
-      teamName: 'Minimal Team', coaches: [], managers: [], contacts: [], coach: 'Legacy Coach', email: 'team@example.com', phone: '410-555-0100', poolName: 'Legacy Pool'
+      teamName: 'Minimal Team', coaches: [], managers: [], contacts: [], coach: 'Not specified', email: 'Not available', poolName: 'Home Pool'
     });
-    assert.equal(minimalTeam.getSummary().memberCount, 1);
-    assert.equal(minimalTeam.getSummary().hasSchedule, true);
-    assert.equal(minimalTeam.getSummary().contact.hasPhone, true);
     assert.ok(new Team().getContactInfo().poolName.length > 0);
   });
 
-  it('uses shared contacts and default summary values when legacy fields are absent', () => {
+  it('uses shared contacts and default summary values when optional fields are absent', () => {
     const contactTeam = new Team({ name: 'Contacts', staff: { contacts: [{ email: 'shared@example.com' }], managers: [{ name: 'Manager' }] } });
     const blankTeam = new Team({ name: 'Blank', staff: { coaches: [{ name: 'No Email' }], managers: [] } });
     assert.equal(contactTeam.getContactInfo().email, 'shared@example.com');
     assert.equal(contactTeam.matchesSearchTerm('shared@example.com'), true);
     assert.equal(blankTeam.getContactInfo().coach, 'No Email');
     assert.ok(blankTeam.getContactInfo().email.length > 0);
-    assert.ok(blankTeam.getSummary().division.length > 0);
-    assert.equal(blankTeam.getSummary().memberCount, 0);
-    assert.equal(blankTeam.getSummary().hasSchedule, false);
     assert.equal(blankTeam.getSummary().contact.hasEmail, false);
     assert.equal(blankTeam.includesPool('Unknown'), false);
     assert.equal(blankTeam.includesCoach('missing'), false);
     assert.equal(blankTeam.matchesSearchTerm('missing'), false);
   });
 
-  it('searches each optional legacy field and handles an absent query', () => {
-    assert.equal(new Team({ poolName: 'Legacy Pool' }).matchesSearchTerm('legacy'), true);
-    assert.equal(new Team({ coach: 'Legacy Coach' }).matchesSearchTerm('legacy'), true);
-    assert.equal(new Team({ division: 'Legacy Division' }).matchesSearchTerm('legacy'), true);
+  it('ignores unpublished compatibility fields and handles an absent query', () => {
+    const compatibilityRecord = new Team({ poolName: 'Legacy Pool', coach: 'Legacy Coach', division: 'Legacy Division' });
+    assert.equal(compatibilityRecord.matchesSearchTerm('legacy'), false);
+    assert.equal(Object.hasOwn(compatibilityRecord, 'poolName'), false);
+    assert.equal(Object.hasOwn(compatibilityRecord, 'coach'), false);
+    assert.equal(Object.hasOwn(compatibilityRecord, 'division'), false);
     assert.equal(new Team().includesCoach(), false);
     assert.equal(new Team().matchesSearchTerm(), true);
     assert.ok(new Team().getSummary().poolName.length > 0);

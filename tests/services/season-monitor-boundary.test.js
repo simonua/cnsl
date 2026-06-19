@@ -44,7 +44,7 @@ describe('season monitor evidence boundary', () => {
     });
   });
 
-  describe('nightly deterministic automation', () => {
+  describe('scheduled deterministic automation', () => {
     it('should restore seasonal checks without automatic agent assignment', async () => {
       const repositoryRoot = path.resolve(__dirname, '..', '..');
       const workflowsRoot = path.join(repositoryRoot, '.github', 'workflows');
@@ -52,10 +52,13 @@ describe('season monitor evidence boundary', () => {
       const workflowDefinitions = await Promise.all(workflowFiles.map(async (fileName) => {
         return fs.readFile(path.join(workflowsRoot, fileName), 'utf8');
       }));
-      const browser = await fs.readFile(path.join(workflowsRoot, 'nightly-browser-verification.yml'), 'utf8');
+      const browser = await fs.readFile(path.join(workflowsRoot, 'browser-verification.yml'), 'utf8');
       const seasonMonitor = await fs.readFile(path.join(workflowsRoot, 'season-data-monitor.yml'), 'utf8');
 
       await assert.rejects(fs.access(path.join(workflowsRoot, 'refactoring-audit.yml')), { code: 'ENOENT' });
+      assert.match(browser, /^name: Browser Verification$/m);
+      assert.match(browser, /pnpm run test:browser:complete/);
+      assert.deepEqual(workflowFiles.filter((fileName) => fileName.endsWith('browser-verification.yml')), ['browser-verification.yml']);
 
       const recurringSchedules = workflowDefinitions.flatMap((workflow) => {
         return [...workflow.matchAll(/cron: '([^']+)'/g)].map((match) => match[1]);
