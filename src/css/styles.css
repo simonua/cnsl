@@ -5546,6 +5546,10 @@ html[data-hide-home-intro="true"] .welcome-section {
   margin-bottom: 0;
 }
 
+.resources-introduction {
+  padding-inline: 1.5rem;
+}
+
 .arm-marking-guide {
   scroll-margin-top: calc(var(--header-height) + 1rem);
 }
