@@ -1345,6 +1345,10 @@ main h1 {
   line-height: 1.5;
 }
 
+.my-meet-day-view__state .directory-link {
+  margin-top: 2rem;
+}
+
 .my-meet-day h2 {
   color: var(--primary-text-color);
   font-size: 1.4rem;
