@@ -1,6 +1,6 @@
 # Seasonal Data Source Review
 
-The retired scheduled seasonal monitor checked public sources that support the active `YEAR` data set while the pool season was underway. Its scheduled run occurred daily at 05:17 UTC during May, June, and July only. It discovered source URLs from the active annual JSON and README rather than carrying a separate list that could drift. Its GitHub Actions workflow definition has been removed, so no push, schedule, or manual dispatch can start it. The deliberate local review documented below remains required.
+The scheduled seasonal monitor checks public sources that support the active `YEAR` data set while the pool season is underway. [The workflow](../../workflows/season-data-monitor.yml) runs daily at 05:17 UTC during May, June, and July and can also be dispatched manually. It discovers source URLs from the active annual JSON and README rather than carrying a separate list that could drift. The workflow uses deterministic requests, hashes, and fingerprints only; it does not invoke Copilot or another AI service.
 
 ## Coverage
 
@@ -14,7 +14,9 @@ The reviewed `source-state.json` baseline records each retained PDF's SHA-256 di
 
 ## Review Boundary
 
-The workflow does not create an evidence-only pull request. Each confirmed candidate difference receives a stable key and creates one tracking issue for review. The issue can be assigned to Copilot cloud agent manually from GitHub when available for the account, using the `season-data-reviewer` custom agent. The reviewer reads the official evidence and active annual JSON in default `runlocal` mode, preparing verified material edits and validation results without creating a branch, committing, pushing to `origin`, or opening a pull request. Only an explicit `publish` request may publish a represented application value or visitor-used official source-link update. A published material-data pull request updates the affected JSON together with supporting retained PDFs where applicable, accepted source-check metadata, and the reviewed fingerprint baseline. Presentation-only page edits, equivalent link relocations that do not affect an application destination, and PDF binary/metadata-only changes result in no repository edit and no pull request; the tracking issue records that reviewed conclusion.
+When all content hashes and fingerprints still match but HTTP validators or discovered source metadata changed, the workflow may update only `source-state.json` and open a deterministic pull request. A path-boundary validator rejects the pull request if any other file changed. This refresh improves later conditional requests but does not change modeled annual data, retained official documents, visitor-facing records, or application-used destinations.
+
+Each confirmed content difference receives a stable key and creates one tracking issue for review. The issue can be assigned to Copilot cloud agent manually from GitHub when available for the account, using the `season-data-reviewer` custom agent, or reviewed locally without AI. The reviewer reads the official evidence and active annual JSON in default `runlocal` mode, preparing verified material edits and validation results without creating a branch, committing, pushing to `origin`, or opening a pull request. Only an explicit `publish` request may publish a represented application value or visitor-used official source-link update. A published material-data pull request updates the affected JSON together with supporting retained PDFs where applicable, accepted source-check metadata, and the reviewed fingerprint baseline.
 
 The workflow checks previous tracking issues for the stable candidate key before making a new assignment. An already reviewed candidate is not delegated again on later nightly runs, avoiding repeated work for an unchanged non-material observation.
 
@@ -28,11 +30,26 @@ Any material-data pull request describes only verified application changes, grou
 
 ## Operation
 
-The workflow definition was removed to prevent automatic seasonal review issue creation. The script and reviewed baseline remain available for deliberate local investigation or for designing a future reviewed automation.
+The nightly run uses `node scripts/season-data-agent.js --season-only --report --refresh-baseline`. A clean run makes no repository change. A metadata-only refresh opens a baseline pull request. A confirmed page or document content difference creates or reuses a review issue and attaches the exact affected records and property groups. An unavailable source or incomplete request fails or raises a review candidate rather than being accepted automatically.
+
+The scheduled detector is not a completed semantic source review. It does not advance `OFFICIAL_SOURCE_CHECKED_AT`, `OFFICIAL_SOURCE_UPDATED_AT`, the annual README review record, or `check-log.md`. Those records change only after the candidate evidence has received the deliberate review required by the data instructions.
 
 Before inspecting sources, each run compares the UTC calendar year with the configured active `YEAR`. When a new schedule window begins before that year's assets have been activated, the workflow does not read or update the prior year's annual data. Instead, it creates a rollover preparation issue for `src/assets/data/<current-year>/`, following the `cnsl-season-rollover` skill. The issue may be assigned to Copilot manually, and any resulting pull request may be opened only for official target-year material and must leave earlier annual folders unchanged. An open rollover issue suppresses duplicates; after a no-change conclusion closes the issue or a partial preparation pull request is merged without activating `YEAR`, a later scheduled run may retry preparation.
 
-A future restored workflow would use the `CNSL_DATA_UPDATER_PR_TOKEN` repository secret only to create and query tracking issues when a previously unseen candidate is confirmed. Configure a fine-grained user token with repository read/write access to `Issues` plus the required metadata read permission. Its built-in workflow token should remain `contents: read` only for checkout. Automatic Copilot assignment through GitHub's API is not used because GitHub documents that API entry point for organizations with Copilot Business or Copilot Enterprise plans; users with an eligible Copilot plan can instead assign a generated issue to Copilot manually on GitHub.
+The workflow uses its built-in token to create the narrowly bounded baseline pull request and deduplicated tracking issue. Automatic Copilot assignment through GitHub's API is not used. Repository settings must allow GitHub Actions to create and approve pull requests; the workflow never approves or merges its own pull request.
+
+Configure these repository variables for the required email after every clean, skipped, changed, or failed run:
+
+- `SEASON_MONITOR_SMTP_URL`: SMTP endpoint including its scheme and port, such as `smtp://smtp.office365.com:587` for STARTTLS or `smtps://smtp.example.com:465` for implicit TLS.
+- `SEASON_MONITOR_EMAIL_FROM`: sender address accepted by the SMTP account.
+- `SEASON_MONITOR_EMAIL_TO`: notification recipient address.
+
+Configure these repository secrets:
+
+- `SEASON_MONITOR_SMTP_USERNAME`: SMTP account name.
+- `SEASON_MONITOR_SMTP_PASSWORD`: SMTP password or provider-issued app password.
+
+The email reports the outcome, source counts, workflow run, and any review issue or deterministic pull request. Candidate emails also include the generated review report. Missing or rejected SMTP configuration fails the workflow so a silent notification gap remains visible in GitHub Actions.
 
 The reviewer is constrained to active-season annual data, retained official evidence, accepted-source metadata, and the monitor baseline. It runs `pnpm run validate:data`, `pnpm run lint`, and `pnpm run build` for a material update, plus only the exact tests for any changed schema, validator, configuration, or consumer contract. Publication remains a separate, explicit `publish` step.
 
@@ -52,7 +69,7 @@ For a local source check that does not write files, run:
 pnpm run check:data-updates
 ```
 
-The command is the deterministic, low-cost gate for data-review work. If it reports no candidate differences, stop without loading annual domain JSON or retrieving sources for AI review. Use `--season-only --report` when generating the ignored, ephemeral candidate report supplied to a tracking issue. Each finding identifies the exact annual JSON record and modeled property group to inspect, allowing a reviewer to avoid unaffected domains and records. A clean report run removes any stale candidate report left by an earlier check. The report is not a pull-request artifact.
+The command is the deterministic, low-cost gate for data-review work. If it reports no candidate differences, stop without loading annual domain JSON or retrieving sources for AI review. Use `--season-only --report` when generating the ignored, ephemeral candidate report supplied to a tracking issue. Add `--refresh-baseline` only in controlled automation that validates the resulting changed paths before publishing. Each finding identifies the exact annual JSON record and modeled property group to inspect, allowing a reviewer to avoid unaffected domains and records. A clean report run removes any stale candidate report left by an earlier check. The report is not a pull-request artifact.
 
 The command's clean result applies only to URLs it collected. Before reporting a comprehensive online check, compare that collected list with the expected sources above and make live requests for any gaps. `pnpm run validate:data` is a separate local integrity gate and is never evidence of current network access.
 

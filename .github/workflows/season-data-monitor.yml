@@ -1,0 +1,202 @@
+name: Nightly Seasonal Data Monitor
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Runs nightly at 05:17 UTC during May, June, and July only.
+    - cron: '17 5 * 5-7 *'
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
+concurrency:
+  group: season-data-monitor
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24
+
+      - name: Check official seasonal sources
+        id: monitor
+        run: node scripts/season-data-agent.js --season-only --report --refresh-baseline
+
+      - name: Create or find represented-data review issue
+        if: steps.monitor.outputs.candidate_changed == 'true'
+        id: review_issue
+        env:
+          CANDIDATE_KEY: ${{ steps.monitor.outputs.candidate_key }}
+          CHECKED_ON: ${{ steps.monitor.outputs.checked_on }}
+          GH_TOKEN: ${{ github.token }}
+          SEASON: ${{ steps.monitor.outputs.season }}
+        shell: bash
+        run: |
+          issue_url="$(gh api --method GET /search/issues \
+            -f q="repo:${GITHUB_REPOSITORY} is:issue ${CANDIDATE_KEY} in:body" \
+            -f per_page=1 \
+            --jq '.items[0].html_url // empty')"
+
+          if [[ -z "$issue_url" ]]; then
+            issue_body="$RUNNER_TEMP/season-data-review-issue.md"
+            cat .github/automation/season-data-monitor/review-request.md \
+              .github/automation/season-data-monitor/update-report.md > "$issue_body"
+            issue_url="$(gh issue create \
+              --title "Seasonal data review: ${CHECKED_ON} (${CANDIDATE_KEY})" \
+              --body-file "$issue_body")"
+          fi
+
+          echo "issue_url=$issue_url" >> "$GITHUB_OUTPUT"
+
+      - name: Validate deterministic baseline update
+        if: steps.monitor.outputs.baseline_changed == 'true'
+        env:
+          SEASON: ${{ steps.monitor.outputs.season }}
+        shell: bash
+        run: |
+          git diff --name-only | node scripts/validate-season-monitor-boundary.js "$SEASON" baseline
+          test -n "$(git diff --name-only)"
+
+      - name: Create deterministic baseline pull request
+        if: steps.monitor.outputs.baseline_changed == 'true'
+        id: baseline_pr
+        env:
+          CHECKED_ON: ${{ steps.monitor.outputs.checked_on }}
+          GH_TOKEN: ${{ github.token }}
+          SEASON: ${{ steps.monitor.outputs.season }}
+        shell: bash
+        run: |
+          branch="automation/season-monitor-baseline-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout -b "$branch"
+          git add .github/automation/season-data-monitor/source-state.json
+          git commit -m "Refresh ${SEASON} seasonal source baseline"
+          git push origin "$branch"
+
+          pr_body="$RUNNER_TEMP/season-data-baseline-pr.md"
+          cat > "$pr_body" <<EOF
+          ## Summary
+
+          - refreshes content-equivalent seasonal source metadata observed on ${CHECKED_ON}
+          - preserves every accepted page fingerprint and official-document SHA-256 digest
+          - changes no modeled annual data or visitor-facing source destination
+
+          ## Automation Boundary
+
+          This pull request was produced without AI. The workflow permits only the reviewed monitor baseline path and creates a review issue instead when any source content differs.
+          EOF
+
+          pr_url="$(gh pr create \
+            --base main \
+            --head "$branch" \
+            --title "Refresh ${SEASON} seasonal source baseline" \
+            --body-file "$pr_body")"
+          echo "pr_url=$pr_url" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare email notification
+        if: always()
+        id: notification
+        env:
+          BASELINE_CHANGED: ${{ steps.monitor.outputs.baseline_changed }}
+          CANDIDATE_CHANGED: ${{ steps.monitor.outputs.candidate_changed }}
+          CHECKED_ON: ${{ steps.monitor.outputs.checked_on }}
+          DOCUMENT_COUNT: ${{ steps.monitor.outputs.document_count }}
+          EMAIL_FROM: ${{ vars.SEASON_MONITOR_EMAIL_FROM }}
+          EMAIL_TO: ${{ vars.SEASON_MONITOR_EMAIL_TO }}
+          ISSUE_OUTCOME: ${{ steps.review_issue.outcome }}
+          ISSUE_URL: ${{ steps.review_issue.outputs.issue_url }}
+          MONITOR_OUTCOME: ${{ steps.monitor.outcome }}
+          PAGE_COUNT: ${{ steps.monitor.outputs.page_count }}
+          PR_OUTCOME: ${{ steps.baseline_pr.outcome }}
+          PR_URL: ${{ steps.baseline_pr.outputs.pr_url }}
+          SEASON: ${{ steps.monitor.outputs.season }}
+          SKIPPED: ${{ steps.monitor.outputs.skipped }}
+        shell: bash
+        run: |
+          if [[ "$MONITOR_OUTCOME" != 'success' ]]; then
+            status='failed'
+          elif [[ "$BASELINE_CHANGED" == 'true' && "$PR_OUTCOME" != 'success' ]]; then
+            status='baseline PR failed'
+          elif [[ "$CANDIDATE_CHANGED" == 'true' && "$ISSUE_OUTCOME" != 'success' ]]; then
+            status='review issue failed'
+          elif [[ "$BASELINE_CHANGED" == 'true' ]]; then
+            status='baseline PR created'
+          elif [[ "$CANDIDATE_CHANGED" == 'true' ]]; then
+            status='review required'
+          elif [[ "$SKIPPED" == 'true' ]]; then
+            status='skipped outside season'
+          else
+            status='clean'
+          fi
+
+          subject="CNSL season monitor: ${status} (${SEASON:-unknown})"
+          body_path="$RUNNER_TEMP/season-monitor-email-body.txt"
+          message_path="$RUNNER_TEMP/season-monitor-email.txt"
+          workflow_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+
+          {
+            printf 'Status: %s\n' "$status"
+            printf 'Season: %s\n' "${SEASON:-unknown}"
+            printf 'Checked on: %s\n' "${CHECKED_ON:-not completed}"
+            printf 'Sources: %s pages, %s documents\n' "${PAGE_COUNT:-0}" "${DOCUMENT_COUNT:-0}"
+            printf 'Workflow: %s\n' "$workflow_url"
+            [[ -n "$ISSUE_URL" ]] && printf 'Review issue: %s\n' "$ISSUE_URL"
+            [[ -n "$PR_URL" ]] && printf 'Baseline pull request: %s\n' "$PR_URL"
+            if [[ -f .github/automation/season-data-monitor/update-report.md ]]; then
+              printf '\n'
+              cat .github/automation/season-data-monitor/update-report.md
+            fi
+          } > "$body_path"
+
+          {
+            printf 'From: %s\r\n' "$EMAIL_FROM"
+            printf 'To: %s\r\n' "$EMAIL_TO"
+            printf 'Subject: %s\r\n' "$subject"
+            printf 'Content-Type: text/plain; charset=UTF-8\r\n'
+            printf '\r\n'
+            cat "$body_path"
+          } > "$message_path"
+
+          echo "message_path=$message_path" >> "$GITHUB_OUTPUT"
+          echo "## $subject" >> "$GITHUB_STEP_SUMMARY"
+          cat "$body_path" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Send email notification
+        if: always() && steps.notification.outcome == 'success'
+        env:
+          EMAIL_FROM: ${{ vars.SEASON_MONITOR_EMAIL_FROM }}
+          EMAIL_TO: ${{ vars.SEASON_MONITOR_EMAIL_TO }}
+          SMTP_PASSWORD: ${{ secrets.SEASON_MONITOR_SMTP_PASSWORD }}
+          SMTP_URL: ${{ vars.SEASON_MONITOR_SMTP_URL }}
+          SMTP_USERNAME: ${{ secrets.SEASON_MONITOR_SMTP_USERNAME }}
+        shell: bash
+        run: |
+          : "${EMAIL_FROM:?Configure the SEASON_MONITOR_EMAIL_FROM repository variable.}"
+          : "${EMAIL_TO:?Configure the SEASON_MONITOR_EMAIL_TO repository variable.}"
+          : "${SMTP_PASSWORD:?Configure the SEASON_MONITOR_SMTP_PASSWORD repository secret.}"
+          : "${SMTP_URL:?Configure the SEASON_MONITOR_SMTP_URL repository variable.}"
+          : "${SMTP_USERNAME:?Configure the SEASON_MONITOR_SMTP_USERNAME repository secret.}"
+
+          curl --fail --show-error --silent \
+            --connect-timeout 20 \
+            --max-time 60 \
+            --retry 2 \
+            --ssl-reqd \
+            --url "$SMTP_URL" \
+            --user "$SMTP_USERNAME:$SMTP_PASSWORD" \
+            --mail-from "$EMAIL_FROM" \
+            --mail-rcpt "$EMAIL_TO" \
+            --upload-file '${{ steps.notification.outputs.message_path }}'

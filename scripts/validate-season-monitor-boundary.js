@@ -25,18 +25,29 @@ function isAllowedEvidencePath(documentPath, season) {
   return otherEvidence.test(documentPath);
 }
 
-function findUnexpectedChanges(documentPaths, season) {
+function isAllowedBaselinePath(documentPath) {
+  return documentPath === '.github/automation/season-data-monitor/source-state.json';
+}
+
+function findUnexpectedChanges(documentPaths, season, mode = 'evidence') {
   assertValidSeason(season);
-  return documentPaths.filter(documentPath => documentPath && !isAllowedEvidencePath(documentPath, season));
+  const isAllowedPath = mode === 'baseline'
+    ? isAllowedBaselinePath
+    : (documentPath) => isAllowedEvidencePath(documentPath, season);
+  if (!['baseline', 'evidence'].includes(mode)) {
+    throw new Error(`Invalid season monitor boundary mode: ${mode}`);
+  }
+  return documentPaths.filter(documentPath => documentPath && !isAllowedPath(documentPath));
 }
 
 function main() {
   const season = process.argv[2] || '';
+  const mode = process.argv[3] || 'evidence';
   const documentPaths = fs.readFileSync(0, 'utf8').split(/\r?\n/).filter(Boolean);
   let unexpectedChanges;
 
   try {
-    unexpectedChanges = findUnexpectedChanges(documentPaths, season);
+    unexpectedChanges = findUnexpectedChanges(documentPaths, season, mode);
   } catch (error) {
     console.error(error.message);
     process.exitCode = 1;
@@ -44,7 +55,7 @@ function main() {
   }
 
   if (unexpectedChanges.length > 0) {
-    console.error('The seasonal monitor modified protected annual structured material:');
+    console.error('The seasonal monitor modified paths outside its permitted automation boundary:');
     unexpectedChanges.forEach(documentPath => console.error(documentPath));
     process.exitCode = 1;
   }
@@ -54,4 +65,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { findUnexpectedChanges, isAllowedEvidencePath };
+module.exports = { findUnexpectedChanges, isAllowedBaselinePath, isAllowedEvidencePath };

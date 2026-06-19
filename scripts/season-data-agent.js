@@ -467,6 +467,7 @@ async function monitorSources({
   apply = false,
   fetchImplementation = fetch,
   initialize = false,
+  refreshBaseline = false,
   repositoryRoot = REPOSITORY_ROOT,
   report = false,
   seasonOnly = false,
@@ -485,7 +486,7 @@ async function monitorSources({
   ]);
 
   if (seasonOnly && !isDateWithinSeason(today, poolsData)) {
-    return { changed: false, season, skipped: true, today };
+    return { baselineChanged: false, changed: false, documents: 0, pages: 0, season, skipped: true, today };
   }
 
   const state = await readState(statePath);
@@ -590,7 +591,15 @@ async function monitorSources({
       throw new Error(`Public page fingerprints were not stable across two requests: ${unstablePages.map((page) => page.url).join(', ')}`);
     }
     await writeJson(statePath, createState(season, pageObservations, documentObservations, today));
-    return { changed: false, initialized: true, pages: pageObservations.length, season, today };
+    return {
+      baselineChanged: false,
+      changed: false,
+      documents: documentObservations.length,
+      initialized: true,
+      pages: pageObservations.length,
+      season,
+      today
+    };
   }
 
   const previousPageMatches = new Map(pageObservations.map((observation) => {
@@ -630,6 +639,15 @@ async function monitorSources({
     }));
   }
   const candidateKey = changes.length > 0 ? createCandidateKey(changes) : '';
+  let baselineChanged = false;
+  if (refreshBaseline && changes.length === 0) {
+    const refreshedState = createState(season, pageObservations, documentObservations, state.acceptedOn);
+    if (JSON.stringify(refreshedState) !== JSON.stringify(state)) {
+      refreshedState.acceptedOn = today;
+      await writeJson(statePath, refreshedState);
+      baselineChanged = true;
+    }
+  }
   if ((apply || report) && changes.length > 0) {
     await fs.mkdir(path.dirname(reportPath), { recursive: true });
     await fs.writeFile(reportPath, formatReport({ candidateKey, changes, checkedOn: today, season }));
@@ -637,11 +655,22 @@ async function monitorSources({
     await fs.rm(reportPath, { force: true });
   }
 
-  return { candidateKey, changed: changes.length > 0, changes, documentChanges, pageChanges, season, today };
+  return {
+    baselineChanged,
+    candidateKey,
+    changed: changes.length > 0,
+    changes,
+    documentChanges,
+    documents: documentObservations.length,
+    pageChanges,
+    pages: pageObservations.length,
+    season,
+    today
+  };
 }
 
 function parseArguments(argumentsList) {
-  const options = { apply: false, initialize: false, seasonOnly: false };
+  const options = { apply: false, initialize: false, refreshBaseline: false, seasonOnly: false };
   for (let index = 0; index < argumentsList.length; index += 1) {
     const argument = argumentsList[index];
     if (argument === '--update') {
@@ -650,6 +679,8 @@ function parseArguments(argumentsList) {
       options.report = true;
     } else if (argument === '--initialize') {
       options.initialize = true;
+    } else if (argument === '--refresh-baseline') {
+      options.refreshBaseline = true;
     } else if (argument === '--season-only') {
       options.seasonOnly = true;
     } else if (argument === '--date' && argumentsList[index + 1]) {
@@ -667,9 +698,13 @@ async function writeActionOutputs(result) {
     return;
   }
   const output = [
+    `baseline_changed=${result.baselineChanged ? 'true' : 'false'}`,
     `changed=${result.changed ? 'true' : 'false'}`,
     `candidate_changed=${result.changed ? 'true' : 'false'}`,
     `candidate_key=${result.candidateKey || ''}`,
+    `checked_on=${result.today}`,
+    `document_count=${result.documents || 0}`,
+    `page_count=${result.pages || 0}`,
     `season=${result.season}`,
     `skipped=${result.skipped ? 'true' : 'false'}`
   ].join('\n');
@@ -690,6 +725,8 @@ async function main() {
     result.changes.forEach((change) => {
       console.log(`- ${change.kind}: ${describeReviewScope(change, result.season)} (${change.url})`);
     });
+  } else if (result.baselineChanged) {
+    console.log(`No candidate source differences detected; refreshed content-equivalent source metadata for the ${result.season} season.`);
   } else {
     console.log(`No candidate source differences detected for the ${result.season} season.`);
   }

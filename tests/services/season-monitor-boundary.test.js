@@ -3,7 +3,11 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 
-const { findUnexpectedChanges, isAllowedEvidencePath } = require('../../scripts/validate-season-monitor-boundary');
+const {
+  findUnexpectedChanges,
+  isAllowedBaselinePath,
+  isAllowedEvidencePath
+} = require('../../scripts/validate-season-monitor-boundary');
 
 describe('season monitor evidence boundary', () => {
   describe('isAllowedEvidencePath', () => {
@@ -28,10 +32,20 @@ describe('season monitor evidence boundary', () => {
       ], '2026'), ['src/assets/data/2026/teams/teams.json']);
       assert.throws(() => findUnexpectedChanges([], '../2026'));
     });
+
+    it('should allow only the reviewed source baseline in automatic pull requests', () => {
+      assert.equal(isAllowedBaselinePath('.github/automation/season-data-monitor/source-state.json'), true);
+      assert.equal(isAllowedBaselinePath('src/assets/data/2026/pools/pools.json'), false);
+      assert.deepEqual(findUnexpectedChanges([
+        '.github/automation/season-data-monitor/source-state.json',
+        'src/assets/data/2026/pools/pools.json'
+      ], '2026', 'baseline'), ['src/assets/data/2026/pools/pools.json']);
+      assert.throws(() => findUnexpectedChanges([], '2026', 'unknown'));
+    });
   });
 
-  describe('retired review automation', () => {
-    it('should keep automatic review workflows absent while preserving the browser schedule', async () => {
+  describe('nightly deterministic automation', () => {
+    it('should restore seasonal checks without automatic agent assignment', async () => {
       const repositoryRoot = path.resolve(__dirname, '..', '..');
       const workflowsRoot = path.join(repositoryRoot, '.github', 'workflows');
       const workflowFiles = (await fs.readdir(workflowsRoot)).filter((fileName) => fileName.endsWith('.yml'));
@@ -39,11 +53,9 @@ describe('season monitor evidence boundary', () => {
         return fs.readFile(path.join(workflowsRoot, fileName), 'utf8');
       }));
       const browser = await fs.readFile(path.join(workflowsRoot, 'nightly-browser-verification.yml'), 'utf8');
+      const seasonMonitor = await fs.readFile(path.join(workflowsRoot, 'season-data-monitor.yml'), 'utf8');
 
-      await Promise.all([
-        assert.rejects(fs.access(path.join(workflowsRoot, 'season-data-monitor.yml')), { code: 'ENOENT' }),
-        assert.rejects(fs.access(path.join(workflowsRoot, 'refactoring-audit.yml')), { code: 'ENOENT' })
-      ]);
+      await assert.rejects(fs.access(path.join(workflowsRoot, 'refactoring-audit.yml')), { code: 'ENOENT' });
 
       const recurringSchedules = workflowDefinitions.flatMap((workflow) => {
         return [...workflow.matchAll(/cron: '([^']+)'/g)].map((match) => match[1]);
@@ -61,7 +73,17 @@ describe('season monitor evidence boundary', () => {
       assert.match(browser, /actions\/workflows\/build-deploy\.yml\/runs/);
       assert.match(browser, /-f event='push'/);
       assert.match(browser, /-f branch='main'/);
-      assert.doesNotMatch(workflowFiles.join('\n'), /season-data-monitor|refactoring-audit/);
+      assert.match(seasonMonitor, /cron: '17 5 \* 5-7 \*'/);
+      assert.match(seasonMonitor, /workflow_dispatch:/);
+      assert.match(seasonMonitor, /--season-only --report --refresh-baseline/);
+      assert.match(seasonMonitor, /validate-season-monitor-boundary\.js "\$SEASON" baseline/);
+      assert.match(seasonMonitor, /source-state\.json/);
+      assert.match(seasonMonitor, /gh issue create/);
+      assert.match(seasonMonitor, /gh pr create/);
+      assert.match(seasonMonitor, /if: always\(\)/);
+      assert.match(seasonMonitor, /SEASON_MONITOR_SMTP_URL/);
+      assert.doesNotMatch(seasonMonitor, /copilot-swe-agent|season-data-reviewer\.agent/);
+      assert.doesNotMatch(workflowFiles.join('\n'), /refactoring-audit\.yml/);
     });
 
     it('should require categorized property-level descriptions for material data pull requests', async () => {

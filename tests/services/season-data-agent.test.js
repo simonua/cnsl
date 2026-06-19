@@ -451,6 +451,12 @@ describe('season data agent', () => {
         );
 
         let conditionalDocumentRequests = 0;
+        const refreshedEtag = '"refreshed-etag"';
+        const refreshedResponseHeaders = {
+          get: (name) => name === 'etag'
+            ? refreshedEtag
+            : (name === 'last-modified' ? acceptedLastModified : (name === 'content-length' ? acceptedContentLength : null))
+        };
         const conditionalFetchImplementation = async (url, options) => {
           if (url.endsWith('.pdf')) {
             conditionalDocumentRequests += 1;
@@ -463,7 +469,7 @@ describe('season data agent', () => {
             return {
               ok: false,
               status: 304,
-              headers: responseHeaders,
+              headers: refreshedResponseHeaders,
               arrayBuffer: async () => assert.fail('A 304 response body should not be read.')
             };
           }
@@ -471,12 +477,23 @@ describe('season data agent', () => {
         };
         const conditionalResult = await monitorSources({
           fetchImplementation: conditionalFetchImplementation,
+          refreshBaseline: true,
           repositoryRoot: root,
           today: '2026-06-01'
         });
 
         assert.strictEqual(conditionalResult.changed, false);
+        assert.strictEqual(conditionalResult.baselineChanged, true);
         assert.strictEqual(conditionalDocumentRequests, 3);
+        const refreshedState = JSON.parse(await fs.readFile(
+          path.join(root, '.github', 'automation', 'season-data-monitor', 'source-state.json'),
+          'utf8'
+        ));
+        assert.ok(refreshedState.documents.every((document) => document.etag === refreshedEtag));
+        assert.deepStrictEqual(
+          refreshedState.documents.map((document) => document.sha256),
+          initializedState.documents.map((document) => document.sha256)
+        );
       } finally {
         await fs.rm(root, { force: true, recursive: true });
       }
