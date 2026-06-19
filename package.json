@@ -18,7 +18,7 @@
     "start:simple": "pnpm run dev",
     "test": "node --test tests/helpers/*.test.js tests/services/*.test.js tests/models/*.test.js tests/managers/*.test.js tests/types/*.test.js",
     "test:coverage": "node --experimental-test-coverage --test-concurrency=1 --test-coverage-lines=100 --test-coverage-functions=100 --test-coverage-branches=100 --test-coverage-include=src/js/** --test-coverage-include=service-worker.js --test-coverage-exclude=scripts/** --test tests/helpers/*.test.js tests/services/*.test.js tests/models/*.test.js tests/managers/*.test.js tests/types/*.test.js",
-    "test:browser:nightly": "node scripts/run-playwright.js test",
+    "test:browser:complete": "node scripts/run-playwright.js test",
     "capture:meet-guidance": "node tests/helpers/capture-meet-guidance.js",
     "check:data-updates": "node scripts/season-data-agent.js --season-only --report",
     "extract:pdf": "node scripts/extract-pdf-text.js",
@@ -60,7 +60,6 @@
     "posthtml": "^0.16.7",
     "posthtml-expressions": "^1.11.4",
     "posthtml-extend": "^0.6.5",
-    "posthtml-include": "^2.0.1",
     "rimraf": "^6.1.3"
   }
 }

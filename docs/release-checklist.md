@@ -14,7 +14,7 @@ pnpm run build
 pnpm run verify:pwa
 ```
 
-Run the exact affected unit-test files and browser workflow/accessibility IDs identified by the release candidate's changes. Do not substitute `pnpm test`, `pnpm run test:coverage`, or `pnpm run test:browser:nightly` locally; CI owns complete-suite verification. Record every scoped test command and non-test gate result in the pull request or release record. `pnpm run verify:pwa` reports the public artifact footprint, requires that only the configured active season's data is emitted, and prevents retained annual evidence PDFs from entering the deployment. GitHub Actions runs the complete unit gate, high-severity dependency audit, and the scheduled Chromium/WCAG suite separately.
+Run the exact affected unit-test files and browser workflow/accessibility IDs identified by the release candidate's changes. Do not substitute `pnpm test`, `pnpm run test:coverage`, or `pnpm run test:browser:complete` locally; CI owns complete-suite verification. Record every scoped test command and non-test gate result in the pull request or release record. `pnpm run verify:pwa` reports the public artifact footprint, requires that only the configured active season's data is emitted, and prevents retained annual evidence PDFs from entering the deployment. GitHub Actions runs the complete unit gate, high-severity dependency audit, and the scheduled Chromium/WCAG suite separately.
 
 ## Secure-Origin PWA Review
 

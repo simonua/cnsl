@@ -1,4 +1,4 @@
-name: Weekly Browser Verification
+name: Browser Verification
 
 on:
   workflow_dispatch:
@@ -95,4 +95,4 @@ jobs:
         if: steps.decision.outputs.run_tests == 'true'
         env:
           CNSL_PLAYWRIGHT_WORKERS: ${{ inputs.worker_count }}
-        run: pnpm run test:browser:nightly
+        run: pnpm run test:browser:complete

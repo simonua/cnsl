@@ -65,7 +65,6 @@ const templateLocals = {
   APP_VERSION_WHATS_NEW_URL
 };
 const expressions = require('posthtml-expressions')({ locals: templateLocals });
-require('posthtml-include')({ root: './src/views' });
 const extend = require('posthtml-extend')({
   expressions: { locals: templateLocals },
   root: './src/views/layouts'

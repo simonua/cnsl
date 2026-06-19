@@ -19,7 +19,7 @@ description: "Use when working with the build pipeline, dev server, testing, lin
 | `node scripts/run-playwright.js test <spec> --grep "<stable IDs>"` | Run affected browser or accessibility IDs through the serialized Playwright runner |
 | `pnpm test` | Run all unit tests for CI parity or an explicitly requested full-suite investigation |
 | `pnpm run test:coverage` | Run full delivered-JavaScript coverage for CI parity or an explicitly requested full-suite investigation |
-| `pnpm run test:browser:nightly` | Run the complete serialized browser and WCAG suite for CI or an explicit full-suite request |
+| `pnpm run test:browser:complete` | Run the complete serialized browser and WCAG suite for CI or an explicit full-suite request |
 | `pnpm run measure:performance` | Clean build and measure the default desktop route, phase, request, byte, long-task, and PWA metrics |
 | `pnpm run lint` | Run ESLint on all JS files |
 | `pnpm run lint:fix` | Auto-fix lint issues |
@@ -94,11 +94,11 @@ Run `\.\start.ps1` from PowerShell for the interactive developer menu. It covers
 | Annual data or active-season configuration | Follow the season rollover verification, beginning with `pnpm run validate:data`. | Use its complete required checks when activating or publishing a season. |
 | Build, PWA/offline, privacy/analytics, shared navigation, or release candidate | Run the exact affected unit and browser tests plus the non-test gates in the release checklist. | CI provides complete-suite coverage; complete secure-origin or manual review where required. |
 
-- Do not run the complete Playwright suite for ordinary local iteration or local release verification. Run changed browser workflows through `node scripts/run-playwright.js test <spec> --grep "<stable IDs>"`; CI owns `pnpm run test:browser:nightly` unless the user explicitly requests it.
+- Do not run the complete Playwright suite for ordinary local iteration or local release verification. Run changed browser workflows through `node scripts/run-playwright.js test <spec> --grep "<stable IDs>"`; CI owns `pnpm run test:browser:complete` unless the user explicitly requests it.
 - All focused and complete Playwright invocations must use `scripts/run-playwright.js`. The runner serializes invocations for the same workspace, waiting for an existing browser-test process to finish and recovering locks abandoned by interrupted runs.
 - The serialized runner validates the lock owner's PID and exact process instance before waiting. It recovers dead or PID-reused locks immediately, records Playwright lifecycle progress, and terminates only a verified CNSL Playwright process tree after 90 seconds without progress. This interval exceeds the configured test and server-startup timeouts. Do not manually terminate an active Playwright test execution or the shared development server.
 - The complete local release gate is defined in [docs/release-checklist.md](../../docs/release-checklist.md); it is a publishing checkpoint rather than the default iteration loop.
-- The GitHub Pages build contains no Playwright setup or execution. A weekly GitHub Actions workflow also runs `pnpm run test:browser:nightly` after a push to `main` in the preceding seven days, or when manually dispatched, and its result does not block deployment.
+- The GitHub Pages build contains no Playwright setup or execution. A scheduled GitHub Actions workflow also runs `pnpm run test:browser:complete` after a push to `main` in the preceding seven days, or when manually dispatched, and its result does not block deployment.
 
 ## Linting
 

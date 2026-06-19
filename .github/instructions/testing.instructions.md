@@ -24,7 +24,7 @@ description: "Use when writing or modifying tests. Covers test patterns, structu
 - Start with the smallest complete behavioral scope. Widen only by naming additional specific files or IDs when imports, manifests, shared ownership, a failure, or observed behavior demonstrates that they are affected. Widening does not mean switching to an all-tests command.
 - Use `node --test tests/<area>/<module>.test.js [additional-affected.test.js]` for unit tests. Use `node scripts/run-playwright.js test <spec> --grep "<stable IDs>"` for browser or accessibility coverage.
 - When focused coverage measurement is required, limit both coverage collection and test execution to the changed delivered modules and their affected tests. For example: `node --experimental-test-coverage --test-coverage-lines=100 --test-coverage-functions=100 --test-coverage-branches=100 --test-coverage-include=src/js/services/example.js --test tests/services/example.test.js`.
-- Do not run `pnpm test`, `pnpm run test:coverage`, or `pnpm run test:browser:nightly` as an automatic local completion step. Those broad commands are reserved for CI or an explicitly requested full-suite investigation.
+- Do not run `pnpm test`, `pnpm run test:coverage`, or `pnpm run test:browser:complete` as an automatic local completion step. Those broad commands are reserved for CI or an explicitly requested full-suite investigation.
 - Report the exact test files and browser IDs executed. Never imply that unrelated tests were run.
 
 ## Structure
@@ -97,4 +97,4 @@ describe('MyClass', () => {
 - No mocking frameworks — use simple stubs when needed.
 - Never require a file under `src/js/` directly. Add or reuse an explicit manifest in `tests/helpers/browser-module-loader.js`, inject dependencies before loading, and use the returned realm for mutable browser globals.
 - Keep each browser-module manifest's script order aligned with production: providers of classic-script globals must appear before their consumers. When delivered code gains a new global dependency, add and hoist that provider in both the production route or loader and every affected test manifest in the same change.
-- Unit tests must run without a browser; browser specs require a prior `pnpm run build`. Run focused Playwright coverage only when changed behavior requires a real browser. GitHub Actions runs the complete serialized browser suite in the weekly workflow after a push to `main` in the preceding seven days or a manual dispatch; that separate broad result does not block deployment.
+- Unit tests must run without a browser; browser specs require a prior `pnpm run build`. Run focused Playwright coverage only when changed behavior requires a real browser. GitHub Actions runs the complete serialized browser suite in the scheduled workflow after a push to `main` in the preceding seven days or a manual dispatch; that separate broad result does not block deployment.

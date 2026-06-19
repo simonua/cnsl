@@ -296,7 +296,7 @@ while ($true) {
             Invoke-FocusedTest
         }
         'b' {
-            $null = Invoke-Cmd 'pnpm' 'run' 'test:browser:nightly'
+            $null = Invoke-Cmd 'pnpm' 'run' 'test:browser:complete'
         }
         'm' {
             $null = Invoke-Cmd 'pnpm' 'run' 'measure:performance'
