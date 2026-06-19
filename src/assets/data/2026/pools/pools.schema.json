@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://example.com/pools.schema.json",
-    "version": "V15",
+    "version": "V16",
     "title": "Pool Data Schema",
     "description": "Schema for pool data containing schedules, features, and location information",
     "type": "object",
@@ -162,6 +162,10 @@
                         "$ref": "#/definitions/Hours"
                     },
                     "minItems": 1
+                },
+                "overrideMode": {
+                    "$ref": "#/definitions/ScheduleOverrideMode",
+                    "description": "Whether the dated hours overlay recurring intervals or replace the complete regular day"
                 },
                 "reason": {
                     "type": "string",
@@ -504,6 +508,13 @@
                 "restricted",
                 "special-event",
                 "swim-meet"
+            ]
+        },
+        "ScheduleOverrideMode": {
+            "type": "string",
+            "enum": [
+                "overlay",
+                "replace-day"
             ]
         },
         "ScheduleType": {

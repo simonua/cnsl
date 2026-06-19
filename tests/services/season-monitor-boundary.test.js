@@ -8,11 +8,14 @@ const { findUnexpectedChanges, isAllowedEvidencePath } = require('../../scripts/
 describe('season monitor evidence boundary', () => {
   describe('isAllowedEvidencePath', () => {
     it('should accept only active-season official evidence PDF paths', () => {
-      assert.equal(isAllowedEvidencePath('src/assets/data/2026/pools/pool-schedules/pool schedule.pdf', '2026'), true);
+      assert.equal(isAllowedEvidencePath('src/assets/data/2026/pools/pool-schedules/bwp/2026-06-19/Bryant Woods.pdf', '2026'), true);
       assert.equal(isAllowedEvidencePath('src/assets/data/2026/meets/meet-schedules/meets.pdf', '2026'), true);
       assert.equal(isAllowedEvidencePath('src/assets/data/2026/teams/team-schedules/practice.pdf', '2026'), true);
       assert.equal(isAllowedEvidencePath('src/assets/data/2026/teams/teams.json', '2026'), false);
       assert.equal(isAllowedEvidencePath('src/assets/data/2025/teams/team-schedules/practice.pdf', '2026'), false);
+      assert.equal(isAllowedEvidencePath('src/assets/data/2026/pools/pool-schedules/Bryant Woods.pdf', '2026'), false);
+      assert.equal(isAllowedEvidencePath('src/assets/data/2026/pools/pool-schedules/bwp/not-a-date/Bryant Woods.pdf', '2026'), false);
+      assert.equal(isAllowedEvidencePath('src/assets/data/2026/pools/pool-schedules/bwp/2026-02-30/Bryant Woods.pdf', '2026'), false);
       assert.equal(isAllowedEvidencePath('src/assets/data/2026/teams/team-schedules/nested/practice.pdf', '2026'), false);
     });
   });

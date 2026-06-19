@@ -4,6 +4,8 @@
  */
 
 if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
+  const REPLACE_DAY_OVERRIDE_MODE = 'replace-day';
+
   /** Resolves published schedule periods and overrides into daily pool availability. */
   class PoolPeriodScheduleService {
     static DAY_NAMES = Object.freeze({
@@ -129,7 +131,13 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
       const timeUtils = this.getTimeUtils();
       if (!poolStatus || !timeUtils) return { isOpen: false, color: 'gray' };
 
+      const allDayClosure = timeSlots.find(slot => (
+        slot.accessStatus === 'closed-to-public'
+        && typeof slot.startTime !== 'string'
+        && typeof slot.endTime !== 'string'
+      ));
       for (const slot of timeSlots) {
+        if (slot === allDayClosure) continue;
         if (typeof slot.startTime !== 'string' || typeof slot.endTime !== 'string') {
           console.warn(`[PoolPeriodScheduleService] Skipping invalid time slot for ${this.poolName}:`, slot);
           continue;
@@ -138,7 +146,7 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
         const endMinutes = timeUtils.timeStringToMinutes(slot.endTime);
         if (currentMinutes >= startMinutes && currentMinutes < endMinutes) return this.getSlotStatus(slot);
       }
-      return poolStatus.CLOSED;
+      return allDayClosure ? poolStatus.CLOSED_TO_PUBLIC : poolStatus.CLOSED;
     }
 
     /**
@@ -193,8 +201,10 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
      * @private
      */
     mergeScheduleWithOverride(activeSchedule, shortDay, override) {
-      const regularSlots = this.getRegularSlots(activeSchedule, shortDay);
-      const overrideSlots = this.getSlotsForDay(override.hours, shortDay).map(hour => ({
+      const regularSlots = override.overrideMode === REPLACE_DAY_OVERRIDE_MODE
+        ? []
+        : this.getRegularSlots(activeSchedule, shortDay);
+      const overrideSlots = this.getSlotsForDay(override.hours, shortDay, true).map(hour => ({
         startTime: hour.startTime,
         endTime: hour.endTime,
         activities: hour.types || [],
@@ -207,7 +217,9 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
         meetDate: hour.meetDate || '',
         meetPoolId: hour.meetPoolId || ''
       }));
-      const convertedOverrides = overrideSlots.map(slot => this.withMinutes(slot));
+      const untimedOverrides = overrideSlots.filter(slot => typeof slot.startTime !== 'string');
+      const convertedOverrides = overrideSlots.filter(slot => typeof slot.startTime === 'string')
+        .map(slot => this.withMinutes(slot));
       const mergedSlots = [];
 
       regularSlots.map(slot => this.withMinutes(slot)).forEach(regularSlot => {
@@ -218,7 +230,7 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
         mergedSlots.push(...remainingSlots);
       });
       mergedSlots.push(...convertedOverrides);
-      return mergedSlots.sort((first, second) => first.startMinutes - second.startMinutes).map(slot => ({
+      return [...untimedOverrides, ...mergedSlots.sort((first, second) => first.startMinutes - second.startMinutes)].map(slot => ({
         startTime: slot.startTime,
         endTime: slot.endTime,
         activities: slot.activities,
@@ -260,15 +272,17 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
      * Select hours applying to one weekday.
      * @param {Array} hours - Published hours
      * @param {string} shortDay - Short weekday
+     * @param {boolean} includeUntimedClosures - Whether all-day closure records should be retained
      * @returns {Array} Matching hours
      * @private
      */
-    getSlotsForDay(hours, shortDay) {
+    getSlotsForDay(hours, shortDay, includeUntimedClosures = false) {
       return Array.isArray(hours) ? hours.filter(hour => (
         Array.isArray(hour.weekDays)
         && hour.weekDays.includes(shortDay)
-        && hour.startTime
-        && hour.endTime
+        && ((hour.startTime && hour.endTime)
+          || (includeUntimedClosures && hour.accessStatus === 'closed-to-public'
+            && !hour.startTime && !hour.endTime))
       )) : [];
     }
 
@@ -302,7 +316,6 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
       const timeUtils = this.getTimeUtils();
       if (!timeUtils) return slots;
       return [...slots].sort((first, second) => {
-        if (typeof first.startTime !== 'string' || typeof second.startTime !== 'string') return 0;
         return timeUtils.timeStringToMinutes(first.startTime) - timeUtils.timeStringToMinutes(second.startTime);
       });
     }

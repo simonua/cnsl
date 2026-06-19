@@ -54,6 +54,18 @@ describe('PoolScheduleDisplay', () => {
       assert.doesNotMatch(html, /Special Schedule:/);
     });
 
+    it('renders an untimed all-day closure without an invalid time range', () => {
+      const html = PoolScheduleDisplay.render([{
+        day: 'Wed',
+        timeSlots: [{ activities: ['Closed to Public'], accessStatus: 'closed-to-public', notes: '', isOverride: true }],
+        hasOverrides: true,
+        overrideReason: 'Hosted meet closure'
+      }], options);
+
+      assert.match(html, /Closed to Public/);
+      assert.doesNotMatch(html, /Invalid Time Range|undefined/);
+    });
+
     it('creates a complete dated week with one matching current day', () => {
       const days = PoolScheduleDisplay.createDays(weekSchedule, options.weekStart, options.today);
       assert.equal(days.length, 7);

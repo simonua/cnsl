@@ -51,11 +51,17 @@ describe('PoolPeriodScheduleService', () => {
         schedulePeriods: [{
           startDate: '2026-06-01',
           endDate: '2026-06-01',
-          hours: [{}, { weekDays: ['Mon'], startTime: '1:00PM', endTime: '2:00PM' }]
+          hours: [{}, { weekDays: ['Mon'], startTime: '1:00PM', endTime: '2:00PM' }, {
+            weekDays: ['Mon', 'Bad'], startTime: '2:00PM', endTime: '3:00PM'
+          }]
         }],
         getTimeUtils: () => createTimeUtils({ getCurrentEasternTimeInfo: () => ({ date: '2026-06-01' }) })
       }).normalizeActiveSchedule();
       assert.deepEqual(malformed.Monday.activities, []);
+      assert.deepEqual(createService({
+        schedulePeriods: [{ startDate: '2026-06-01', endDate: '2026-06-01' }],
+        getTimeUtils: () => createTimeUtils({ getCurrentEasternTimeInfo: () => ({ date: '2026-06-01' }) })
+      }).normalizeActiveSchedule(), {});
     });
 
     it('maps public access statuses without interpreting labels', () => {
@@ -79,6 +85,52 @@ describe('PoolPeriodScheduleService', () => {
         { startTime: '2:00PM', endTime: '3:00PM', isOverride: true },
         { startTime: '3:00pm', endTime: '5:00PM', isOverride: false }
       ]);
+    });
+
+    it('replaces the complete recurring day when the dated source defines replacement hours', () => {
+      const service = createService({
+        scheduleOverrides: [{
+          startDate: '2026-06-01',
+          endDate: '2026-06-01',
+          overrideMode: 'replace-day',
+          reason: 'Holiday hours',
+          hours: [{
+            weekDays: ['Mon'], startTime: '1:00PM', endTime: '3:00PM',
+            types: ['Rec Swim'], accessStatus: 'public'
+          }]
+        }]
+      });
+
+      const monday = service.getWeekScheduleForDate(new Date(2026, 5, 1))[0];
+      assert.deepEqual(monday.timeSlots.map(slot => ({
+        startTime: slot.startTime,
+        endTime: slot.endTime,
+        isOverride: slot.isOverride
+      })), [{ startTime: '1:00PM', endTime: '3:00PM', isOverride: true }]);
+    });
+
+    it('preserves an all-day replacement closure beneath a timed authoritative event', () => {
+      const service = createService({
+        scheduleOverrides: [{
+          startDate: '2026-06-01',
+          endDate: '2026-06-01',
+          overrideMode: 'replace-day',
+          reason: 'Closed for hosted meet',
+          hours: [{
+            weekDays: ['Mon'], types: ['Closed to Public'], accessStatus: 'closed-to-public'
+          }, {
+            weekDays: ['Mon'], startTime: '7:00AM', endTime: '12:00PM',
+            types: ['Swim Meet'], accessStatus: 'swim-meet'
+          }]
+        }]
+      });
+
+      const slots = service.getTimeSlotsForDate('2026-06-01', 'Mon');
+      assert.equal(slots.length, 2);
+      assert.equal(slots[0].accessStatus, 'closed-to-public');
+      assert.equal(slots[0].startTime, undefined);
+      assert.equal(service.getStatusAtMinutes(slots, 8 * 60), PoolStatus.SWIM_MEET);
+      assert.equal(service.getStatusAtMinutes(slots, 13 * 60), PoolStatus.CLOSED_TO_PUBLIC);
     });
 
     it('uses declarative access status instead of activity labels for special events', () => {
@@ -124,6 +176,28 @@ describe('PoolPeriodScheduleService', () => {
       assert.equal(service.getWeekScheduleForDate(new Date(2026, 5, 8))[0].isOpen, false);
     });
 
+    it('orders multiple regular slots chronologically', () => {
+      const service = createService({
+        scheduleOverrides: [],
+        schedulePeriods: [{
+          startDate: '2026-06-01',
+          endDate: '2026-06-07',
+          hours: [{
+            weekDays: ['Mon'], startTime: '3:00PM', endTime: '5:00PM',
+            types: ['Rec Swim'], accessStatus: 'public'
+          }, {
+            weekDays: ['Mon'], startTime: '1:00PM', endTime: '2:00PM',
+            types: ['Laps'], accessStatus: 'public'
+          }]
+        }]
+      });
+
+      assert.deepEqual(
+        service.getWeekScheduleForDate(new Date(2026, 5, 1))[0].timeSlots.map(slot => slot.startTime),
+        ['1:00PM', '3:00PM']
+      );
+    });
+
     it('formats schedule lookup dates from local calendar fields', () => {
       const localEveningDate = {
         getFullYear: () => 2026,
@@ -166,6 +240,12 @@ describe('PoolPeriodScheduleService', () => {
       assert.equal(createService({ getPoolStatus: () => null }).getCurrentStatus().kind, 'unavailable');
       assert.equal(createService({ getTimeUtils: () => null }).getCurrentStatus(), PoolStatus.SCHEDULE_NOT_FOUND);
       suppressConsole(() => assert.equal(createService().getStatusAtMinutes([{}], 60), PoolStatus.CLOSED));
+      suppressConsole(() => assert.equal(createService().getStatusAtMinutes([{
+        accessStatus: 'closed-to-public', startTime: '1:00PM'
+      }], 14 * 60), PoolStatus.CLOSED));
+      assert.equal(createService().getStatusAtMinutes([{
+        accessStatus: 'closed-to-public', startTime: '1:00PM', endTime: '2:00PM'
+      }], 13 * 60 + 30), PoolStatus.CLOSED_TO_PUBLIC);
       assert.equal(createService({ getTimeUtils: () => null }).getStatusAtMinutes([], 0).isOpen, false);
     });
 
@@ -179,6 +259,9 @@ describe('PoolPeriodScheduleService', () => {
         schedulePeriods: [{ startDate: '2026-06-01', endDate: '2026-06-07', hours: [] }],
         getTimeUtils: () => createTimeUtils({ getCurrentEasternTimeInfo: () => ({ date: '2026-06-01' }) })
       }).getCurrentSchedulePeriod().name, 'Current Schedule');
+      assert.equal(createService({
+        getTimeUtils: () => createTimeUtils({ getCurrentEasternTimeInfo: () => ({ date: '2026-07-01' }) })
+      }).getCurrentSchedulePeriod(), null);
     });
   });
 
@@ -191,6 +274,18 @@ describe('PoolPeriodScheduleService', () => {
       assert.equal(covered.length, 1);
       assert.equal(separate.length, 2);
       assert.deepEqual(service.getSlotsForDay(null, 'Mon'), []);
+      assert.deepEqual(service.getSlotsForDay([{
+        weekDays: ['Mon'], types: ['Closed to Public'], accessStatus: 'closed-to-public'
+      }], 'Mon'), []);
+      assert.deepEqual(service.getSlotsForDay([{
+        weekDays: ['Mon'], startTime: '1:00PM', types: ['Closed to Public'], accessStatus: 'closed-to-public'
+      }], 'Mon', true), []);
+      assert.deepEqual(service.getSlotsForDay([{
+        weekDays: ['Mon'], endTime: '2:00PM', types: ['Closed to Public'], accessStatus: 'closed-to-public'
+      }], 'Mon', true), []);
+      assert.deepEqual(service.getSlotsForDay([{
+        weekDays: ['Mon'], types: ['Event'], accessStatus: 'special-event'
+      }], 'Mon', true), []);
       assert.equal(service.getOverrideForDate('2026-06-02', 'Tue'), undefined);
       assert.deepEqual(service.getRegularSlots(null, 'Mon'), []);
       assert.deepEqual(service.getRegularSlots({ hours: [{ weekDays: ['Mon'], startTime: '1:00PM', endTime: '2:00PM' }] }, 'Mon')[0].activities, []);

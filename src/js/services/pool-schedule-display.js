@@ -242,12 +242,14 @@ if (typeof globalThis.PoolScheduleDisplay === 'undefined') {
       const category = PoolScheduleDisplay.getActivityCategory(slot);
       const activityClass = useActivityColors ? ` schedule-activity schedule-activity--${category}` : '';
       const overrideClass = slot.isOverride && (slot.accessStatus !== 'public' || slot.isSpecialEvent) ? ' override-slot' : '';
-      const timeRange = `${slot.startTime}-${slot.endTime}`;
-      const timeHtml = PoolScheduleDisplay.formatTimeRange(timeRange, {
-        timeUtils,
-        isCurrentDay: day.isCurrentDay,
-        statusKind: options.poolStatus && options.poolStatus.kind
-      });
+      const hasTimeRange = typeof slot.startTime === 'string' && typeof slot.endTime === 'string';
+      const timeHtml = hasTimeRange
+        ? PoolScheduleDisplay.formatTimeRange(`${slot.startTime}-${slot.endTime}`, {
+          timeUtils,
+          isCurrentDay: day.isCurrentDay,
+          statusKind: options.poolStatus && options.poolStatus.kind
+        })
+        : '';
       const safeActivityText = PoolScheduleDisplay.escapeHtml(activityText);
       const restrictedClass = category === 'restricted' ? ' closed-to-public' : '';
       const meetHref = PoolScheduleDisplay.getMeetHref(slot);

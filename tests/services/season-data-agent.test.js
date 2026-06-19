@@ -14,6 +14,7 @@ const {
   normalizeHtml,
   normalizePageContent,
   parseReadmePdfSources,
+  resolveLatestPoolSchedulePaths,
   sha256
 } = require('../../scripts/season-data-agent');
 
@@ -97,6 +98,7 @@ describe('season data agent', () => {
           outdoorSwimPrograms: { sourceUrl: 'https://pools.test/outdoor-lessons' }
         },
         meetsData: { url: 'https://league.test/meet.pdf' },
+        poolDocumentPaths: new Map([['bwp', 'pools/pool-schedules/bwp/2026-06-19/Bryant_Woods.pdf']]),
         poolsData: {
           caPoolDirectoryUrl: 'https://pools.test/directory',
           caPoolGuideUrl: 'https://pools.test/guide',
@@ -124,6 +126,10 @@ describe('season data agent', () => {
         sources.documents.find((source) => source.url === 'https://pools.test/Bryant_Woods.pdf').sourceIds,
         ['pool:bwp:schedule']
       );
+      assert.strictEqual(
+        sources.documents.find((source) => source.url === 'https://pools.test/Bryant_Woods.pdf').localPath,
+        'pools/pool-schedules/bwp/2026-06-19/Bryant_Woods.pdf'
+      );
       assert.ok(sources.documents.some((source) => source.domain === 'meets'));
       assert.ok(sources.documents.some((source) => source.domain === 'teams'));
       assert.ok(sources.pages.some((source) => source.url === 'https://pools.test/bryant'));
@@ -150,6 +156,40 @@ describe('season data agent', () => {
     });
   });
 
+  describe('resolveLatestPoolSchedulePaths', () => {
+    it('should select the newest dated artifact for each stable pool ID', async () => {
+      const dataRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'cnsl-pool-evidence-'));
+      const older = path.join(dataRoot, 'pools', 'pool-schedules', 'bwp', '2026-06-17');
+      const newer = path.join(dataRoot, 'pools', 'pool-schedules', 'bwp', '2026-06-19');
+      await Promise.all([fs.mkdir(older, { recursive: true }), fs.mkdir(newer, { recursive: true })]);
+      await Promise.all([
+        fs.writeFile(path.join(older, 'Bryant_Woods.pdf'), '%PDF-older'),
+        fs.writeFile(path.join(newer, 'Bryant_Woods.pdf'), '%PDF-newer')
+      ]);
+
+      try {
+        const paths = await resolveLatestPoolSchedulePaths(dataRoot, [{
+          id: 'bwp', scheduleUrl: 'https://pools.test/Bryant_Woods.pdf'
+        }]);
+        assert.strictEqual(paths.get('bwp'), 'pools/pool-schedules/bwp/2026-06-19/Bryant_Woods.pdf');
+      } finally {
+        await fs.rm(dataRoot, { force: true, recursive: true });
+      }
+    });
+
+    it('should reject a pool without a matching dated artifact', async () => {
+      const dataRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'cnsl-pool-evidence-'));
+      try {
+        await assert.rejects(
+          resolveLatestPoolSchedulePaths(dataRoot, [{ id: 'bwp', scheduleUrl: 'https://pools.test/Bryant_Woods.pdf' }]),
+          /No retained schedule artifact directory exists/
+        );
+      } finally {
+        await fs.rm(dataRoot, { force: true, recursive: true });
+      }
+    });
+  });
+
   describe('isDateWithinSeason', () => {
     it('should include the first and final published season days', () => {
       const season = { seasonStartDate: '2026-05-23', seasonEndDate: '2026-09-07' };
@@ -171,7 +211,7 @@ describe('season data agent', () => {
             domain: 'pools',
             kind: 'Official document content changed',
             label: 'Pool',
-            localPath: 'pools/pool-schedules/pool.pdf',
+            localPath: 'pools/pool-schedules/bwp/2026-06-19/pool.pdf',
             sourceIds: ['pool:bwp:schedule'],
             url: 'https://pools.test/pool.pdf'
           },
@@ -248,7 +288,7 @@ describe('season data agent', () => {
       const pdfContent = Buffer.from('%PDF-retained');
 
       await Promise.all([
-        fs.mkdir(path.join(dataRoot, 'pools', 'pool-schedules'), { recursive: true }),
+        fs.mkdir(path.join(dataRoot, 'pools', 'pool-schedules', 'pool', '2026-05-24'), { recursive: true }),
         fs.mkdir(path.join(dataRoot, 'meets', 'meet-schedules'), { recursive: true }),
         fs.mkdir(path.join(dataRoot, 'teams', 'team-schedules'), { recursive: true }),
         fs.mkdir(path.join(root, 'src', 'js', 'config'), { recursive: true }),
@@ -263,13 +303,13 @@ describe('season data agent', () => {
           caPoolGuideUrl: 'https://pools.test/guide',
           seasonEndDate: '2026-09-07',
           seasonStartDate: '2026-05-23',
-          pools: [{ caUrl: noisyUrl, name: 'Pool', scheduleUrl: 'https://pools.test/pool.pdf' }]
+          pools: [{ caUrl: noisyUrl, id: 'pool', name: 'Pool', scheduleUrl: 'https://pools.test/pool.pdf' }]
         })),
         fs.writeFile(path.join(dataRoot, 'meets', 'meets.json'), JSON.stringify({ url: 'https://league.test/meet.pdf' })),
         fs.writeFile(path.join(dataRoot, 'teams', 'teams.json'), JSON.stringify({
           teams: [{ id: 'team', name: 'Team', staff: { sourceUrl: relocatedStaffUrl }, url: 'https://team.test/home' }]
         })),
-        fs.writeFile(path.join(dataRoot, 'pools', 'pool-schedules', 'pool.pdf'), pdfContent),
+        fs.writeFile(path.join(dataRoot, 'pools', 'pool-schedules', 'pool', '2026-05-24', 'pool.pdf'), pdfContent),
         fs.writeFile(path.join(dataRoot, 'meets', 'meet-schedules', 'meet.pdf'), pdfContent),
         fs.writeFile(path.join(dataRoot, 'teams', 'team-schedules', 'practice.pdf'), pdfContent),
         fs.writeFile(path.join(root, '.github', 'automation', 'season-data-monitor', 'source-state.json'), JSON.stringify({

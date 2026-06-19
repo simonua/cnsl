@@ -855,6 +855,43 @@ test('[WF-POOLS-026] Masters-only hours are restricted program access instead of
   await expect(fixturePool).toHaveCount(0);
 });
 
+test('[WF-POOLS-027] replacement-day hours remove the recurring schedule tail', async ({ page }) => {
+  await page.clock.setFixedTime(activeSeasonDate('06-19T18:30:00-04:00'));
+  await seedPreferences(page, { poolScheduleLayout: 'list' });
+  await routeAnnualData(page, 'pools', poolData => {
+    poolData.pools.forEach((pool, index) => {
+      pool.schedules = index === 0 ? [{
+        startDate: `${ACTIVE_SEASON_YEAR}-06-01`,
+        endDate: `${ACTIVE_SEASON_YEAR}-06-30`,
+        hours: [{
+          weekDays: ['Fri'], startTime: '12:00PM', endTime: '8:30PM',
+          types: ['Laps', 'Rec Swim'], accessStatus: 'public'
+        }]
+      }] : [];
+      pool.scheduleOverrides = index === 0 ? [{
+        startDate: `${ACTIVE_SEASON_YEAR}-06-19`,
+        endDate: `${ACTIVE_SEASON_YEAR}-06-19`,
+        overrideMode: 'replace-day',
+        reason: 'Fixture holiday hours',
+        hours: [{
+          weekDays: ['Fri'], startTime: '12:00PM', endTime: '7:00PM',
+          types: ['Laps', 'Rec Swim'], accessStatus: 'public'
+        }]
+      }] : [];
+    });
+  });
+  await page.goto('/pools.html');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
+
+  const fixturePool = page.locator('.pool-card').first();
+  await fixturePool.locator('.pool-header__toggle').click();
+  await expect(fixturePool.locator('.open-status')).toContainText('Open Now');
+  await expect(fixturePool.locator('.pool-transition-summary')).toContainText('Closes in 30 mins');
+  await expect(fixturePool.locator('.pool-hours')).toContainText('Fixture holiday hours');
+  await expect(fixturePool.locator('.pool-hours')).not.toContainText('8:30');
+  await expect(fixturePool.locator('.pool-hours .time-slot').filter({ hasText: 'Laps, Rec Swim' })).toHaveCount(1);
+});
+
 test('[WF-POOLS-025] collapsed opening and closing countdowns update without interaction', async ({ page }) => {
   await page.clock.install({ time: activeSeasonDate('05-26T14:58:30-04:00') });
   await page.route(getAnnualDataRoute('pools'), async route => {

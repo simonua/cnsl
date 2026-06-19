@@ -118,7 +118,60 @@ function addPage(pageMap, sourceId, url, label, domain, fingerprint = 'visible-t
   pageMap.set(url, { domains: [domain], fingerprint, label, sourceIds: [sourceId], url });
 }
 
-function collectSources({ annualReadme, lessonsData, meetsData, poolsData, teamsData }) {
+/**
+ * Check whether a folder name is a real ISO calendar date.
+ * @param {string} value - Candidate date folder name
+ * @returns {boolean} Whether the value is a valid YYYY-MM-DD date
+ */
+function isValidArtifactDate(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+
+/**
+ * Resolve the newest retained dated schedule artifact for each pool.
+ * @param {string} dataRoot - Active annual data root
+ * @param {Array} pools - Published pool records
+ * @returns {Promise<Map<string, string>>} Latest local paths keyed by pool ID
+ */
+async function resolveLatestPoolSchedulePaths(dataRoot, pools) {
+  const resolvedPaths = new Map();
+  await Promise.all(pools.map(async (pool) => {
+    const filename = decodeURIComponent(path.posix.basename(new URL(pool.scheduleUrl).pathname));
+    const relativeRoot = `pools/pool-schedules/${pool.id}`;
+    const artifactRoot = safeDataPath(dataRoot, relativeRoot);
+    let dateEntries;
+    try {
+      dateEntries = await fs.readdir(artifactRoot, { withFileTypes: true });
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        throw new Error(`No retained schedule artifact directory exists for pool ${pool.id}: ${relativeRoot}.`, { cause: error });
+      }
+      throw error;
+    }
+
+    const dates = dateEntries
+      .filter((entry) => entry.isDirectory() && isValidArtifactDate(entry.name))
+      .map((entry) => entry.name)
+      .sort()
+      .reverse();
+    for (const date of dates) {
+      const localPath = `${relativeRoot}/${date}/${filename}`;
+      try {
+        await fs.access(safeDataPath(dataRoot, localPath));
+        resolvedPaths.set(pool.id, localPath);
+        return;
+      } catch (error) {
+        if (error.code !== 'ENOENT') throw error;
+      }
+    }
+    throw new Error(`No retained dated schedule artifact exists for pool ${pool.id} and filename ${filename}.`);
+  }));
+  return resolvedPaths;
+}
+
+function collectSources({ annualReadme, lessonsData, meetsData, poolDocumentPaths = new Map(), poolsData, teamsData }) {
   const documentMap = new Map();
   const pageMap = new Map();
 
@@ -126,11 +179,10 @@ function collectSources({ annualReadme, lessonsData, meetsData, poolsData, teams
 
   poolsData.pools.forEach((pool) => {
     const poolSourceId = pool.id || pool.name;
-    const filename = decodeURIComponent(path.posix.basename(new URL(pool.scheduleUrl).pathname));
     addDocument(documentMap, {
       domain: 'pools',
       label: `${pool.name} pool schedule`,
-      localPath: `pools/pool-schedules/${filename}`,
+      localPath: poolDocumentPaths.get(pool.id),
       sourceIds: [`pool:${poolSourceId}:schedule`],
       url: pool.scheduleUrl
     });
@@ -444,7 +496,8 @@ async function monitorSources({
     throw new Error(`The source fingerprint baseline is for ${state.season}, but active season is ${season}. Reinitialize it after season rollover review.`);
   }
 
-  const sources = collectSources({ annualReadme, lessonsData, meetsData, poolsData, teamsData });
+  const poolDocumentPaths = await resolveLatestPoolSchedulePaths(dataRoot, poolsData.pools);
+  const sources = collectSources({ annualReadme, lessonsData, meetsData, poolDocumentPaths, poolsData, teamsData });
   async function observePage(source) {
     const { content } = await request(source.url, fetchImplementation);
     return { ...source, sha256: sha256(normalizePageContent(content.toString('utf8'), source.fingerprint)) };
@@ -655,9 +708,11 @@ module.exports = {
   describeReviewScope,
   formatReport,
   isDateWithinSeason,
+  isValidArtifactDate,
   monitorSources,
   normalizeHtml,
   normalizePageContent,
   parseReadmePdfSources,
+  resolveLatestPoolSchedulePaths,
   sha256
 };

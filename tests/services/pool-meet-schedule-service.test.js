@@ -123,6 +123,21 @@ describe('PoolMeetScheduleService', () => {
     assert.deepEqual(PoolMeetScheduleService.removeUnconfirmedMeetPlaceholders(authored, generated), authored);
   });
 
+  it('retains replacement-day semantics when adding a generated meet interval', () => {
+    const authored = [{
+      startDate: '2026-06-06', endDate: '2026-06-06', overrideMode: 'replace-day',
+      reason: 'Closed to public', hours: [{ accessStatus: 'closed-to-public' }]
+    }];
+    const generated = [{
+      startDate: '2026-06-06', endDate: '2026-06-06', reason: 'Meet',
+      hours: [{ accessStatus: 'swim-meet' }]
+    }];
+
+    const merged = PoolMeetScheduleService.mergeGeneratedOverrides(authored, generated);
+    assert.equal(merged[0].overrideMode, 'replace-day');
+    assert.deepEqual(merged[0].hours.map(hour => hour.accessStatus), ['closed-to-public', 'swim-meet']);
+  });
+
   it('handles absent collections, unknown pools, and standalone special meet records', () => {
     assert.deepEqual([...PoolMeetScheduleService.getOverridesByPool()], []);
     const meet = {

@@ -60,6 +60,14 @@ See [Annual Season Assets](docs/annual-season-assets.md) for the exact PDF, JSON
 
 The scheduled seasonal-source GitHub Actions workflow has been retired, but deliberate source reviews remain required. Begin each review with `pnpm run check:data-updates`, reconcile its collected URLs with every official source defined by the active annual JSON and annual README, and directly request any uncovered source. Record every successfully completed review in the source check log, update the matching source-review timestamps, and refresh the accepted baseline with `node scripts/season-data-agent.js --initialize`. Structured JSON updates remain reviewed transcriptions of official material. Run `pnpm run validate:data` after annual-data changes as a separate integrity check; it does not prove that current online sources were reviewed. See [Seasonal Data Source Review](.github/automation/season-data-monitor/README.md) for the complete coverage and evidence requirements.
 
+Extract searchable text from a retained PDF with the workspace-local Poppler WebAssembly tool. The command preserves the document's physical layout and writes LF line endings. It mirrors the retained evidence path beneath `tmp/pdf-text/`, keeping dated versions separate without writing text files into the annual source tree.
+
+```bash
+pnpm run extract:pdf -- src/assets/data/2026/pools/pool-schedules/krp/2026-06-17/Kendall_Ridge.pdf
+```
+
+This example writes `tmp/pdf-text/2026/pools/pool-schedules/krp/2026-06-17/Kendall_Ridge.txt`.
+
 ### Verification
 
 Run tests by naming only the files or browser IDs affected by your changes. Complete unit and browser suites run in CI; local broad-suite commands are for explicitly requested investigations only.

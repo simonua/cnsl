@@ -280,3 +280,24 @@ The monitor reported one candidate for CA's Outdoor Swim Lessons page. The curre
 | Visitor-facing records | Unchanged | None. |
 | Review records | Updated | `OFFICIAL_SOURCE_CHECKED_AT`, active annual README evidence, and this check-log entry. |
 | Reviewed source baseline | Updated | `source-state.json` refreshed with the accepted June 18 fingerprints and retained-PDF metadata. |
+
+## 2026-06-19T08:57:44-04:00 Pool Schedule Audit
+
+**Active season:** 2026
+
+**Result:** Completed focused official-source review of all 23 Columbia Association outdoor-pool schedule PDFs.
+
+`pnpm run check:data-updates` made the required initial live requests and reported the changed Bryant Woods PDF, the changed pool-schedule index, and a Running Brook facility-page candidate. The focused audit then issued direct live GET requests to all 23 schedule PDFs; all succeeded with HTTP 200. Twenty-two current PDFs byte-matched retained evidence, while Bryant Woods' June 18 document differed and was added as a June 19 artifact beside its retained June 17 version. The live schedule index and all 23 published short links were also reached, and every short link resolved to its existing `pools[].scheduleUrl`. CA's holiday-hours page and the Bryant Woods Aqua Fitness series were reached as bounded corroborating sources. The Running Brook page was checked for the monitor's named modeled fields and retained its normalized name, address, pool-desk phone, features, and destination. No request in the reviewed scope failed.
+
+The direct pool PDFs identify noon to 7:00 PM Laps and Rec Swim as the complete June 19 and July 4 holiday schedule for all 23 pools; many explicitly cancel evening CNSL. Phelps Luck separately publishes complete closure on July 24 and July 25 for the CNSL All-City meet. Pool schema V16 therefore adds `scheduleOverrides[].overrideMode`, and all 46 holiday records plus the two Phelps Luck closures use `replace-day`. Other dated programs, parties, meets, and timed closures remain interval overlays. The runtime now discards recurring slots for a matching replacement date, retains untimed all-day closures as semantic records, and lets confirmed timed meet intervals take precedence without restoring regular hours.
+
+Bryant Woods' regenerated PDF newly and explicitly states that its July 4 Aqua Fitness class is canceled. The recurring class-series page still lists a July 4 occurrence, but the newer pool-specific schedule owns that date's exception and is more specific, resolving the conflict in favor of the cancellation. The 23 direct schedules own their pool-specific dates, the schedule index corroborates all destinations, and the holiday-hours page directs visitors to those schedules. Running Brook's current page retains the normalized `Running Brook` name, `5730 Columbia Rd` address, `410-730-5293` pool-desk phone, CA destination, and page-backed lap, shade, splash, and wifi features; the accepted CA Pool Guide and outdoor-lessons evidence continues to support its other modeled features. Confidence is High for all 48 replacement classifications, the Bryant Woods cancellation, and the unchanged Running Brook fields. No residual source uncertainty remains within the reviewed scope. After baseline initialization, a second `pnpm run check:data-updates` run reported no candidate source differences for 2026.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Updated | Added `overrideMode: replace-day` to all 23 pools' June 19 and July 4 overrides and to Phelps Luck's July 24-25 all-day closures; pool schema advanced to V16. |
+| Application-used source destinations | Unchanged | None; all 23 schedule-index links resolve to the existing `pools[].scheduleUrl` values. |
+| Retained official PDFs | Updated | Migrated all pool evidence to `<pool-id>/<YYYY-MM-DD>/<official-filename>`; retained the complete 23-file June 17 set and added Bryant Woods' June 19 artifact, for 24 total PDFs. |
+| Visitor-facing records | Updated | Pool schedule resolution and display now honor `replace-day`, and the undated Upcoming note documents the correction. |
+| Review records | Updated | Updated `OFFICIAL_SOURCE_CHECKED_AT`, `OFFICIAL_SOURCE_UPDATED_AT`, active annual README evidence, and this check-log entry. |
+| Reviewed source baseline | Updated | `source-state.json` refreshed after accepting the 23-PDF review and Bryant Woods replacement. |

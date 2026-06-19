@@ -424,6 +424,56 @@ describe('season data validation', () => {
   });
 
   describe('validateRetainedDocuments', () => {
+    it('should retain and count dated historical pool schedule artifacts', async () => {
+      const dataRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'cnsl-data-validation-'));
+      const older = path.join(dataRoot, 'pools', 'pool-schedules', 'bwp', '2026-06-17');
+      const newer = path.join(dataRoot, 'pools', 'pool-schedules', 'bwp', '2026-06-19');
+      await Promise.all([fs.mkdir(older, { recursive: true }), fs.mkdir(newer, { recursive: true })]);
+      await Promise.all([
+        fs.writeFile(path.join(older, 'Bryant_Woods.pdf'), '%PDF-older source'),
+        fs.writeFile(path.join(newer, 'Bryant_Woods.pdf'), '%PDF-newer source')
+      ]);
+
+      try {
+        const result = await validateRetainedDocuments({
+          annualReadme: '',
+          dataRoot,
+          meetsData: { url: 'invalid meet source' },
+          poolsData: { pools: [{ id: 'bwp', scheduleUrl: 'https://pools.test/Bryant_Woods.pdf' }] }
+        });
+
+        assert.deepStrictEqual(result.errors, []);
+        assert.equal(result.retainedCount, 2);
+      } finally {
+        await fs.rm(dataRoot, { force: true, recursive: true });
+      }
+    });
+
+    it('should reject pool PDFs outside the dated stable-ID layout', async () => {
+      const dataRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'cnsl-data-validation-'));
+      const current = path.join(dataRoot, 'pools', 'pool-schedules', 'bwp', '2026-06-19');
+      const flatDocument = path.join(dataRoot, 'pools', 'pool-schedules', 'Bryant_Woods.pdf');
+      await fs.mkdir(current, { recursive: true });
+      await Promise.all([
+        fs.writeFile(path.join(current, 'Bryant_Woods.pdf'), '%PDF-current source'),
+        fs.writeFile(flatDocument, '%PDF-flat source')
+      ]);
+
+      try {
+        const result = await validateRetainedDocuments({
+          annualReadme: '',
+          dataRoot,
+          meetsData: { url: 'invalid meet source' },
+          poolsData: { pools: [{ id: 'bwp', scheduleUrl: 'https://pools.test/Bryant_Woods.pdf' }] }
+        });
+
+        assertDiagnostic(result.errors, 'pool-schedules/<pool-id>/<YYYY-MM-DD>/<official-filename>');
+        assertDiagnostic(result.errors, 'pools/pool-schedules/Bryant_Woods.pdf');
+      } finally {
+        await fs.rm(dataRoot, { force: true, recursive: true });
+      }
+    });
+
     it('should reject a stored official PDF omitted from annual data references', async () => {
       const dataRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'cnsl-data-validation-'));
       const teamDocument = path.join(dataRoot, 'teams', 'team-schedules', 'unlisted.pdf');

@@ -4,7 +4,7 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const Ajv = require('ajv');
 const addFormats = require('ajv-formats');
-const { parseReadmePdfSources } = require('./season-data-agent');
+const { isValidArtifactDate, parseReadmePdfSources, resolveLatestPoolSchedulePaths } = require('./season-data-agent');
 const TeamScheduleService = require('./adapters/team-schedule-service.js');
 
 const DOMAINS = Object.freeze(['pools', 'meets', 'teams']);
@@ -285,6 +285,28 @@ function localPdfPathFromUrl(domain, folder, url) {
   }
 }
 
+/**
+ * Recursively list retained PDF paths beneath an annual data root.
+ * @param {string} rootPath - Annual data root
+ * @param {string} relativePath - Relative folder to inspect
+ * @returns {Promise<string[]>} POSIX-style retained PDF paths
+ */
+async function listPdfPaths(rootPath, relativePath = '') {
+  let entries;
+  try {
+    entries = await fs.readdir(path.join(rootPath, ...relativePath.split('/').filter(Boolean)), { withFileTypes: true });
+  } catch (error) {
+    if (error.code === 'ENOENT') return [];
+    throw error;
+  }
+  const paths = await Promise.all(entries.map(async (entry) => {
+    const childPath = [relativePath, entry.name].filter(Boolean).join('/');
+    if (entry.isDirectory()) return listPdfPaths(rootPath, childPath);
+    return entry.isFile() && entry.name.toLowerCase().endsWith('.pdf') ? [childPath] : [];
+  }));
+  return paths.flat();
+}
+
 async function validateRetainedDocuments({ annualReadme, dataRoot, meetsData, poolsData }) {
   const errors = [];
   const documentedSources = parseReadmePdfSources(annualReadme);
@@ -292,9 +314,13 @@ async function validateRetainedDocuments({ annualReadme, dataRoot, meetsData, po
   documentedSources.forEach((source) => {
     validateHttpsUrl(errors, `Annual README source URL for ${source.localPath}`, source.url);
   });
-  const requiredPaths = poolsData.pools
-    .map((pool) => localPdfPathFromUrl('pools', 'pool-schedules', pool.scheduleUrl))
-    .filter(Boolean);
+  let latestPoolPaths = new Map();
+  try {
+    latestPoolPaths = await resolveLatestPoolSchedulePaths(dataRoot, poolsData.pools);
+  } catch (error) {
+    errors.push(error.message);
+  }
+  const requiredPaths = [...latestPoolPaths.values()];
   const meetPdfPath = localPdfPathFromUrl('meets', 'meet-schedules', meetsData.url);
   if (meetPdfPath) {
     requiredPaths.push(meetPdfPath);
@@ -303,7 +329,10 @@ async function validateRetainedDocuments({ annualReadme, dataRoot, meetsData, po
     }
   }
 
-  const allPaths = [...new Set([...requiredPaths, ...documentedPaths])];
+  const expectedPoolFiles = new Map(poolsData.pools.map((pool) => [
+    pool.id,
+    decodeURIComponent(path.posix.basename(new URL(pool.scheduleUrl).pathname))
+  ]));
   const sourceFolders = [
     ['pools', 'pool-schedules'],
     ['meets', 'meet-schedules'],
@@ -311,17 +340,23 @@ async function validateRetainedDocuments({ annualReadme, dataRoot, meetsData, po
   ];
   const storedPaths = [];
   await Promise.all(sourceFolders.map(async ([domain, folder]) => {
-    try {
-      const entries = await fs.readdir(path.join(dataRoot, domain, folder), { withFileTypes: true });
-      entries
-        .filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith('.pdf'))
-        .forEach((entry) => storedPaths.push(`${domain}/${folder}/${entry.name}`));
-    } catch (error) {
-      if (error.code !== 'ENOENT') {
-        throw error;
-      }
-    }
+    const paths = await listPdfPaths(dataRoot, `${domain}/${folder}`);
+    storedPaths.push(...paths);
   }));
+  const retainedPoolPaths = storedPaths.filter((localPath) => localPath.startsWith('pools/pool-schedules/'));
+  const validPoolPaths = retainedPoolPaths.filter((localPath) => {
+    const parts = localPath.split('/');
+    const [, , poolId, downloadedOn, filename] = parts;
+    const expectedFilename = expectedPoolFiles.get(poolId);
+    const isValid = parts.length === 5
+      && isValidArtifactDate(downloadedOn)
+      && expectedFilename === filename;
+    if (!isValid) {
+      errors.push(`Retained pool schedule must use pool-schedules/<pool-id>/<YYYY-MM-DD>/<official-filename>: ${localPath}.`);
+    }
+    return isValid;
+  });
+  const allPaths = [...new Set([...requiredPaths, ...documentedPaths, ...validPoolPaths])];
   storedPaths.forEach((localPath) => {
     if (!allPaths.includes(localPath)) {
       errors.push(`Retained official document is not referenced by active data or its annual README: ${localPath}.`);

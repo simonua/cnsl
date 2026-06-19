@@ -15,7 +15,14 @@ function escapeRegExp(value) {
 function isAllowedEvidencePath(documentPath, season) {
   assertValidSeason(season);
   const safeSeason = escapeRegExp(season);
-  return new RegExp(`^src/assets/data/${safeSeason}/(pools/pool-schedules|meets/meet-schedules|teams/team-schedules)/[^/]+\\.pdf$`).test(documentPath);
+  const poolEvidence = new RegExp(`^src/assets/data/${safeSeason}/pools/pool-schedules/[a-z0-9_-]+/(\\d{4}-\\d{2}-\\d{2})/[^/]+\\.pdf$`);
+  const otherEvidence = new RegExp(`^src/assets/data/${safeSeason}/(meets/meet-schedules|teams/team-schedules)/[^/]+\\.pdf$`);
+  const poolMatch = documentPath.match(poolEvidence);
+  if (poolMatch) {
+    const date = new Date(`${poolMatch[1]}T00:00:00Z`);
+    return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === poolMatch[1];
+  }
+  return otherEvidence.test(documentPath);
 }
 
 function findUnexpectedChanges(documentPaths, season) {

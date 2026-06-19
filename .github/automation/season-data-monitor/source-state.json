@@ -1,11 +1,11 @@
 {
   "season": 2026,
-  "acceptedOn": "2026-06-18",
+  "acceptedOn": "2026-06-19",
   "documents": [
     {
       "domain": "pools",
       "label": "Dickinson pool schedule",
-      "localPath": "pools/pool-schedules/Dickenson.pdf",
+      "localPath": "pools/pool-schedules/dcp/2026-06-17/Dickenson.pdf",
       "url": "https://columbiaassociation.org/wp-content/uploads/Dickenson.pdf",
       "sourceIds": [
         "pool:dcp:schedule"
@@ -18,20 +18,20 @@
     {
       "domain": "pools",
       "label": "Bryant Woods pool schedule",
-      "localPath": "pools/pool-schedules/Bryant_Woods.pdf",
+      "localPath": "pools/pool-schedules/bwp/2026-06-19/Bryant_Woods.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Bryant_Woods.pdf",
       "sourceIds": [
         "pool:bwp:schedule"
       ],
-      "etag": "\"6a31617d-da79\"",
-      "lastModified": "Tue, 16 Jun 2026 14:45:17 GMT",
-      "contentLength": "55929",
-      "sha256": "3751e539278ba8d7b4223270609bfe703e2f0cdde8903b94f1bb8c295e875833"
+      "etag": "\"6a345e79-e79d\"",
+      "lastModified": "Thu, 18 Jun 2026 21:09:13 GMT",
+      "contentLength": "59293",
+      "sha256": "35c49b9c450c4cf8012f5003498d59314c3126e86be180044d151af937a35d66"
     },
     {
       "domain": "pools",
       "label": "Clary's Forest pool schedule",
-      "localPath": "pools/pool-schedules/Clarys_Forest.pdf",
+      "localPath": "pools/pool-schedules/cfp/2026-06-17/Clarys_Forest.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Clarys_Forest.pdf",
       "sourceIds": [
         "pool:cfp:schedule"
@@ -44,7 +44,7 @@
     {
       "domain": "pools",
       "label": "Clemens Crossing pool schedule",
-      "localPath": "pools/pool-schedules/Clemens_Crossing.pdf",
+      "localPath": "pools/pool-schedules/ccp/2026-06-17/Clemens_Crossing.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Clemens_Crossing.pdf",
       "sourceIds": [
         "pool:ccp:schedule"
@@ -57,7 +57,7 @@
     {
       "domain": "pools",
       "label": "Dasher Green pool schedule",
-      "localPath": "pools/pool-schedules/Dasher_Green.pdf",
+      "localPath": "pools/pool-schedules/dgp/2026-06-17/Dasher_Green.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Dasher_Green.pdf",
       "sourceIds": [
         "pool:dgp:schedule"
@@ -70,7 +70,7 @@
     {
       "domain": "pools",
       "label": "Dorsey Hall pool schedule",
-      "localPath": "pools/pool-schedules/Dorsey_Hall.pdf",
+      "localPath": "pools/pool-schedules/dhp/2026-06-17/Dorsey_Hall.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Dorsey_Hall.pdf",
       "sourceIds": [
         "pool:dhp:schedule"
@@ -83,7 +83,7 @@
     {
       "domain": "pools",
       "label": "Faulkner Ridge pool schedule",
-      "localPath": "pools/pool-schedules/Faulkner_Ridge.pdf",
+      "localPath": "pools/pool-schedules/frp/2026-06-17/Faulkner_Ridge.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Faulkner_Ridge.pdf",
       "sourceIds": [
         "pool:frp:schedule"
@@ -96,7 +96,7 @@
     {
       "domain": "pools",
       "label": "Hawthorn pool schedule",
-      "localPath": "pools/pool-schedules/Hawthorn.pdf",
+      "localPath": "pools/pool-schedules/hap/2026-06-17/Hawthorn.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Hawthorn.pdf",
       "sourceIds": [
         "pool:hap:schedule"
@@ -109,7 +109,7 @@
     {
       "domain": "pools",
       "label": "Hobbit's Glen pool schedule",
-      "localPath": "pools/pool-schedules/Hobbits_Glen.pdf",
+      "localPath": "pools/pool-schedules/hgp/2026-06-17/Hobbits_Glen.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Hobbits_Glen.pdf",
       "sourceIds": [
         "pool:hgp:schedule"
@@ -122,7 +122,7 @@
     {
       "domain": "pools",
       "label": "Hopewell pool schedule",
-      "localPath": "pools/pool-schedules/Hopewell.pdf",
+      "localPath": "pools/pool-schedules/hwp/2026-06-17/Hopewell.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Hopewell.pdf",
       "sourceIds": [
         "pool:hwp:schedule"
@@ -135,7 +135,7 @@
     {
       "domain": "pools",
       "label": "Huntington pool schedule",
-      "localPath": "pools/pool-schedules/Huntington.pdf",
+      "localPath": "pools/pool-schedules/hup/2026-06-17/Huntington.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Huntington.pdf",
       "sourceIds": [
         "pool:hup:schedule"
@@ -148,7 +148,7 @@
     {
       "domain": "pools",
       "label": "Jeffers Hill pool schedule",
-      "localPath": "pools/pool-schedules/Jeffers_Hill.pdf",
+      "localPath": "pools/pool-schedules/jhp/2026-06-17/Jeffers_Hill.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Jeffers_Hill.pdf",
       "sourceIds": [
         "pool:jhp:schedule"
@@ -161,7 +161,7 @@
     {
       "domain": "pools",
       "label": "Kendall Ridge pool schedule",
-      "localPath": "pools/pool-schedules/Kendall_Ridge.pdf",
+      "localPath": "pools/pool-schedules/krp/2026-06-17/Kendall_Ridge.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Kendall_Ridge.pdf",
       "sourceIds": [
         "pool:krp:schedule"
@@ -174,7 +174,7 @@
     {
       "domain": "pools",
       "label": "Locust Park pool schedule",
-      "localPath": "pools/pool-schedules/Locust_Park.pdf",
+      "localPath": "pools/pool-schedules/lpp/2026-06-17/Locust_Park.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Locust_Park.pdf",
       "sourceIds": [
         "pool:lpp:schedule"
@@ -187,7 +187,7 @@
     {
       "domain": "pools",
       "label": "Longfellow pool schedule",
-      "localPath": "pools/pool-schedules/Longfellow.pdf",
+      "localPath": "pools/pool-schedules/lfp/2026-06-17/Longfellow.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Longfellow.pdf",
       "sourceIds": [
         "pool:lfp:schedule"
@@ -200,7 +200,7 @@
     {
       "domain": "pools",
       "label": "MacGill's Common pool schedule",
-      "localPath": "pools/pool-schedules/Macgills_Common.pdf",
+      "localPath": "pools/pool-schedules/mcp/2026-06-17/Macgills_Common.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Macgills_Common.pdf",
       "sourceIds": [
         "pool:mcp:schedule"
@@ -213,7 +213,7 @@
     {
       "domain": "pools",
       "label": "Phelps Luck pool schedule",
-      "localPath": "pools/pool-schedules/Phelps_Luck.pdf",
+      "localPath": "pools/pool-schedules/plp/2026-06-17/Phelps_Luck.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Phelps_Luck.pdf",
       "sourceIds": [
         "pool:plp:schedule"
@@ -226,7 +226,7 @@
     {
       "domain": "pools",
       "label": "River Hill pool schedule",
-      "localPath": "pools/pool-schedules/River_Hill.pdf",
+      "localPath": "pools/pool-schedules/rhp/2026-06-17/River_Hill.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/River_Hill.pdf",
       "sourceIds": [
         "pool:rhp:schedule"
@@ -239,7 +239,7 @@
     {
       "domain": "pools",
       "label": "Running Brook pool schedule",
-      "localPath": "pools/pool-schedules/Running_Brook.pdf",
+      "localPath": "pools/pool-schedules/rbp/2026-06-17/Running_Brook.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Running_Brook.pdf",
       "sourceIds": [
         "pool:rbp:schedule"
@@ -252,7 +252,7 @@
     {
       "domain": "pools",
       "label": "Stevens Forest pool schedule",
-      "localPath": "pools/pool-schedules/Stevens_Forest.pdf",
+      "localPath": "pools/pool-schedules/sfp/2026-06-17/Stevens_Forest.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Stevens_Forest.pdf",
       "sourceIds": [
         "pool:sfp:schedule"
@@ -265,7 +265,7 @@
     {
       "domain": "pools",
       "label": "Swansfield pool schedule",
-      "localPath": "pools/pool-schedules/Swansfield.pdf",
+      "localPath": "pools/pool-schedules/swp/2026-06-17/Swansfield.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Swansfield.pdf",
       "sourceIds": [
         "pool:swp:schedule"
@@ -278,7 +278,7 @@
     {
       "domain": "pools",
       "label": "Talbott Springs pool schedule",
-      "localPath": "pools/pool-schedules/Talbott_Springs.pdf",
+      "localPath": "pools/pool-schedules/tsp/2026-06-17/Talbott_Springs.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Talbott_Springs.pdf",
       "sourceIds": [
         "pool:tsp:schedule"
@@ -291,7 +291,7 @@
     {
       "domain": "pools",
       "label": "Thunder Hill pool schedule",
-      "localPath": "pools/pool-schedules/Thunder_Hill.pdf",
+      "localPath": "pools/pool-schedules/thp/2026-06-17/Thunder_Hill.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Thunder_Hill.pdf",
       "sourceIds": [
         "pool:thp:schedule"
@@ -637,7 +637,7 @@
       ],
       "fingerprint": "outdoor-pool-schedules",
       "label": "Columbia Association pool schedule page",
-      "sha256": "e82a6e6d6522cbb5e29f39cee5a6ed044274db34ae1245ed8f813664539aa53d",
+      "sha256": "2321747a3f17430992330c5843c215268ebbaa15e2e53f4edb8bbbf49810f89b",
       "sourceIds": [
         "pools:outdoor-schedule-index"
       ],
