@@ -188,13 +188,22 @@ describe('PoolPeriodScheduleService', () => {
           }, {
             weekDays: ['Mon'], startTime: '1:00PM', endTime: '2:00PM',
             types: ['Laps'], accessStatus: 'public'
+          }, {
+            weekDays: ['Mon'], types: ['Closed'], accessStatus: 'closed-to-public'
+          }, {
+            weekDays: ['Mon'], startTime: 1, endTime: '2:00PM',
+            types: ['Malformed'], accessStatus: 'restricted'
           }]
         }]
       });
 
       assert.deepEqual(
         service.getWeekScheduleForDate(new Date(2026, 5, 1))[0].timeSlots.map(slot => slot.startTime),
-        ['1:00PM', '3:00PM']
+        ['1:00PM', '3:00PM', 1]
+      );
+      assert.deepEqual(
+        service.getTimeSlotsForDate('2026-06-01', 'Mon').map(slot => slot.startTime),
+        ['1:00PM', '3:00PM', undefined, 1]
       );
     });
 

@@ -434,7 +434,7 @@ test('[WF-AGENDA-009] completed meets advance only the dedicated My Meet Day rou
   })).toEqual({ headingsTopAligned: true, itemsOccupySeparateRows: true, listsTopAligned: true });
   await page.setViewportSize(AUDIENCE_VIEWPORTS.COMPACT_PHONE);
   await expect.poll(() => paymentMethods.evaluate(element => {
-    const menu = element.parentElement.querySelector('.my-meet-day__concessions-menu');
+    const menu = element.closest('.my-meet-day__fact--concessions').querySelector('.my-meet-day__concessions-menu');
     const groups = [...menu.querySelectorAll('.my-meet-day__concessions-group')];
     const firstGroup = groups[0];
     const headingTextLeft = firstGroup.querySelector('strong').getBoundingClientRect().right

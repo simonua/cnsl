@@ -83,10 +83,10 @@ test('[WF-RESOURCES-003] arm-marking guidance uses the mobile image without over
   await expect(guide).toContainText("arm must be completely dry");
   await expect(guide.locator('ol > li').nth(1)).toContainText("relay position in parentheses");
   await expect.poll(() => introduction.evaluate(element => {
-    const guideElement = document.getElementById('arm-markings');
+    const guideElement = globalThis.document.getElementById('arm-markings');
     const introductionBounds = element.getBoundingClientRect();
     const guideBounds = guideElement.getBoundingClientRect();
-    const styles = getComputedStyle(element);
+    const styles = globalThis.getComputedStyle(element);
     return {
       leftInset: Math.round(introductionBounds.left - guideBounds.left),
       rightInset: Math.round(guideBounds.right - introductionBounds.right),

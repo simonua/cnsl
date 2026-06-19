@@ -315,9 +315,22 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
     sortSlots(slots) {
       const timeUtils = this.getTimeUtils();
       if (!timeUtils) return slots;
-      return [...slots].sort((first, second) => {
-        return timeUtils.timeStringToMinutes(first.startTime) - timeUtils.timeStringToMinutes(second.startTime);
-      });
+      return slots.map((slot, index) => {
+        let startMinutes = null;
+        if (typeof slot.startTime === 'string') {
+          try {
+            startMinutes = timeUtils.timeStringToMinutes(slot.startTime);
+          } catch (_error) {
+            console.warn(`[PoolPeriodScheduleService] Preserving slot with invalid start time for ${this.poolName}:`, slot);
+          }
+        }
+        return { index, slot, startMinutes };
+      }).sort((first, second) => {
+        if (first.startMinutes === null && second.startMinutes === null) return first.index - second.index;
+        if (first.startMinutes === null) return 1;
+        if (second.startMinutes === null) return -1;
+        return first.startMinutes - second.startMinutes;
+      }).map(entry => entry.slot);
     }
 
     /**

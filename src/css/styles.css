@@ -1522,7 +1522,7 @@ main h1 {
 }
 
 .my-meet-day__payment-summary {
-  align-items: center;
+  align-items: flex-start;
   display: flex;
   gap: 0.75rem;
   justify-content: space-between;
