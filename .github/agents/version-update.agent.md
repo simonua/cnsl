@@ -57,6 +57,8 @@ In Release mode:
 
 The What's New page is for families and visitors, not an engineering changelog. Use concise benefit-oriented language and describe only observable behavior backed by the diff.
 
+Keep each note broadly applicable. Describe the general capability or visitor benefit, and omit individual team or venue names plus team-specific operational particulars such as exact arrival or warm-up times, parking locations, merchandise locations, concession offerings or payment methods, and similar guidance that applies only to one team or meet.
+
 Whenever an item is added to `Upcoming` or a release is versioned, reevaluate every item in the affected list and rank the items from most to least important to visitors. For a list about to be versioned, lead with its highest-impact visitor-facing feature additions: new capabilities and substantial workflow expansions should appear before fixes, refinements, and presentation changes of comparable importance. A safety- or correctness-critical item may precede a feature addition only when its visitor impact is clearly greater.
 
 Apply this order of consideration:
