@@ -484,6 +484,9 @@ describe('MeetDayGuideService', () => {
       assert.deepEqual(MeetDayGuideService.getConcessionLines({
         paymentMethods: [PaymentMethod.PAYPAL]
       }, 'Marlins'), ['Marlins accept PayPal.']);
+      assert.deepEqual(MeetDayGuideService.getConcessionLines({
+        paymentMethods: [PaymentMethod.PAYPAL]
+      }), ['The home team accepts PayPal.']);
       assert.deepEqual(MeetDayGuideService.getPaymentMethods({
         paymentMethods: [PaymentMethod.VENMO, 'Venmo', PaymentMethod.CASH, PaymentMethod.VENMO]
       }), [PaymentMethod.VENMO, PaymentMethod.CASH]);

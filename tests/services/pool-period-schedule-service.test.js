@@ -205,6 +205,10 @@ describe('PoolPeriodScheduleService', () => {
         service.getTimeSlotsForDate('2026-06-01', 'Mon').map(slot => slot.startTime),
         ['1:00PM', '3:00PM', undefined, 1]
       );
+      assert.deepEqual(
+        service.sortSlots([{ notes: 'Untimed' }, { startTime: '1:00PM', notes: 'Timed' }]).map(slot => slot.notes),
+        ['Timed', 'Untimed']
+      );
     });
 
     it('formats schedule lookup dates from local calendar fields', () => {
