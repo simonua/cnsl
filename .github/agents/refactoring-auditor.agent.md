@@ -2,7 +2,11 @@
 name: refactoring-auditor
 description: "Audits CNSL engineering health, obsolete compatibility paths, technical debt, and measurement-led performance opportunities; updates the refactoring plan with evidence-based high, medium, and low priorities."
 target: github-copilot
-tools: [read, search, edit, execute]
+tools:
+	- read
+	- search
+	- edit
+	- execute
 ---
 
 # Refactoring Auditor

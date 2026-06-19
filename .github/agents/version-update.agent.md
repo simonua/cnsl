@@ -3,7 +3,11 @@ name: version-update
 description: "Maintain CNSL release metadata and What's New content. Use when completing significant visitor-facing functionality, preparing an Upcoming feature note, releasing, bumping APP_VERSION, or documenting changes since the last app release. Do not use to interpret annual-source evidence or author the initial note for a material data correction; season-data-reviewer owns that work."
 argument-hint: "Describe unreleased feature changes, or supply a new stable release version such as 2.2.0"
 target: github-copilot
-tools: [read, search, edit, execute]
+tools:
+	- read
+	- search
+	- edit
+	- execute
 ---
 
 # Version Update

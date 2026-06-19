@@ -2,7 +2,11 @@
 name: season-data-reviewer
 description: "Review the active year's official online sources, resolve authority and confidence, and prepare annual application-data updates when represented data or visitor-used destinations changed. Use for deliberate active-year update checks, locally reported source differences, changed official PDFs or URLs, and current pool, meet, or team corrections. Do not use for target-year preparation or manager-supplied meet guidance."
 target: github-copilot
-tools: [read, search, edit, execute]
+tools:
+  - read
+  - search
+  - edit
+  - execute
 ---
 
 # Seasonal Data Reviewer
