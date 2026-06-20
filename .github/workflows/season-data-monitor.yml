@@ -106,16 +106,13 @@ jobs:
             --body-file "$pr_body")"
           echo "pr_url=$pr_url" >> "$GITHUB_OUTPUT"
 
-      - name: Prepare email notification
+      - name: Summarize monitor result
         if: always()
-        id: notification
         env:
           BASELINE_CHANGED: ${{ steps.monitor.outputs.baseline_changed }}
           CANDIDATE_CHANGED: ${{ steps.monitor.outputs.candidate_changed }}
           CHECKED_ON: ${{ steps.monitor.outputs.checked_on }}
           DOCUMENT_COUNT: ${{ steps.monitor.outputs.document_count }}
-          EMAIL_FROM: ${{ vars.SEASON_MONITOR_EMAIL_FROM }}
-          EMAIL_TO: ${{ vars.SEASON_MONITOR_EMAIL_TO }}
           ISSUE_OUTCOME: ${{ steps.review_issue.outcome }}
           ISSUE_URL: ${{ steps.review_issue.outputs.issue_url }}
           MONITOR_OUTCOME: ${{ steps.monitor.outcome }}
@@ -142,12 +139,11 @@ jobs:
             status='clean'
           fi
 
-          subject="CNSL season monitor: ${status} (${SEASON:-unknown})"
-          body_path="$RUNNER_TEMP/season-monitor-email-body.txt"
-          message_path="$RUNNER_TEMP/season-monitor-email.txt"
+          heading="CNSL season monitor: ${status} (${SEASON:-unknown})"
           workflow_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
 
           {
+            printf '## %s\n\n' "$heading"
             printf 'Status: %s\n' "$status"
             printf 'Season: %s\n' "${SEASON:-unknown}"
             printf 'Checked on: %s\n' "${CHECKED_ON:-not completed}"
@@ -159,44 +155,4 @@ jobs:
               printf '\n'
               cat .github/automation/season-data-monitor/update-report.md
             fi
-          } > "$body_path"
-
-          {
-            printf 'From: %s\r\n' "$EMAIL_FROM"
-            printf 'To: %s\r\n' "$EMAIL_TO"
-            printf 'Subject: %s\r\n' "$subject"
-            printf 'Content-Type: text/plain; charset=UTF-8\r\n'
-            printf '\r\n'
-            cat "$body_path"
-          } > "$message_path"
-
-          echo "message_path=$message_path" >> "$GITHUB_OUTPUT"
-          echo "## $subject" >> "$GITHUB_STEP_SUMMARY"
-          cat "$body_path" >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Send email notification
-        if: always() && steps.notification.outcome == 'success'
-        env:
-          EMAIL_FROM: ${{ vars.SEASON_MONITOR_EMAIL_FROM }}
-          EMAIL_TO: ${{ vars.SEASON_MONITOR_EMAIL_TO }}
-          SMTP_PASSWORD: ${{ secrets.SEASON_MONITOR_SMTP_PASSWORD }}
-          SMTP_URL: ${{ vars.SEASON_MONITOR_SMTP_URL }}
-          SMTP_USERNAME: ${{ secrets.SEASON_MONITOR_SMTP_USERNAME }}
-        shell: bash
-        run: |
-          : "${EMAIL_FROM:?Configure the SEASON_MONITOR_EMAIL_FROM repository variable.}"
-          : "${EMAIL_TO:?Configure the SEASON_MONITOR_EMAIL_TO repository variable.}"
-          : "${SMTP_PASSWORD:?Configure the SEASON_MONITOR_SMTP_PASSWORD repository secret.}"
-          : "${SMTP_URL:?Configure the SEASON_MONITOR_SMTP_URL repository variable.}"
-          : "${SMTP_USERNAME:?Configure the SEASON_MONITOR_SMTP_USERNAME repository secret.}"
-
-          curl --fail --show-error --silent \
-            --connect-timeout 20 \
-            --max-time 60 \
-            --retry 2 \
-            --ssl-reqd \
-            --url "$SMTP_URL" \
-            --user "$SMTP_USERNAME:$SMTP_PASSWORD" \
-            --mail-from "$EMAIL_FROM" \
-            --mail-rcpt "$EMAIL_TO" \
-            --upload-file '${{ steps.notification.outputs.message_path }}'
+          } >> "$GITHUB_STEP_SUMMARY"

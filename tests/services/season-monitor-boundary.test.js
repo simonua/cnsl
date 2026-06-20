@@ -84,7 +84,9 @@ describe('season monitor evidence boundary', () => {
       assert.match(seasonMonitor, /gh issue create/);
       assert.match(seasonMonitor, /gh pr create/);
       assert.match(seasonMonitor, /if: always\(\)/);
-      assert.match(seasonMonitor, /SEASON_MONITOR_SMTP_URL/);
+      assert.match(seasonMonitor, /name: Summarize monitor result/);
+      assert.match(seasonMonitor, /GITHUB_STEP_SUMMARY/);
+      assert.doesNotMatch(seasonMonitor, /SMTP_|SEASON_MONITOR_EMAIL|--mail-from|--mail-rcpt/);
       assert.doesNotMatch(seasonMonitor, /copilot-swe-agent|season-data-reviewer\.agent/);
       assert.doesNotMatch(workflowFiles.join('\n'), /refactoring-audit\.yml/);
     });

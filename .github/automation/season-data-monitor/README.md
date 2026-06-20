@@ -38,18 +38,9 @@ Before inspecting sources, each run compares the UTC calendar year with the conf
 
 The workflow uses its built-in token to create the narrowly bounded baseline pull request and deduplicated tracking issue. Automatic Copilot assignment through GitHub's API is not used. Repository settings must allow GitHub Actions to create and approve pull requests; the workflow never approves or merges its own pull request.
 
-Configure these repository variables for the required email after every clean, skipped, changed, or failed run:
+Notifications stay within GitHub and require no mail service or notification secrets. A source-content difference creates or reuses a review issue, and a metadata-only refresh creates a baseline pull request. Those actionable artifacts use the repository's normal GitHub notification settings. A failed check remains a failed workflow run and can use the account's Actions notification preferences. Clean and skipped runs do not create an issue or pull request.
 
-- `SEASON_MONITOR_SMTP_URL`: SMTP endpoint including its scheme and port, such as `smtp://smtp.office365.com:587` for STARTTLS or `smtps://smtp.example.com:465` for implicit TLS.
-- `SEASON_MONITOR_EMAIL_FROM`: sender address accepted by the SMTP account.
-- `SEASON_MONITOR_EMAIL_TO`: notification recipient address.
-
-Configure these repository secrets:
-
-- `SEASON_MONITOR_SMTP_USERNAME`: SMTP account name.
-- `SEASON_MONITOR_SMTP_PASSWORD`: SMTP password or provider-issued app password.
-
-The email reports the outcome, source counts, workflow run, and any review issue or deterministic pull request. Candidate emails also include the generated review report. Missing or rejected SMTP configuration fails the workflow so a silent notification gap remains visible in GitHub Actions.
+Every run writes an Actions job summary with the status, source counts, workflow link, any review issue or baseline pull request, and the generated review report when one exists. This keeps non-actionable results available in the run history without sending a separate notification.
 
 The reviewer is constrained to active-season annual data, retained official evidence, accepted-source metadata, and the monitor baseline. It runs `pnpm run validate:data`, `pnpm run lint`, and `pnpm run build` for a material update, plus only the exact tests for any changed schema, validator, configuration, or consumer contract. Publication remains a separate, explicit `publish` step.
 
