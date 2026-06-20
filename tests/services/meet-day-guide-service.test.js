@@ -297,7 +297,7 @@ describe('MeetDayGuideService', () => {
         ...concessions.drinkItems
       ]);
       assert.match(homeHtml, /Fixture home &lt;script&gt; parking note\./);
-      assert.doesNotMatch(homeHtml, /Fixture visitor parking note\.|<script>/);
+      assert.doesNotMatch(homeHtml, /Fixture visitor parking note\.|<script>/i);
       assert.match(homeHtml, /<dt>Favorites Arrival<\/dt>/);
       assert.doesNotMatch(homeHtml, /Gates open/);
       assert.match(homeHtml, /href="#icon-banknote"/);
