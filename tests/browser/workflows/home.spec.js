@@ -49,6 +49,8 @@ test('[WF-HOME-001] season summary and sharing actions appear only on the home p
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'X (opens in new tab)' })).toBeFocused();
   await page.keyboard.press('Tab');
+  await expect(page.locator('.share-site__install').getByRole('link', { name: 'Install app' })).toBeFocused();
+  await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Send Feedback' })).toBeFocused();
 
   for (const method of ['text', 'email', 'facebook', 'x']) {
