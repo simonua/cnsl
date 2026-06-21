@@ -147,6 +147,9 @@ test('[WF-NAV-003] home startup falls back to directory document prefetches', as
 
 for (const scenario of WARMED_ROUTE_SCENARIOS) {
   test(`[${scenario.reference}] ${scenario.title} navigation keeps Home visible until primary rendering is ready`, async ({ page }) => {
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push({ name: error.name, message: error.message }));
+
     await page.goto('/index.html');
     await page.evaluate(() => globalThis.cnslRouteWarmup.startupPromise);
 
@@ -180,5 +183,6 @@ for (const scenario of WARMED_ROUTE_SCENARIOS) {
 
     await expect(page).toHaveURL(new RegExp(`/${scenario.path.replace('.', '\\.')}\u0024`));
     await expect(page.locator(scenario.readySelector)).toHaveAttribute('aria-busy', 'false');
+    expect(pageErrors).toEqual([]);
   });
 }

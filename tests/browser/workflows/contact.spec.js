@@ -8,7 +8,12 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('[WF-CONTACT-001] author contact options are collected on the Contact page', async ({ page }) => {
-  await page.goto('/contact.html');
+  const pageErrors = [];
+  page.on('pageerror', error => pageErrors.push({ name: error.name, message: error.message }));
+
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Send Feedback' }).click();
+  await expect(page).toHaveURL(/\/contact\.html$/);
   const appVersion = await page.evaluate(() => globalThis.APP_VERSION);
   const bugFeatureSubject = encodeURIComponent(`CA Pool & CNSL Assistant - Bug / Feature - Version ${appVersion}`);
 
@@ -18,4 +23,5 @@ test('[WF-CONTACT-001] author contact options are collected on the Contact page'
   await expect(page.getByRole('link', { name: 'Report a data issue' })).toHaveAttribute('href', 'mailto:simonkurtz+pool-app@gmail.com?subject=CA%20Pool%20%26%20CNSL%20Assistant%20-%20Data');
   await expect(page.getByRole('link', { name: 'Connect with Simon on LinkedIn (opens in new tab)' })).toHaveAttribute('href', 'https://www.linkedin.com/in/simonkurtz');
   await expect(page.getByRole('link', { name: 'Message Simon on Facebook (opens in new tab)' })).toHaveAttribute('href', 'https://www.facebook.com/simonkurtz82');
+  expect(pageErrors).toEqual([]);
 });
