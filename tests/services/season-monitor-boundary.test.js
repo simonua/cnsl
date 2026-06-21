@@ -52,12 +52,29 @@ describe('season monitor evidence boundary', () => {
       const workflowDefinitions = await Promise.all(workflowFiles.map(async (fileName) => {
         return fs.readFile(path.join(workflowsRoot, fileName), 'utf8');
       }));
+      const packageDefinition = JSON.parse(await fs.readFile(path.join(repositoryRoot, 'package.json'), 'utf8'));
       const browser = await fs.readFile(path.join(workflowsRoot, 'browser-verification.yml'), 'utf8');
       const refactoringAudit = await fs.readFile(path.join(workflowsRoot, 'refactoring-audit.yml'), 'utf8');
       const seasonMonitor = await fs.readFile(path.join(workflowsRoot, 'season-data-monitor.yml'), 'utf8');
 
-      assert.match(browser, /^name: Browser Verification$/m);
+      assert.match(browser, /^name: Scheduled Test Verification$/m);
+      assert.match(browser, /pnpm run test:coverage/);
       assert.match(browser, /pnpm run test:browser:complete/);
+      assert.match(packageDefinition.scripts['test:coverage'], /--test-coverage-lines=100/);
+      assert.match(packageDefinition.scripts['test:coverage'], /--test-coverage-functions=100/);
+      assert.match(packageDefinition.scripts['test:coverage'], /--test-coverage-branches=100/);
+      assert.match(browser, /issues: write/);
+      assert.match(browser, /id: unit_coverage[\s\S]*?continue-on-error: true/);
+      assert.match(browser, /id: browser_tests[\s\S]*?continue-on-error: true/);
+      assert.match(browser, /steps\.unit_coverage\.outcome == 'failure'/);
+      assert.match(browser, /steps\.browser_tests\.outcome == 'failure'/);
+      assert.match(browser, /Scheduled test verification failure/);
+      assert.match(browser, /TEST_VERIFICATION_RECIPIENT: simonua/);
+      assert.match(browser, /gh issue create/);
+      assert.match(browser, /gh issue comment/);
+      assert.match(browser, /gh issue edit "\$issue_url" --add-assignee "\$TEST_VERIFICATION_RECIPIENT"/);
+      assert.match(browser, /gh issue close/);
+      assert.match(browser, /name: Fail scheduled test verification/);
       assert.deepEqual(workflowFiles.filter((fileName) => fileName.endsWith('browser-verification.yml')), ['browser-verification.yml']);
 
       const seasonalSchedules = [browser, seasonMonitor].flatMap((workflow) => {
@@ -68,8 +85,8 @@ describe('season monitor evidence boundary', () => {
         assert.strictEqual(schedule.split(/\s+/)[3], '5-7');
       });
 
-      assert.match(browser, /Runs Sundays at 05:47 UTC during May, June, and July only/);
-      assert.match(browser, /cron: '47 5 \* 5-7 0'/);
+      assert.match(browser, /Runs nightly at 05:47 UTC during May, June, and July only/);
+      assert.match(browser, /cron: '47 5 \* 5-7 \*'/);
       assert.match(browser, /workflow_dispatch:/);
       assert.match(browser, /Running browser verification requested through workflow dispatch/);
       assert.match(browser, /date --utc --date='7 days ago'/);

@@ -42,7 +42,7 @@ Use keyboard-only navigation and at least one available screen reader on the HTT
 | Settings | Theme, location, favorites, and clearing settings have labels and usable status feedback. |
 | Offline page | Status and recovery link are understandable without visual context. |
 
-Automated axe results do not substitute for this walkthrough. Do not state full WCAG conformance unless manual evidence has been recorded.
+Automated axe results do not substitute for this walkthrough. Do not state full WCAG conformance unless manual evidence has been recorded. During May, June, and July, scheduled verification runs nightly after a push to `main` in the preceding seven days. It runs the complete unit suite with 100% line, branch, and function coverage thresholds before the complete Chromium workflow and accessibility suite. A unit-test failure, sub-100% coverage result, or browser-test failure creates or updates one issue assigned to the repository owner; the next fully successful run closes that issue.
 
 ## Google Analytics Review
 
