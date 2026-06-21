@@ -3658,9 +3658,10 @@ button.pool-filter__clear:focus-visible {
   display: none;
 }
 
-.release-archive__summary:hover {
+.release-archive__summary:hover,
+.release-archive__summary:active {
   color: var(--primary-dark);
-  text-decoration: underline;
+  transform: none;
 }
 
 .release-archive__summary:focus-visible {
@@ -3675,8 +3676,21 @@ button.pool-filter__clear:focus-visible {
 .release-archive__toggle-icon {
   align-items: center;
   display: inline-flex;
+  flex: 0 0 1rem;
+  font-size: 0;
+  height: 1rem;
   justify-content: center;
   line-height: 1;
+  width: 1rem;
+}
+
+.release-archive__toggle-icon::before {
+  border-bottom: 0.55rem solid currentColor;
+  border-left: 0.35rem solid transparent;
+  border-right: 0.35rem solid transparent;
+  content: '';
+  height: 0;
+  width: 0;
 }
 
 .release-archive:not([open]) .release-archive__toggle-icon {
