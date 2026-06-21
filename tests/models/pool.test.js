@@ -168,7 +168,33 @@ describe('Pool', () => {
 
         assert.equal(pool.getCurrentStatus(), PoolStatus.CLOSED_TO_PUBLIC);
         assert.equal(pool.isOpenForNextMinutes(), false);
-        assert.equal(pool.getPublicStatusTransitionToday(), null);
+        assert.deepEqual(pool.getPublicStatusTransitionToday(), { action: 'opens', minutes: 60 });
+      } finally {
+        TimeUtils.getCurrentEasternTimeInfo = originalGetCurrentEasternTimeInfo;
+      }
+    });
+
+    it('finds the public opening after a morning swim meet', () => {
+      const originalGetCurrentEasternTimeInfo = TimeUtils.getCurrentEasternTimeInfo;
+      TimeUtils.getCurrentEasternTimeInfo = () => ({
+        date: '2026-06-20', day: 'Sat', minutes: (11 * 60) + 15, isValid: true
+      });
+
+      try {
+        const pool = new Pool(createSamplePoolData({
+          schedules: [{
+            startDate: '2026-06-19',
+            endDate: '2026-08-09',
+            hours: [
+              { weekDays: ['Sat'], startTime: '7:00AM', endTime: '12:00PM', types: ['Swim Meet'], accessStatus: 'swim-meet' },
+              { weekDays: ['Sat'], startTime: '12:00PM', endTime: '8:30PM', types: ['Rec Swim'], accessStatus: 'public' }
+            ]
+          }]
+        }));
+
+        assert.equal(pool.getCurrentStatus(), PoolStatus.SWIM_MEET);
+        assert.deepEqual(pool.getPublicStatusTransitionToday(), { action: 'opens', minutes: 45 });
+        assert.equal(pool.opensWithinNextMinutes(), true);
       } finally {
         TimeUtils.getCurrentEasternTimeInfo = originalGetCurrentEasternTimeInfo;
       }

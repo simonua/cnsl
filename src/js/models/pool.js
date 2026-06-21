@@ -201,10 +201,9 @@ if (typeof globalThis.Pool === 'undefined') {
     if (!TimeUtilsRef || !PoolStatusRef) return null;
 
     const currentStatus = this.getCurrentStatus();
-    const action = currentStatus === PoolStatusRef.CLOSED
-      ? PoolTransitionAction.OPENS
-      : currentStatus === PoolStatusRef.OPEN ? PoolTransitionAction.CLOSES : null;
-    if (!action) return null;
+    const action = currentStatus === PoolStatusRef.OPEN
+      ? PoolTransitionAction.CLOSES
+      : PoolTransitionAction.OPENS;
 
     const easternTimeInfo = TimeUtilsRef.getCurrentEasternTimeInfo();
     if (!easternTimeInfo.isValid) return null;

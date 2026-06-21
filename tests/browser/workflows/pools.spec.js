@@ -894,6 +894,10 @@ test('[WF-POOLS-027] replacement-day hours remove the recurring schedule tail', 
 
 test('[WF-POOLS-025] collapsed opening and closing countdowns update without interaction', async ({ page }) => {
   await page.clock.install({ time: activeSeasonDate('05-26T14:58:30-04:00') });
+  const closingPool = ANNUAL_POOLS[0];
+  const openingPool = ANNUAL_POOLS[1];
+  const meetPool = ANNUAL_POOLS[2];
+  await seedPreferences(page, { favoritePoolExpanded: false, favoritePoolName: meetPool.name });
   await page.route(getAnnualDataRoute('pools'), async route => {
     const response = await route.fetch();
     const poolData = await response.json();
@@ -901,12 +905,16 @@ test('[WF-POOLS-025] collapsed opening and closing countdowns update without int
       pool.schedules = [{
         startDate: `${ACTIVE_SEASON_YEAR}-05-23`,
         endDate: `${ACTIVE_SEASON_YEAR}-09-07`,
-        hours: [{
-          weekDays: ['Tue'],
-          startTime: index === 0 ? '1:00PM' : '3:00PM',
+        hours: index === 2 ? [{
+          weekDays: ['Tue'], startTime: '1:00PM', endTime: '3:00PM',
+          types: ['Swim Meet'], accessStatus: 'swim-meet'
+        }, {
+          weekDays: ['Tue'], startTime: '3:00PM', endTime: '6:00PM',
+          types: ['Rec Swim'], accessStatus: 'public'
+        }] : [{
+          weekDays: ['Tue'], startTime: index === 0 ? '1:00PM' : '3:00PM',
           endTime: index === 0 ? '3:00PM' : '6:00PM',
-          types: ['Rec Swim'],
-          accessStatus: 'public'
+          types: ['Rec Swim'], accessStatus: 'public'
         }]
       }];
       pool.scheduleOverrides = [];
@@ -916,14 +924,18 @@ test('[WF-POOLS-025] collapsed opening and closing countdowns update without int
   await page.goto('/pools.html');
   await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 
-  const closingCard = page.locator('#poolList .pool-card').first();
-  const openingCard = page.locator('#poolList .pool-card').nth(1);
+  const closingCard = page.locator(`.pool-card[data-pool-id="${closingPool.id}"]`);
+  const openingCard = page.locator(`.pool-card[data-pool-id="${openingPool.id}"]`);
+  const meetCard = page.locator(`.pool-card[data-pool-id="${meetPool.id}"]`);
   await expect(closingCard).toHaveClass(/collapsed/);
   await expect(openingCard).toHaveClass(/collapsed/);
+  await expect(meetCard).toHaveClass(/collapsed/);
   await expect(closingCard.locator('.pool-transition-summary')).toHaveText('Closes in 2 mins');
   await expect(openingCard.locator('.pool-transition-summary')).toHaveText('Opens in 2 mins');
+  await expect(meetCard.locator('.pool-transition-summary')).toHaveText('Opens in 2 mins');
 
   await page.clock.fastForward(31 * 1000);
   await expect(closingCard.locator('.pool-transition-summary')).toHaveText('Closes in 1 min');
   await expect(openingCard.locator('.pool-transition-summary')).toHaveText('Opens in 1 min');
+  await expect(meetCard.locator('.pool-transition-summary')).toHaveText('Opens in 1 min');
 });
