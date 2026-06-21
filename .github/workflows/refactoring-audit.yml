@@ -1,0 +1,87 @@
+name: Weekly Refactoring Audit
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Runs Mondays at 06:41 UTC.
+    - cron: '41 6 * * 1'
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  AUDIT_TITLE_PREFIX: Scheduled refactoring audit
+  REFACTORING_AUDIT_RECIPIENT: simonua
+
+concurrency:
+  group: weekly-refactoring-audit
+  cancel-in-progress: false
+
+jobs:
+  delegate-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout audit instructions
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Confirm Copilot assignment token is configured
+        env:
+          GH_TOKEN: ${{ secrets.COPILOT_AGENT_TOKEN }}
+        shell: bash
+        run: |
+          if [[ -z "$GH_TOKEN" ]]; then
+            echo "Repository secret COPILOT_AGENT_TOKEN is required to assign scheduled audits to Copilot cloud agent." >&2
+            exit 1
+          fi
+
+      - name: Check for an outstanding refactoring audit
+        id: pending
+        env:
+          GH_TOKEN: ${{ secrets.COPILOT_AGENT_TOKEN }}
+        shell: bash
+        run: |
+          issue_url="$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "${AUDIT_TITLE_PREFIX} in:title" --json url --jq '.[0].url')"
+          if [[ -n "$issue_url" ]]; then
+            gh issue edit "$issue_url" --add-assignee "$REFACTORING_AUDIT_RECIPIENT"
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "A refactoring audit is already awaiting review: ${issue_url}" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Delegate refactoring audit to Copilot
+        if: steps.pending.outputs.exists != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.COPILOT_AGENT_TOKEN }}
+        shell: bash
+        run: |
+          audit_date="$(date -u +%Y-%m-%d)"
+          request_json="$(jq -n \
+            --arg title "${AUDIT_TITLE_PREFIX} - ${audit_date}" \
+            --arg repo "$GITHUB_REPOSITORY" \
+            --arg recipient "$REFACTORING_AUDIT_RECIPIENT" \
+            --rawfile body .github/automation/refactoring-audit/audit-request.md \
+            '{
+              title: $title,
+              body: $body,
+              assignees: ["copilot-swe-agent[bot]"],
+              agent_assignment: {
+                target_repo: $repo,
+                base_branch: "main",
+                custom_instructions: "Follow the refactoring-auditor profile. Update docs/refactoring-plan.md only. Assign the pull request to \($recipient) and request review from \($recipient).",
+                custom_agent: "refactoring-auditor",
+                model: ""
+              }
+            }')"
+          issue_url="$(gh api \
+            --method POST \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "/repos/${GITHUB_REPOSITORY}/issues" \
+            --input - \
+            --jq '.html_url' <<< "$request_json")"
+          gh issue edit "$issue_url" --add-assignee "$REFACTORING_AUDIT_RECIPIENT"
+          echo "Delegated weekly refactoring audit to Copilot: ${issue_url}" >> "$GITHUB_STEP_SUMMARY"

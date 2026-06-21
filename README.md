@@ -114,7 +114,7 @@ Repository automation and Copilot configuration is kept in `.github/`:
 
 Automation references:
 
-- [Refactoring Audit](.github/automation/refactoring-audit/README.md) retains design notes for the retired assessment driven by the `refactoring-auditor` custom agent.
+- [Refactoring Audit](.github/automation/refactoring-audit/README.md) documents the weekly assessment driven by the `refactoring-auditor` custom agent.
 - [Seasonal Data Source Review](.github/automation/season-data-monitor/README.md) documents the active nightly detector, required deliberate semantic review, and reviewed fingerprint baseline.
 
 The separation of `automation/` from `agents/` keeps retained automation support files from being discovered as custom agent profiles.

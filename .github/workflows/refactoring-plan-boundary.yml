@@ -1,4 +1,4 @@
-name: Validate Refactoring Plan Pull Request Boundary
+name: Refactoring Plan Scope Check
 
 on:
   pull_request:

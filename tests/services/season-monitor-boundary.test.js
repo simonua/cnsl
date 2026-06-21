@@ -98,8 +98,11 @@ describe('season monitor evidence boundary', () => {
       assert.match(refactoringAudit, /workflow_dispatch:/);
       assert.match(refactoringAudit, /COPILOT_AGENT_TOKEN/);
       assert.match(refactoringAudit, /Scheduled refactoring audit/);
+      assert.match(refactoringAudit, /REFACTORING_AUDIT_RECIPIENT: simonua/);
       assert.match(refactoringAudit, /copilot-swe-agent\[bot\]/);
       assert.match(refactoringAudit, /custom_agent: "refactoring-auditor"/);
+      assert.match(refactoringAudit, /gh issue edit "\$issue_url" --add-assignee "\$REFACTORING_AUDIT_RECIPIENT"/);
+      assert.ok(refactoringAudit.includes('Assign the pull request to \\($recipient) and request review from \\($recipient).'));
       assert.match(refactoringAudit, /steps\.pending\.outputs\.exists != 'true'/);
       assert.deepEqual(workflowFiles.filter((fileName) => fileName === 'refactoring-audit.yml'), ['refactoring-audit.yml']);
       assert.ok(workflowDefinitions.includes(refactoringAudit));
