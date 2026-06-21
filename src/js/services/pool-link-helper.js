@@ -135,6 +135,22 @@ function generatePoolsPageLink(poolId, displayText) {
 }
 
 /**
+ * Generate a validated link to one meet on the meet schedule.
+ * @param {string} meetDate - Meet date in `YYYY-MM-DD` format
+ * @param {string} poolId - Published pool identifier
+ * @param {string} displayText - Link text
+ * @returns {string} Safe meet link HTML or escaped display text
+ */
+function generateMeetPageLink(meetDate, poolId, displayText) {
+  const safeDisplayText = PoolLinkSafety.escapeHtml(displayText || '');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(meetDate || '')) return safeDisplayText;
+  if (!/^[a-zA-Z0-9_-]+$/.test(poolId || '')) return safeDisplayText;
+
+  const meetUrl = `meets.html?date=${encodeURIComponent(meetDate)}&pool=${encodeURIComponent(poolId)}`;
+  return `<a href="${meetUrl}" class="location-link meet-link">${safeDisplayText}</a>`;
+}
+
+/**
  * Link every recognizable pool mentioned in published location text.
  * @param {string} locationText - Location text that may contain pool names
  * @param {Array|Map<string, string>} poolsOrIndex - Pool records or a prepared location index
@@ -261,6 +277,7 @@ globalThis.getPoolDataFromLocation = getPoolDataFromLocation;
 globalThis.formatPoolCourseLabel = formatPoolCourseLabel;
 globalThis.generatePoolsPageLink = generatePoolsPageLink;
 globalThis.generateLinkedPoolMentions = generateLinkedPoolMentions;
+globalThis.generateMeetPageLink = generateMeetPageLink;
 globalThis.generateGoogleMapsLink = generateGoogleMapsLink;
 globalThis.generateEnhancedPoolLink = generateEnhancedPoolLink;
 globalThis.generatePoolDirectionsLink = generatePoolDirectionsLink;

@@ -133,6 +133,7 @@
     }).map(meet => ({
       date: startOfDay(`${meet.date}T12:00:00`),
       label: 'Next swim event:',
+      meetDate: meet.date,
       name: meet.name || 'Meet',
       location: getMeetLocation(meet, team),
       time: getMeetDisplayTime(meet, team),
@@ -220,6 +221,20 @@
   }
 
   /**
+   * Render a meet matchup with a deep link when its host pool is known.
+   * @param {Object} event - Agenda event
+   * @param {Map<string, string>} poolLocationIndex - Prepared pool location index
+   * @returns {string} Matchup HTML
+   * @private
+   */
+  function renderMeetMatchup(event, poolLocationIndex) {
+    if (!event.teams) return '';
+
+    const poolId = globalThis.getPoolIdFromLocation(event.location, poolLocationIndex);
+    return `<span class="favorite-week__matchup">${globalThis.generateMeetPageLink(event.meetDate, poolId, event.teams)}</span>`;
+  }
+
+  /**
    * Render agenda entries grouped by calendar day.
    * @param {Array} events - Display-ready agenda entries
    * @param {number} dayHeadingLevel - Heading level for each day
@@ -250,7 +265,7 @@
               ${renderEventName(event)}
               <span class="favorite-week__location">${renderLocation(event.location, poolLocationIndex)}</span>
             </div>
-            ${event.teams ? `<span>${globalThis.HtmlSafety.escapeHtml(event.teams)}</span>` : ''}
+            ${renderMeetMatchup(event, poolLocationIndex)}
             ${event.type === 'meet' && event.time ? `<div class="sessions"><div class="session-item"><span class="session-time">${globalThis.HtmlSafety.escapeHtml(event.time)}</span></div></div>` : ''}
             ${event.sessions.length > 0 ? `<div class="sessions">${event.sessions.map(session => `
               <div class="session-item">

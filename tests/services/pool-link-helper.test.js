@@ -10,6 +10,7 @@ const {
   getPoolDataFromLocation,
   formatPoolCourseLabel,
   generateGoogleMapsLink,
+  generateMeetPageLink,
   generatePoolDirectionsLink,
   generatePoolsPageLink,
   getPoolDirectionsQuery,
@@ -131,6 +132,21 @@ describe('pool-link-helper', () => {
 
     it('returns empty string when both are missing', () => {
       assert.equal(generatePoolsPageLink(null, null), '');
+    });
+  });
+
+  describe('generateMeetPageLink', () => {
+    it('generates a validated meet link with safely rendered text', () => {
+      const link = generateMeetPageLink('2026-06-27', 'plp', 'Long Reach at <Phelps Luck>');
+
+      assert.match(link, /meets\.html\?date=2026-06-27&pool=plp/);
+      assert.match(link, /Long Reach at &lt;Phelps Luck&gt;/);
+      assert.doesNotMatch(link, /<Phelps Luck>/);
+    });
+
+    it('returns escaped text for invalid meet destinations', () => {
+      assert.equal(generateMeetPageLink('June 27', 'plp', '<Matchup>'), '&lt;Matchup&gt;');
+      assert.equal(generateMeetPageLink('2026-06-27', 'javascript:bad', '<Matchup>'), '&lt;Matchup&gt;');
     });
   });
 
@@ -258,6 +274,7 @@ describe('pool-link-helper', () => {
       assert.equal(typeof context.window.createPoolLocationIndex, 'function');
       assert.equal(typeof context.window.formatPoolCourseLabel, 'function');
       assert.equal(typeof context.window.generatePoolDirectionsLink, 'function');
+      assert.equal(typeof context.window.generateMeetPageLink, 'function');
     });
   });
 });

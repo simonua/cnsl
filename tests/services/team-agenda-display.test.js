@@ -111,6 +111,23 @@ describe('TeamAgendaDisplay', () => {
       assert.match(html, /class="session-time">7:00 AM - 12:00 PM<\/span>/);
     });
 
+    it('renders an indented matchup link to the corresponding meet', () => {
+      const html = TeamAgendaDisplay.renderEvents([{
+        date: new Date(2026, 5, 27),
+        label: 'Next swim event:',
+        meetDate: '2026-06-27',
+        name: 'Fixture Dual Meet',
+        location: 'Fixture Host Pool',
+        time: '7:00 AM - 12:00 PM',
+        sessions: [],
+        teams: 'Fixture Visitor at Fixture Host',
+        type: 'meet'
+      }], 3, [{ id: 'fixture-host', name: 'Fixture Host' }]);
+
+      assert.match(html, /class="favorite-week__matchup"><a href="meets\.html\?date=2026-06-27&pool=fixture-host"/);
+      assert.match(html, />Fixture Visitor at Fixture Host<\/a><\/span>/);
+    });
+
     it('renders decorative activity glyphs for morning and evening practices', () => {
       const html = TeamAgendaDisplay.renderEvents([{
         date: new Date(2026, 5, 17),
@@ -304,7 +321,9 @@ describe('TeamAgendaDisplay', () => {
         TeamScheduleService: testContext.TeamScheduleService,
         TimeUtils,
         createPoolLocationIndex: () => new Map(),
-        generateLinkedPoolMentions: String
+        generateLinkedPoolMentions: String,
+        generateMeetPageLink: (date, poolId, text) => text,
+        getPoolIdFromLocation: () => null
       };
       context.globalThis = context;
       vm.runInNewContext(source, context, { filename: sourcePath });

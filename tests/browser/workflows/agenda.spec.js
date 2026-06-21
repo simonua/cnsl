@@ -1,4 +1,5 @@
 const { test, expect } = require('../browser-test');
+const AxeBuilder = require('@axe-core/playwright').default;
 const AppConfig = require('../../../scripts/adapters/app-config.js');
 const {
   AUDIENCE_VIEWPORTS,
@@ -10,6 +11,7 @@ const {
 } = require('../browser-test-helpers');
 
 const ANNUAL_TEAMS = readAnnualData('teams').teams;
+const REGULAR_MEETS = readAnnualData('meets').regular_meets;
 const AGENDA_TEAM = ANNUAL_TEAMS.find(team => team.practice?.preseason?.length && team.practice?.regular);
 const FILTER_TEAM = ANNUAL_TEAMS.find(team => {
   const practice = JSON.stringify(team.practice || {});
@@ -19,9 +21,15 @@ const MEET_DAY_TEAM = ANNUAL_TEAMS.find(team => team.homeMeetGuides?.some(guide 
   const paymentMethods = guide.general?.concessions?.paymentMethods || [];
   return paymentMethods.includes('paypal') && paymentMethods.includes('venmo');
 }));
-const MEET_DAY_MEETS = readAnnualData('meets').regular_meets.filter(meet => {
+const MEET_DAY_MEETS = REGULAR_MEETS.filter(meet => {
   const names = [meet.home_team, meet.visiting_team].map(name => name.toLowerCase());
   return MEET_DAY_TEAM.keywords.some(keyword => names.includes(keyword.toLowerCase()));
+});
+const LINKED_AGENDA_MEET = REGULAR_MEETS.find(meet => meet.date && meet.home_team && meet.visiting_team && meet.location);
+const LINKED_AGENDA_TEAM = ANNUAL_TEAMS.find(team => {
+  const meetTeams = [LINKED_AGENDA_MEET.home_team, LINKED_AGENDA_MEET.visiting_team]
+    .map(name => name.toLowerCase());
+  return team.keywords.some(keyword => meetTeams.includes(keyword.toLowerCase()));
 });
 
 function getMeetReferenceTime(meetIndex, dayOffset, time = '12:00:00') {
@@ -107,8 +115,10 @@ test('[WF-AGENDA-006] desktop team agendas align to the centered team-details me
 });
 
 test('[WF-AGENDA-002] home page shows the next practices and swim event for a selected favorite team', async ({ page }) => {
-  await setAgendaReferenceTime(page);
-  await seedPreferences(page, { favoriteTeamId: AGENDA_TEAM.id });
+  const referenceTime = new Date(`${LINKED_AGENDA_MEET.date}T12:00:00-04:00`);
+  referenceTime.setDate(referenceTime.getDate() - 1);
+  await page.clock.setFixedTime(referenceTime);
+  await seedPreferences(page, { favoriteTeamId: LINKED_AGENDA_TEAM.id });
   let resolveTeamRequest;
   let confirmTeamRequest;
   const teamRequestAllowed = new Promise(resolve => { resolveTeamRequest = resolve; });
@@ -154,6 +164,26 @@ test('[WF-AGENDA-002] home page shows the next practices and swim event for a se
   await expect(page.locator('#favoriteWeekContent')).toBeHidden();
   await toggle.press('Enter');
   await expect(page.locator('#favoriteWeekContent')).toBeVisible();
+
+  const meetLink = agenda.locator('.favorite-week__matchup a[href^="meets.html?date="]');
+  await expect(meetLink).toBeVisible();
+  await expect.poll(() => meetLink.evaluate(link => {
+    const matchup = link.closest('.favorite-week__matchup');
+    const eventName = matchup.parentElement.querySelector('.favorite-week__event-name');
+    return Math.round(matchup.getBoundingClientRect().left - eventName.getBoundingClientRect().left);
+  })).toBe(0);
+  const accessibilityResults = await new AxeBuilder({ page })
+    .include('#favoriteWeek')
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+    .analyze();
+  expect(accessibilityResults.violations).toEqual([]);
+  const meetHref = await meetLink.getAttribute('href');
+  const meetUrl = new URL(meetHref, 'https://cnsl.test/');
+  await meetLink.focus();
+  await expect(meetLink).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL(new RegExp(`meets\\.html\\?date=${meetUrl.searchParams.get('date')}&pool=${meetUrl.searchParams.get('pool')}$`));
+  await expect(page.locator(`.meet-date-card[data-meet-date="${meetUrl.searchParams.get('date')}"] .meet-details[data-meet-pool-id="${meetUrl.searchParams.get('pool')}"]`)).toHaveClass(/highlighted/);
 });
 
 test('[WF-AGENDA-007] home page follows the My Meet Day experimental opt-in', async ({ page }) => {

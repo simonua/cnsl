@@ -1921,6 +1921,11 @@ button.favorite-week__toggle:focus-visible {
   padding-left: 1.65rem;
 }
 
+.favorite-week__matchup {
+  display: block;
+  padding-left: 1.65rem;
+}
+
 .favorite-week__location {
   align-items: flex-start;
   align-self: start;
