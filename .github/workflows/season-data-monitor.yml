@@ -13,6 +13,7 @@ permissions:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  SEASON_MONITOR_RECIPIENT: simonua
 
 concurrency:
   group: season-data-monitor
@@ -58,6 +59,7 @@ jobs:
               --body-file "$issue_body")"
           fi
 
+          gh issue edit "$issue_url" --add-assignee "$SEASON_MONITOR_RECIPIENT"
           echo "issue_url=$issue_url" >> "$GITHUB_OUTPUT"
 
       - name: Validate deterministic baseline update
@@ -103,7 +105,9 @@ jobs:
             --base main \
             --head "$branch" \
             --title "Refresh ${SEASON} seasonal source baseline" \
-            --body-file "$pr_body")"
+            --body-file "$pr_body" \
+            --assignee "$SEASON_MONITOR_RECIPIENT" \
+            --reviewer "$SEASON_MONITOR_RECIPIENT")"
           echo "pr_url=$pr_url" >> "$GITHUB_OUTPUT"
 
       - name: Summarize monitor result

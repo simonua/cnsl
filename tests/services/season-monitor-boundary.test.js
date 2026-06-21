@@ -45,7 +45,7 @@ describe('season monitor evidence boundary', () => {
   });
 
   describe('scheduled deterministic automation', () => {
-    it('should restore seasonal checks without automatic agent assignment', async () => {
+    it('should schedule seasonal checks and the weekly refactoring audit', async () => {
       const repositoryRoot = path.resolve(__dirname, '..', '..');
       const workflowsRoot = path.join(repositoryRoot, '.github', 'workflows');
       const workflowFiles = (await fs.readdir(workflowsRoot)).filter((fileName) => fileName.endsWith('.yml'));
@@ -53,18 +53,18 @@ describe('season monitor evidence boundary', () => {
         return fs.readFile(path.join(workflowsRoot, fileName), 'utf8');
       }));
       const browser = await fs.readFile(path.join(workflowsRoot, 'browser-verification.yml'), 'utf8');
+      const refactoringAudit = await fs.readFile(path.join(workflowsRoot, 'refactoring-audit.yml'), 'utf8');
       const seasonMonitor = await fs.readFile(path.join(workflowsRoot, 'season-data-monitor.yml'), 'utf8');
 
-      await assert.rejects(fs.access(path.join(workflowsRoot, 'refactoring-audit.yml')), { code: 'ENOENT' });
       assert.match(browser, /^name: Browser Verification$/m);
       assert.match(browser, /pnpm run test:browser:complete/);
       assert.deepEqual(workflowFiles.filter((fileName) => fileName.endsWith('browser-verification.yml')), ['browser-verification.yml']);
 
-      const recurringSchedules = workflowDefinitions.flatMap((workflow) => {
+      const seasonalSchedules = [browser, seasonMonitor].flatMap((workflow) => {
         return [...workflow.matchAll(/cron: '([^']+)'/g)].map((match) => match[1]);
       });
-      assert.ok(recurringSchedules.length > 0);
-      recurringSchedules.forEach((schedule) => {
+      assert.ok(seasonalSchedules.length > 0);
+      seasonalSchedules.forEach((schedule) => {
         assert.strictEqual(schedule.split(/\s+/)[3], '5-7');
       });
 
@@ -82,13 +82,27 @@ describe('season monitor evidence boundary', () => {
       assert.match(seasonMonitor, /validate-season-monitor-boundary\.js "\$SEASON" baseline/);
       assert.match(seasonMonitor, /source-state\.json/);
       assert.match(seasonMonitor, /gh issue create/);
+      assert.match(seasonMonitor, /SEASON_MONITOR_RECIPIENT: simonua/);
+      assert.match(seasonMonitor, /gh issue edit "\$issue_url" --add-assignee "\$SEASON_MONITOR_RECIPIENT"/);
       assert.match(seasonMonitor, /gh pr create/);
+      assert.match(seasonMonitor, /--assignee "\$SEASON_MONITOR_RECIPIENT"/);
+      assert.match(seasonMonitor, /--reviewer "\$SEASON_MONITOR_RECIPIENT"/);
       assert.match(seasonMonitor, /if: always\(\)/);
       assert.match(seasonMonitor, /name: Summarize monitor result/);
       assert.match(seasonMonitor, /GITHUB_STEP_SUMMARY/);
       assert.doesNotMatch(seasonMonitor, /SMTP_|SEASON_MONITOR_EMAIL|--mail-from|--mail-rcpt/);
       assert.doesNotMatch(seasonMonitor, /copilot-swe-agent|season-data-reviewer\.agent/);
-      assert.doesNotMatch(workflowFiles.join('\n'), /refactoring-audit\.yml/);
+      assert.match(refactoringAudit, /^name: Weekly Refactoring Audit$/m);
+      assert.match(refactoringAudit, /Runs Mondays at 06:41 UTC/);
+      assert.match(refactoringAudit, /cron: '41 6 \* \* 1'/);
+      assert.match(refactoringAudit, /workflow_dispatch:/);
+      assert.match(refactoringAudit, /COPILOT_AGENT_TOKEN/);
+      assert.match(refactoringAudit, /Scheduled refactoring audit/);
+      assert.match(refactoringAudit, /copilot-swe-agent\[bot\]/);
+      assert.match(refactoringAudit, /custom_agent: "refactoring-auditor"/);
+      assert.match(refactoringAudit, /steps\.pending\.outputs\.exists != 'true'/);
+      assert.deepEqual(workflowFiles.filter((fileName) => fileName === 'refactoring-audit.yml'), ['refactoring-audit.yml']);
+      assert.ok(workflowDefinitions.includes(refactoringAudit));
     });
 
     it('should require categorized property-level descriptions for material data pull requests', async () => {
