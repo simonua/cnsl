@@ -403,3 +403,29 @@ A user-directed My Meet Day cleanup made the relay early-departure reminder univ
 | Visitor-facing records | Unchanged | None; What's New and sitemap were not changed for this ownership cleanup. |
 | Review records | Updated | Active annual README evidence and this check-log entry; official-source timestamps remain unchanged. |
 | Reviewed source baseline | Unchanged | This normalization did not change `source-state.json`; pre-existing worktree edits were preserved. |
+
+## 2026-06-21T11:58:31-04:00 Seasonal Data Review
+
+**Active season:** 2026
+
+**Result:** Complete under the existing explicit maintainer exception for merchandise-store availability.
+
+Checked the 139-source inventory:
+
+- 76 modeled-evidence URLs were reached by `pnpm run check:data-updates`.
+- 63 uncovered official sources and application-used destinations were requested separately with live GET requests.
+- 137 required sources were successfully verified.
+- 2 application-used destinations were attempted and retained their availability exception: the Long Reach and Phelps Luck merchandise stores returned HTTP 403.
+
+The monitor reported candidates for Columbia Association's Outdoor Swim Lessons page and the Huntington Dolphins practice schedule. The outdoor lesson page retained all represented locations, weekdays, formats, dates, preparation guidance, weather policy, registration destination, and Personal Swim Training destination. CA's main lessons page independently corroborated the one-week morning and six-week evening formats, and the represented destinations remained reachable. The lesson candidate was non-material, required no normalization or schema change, and had High-confidence unchanged evidence with no conflict or residual uncertainty.
+
+Huntington's field-owning team page now explicitly publishes preseason from May 26 through June 18 and regular practices from June 19 through July 24. The live monitor confirmed that the current central CNSL practice PDF still byte-matches retained evidence; its published boundary says preseason continues through the last HCPSS school day and regular practices begin afterward. The sources do not conflict, the detailed team page owns the exact dates, and confidence is High with no residual uncertainty. `teams[id="hd"].practice.preseason[0].period` and `teams[id="hd"].practice.regular.season` were corrected without changing the schema, source destinations, or retained PDFs.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Updated | Huntington Dolphins `practice.preseason[0].period` and `practice.regular.season` in `teams/teams.json`. |
+| Application-used source destinations | Unchanged | None. |
+| Retained official PDFs | Unchanged | None. |
+| Visitor-facing records | Updated | The undated Upcoming section in What's New summarizes the corrected practice-season transition; existing June 21 sitemap dates were preserved. |
+| Review records | Updated | `OFFICIAL_SOURCE_CHECKED_AT`, `OFFICIAL_SOURCE_UPDATED_AT`, active annual README evidence, and this check-log entry. |
+| Reviewed source baseline | Updated | `source-state.json` refreshed with the accepted June 21 fingerprints and current retained-PDF metadata. |

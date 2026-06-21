@@ -334,7 +334,7 @@
         "url": "https://www.gomotionapp.com/team/reccnslhd/page/home",
         "preseason": [
           {
-            "period": "May 26 - June 19",
+            "period": "May 26 - June 18",
             "days": "Monday - Thursday",
             "location": "Huntington Pool",
             "sessions": [
@@ -345,7 +345,7 @@
           }
         ],
         "regular": {
-          "season": "June 22 - July 24",
+          "season": "June 19 - July 24",
           "morning": [
             { "days": "Tuesday - Friday", "location": "Huntington Pool", "sessions": [
               { "time": "8:00 - 8:30am", "group": "8 & Under" },

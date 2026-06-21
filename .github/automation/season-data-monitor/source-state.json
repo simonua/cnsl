@@ -1,6 +1,6 @@
 {
   "season": 2026,
-  "acceptedOn": "2026-06-19",
+  "acceptedOn": "2026-06-21",
   "documents": [
     {
       "domain": "pools",
@@ -349,7 +349,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Columbia Association outdoor swim lessons page",
-      "sha256": "5450bd4869c69654798d851d0d9f69039cdbb14b133e22f2e0251dbb80a6d9f4",
+      "sha256": "63178e7df7f87f43573504c293045e9de74c42bc805b748a2023c10318028816",
       "sourceIds": [
         "lessons:outdoor-swim-programs"
       ],
@@ -758,7 +758,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Huntington Dolphins practice schedule page",
-      "sha256": "fe6bf67477f5f5dc76870f4fea76ef9db58d0240cfa41cd54416c21c6ba43b42",
+      "sha256": "e9622a9dd3d9945541d4e6d0e28db83bcdc8249e1dbc3fe800bfcb2061e129dd",
       "sourceIds": [
         "team:hd:practice"
       ],
