@@ -1,100 +1,80 @@
 (function initializeInstallApp() {
   'use strict';
 
-  const installApp = document.getElementById('installApp');
-  const installAppContent = document.getElementById('installAppContent');
+  const androidInstallOption = document.getElementById('androidInstallOption');
+  const appleInstallOption = document.getElementById('appleInstallOption');
   const installAppButton = document.getElementById('installAppButton');
-  const installAppShortcut = document.getElementById('installAppShortcut');
-  const androidInstallInstructions = document.getElementById('androidInstallInstructions');
-  const iosInstallInstructions = document.getElementById('iosInstallInstructions');
+  const installAppStatus = document.getElementById('installAppStatus');
 
-  if (!installApp || !installAppContent || !installAppButton || !installAppShortcut
-    || !androidInstallInstructions || !iosInstallInstructions || !window.DevicePlatformService) {
+  if (!androidInstallOption || !appleInstallOption || !installAppButton || !installAppStatus
+    || !window.DevicePlatformService) {
     return;
   }
 
   const platform = window.DevicePlatformService.getPlatform(navigator);
   const isAndroid = platform === 'android';
-  const isIos = platform === 'ios';
   const isStandalone = window.DevicePlatformService.isStandalone(
     window.matchMedia('(display-mode: standalone)').matches,
     navigator.standalone
   );
 
-  if (isStandalone || (!isAndroid && !isIos)) {
-    return;
-  }
+  androidInstallOption.open = isAndroid;
+  appleInstallOption.open = platform === 'ios';
 
   /**
-   * Reveals the platform-specific install guidance and quick link.
+   * Closes the alternate platform when one instruction tile opens.
+   * @param {HTMLDetailsElement} openedOption - Platform tile that may have opened
+   * @param {HTMLDetailsElement} alternateOption - Platform tile to collapse
    * @private
    */
-  function showInstallApp() {
-    installApp.hidden = false;
-    installAppShortcut.hidden = false;
-    installAppShortcut.closest('.quick-links-grid')?.classList.add('quick-links-grid--with-install');
+  function keepOnlyOptionOpen(openedOption, alternateOption) {
+    if (openedOption.open) alternateOption.open = false;
   }
 
-  /**
-   * Hides and resets the install guidance and quick link.
-   * @private
-   */
-  function hideInstallApp() {
-    installApp.hidden = true;
-    installApp.open = false;
-    installAppShortcut.hidden = true;
-    installAppShortcut.closest('.quick-links-grid')?.classList.remove('quick-links-grid--with-install');
-    androidInstallInstructions.hidden = true;
-    iosInstallInstructions.hidden = true;
-  }
-
-  installAppShortcut.addEventListener('click', () => {
-    installApp.open = true;
-    installApp.scrollIntoView({ behavior: window.shouldReduceMotion() ? 'auto' : 'smooth', block: 'center' });
-    installApp.querySelector('summary')?.focus({ preventScroll: true });
+  androidInstallOption.addEventListener('toggle', () => {
+    keepOnlyOptionOpen(androidInstallOption, appleInstallOption);
+  });
+  appleInstallOption.addEventListener('toggle', () => {
+    keepOnlyOptionOpen(appleInstallOption, androidInstallOption);
   });
 
-  installApp.addEventListener('toggle', () => {
-    if (!installApp.open) {
-      return;
-    }
-
+  /**
+   * Publishes an approved coarse install stage when analytics is available.
+   * @param {string} action - Approved install action
+   * @private
+   */
+  function trackInstallAction(action) {
     if (window.cnslAnalytics) {
       window.cnslAnalytics.trackInteraction(
         AnalyticsInteractionType.INSTALL,
-        { action: 'instructions_open' }
+        { action }
       );
     }
+  }
 
-    window.requestAnimationFrame(() => {
-      const footer = document.querySelector('.footer');
-      if (footer) {
-        const obscuredHeight = installAppContent.getBoundingClientRect().bottom
-          - footer.getBoundingClientRect().top + 16;
-        if (obscuredHeight > 0) {
-          window.scrollBy({ top: obscuredHeight, behavior: 'instant' });
-        }
-      }
-    });
-  });
+  /**
+   * Announces the current installation result without moving focus.
+   * @param {string} message - Visitor-facing installation result
+   * @private
+   */
+  function showInstallStatus(message) {
+    installAppStatus.textContent = message;
+    installAppStatus.hidden = false;
+  }
 
-  if (isIos) {
-    installAppButton.hidden = true;
-    androidInstallInstructions.hidden = true;
-    iosInstallInstructions.hidden = false;
-    showInstallApp();
+  if (isStandalone) {
+    showInstallStatus('The web app is already open as an installed app on this device.');
     return;
   }
 
   let deferredInstallPrompt;
 
   window.addEventListener('beforeinstallprompt', event => {
+    if (!isAndroid) return;
+
     event.preventDefault();
     deferredInstallPrompt = event;
     installAppButton.hidden = false;
-    androidInstallInstructions.hidden = false;
-    iosInstallInstructions.hidden = true;
-    showInstallApp();
   });
 
   installAppButton.addEventListener('click', async () => {
@@ -104,30 +84,29 @@
 
     const installPrompt = deferredInstallPrompt;
     deferredInstallPrompt = null;
-    if (window.cnslAnalytics) {
-      window.cnslAnalytics.trackInteraction(
-        AnalyticsInteractionType.INSTALL,
-        { action: 'prompt_open' }
-      );
+    installAppButton.hidden = true;
+    trackInstallAction('prompt_open');
+    let choice;
+    try {
+      await installPrompt.prompt();
+      choice = await installPrompt.userChoice;
+    } catch {
+      showInstallStatus('The browser prompt is unavailable. You can use the browser menu steps below instead.');
+      return;
     }
-    installPrompt.prompt();
-    const choice = await installPrompt.userChoice;
-    if (window.cnslAnalytics) {
-      window.cnslAnalytics.trackInteraction(
-        AnalyticsInteractionType.INSTALL,
-        { action: choice.outcome === 'accepted' ? 'prompt_accepted' : 'prompt_dismissed' }
-      );
+    if (choice.outcome === 'accepted') {
+      trackInstallAction('prompt_accepted');
+      showInstallStatus('Thanks. Your browser is finishing the installation.');
+    } else {
+      trackInstallAction('prompt_dismissed');
+      showInstallStatus('Installation was not completed. You can use the browser menu steps below to try again.');
     }
-    hideInstallApp();
   });
 
   window.addEventListener('appinstalled', () => {
-    if (window.cnslAnalytics) {
-      window.cnslAnalytics.trackInteraction(
-        AnalyticsInteractionType.INSTALL,
-        { action: 'installed' }
-      );
-    }
-    hideInstallApp();
+    deferredInstallPrompt = null;
+    installAppButton.hidden = true;
+    trackInstallAction('installed');
+    showInstallStatus('The web app is installed and ready to open from your Home Screen.');
   });
 }());

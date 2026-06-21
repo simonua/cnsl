@@ -57,6 +57,7 @@ const pageScenarios = [
   { reference: 'SETTINGS', name: 'settings', path: '/settings.html', readySelector: '#favoritePool:not([disabled])' },
   { reference: 'RESOURCES', name: 'resources', path: '/swim-meet-resources.html' },
   { reference: 'LESSONS', name: 'lessons', path: '/lessons.html' },
+  { reference: 'INSTALL', name: 'install', path: '/install.html' },
   { reference: 'WHATS-NEW', name: 'whats new', path: '/whats-new.html' },
   { reference: 'ABOUT', name: 'about', path: '/about.html' },
   { reference: 'FAQ', name: 'faq', path: '/faq.html' },
@@ -282,10 +283,9 @@ for (const theme of ['light', 'dark']) {
         value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1'
       });
     });
-    await loadScenario(page, pageScenarios.find(scenario => scenario.name === 'home'), theme);
-    await page.getByRole('button', { name: 'Phone Install', exact: true }).click();
-    await expect(page.locator('#iosInstallInstructions')).toBeVisible();
-    await expect(page.locator('#androidInstallInstructions')).toBeHidden();
+    await loadScenario(page, pageScenarios.find(scenario => scenario.name === 'install'), theme);
+    await expect(page.locator('#appleInstallOption')).toHaveAttribute('open', '');
+    await expect(page.locator('#androidInstallOption')).not.toHaveAttribute('open', '');
 
     await expectNoAccessibilityViolations(page);
   });
@@ -298,17 +298,16 @@ for (const theme of ['light', 'dark']) {
         value: 'Mozilla/5.0 (Linux; Android 15; Mobile) AppleWebKit/537.36 Chrome/136.0 Mobile Safari/537.36'
       });
     });
-    await loadScenario(page, pageScenarios.find(scenario => scenario.name === 'home'), theme);
+    await loadScenario(page, pageScenarios.find(scenario => scenario.name === 'install'), theme);
     await page.evaluate(() => {
       const installPrompt = new Event('beforeinstallprompt', { cancelable: true });
       installPrompt.prompt = () => {};
       installPrompt.userChoice = Promise.resolve({ outcome: 'dismissed' });
       globalThis.dispatchEvent(installPrompt);
     });
-    await page.getByRole('button', { name: 'Phone Install', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Install app' })).toBeVisible();
-    await expect(page.locator('#androidInstallInstructions')).toBeVisible();
-    await expect(page.locator('#iosInstallInstructions')).toBeHidden();
+    await expect(page.locator('#androidInstallOption')).toHaveAttribute('open', '');
+    await expect(page.locator('#appleInstallOption')).not.toHaveAttribute('open', '');
 
     await expectNoAccessibilityViolations(page);
   });

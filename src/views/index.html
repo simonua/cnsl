@@ -73,7 +73,7 @@
       </div>
     </section>
     <section class="share-site" id="shareSite" aria-labelledby="shareSiteTitle" hidden>
-      <h2 class="share-site__title" id="shareSiteTitle">Please share!</h2>
+      <h2 class="share-site__title" id="shareSiteTitle">Install &amp; Share</h2>
       <div class="share-site__links">
         <button class="share-site__link" id="shareQrButton" data-analytics-share-method="qr_code" type="button" aria-controls="shareQrDialog" aria-haspopup="dialog">
           <svg class="icon share-site__icon" aria-hidden="true" focusable="false"><use href="#icon-qr-code"></use></svg>
@@ -96,6 +96,12 @@
           <span class="visually-hidden">Share on X (opens in new tab)</span>
         </a>
       </div>
+      <div class="share-site__install">
+        <a class="share-site__link" href="install.html">
+          <svg class="icon share-site__icon" aria-hidden="true" focusable="false"><use href="#icon-smartphone"></use></svg>
+          <span>Install app</span>
+        </a>
+      </div>
       <dialog class="share-qr-dialog" id="shareQrDialog" aria-labelledby="shareQrTitle" aria-describedby="shareQrUrl">
         <div class="share-qr-dialog__panel">
           <div class="share-qr-dialog__header">
@@ -115,19 +121,6 @@
         </a>
       </div>
     </section>
-    <details class="install-app" id="installApp" hidden>
-      <summary class="install-app__summary">Phone Install <span class="install-app__toggle-icon" aria-hidden="true">&#9650;</span></summary>
-      <div class="install-app__content" id="installAppContent">
-        <p class="install-app__description">Add CNSL to your Home Screen for quick access to pools, teams, and meets.</p>
-        <button class="install-app__button" id="installAppButton" type="button">Install app</button>
-        <p class="install-app__instructions" id="androidInstallInstructions" hidden>
-          On Android, tap Install app, then confirm the browser prompt to add CNSL to your Home Screen.
-        </p>
-        <p class="install-app__instructions" id="iosInstallInstructions" hidden>
-          On iPhone or iPad, tap the Share button in your browser, choose Add to Home Screen, then tap Add. If the option is unavailable, open this page in Safari and try again.
-        </p>
-      </div>
-    </details>
     </div>
   </block>
 
@@ -136,6 +129,5 @@
     <script src="js/route-warmup.js" defer></script>
     <script src="js/home-schedule.js" defer></script>
     <script src="js/home-share.js" defer></script>
-    <script src="js/install-app.js" defer></script>
   </block>
 </extends>

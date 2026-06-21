@@ -1161,96 +1161,122 @@ main h1 {
   font-weight: 400;
 }
 
-.install-app {
-  margin: 1.5rem auto 0;
-  max-width: 32rem;
-  padding: 0 1rem;
+.install-page {
+  margin: 0 auto;
+  max-width: 52rem;
+  padding: 0 0.5rem;
+}
+
+.install-page__intro {
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0 auto 1.5rem;
+  max-width: 42rem;
   text-align: center;
 }
 
-.install-app[hidden] {
+.install-page__status {
+  color: var(--text-dark);
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 0 auto 1.5rem;
+  max-width: 42rem;
+  text-align: center;
+}
+
+.install-page__status[hidden],
+.install-option__button[hidden] {
   display: none;
 }
 
-.install-app[open] {
-  margin-bottom: calc(var(--footer-height) + var(--footer-bottom-clearance) + 1rem);
+.install-options {
+  display: grid;
+  gap: 1rem;
 }
 
-.install-app__summary {
-  align-items: center;
+.install-option {
   background-color: var(--white);
   border: 1px solid var(--border-color);
-  border-radius: 0.375rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.install-option[open] {
+  border-color: var(--primary-color);
+}
+
+.install-option__summary {
+  align-items: center;
   box-sizing: border-box;
   color: var(--primary-text-color);
   cursor: pointer;
-  display: inline-flex;
-  font-size: 1.05rem;
+  display: flex;
+  font-size: 1.1rem;
   font-weight: 600;
   gap: 0.75rem;
-  justify-content: center;
+  justify-content: space-between;
   list-style: none;
-  min-height: 2.75rem;
-  padding: 0.5rem 1rem;
+  min-height: 4rem;
+  padding: 0.75rem 1rem;
   transition: var(--transition);
 }
 
-.install-app__summary::-webkit-details-marker {
+.install-option__summary::-webkit-details-marker {
   display: none;
 }
 
-.install-app__toggle-icon {
+.install-option__heading {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.65rem;
+}
+
+.install-option__heading .icon {
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+.install-option__toggle-icon {
   display: inline-flex;
 }
 
-.install-app:not([open]) .install-app__toggle-icon {
+.install-option:not([open]) .install-option__toggle-icon {
   transform: rotate(180deg);
 }
 
-.install-app__summary:hover {
-  border-color: var(--primary-color);
-  box-shadow: var(--shadow);
+.install-option__summary:hover {
+  background-color: var(--primary-soft-bg);
 }
 
-.install-app__summary:focus-visible {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px var(--primary-color);
+.install-option__summary:focus-visible {
   outline: 2px solid var(--primary-color);
-  outline-offset: 0.25rem;
+  outline-offset: -0.25rem;
 }
 
-.install-app__content {
-  padding: 1rem 0 0;
+.install-option__content {
+  border-top: 1px solid var(--border-color);
+  color: var(--text-dark);
+  line-height: 1.6;
+  padding: 1rem 1.25rem 1.25rem;
 }
 
-.install-app__description {
-  color: var(--text-muted);
-  line-height: 1.5;
-  margin: 0 auto 1rem;
-  max-width: 30rem;
+.install-option__content p {
+  margin: 0 0 1rem;
 }
 
-.install-app__button {
-  width: 100%;
-  max-width: 20rem;
+.install-option__content ol {
+  margin: 0;
+  padding-left: 1.5rem;
 }
 
-.install-app__button[hidden],
-.install-app__instructions[hidden] {
-  display: none;
+.install-option__content li + li {
+  margin-top: 0.5rem;
 }
 
-.install-app__instructions {
-  color: var(--text-muted);
-  font-size: 0.95rem;
-  line-height: 1.5;
-  max-width: 31rem;
-  margin: 1rem auto 0;
-}
-
-.install-app__instructions:focus {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 0.25rem;
+.install-option__button {
+  margin-bottom: 1.25rem;
+  width: min(100%, 20rem);
 }
 
 /* Season Info Section */
@@ -1946,6 +1972,7 @@ button.favorite-week__toggle:focus-visible {
   justify-content: center;
 }
 
+.share-site__install,
 .share-site__feedback {
   margin-top: 1rem;
 }
@@ -2135,8 +2162,7 @@ input::placeholder {
 
 /* Buttons */
 .btn,
-.btn:visited,
-.install-app__button {
+.btn:visited {
   padding: 0.875rem 1.5rem;
   font-size: 1.1rem;
   font-weight: 600;
@@ -2156,8 +2182,7 @@ input::placeholder {
   color: var(--accent-text);
 }
 
-.btn::before,
-.install-app__button::before {
+.btn::before {
   content: '';
   position: absolute;
   top: 0;
@@ -2172,17 +2197,14 @@ input::placeholder {
   margin-right: 0.35rem;
 }
 
-.btn:hover::before,
-.install-app__button:hover::before {
+.btn:hover::before {
   left: 100%;
 }
 
 .btn:hover,
 .btn:focus,
 .btn:visited:hover,
-.btn:visited:focus,
-.install-app__button:hover,
-.install-app__button:focus {
+.btn:visited:focus {
   transform: translateY(-3px);
   box-shadow: var(--shadow-hover);
   background: linear-gradient(135deg, var(--accent-dark), var(--accent-deep));
@@ -2190,8 +2212,7 @@ input::placeholder {
   text-decoration: none;
 }
 
-.btn:active,
-.install-app__button:active {
+.btn:active {
   color: var(--accent-text);
   transform: translateY(-1px);
 }
@@ -2293,10 +2314,6 @@ nav a:focus {
 
 .quick-link-card .quick-link-label {
   line-height: 1.2;
-}
-
-.phone-install-shortcut[hidden] {
-  display: none;
 }
 
 /* ===== Enhanced Mobile App Components ===== */
@@ -3243,10 +3260,6 @@ button.pool-filter__clear:focus-visible {
   .quick-links-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.5rem;
-  }
-
-  .quick-links-grid--with-install {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .quick-link-card,

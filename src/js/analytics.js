@@ -43,7 +43,7 @@
   const ALLOWED_EXPERIMENTAL_FEATURE_IDS = new Set(Object.values(globalThis.EXPERIMENTAL_FEATURE_IDS));
 
   const ALLOWED_INSTALL_ACTIONS = new Set([
-    'installed', 'instructions_open', 'prompt_accepted', 'prompt_dismissed', 'prompt_open'
+    'installed', 'prompt_accepted', 'prompt_dismissed', 'prompt_open'
   ]);
 
   const ALLOWED_RESOURCE_NAMES = new Set([

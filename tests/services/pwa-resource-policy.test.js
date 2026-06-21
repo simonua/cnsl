@@ -19,6 +19,7 @@ describe('PWA resource policy', () => {
   it('should retain the documented offline routes during installation', () => {
     assert.deepEqual(INSTALL_CRITICAL_PAGES, [
       'index.html',
+      'install.html',
       'meets.html',
       'offline.html',
       'pools.html',

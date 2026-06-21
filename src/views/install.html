@@ -1,0 +1,58 @@
+<extends src="base.html">
+  <block name="metadata">
+    <title>Install App</title>
+    <meta name="analytics-page-title" content="Install App" />
+    <meta name="description" content="Install the CA Pool and CNSL web app on an Android phone, iPhone, or iPad for quick Home Screen access." />
+    <meta name="robots" content="noindex, follow" />
+    <link rel="canonical" href="{{ HOME_PAGE_URL }}/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Install App" />
+    <meta property="og:description" content="Add the CA Pool and CNSL web app to an Android or Apple Home Screen." />
+    <meta property="og:url" content="{{ HOME_PAGE_URL }}/install.html" />
+    <meta name="twitter:title" content="Install App" />
+    <meta name="twitter:description" content="Add the CA Pool and CNSL web app to an Android or Apple Home Screen." />
+  </block>
+  <block name="content">
+    <h1>Install App</h1>
+    <div class="install-page">
+      <p class="install-page__intro">Add the web app to your Home Screen for quick access to pools, teams, and meets. On a phone or tablet, the matching instructions open automatically.</p>
+      <p class="install-page__status" id="installAppStatus" role="status" aria-live="polite" hidden></p>
+      <div class="install-options">
+        <details class="install-option" id="androidInstallOption">
+          <summary class="install-option__summary">
+            <span class="install-option__heading"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-smartphone"></use></svg><span>Android</span></span>
+            <span class="install-option__toggle-icon" aria-hidden="true">&#9650;</span>
+          </summary>
+          <div class="install-option__content">
+            <p>Open this page in a web browser.</p>
+            <button class="btn install-option__button" id="installAppButton" type="button" hidden>Install app</button>
+            <ol>
+              <li>Open the browser menu.</li>
+              <li>Choose <strong>Install app</strong> or <strong>Add to Home screen</strong>.</li>
+              <li>Follow the browser prompt to finish.</li>
+            </ol>
+          </div>
+        </details>
+        <details class="install-option" id="appleInstallOption">
+          <summary class="install-option__summary">
+            <span class="install-option__heading"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-smartphone"></use></svg><span>Apple</span></span>
+            <span class="install-option__toggle-icon" aria-hidden="true">&#9650;</span>
+          </summary>
+          <div class="install-option__content">
+            <p>Use these steps on an iPhone or iPad.</p>
+            <ol>
+              <li>Open this page in Safari.</li>
+              <li>Tap the Share button in the browser toolbar.</li>
+              <li>Choose <strong>Add to Home Screen</strong>.</li>
+              <li>Tap <strong>Add</strong> to finish.</li>
+            </ol>
+          </div>
+        </details>
+      </div>
+    </div>
+  </block>
+
+  <block name="scripts">
+    <script src="js/install-app.js" defer></script>
+  </block>
+</extends>

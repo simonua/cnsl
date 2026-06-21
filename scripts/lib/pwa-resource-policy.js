@@ -7,6 +7,7 @@ const CACHE_ON_USE_SCRIPT_RESOURCES = Object.freeze([
 
 const INSTALL_CRITICAL_PAGES = Object.freeze([
   'index.html',
+  'install.html',
   'meets.html',
   'offline.html',
   'pools.html',
