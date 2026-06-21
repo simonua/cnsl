@@ -17,10 +17,11 @@
       <section class="faq-list" aria-label="Release history">
         <article class="faq-item release-highlights" id="upcoming">
           <h2>Upcoming</h2>
-          <p>This upcoming update makes favorite-team schedules and meet planning easier:</p>
+          <p>This upcoming update makes favorite-team schedules, meet planning, and release history easier to use:</p>
           <ul>
             <li><span class="release-label release-label--team">Team</span> <span class="experimental-badge">Experimental</span> <strong>Open your favorite team's official calendar:</strong> Personalized Home and My Meet Day now link to the official team calendar and offer <i>Subscribe</i> when the team publishes an official subscription.</li>
             <li><span class="release-label release-label--meet">Meet</span> <span class="release-label release-label--team">Team</span> <strong>Open the right meet from Upcoming Events:</strong> Your favorite team's dual-meet matchup now appears on an indented line and links directly to the corresponding highlighted meet on the Meets page.</li>
+            <li><strong>Browse release history more easily:</strong> What's New keeps Upcoming and the latest ten releases ready to scan, places earlier updates under <i>Show older releases</i>, and opens that history automatically when a link points to an older version.</li>
           </ul>
         </article>
         <article class="faq-item release-highlights" id="version-2.24.0">
@@ -105,13 +106,19 @@
             <li><span class="release-label release-label--meet">Meet</span> <span class="release-label release-label--team">Team</span> <span class="experimental-badge">Experimental</span> <strong>Read concessions and volunteer details more easily:</strong> When cash is accepted, My Meet Day now asks for bills of $20 or less and notes that $5 and $1 bills are especially helpful. Concessions groups use matching icons and alphabetized items, and volunteer reminders follow the same scannable details layout.</li>
           </ul>
         </article>
-        <article class="faq-item release-highlights" id="version-2.19.3">
+        <details class="release-archive">
+          <summary class="release-archive__summary">
+            <span>Show older releases</span>
+            <span class="release-archive__toggle-icon" aria-hidden="true">&#9650;</span>
+          </summary>
+          <div class="release-archive__content">
+            <article class="faq-item release-highlights" id="version-2.19.3">
           <h2>Version 2.19.3 - June 17, 2026</h2>
           <p>This update makes concession details and payment options easier to scan in My Meet Day:</p>
           <ul>
             <li><span class="release-label release-label--meet">Meet</span> <span class="release-label release-label--team">Team</span> <span class="experimental-badge">Experimental</span> <strong>Check concessions details more easily:</strong> My Meet Day now groups available meals, snacks, food, and drinks; clearly states accepted payment methods; and shows familiar cash, PayPal, and Venmo visual indicators while keeping each option written out.</li>
           </ul>
-        </article>
+          </article>
         <article class="faq-item release-highlights" id="version-2.19.1">
           <h2>Version 2.19.1 - June 16, 2026</h2>
           <p>This update makes pool feature filters clearer and the mobile header easier to use with a keyboard:</p>
@@ -495,7 +502,7 @@
             <li><strong>Cleaner sharing and discovery:</strong> Search previews and share links more clearly direct visitors to current pools, teams, meets, and volunteer resources, with crisper team logos.</li>
           </ul>
         </article>
-        <article class="faq-item release-highlights" id="version-2.0.0">
+          <article class="faq-item release-highlights" id="version-2.0.0">
           <h2>Version 2.0.0 - May 25, 2026</h2>
           <p>This release prepared the app for the {{ YEAR }} season and introduced new ways to find, personalize, and trust current information:</p>
           <ul>
@@ -518,7 +525,9 @@
             <li><strong>One dependable home address:</strong> Links, previews, installation details, and site-use measurement now consistently use <a href="{{ HOME_PAGE_URL }}/">{{ HOME_PAGE_HOSTNAME }}</a> as the official home page address.</li>
             <li><span class="release-label release-label--team">Team</span> <strong>Faster team logo loading:</strong> Team logos are now delivered in one display-sized, high-resolution image, reducing downloads while keeping logos clear on high-density screens.</li>
           </ul>
-        </article>
+            </article>
+          </div>
+        </details>
       </section>
     </div>
   </block>

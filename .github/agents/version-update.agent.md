@@ -53,9 +53,21 @@ In Release mode:
 
 - Add a new dated version article above all earlier dated entries in `src/views/whats-new.html`, using a heading in the format `Version X.Y.Z - Month D, YYYY`; do not revise an existing version article unless the explicit historical header-correction exception applies.
 - Promote the released items out of `Upcoming`, leaving any remaining unreleased items there.
+- After adding the dated article, keep the ten newest dated release articles visible above the older-release disclosure and move the former tenth visible release to the start of the archived release content.
 - Update `APP_VERSION` and `APP_LAST_UPDATED_ON` in `src/js/config/app-config.js` for the new stable release.
 - Set `APP_LAST_UPDATED_ON` from the current local date in the configured app timezone (`America/New_York`, US Eastern), not from a UTC date that may already have rolled over.
 - Use that same local publication date, written as `Month D, YYYY`, in the new What's New release heading.
+
+## Release History Layout
+
+Preserve the progressive release-history structure in `src/views/whats-new.html` whenever maintaining Upcoming or publishing a release:
+
+- Keep the undated `Upcoming` article outside the older-release disclosure.
+- Keep exactly the ten newest dated release articles outside the disclosure, in newest-to-oldest order.
+- Keep every earlier dated release article inside `.release-archive__content`, also in newest-to-oldest order.
+- Keep the native `.release-archive` disclosure and its `Show older releases` summary after the tenth visible dated article. Do not replace it with JavaScript-only loading.
+- Preserve every article ID so links such as `#version-X.Y.Z` continue to reveal archived targets automatically.
+- Move whole dated articles across the disclosure boundary without changing their wording, bullet membership, IDs, or relative chronological order.
 
 ## What's New Writing Rules
 

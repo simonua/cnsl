@@ -3642,6 +3642,51 @@ button.pool-filter__clear:focus-visible {
   margin-bottom: 0;
 }
 
+.release-archive__summary {
+  align-items: center;
+  color: var(--primary-color);
+  cursor: pointer;
+  display: flex;
+  font-weight: 600;
+  gap: 0.5rem;
+  justify-content: center;
+  list-style: none;
+  padding: 0.75rem 1rem;
+}
+
+.release-archive__summary::-webkit-details-marker {
+  display: none;
+}
+
+.release-archive__summary:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+
+.release-archive__summary:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 0.125rem;
+}
+
+.release-archive:not([open]) .release-archive__content {
+  display: none;
+}
+
+.release-archive__toggle-icon {
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
+  line-height: 1;
+}
+
+.release-archive:not([open]) .release-archive__toggle-icon {
+  transform: rotate(180deg);
+}
+
+.release-archive[open] .release-archive__summary {
+  margin-bottom: 1.5rem;
+}
+
 .release-highlights .experimental-badge {
   margin: 0 0.35rem 0.2rem 0;
   vertical-align: 0.08em;
