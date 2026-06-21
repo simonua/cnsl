@@ -143,44 +143,39 @@ describe('PoolDirectoryService', () => {
     assert.equal(PoolDirectoryService.matchesAvailabilityFilter(null, 'open-now'), false);
   });
 
-  it('filters records and builds live signatures through a model lookup callback', () => {
-    const pools = [{ id: 'open', name: 'Open' }, { id: 'soon', name: 'Soon' }, { id: 'missing', name: 'Missing' }];
-    const models = new Map([
-      ['Open', {
+  it('filters models and builds live signatures from the same collection', () => {
+    const pools = [
+      { id: 'open', name: 'Open',
         getCurrentStatus: () => ({ kind: 'open' }),
         hasPublicUseToday: () => true,
         hasPublicUseTomorrow: () => false,
         hasPublicUseOnDayOffset: () => false,
         isOpenForNextMinutes: minutes => minutes === undefined,
-        opensWithinNextMinutes: () => false
-      }],
-      ['Soon', {
+        opensWithinNextMinutes: () => false },
+      { id: 'soon', name: 'Soon',
         getCurrentStatus: () => ({ kind: 'closed' }),
         hasPublicUseToday: () => true,
         hasPublicUseTomorrow: () => true,
         hasPublicUseOnDayOffset: dayOffset => dayOffset === 2,
         isOpenForNextMinutes: () => false,
-        opensWithinNextMinutes: minutes => minutes === PoolDirectoryService.OPENING_SOON_MINUTES
-      }]
-    ]);
-    const getPoolModel = pool => models.get(pool.name);
+        opensWithinNextMinutes: minutes => minutes === PoolDirectoryService.OPENING_SOON_MINUTES },
+      { id: 'missing', name: 'Missing' }
+    ];
 
-    assert.equal(PoolDirectoryService.filterByAvailability(pools, 'all', getPoolModel), pools);
+    assert.equal(PoolDirectoryService.filterByAvailability(pools, 'all'), pools);
     assert.deepEqual(
-      PoolDirectoryService.filterByAvailability(pools, 'opens-soon', getPoolModel),
+      PoolDirectoryService.filterByAvailability(pools.slice(0, 2), 'opens-soon'),
       [pools[1]]
     );
     assert.equal(
-      PoolDirectoryService.getLiveStatusSignature(pools, 'opens-soon', getPoolModel),
+      PoolDirectoryService.getLiveStatusSignature(pools, 'opens-soon'),
       'open:open:false|soon:closed:true|missing:unavailable'
     );
-    assert.equal(PoolDirectoryService.getLiveStatusSignature(pools, 'all', null), '');
     assert.equal(PoolDirectoryService.getLiveStatusSignature(
-      [{ name: 'Named Pool' }],
-      'all',
-      () => ({ getCurrentStatus: () => ({ kind: 'closed' }) })
+      [{ name: 'Named Pool', getCurrentStatus: () => ({ kind: 'closed' }) }],
+      'all'
     ), 'Named Pool:closed:');
-    assert.equal(PoolDirectoryService.getLiveStatusSignature([{ name: 'Unavailable Name' }], 'all', () => null), 'Unavailable Name:unavailable');
+    assert.equal(PoolDirectoryService.getLiveStatusSignature([{ name: 'Unavailable Name' }], 'all'), 'Unavailable Name:unavailable');
   });
 
   it('formats and orders feature labels through supplied groups', () => {
@@ -190,24 +185,6 @@ describe('PoolDirectoryService', () => {
     assert.equal(PoolDirectoryService.formatFeatureLabel('wading pool slide'), "Kids' slide (wading pool)");
     assert.equal(PoolDirectoryService.formatFeatureLabel('main pool slide'), 'Main pool slide');
     assert.equal(PoolDirectoryService.formatFeatureLabel('lap lanes'), 'Lap lanes');
-  });
-
-  it('adds distances without mutating records and leaves missing locations untouched', () => {
-    const pools = [{ name: 'Nearby', location: { lat: 39.2, lng: -76.8 } }, { name: 'Unknown' }];
-    const withDistances = PoolDirectoryService.addDistances(pools, { lat: 39.2, lng: -76.8 });
-
-    assert.equal(withDistances[0].distance, 0);
-    assert.equal(withDistances[0].name, pools[0].name);
-    assert.equal(Object.hasOwn(pools[0], 'distance'), false);
-    assert.equal(withDistances[1], pools[1]);
-  });
-
-  it('returns original records without coordinates and supports flat coordinate records', () => {
-    const pools = [{ name: 'Flat', lat: 39.2, lng: -76.8 }, null];
-    assert.equal(PoolDirectoryService.addDistances(pools, null), pools);
-    const withDistances = PoolDirectoryService.addDistances(pools, { lat: 39.2, lng: -76.8 });
-    assert.equal(withDistances[0].distance, 0);
-    assert.equal(withDistances[1], null);
   });
 
   it('installs the service as a browser script global', () => {

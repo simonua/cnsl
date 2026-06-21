@@ -2,7 +2,8 @@ const { test, expect } = require('../browser-test');
 const {
   getAnnualDataRoute,
   prepareStableWeatherResponses,
-  readAnnualData
+  readAnnualData,
+  seedPreferences
 } = require('../browser-test-helpers');
 
 const URL_ACTION_TEAM = readAnnualData('teams').teams.find(team => (
@@ -32,10 +33,12 @@ test('[WF-SECURITY-001] pool directory encodes text and rejects unsafe published
 });
 
 test('[WF-SECURITY-002] team directory rejects unsafe published action destinations', async ({ page }) => {
+  await seedPreferences(page, { favoriteTeamId: URL_ACTION_TEAM.id });
   await page.route(getAnnualDataRoute('teams'), async route => {
     const response = await route.fetch();
     const teamData = await response.json();
     const targetTeam = teamData.teams.find(team => team.id === URL_ACTION_TEAM.id);
+    targetTeam.calendarUrl = 'data:text/html,unsafe';
     targetTeam.merchandiseUrl = 'javascript:alert(1)';
     targetTeam.eventsSubscriptionUrl = 'javascript:alert(1)';
     targetTeam.booster.url = 'javascript:alert(1)';
@@ -47,6 +50,13 @@ test('[WF-SECURITY-002] team directory rejects unsafe published action destinati
   const targetTeam = page.locator(`.team-card[data-team-id="${URL_ACTION_TEAM.id}"]`);
   await expect(targetTeam.locator('.team-merchandise')).toHaveCount(0);
   await expect(targetTeam.getByRole('link', { name: 'Subscribe to team events calendar' })).toHaveCount(0);
+  await expect(targetTeam.getByRole('link', { name: 'Team Calendar' })).toHaveCount(0);
   await expect(targetTeam.getByRole('link', { name: /Booster Club/ })).toHaveCount(0);
   await expect(page.locator('a[href^="javascript:"]')).toHaveCount(0);
+
+  await page.goto('/index.html');
+  await expect(page.locator('#favoriteWeek')).toBeVisible();
+  await expect(page.locator('#favoriteTeamCalendarActions')).toBeHidden();
+  await expect(page.locator('#favoriteWeek').getByRole('link', { name: 'Team Calendar' })).toHaveCount(0);
+  await expect(page.locator('#favoriteWeek').getByRole('link', { name: 'Subscribe to team events calendar' })).toHaveCount(0);
 });

@@ -178,48 +178,6 @@ if (typeof globalThis.DataManager === 'undefined') {
   }
 
   /**
-   * Get the pools manager through the direct-access property.
-   * @returns {PoolsManager} Pools manager instance
-   */
-  get pools() {
-    return this.getPools();
-  }
-
-  /**
-   * Get the teams manager through the direct-access property.
-   * @returns {TeamsManager} Teams manager instance
-   */
-  get teams() {
-    return this.getTeams();
-  }
-
-  /**
-   * Get the meets manager through the direct-access property.
-   * @returns {MeetsManager} Meets manager instance
-   */
-  get meets() {
-    return this.getMeets();
-  }
-
-  /**
-   * Get a specific pool by name
-    * @param {string} poolName - Pool name from published annual data
-   * @returns {Pool|null} - Pool object or null
-   */
-  getPool(poolName) {
-    return this.getPools().getPool(poolName);
-  }
-
-  /**
-   * Get a specific team by name
-   * @param {string} teamName - Team name
-    * @returns {TeamRecord|null} - Team object or null
-   */
-  getTeam(teamName) {
-    return this.getTeams().getTeam(teamName);
-  }
-
-  /**
    * Check if all data is loaded
     * @param {AnnualDataDomain[]} requiredDomains - Domains that must be loaded
    * @returns {boolean} - True if all managers have data loaded

@@ -237,19 +237,10 @@ describe('PoolPeriodScheduleService', () => {
       assert.equal(createService({ getTimeUtils: () => null }).getStatusAtMinutes([], 0).isOpen, false);
     });
 
-    it('reports active-period and complete date boundaries', () => {
-      const service = createService({ getTimeUtils: () => createTimeUtils({ getCurrentEasternTimeInfo: () => ({ date: '2026-06-01' }) }) });
-      assert.deepEqual(service.getCurrentSchedulePeriod(), { name: 'Summer', startDate: '2026-06-01', endDate: '2026-06-07' });
+    it('reports complete date boundaries', () => {
+      const service = createService();
       assert.equal(service.getValidDateRange().startDate.toISOString().slice(0, 10), '2026-06-01');
       assert.equal(createService({ schedulePeriods: [] }).getValidDateRange(), null);
-      assert.equal(createService({ getTimeUtils: () => null }).getCurrentSchedulePeriod(), null);
-      assert.equal(createService({
-        schedulePeriods: [{ startDate: '2026-06-01', endDate: '2026-06-07', hours: [] }],
-        getTimeUtils: () => createTimeUtils({ getCurrentEasternTimeInfo: () => ({ date: '2026-06-01' }) })
-      }).getCurrentSchedulePeriod().name, 'Current Schedule');
-      assert.equal(createService({
-        getTimeUtils: () => createTimeUtils({ getCurrentEasternTimeInfo: () => ({ date: '2026-07-01' }) })
-      }).getCurrentSchedulePeriod(), null);
     });
   });
 

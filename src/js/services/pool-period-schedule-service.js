@@ -214,19 +214,6 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
       }));
     }
 
-    /** @returns {Object|null} Current schedule-period summary */
-    getCurrentSchedulePeriod() {
-      const timeUtils = this.getTimeUtils();
-      if (!timeUtils) return null;
-      const currentDate = timeUtils.getCurrentEasternTimeInfo().date;
-      const activeSchedule = this.schedulePeriods.find(schedule => currentDate >= schedule.startDate && currentDate <= schedule.endDate);
-      return activeSchedule ? {
-        startDate: activeSchedule.startDate,
-        endDate: activeSchedule.endDate,
-        name: activeSchedule.name || 'Current Schedule'
-      } : null;
-    }
-
     /** @returns {Object|null} Earliest and latest schedule dates */
     getValidDateRange() {
       if (this.schedulePeriods.length === 0) return null;

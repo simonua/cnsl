@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const { createSamplePoolData, suppressConsole } = require('../helpers/test-helpers.js');
+const { createSamplePoolData } = require('../helpers/test-helpers.js');
 const poolModule = require('../helpers/browser-module-loader.js').loadBrowserModule('pool');
 const { Pool, PoolStatus, PoolPeriodScheduleService, TimeUtils, context: poolContext } = poolModule;
 
@@ -44,43 +44,6 @@ describe('Pool', () => {
       assert.equal(pool.periodSchedule.getPoolStatus(), PoolStatus);
     });
 
-  });
-
-  describe('getName', () => {
-    it('returns pool name', () => {
-      const pool = new Pool(createSamplePoolData());
-      assert.equal(pool.getName(), 'Bryant Woods');
-    });
-  });
-
-  describe('published details', () => {
-    it('returns feature and contact values without exposing mutable arrays', () => {
-      const pool = new Pool(createSamplePoolData({
-        features: ['Lap lanes'],
-        caUrl: 'https://example.com/pool'
-      }));
-      const features = pool.getFeatures();
-      features.push('Changed');
-
-      assert.deepEqual(pool.getFeatures(), ['Lap lanes']);
-      assert.equal(pool.hasFeature('Lap lanes'), true);
-      assert.deepEqual(pool.getContactInfo(), {
-        address: '10400 Bryant Woods Court, Columbia, MD 21044',
-        phone: '410-555-1234',
-        website: 'https://example.com/pool'
-      });
-    });
-
-    it('searches name, address, and feature content case insensitively', () => {
-      const pool = new Pool(createSamplePoolData({
-        features: ['Beach entry']
-      }));
-
-      assert.equal(pool.search('bRyAnT').matches.name, true);
-      assert.equal(pool.search('columbia').matches.address, true);
-      assert.equal(pool.search('beach').matches.features, true);
-      assert.equal(pool.search('not present').hasMatch, false);
-    });
   });
 
   describe('schedule output', () => {
@@ -296,7 +259,7 @@ describe('Pool', () => {
       }
     });
 
-    it('uses overrides without active periods and delegates schedule merging', () => {
+    it('uses overrides without active periods', () => {
       const originalGetInfo = TimeUtils.getCurrentEasternTimeInfo;
       TimeUtils.getCurrentEasternTimeInfo = () => ({ date: '2026-06-08', day: 'Mon', minutes: 600, isValid: true });
       try {
@@ -310,9 +273,6 @@ describe('Pool', () => {
         }));
 
         assert.equal(pool.isClosedToPublicAllDayToday(), true);
-        const mergeResult = [{ startTime: '1:00PM' }];
-        pool.periodSchedule.mergeScheduleWithOverride = () => mergeResult;
-        assert.deepEqual(pool._mergeScheduleWithOverride({}, 'Mon', {}), mergeResult);
       } finally {
         TimeUtils.getCurrentEasternTimeInfo = originalGetInfo;
       }
@@ -325,9 +285,6 @@ describe('Pool', () => {
       assert.equal(pool._getPeriodSlotStatus({ accessStatus: 'swim-meet', types: ['Event'] }), PoolStatus.SWIM_MEET);
       assert.equal(pool._getPeriodSlotStatus({ accessStatus: 'public', types: ['CNSL Practice Only'] }), PoolStatus.OPEN);
       assert.equal(pool._getPeriodSlotStatus({ types: ['Rec Swim'] }), PoolStatus.RESTRICTED);
-      suppressConsole(() => assert.equal(pool._getPeriodStatusAtMinutes([{}], 60), PoolStatus.CLOSED));
-      pool.scheduleOverrides = null;
-      assert.equal(pool._getScheduleOverrideForDate('2026-05-26', 'Tue'), null);
     });
 
     it('excludes declared team-only practice periods from public availability', () => {
@@ -361,18 +318,6 @@ describe('Pool', () => {
       }
     });
 
-    it('renders the current period week through the date-aware schedule path', () => {
-      const pool = new Pool(createSamplePoolData({ schedules: [{ startDate: '2026-01-01', endDate: '2026-12-31', hours: [] }] }));
-      let requestedWeekStart;
-      pool._getPeriodWeekScheduleForDate = weekStartDate => {
-        requestedWeekStart = weekStartDate;
-        return ['week'];
-      };
-
-      assert.deepEqual(pool.getWeekSchedule(), ['week']);
-      assert.equal(requestedWeekStart.getDay(), 1);
-    });
-
     it('returns safe fallbacks when period schedule dependencies or matching records are absent', () => {
       const pool = new Pool(createSamplePoolData({
         schedules: [{ startDate: '2026-06-01', endDate: '2026-06-07', hours: [{ weekDays: ['Mon'], startTime: '1:00PM', endTime: '2:00PM', types: ['Rec Swim'] }] }],
@@ -387,11 +332,9 @@ describe('Pool', () => {
       assert.equal(pool._getPeriodStatus(), PoolStatus.SCHEDULE_NOT_FOUND);
       assert.deepEqual(pool._getPeriodTimeSlotsForDate('2026-06-01', 'Mon'), []);
       assert.equal(pool._getPeriodSlotStatus({ types: ['Rec Swim'] }), PoolStatus.RESTRICTED);
-      assert.equal(pool._getPeriodStatusAtMinutes([], 0).isOpen, false);
       assert.equal(pool.getPublicStatusTransitionToday(), null);
       pool._getPoolStatus = originalGetPoolStatus;
       pool._getTimeUtils = originalGetTimeUtils;
-      assert.equal(pool._getScheduleOverrideForDate('2026-06-01', 'Mon'), undefined);
     });
 
     it('returns safe fallbacks for invalid availability input and absent period collaborators', () => {
@@ -410,10 +353,7 @@ describe('Pool', () => {
       assert.equal(pool._getPeriodStatus(), PoolStatus.SCHEDULE_NOT_FOUND);
       assert.deepEqual(pool._getPeriodTimeSlotsForDate('2026-06-01', 'Mon'), []);
       assert.equal(pool._getPeriodSlotStatus({}).isOpen, false);
-      assert.equal(pool._getPeriodStatusAtMinutes([], 0).isOpen, false);
       assert.deepEqual(pool._getPeriodWeekScheduleForDate(new Date(2026, 5, 1)), []);
-      assert.equal(pool._getScheduleOverrideForDate('2026-06-01', 'Mon'), null);
-      assert.deepEqual(pool._mergeScheduleWithOverride({}, 'Mon', {}), []);
     });
 
     it('resolves lexical model dependencies when they are absent from globalThis', () => {
@@ -555,16 +495,6 @@ describe('Pool', () => {
       }
     });
 
-    it('tolerates invalid merge times', () => {
-      const pool = new Pool(createSamplePoolData());
-      const merged = suppressConsole(() => pool._mergeScheduleWithOverride(
-        { hours: [{ weekDays: ['Mon'], startTime: 1, endTime: '2:00PM', types: ['Rec Swim'] }] },
-        'Mon',
-        { reason: '', hours: [{ weekDays: ['Mon'], startTime: '1:00PM', endTime: '2:00PM', types: ['Closed'] }] }
-      ));
-      assert.ok(Array.isArray(merged));
-    });
-
     it('sorts period days safely without TimeUtils', () => {
       const pool = new Pool(createSamplePoolData({
         schedules: [{ startDate: '2026-06-01', endDate: '2026-06-07', hours: [
@@ -576,18 +506,10 @@ describe('Pool', () => {
       pool._getTimeUtils = () => null;
       try {
         assert.equal(pool._getPeriodWeekScheduleForDate(new Date(2026, 5, 1))[0].timeSlots.length, 2);
-        assert.equal(pool.getCurrentSchedulePeriod(), null);
       } finally {
         pool._getTimeUtils = originalGetTimeUtils;
       }
       assert.equal(pool._getPeriodWeekScheduleForDate(new Date(2026, 5, 1))[0].timeSlots.length, 2);
-      const originalGetCurrentEasternTimeInfo = TimeUtils.getCurrentEasternTimeInfo;
-      TimeUtils.getCurrentEasternTimeInfo = () => ({ date: '2026-08-01' });
-      try {
-        assert.equal(pool.getCurrentSchedulePeriod(), null);
-      } finally {
-        TimeUtils.getCurrentEasternTimeInfo = originalGetCurrentEasternTimeInfo;
-      }
     });
   });
 
@@ -595,26 +517,6 @@ describe('Pool', () => {
     it('stores google maps URL from location', () => {
       const pool = new Pool(createSamplePoolData());
       assert.ok(pool.googleMapsUrl.includes('google'));
-    });
-  });
-
-  describe('toJSON', () => {
-    it('returns a plain object', () => {
-      const pool = new Pool(createSamplePoolData({ laneCount: 6, laneLengthUnits: 'yards', laneLength: 25 }));
-      const json = pool.toJSON();
-      assert.equal(typeof json, 'object');
-      assert.equal(json.id, 'bwp');
-      assert.equal(json.name, 'Bryant Woods');
-      assert.equal(json.laneCount, 6);
-      assert.equal(json.laneLengthUnits, 'yards');
-      assert.equal(json.laneLength, 25);
-    });
-
-    it('retains published schedule periods needed by weather operating windows', () => {
-      const schedules = [{ startDate: '2026-05-23', endDate: '2026-09-07', hours: [] }];
-      const pool = new Pool(createSamplePoolData({ schedules }));
-
-      assert.deepEqual(pool.toJSON().schedules, schedules);
     });
   });
 
@@ -630,17 +532,8 @@ describe('Pool', () => {
       assert.equal(range.endDate.toISOString().slice(0, 10), '2026-06-14');
     });
 
-    it('returns current period details and null without published schedules', () => {
-      const originalGetCurrentEasternTimeInfo = TimeUtils.getCurrentEasternTimeInfo;
-      TimeUtils.getCurrentEasternTimeInfo = () => ({ date: '2026-06-01' });
-      try {
-        const pool = new Pool(createSamplePoolData({ schedules: [{ name: 'Summer', startDate: '2026-06-01', endDate: '2026-06-14', hours: [] }] }));
-        assert.deepEqual(pool.getCurrentSchedulePeriod(), { name: 'Summer', startDate: '2026-06-01', endDate: '2026-06-14' });
-        assert.equal(new Pool(createSamplePoolData({ schedules: [] })).getCurrentSchedulePeriod(), null);
-        assert.equal(new Pool(createSamplePoolData({ schedules: [] })).getValidDateRange(), null);
-      } finally {
-        TimeUtils.getCurrentEasternTimeInfo = originalGetCurrentEasternTimeInfo;
-      }
+    it('returns null without published schedules', () => {
+      assert.equal(new Pool(createSamplePoolData({ schedules: [] })).getValidDateRange(), null);
     });
   });
 
@@ -672,7 +565,6 @@ describe('Pool', () => {
       assert.equal(pool.getCurrentStatus().status, 'Error');
       context.window.PoolStatus = PoolStatus;
       assert.equal(new context.window.Pool({ schedules: [] }).getCurrentStatus(), PoolStatus.SCHEDULE_NOT_FOUND);
-      assert.equal(new context.window.Pool({ schedules: [{ startDate: '2026-01-01', endDate: '2026-12-31', hours: [] }] }).getCurrentSchedulePeriod(), null);
     });
   });
 });

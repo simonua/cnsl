@@ -82,6 +82,7 @@
     const title = document.getElementById('favoriteWeekTitle');
     const status = document.getElementById('favoriteWeekStatus');
     const schedule = document.getElementById('favoriteWeekSchedule');
+    const calendarActions = document.getElementById('favoriteTeamCalendarActions');
     const meetDaySection = document.getElementById('myMeetDay');
     const meetDayContent = document.getElementById('myMeetDayContent');
     const shareSite = document.getElementById('shareSite');
@@ -93,6 +94,10 @@
     status.hidden = true;
     status.textContent = '';
     schedule.replaceChildren();
+    if (calendarActions) {
+      calendarActions.hidden = true;
+      calendarActions.replaceChildren();
+    }
     if (meetDaySection) meetDaySection.hidden = true;
     if (meetDayContent) meetDayContent.replaceChildren();
     if (shareSite) shareSite.hidden = true;
@@ -120,6 +125,11 @@
       }
 
       const events = globalThis.TeamAgendaDisplay.getUpcomingEvents(team, dataManager.getMeets().getAllMeets());
+      const calendarActionsHtml = globalThis.TeamAgendaDisplay.renderCalendarActions(team);
+      if (calendarActions && calendarActionsHtml) {
+        calendarActions.innerHTML = calendarActionsHtml;
+        calendarActions.hidden = false;
+      }
       if (meetDaySection && meetDayContent && await isMyMeetDayEnabled()) {
         const guide = globalThis.MeetDayGuideService.getGuide(
           team,

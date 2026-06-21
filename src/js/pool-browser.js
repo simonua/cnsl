@@ -164,12 +164,11 @@ function loadSeasonInfo() {
 
 /**
  * Normalize the current pool status for card rendering.
- * @param {Object} pool - Pool data object
- * @param {Pool|null} [poolModel] - Pre-resolved pool model
+ * @param {Pool} pool - Pool model
  * @returns {Object} - Status object with semantic kind, isOpen, status, and color
  */
-function getPoolStatus(pool, poolModel = null) {
-  if (!poolBrowserDataManager) {
+function getPoolStatus(pool) {
+  if (!pool || typeof pool.getCurrentStatus !== 'function') {
     console.warn('Data manager not initialized');
     return {
       kind: 'unavailable',
@@ -179,17 +178,7 @@ function getPoolStatus(pool, poolModel = null) {
     };
   }
 
-  const poolObj = poolModel || poolBrowserDataManager.getPool(pool.name);
-  if (!poolObj) {
-    return {
-      kind: 'closed',
-      isOpen: false,
-      status: 'Closed',
-      color: 'red'
-    };
-  }
-
-  const status = poolObj.getCurrentStatus();
+  const status = pool.getCurrentStatus();
   return {
     kind: status.kind || 'unavailable',
     isOpen: status.isOpen,
@@ -200,19 +189,18 @@ function getPoolStatus(pool, poolModel = null) {
 
 /**
  * Resolve the status indicator shown for the active availability filter.
- * @param {Object} pool - Pool data object
- * @param {Pool|null} [poolModel] - Pre-resolved pool model
+ * @param {Pool} pool - Pool model
  * @returns {Object} Current status or a neutral future-day status
  */
-function getPoolCardStatus(pool, poolModel = null) {
+function getPoolCardStatus(pool) {
   return PoolDirectoryService.getFutureAvailabilityDayOffset(poolAvailabilityFilter) === null
-    ? getPoolStatus(pool, poolModel)
+    ? getPoolStatus(pool)
     : PoolStatus.STATUS_NOT_APPLICABLE;
 }
 
 /**
  * Builds pool-hours display state and delegates the rendered presentation.
- * @param {Object} pool - Pool data object
+ * @param {Pool} pool - Pool model
  * @returns {string} - HTML string for displaying hours with navigation
  */
 function formatPoolHours(pool) {
@@ -220,12 +208,11 @@ function formatPoolHours(pool) {
     return PoolHoursDisplay.renderAvailabilityMessage('Data unavailable');
   }
 
-  const poolObj = poolBrowserDataManager.getPool(pool.name);
-  if (!poolObj) {
+  if (!pool) {
     return PoolHoursDisplay.renderAvailabilityMessage('Pool not found');
   }
 
-  if (!poolObj.schedulePeriods || poolObj.schedulePeriods.length === 0) {
+  if (!pool.schedulePeriods || pool.schedulePeriods.length === 0) {
     return PoolHoursDisplay.renderScheduleMissing();
   }
 
@@ -236,13 +223,13 @@ function formatPoolHours(pool) {
   if (!timeUtils) {
     return PoolHoursDisplay.renderTimeUtilityMessage('Time utilities not available');
   }
-  const practiceTeams = poolBrowserDataManager.getTeams().getPracticeTeamsByPool(poolObj.name);
+  const practiceTeams = poolBrowserDataManager.getTeams().getPracticeTeamsByPool(pool.name);
   const preferences = PreferencesService.get();
   const favoriteTeam = PreferencesService.findFavoriteTeam(
     poolBrowserDataManager.getTeams().getAllTeams(),
     preferences.favoriteTeamId
   );
-  const viewModel = PoolHoursViewModelService.build(pool, poolObj, {
+  const viewModel = PoolHoursViewModelService.build(pool, {
     weekStart,
     timeUtils,
     practiceTeams,
@@ -260,7 +247,7 @@ function formatPoolHours(pool) {
 
 /**
  * Builds the display model for an expanded pool card.
- * @param {PoolRecord} pool - Published pool record
+ * @param {Pool} pool - Pool model
  * @returns {Object} Pool details display model
  */
 function createPoolDetailsViewModel(pool) {
@@ -280,11 +267,11 @@ function createPoolDetailsViewModel(pool) {
 }
 
 /**
- * Finds a rendered pool record by its stable card identifier.
+ * Finds a pool model by its stable card identifier.
  * @param {string} poolId - Pool card identifier
- * @returns {PoolRecord|null} Matching pool record, or null
+ * @returns {Pool|null} Matching pool model, or null
  */
-function getPoolRecord(poolId) {
+function getPoolModel(poolId) {
   return poolBrowserPools.find(pool => String(pool.id || pool.name) === String(poolId)) || null;
 }
 
@@ -325,9 +312,8 @@ function getPoolCardAvailabilitySummary(poolModel) {
  */
 function syncPoolTransitionSummary(poolCard) {
   if (!poolCard) return;
-  const pool = getPoolRecord(poolCard.dataset.poolId);
-  const poolModel = pool && poolBrowserDataManager ? poolBrowserDataManager.getPool(pool.name) : null;
-  const summaryState = getPoolCardAvailabilitySummary(poolModel);
+  const pool = getPoolModel(poolCard.dataset.poolId);
+  const summaryState = getPoolCardAvailabilitySummary(pool);
   let metadata = poolCard.querySelector('.pool-header__metadata');
   let summary = metadata && metadata.querySelector('.pool-transition-summary');
 
@@ -368,7 +354,7 @@ function hydratePoolDetails(poolCard) {
   const details = poolCard && poolCard.querySelector('.pool-details');
   if (!details || details.dataset.poolDetailsHydrated === 'true') return details;
 
-  const pool = getPoolRecord(poolCard.dataset.poolId);
+  const pool = getPoolModel(poolCard.dataset.poolId);
   if (!pool) return details;
   details.innerHTML = PoolCardDisplay.renderDetails(createPoolDetailsViewModel(pool));
   details.dataset.poolDetailsHydrated = 'true';
@@ -384,7 +370,7 @@ function refreshHydratedPoolDetails() {
   document.querySelectorAll('#poolList .pool-card').forEach(poolCard => {
     const details = poolCard.querySelector('.pool-details');
     if (!details || details.dataset.poolDetailsHydrated !== 'true') return;
-    const pool = getPoolRecord(poolCard.dataset.poolId);
+    const pool = getPoolModel(poolCard.dataset.poolId);
     if (pool) {
       details.innerHTML = PoolCardDisplay.renderDetails(createPoolDetailsViewModel(pool));
       syncPoolTransitionSummary(poolCard);
@@ -427,10 +413,7 @@ function getUserLocation(attempt = 0) {
         // Re-render pools with distance if we're on the pools page
         if (document.getElementById("poolList") && poolBrowserDataManager) {
           setupPoolSortControl();
-          const poolsManager = poolBrowserDataManager.getPools();
-          const pools = poolsManager.getAllPools();
-          const poolRecords = pools.map(pool => pool.toJSON());
-          renderPools(poolRecords);
+          renderPools(poolBrowserPools);
         }
       },
       error => {
@@ -543,13 +526,11 @@ function togglePoolFeatureFilters() {
   const toggleButton = document.getElementById('togglePoolFeatureFilters');
   const controls = document.getElementById('poolFeatureFilterControls');
   const filterSection = document.getElementById('poolFeatureFilter');
-  const indicator = toggleButton ? toggleButton.querySelector('.pool-filter__indicator') : null;
   if (!toggleButton || !controls) return;
 
   controls.hidden = !controls.hidden;
   if (filterSection) filterSection.classList.toggle('pool-filter--collapsed', controls.hidden);
   toggleButton.setAttribute('aria-expanded', String(!controls.hidden));
-  if (indicator) indicator.textContent = controls.hidden ? '+' : '-';
 }
 
 /**
@@ -683,8 +664,7 @@ function filterPoolsByAvailability(pools) {
 
   return PoolDirectoryService.filterByAvailability(
     pools,
-    poolAvailabilityFilter,
-    pool => poolBrowserDataManager.getPool(pool.name)
+    poolAvailabilityFilter
   );
 }
 
@@ -731,9 +711,21 @@ function getPoolLiveStatusSignature(pools) {
 
   return PoolDirectoryService.getLiveStatusSignature(
     pools,
-    poolAvailabilityFilter,
-    pool => poolBrowserDataManager.getPool(pool.name)
+    poolAvailabilityFilter
   );
+}
+
+/**
+ * Calculate one pool's distance from the visitor without mutating the model.
+ * @param {Pool} pool - Pool model
+ * @returns {number|null} Distance in miles, or null when coordinates are unavailable
+ */
+function getPoolDistance(pool) {
+  if (!userCoords) return null;
+  const latitude = Number(pool?.location?.lat);
+  const longitude = Number(pool?.location?.lng);
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+  return PoolDirectoryService.calculateDistance(userCoords, { lat: latitude, lng: longitude });
 }
 
 /**
@@ -792,7 +784,7 @@ function handlePoolPageVisibilityChange() {
 
 /**
  * Renders the list of pools in the #poolList element
- * @param {Array} pools - Array of plain pool data objects
+ * @param {Pool[]} pools - Pool models to render
  */
 function renderPools(pools) {
   const list = document.getElementById("poolList");
@@ -832,9 +824,9 @@ function renderPools(pools) {
     return;
   }
   /**
-   * Compares pool records by display name.
-   * @param {PoolRecord} firstPool - First pool record
-   * @param {PoolRecord} secondPool - Second pool record
+  * Compares pool models by display name.
+  * @param {Pool} firstPool - First pool model
+  * @param {Pool} secondPool - Second pool model
    * @returns {number} Locale comparison result
    * @private
    */
@@ -843,14 +835,14 @@ function renderPools(pools) {
     const secondName = (secondPool && secondPool.name) ? secondPool.name : '';
     return firstName.localeCompare(secondName);
   };
-  const displayPools = PoolDirectoryService.addDistances(filteredPools, userCoords);
+  const distances = new Map(filteredPools.map(pool => [pool, getPoolDistance(pool)]));
   const sortedPools = poolSortOrder === 'distance' && userCoords
-    ? [...displayPools].sort((firstPool, secondPool) => {
-      const firstDistance = Number.isFinite(firstPool.distance) ? firstPool.distance : Number.POSITIVE_INFINITY;
-      const secondDistance = Number.isFinite(secondPool.distance) ? secondPool.distance : Number.POSITIVE_INFINITY;
+    ? [...filteredPools].sort((firstPool, secondPool) => {
+      const firstDistance = distances.get(firstPool) ?? Number.POSITIVE_INFINITY;
+      const secondDistance = distances.get(secondPool) ?? Number.POSITIVE_INFINITY;
       return firstDistance - secondDistance || comparePools(firstPool, secondPool);
     })
-    : PreferencesService.sortWithFavorite(displayPools, favoritePoolName, pool => pool.name || '', comparePools);
+    : PreferencesService.sortWithFavorite(filteredPools, favoritePoolName, pool => pool.name || '', comparePools);
 
   // Build display-ready card state while keeping static markup in PoolCardDisplay.
   const html = sortedPools.map(pool => {
@@ -861,10 +853,9 @@ function renderPools(pools) {
     const isExpanded = (isInitialRender && poolId === linkedPoolId)
       || (isFavorite ? preferences.favoritePoolExpanded : expandedPoolIds.has(poolId));
 
-    const poolModel = poolBrowserDataManager.getPool(poolName);
-    const poolStatus = getPoolCardStatus(pool, poolModel);
+    const poolStatus = getPoolCardStatus(pool);
     const tooltipText = getStatusTooltip(poolStatus.kind);
-    const availabilitySummary = getPoolCardAvailabilitySummary(poolModel);
+    const availabilitySummary = getPoolCardAvailabilitySummary(pool);
     const detailsViewModel = isExpanded ? createPoolDetailsViewModel(pool) : {};
 
     return PoolCardDisplay.render({
@@ -874,7 +865,7 @@ function renderPools(pools) {
       detailsId,
       isFavorite,
       isExpanded,
-      distanceMiles: Number.isFinite(pool.distance) ? pool.distance : null,
+      distanceMiles: distances.get(pool),
       transitionText: availabilitySummary.text,
       transitionLabel: availabilitySummary.label,
       transitionAction: availabilitySummary.action,
@@ -1004,20 +995,16 @@ function refreshPoolDisplay(poolId) {
   const poolCard = escapedPoolId ? document.querySelector(`[data-pool-id="${escapedPoolId}"]`) : null;
   if (!poolCard) return;
 
-  const poolsManager = poolBrowserDataManager.getPools();
-  const allPools = poolsManager.getAllPools();
-  const pool = allPools.find(p => (p.id || p.name) === poolId);
+  const pool = getPoolModel(poolId);
 
   if (pool) {
-    const poolRecord = pool.toJSON();
-
     // Find the pool-hours container in the pool card
     const poolCardContainer = poolCard.closest('.pool-card');
     const hoursElement = poolCardContainer.querySelector('.pool-hours');
 
     if (hoursElement) {
       // Generate the new hours content
-      const newHoursContent = formatPoolHours(poolRecord);
+      const newHoursContent = formatPoolHours(pool);
 
       // Replace the entire content of the pool-hours div
       hoursElement.outerHTML = newHoursContent;
@@ -1132,16 +1119,14 @@ async function startPoolBrowser() {
     const poolsManager = poolBrowserDataManager.getPools();
     const pools = poolsManager.getAllPools();
 
-    // Convert Pool objects to plain data records for backward compatibility.
-    const poolRecords = pools.map(pool => pool.toJSON());
-    poolBrowserPools = poolRecords;
-    setupPoolFeatureFilters(poolRecords);
+    poolBrowserPools = pools;
+    setupPoolFeatureFilters(pools);
 
     // Always render pools first with no location data
-    renderPools(poolRecords);
+    renderPools(pools);
     markPoolPerformance('summary-visible');
     startPoolLiveStatusUpdates();
-    setPoolListStatus(`Pool directory loaded. ${poolRecords.length} pools available.`, false);
+    setPoolListStatus(`Pool directory loaded. ${pools.length} pools available.`, false);
     globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.READY);
     schedulePoolBrowserActivationWork();
 

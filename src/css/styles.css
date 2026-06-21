@@ -1765,7 +1765,8 @@ button.my-meet-day__toggle .favorite-week__toggle-icon {
   right: auto;
 }
 
-.favorite-week__toggle-icon {
+.favorite-week__toggle-icon,
+.pool-filter__indicator {
   align-items: center;
   display: inline-flex;
   flex: 0 0 1rem;
@@ -1777,7 +1778,8 @@ button.my-meet-day__toggle .favorite-week__toggle-icon {
   width: 1rem;
 }
 
-.favorite-week__toggle-icon::before {
+.favorite-week__toggle-icon::before,
+.pool-filter__indicator::before {
   border-bottom: 0.55rem solid currentColor;
   border-left: 0.35rem solid transparent;
   border-right: 0.35rem solid transparent;
@@ -1786,7 +1788,8 @@ button.my-meet-day__toggle .favorite-week__toggle-icon {
   width: 0;
 }
 
-button.favorite-week__toggle[aria-expanded="false"] .favorite-week__toggle-icon {
+button.favorite-week__toggle[aria-expanded="false"] .favorite-week__toggle-icon,
+button.pool-filter__toggle[aria-expanded="false"] .pool-filter__indicator {
   transform: rotate(180deg);
 }
 
@@ -2672,19 +2675,7 @@ button.pool-filter__toggle:focus-visible {
 }
 
 .pool-filter__indicator {
-  align-items: center;
-  border: 1px solid var(--border-color);
-  border-radius: 50%;
   color: var(--primary-color);
-  display: inline-flex;
-  height: 1.5rem;
-  justify-content: center;
-  line-height: 1;
-  width: 1.5rem;
-}
-
-button.pool-filter__toggle[aria-expanded="true"] .pool-filter__indicator {
-  border-color: var(--primary-color);
 }
 
 .pool-filter__count {

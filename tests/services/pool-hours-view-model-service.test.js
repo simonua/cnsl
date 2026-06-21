@@ -8,8 +8,8 @@ const { PoolHoursViewModelService, PoolCalendarService } = require('../helpers/b
 describe('PoolHoursViewModelService', () => {
   it('builds the display model and enriches only semantic practice slots', () => {
     const weekStart = new Date(2026, 5, 15);
-    const pool = { id: 'long-reach', name: 'Long Reach' };
     const poolModel = {
+      id: 'long-reach',
       name: 'Long Reach',
       getCurrentStatus: () => ({ kind: 'open', status: 'Open', color: 'green', icon: '🟢' }),
       getWeekScheduleForDate: receivedWeekStart => {
@@ -37,7 +37,7 @@ describe('PoolHoursViewModelService', () => {
       }
     };
 
-    const viewModel = PoolHoursViewModelService.build(pool, poolModel, {
+    const viewModel = PoolHoursViewModelService.build(poolModel, {
       weekStart,
       timeUtils,
       practiceTeams: [{ name: 'Barracudas' }],
@@ -74,7 +74,7 @@ describe('PoolHoursViewModelService', () => {
       getPublicStatusTransitionToday: () => null
     };
 
-    const viewModel = PoolHoursViewModelService.build({ name: 'Broken Pool' }, poolModel, {
+    const viewModel = PoolHoursViewModelService.build(poolModel, {
       weekStart: new Date(2026, 5, 15),
       timeUtils: { getCurrentEasternTimeInfo: () => ({ date: '2026-06-16' }) },
       onError: (operation, poolName) => errors.push([operation, poolName])
@@ -95,7 +95,7 @@ describe('PoolHoursViewModelService', () => {
     assert.ok(viewModel.statusTooltip.length > 0);
   });
 
-  it('normalizes absent records, malformed schedules, and optional practice dependencies', () => {
+  it('normalizes malformed schedules and optional practice dependencies', () => {
     const poolModel = {
       name: 'Fallback Pool',
       getCurrentStatus: () => ({ kind: 'closed' }),
@@ -108,9 +108,9 @@ describe('PoolHoursViewModelService', () => {
       timeUtils: { getCurrentEasternTimeInfo: () => ({ date: '2026-06-16' }) }
     };
 
-    const viewModel = PoolHoursViewModelService.build(null, poolModel, options);
-    assert.equal(viewModel.poolId, undefined);
-    assert.equal(viewModel.poolName, 'this pool');
+    const viewModel = PoolHoursViewModelService.build(poolModel, options);
+    assert.equal(viewModel.poolId, 'Fallback Pool');
+    assert.equal(viewModel.poolName, 'Fallback Pool');
     assert.deepEqual(viewModel.weekSchedule, []);
     assert.equal(PoolHoursViewModelService.reportError('status', poolModel, new Error('ignored')), undefined);
 

@@ -440,16 +440,16 @@
           const dataManager = getDataManager();
           await dataManager.initialize(['pools', 'teams']);
           const teams = dataManager.getTeams().getAllTeams().sort((first, second) => first.name.localeCompare(second.name));
-          const pools = dataManager.getPools().getAllPools().sort((first, second) => first.getName().localeCompare(second.getName()));
+          const pools = dataManager.getPools().getAllPools().sort((first, second) => first.name.localeCompare(second.name));
 
           teams.forEach(team => {
             publishedTeamNames.add(team.name);
             publishedTeamNamesById.set(team.id, team.name);
           });
-          pools.forEach(pool => publishedPoolNames.add(pool.getName()));
+          pools.forEach(pool => publishedPoolNames.add(pool.name));
 
           populateSelect(favoriteTeam, teams, 'No favorite team', team => team.id, team => team.name);
-          populateSelect(favoritePool, pools, 'No favorite pool', pool => pool.getName(), pool => pool.getName());
+          populateSelect(favoritePool, pools, 'No favorite pool', pool => pool.name, pool => pool.name);
           applyFormValues(form, PreferencesService.get());
         } catch (error) {
           console.error('Unable to load setting options:', error);

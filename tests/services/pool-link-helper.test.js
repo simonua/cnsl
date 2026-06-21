@@ -35,10 +35,10 @@ describe('pool-link-helper', () => {
       assert.equal(createPoolLocationIndex([{ id: 'new', name: 'New Published Pool' }]).get('new published pool'), 'new');
     });
 
-    it('uses model names and skips unusable pool records', () => {
+    it('skips unusable pool records', () => {
       const locations = createPoolLocationIndex([
-        { id: 'model', getName: () => 'Model Pool' },
-        { id: 'blank', getName: () => '' },
+        { id: 'model', name: 'Model Pool' },
+        { id: 'blank', name: '' },
         { name: 'Missing ID' }
       ]);
 
@@ -79,11 +79,11 @@ describe('pool-link-helper', () => {
   });
 
   describe('getPoolDataFromLocation', () => {
-    const pool = { id: 'bwp', name: 'Bryant Woods', toJSON: () => ({ id: 'bwp', location: { googleMapsUrl: 'https://maps.google.com/bwp' } }) };
+    const pool = { id: 'bwp', name: 'Bryant Woods', location: { googleMapsUrl: 'https://maps.google.com/bwp' } };
     const dataManager = { getPools: () => ({ getAllPools: () => [pool] }) };
 
     it('retrieves a matching pool record and rejects unavailable inputs', () => {
-      assert.deepEqual(getPoolDataFromLocation('Bryant Woods', dataManager), { id: 'bwp', location: { googleMapsUrl: 'https://maps.google.com/bwp' } });
+      assert.equal(getPoolDataFromLocation('Bryant Woods', dataManager), pool);
       assert.equal(getPoolDataFromLocation('', dataManager), null);
       assert.equal(getPoolDataFromLocation('Unknown Pool', dataManager), null);
       assert.equal(getPoolDataFromLocation('Bryant Woods', null), null);
@@ -239,7 +239,7 @@ describe('pool-link-helper', () => {
   });
 
   describe('generateEnhancedPoolLink', () => {
-    const dataManager = { getPools: () => ({ getAllPools: () => [{ id: 'bwp', name: 'Bryant Woods', toJSON: () => ({ location: { googleMapsUrl: 'https://maps.google.com/bwp' } }) }] }) };
+    const dataManager = { getPools: () => ({ getAllPools: () => [{ id: 'bwp', name: 'Bryant Woods', location: { googleMapsUrl: 'https://maps.google.com/bwp' } }] }) };
 
     it('selects internal, map, and combined destinations for a known pool', () => {
       assert.match(generateEnhancedPoolLink('Bryant Woods', dataManager), /pools\.html\?pool=bwp/);
@@ -249,7 +249,7 @@ describe('pool-link-helper', () => {
       assert.doesNotMatch(conciseLink, />Bryant Woods Pool<\/a>/);
       assert.match(generateEnhancedPoolLink('Bryant Woods', dataManager, { preferPoolsPage: false }), /maps\.google\.com/);
       assert.match(generateEnhancedPoolLink('Bryant Woods', dataManager, { showBothLinks: true }), /maps-icon/);
-      const unsafeMapsManager = { getPools: () => ({ getAllPools: () => [{ id: 'bwp', name: 'Bryant Woods', toJSON: () => ({ location: { googleMapsUrl: 'javascript:bad' } }) }] }) };
+      const unsafeMapsManager = { getPools: () => ({ getAllPools: () => [{ id: 'bwp', name: 'Bryant Woods', location: { googleMapsUrl: 'javascript:bad' } }] }) };
       assert.doesNotMatch(generateEnhancedPoolLink('Bryant Woods', unsafeMapsManager, { showBothLinks: true }), /maps-icon/);
     });
 

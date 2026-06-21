@@ -146,6 +146,16 @@ test('[WF-AGENDA-002] home page shows the next practices and swim event for a se
   await expect(page.locator('#favoriteWeekStatus')).toBeHidden();
   expect(await agenda.locator('.favorite-week__events li').count()).toBeGreaterThan(0);
   await expect(agenda.locator('a[href^="pools.html?pool="]').first()).toBeVisible();
+  const calendarLink = agenda.getByRole('link', { name: 'Team Calendar' });
+  await expect(calendarLink).toHaveAttribute('href', /^https:\/\//);
+  await expect(calendarLink).toHaveAttribute('target', '_blank');
+  await expect(calendarLink).toHaveAttribute('rel', 'noopener');
+  const subscriptionLink = agenda.getByRole('link', { name: 'Subscribe to team events calendar' });
+  if (LINKED_AGENDA_TEAM.eventsSubscriptionUrl) {
+    await expect(subscriptionLink).toHaveAttribute('href', /^https:\/\//);
+  } else {
+    await expect(subscriptionLink).toHaveCount(0);
+  }
   await expect(page.locator('#shareSite')).toBeVisible();
   await expect.poll(() => page.locator('#favoriteWeekToggle').evaluate(toggle => {
     const iconBounds = toggle.querySelector('.favorite-week__toggle-icon').getBoundingClientRect();
@@ -172,6 +182,16 @@ test('[WF-AGENDA-002] home page shows the next practices and swim event for a se
     const eventName = matchup.parentElement.querySelector('.favorite-week__event-name');
     return Math.round(matchup.getBoundingClientRect().left - eventName.getBoundingClientRect().left);
   })).toBe(0);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect.poll(() => agenda.locator('.team-actions--calendar').evaluate(actions => {
+    const actionsBounds = actions.getBoundingClientRect();
+    const contentBounds = actions.closest('.favorite-week__content').getBoundingClientRect();
+    return {
+      contained: actionsBounds.left >= contentBounds.left && actionsBounds.right <= contentBounds.right,
+      hasHorizontalOverflow: globalThis.document.documentElement.scrollWidth
+        > globalThis.document.documentElement.clientWidth
+    };
+  })).toEqual({ contained: true, hasHorizontalOverflow: false });
   const accessibilityResults = await new AxeBuilder({ page })
     .include('#favoriteWeek')
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
@@ -300,6 +320,7 @@ test('[WF-AGENDA-008] dedicated My Meet Day route loads only after the experimen
   await expect(page.locator('#myMeetDay')).toBeHidden();
   dependencyRequests.releaseFirstDependency();
   await expect(page.locator('#myMeetDay')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Team Calendar' })).toHaveAttribute('href', /^https:\/\//);
   expect(await page.locator('#myMeetDay .my-meet-day__fact').count()).toBeGreaterThan(0);
   await expect(page.locator('#myMeetDay a[href^="pools.html?pool="]')).not.toHaveCount(0);
   await expect(page.locator('#myMeetDay').getByRole('link', { name: "how to mark a swimmer's arm" })).toHaveAttribute('href', 'swim-meet-resources.html#arm-markings');
@@ -343,6 +364,7 @@ test('[WF-AGENDA-010] dedicated My Meet Day route is usable before pool enrichme
     await page.goto('/my-meet-day.html', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('#myMeetDay')).toBeVisible();
     await expect(page.locator('#myMeetDayStatus')).toHaveText('Meet-day details loaded.');
+    await expect(page.getByRole('link', { name: 'Team Calendar' })).toHaveAttribute('href', /^https:\/\//);
     expect(await page.locator('#myMeetDay .my-meet-day__fact').count()).toBeGreaterThan(0);
     await expect(page.locator('#myMeetDay a[href^="pools.html?pool="]')).toHaveCount(0);
   } finally {

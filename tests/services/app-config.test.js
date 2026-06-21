@@ -126,8 +126,10 @@ describe('app-config', () => {
     assert.ok(config.MY_MEET_DAY_PRIMARY_DEPENDENCIES.every(source => config.TEAM_AGENDA_DEPENDENCIES.includes(source)));
     assert.ok(config.MY_MEET_DAY_OPTIONAL_DEPENDENCIES.every(source => config.TEAM_AGENDA_DEPENDENCIES.includes(source)));
     assert.equal(config.MY_MEET_DAY_PRIMARY_DEPENDENCIES.includes('js/managers/pools-manager.js'), false);
-    assert.equal(config.MY_MEET_DAY_PRIMARY_DEPENDENCIES.includes('js/services/team-agenda-display.js'), false);
-    assert.equal(config.MY_MEET_DAY_PRIMARY_DEPENDENCIES.includes('js/services/team-schedule-service.js'), false);
+    assert.equal(config.MY_MEET_DAY_PRIMARY_DEPENDENCIES.includes('js/services/team-agenda-display.js'), true);
+    assert.equal(config.MY_MEET_DAY_PRIMARY_DEPENDENCIES.includes('js/services/team-schedule-service.js'), true);
+    assert.ok(config.MY_MEET_DAY_PRIMARY_DEPENDENCIES.indexOf('js/services/team-schedule-service.js')
+      < config.MY_MEET_DAY_PRIMARY_DEPENDENCIES.indexOf('js/services/team-agenda-display.js'));
     assert.equal(config.MY_MEET_DAY_OPTIONAL_DEPENDENCIES.includes('js/managers/pools-manager.js'), true);
     assert.equal(Object.isFrozen(config.MY_MEET_DAY_PRIMARY_DEPENDENCIES), true);
     assert.equal(Object.isFrozen(config.MY_MEET_DAY_OPTIONAL_DEPENDENCIES), true);

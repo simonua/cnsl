@@ -88,43 +88,6 @@ if (typeof globalThis.Pool === 'undefined') {
   }
 
   /**
-   * Get pool name (enum-style access)
-   * @returns {string} - Pool name
-   */
-  getName() {
-    return this.name;
-  }
-
-  /**
-   * Get pool features
-   * @returns {Array} - Array of pool features
-   */
-  getFeatures() {
-    return [...this.features];
-  }
-
-  /**
-   * Check if pool has a specific feature
-   * @param {string} feature - Feature to check for
-   * @returns {boolean} - True if pool has feature
-   */
-  hasFeature(feature) {
-    return this.features.includes(feature);
-  }
-
-  /**
-   * Get contact information
-   * @returns {Object} - Contact information object
-   */
-  getContactInfo() {
-    return {
-      address: this.address,
-      phone: this.phone,
-      website: this.caUrl
-    };
-  }
-
-  /**
   * Get current pool status from published schedule periods.
    * @returns {PoolStatus} - Current pool status
    */
@@ -350,29 +313,6 @@ if (typeof globalThis.Pool === 'undefined') {
   }
 
   /**
-   * Resolve status for a point within published period schedule slots.
-   * @private
-   * @param {Array} timeSlots - Applicable slots for the date
-   * @param {number} currentTime - Minute of day to inspect
-   * @returns {PoolStatus} Current access status
-   */
-  _getPeriodStatusAtMinutes(timeSlots, currentTime) {
-    const periodSchedule = this._getPeriodSchedule();
-    return periodSchedule ? periodSchedule.getStatusAtMinutes(timeSlots, currentTime) : { isOpen: false, color: 'gray' };
-  }
-
-  /**
-   * Get all week schedule with status.
-   * @returns {Array} - Array of day objects with status
-   */
-  getWeekSchedule() {
-    const weekStartDate = new Date();
-    const daysSinceMonday = (weekStartDate.getDay() + 6) % 7;
-    weekStartDate.setDate(weekStartDate.getDate() - daysSinceMonday);
-    return this._getPeriodWeekScheduleForDate(weekStartDate);
-  }
-
-  /**
    * Get all week schedule with status for a specific week.
    * @param {Date} weekStartDate - The Monday of the week to get the schedule for
    * @returns {Array} - Array of day objects with time slots
@@ -390,95 +330,6 @@ if (typeof globalThis.Pool === 'undefined') {
   _getPeriodWeekScheduleForDate(weekStartDate) {
     const periodSchedule = this._getPeriodSchedule();
     return periodSchedule ? periodSchedule.getWeekScheduleForDate(weekStartDate) : [];
-  }
-
-  /**
-   * Get schedule override for a specific date and day
-   * @private
-   * @param {string} dateString - Date in YYYY-MM-DD format
-   * @param {string} shortDay - Day abbreviation (Mon, Tue, etc.)
-   * @returns {Object|null} - Override object or null if none found
-   */
-  _getScheduleOverrideForDate(dateString, shortDay) {
-    const periodSchedule = this._getPeriodSchedule();
-    return periodSchedule ? periodSchedule.getOverrideForDate(dateString, shortDay) : null;
-  }
-
-  /**
-   * Merge regular schedule with override for a specific day
-   * @private
-   * @param {Object} activeSchedule - The active regular schedule
-   * @param {string} shortDay - Day abbreviation (Mon, Tue, etc.)
-   * @param {Object} override - The schedule override object
-   * @returns {Array} - Array of merged time slots
-   */
-  _mergeScheduleWithOverride(activeSchedule, shortDay, override) {
-    const periodSchedule = this._getPeriodSchedule();
-    return periodSchedule ? periodSchedule.mergeScheduleWithOverride(activeSchedule, shortDay, override) : [];
-  }
-
-  /**
-   * Check if pool is open now
-   * @returns {boolean} - True if pool is currently open
-   */
-  isOpenNow() {
-    const status = this.getCurrentStatus();
-    return status.isOpen;
-  }
-
-  /**
-   * Search pool data for a term
-   * @param {string} searchTerm - Term to search for
-   * @returns {Object} - Search results with matches
-   */
-  search(searchTerm) {
-    const term = searchTerm.toLowerCase();
-    const matches = {
-      name: this.name.toLowerCase().includes(term),
-      address: this.address.toLowerCase().includes(term),
-      features: this.features.some(feature => feature.toLowerCase().includes(term))
-    };
-
-    const hasMatch = Object.values(matches).some(match => match);
-
-    return {
-      hasMatch,
-      matches,
-      pool: hasMatch ? this : null
-    };
-  }
-
-  /**
-   * Export pool data as JSON
-   * @returns {Object} - Pool data as plain object
-   */
-  toJSON() {
-    const result = {
-      id: this.id,
-      name: this.name,
-      caUrl: this.caUrl,
-      scheduleUrl: this.scheduleUrl,
-      phone: this.phone,
-      location: this.location,
-      laneCount: this.laneCount,
-      laneLengthUnits: this.laneLengthUnits,
-      laneLength: this.laneLength,
-      features: this.features,
-      schedules: this.schedulePeriods,
-      scheduleOverrides: this.scheduleOverrides
-    };
-    if (!this.phone) delete result.phone;
-    if (this.scheduleOverrides.length === 0) delete result.scheduleOverrides;
-    return result;
-  }
-
-  /**
-   * Get current active schedule period information
-   * @returns {Object|null} - Schedule period with startDate and endDate, or null if no active schedule
-   */
-  getCurrentSchedulePeriod() {
-    const periodSchedule = this._getPeriodSchedule();
-    return periodSchedule ? periodSchedule.getCurrentSchedulePeriod() : null;
   }
 
   /**

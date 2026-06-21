@@ -8,7 +8,16 @@ const { Meet, TimeUtils, TeamScheduleService: PublishedTeamScheduleService } = t
 const testContext = teamAgendaModule.context;
 
 testContext.HtmlSafety = {
-  escapeHtml: value => String(value)
+  escapeHtml: value => String(value),
+  safeHttpUrl: value => {
+    if (!value || /["'<>`]/.test(value)) return '';
+    try {
+      const url = new URL(value);
+      return url.protocol === 'http:' || url.protocol === 'https:' ? value : '';
+    } catch (_error) {
+      return '';
+    }
+  }
 };
 testContext.generateLinkedPoolMentions = location => String(location);
 testContext.createPoolLocationIndex = pools => pools;
@@ -30,6 +39,46 @@ const meetTimes = {
 };
 
 describe('TeamAgendaDisplay', () => {
+  describe('renderCalendarActions', () => {
+    it('renders safe official calendar and subscription actions', () => {
+      const html = TeamAgendaDisplay.renderCalendarActions({
+        calendarUrl: 'https://example.com/team/calendar',
+        eventsSubscriptionUrl: 'https://example.com/team/events.ics?enabled=true'
+      });
+
+      assert.match(html, /href="https:\/\/example\.com\/team\/calendar" target="_blank" rel="noopener"/);
+      assert.match(html, />Team Calendar<\/a>/);
+      assert.match(html, /href="https:\/\/example\.com\/team\/events\.ics\?enabled=true" target="_blank" rel="noopener"/);
+      assert.match(html, />Subscribe<span class="visually-hidden"> to team events calendar<\/span><\/a>/);
+    });
+
+    it('renders only the calendar action when no subscription is published', () => {
+      const html = TeamAgendaDisplay.renderCalendarActions({
+        calendarUrl: 'https://example.com/team/calendar',
+        eventsSubscriptionUrl: ''
+      });
+
+      assert.match(html, /Team Calendar/);
+      assert.doesNotMatch(html, /Subscribe/);
+    });
+
+    it('omits missing, malformed, and unsafe destinations', () => {
+      assert.equal(TeamAgendaDisplay.renderCalendarActions(null), '');
+      assert.equal(TeamAgendaDisplay.renderCalendarActions({}), '');
+      for (const unsafeUrl of [
+        'javascript:alert(1)',
+        'data:text/html,unsafe',
+        'not a URL',
+        'https://example.com/" onclick="alert(1)'
+      ]) {
+        assert.equal(TeamAgendaDisplay.renderCalendarActions({
+          calendarUrl: unsafeUrl,
+          eventsSubscriptionUrl: unsafeUrl
+        }), '');
+      }
+    });
+  });
+
   describe('getTitle', () => {
     it('uses the team name with a concise upcoming events label', () => {
       const teamName = 'Fixture Team';

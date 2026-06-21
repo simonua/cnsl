@@ -9,15 +9,14 @@ if (typeof globalThis.PoolHoursViewModelService === 'undefined') {
   class PoolHoursViewModelService {
     /**
      * Build the display model for one pool's selected schedule week.
-     * @param {Object} pool - Published pool record
-     * @param {Pool} poolModel - Loaded pool model
+    * @param {Pool} pool - Loaded pool model
      * @param {Object} options - Explicit calendar, formatting, and schedule dependencies
      * @returns {Object} Display-ready pool hours view model
      */
-    static build(pool, poolModel, options = {}) {
-      const record = pool || {};
-      const poolId = record.id || record.name;
-      const poolName = record.name || 'this pool';
+    static build(pool, options = {}) {
+      const poolModel = pool || {};
+      const poolId = poolModel.id || poolModel.name;
+      const poolName = poolModel.name || 'this pool';
       const weekStart = options.weekStart;
       const weekEnd = PoolCalendarService.getWeekEnd(weekStart);
       const controlId = String(poolId).replace(/[^a-zA-Z0-9_-]/g, '-');

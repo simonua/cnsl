@@ -101,7 +101,13 @@
         try {
           const dataManager = getDataManager();
           await dataManager.initialize(['pools']);
-          return { pools: dataManager.getPools().getAllPools().map(pool => pool.toJSON()) };
+          return {
+            pools: dataManager.getPools().getAllPools().map(pool => ({
+              location: pool.location,
+              schedules: pool.schedulePeriods,
+              scheduleOverrides: pool.scheduleOverrides
+            }))
+          };
         } catch (_error) {
           return WeatherAlertService.fetchJson(`assets/data/${YEAR}/pools/pools.json`, fetch);
         }

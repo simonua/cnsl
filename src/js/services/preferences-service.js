@@ -6,6 +6,9 @@ if (typeof globalThis.PreferencesService === 'undefined') {
   class PreferencesService {
     static STORAGE_KEY = globalThis.PREFERENCES_STORAGE_KEY;
 
+    // Temporary storage migration owned here; remove after the full 2027 season, no earlier than 2027-10-01.
+    static LEGACY_PRACTICE_GROUPS_PROPERTY = 'practiceAgeGroups';
+
     static CONTRASTS = ['system', 'high'];
 
     static MOTIONS = ['system', 'reduced'];
@@ -101,9 +104,18 @@ if (typeof globalThis.PreferencesService === 'undefined') {
 
       try {
         const storedValue = storage.getItem(PreferencesService.STORAGE_KEY);
-        return storedValue
-          ? PreferencesService.normalize(JSON.parse(storedValue))
-          : PreferencesService.getFallbackPreferences();
+        if (!storedValue) return PreferencesService.getFallbackPreferences();
+
+        const storedPreferences = JSON.parse(storedValue);
+        const normalized = PreferencesService.normalize(storedPreferences);
+        if (Object.hasOwn(storedPreferences, PreferencesService.LEGACY_PRACTICE_GROUPS_PROPERTY)) {
+          try {
+            storage.setItem(PreferencesService.STORAGE_KEY, JSON.stringify(normalized));
+          } catch (_error) {
+            // Reading remains available when storage becomes read-only after retrieval.
+          }
+        }
+        return normalized;
       } catch (_error) {
         return PreferencesService.getFallbackPreferences();
       }
@@ -169,7 +181,10 @@ if (typeof globalThis.PreferencesService === 'undefined') {
         ? preferences.poolScheduleLayout
         : 'list';
       const poolFeatureFilters = PreferencesService.normalizeFeatureFilters(preferences.poolFeatureFilters);
-      const practiceGroups = PreferencesService.normalizePracticeGroups(preferences.practiceGroups, preferences.practiceAgeGroups);
+      const practiceGroups = PreferencesService.normalizePracticeGroups(
+        preferences.practiceGroups,
+        preferences[PreferencesService.LEGACY_PRACTICE_GROUPS_PROPERTY]
+      );
       const locationAwarenessEnabled = preferences.locationAwarenessEnabled === true;
 
       const requestedWeatherRefreshMinutes = Number(preferences.weatherRefreshMinutes);

@@ -39,43 +39,6 @@ if (typeof globalThis.Meet === 'undefined') {
     }
 
     /**
-     * Gets the published meet location.
-     * @returns {string} Meet location, or an empty string when unavailable
-     */
-    getLocation() {
-      return this.location;
-    }
-
-    /**
-     * Expands the published home and visiting labels into individual team names.
-     * @returns {string[]} Participating team names
-     */
-    getParticipatingTeams() {
-      return [this.home_team, this.visiting_team].flatMap(label => String(label || '').split(','))
-        .map(team => team.trim())
-        .filter(Boolean);
-    }
-
-    /**
-     * Checks whether a team participates in the meet.
-     * @param {string} teamName - Exact published team name to match
-     * @returns {boolean} Whether the team participates
-     */
-    includesTeam(teamName) {
-      return this.getParticipatingTeams().includes(teamName);
-    }
-
-    /**
-     * Checks whether the normalized meet location matches a pool name.
-     * @param {string} poolName - Pool name to compare
-     * @returns {boolean} Whether the meet occurs at the pool
-     */
-    occursAtPool(poolName) {
-      const normalize = pool => String(pool || '').trim().replace(/\s+pool$/i, '').toLowerCase();
-      return normalize(this.location) !== '' && normalize(this.location) === normalize(poolName);
-    }
-
-    /**
      * Checks whether the meet omits regular dual-meet team assignments.
      * @returns {boolean} Whether this is a special meet
      */
@@ -181,16 +144,6 @@ if (typeof globalThis.Meet === 'undefined') {
       return MeetLiveStatus.CONCLUDED;
     }
 
-    /**
-     * Searches the meet's teams, location, date, time, and name.
-     * @param {string} searchTerm - Case-insensitive term to match
-     * @returns {boolean} Whether any searchable meet field matches
-     */
-    matchesSearchTerm(searchTerm) {
-      const term = String(searchTerm || '').toLowerCase();
-      return [this.home_team, this.visiting_team, this.location, this.date, this.name]
-        .some(value => Boolean(value && value.toLowerCase().includes(term)));
-    }
   }
 
   globalThis.Meet = Meet;

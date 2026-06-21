@@ -181,6 +181,24 @@
   }
 
   /**
+   * Render safe official calendar actions published for a team.
+   * @param {Object|null} team - Published team model or record
+   * @returns {string} Calendar action HTML, or an empty string when no safe destination exists
+   */
+  function renderCalendarActions(team) {
+    if (!team) return '';
+
+    const calendarUrl = globalThis.HtmlSafety.safeHttpUrl(team.calendarUrl);
+    const eventsSubscriptionUrl = globalThis.HtmlSafety.safeHttpUrl(team.eventsSubscriptionUrl);
+    if (!calendarUrl && !eventsSubscriptionUrl) return '';
+
+    return `<div class="team-actions team-actions--calendar">
+      ${calendarUrl ? `<a href="${calendarUrl}" target="_blank" rel="noopener" class="btn">${TeamAgendaIcons.render('calendar')}Team Calendar</a>` : ''}
+      ${eventsSubscriptionUrl ? `<a href="${eventsSubscriptionUrl}" target="_blank" rel="noopener" class="btn">${TeamAgendaIcons.render('calendar')}Subscribe<span class="visually-hidden"> to team events calendar</span></a>` : ''}
+    </div>`;
+  }
+
+  /**
    * Render a meet event name.
    * @param {Object} event - Agenda event
    * @returns {string} Meet-name HTML
@@ -286,6 +304,7 @@
     getMeetLocation,
     getUpcomingEvents,
     isTimeTrialsMeet,
+    renderCalendarActions,
     renderEvents
   });
 })();

@@ -167,13 +167,11 @@ describe('DataManager', () => {
   });
 
   describe('accessors and refresh lifecycle', () => {
-    it('creates domain managers, exposes aliases, and returns empty lookups before data', () => {
+    it('creates domain managers and returns no season metadata before data loads', () => {
       const manager = new DataManager();
-      assert.equal(manager.pools, manager.getPools());
-      assert.equal(manager.teams, manager.getTeams());
-      assert.equal(manager.meets, manager.getMeets());
-      assert.equal(manager.getPool('Missing'), null);
-      assert.equal(manager.getTeam('Missing'), null);
+      assert.ok(manager.getPools());
+      assert.ok(manager.getTeams());
+      assert.ok(manager.getMeets());
       assert.equal(manager.getSeasonInfo(), null);
     });
 
@@ -186,7 +184,7 @@ describe('DataManager', () => {
         const manager = new DataManager();
         await assert.rejects(manager.initialize(['meets']), /Invalid meets annual data response/);
         assert.equal(manager.isInitialized(['meets']), false);
-        assert.equal(manager.getMeets().getMeetCount(), 0);
+        assert.equal(manager.getMeets().getAllMeets().length, 0);
       } finally {
         global.fetch = originalFetch;
         global.FileHelper = originalFileHelper;

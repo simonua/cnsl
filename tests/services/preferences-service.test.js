@@ -68,6 +68,23 @@ describe('PreferencesService', () => {
       });
       assert.deepEqual(PreferencesService.get(storage), saved);
       assert.ok(storage.getItem(PreferencesService.STORAGE_KEY));
+      assert.equal(Object.hasOwn(JSON.parse(storage.getItem(PreferencesService.STORAGE_KEY)), 'practiceAgeGroups'), false);
+    });
+
+    it('rewrites age-only stored preferences to the canonical practice groups', () => {
+      const storage = createLocalStorageMock();
+      storage.setItem(PreferencesService.STORAGE_KEY, JSON.stringify({
+        practiceAgeGroups: ['11-12'],
+        theme: 'dark'
+      }));
+
+      const preferences = PreferencesService.get(storage);
+      const persisted = JSON.parse(storage.getItem(PreferencesService.STORAGE_KEY));
+
+      assert.deepEqual(preferences.practiceGroups, ['first-splash', '11-12']);
+      assert.deepEqual(persisted.practiceGroups, ['first-splash', '11-12']);
+      assert.equal(Object.hasOwn(persisted, 'practiceAgeGroups'), false);
+      assert.equal(persisted.theme, 'dark');
     });
 
     it('falls back safely when stored content is invalid', () => {

@@ -50,13 +50,24 @@ test.beforeEach(async ({ page }) => {
 
 test('[WF-POOLS-001] pool feature filters expose their state and resulting count', async ({ page }) => {
   await initializeAnalyticsRecorder(page);
+  await seedPreferences(page, { contrast: 'high', textSize: 'extra-large' });
   await page.goto('/pools.html');
   await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
   const totalPoolCount = await page.locator('#poolList .pool-card').count();
   expect(totalPoolCount).toBeGreaterThan(0);
 
   const filters = page.locator('#togglePoolFeatureFilters');
-  await page.locator('#poolFeatureFilter').click({ position: { x: 4, y: 4 } });
+  const indicator = filters.locator('.pool-filter__indicator');
+  await expect(indicator).toHaveAttribute('aria-hidden', 'true');
+  await expect(filters).toHaveAccessibleName('Features');
+  await expect.poll(() => indicator.evaluate(element => globalThis.getComputedStyle(element).transform)).not.toBe('none');
+  await filters.press('Enter');
+  await expect(filters).toHaveAttribute('aria-expanded', 'true');
+  await expect.poll(() => indicator.evaluate(element => globalThis.getComputedStyle(element).transform)).toBe('none');
+  await expect.poll(() => indicator.evaluate(element => globalThis.getComputedStyle(element).transitionDuration)).toBe('0s');
+  await filters.press('Space');
+  await expect(filters).toHaveAttribute('aria-expanded', 'false');
+  await filters.click();
   await expect(filters).toHaveAttribute('aria-expanded', 'true');
   await expect(page.locator('.pool-filter__group--accessibility')).toBeVisible();
   await expect(page.locator('.pool-filter__option--young-swimmers').first()).toBeVisible();

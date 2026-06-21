@@ -94,13 +94,8 @@
     'js/models/pool.js',
     'js/managers/pools-manager.js'
   ]);
-  const MY_MEET_DAY_EXCLUDED_DEPENDENCIES = Object.freeze([
-    ...MY_MEET_DAY_OPTIONAL_DEPENDENCIES,
-    'js/services/team-schedule-service.js',
-    'js/services/team-agenda-display.js'
-  ]);
   const MY_MEET_DAY_PRIMARY_DEPENDENCIES = Object.freeze(
-    TEAM_AGENDA_DEPENDENCIES.filter(source => !MY_MEET_DAY_EXCLUDED_DEPENDENCIES.includes(source))
+    TEAM_AGENDA_DEPENDENCIES.filter(source => !MY_MEET_DAY_OPTIONAL_DEPENDENCIES.includes(source))
   );
 
   // External services and regional behavior.

@@ -63,7 +63,7 @@ function generatePoolDirectionsLink(poolData, displayText, navigatorData = globa
 function createPoolLocationIndex(pools = []) {
   const poolLocations = new Map();
   pools.forEach(pool => {
-    const poolName = typeof pool.getName === 'function' ? pool.getName() : pool.name;
+    const poolName = pool.name;
     if (!poolName || !pool.id) return;
     poolLocations.set(poolName.toLowerCase(), pool.id);
     poolLocations.set(`${poolName} Pool`.toLowerCase(), pool.id);
@@ -101,7 +101,7 @@ function getPoolDataFromLocation(locationName, dataManager, poolsOrIndex = null)
     const pools = poolsManager.getAllPools();
     const poolId = getPoolIdFromLocation(locationName, poolsOrIndex || pools);
     const pool = poolId ? pools.find(p => p.id === poolId) : null;
-    return pool ? pool.toJSON() : null;
+    return pool;
   } catch (error) {
     console.warn('Error getting pool data:', error);
     return null;

@@ -113,8 +113,13 @@
 
     const guide = document.getElementById('myMeetDay');
     const content = document.getElementById('myMeetDayContent');
+    const calendarActions = document.getElementById('myMeetDayCalendarActions');
     if (guide) guide.hidden = true;
     if (content) content.replaceChildren();
+    if (calendarActions) {
+      calendarActions.hidden = true;
+      calendarActions.replaceChildren();
+    }
   }
 
   /**
@@ -184,6 +189,13 @@
       if (!team) {
         showState('myMeetDayTeamUnavailable', 'Your saved team is not listed this season.');
         return;
+      }
+
+      const calendarActions = document.getElementById('myMeetDayCalendarActions');
+      const calendarActionsMarkup = globalThis.TeamAgendaDisplay.renderCalendarActions(team);
+      if (calendarActions && calendarActionsMarkup) {
+        calendarActions.innerHTML = calendarActionsMarkup;
+        calendarActions.hidden = false;
       }
 
       const guide = globalThis.MeetDayGuideService.getGuide(

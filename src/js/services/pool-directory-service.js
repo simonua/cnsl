@@ -169,34 +169,31 @@ if (typeof globalThis.PoolDirectoryService === 'undefined') {
     }
 
     /**
-     * Apply a live availability requirement to records through a model lookup callback.
-     * @param {Array} pools - Pool records already matched by other directory filters
+     * Apply a live availability requirement to pool models.
+     * @param {Pool[]} pools - Pool models already matched by other directory filters
      * @param {string} filter - Supported directory availability filter
-     * @param {Function} getPoolModel - Resolve a pool record to its model
-     * @returns {Array} Records matching the requested availability condition
+     * @returns {Pool[]} Models matching the requested availability condition
      */
-    static filterByAvailability(pools, filter, getPoolModel) {
-      if (filter === 'all' || typeof getPoolModel !== 'function') return pools;
+    static filterByAvailability(pools, filter) {
+      if (filter === 'all') return pools;
 
-      return pools.filter(pool => PoolDirectoryService.matchesAvailabilityFilter(getPoolModel(pool), filter));
+      return pools.filter(pool => PoolDirectoryService.matchesAvailabilityFilter(pool, filter));
     }
 
     /**
-     * Build a stable live-status signature for visible records and active availability filtering.
-     * @param {Array} pools - Available pool records
+     * Build a stable live-status signature for pool models and active availability filtering.
+     * @param {Pool[]} pools - Available pool models
      * @param {string} filter - Active directory availability filter
-     * @param {Function} getPoolModel - Resolve a pool record to its model
      * @returns {string} State signature for detecting schedule transitions
      */
-    static getLiveStatusSignature(pools, filter, getPoolModel) {
-      if (!Array.isArray(pools) || typeof getPoolModel !== 'function') return '';
+    static getLiveStatusSignature(pools, filter) {
+      if (!Array.isArray(pools)) return '';
 
       const includesAvailability = filter !== 'all';
       return pools.map(pool => {
-        const poolModel = getPoolModel(pool);
-        if (!poolModel) return `${pool.id || pool.name}:unavailable`;
-        const status = poolModel.getCurrentStatus();
-        const availability = includesAvailability ? PoolDirectoryService.matchesAvailabilityFilter(poolModel, filter) : '';
+        if (!pool || typeof pool.getCurrentStatus !== 'function') return `${pool?.id || pool?.name}:unavailable`;
+        const status = pool.getCurrentStatus();
+        const availability = includesAvailability ? PoolDirectoryService.matchesAvailabilityFilter(pool, filter) : '';
         return `${pool.id || pool.name}:${status.kind}:${String(availability)}`;
       }).join('|');
     }
@@ -250,27 +247,6 @@ if (typeof globalThis.PoolDirectoryService === 'undefined') {
       )));
     }
 
-    /**
-     * Add calculated distances to pools with valid coordinates.
-     * @param {Array} pools - Pool records
-     * @param {Object|null} userCoordinates - Visitor latitude and longitude
-     * @returns {Array} Pool records with available distances
-     */
-    static addDistances(pools, userCoordinates) {
-      if (!userCoordinates) return pools;
-
-      return pools.map(pool => {
-        if (!pool) return pool;
-        const location = pool.location || pool;
-        const latitude = Number(location.lat);
-        const longitude = Number(location.lng);
-        if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return pool;
-        return {
-          ...pool,
-          distance: PoolDirectoryService.calculateDistance(userCoordinates, { lat: latitude, lng: longitude })
-        };
-      });
-    }
   }
 
   globalThis.PoolDirectoryService = PoolDirectoryService;

@@ -6,7 +6,7 @@ const directoryScenarios = [
     item: '.pool-card',
     status: '#poolListStatus',
     announcement: /Pool directory loaded\./,
-    domains: ['meets', 'pools', 'teams'],
+    domains: ['pools'],
     surface: '.pool-card.collapsed',
     toggle: '.pool-header__toggle'
   },
