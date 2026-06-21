@@ -6219,10 +6219,13 @@ html:has(.settings-dialog[open]) {
   border: none;
   color: var(--text-dark);
   height: 75dvh;
-  margin: auto;
+  inset-inline-start: 50vw;
+  margin-block: auto;
+  margin-inline: 0;
   max-height: calc(100dvh - 2rem);
   overflow: hidden;
   padding: 0;
+  transform: translateX(-50%);
   width: min(calc(100% - 2rem), 42rem);
 }
 
@@ -6846,7 +6849,6 @@ button.settings-dialog__close:focus {
 
 @media (max-width: 30rem) {
   .settings-dialog {
-    margin: auto;
     max-height: calc(100dvh - 1rem);
     width: calc(100% - 1rem);
   }

@@ -35,12 +35,10 @@ for (const scenario of directoryScenarios) {
     await page.goto(scenario.path);
     await expect(page.locator(scenario.list)).toHaveAttribute('aria-busy', 'false');
     await expect(page.locator(`${scenario.list} ${scenario.item}`).first()).toBeVisible();
-    if (scenario.reference === 'TEAMS' || scenario.reference === 'MEETS') {
-      const enrichmentMark = `cnsl:${scenario.reference.toLowerCase()}:optional-enrichment-settled`;
-      await expect.poll(() => page.evaluate(markName => (
-        performance.getEntriesByName(markName).length
-      ), enrichmentMark)).toBe(1);
-    }
+    const enrichmentMark = `cnsl:${scenario.reference.toLowerCase()}:optional-enrichment-settled`;
+    await expect.poll(() => page.evaluate(markName => (
+      performance.getEntriesByName(markName).length
+    ), enrichmentMark)).toBe(1);
     expect(requestedDomains.sort()).toEqual(scenario.domains);
   });
 }
