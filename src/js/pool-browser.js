@@ -7,13 +7,25 @@ let poolAvailabilityFilter = 'all';
 let poolAvailabilityOptionsDate = '';
 let poolLiveStatusRefreshTimeout = null;
 let poolLiveStatusSignature = '';
+let poolBrowserDetailDependenciesPromise = null;
 let poolBrowserEnrichmentPromise = null;
 let poolLocationRequestInFlight = false;
+let poolSummaryVisible = false;
 const PoolBrowserSafety = HtmlSafety;
+const POOL_DEPENDENCY_GROUPS = Object.freeze({
+  DETAIL: 'detail',
+  ENRICHMENT: 'enrichment'
+});
 const POOL_LOCATION_REQUEST_OPTIONS = Object.freeze([
   Object.freeze({ enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 }),
   Object.freeze({ enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 })
 ]);
+const poolBrowserControllerSource = document.currentScript && document.currentScript.src
+  ? new URL(document.currentScript.src, document.baseURI)
+  : null;
+const poolBrowserAssetVersion = poolBrowserControllerSource
+  ? poolBrowserControllerSource.searchParams.get('v')
+  : '';
 
 globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.PREPARING);
 
@@ -37,6 +49,73 @@ function markPoolPerformance(markName) {
  */
 function _getTimeUtils() {
   return globalThis.TimeUtils || null;
+}
+
+/**
+ * Applies the Pool controller asset version to a lazily loaded dependency URL.
+ * @param {string} source - Relative dependency source
+ * @returns {string} Versioned dependency URL or the unchanged relative source
+ */
+function getPoolDependencySource(source) {
+  if (!poolBrowserAssetVersion) return source;
+
+  const dependencySource = new URL(source, document.baseURI);
+  dependencySource.searchParams.set('v', poolBrowserAssetVersion);
+  return dependencySource.toString();
+}
+
+/**
+ * Appends one classic Pool dependency and settles after it loads.
+ * @param {string} source - Relative dependency source
+ * @param {string} group - Pool dependency group
+ * @returns {Promise<void>} Promise settled when the script loads or fails
+ */
+function loadPoolScript(source, group) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = getPoolDependencySource(source);
+    script.async = false;
+    script.dataset.poolDependency = source;
+    script.dataset.poolDependencyGroup = group;
+    script.addEventListener('load', resolve, { once: true });
+    script.addEventListener('error', () => reject(new Error(`Unable to load ${source}.`)), { once: true });
+    document.head.appendChild(script);
+  });
+}
+
+/**
+ * Loads a Pool dependency group in deterministic classic-script order.
+ * @param {ReadonlyArray<string>} sources - Ordered dependency sources
+ * @param {string} group - Pool dependency group
+ * @returns {Promise<void>} Promise settled when every dependency has loaded
+ */
+function loadPoolDependencies(sources, group) {
+  return Promise.all(sources.map(source => loadPoolScript(source, group))).then(() => undefined);
+}
+
+/**
+ * Loads detail-rendering dependencies once after summaries are available.
+ * @returns {Promise<void>} Promise settled when detail providers have loaded
+ */
+function loadPoolDetailDependencies() {
+  if (!poolBrowserDetailDependenciesPromise) {
+    poolBrowserDetailDependenciesPromise = loadPoolDependencies(
+      globalThis.POOL_DETAIL_DEPENDENCIES,
+      POOL_DEPENDENCY_GROUPS.DETAIL
+    );
+  }
+  return poolBrowserDetailDependenciesPromise;
+}
+
+/**
+ * Loads optional Team and Meet enrichment dependencies once.
+ * @returns {Promise<void>} Promise settled when enrichment providers have loaded
+ */
+function loadPoolEnrichmentDependencies() {
+  return loadPoolDependencies(
+    globalThis.POOL_ENRICHMENT_DEPENDENCIES,
+    POOL_DEPENDENCY_GROUPS.ENRICHMENT
+  );
 }
 
 // ------------------------------
@@ -85,26 +164,31 @@ async function initializePoolBrowser() {
 function startPoolBrowserEnrichment() {
   if (poolBrowserEnrichmentPromise) return poolBrowserEnrichmentPromise;
 
-  poolBrowserEnrichmentPromise = Promise.allSettled([
-    poolBrowserDataManager.initialize(['teams']),
-    poolBrowserDataManager.initialize(['meets'])
-  ]).then(([teamsResult, meetsResult]) => {
-    if (teamsResult.status === 'rejected') {
-      console.warn('[Pool Browser] Team practice labels are unavailable:', teamsResult.reason);
-    }
-    if (meetsResult.status === 'rejected') {
-      console.warn('[Pool Browser] Swim meet calendar highlights are unavailable:', meetsResult.reason);
-    }
-    if (teamsResult.status === 'fulfilled' && meetsResult.status === 'fulfilled') {
-      PoolMeetScheduleService.applyMeetOverrides(
-        poolBrowserDataManager.getPools().getAllPools(),
-        poolBrowserDataManager.getTeams().getAllTeams(),
-        poolBrowserDataManager.getMeets().getAllMeets()
-      );
-    }
-    refreshHydratedPoolDetails();
-    markPoolPerformance('optional-enrichment-settled');
-  });
+  poolBrowserEnrichmentPromise = loadPoolEnrichmentDependencies()
+    .then(() => Promise.allSettled([
+      poolBrowserDataManager.initialize(['teams']),
+      poolBrowserDataManager.initialize(['meets'])
+    ]))
+    .then(([teamsResult, meetsResult]) => {
+      if (teamsResult.status === 'rejected') {
+        console.warn('[Pool Browser] Team practice labels are unavailable:', teamsResult.reason);
+      }
+      if (meetsResult.status === 'rejected') {
+        console.warn('[Pool Browser] Swim meet calendar highlights are unavailable:', meetsResult.reason);
+      }
+      if (teamsResult.status === 'fulfilled' && meetsResult.status === 'fulfilled') {
+        PoolMeetScheduleService.applyMeetOverrides(
+          poolBrowserDataManager.getPools().getAllPools(),
+          poolBrowserDataManager.getTeams().getAllTeams(),
+          poolBrowserDataManager.getMeets().getAllMeets()
+        );
+      }
+      refreshHydratedPoolDetails();
+    })
+    .catch(error => {
+      console.warn('[Pool Browser] Optional schedule enrichment is unavailable:', error);
+    })
+    .finally(() => markPoolPerformance('optional-enrichment-settled'));
   return poolBrowserEnrichmentPromise;
 }
 
@@ -223,12 +307,14 @@ function formatPoolHours(pool) {
   if (!timeUtils) {
     return PoolHoursDisplay.renderTimeUtilityMessage('Time utilities not available');
   }
-  const practiceTeams = poolBrowserDataManager.getTeams().getPracticeTeamsByPool(pool.name);
+  const teamsManager = poolBrowserDataManager.isInitialized(['teams'])
+    ? poolBrowserDataManager.getTeams()
+    : null;
+  const practiceTeams = teamsManager ? teamsManager.getPracticeTeamsByPool(pool.name) : [];
   const preferences = PreferencesService.get();
-  const favoriteTeam = PreferencesService.findFavoriteTeam(
-    poolBrowserDataManager.getTeams().getAllTeams(),
-    preferences.favoriteTeamId
-  );
+  const favoriteTeam = teamsManager
+    ? PreferencesService.findFavoriteTeam(teamsManager.getAllTeams(), preferences.favoriteTeamId)
+    : null;
   const viewModel = PoolHoursViewModelService.build(pool, {
     weekStart,
     timeUtils,
@@ -348,18 +434,62 @@ function refreshPoolTransitionSummaries() {
 /**
  * Renders deferred details for an expanded pool card.
  * @param {Element} poolCard - Pool card to hydrate
- * @returns {Element|null} Pool details element, when present
+ * @returns {Promise<Element|null>} Pool details element after hydration settles, when present
  */
-function hydratePoolDetails(poolCard) {
+async function hydratePoolDetails(poolCard) {
   const details = poolCard && poolCard.querySelector('.pool-details');
-  if (!details || details.dataset.poolDetailsHydrated === 'true') return details;
+  if (!details || details.dataset.poolDetailsHydrated === 'true'
+    || details.dataset.poolDetailsUnavailable === 'true') return details;
+
+  details.setAttribute('aria-busy', 'true');
+  try {
+    await loadPoolDetailDependencies();
+  } catch (error) {
+    console.warn('[Pool Browser] Pool details are unavailable:', error);
+    details.innerHTML = '<p class="pool-details__unavailable" role="status">Additional pool details are unavailable. Please refresh the page to try again.</p>';
+    details.dataset.poolDetailsUnavailable = 'true';
+    details.setAttribute('aria-busy', 'false');
+    return details;
+  }
+
+  if (!details.isConnected) return null;
 
   const pool = getPoolModel(poolCard.dataset.poolId);
-  if (!pool) return details;
+  if (!pool) {
+    details.setAttribute('aria-busy', 'false');
+    return details;
+  }
   details.innerHTML = PoolCardDisplay.renderDetails(createPoolDetailsViewModel(pool));
   details.dataset.poolDetailsHydrated = 'true';
+  details.setAttribute('aria-busy', 'false');
   syncPoolTransitionSummary(poolCard);
   return details;
+}
+
+/**
+ * Hydrates only cards whose disclosure state is currently expanded.
+ * @param {Document|Element} root - Container to search for expanded Pool cards
+ * @returns {Promise<void>} Promise settled after requested details finish hydrating
+ */
+async function hydrateExpandedPoolDetails(root = document) {
+  const expandedCards = Array.from(root.querySelectorAll('.pool-card')).filter(poolCard => (
+    poolCard.querySelector('.pool-header__toggle')?.getAttribute('aria-expanded') === 'true'
+  ));
+  await Promise.all(expandedCards.map(poolCard => hydratePoolDetails(poolCard)));
+}
+
+/**
+ * Starts detail providers and hydrates any favorite-expanded or deep-linked card.
+ * @returns {Promise<void>} Promise settled after initial detail work completes or fails safely
+ */
+function startPoolBrowserDetailWork() {
+  const list = document.getElementById('poolList');
+  if (list && list.querySelector('.pool-header__toggle[aria-expanded="true"]')) {
+    return hydrateExpandedPoolDetails(list);
+  }
+  return loadPoolDetailDependencies().catch(error => {
+    console.warn('[Pool Browser] Pool details are unavailable:', error);
+  });
 }
 
 /**
@@ -856,7 +986,6 @@ function renderPools(pools) {
     const poolStatus = getPoolCardStatus(pool);
     const tooltipText = getStatusTooltip(poolStatus.kind);
     const availabilitySummary = getPoolCardAvailabilitySummary(pool);
-    const detailsViewModel = isExpanded ? createPoolDetailsViewModel(pool) : {};
 
     return PoolCardDisplay.render({
       pool,
@@ -871,8 +1000,7 @@ function renderPools(pools) {
       transitionAction: availabilitySummary.action,
       poolStatus,
       statusTooltip: tooltipText,
-      isDetailsHydrated: isExpanded,
-      ...detailsViewModel
+      isDetailsHydrated: false
     });
   }).join('');
 
@@ -880,6 +1008,7 @@ function renderPools(pools) {
   const statusLegend = document.getElementById('poolStatusLegend');
   if (statusLegend) statusLegend.hidden = false;
   scrollCalendarsToToday(list);
+  if (poolSummaryVisible) void hydrateExpandedPoolDetails(list);
 }
 
 /**
@@ -911,7 +1040,7 @@ function handlePoolUrlParameter() {
 function togglePoolCard(toggleButton) {
   const poolCard = toggleButton.closest('.pool-card');
   const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
-  const details = isExpanded ? poolCard.querySelector('.pool-details') : hydratePoolDetails(poolCard);
+  const details = poolCard.querySelector('.pool-details');
   poolCard.classList.toggle('collapsed', isExpanded);
   toggleButton.setAttribute('aria-expanded', String(!isExpanded));
   if (!isExpanded && window.cnslAnalytics) {
@@ -932,7 +1061,11 @@ function togglePoolCard(toggleButton) {
   }
   if (details) {
     details.hidden = isExpanded;
-    if (!isExpanded) scrollCalendarsToToday(details);
+    if (!isExpanded) {
+      void hydratePoolDetails(poolCard).then(hydratedDetails => {
+        if (hydratedDetails) scrollCalendarsToToday(hydratedDetails);
+      });
+    }
   }
 }
 
@@ -1072,6 +1205,7 @@ function handlePoolDatePickerChange(event) {
  * Starts work that may request optional domains or browser permissions after activation.
  */
 function startPoolBrowserActivationWork() {
+  void startPoolBrowserDetailWork();
   startPoolBrowserEnrichment();
 
   // The preference guard prevents a browser location prompt unless it is enabled in Settings.
@@ -1083,15 +1217,27 @@ function startPoolBrowserActivationWork() {
 }
 
 /**
- * Defers optional Pools work while the route is being prepared in a hidden prerender.
+ * Starts optional Pools work after document readiness can no longer be delayed.
  */
-function schedulePoolBrowserActivationWork() {
-  if (!document.prerendering) {
-    startPoolBrowserActivationWork();
+function startPoolBrowserActivationWorkWhenReady() {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startPoolBrowserActivationWork, { once: true });
     return;
   }
 
-  document.addEventListener('prerenderingchange', startPoolBrowserActivationWork, { once: true });
+  startPoolBrowserActivationWork();
+}
+
+/**
+ * Defers optional Pools work until document readiness and hidden prerender activation.
+ */
+function schedulePoolBrowserActivationWork() {
+  if (!document.prerendering) {
+    startPoolBrowserActivationWorkWhenReady();
+    return;
+  }
+
+  document.addEventListener('prerenderingchange', startPoolBrowserActivationWorkWhenReady, { once: true });
 }
 
 /**
@@ -1125,6 +1271,7 @@ async function startPoolBrowser() {
     // Always render pools first with no location data
     renderPools(pools);
     markPoolPerformance('summary-visible');
+    poolSummaryVisible = true;
     startPoolLiveStatusUpdates();
     setPoolListStatus(`Pool directory loaded. ${pools.length} pools available.`, false);
     globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.READY);

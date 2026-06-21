@@ -75,12 +75,14 @@ describe('PoolCardDisplay', () => {
     assert.doesNotMatch(html, /<script\b/i);
   });
 
-  it('renders supported flat address records and rejects unsafe destinations', () => {
+  it('renders supported nested address records and rejects unsafe destinations', () => {
     const html = PoolCardDisplay.render({
       ...viewModel,
       pool: {
-        address: '1 Main Street, Columbia, MD 21044',
-        mapsQuery: 'javascript:alert(1)',
+        location: {
+          street: '1 Main Street', city: 'Columbia', state: 'MD', zip: '21044',
+          mapsQuery: 'javascript:alert(1)'
+        },
         caUrl: 'javascript:alert(1)',
         scheduleUrl: 'data:text/html,<script>alert(1)</script>',
         phone: '410-555-0100 onclick=bad'
@@ -121,20 +123,15 @@ describe('PoolCardDisplay', () => {
     assert.match(PoolCardDisplay.renderDetails(null), /pool-contact/);
   });
 
-  it('normalizes partial, flat, and absent address records', () => {
+  it('normalizes partial and absent nested address records', () => {
     assert.deepEqual(PoolCardDisplay.getAddressData({ location: {
       street: '1 Main Street',
       city: 'Columbia',
       googleMapsUrl: 'https://example.com/map'
     } }, 'https://maps.example/?q='), {
       streetAddress: '1 Main Street',
-      cityStateZip: 'Columbia,',
+      cityStateZip: 'Columbia',
       mapsUrl: 'https://example.com/map'
-    });
-    assert.deepEqual(PoolCardDisplay.getAddressData({ address: 'One Address' }, null), {
-      streetAddress: 'One Address',
-      cityStateZip: '',
-      mapsUrl: 'One%20Address'
     });
     assert.deepEqual(PoolCardDisplay.getAddressData(null, null), {
       streetAddress: '',
@@ -145,13 +142,15 @@ describe('PoolCardDisplay', () => {
     assert.doesNotMatch(PoolCardDisplay.renderContact({}, '', ''), /address-section__actions/);
     assert.deepEqual(PoolCardDisplay.getAddressData({ location: { state: 'MD', zip: '21044', mapsQuery: 'Pool' } }, 'https://maps.example/?q='), {
       streetAddress: '',
-      cityStateZip: ', MD 21044',
+      cityStateZip: 'MD 21044',
       mapsUrl: 'https://maps.example/?q=Pool'
     });
-    assert.match(PoolCardDisplay.renderContact({ location: { state: 'MD' } }, '', ''), /, MD/);
-    assert.match(PoolCardDisplay.renderContact({ address: '123 Main Street' }, '', ''), /123 Main Street/);
+    assert.match(PoolCardDisplay.renderContact({ location: { state: 'MD' } }, '', ''), />\s*MD\s*<\/a>/);
+    const streetOnlyHtml = PoolCardDisplay.renderContact({ location: { street: '1 Main Street' } }, '', '');
+    assert.match(streetOnlyHtml, />\s*1 Main Street\s*<\/a>/);
+    assert.doesNotMatch(streetOnlyHtml, /1 Main Street<br>|Address not available/);
     assert.deepEqual(PoolCardDisplay.getAddressData({ location: {} }, ''), {
-      streetAddress: '', cityStateZip: ',', mapsUrl: ''
+      streetAddress: '', cityStateZip: '', mapsUrl: ''
     });
   });
 

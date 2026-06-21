@@ -34,6 +34,7 @@ describe('Meet', () => {
     assert.equal(regularMeet.getLiveStatus({ date: '2026-06-13', minutes: 419, isValid: true }), 'upcoming');
     assert.equal(regularMeet.getLiveStatus({ date: '2026-06-13', minutes: 420, isValid: true }), 'ongoing');
     assert.equal(regularMeet.getLiveStatus({ date: '2026-06-13', minutes: 720, isValid: true }), 'concluded');
+    assert.equal(regularMeet.getLiveStatus({ date: '2026-06-14', minutes: 0, isValid: true }), 'concluded');
   });
 
   it('uses published Time Trials timing and accepts a team override window', () => {
@@ -45,6 +46,7 @@ describe('Meet', () => {
   it('rejects malformed clock and current-time values safely', () => {
     assert.equal(Meet.formatClockTime('25:00'), '');
     assert.equal(meet.getLiveStatus(null), null);
+    assert.equal(meet.getLiveStatus({ date: 'June 13, 2026', minutes: 600, isValid: true }), null);
     assert.equal(meet.getLiveStatus({ date: '2026-06-13', minutes: Number.NaN }), null);
   });
 

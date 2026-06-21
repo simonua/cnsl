@@ -600,7 +600,11 @@ async function handleMeetUrlParameters() {
   setTimeout(() => linkedMeet.classList.remove('highlighted'), 3000);
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
+/**
+ * Starts the meet directory as soon as its deferred controller executes.
+ * @returns {Promise<void>} Promise settled after initial summaries and activation work is scheduled
+ */
+async function startMeetsBrowser() {
   if (globalThis.cnslSeasonState && globalThis.cnslSeasonState.isOffSeason) {
     globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.READY);
     return;
@@ -637,7 +641,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     setMeetListStatus('The meet schedule did not load. Please check your connection and refresh the page to try again.', false);
     globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.READY);
   }
-});
+}
+
+void startMeetsBrowser();
 
 window.addEventListener(globalThis.PREFERENCES_CHANGED_EVENT_NAME, refreshMeetsForPreferences);
 document.addEventListener('visibilitychange', handleMeetPageVisibilityChange);

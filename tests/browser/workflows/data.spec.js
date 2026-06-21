@@ -1,4 +1,5 @@
 const { test, expect } = require('../browser-test');
+const AppConfig = require('../../../scripts/adapters/app-config.js');
 const {
   ACTIVE_SEASON_YEAR,
   getAnnualDataRoute,
@@ -211,6 +212,15 @@ test('[WF-DATA-007-POOLS] pool summaries and requested details render before opt
     await expect(firstPool.locator('.pool-details')).toHaveAttribute('data-pool-details-hydrated', 'true');
     await expect(firstPool.locator('.pool-contact')).toBeVisible();
     await expect(firstPool.locator('.pool-hours')).toBeVisible();
+    await expect(page.locator('script[data-pool-dependency-group="detail"]'))
+      .toHaveCount(AppConfig.POOL_DETAIL_DEPENDENCIES.length);
+    const controllerVersion = await page.locator('script[src*="pool-browser.js"]').evaluate(script => (
+      new URL(script.src).searchParams.get('v')
+    ));
+    const dependencyVersions = await page.locator('script[data-pool-dependency]').evaluateAll(scripts => (
+      scripts.map(script => new URL(script.src).searchParams.get('v'))
+    ));
+    expect(dependencyVersions.every(version => version === controllerVersion)).toBe(true);
     expect(await page.evaluate(() => performance.getEntriesByName('cnsl:pools:summary-visible').length)).toBe(1);
     expect(await page.evaluate(() => performance.getEntriesByName('cnsl:pools:optional-enrichment-settled').length)).toBe(0);
   } finally {
@@ -218,6 +228,21 @@ test('[WF-DATA-007-POOLS] pool summaries and requested details render before opt
   }
 
   await expect.poll(() => page.evaluate(() => performance.getEntriesByName('cnsl:pools:optional-enrichment-settled').length)).toBe(1);
+  await expect(page.locator('script[data-pool-dependency-group="enrichment"]'))
+    .toHaveCount(AppConfig.POOL_ENRICHMENT_DEPENDENCIES.length);
+});
+
+test('[WF-DATA-013-POOLS] pool summaries remain usable when detail scripts fail', async ({ page }) => {
+  await page.route('**/js/services/pool-link-helper.js*', route => route.abort());
+  await page.goto('/pools.html');
+
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
+  const firstPool = page.locator('#poolList .pool-card').first();
+  await expect(firstPool).toBeVisible();
+  await firstPool.locator('.pool-header__toggle').click();
+  await expect(firstPool.locator('.pool-details')).toHaveAttribute('aria-busy', 'false');
+  await expect(firstPool.locator('.pool-details')).toHaveAttribute('data-pool-details-unavailable', 'true');
+  await expect(firstPool.locator('.pool-details [role="status"]')).toBeVisible();
 });
 
 test('[WF-DATA-009-TEAMS] team summaries render before optional details enrichment settles', async ({ page }) => {

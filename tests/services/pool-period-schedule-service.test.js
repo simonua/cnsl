@@ -210,6 +210,7 @@ describe('PoolPeriodScheduleService', () => {
       const service = new PoolPeriodScheduleService();
 
       assert.deepEqual(service.getCurrentStatus(), { kind: 'unavailable', isOpen: false, status: 'Error', color: 'gray' });
+      assert.deepEqual(service.getTimeSlotsForDate('2026-06-01', 'Mon'), []);
     });
   });
 

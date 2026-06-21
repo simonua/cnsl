@@ -139,6 +139,28 @@ describe('PoolHoursViewModelService', () => {
     }, options.weekStart), [{ day: 'Mon', timeSlots: [] }]);
   });
 
+  it('uses the default pool label and rejects an absent pool model', () => {
+    const options = {
+      weekStart: new Date(2026, 5, 15),
+      timeUtils: { getCurrentEasternTimeInfo: () => ({ date: '2026-06-16' }) }
+    };
+    const poolModel = {
+      id: 'unnamed-pool',
+      name: '',
+      getCurrentStatus: () => ({ kind: 'closed' }),
+      getWeekScheduleForDate: () => [],
+      getValidDateRange: () => null,
+      getPublicStatusTransitionToday: () => null
+    };
+
+    const viewModel = PoolHoursViewModelService.build(poolModel, options);
+    assert.equal(viewModel.poolName, 'this pool');
+    assert.throws(
+      () => PoolHoursViewModelService.build(null, options),
+      error => error?.name === 'TypeError'
+    );
+  });
+
   it('installs the service as a browser script global', () => {
     const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'pool-hours-view-model-service.js');
     const source = fs.readFileSync(sourcePath, 'utf8');

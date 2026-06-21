@@ -8,13 +8,21 @@ const { Team } = require('../helpers/browser-module-loader.js').loadBrowserModul
 
 describe('Team', () => {
   it('copies published collections into one model record', () => {
-    const source = createSampleTeamsData().teams[0];
+    const source = {
+      ...createSampleTeamsData().teams[0],
+      keywords: ['Fixture Barracudas'],
+      homeMeetGuides: [{ poolId: 'fixture-pool' }]
+    };
     const team = new Team(source);
+    source.keywords.push('Changed Keyword');
     source.homePools.push('Changed Pool');
+    source.homeMeetGuides.push({ poolId: 'changed-pool' });
     source.practicePools.push('Changed Pool');
     source.staff.coaches.push({ name: 'Changed Coach' });
 
+    assert.deepEqual(team.keywords, ['Fixture Barracudas']);
     assert.deepEqual(team.homePools, ['Bryant Woods']);
+    assert.deepEqual(team.homeMeetGuides, [{ poolId: 'fixture-pool' }]);
     assert.deepEqual(team.practicePools, ['Bryant Woods', 'Running Brook']);
     assert.deepEqual(team.staff.coaches, [{ name: 'Jane Smith', role: 'Head Coach', email: 'jane@example.com' }]);
   });

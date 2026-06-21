@@ -12,7 +12,7 @@ const WEATHER_SOURCE = 'types/weather-alert-source.js';
 const BROWSER_MODULE_MANIFESTS = Object.freeze({
   'analytics-interaction-type': { scripts: [ANALYTICS_TYPES], exports: ['AnalyticsExternalLinkPurpose', 'AnalyticsInteractionType'] },
   'app-config': { scripts: [CONFIG], exports: ['AppConfig'] },
-  'data-manager': { scripts: [CONFIG, ICONS, TIME, 'types/pool-enums.js', SCHEDULE_STATE, 'services/pool-period-schedule-service.js', 'models/pool.js', 'models/team.js', 'models/meet.js', 'managers/pools-manager.js', 'managers/teams-manager.js', 'managers/meets-manager.js', 'services/data-manager.js'], exports: ['DataManager', 'getDataManager'] },
+  'data-manager': { scripts: [CONFIG, ICONS, TIME, 'types/pool-enums.js', SCHEDULE_STATE, 'services/pool-period-schedule-service.js', 'models/pool.js', 'models/team.js', 'models/meet.js', 'managers/pools-manager.js', 'managers/teams-manager.js', 'managers/meets-manager.js', 'services/file-helper.js', 'services/data-manager.js'], exports: ['DataManager', 'getDataManager'] },
   'device-platform-service': { scripts: ['services/device-platform-service.js'], exports: ['DevicePlatformService'] },
   'experimental-features-service': { scripts: [CONFIG, 'services/preferences-service.js', 'services/experimental-features-service.js'], exports: ['ExperimentalFeaturesService', 'PreferencesService'] },
   'file-helper': { scripts: [CONFIG, 'services/file-helper.js'], exports: ['FileHelper'] },

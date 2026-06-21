@@ -85,28 +85,17 @@
   </block>
 
   <block name="scripts">
-    <!-- Critical dependencies must load synchronously to ensure availability -->
+    <!-- Summary-critical dependencies load before the deferred route controller. -->
     <script src="js/services/time-utils.js"></script>
     <script src="js/types/pool-enums.js"></script>
     <script src="js/types/schedule-state.js"></script>
     <script src="js/services/pool-period-schedule-service.js"></script>
     <script src="js/services/html-safety.js"></script>
     <script src="js/services/pool-schedule-display.js"></script>
-    <script src="js/services/pool-link-helper.js"></script>
-    <script src="js/services/pool-hours-display.js"></script>
     <script src="js/services/pool-card-display.js"></script>
-    <script src="js/services/pool-calendar-service.js"></script>
-    <script src="js/services/pool-week-state-service.js"></script>
     <script src="js/services/pool-directory-service.js"></script>
-    <script src="js/services/team-schedule-service.js"></script>
-    <script src="js/services/pool-meet-schedule-service.js"></script>
-    <script src="js/services/pool-hours-view-model-service.js"></script>
     <script src="js/models/pool.js"></script>
-    <script src="js/models/team.js"></script>
-    <script src="js/models/meet.js"></script>
     <script src="js/managers/pools-manager.js"></script>
-    <script src="js/managers/teams-manager.js"></script>
-    <script src="js/managers/meets-manager.js"></script>
     <script src="js/services/data-manager.js"></script>
     <script src="js/pool-calendar-controls.js"></script>
 

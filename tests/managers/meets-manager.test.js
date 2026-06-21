@@ -26,10 +26,15 @@ describe('MeetsManager', () => {
   });
 
   it('loads special meets without participating teams', () => {
-    manager.loadData({ special_meets: [{ date: '2026-07-25', name: 'All City', location: 'Columbia' }] });
+    manager.loadData({ special_meets: [
+      { date: '2026-07-25', name: 'All City', location: 'Columbia' },
+      { date: '2026-07-26', location: 'League Facility' }
+    ] });
 
-    assert.equal(manager.getAllMeets().length, 1);
+    assert.equal(manager.getAllMeets().length, 2);
     assert.equal(manager.getAllMeets()[0].isSpecialMeet(), true);
+    assert.equal(manager.getAllMeets()[1].name, '');
+    assert.equal(manager.getAllMeets()[1].location, 'League Facility');
   });
 
   it('does not mark an empty document as loaded and clears loaded models', () => {

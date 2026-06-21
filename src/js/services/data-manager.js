@@ -87,7 +87,7 @@ if (typeof globalThis.DataManager === 'undefined') {
       teams: () => FileHelper.getTeamsDataPath(),
       meets: () => FileHelper.getMeetsDataPath()
     };
-    return this._loadJsonFile(pathGetters[domain]());
+    return FileHelper.loadJsonFile(pathGetters[domain]());
   }
 
   /**
@@ -123,26 +123,6 @@ if (typeof globalThis.DataManager === 'undefined') {
     }
     if (!this.meetsManager) this.meetsManager = new MeetsManager();
     return this.meetsManager;
-  }
-
-  /**
-   * Load JSON file
-   * @private
-   * @param {string} filePath - Path to JSON file
-    * @template T
-    * @returns {Promise<T>} - Promise that resolves with JSON data
-   */
-  async _loadJsonFile(filePath) {
-    try {
-      const response = await fetch(filePath, { cache: 'no-cache' });
-      if (!response.ok) {
-        throw new Error(`Failed to load ${filePath}: ${response.status}`);
-      }
-      return await response.json();
-    } catch (error) {
-      console.error(`Error loading ${filePath}:`, error);
-      throw error;
-    }
   }
 
   /**

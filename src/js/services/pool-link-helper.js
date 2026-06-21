@@ -24,12 +24,10 @@ function getPoolDirectionsQuery(poolData, displayText) {
     [location.city, location.state].filter(Boolean).join(', '),
     location.zip
   ].filter(Boolean).join(' ');
-  const latitude = Number.isFinite(location.lat) ? location.lat : pool.lat;
-  const longitude = Number.isFinite(location.lng) ? location.lng : pool.lng;
-  const coordinates = Number.isFinite(latitude) && Number.isFinite(longitude)
-    ? `${latitude},${longitude}`
+  const coordinates = Number.isFinite(location.lat) && Number.isFinite(location.lng)
+    ? `${location.lat},${location.lng}`
     : '';
-  return String(location.mapsQuery || pool.mapsQuery || address || pool.address || coordinates || displayText || '');
+  return String(location.mapsQuery || address || coordinates || displayText || '');
 }
 
 /**
@@ -188,24 +186,15 @@ function generateGoogleMapsLink(poolData, displayText) {
   if (!poolData || !displayText) return displayText || '';
 
   let mapsUrl = '';
+  const location = poolData.location && typeof poolData.location === 'object' ? poolData.location : {};
 
-  // Use googleMapsUrl if available in new location format
-  if (poolData.location && poolData.location.googleMapsUrl) {
-    mapsUrl = poolData.location.googleMapsUrl;
-  } else if (poolData.address) {
-    // Legacy format fallback
-    const encodedAddress = encodeURIComponent(poolData.address);
-    mapsUrl = `${globalThis.GOOGLE_MAPS_SEARCH_BASE_URL}${encodedAddress}`;
-  } else if (poolData.location && poolData.location.mapsQuery) {
-    // New format fallback using mapsQuery
-    const encodedQuery = encodeURIComponent(poolData.location.mapsQuery);
+  if (location.googleMapsUrl) {
+    mapsUrl = location.googleMapsUrl;
+  } else if (location.mapsQuery) {
+    const encodedQuery = encodeURIComponent(location.mapsQuery);
     mapsUrl = `${globalThis.GOOGLE_MAPS_SEARCH_BASE_URL}${encodedQuery}`;
-  } else if (poolData.lat && poolData.lng) {
-    // Coordinate fallback
-    mapsUrl = `${globalThis.GOOGLE_MAPS_SEARCH_BASE_URL}${poolData.lat},${poolData.lng}`;
-  } else if (poolData.location && poolData.location.lat && poolData.location.lng) {
-    // New format coordinates
-    mapsUrl = `${globalThis.GOOGLE_MAPS_SEARCH_BASE_URL}${poolData.location.lat},${poolData.location.lng}`;
+  } else if (Number.isFinite(location.lat) && Number.isFinite(location.lng)) {
+    mapsUrl = `${globalThis.GOOGLE_MAPS_SEARCH_BASE_URL}${location.lat},${location.lng}`;
   }
 
   const safeDisplayText = PoolLinkSafety.escapeHtml(displayText);

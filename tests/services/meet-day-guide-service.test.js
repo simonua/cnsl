@@ -249,8 +249,9 @@ describe('MeetDayGuideService', () => {
         null,
         { date: '2026-06-20', home_team: '', visiting_team: 'Visitor' },
         { date: '2026-06-20', home_team: 'Other', visiting_team: 'Visitor' },
+        { date: '2026-06-11', home_team: 'Host', visiting_team: 'Visitor', location: 'Host Pool' },
         meet
-      ], [{ id: 'host-pool', name: 'Host', address: '1 Main Street' }], new Date(2026, 5, 19, 12));
+      ], [{ id: 'host-pool', name: 'Host', location: { street: '1 Main Street' } }], new Date(2026, 5, 19, 12));
 
       assert.equal(guide.meet, meet);
       assert.equal(guide.homeTeam, host);
@@ -447,6 +448,20 @@ describe('MeetDayGuideService', () => {
         homeMeetGuides: [{ poolId: 'only-guide' }],
         homePools: [null]
       }, null, 'Host Pool'), null);
+      assert.equal(MeetDayGuideService.findMeetSpecificHostGuide(
+        null, hostTeam, pools[0], firstFavoriteMeet, [firstFavoriteMeet], pools
+      ), null);
+      assert.equal(MeetDayGuideService.findMeetSpecificHostGuide(
+        { ...hostTeam.homeMeetGuides[0], source: { receivedOn: '2025-06-12' } },
+        hostTeam,
+        pools[0],
+        firstFavoriteMeet,
+        [firstFavoriteMeet],
+        pools
+      ), null);
+      assert.equal(MeetDayGuideService.findMeetSpecificHostGuide(
+        hostTeam.homeMeetGuides[0], hostTeam, pools[0], firstFavoriteMeet, null, pools
+      ), null);
       assert.equal(MeetDayGuideService.getMeetDisplayTime({
         getDisplayTime: override => override,
         getTimeWindowKey: () => 'dualMeets'

@@ -97,6 +97,21 @@
   const MY_MEET_DAY_PRIMARY_DEPENDENCIES = Object.freeze(
     TEAM_AGENDA_DEPENDENCIES.filter(source => !MY_MEET_DAY_OPTIONAL_DEPENDENCIES.includes(source))
   );
+  const POOL_DETAIL_DEPENDENCIES = Object.freeze([
+    'js/services/pool-link-helper.js',
+    'js/services/pool-hours-display.js',
+    'js/services/pool-calendar-service.js',
+    'js/services/pool-week-state-service.js',
+    'js/services/team-schedule-service.js',
+    'js/services/pool-hours-view-model-service.js'
+  ]);
+  const POOL_ENRICHMENT_DEPENDENCIES = Object.freeze([
+    'js/models/team.js',
+    'js/models/meet.js',
+    'js/managers/teams-manager.js',
+    'js/managers/meets-manager.js',
+    'js/services/pool-meet-schedule-service.js'
+  ]);
 
   // External services and regional behavior.
   const ANALYTICS_DEPLOYMENT_META_NAME = 'cnsl-analytics-deployment';
@@ -303,6 +318,8 @@
     MY_MEET_DAY_HOME_LOOKAHEAD_DAYS,
     MY_MEET_DAY_OPTIONAL_DEPENDENCIES,
     MY_MEET_DAY_PRIMARY_DEPENDENCIES,
+    POOL_DETAIL_DEPENDENCIES,
+    POOL_ENRICHMENT_DEPENDENCIES,
     PUBLISHED_CAMPAIGNS,
     PREFERENCES_CHANGED_EVENT_NAME,
     PREFERENCES_STORAGE_KEY,

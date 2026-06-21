@@ -105,24 +105,14 @@ if (typeof globalThis.PoolCardDisplay === 'undefined') {
     static getAddressData(pool, mapsSearchBaseUrl) {
       const safePool = pool && typeof pool === 'object' ? pool : {};
       const baseUrl = typeof mapsSearchBaseUrl === 'string' ? mapsSearchBaseUrl : '';
-      const location = safePool.location && typeof safePool.location === 'object' ? safePool.location : null;
-
-      if (location) {
-        const streetAddress = String(location.street || '');
-        const city = String(location.city || '');
-        const state = String(location.state || '');
-        const zip = String(location.zip || '');
-        const cityStateZip = `${city}, ${state} ${zip}`.trim();
-        const mapsUrl = location.googleMapsUrl || `${baseUrl}${encodeURIComponent(location.mapsQuery || '')}`;
-        return { streetAddress, cityStateZip, mapsUrl };
-      }
-
-      const fullAddress = String(safePool.address || '');
-      const addressParts = fullAddress.split(',').map(part => part.trim());
-      const streetAddress = addressParts.length >= 2 ? addressParts[0] : fullAddress;
-      const cityStateZip = addressParts.length >= 2 ? addressParts.slice(1).join(', ') : '';
-      const locationQuery = encodeURIComponent(safePool.mapsQuery || fullAddress || '');
-      const mapsUrl = `${baseUrl}${locationQuery}`;
+      const location = safePool.location && typeof safePool.location === 'object' ? safePool.location : {};
+      const streetAddress = String(location.street || '');
+      const city = String(location.city || '');
+      const state = String(location.state || '');
+      const zip = String(location.zip || '');
+      const locality = [city, state].filter(Boolean).join(', ');
+      const cityStateZip = [locality, zip].filter(Boolean).join(' ');
+      const mapsUrl = location.googleMapsUrl || `${baseUrl}${encodeURIComponent(location.mapsQuery || '')}`;
       return { streetAddress, cityStateZip, mapsUrl };
     }
 

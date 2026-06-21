@@ -28,13 +28,12 @@ describe('Pool', () => {
       assert.ok(pool.location);
       assert.equal(pool.location.city, 'Columbia');
       assert.equal(pool.location.state, 'MD');
-      assert.equal(pool.googleMapsUrl, 'https://maps.google.com/?q=Bryant+Woods+Pool');
-    });
-
-    it('formats partial structured locations', () => {
-      assert.equal(new Pool({ location: { street: '123 Main Street' } }).address, '123 Main Street');
-      assert.equal(new Pool({ location: { state: 'MD' } }).address, 'MD');
-      assert.equal(new Pool({ location: { zip: '21044' } }).address, '21044');
+      assert.equal(pool.location.googleMapsUrl, 'https://maps.google.com/?q=Bryant+Woods+Pool');
+      assert.equal(Object.hasOwn(pool, 'address'), false);
+      assert.equal(Object.hasOwn(pool, 'lat'), false);
+      assert.equal(Object.hasOwn(pool, 'lng'), false);
+      assert.equal(Object.hasOwn(pool, 'mapsQuery'), false);
+      assert.equal(Object.hasOwn(pool, 'googleMapsUrl'), false);
     });
 
     it('provides model dependencies to period schedules', () => {
@@ -102,6 +101,7 @@ describe('Pool', () => {
         assert.equal(pool.isOpenForNextMinutes(60), true);
         assert.equal(pool.isOpenForNextMinutes(120), false);
         assert.equal(pool.opensWithinNextMinutes(), false);
+        assert.equal(pool.isClosedToPublicForDay(), false);
         assert.deepEqual(pool.getPublicStatusTransitionToday(), { action: 'closes', minutes: 60 });
       } finally {
         TimeUtils.getCurrentEasternTimeInfo = originalGetCurrentEasternTimeInfo;
@@ -354,6 +354,7 @@ describe('Pool', () => {
       assert.deepEqual(pool._getPeriodTimeSlotsForDate('2026-06-01', 'Mon'), []);
       assert.equal(pool._getPeriodSlotStatus({}).isOpen, false);
       assert.deepEqual(pool._getPeriodWeekScheduleForDate(new Date(2026, 5, 1)), []);
+      assert.equal(pool.getValidDateRange(), null);
     });
 
     it('resolves lexical model dependencies when they are absent from globalThis', () => {
@@ -516,7 +517,7 @@ describe('Pool', () => {
   describe('googleMapsUrl', () => {
     it('stores google maps URL from location', () => {
       const pool = new Pool(createSamplePoolData());
-      assert.ok(pool.googleMapsUrl.includes('google'));
+      assert.ok(pool.location.googleMapsUrl.includes('google'));
     });
   });
 

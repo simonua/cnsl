@@ -62,6 +62,16 @@ describe('TeamAgendaDisplay', () => {
       assert.doesNotMatch(html, /Subscribe/);
     });
 
+    it('renders only the subscription action when no calendar page is published', () => {
+      const html = TeamAgendaDisplay.renderCalendarActions({
+        calendarUrl: '',
+        eventsSubscriptionUrl: 'https://example.com/team/events.ics'
+      });
+
+      assert.doesNotMatch(html, /Team Calendar/);
+      assert.match(html, />Subscribe<span class="visually-hidden">/);
+    });
+
     it('omits missing, malformed, and unsafe destinations', () => {
       assert.equal(TeamAgendaDisplay.renderCalendarActions(null), '');
       assert.equal(TeamAgendaDisplay.renderCalendarActions({}), '');

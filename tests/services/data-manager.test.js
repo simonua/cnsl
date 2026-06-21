@@ -15,7 +15,6 @@ describe('DataManager', () => {
       const originalFileHelper = global.FileHelper;
       const originalConsoleLog = console.log;
       const requestPaths = [];
-      const requestCacheModes = [];
       const datasets = {
         '/data/pools.json': {
           ...createSamplePoolsManagerData(),
@@ -32,12 +31,11 @@ describe('DataManager', () => {
         getEnvironment: () => 'test',
         getPoolsDataPath: () => '/data/pools.json',
         getTeamsDataPath: () => '/data/teams.json',
-        getMeetsDataPath: () => '/data/meets.json'
-      };
-      global.fetch = async (filePath, options) => {
-        requestPaths.push(filePath);
-        requestCacheModes.push(options.cache);
-        return { ok: true, json: async () => datasets[filePath] };
+        getMeetsDataPath: () => '/data/meets.json',
+        loadJsonFile: async filePath => {
+          requestPaths.push(filePath);
+          return datasets[filePath];
+        }
       };
       console.log = () => {};
 
@@ -50,7 +48,6 @@ describe('DataManager', () => {
           '/data/pools.json',
           '/data/teams.json'
         ]);
-        assert.deepStrictEqual(requestCacheModes, ['no-cache', 'no-cache', 'no-cache']);
         assert.deepStrictEqual(manager.getSeasonInfo(), {
           seasonStartDate: '2026-05-23',
           seasonEndDate: '2026-09-07',
@@ -79,11 +76,11 @@ describe('DataManager', () => {
       global.FileHelper = {
         getPoolsDataPath: () => '/data/pools.json',
         getTeamsDataPath: () => '/data/teams.json',
-        getMeetsDataPath: () => '/data/meets.json'
-      };
-      global.fetch = async (filePath) => {
-        requestPaths.push(filePath);
-        return { ok: true, json: async () => datasets[filePath] };
+        getMeetsDataPath: () => '/data/meets.json',
+        loadJsonFile: async filePath => {
+          requestPaths.push(filePath);
+          return datasets[filePath];
+        }
       };
 
       try {
@@ -130,8 +127,7 @@ describe('DataManager', () => {
     it('should reject malformed published domain responses', async () => {
       const originalFetch = global.fetch;
       const originalFileHelper = global.FileHelper;
-      global.FileHelper = { getPoolsDataPath: () => '/data/pools.json' };
-      global.fetch = async () => ({ ok: true, json: async () => ({}) });
+      global.FileHelper = { getPoolsDataPath: () => '/data/pools.json', loadJsonFile: async () => ({}) };
 
       try {
         const manager = new DataManager();
@@ -151,8 +147,10 @@ describe('DataManager', () => {
       const originalFetch = global.fetch;
       const originalFileHelper = global.FileHelper;
       const originalConsoleError = console.error;
-      global.FileHelper = { getPoolsDataPath: () => '/missing.json' };
-      global.fetch = async () => ({ ok: false, status: 404 });
+      global.FileHelper = {
+        getPoolsDataPath: () => '/missing.json',
+        loadJsonFile: async () => { throw new Error('Missing'); }
+      };
       console.error = () => {};
       try {
         const manager = new DataManager();
@@ -178,8 +176,7 @@ describe('DataManager', () => {
     it('rejects the legacy meets collection shape without reporting an empty successful collection', async () => {
       const originalFetch = global.fetch;
       const originalFileHelper = global.FileHelper;
-      global.FileHelper = { getMeetsDataPath: () => '/data/meets.json' };
-      global.fetch = async () => ({ ok: true, json: async () => ({ meets: [] }) });
+      global.FileHelper = { getMeetsDataPath: () => '/data/meets.json', loadJsonFile: async () => ({ meets: [] }) };
       try {
         const manager = new DataManager();
         await assert.rejects(manager.initialize(['meets']), /Invalid meets annual data response/);

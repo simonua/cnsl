@@ -147,6 +147,9 @@ describe('pool-link-helper', () => {
     it('returns escaped text for invalid meet destinations', () => {
       assert.equal(generateMeetPageLink('June 27', 'plp', '<Matchup>'), '&lt;Matchup&gt;');
       assert.equal(generateMeetPageLink('2026-06-27', 'javascript:bad', '<Matchup>'), '&lt;Matchup&gt;');
+      assert.equal(generateMeetPageLink(null, 'plp', 'Fixture Matchup'), 'Fixture Matchup');
+      assert.equal(generateMeetPageLink('2026-06-27', null, 'Fixture Matchup'), 'Fixture Matchup');
+      assert.match(generateMeetPageLink('2026-06-27', 'plp'), /^<a [^>]+><\/a>$/);
     });
   });
 
@@ -183,10 +186,8 @@ describe('pool-link-helper', () => {
       assert.ok(!link.includes('javascript:'));
     });
 
-    it('uses legacy, query, and coordinate fallbacks and safely handles absent records', () => {
-      assert.match(generateGoogleMapsLink({ address: '1 Main St' }, 'Address'), /1%20Main%20St/);
+    it('uses nested query and coordinate fallbacks and safely handles absent records', () => {
       assert.match(generateGoogleMapsLink({ location: { mapsQuery: 'Pool Name' } }, 'Query'), /Pool%20Name/);
-      assert.match(generateGoogleMapsLink({ lat: 1, lng: 2 }, 'Flat'), /1,2/);
       assert.match(generateGoogleMapsLink({ location: { lat: 3, lng: 4 } }, 'Nested'), /3,4/);
       assert.equal(generateGoogleMapsLink(null, 'Text'), 'Text');
       assert.equal(generateGoogleMapsLink({}, ''), '');
@@ -217,15 +218,13 @@ describe('pool-link-helper', () => {
       assert.equal(getPoolDirectionsQuery(pool, 'Fallback'), 'Example Pool Columbia MD');
       assert.equal(getPoolDirectionsQuery({ location: { street: '1 Main', city: 'Columbia', state: 'MD', zip: '21044' } }, ''), '1 Main Columbia, MD 21044');
       assert.equal(getPoolDirectionsQuery({ location: { lat: 39.2, lng: -76.8 } }, ''), '39.2,-76.8');
-      assert.equal(getPoolDirectionsQuery({ lat: 39.1, lng: -76.7 }, ''), '39.1,-76.7');
-      assert.equal(getPoolDirectionsQuery({ mapsQuery: 'Flat query' }, ''), 'Flat query');
-      assert.equal(getPoolDirectionsQuery({ location: 'invalid', address: '2 Main Street' }, ''), '2 Main Street');
-      assert.equal(getPoolDirectionsQuery({ location: { lat: 39.2 }, address: 'Latitude only' }, ''), 'Latitude only');
+      assert.equal(getPoolDirectionsQuery({ location: 'invalid' }, 'Fallback'), 'Fallback');
+      assert.equal(getPoolDirectionsQuery({ location: { lat: 39.2 } }, 'Latitude only'), 'Latitude only');
       assert.equal(getPoolDirectionsQuery({ location: { lng: -76.8 } }, 'Longitude only'), 'Longitude only');
       assert.equal(getPoolDirectionsQuery(null, 'Fallback Pool'), 'Fallback Pool');
       assert.equal(generatePoolDirectionsLink(null, '', { platform: 'Linux' }), '');
       assert.match(generatePoolDirectionsLink(pool, 'Example Pool', null), /Google Maps/);
-      assert.match(generatePoolDirectionsLink({ address: '3 Main Street' }, '', { platform: 'Linux' }), /Get directions to this pool in Google Maps/);
+      assert.match(generatePoolDirectionsLink({ location: { mapsQuery: 'Example' } }, '', { platform: 'Linux' }), /Get directions to this pool in Google Maps/);
       assert.doesNotMatch(generatePoolDirectionsLink({ location: { mapsQuery: '"><ScRiPt>' } }, '"><Pool>', { platform: 'Linux' }), /<script\b|<Pool>/i);
 
       const originalSafeHttpUrl = poolLinkModule.context.HtmlSafety.safeHttpUrl;

@@ -21,17 +21,6 @@ if (typeof globalThis.Pool === 'undefined') {
     this.scheduleUrl = poolData.scheduleUrl || '';
 
     this.location = poolData.location ? { ...poolData.location } : null;
-    const addressParts = [];
-    if (this.location?.street) addressParts.push(this.location.street);
-    if (this.location?.city || this.location?.state || this.location?.zip) {
-      const locality = [this.location.city, this.location.state].filter(Boolean).join(', ');
-      addressParts.push([locality, this.location.zip].filter(Boolean).join(' '));
-    }
-    this.address = addressParts.join(', ');
-    this.lat = this.location?.lat;
-    this.lng = this.location?.lng;
-    this.mapsQuery = this.location?.mapsQuery || '';
-    this.googleMapsUrl = this.location?.googleMapsUrl || '';
 
     this.phone = poolData.phone || '';
     this.laneCount = Number.isInteger(poolData.laneCount) && poolData.laneCount > 0 ? poolData.laneCount : null;

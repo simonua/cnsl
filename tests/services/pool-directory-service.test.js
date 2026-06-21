@@ -176,6 +176,18 @@ describe('PoolDirectoryService', () => {
       'all'
     ), 'Named Pool:closed:');
     assert.equal(PoolDirectoryService.getLiveStatusSignature([{ name: 'Unavailable Name' }], 'all'), 'Unavailable Name:unavailable');
+    assert.equal(PoolDirectoryService.getLiveStatusSignature(null, 'all'), '');
+  });
+
+  it('calculates zero and symmetric positive distances between coordinates', () => {
+    const firstCoordinates = { lat: 39.2, lng: -76.8 };
+    const secondCoordinates = { lat: 39.3, lng: -76.7 };
+    const forwardDistance = PoolDirectoryService.calculateDistance(firstCoordinates, secondCoordinates);
+    const reverseDistance = PoolDirectoryService.calculateDistance(secondCoordinates, firstCoordinates);
+
+    assert.equal(PoolDirectoryService.calculateDistance(firstCoordinates, firstCoordinates), 0);
+    assert.ok(forwardDistance > 0);
+    assert.ok(Math.abs(forwardDistance - reverseDistance) < Number.EPSILON);
   });
 
   it('formats and orders feature labels through supplied groups', () => {

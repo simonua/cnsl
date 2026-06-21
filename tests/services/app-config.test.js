@@ -133,6 +133,15 @@ describe('app-config', () => {
     assert.equal(config.MY_MEET_DAY_OPTIONAL_DEPENDENCIES.includes('js/managers/pools-manager.js'), true);
     assert.equal(Object.isFrozen(config.MY_MEET_DAY_PRIMARY_DEPENDENCIES), true);
     assert.equal(Object.isFrozen(config.MY_MEET_DAY_OPTIONAL_DEPENDENCIES), true);
+    assert.ok(config.POOL_DETAIL_DEPENDENCIES.indexOf('js/services/pool-calendar-service.js')
+      < config.POOL_DETAIL_DEPENDENCIES.indexOf('js/services/pool-week-state-service.js'));
+    assert.ok(config.POOL_DETAIL_DEPENDENCIES.indexOf('js/services/team-schedule-service.js')
+      < config.POOL_DETAIL_DEPENDENCIES.indexOf('js/services/pool-hours-view-model-service.js'));
+    assert.ok(config.POOL_ENRICHMENT_DEPENDENCIES.indexOf('js/models/team.js')
+      < config.POOL_ENRICHMENT_DEPENDENCIES.indexOf('js/managers/teams-manager.js'));
+    assert.equal(config.POOL_ENRICHMENT_DEPENDENCIES.at(-1), 'js/services/pool-meet-schedule-service.js');
+    assert.equal(Object.isFrozen(config.POOL_DETAIL_DEPENDENCIES), true);
+    assert.equal(Object.isFrozen(config.POOL_ENRICHMENT_DEPENDENCIES), true);
   });
 
   it('publishes named app-owned session storage keys', () => {
