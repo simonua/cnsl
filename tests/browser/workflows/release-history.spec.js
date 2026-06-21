@@ -1,6 +1,6 @@
 const { test, expect } = require('../browser-test');
 
-const INITIAL_VISIBLE_RELEASE_COUNT = 11;
+const VISIBLE_DATED_RELEASE_COUNT = 10;
 
 test('[WF-RELEASE-002] release history reveals older releases on request', async ({ page }) => {
   await page.goto('/whats-new.html');
@@ -8,11 +8,14 @@ test('[WF-RELEASE-002] release history reveals older releases on request', async
   const archive = page.locator('.release-archive');
   const allReleases = page.locator('.release-highlights');
   const visibleReleases = page.locator('.release-highlights:visible');
+  const visibleDatedReleases = page.locator('.release-highlights[id^="version-"]:visible');
   const archivedReleases = archive.locator('.release-highlights');
+  const expectedVisibleReleaseCount = VISIBLE_DATED_RELEASE_COUNT + await page.locator('#upcoming').count();
 
-  expect(await allReleases.count()).toBeGreaterThan(INITIAL_VISIBLE_RELEASE_COUNT);
+  expect(await allReleases.count()).toBeGreaterThan(expectedVisibleReleaseCount);
   await expect(archive).not.toHaveAttribute('open', '');
-  await expect(visibleReleases).toHaveCount(INITIAL_VISIBLE_RELEASE_COUNT);
+  await expect(visibleReleases).toHaveCount(expectedVisibleReleaseCount);
+  await expect(visibleDatedReleases).toHaveCount(VISIBLE_DATED_RELEASE_COUNT);
   await expect(archivedReleases.first()).toBeHidden();
 
   await archive.locator('summary').click();
