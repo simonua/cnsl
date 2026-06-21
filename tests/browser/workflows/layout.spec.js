@@ -6,6 +6,10 @@ const {
   prepareStableWeatherResponses
 } = require('../browser-test-helpers');
 
+const attentionNoticeVisibleAt = new Date(
+  (Date.parse(AppConfig.APP_ATTENTION_NOTICE.UPDATED_AT) + Date.parse(AppConfig.APP_ATTENTION_NOTICE.EXPIRES_AT)) / 2
+);
+
 test.beforeEach(async ({ page }) => {
   await prepareStableWeatherResponses(page);
 });
@@ -62,6 +66,7 @@ test('[WF-LAYOUT-005] mobile directory page titles remain compact', async ({ pag
 });
 
 test('[WF-LAYOUT-002] shared attention notice appears directly below the header', async ({ page }) => {
+  await page.clock.setFixedTime(attentionNoticeVisibleAt);
   await page.setViewportSize(MOBILE_VIEWPORT);
   await page.goto('/pools.html');
 
@@ -91,6 +96,7 @@ test('[WF-LAYOUT-002] shared attention notice appears directly below the header'
 });
 
 test('[WF-LAYOUT-003] non-dismissible attention notice remains visible without a close control', async ({ page }) => {
+  await page.clock.setFixedTime(attentionNoticeVisibleAt);
   await page.route('**/js/config/app-config.js*', async route => {
     const response = await route.fetch();
     const body = (await response.text()).replace('DISMISSIBLE: true', 'DISMISSIBLE: false');
