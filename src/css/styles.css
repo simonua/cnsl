@@ -333,7 +333,7 @@ html {
 
 @media (min-width: 40rem) {
   html {
-    scrollbar-gutter: stable both-edges;
+    scrollbar-gutter: stable;
   }
 }
 
