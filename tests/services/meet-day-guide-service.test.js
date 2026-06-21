@@ -35,6 +35,7 @@ const hostTeam = {
       poolsideConditions: ['Fixture poolside condition.']
     },
     poolId: 'host-pool',
+    source: { receivedOn: '2026-06-12', type: 'host-team-manager' },
     visitingTeam: {
       arrivalGuidance: 'Fixture arrival guidance.',
       arrivalTime: '07:15',
@@ -64,6 +65,7 @@ const favoriteTeam = {
       warmupTime: '07:00'
     },
     poolId: 'favorite-pool',
+    source: { receivedOn: '2026-06-19', type: 'host-team-manager' },
     visitingTeam: {
       familySetupLocation: 'in the fixture shaded area',
       parkingNotes: ['Fixture visitor parking note.'],
@@ -123,6 +125,28 @@ describe('MeetDayGuideService', () => {
       assert.equal(guide.meet.timingWindow.relayCheckInDeadline, meetTimes.dualMeets.relayCheckInDeadline);
     });
 
+    it('uses only general instructions when host guidance belongs to an earlier meet', () => {
+      const laterMeet = new Meet({
+        date: '2026-06-20', home_team: 'Host', location: 'Host Pool', visiting_team: 'Second Visitor'
+      }, meetTimes, 'dualMeets');
+      const guide = MeetDayGuideService.getGuide(
+        secondVisitorTeam,
+        teams,
+        [firstFavoriteMeet, laterMeet],
+        pools,
+        new Date(2026, 5, 19, 12)
+      );
+      const html = MeetDayGuideService.renderGuide(guide);
+
+      assert.equal(guide.generalGuide, hostTeam.homeMeetGuides[0].general);
+      assert.equal(guide.roleGuide, null);
+      assert.ok(html.includes(hostTeam.homeMeetGuides[0].general.parkingNotes[0]));
+      assert.doesNotMatch(html, /Fixture arrival guidance|Fixture clerk location|fixture visitor area/i);
+      assert.match(html, /<dt>Arm markings<\/dt>/);
+      assert.match(html, /<dt>Good to know<\/dt>/);
+      assert.match(html, /<dt>Volunteer reminder<\/dt>/);
+    });
+
     it('applies an optional inclusive look-ahead window', () => {
       const twoDaysAheadGuide = MeetDayGuideService.getGuide(favoriteTeam, teams, [firstFavoriteMeet], pools, new Date(2026, 5, 11, 12), 2);
       const todayGuide = MeetDayGuideService.getGuide(favoriteTeam, teams, [firstFavoriteMeet], pools, new Date(2026, 5, 13, 6));
@@ -163,6 +187,7 @@ describe('MeetDayGuideService', () => {
         homeMeetGuides: [{
           poolId: 'host-pool',
           general: { helpfulNotes: ['Bring a canopy.'] },
+          source: { receivedOn: '2026-06-19', type: 'host-team-manager' },
           homeTeam: {
             arrivalTime: '06:30',
             clerkGuidance: 'The clerk of course checks in by the office.',
@@ -191,6 +216,7 @@ describe('MeetDayGuideService', () => {
         homeMeetGuides: [{
           poolId: 'host-pool',
           general: { helpfulNotes: ['Fixture guidance'] },
+          source: { receivedOn: '2026-06-19', type: 'host-team-manager' },
           homeTeam: { arrivalTime: '06:30' }
         }]
       };
@@ -213,6 +239,7 @@ describe('MeetDayGuideService', () => {
             parkingNotes: ['Park in the main lot.', 'Overflow on Main Street'],
             poolsideConditions: ['Sunny in the morning.']
           },
+          source: { receivedOn: '2026-06-19', type: 'host-team-manager' },
           homeTeam: {}
         }]
       };

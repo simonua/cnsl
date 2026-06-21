@@ -1,6 +1,6 @@
 /**
  * Selects and safely renders personalized near-term meet guidance.
- * Combines annual matchup, pool, and recurring host-team facts without DOM access.
+ * Combines annual matchup, pool, and meet-scoped host-team facts without DOM access.
  */
 if (typeof globalThis.MeetDayGuideService === 'undefined') {
   const ARM_MARKING_GUIDE_URL = 'swim-meet-resources.html#arm-markings';
@@ -72,8 +72,19 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
     }
 
     /**
+     * Normalizes a published pool location for fallback comparisons.
+     * @param {string} location - Published meet or team pool label
+     * @returns {string} Comparable pool label
+     * @private
+     */
+    static normalizePoolLocation(location) {
+      return String(location || '').trim().toLowerCase().replace(/\s+pool\s*$/i, '');
+    }
+
+    /**
      * Resolves host guidance before optional pool records are available.
-     * @param {Object|null} homeTeam - Published host team
+    * @param {Object|null} hostGuide - Matching host-pool guidance
+    * @param {Object|null} homeTeam - Published host team
      * @param {Object|null} pool - Resolved pool record
      * @param {string} location - Published meet location
      * @returns {Object|null} Matching host guide or null
@@ -84,11 +95,45 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
       if (pool) return guides.find(guide => guide.poolId === pool.id) || null;
       if (guides.length !== 1) return null;
 
-      const meetLocation = String(location || '').trim().toLowerCase().replace(/\s+pool\s*$/i, '');
+      const meetLocation = MeetDayGuideService.normalizePoolLocation(location);
       const isPublishedHomePool = (homeTeam?.homePools || []).some(homePool => (
-        String(homePool || '').trim().toLowerCase().replace(/\s+pool\s*$/i, '') === meetLocation
+        MeetDayGuideService.normalizePoolLocation(homePool) === meetLocation
       ));
       return isPublishedHomePool ? guides[0] : null;
+    }
+
+    /**
+     * Limits manager-provided guidance to the first same-season home meet at its pool after receipt.
+     * @param {Object|null} homeTeam - Published host team
+     * @param {Object|null} pool - Resolved pool record
+     * @param {Object} meet - Selected meet
+     * @param {Array} meets - Published meets
+     * @param {Array} pools - Published pools
+     * @returns {Object|null} Guidance for the represented meet or null
+     * @private
+     */
+    static findMeetSpecificHostGuide(hostGuide, homeTeam, pool, meet, meets, pools) {
+      if (!hostGuide?.source?.receivedOn || !meet?.date) return null;
+      const receivedDate = globalThis.TimeUtils.parseDateOnly(hostGuide?.source?.receivedOn);
+      const selectedMeetDate = globalThis.TimeUtils.parseDateOnly(meet?.date);
+      if (Number.isNaN(receivedDate.getTime()) || Number.isNaN(selectedMeetDate.getTime())
+        || receivedDate.getFullYear() !== selectedMeetDate.getFullYear()) return null;
+
+      const selectedLocation = MeetDayGuideService.normalizePoolLocation(meet.location);
+      const representedMeet = (Array.isArray(meets) ? meets : [])
+        .filter(candidate => {
+          if (!candidate?.home_team || !candidate.date
+            || !globalThis.PreferencesService.teamMatchesLabel(homeTeam, candidate.home_team)) return false;
+          const candidateDate = globalThis.TimeUtils.parseDateOnly(candidate.date);
+          if (Number.isNaN(candidateDate.getTime()) || candidateDate < receivedDate
+            || candidateDate.getFullYear() !== receivedDate.getFullYear()) return false;
+          const candidatePool = MeetDayGuideService.findPool(pools, candidate.location);
+          return pool && candidatePool
+            ? candidatePool.id === pool.id
+            : MeetDayGuideService.normalizePoolLocation(candidate.location) === selectedLocation;
+        })
+        .sort((left, right) => left.date.localeCompare(right.date))[0];
+      return representedMeet?.date === meet.date ? hostGuide : null;
     }
 
     /**
@@ -151,7 +196,17 @@ if (typeof globalThis.MeetDayGuideService === 'undefined') {
       const visitingTeam = MeetDayGuideService.findTeam(publishedTeams, visitingLabel);
       const pool = MeetDayGuideService.findPool(publishedPools, meet.location);
       const hostGuide = MeetDayGuideService.findHostGuide(homeTeam, pool, meet.location);
-      const roleGuide = role === globalThis.MeetTeamRole.HOME ? hostGuide?.homeTeam : hostGuide?.visitingTeam;
+      const meetSpecificHostGuide = MeetDayGuideService.findMeetSpecificHostGuide(
+        hostGuide,
+        homeTeam,
+        pool,
+        meet,
+        meets,
+        publishedPools
+      );
+      const roleGuide = role === globalThis.MeetTeamRole.HOME
+        ? meetSpecificHostGuide?.homeTeam
+        : meetSpecificHostGuide?.visitingTeam;
       const relativeDayLabel = globalThis.TimeUtils.formatRelativeFutureDay(
         globalThis.TimeUtils.parseDateOnly(meet.date),
         referenceDate
