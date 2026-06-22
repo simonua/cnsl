@@ -91,7 +91,7 @@ test('[WF-POOLS-029] pool status guide explains every public-access status on ho
     await expect(tooltip).toBeVisible();
     expect(await tooltip.evaluate(element => {
       const bounds = element.getBoundingClientRect();
-      return bounds.left >= 0 && bounds.right <= document.documentElement.clientWidth;
+      return bounds.left >= 0 && bounds.right <= globalThis.document.documentElement.clientWidth;
     })).toBe(true);
   }
 });
