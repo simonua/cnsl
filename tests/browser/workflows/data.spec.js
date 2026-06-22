@@ -178,12 +178,20 @@ test('[WF-DATA-007-POOLS] pool summaries and requested details render before opt
   const optionalRequestsPaused = new Promise(resolve => {
     releaseOptionalRequests = resolve;
   });
+  let releaseDetailRequest;
+  const detailRequestPaused = new Promise(resolve => {
+    releaseDetailRequest = resolve;
+  });
   for (const domain of ['teams', 'meets']) {
     await page.route(getAnnualDataRoute(domain), async route => {
       await optionalRequestsPaused;
       await route.continue();
     });
   }
+  await page.route('**/js/services/pool-link-helper.js*', async route => {
+    await detailRequestPaused;
+    await route.continue();
+  });
 
   try {
     await page.goto('/pools.html', { waitUntil: 'domcontentloaded' });
@@ -204,24 +212,38 @@ test('[WF-DATA-007-POOLS] pool summaries and requested details render before opt
     await expect(page.locator('.pool-status-legend__note')).toContainText('quick guides based on today\'s published public hours');
     await expect(page.locator('#poolList .pool-details[data-pool-details-hydrated="false"]')).toHaveCount(poolCount);
     await expect(page.locator('#poolList .pool-contact')).toHaveCount(0);
+    await expect(page.locator('script[data-pool-dependency-group="detail"]')).toHaveCount(0);
 
     const firstPool = page.locator('#poolList .pool-card').first();
     await firstPool.locator('.pool-header__toggle').click();
+    await expect(firstPool.locator('.pool-details')).toHaveAttribute('aria-busy', 'true');
+    await expect(firstPool.locator('.pool-details [role="status"]')).toBeVisible();
+    releaseDetailRequest();
     await expect(firstPool.locator('.pool-details')).toHaveAttribute('data-pool-details-hydrated', 'true');
     await expect(firstPool.locator('.pool-contact')).toBeVisible();
     await expect(firstPool.locator('.pool-hours')).toBeVisible();
     await expect(page.locator('script[data-pool-dependency-group="detail"]'))
       .toHaveCount(AppConfig.POOL_DETAIL_DEPENDENCIES.length);
+    const secondPool = page.locator('#poolList .pool-card').nth(1);
+    await secondPool.locator('.pool-header__toggle').click();
+    await expect(secondPool.locator('.pool-details')).toHaveAttribute('data-pool-details-hydrated', 'true');
+    await expect(page.locator('script[data-pool-dependency-group="detail"]'))
+      .toHaveCount(AppConfig.POOL_DETAIL_DEPENDENCIES.length);
     const controllerVersion = await page.locator('script[src*="pool-browser.js"]').evaluate(script => (
       new URL(script.src).searchParams.get('v')
     ));
-    const dependencyVersions = await page.locator('script[data-pool-dependency]').evaluateAll(scripts => (
-      scripts.map(script => new URL(script.src).searchParams.get('v'))
+    const detailDependencies = await page.locator('script[data-pool-dependency-group="detail"]').evaluateAll(scripts => (
+      scripts.map(script => ({
+        source: new URL(script.src).pathname.slice(1),
+        version: new URL(script.src).searchParams.get('v')
+      }))
     ));
-    expect(dependencyVersions.every(version => version === controllerVersion)).toBe(true);
+    expect(detailDependencies.map(dependency => dependency.source)).toEqual(AppConfig.POOL_DETAIL_DEPENDENCIES);
+    expect(detailDependencies.every(dependency => dependency.version === controllerVersion)).toBe(true);
     expect(await page.evaluate(() => performance.getEntriesByName('cnsl:pools:summary-visible').length)).toBe(1);
     expect(await page.evaluate(() => performance.getEntriesByName('cnsl:pools:optional-enrichment-settled').length)).toBe(0);
   } finally {
+    releaseDetailRequest();
     releaseOptionalRequests();
   }
 

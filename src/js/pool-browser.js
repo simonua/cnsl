@@ -158,7 +158,7 @@ async function initializePoolBrowser() {
 }
 
 /**
- * Starts optional team and meet enrichment once and refreshes hydrated details afterward.
+ * Starts optional team and meet enrichment once and reconciles rendered schedule state afterward.
  * @returns {Promise<void>} Promise settled after optional enrichment attempts complete
  */
 function startPoolBrowserEnrichment() {
@@ -182,6 +182,7 @@ function startPoolBrowserEnrichment() {
           poolBrowserDataManager.getTeams().getAllTeams(),
           poolBrowserDataManager.getMeets().getAllMeets()
         );
+        refreshPoolsForCurrentTime();
       }
       refreshHydratedPoolDetails();
     })
@@ -441,6 +442,24 @@ function refreshPoolTransitionSummaries() {
 }
 
 /**
+ * Synchronizes live status indicators and transition summaries without replacing pool cards.
+ */
+function refreshPoolCardSummaries() {
+  document.querySelectorAll('#poolList .pool-card').forEach(poolCard => {
+    const pool = getPoolModel(poolCard.dataset.poolId);
+    const statusIndicator = poolCard.querySelector('.pool-status-indicator');
+    if (pool && statusIndicator) {
+      const poolStatus = getPoolCardStatus(pool);
+      statusIndicator.outerHTML = PoolCardDisplay.renderStatusIndicator(
+        poolStatus,
+        getStatusTooltip(poolStatus.kind)
+      );
+    }
+    syncPoolTransitionSummary(poolCard);
+  });
+}
+
+/**
  * Renders deferred details for an expanded pool card.
  * @param {Element} poolCard - Pool card to hydrate
  * @returns {Promise<Element|null>} Pool details element after hydration settles, when present
@@ -451,6 +470,7 @@ async function hydratePoolDetails(poolCard) {
     || details.dataset.poolDetailsUnavailable === 'true') return details;
 
   details.setAttribute('aria-busy', 'true');
+  details.innerHTML = '<p class="pool-details__loading" role="status">Loading pool details...</p>';
   try {
     await loadPoolDetailDependencies();
   } catch (error) {
@@ -488,17 +508,15 @@ async function hydrateExpandedPoolDetails(root = document) {
 }
 
 /**
- * Starts detail providers and hydrates any favorite-expanded or deep-linked card.
- * @returns {Promise<void>} Promise settled after initial detail work completes or fails safely
+ * Hydrates a favorite-expanded or deep-linked card without preloading unused detail providers.
+ * @returns {Promise<void>} Promise settled after requested initial detail work completes
  */
 function startPoolBrowserDetailWork() {
   const list = document.getElementById('poolList');
   if (list && list.querySelector('.pool-header__toggle[aria-expanded="true"]')) {
     return hydrateExpandedPoolDetails(list);
   }
-  return loadPoolDetailDependencies().catch(error => {
-    console.warn('[Pool Browser] Pool details are unavailable:', error);
-  });
+  return Promise.resolve();
 }
 
 /**
@@ -877,6 +895,12 @@ function refreshPoolsForCurrentTime() {
   const nextSignature = getPoolLiveStatusSignature(poolBrowserPools);
   if (nextSignature === poolLiveStatusSignature) {
     refreshPoolTransitionSummaries();
+    return;
+  }
+
+  if (poolAvailabilityFilter === 'all') {
+    poolLiveStatusSignature = nextSignature;
+    refreshPoolCardSummaries();
     return;
   }
 

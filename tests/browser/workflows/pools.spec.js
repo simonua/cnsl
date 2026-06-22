@@ -438,6 +438,8 @@ test('[WF-POOLS-004] collapsed favorite pool stays collapsed after filters redra
 
   let favoriteToggle = page.locator('.favorite-card .pool-header__toggle');
   await expect(favoriteToggle).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.locator('.favorite-card .pool-details'))
+    .toHaveAttribute('data-pool-details-hydrated', 'true');
   await favoriteToggle.evaluate(toggle => {
     toggle.closest('[data-pool-card]').classList.remove('favorite-card');
     toggle.click();
@@ -874,6 +876,84 @@ test('[WF-POOLS-013] open-now results update after a public-use period ends with
   await page.clock.fastForward(31 * 1000);
   await expect(fixturePool).toHaveCount(0);
   await expect(page.locator('#poolListStatus')).toHaveText('Pool availability updated for the current time.');
+});
+
+test('[WF-POOLS-030] meet enrichment immediately reconciles live status and open-now results', async ({ page }) => {
+  await page.clock.setFixedTime(activeSeasonDate('06-20T08:00:00-04:00'));
+  let fixturePoolId = '';
+  let fixturePoolName = '';
+  await routeAnnualData(page, 'pools', poolData => {
+    poolData.pools.forEach((pool, index) => {
+      pool.schedules = [{
+        startDate: `${ACTIVE_SEASON_YEAR}-05-01`,
+        endDate: `${ACTIVE_SEASON_YEAR}-09-07`,
+        hours: [{
+          weekDays: ['Sat'],
+          startTime: '6:00AM',
+          endTime: '8:00PM',
+          types: ['Fixture Public Use'],
+          accessStatus: 'public'
+        }]
+      }];
+      pool.scheduleOverrides = [];
+      if (index === 0) {
+        fixturePoolId = pool.id;
+        fixturePoolName = pool.name;
+      }
+    });
+  });
+
+  let releaseMeetRequest;
+  const meetRequestPaused = new Promise(resolve => {
+    releaseMeetRequest = resolve;
+  });
+  await page.route(getAnnualDataRoute('meets'), async route => {
+    const response = await route.fetch();
+    const meetData = await response.json();
+    await meetRequestPaused;
+    meetData.regular_meets = [{
+      date: `${ACTIVE_SEASON_YEAR}-06-20`,
+      name: 'Fixture Dual Meet',
+      visiting_team: 'Fixture Visitors',
+      home_team: 'Fixture Hosts',
+      location: `${fixturePoolName} Pool`
+    }];
+    meetData.special_meets = [];
+    await route.fulfill({ response, json: meetData });
+  });
+
+  let initialVisiblePoolCount;
+  try {
+    await page.goto('/pools.html', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
+    const availabilityFilter = page.locator('#poolAvailabilityFilter');
+    await page.locator('#togglePoolFeatureFilters').click();
+    await availabilityFilter.selectOption('open-now');
+    initialVisiblePoolCount = await page.locator('#poolList .pool-card').count();
+    const fixturePool = page.locator(`.pool-card[data-pool-id="${fixturePoolId}"]`);
+    await expect(fixturePool).toHaveCount(1);
+    await expect(fixturePool.locator('.pool-status-indicator')).toHaveClass(/green/);
+    await expect(fixturePool.locator('.pool-transition-summary')).toHaveCount(1);
+    await availabilityFilter.focus();
+    await expect(availabilityFilter).toBeFocused();
+  } finally {
+    releaseMeetRequest();
+  }
+
+  await expect.poll(() => page.evaluate(id => {
+    const pool = globalThis.getDataManager().getPools().getAllPools().find(candidate => candidate.id === id);
+    return pool?.getCurrentStatus().kind;
+  }, fixturePoolId)).toBe('swim-meet');
+  await expect(page.locator(`.pool-card[data-pool-id="${fixturePoolId}"]`)).toHaveCount(0);
+  await expect(page.locator('#poolAvailabilityFilter')).toBeFocused();
+  await expect(page.locator('#poolList .pool-card')).toHaveCount(initialVisiblePoolCount - 1);
+  await expect(page.locator('#poolFilterSummary'))
+    .toContainText(`${initialVisiblePoolCount - 1} / ${initialVisiblePoolCount}`);
+
+  await page.locator('#poolAvailabilityFilter').selectOption('all');
+  const enrichedFixturePool = page.locator(`.pool-card[data-pool-id="${fixturePoolId}"]`);
+  await expect(enrichedFixturePool).toHaveCount(1);
+  await expect(enrichedFixturePool.locator('.pool-status-indicator')).toHaveClass(/yellow/);
 });
 
 test('[WF-POOLS-024] semantic practice status drives detail and calendar styling when its label changes', async ({ page }) => {
