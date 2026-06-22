@@ -435,6 +435,21 @@ function refreshPoolTransitionSummaries() {
 }
 
 /**
+ * Refresh time-sensitive hours in a card whose details were already hydrated.
+ * @param {Element} poolCard - Pool card containing deferred details
+ * @param {Pool} pool - Current pool model
+ */
+function refreshHydratedPoolHours(poolCard, pool) {
+  const details = poolCard && poolCard.querySelector('.pool-details');
+  if (!details || details.dataset.poolDetailsHydrated !== 'true') return;
+
+  const hoursElement = details.querySelector('.pool-hours');
+  if (!hoursElement) return;
+  hoursElement.outerHTML = formatPoolHours(pool);
+  scrollCalendarsToToday(poolCard);
+}
+
+/**
  * Synchronizes live status indicators and transition summaries without replacing pool cards.
  */
 function refreshPoolCardSummaries() {
@@ -447,6 +462,7 @@ function refreshPoolCardSummaries() {
         poolStatus,
         getStatusTooltip(poolStatus.kind)
       );
+      refreshHydratedPoolHours(poolCard, pool);
     }
     syncPoolTransitionSummary(poolCard);
   });
@@ -892,8 +908,11 @@ function refreshPoolsForCurrentTime() {
   }
 
   if (poolAvailabilityFilter === 'all') {
+    const focusTarget = captureFocusedPoolControl();
     poolLiveStatusSignature = nextSignature;
     refreshPoolCardSummaries();
+    restoreFocusedPoolControl(focusTarget);
+    setPoolListStatus('Pool availability updated for the current time.', false);
     return;
   }
 

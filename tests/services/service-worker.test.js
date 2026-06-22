@@ -39,6 +39,7 @@ function createWorkerHarness(precacheResources, options = {}) {
       }
     },
     async put(request, response) {
+      if (typeof options.shouldStoreResponse === 'function' && !options.shouldStoreResponse(normalizeUrl(request))) return;
       cacheRecords.set(normalizeUrl(request), response.clone());
     },
     async match(request) {
@@ -180,6 +181,16 @@ describe('service worker cache strategy', () => {
     });
 
     await assert.rejects(() => harness.dispatch('install'), /Offline page unavailable/);
+    assert.equal(harness.getSkipWaitingCalls(), 0);
+    assert.ok(harness.deletedCaches.includes(`${PWA_CACHE_PREFIX}development`));
+  });
+
+  it('should reject installation when the required Home document is missing after cache population', async () => {
+    const harness = createWorkerHarness(coreResources, {
+      shouldStoreResponse: request => !request.includes('/index.html')
+    });
+
+    await assert.rejects(() => harness.dispatch('install'), /required Home document was not cached/);
     assert.equal(harness.getSkipWaitingCalls(), 0);
     assert.ok(harness.deletedCaches.includes(`${PWA_CACHE_PREFIX}development`));
   });
