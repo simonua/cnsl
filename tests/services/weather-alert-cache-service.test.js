@@ -29,12 +29,28 @@ describe('WeatherAlertCacheService', () => {
       });
     });
 
+    it('retains an expired validated status only as the last-known display state', () => {
+      const storage = createLocalStorageMock();
+      const expiredAt = new Date(now.getTime() + 5 * 60 * 1000);
+
+      WeatherAlertCacheService.write(validStatus, 5, storage, now);
+
+      assert.equal(WeatherAlertCacheService.read(5, storage, expiredAt), null);
+      assert.deepEqual(WeatherAlertCacheService.readLastKnown(storage), {
+        expiresAt: expiredAt.getTime(),
+        refreshMinutes: 5,
+        status: validStatus
+      });
+    });
+
     it('rejects unavailable, malformed, expired, and mismatched cache entries', () => {
       const storage = createLocalStorageMock();
       assert.equal(WeatherAlertCacheService.read(5, null, now), null);
+      assert.equal(WeatherAlertCacheService.readLastKnown(null), null);
 
       storage.setItem(WeatherAlertCacheService.STORAGE_KEY, '{');
       assert.equal(WeatherAlertCacheService.read(5, storage, now), null);
+      assert.equal(WeatherAlertCacheService.readLastKnown(storage), null);
 
       storage.setItem(WeatherAlertCacheService.STORAGE_KEY, JSON.stringify({
         expiresAt: now.getTime() + 60 * 1000,
@@ -42,6 +58,13 @@ describe('WeatherAlertCacheService', () => {
         status: validStatus
       }));
       assert.equal(WeatherAlertCacheService.read(5, storage, now), null);
+
+      storage.setItem(WeatherAlertCacheService.STORAGE_KEY, JSON.stringify({
+        expiresAt: now.getTime() + 60 * 1000,
+        refreshMinutes: 0,
+        status: validStatus
+      }));
+      assert.equal(WeatherAlertCacheService.readLastKnown(storage), null);
 
       storage.setItem(WeatherAlertCacheService.STORAGE_KEY, JSON.stringify({
         expiresAt: 'later',

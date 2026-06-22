@@ -99,13 +99,27 @@ if (typeof globalThis.WeatherAlertCacheService === 'undefined') {
      * @returns {Object|null} Valid fresh cache entry or null
      */
     static read(refreshMinutes, storage = WeatherAlertCacheService.getStorage(), now = new Date()) {
+      const cached = WeatherAlertCacheService.readLastKnown(storage);
+      return cached
+        && cached.refreshMinutes === refreshMinutes
+        && cached.expiresAt > now.getTime()
+        ? cached
+        : null;
+    }
+
+    /**
+     * Read the last validated weather cache entry regardless of freshness.
+     * @param {Storage|null} storage - Session storage or a compatible substitute
+     * @returns {Object|null} Valid cache entry or null
+     */
+    static readLastKnown(storage = WeatherAlertCacheService.getStorage()) {
       if (!storage) return null;
       try {
         const cached = JSON.parse(storage.getItem(WeatherAlertCacheService.STORAGE_KEY));
         return cached
-          && cached.refreshMinutes === refreshMinutes
+          && Number.isFinite(cached.refreshMinutes)
+          && cached.refreshMinutes > 0
           && Number.isFinite(cached.expiresAt)
-          && cached.expiresAt > now.getTime()
           && WeatherAlertCacheService.isValidStatus(cached.status)
           ? cached
           : null;

@@ -64,7 +64,7 @@
   try {
     const refreshMinutes = getWeatherRefreshMinutes();
     if (refreshMinutes === 0) return;
-    const cached = globalThis.WeatherAlertCacheService.read(refreshMinutes);
+    const cached = globalThis.WeatherAlertCacheService.readLastKnown();
     const status = cached && cached.status;
     if (!status || !status.isInclement) return;
 

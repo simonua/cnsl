@@ -209,3 +209,49 @@ test('[WF-WEATHER-003] turning weather safety alerts off hides an active banner 
   await page.goto('/index.html');
   await expect(page.locator('#weatherAlert')).toBeHidden();
 });
+
+test('[WF-WEATHER-007] an expired active alert remains visible while the next view refreshes weather', async ({ page }) => {
+  await page.unroute('https://api.weather.gov/**');
+  let releaseWeatherResponses;
+  const weatherResponsesReleased = new Promise(resolve => {
+    releaseWeatherResponses = resolve;
+  });
+  await page.route('https://api.weather.gov/**', async route => {
+    await weatherResponsesReleased;
+    const requestUrl = route.request().url();
+    if (requestUrl.includes('/alerts/')) {
+      await route.fulfill({ json: { features: [] } });
+      return;
+    }
+    if (requestUrl.includes('/points/')) {
+      await route.fulfill({ json: { properties: { forecast: 'https://api.weather.gov/gridpoints/test' } } });
+      return;
+    }
+    await route.fulfill({ json: { properties: { periods: [] } } });
+  });
+  await page.addInitScript(refreshMinutes => {
+    const updatedAt = new Date().toISOString();
+    sessionStorage.setItem('cnsl_weather_alert_status', JSON.stringify({
+      expiresAt: Date.now() - 1,
+      refreshMinutes,
+      status: {
+        alertLabel: 'Severe Thunderstorm Warning',
+        guidance: 'Check live pool status before leaving.',
+        isInclement: true,
+        message: 'Active National Weather Service alert: Severe Thunderstorm Warning.',
+        source: 'alert',
+        updatedAt
+      }
+    }));
+  }, AppConfig.WEATHER_ALERT_DEFAULT_REFRESH_MINUTES);
+
+  await page.goto('/about.html', { waitUntil: 'domcontentloaded' });
+
+  const bannerWasVisibleAtFirstPaint = await page.locator('#weatherAlert').evaluate(banner => new Promise(resolve => {
+    banner.ownerDocument.defaultView.requestAnimationFrame(() => resolve(!banner.hidden));
+  }));
+  expect(bannerWasVisibleAtFirstPaint).toBe(true);
+
+  releaseWeatherResponses();
+  await expect(page.locator('#weatherAlert')).toBeHidden();
+});
