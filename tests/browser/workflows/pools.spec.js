@@ -706,26 +706,31 @@ test('[WF-POOLS-021] Aqua Fitness schedules link to official class details', asy
   await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
 
   const poolCards = page.locator('.pool-card');
-  let sourcePool;
-  let nonSourcePool;
-  for (const poolCard of await poolCards.all()) {
+  const poolIds = await poolCards.evaluateAll(cards => cards.map(card => card.dataset.poolId));
+  let sourcePoolId;
+  let nonSourcePoolId;
+  for (const poolId of poolIds) {
+    const poolCard = page.locator(`.pool-card[data-pool-id="${poolId}"]`);
     await poolCard.locator('.pool-header__toggle').click();
+    await expect(poolCard.locator('.pool-details')).toHaveAttribute('data-pool-details-hydrated', 'true');
     const sourceLinks = poolCard.getByRole('link', { name: 'Aqua Fitness official details (opens in new tab)' });
     if (await sourceLinks.count()) {
-      sourcePool ??= poolCard;
+      sourcePoolId ??= poolId;
     } else {
-      nonSourcePool ??= poolCard;
+      nonSourcePoolId ??= poolId;
     }
-    if (sourcePool && nonSourcePool) break;
+    if (sourcePoolId && nonSourcePoolId) break;
   }
 
-  expect(sourcePool).toBeTruthy();
-  expect(nonSourcePool).toBeTruthy();
+  expect(sourcePoolId).toBeTruthy();
+  expect(nonSourcePoolId).toBeTruthy();
+  const sourcePool = page.locator(`.pool-card[data-pool-id="${sourcePoolId}"]`);
+  const nonSourcePool = page.locator(`.pool-card[data-pool-id="${nonSourcePoolId}"]`);
   const sourceLink = sourcePool.getByRole('link', { name: 'Aqua Fitness official details (opens in new tab)' }).first();
   await expect(sourceLink).toHaveAttribute('href', /^https:\/\//);
   await expect(sourceLink).toHaveAttribute('target', '_blank');
   await expect(sourceLink).toHaveAttribute('rel', 'noopener');
-  await expect(nonSourcePool.locator('.schedule-activity__source-link')).toHaveCount(0);
+  await expect(nonSourcePool.getByRole('link', { name: 'Aqua Fitness official details (opens in new tab)' })).toHaveCount(0);
 
   const sourcePoolName = await sourcePool.getAttribute('data-pool-name');
   await seedPreferences(page, { favoritePoolName: sourcePoolName, poolScheduleLayout: 'calendar' });
@@ -1084,7 +1089,7 @@ test('[WF-POOLS-027] replacement-day hours remove the recurring schedule tail', 
   await expect(fixturePool.locator('.pool-hours .time-slot').filter({ hasText: 'Laps, Rec Swim' })).toHaveCount(1);
 });
 
-test('[WF-POOLS-025] collapsed opening and closing countdowns update without interaction', async ({ page }) => {
+test('[WF-POOLS-025] collapsed and expanded countdowns update without interaction', async ({ page }) => {
   await page.clock.install({ time: activeSeasonDate('05-26T14:58:30-04:00') });
   const closingPool = ANNUAL_POOLS[0];
   const openingPool = ANNUAL_POOLS[1];
@@ -1126,13 +1131,21 @@ test('[WF-POOLS-025] collapsed opening and closing countdowns update without int
   await expect(openingCard.locator('.pool-transition-summary')).toHaveText('Opens in 2 mins');
   await expect(meetCard.locator('.pool-transition-summary')).toHaveText('Opens in 2 mins');
 
+  await closingCard.locator('.pool-header__toggle').click();
+  const expandedCountdown = closingCard.locator('.pool-status-countdown');
+  const todayButton = closingCard.locator('.today-btn');
+  await expect(expandedCountdown).toHaveText('Closes in 2 mins');
+  await todayButton.focus();
+
   await page.clock.fastForward(31 * 1000);
   await expect(closingCard.locator('.pool-transition-summary')).toHaveText('Closes in 1 min');
   await expect(openingCard.locator('.pool-transition-summary')).toHaveText('Opens in 1 min');
   await expect(meetCard.locator('.pool-transition-summary')).toHaveText('Opens in 1 min');
+  await expect(expandedCountdown).toHaveText('Closes in 1 min');
+  await expect(todayButton).toBeFocused();
 });
 
-test('[WF-POOLS-031] closing countdown changes from warning to urgent color at one hour', async ({ page }) => {
+test('[WF-POOLS-031] closing countdown remains red across the one-hour boundary', async ({ page }) => {
   await page.clock.install({ time: activeSeasonDate('05-26T14:59:00-04:00') });
   const closingPool = ANNUAL_POOLS[0];
   await routeAnnualData(page, 'pools', poolData => {
@@ -1153,7 +1166,6 @@ test('[WF-POOLS-031] closing countdown changes from warning to urgent color at o
 
   const countdown = page.locator(`.pool-card[data-pool-id="${closingPool.id}"] .pool-transition-summary`);
   await expect(countdown).toHaveText('Closes in 1 hr 1 min');
-  await expect(countdown).toHaveClass(/pool-transition-summary--closing-later/);
   await expect.poll(() => countdown.evaluate((element, colorToken) => {
     const probe = globalThis.document.createElement('span');
     probe.style.color = `var(${colorToken})`;
@@ -1161,11 +1173,10 @@ test('[WF-POOLS-031] closing countdown changes from warning to urgent color at o
     const matches = globalThis.getComputedStyle(element).color === globalThis.getComputedStyle(probe).color;
     probe.remove();
     return matches;
-  }, '--warning-text-color')).toBe(true);
+  }, '--error-text-color')).toBe(true);
 
   await page.clock.fastForward(60 * 1000);
   await expect(countdown).toHaveText('Closes in 1 hr 0 mins');
-  await expect(countdown).not.toHaveClass(/pool-transition-summary--closing-later/);
   await expect.poll(() => countdown.evaluate((element, colorToken) => {
     const probe = globalThis.document.createElement('span');
     probe.style.color = `var(${colorToken})`;

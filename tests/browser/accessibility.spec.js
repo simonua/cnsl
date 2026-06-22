@@ -280,7 +280,7 @@ for (const { contrast, reference, theme } of [
   { contrast: 'high', reference: 'LIGHT-HIGH-CONTRAST', theme: 'light' },
   { contrast: 'high', reference: 'DARK-HIGH-CONTRAST', theme: 'dark' }
 ]) {
-  test(`[AX-POOLS-004-${reference}] later closing countdown passes WCAG in ${reference.toLowerCase()}`, async ({ page }) => {
+  test(`[AX-POOLS-004-${reference}] closing countdown passes WCAG in ${reference.toLowerCase()}`, async ({ page }) => {
     await page.clock.setFixedTime(activeSeasonDate('05-26T14:59:00-04:00'));
     await prepareStableWeatherResponses(page);
     await routeAnnualData(page, 'pools', poolData => {
@@ -299,7 +299,7 @@ for (const { contrast, reference, theme } of [
     await seedPreferences(page, { contrast, theme });
     await page.goto('/pools.html');
     await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
-    await expect(page.locator('.pool-transition-summary--closing-later')).toBeVisible();
+    await expect(page.locator('.pool-transition-summary--closes')).toBeVisible();
 
     await expectNoAccessibilityViolations(page);
   });

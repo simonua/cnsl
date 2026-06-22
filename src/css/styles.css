@@ -2553,10 +2553,6 @@ nav a:focus {
   color: var(--error-text-color);
 }
 
-.pool-transition-summary--closing-later {
-  color: var(--warning-text-color);
-}
-
 /* Pool Features */
 .pool-filter__quick-controls {
   display: flex;

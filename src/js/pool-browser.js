@@ -374,16 +374,16 @@ function getPoolModel(poolId) {
 /**
  * Build the collapsed-card availability summary for the active filter.
  * @param {Pool|null} poolModel - Pool domain model
- * @returns {{ text: string, label: string, action: string, minutes: number|null }} Display-ready availability summary
+ * @returns {{ text: string, label: string, action: string }} Display-ready availability summary
  */
 function getPoolCardAvailabilitySummary(poolModel) {
-  if (!poolModel) return { text: '', label: '', action: '', minutes: null };
+  if (!poolModel) return { text: '', label: '', action: '' };
 
   const dayOffset = PoolDirectoryService.getFutureAvailabilityDayOffset(poolAvailabilityFilter);
   if (dayOffset !== null) {
     const schedule = poolModel.getGeneralUseScheduleOnDayOffset(dayOffset);
     const summary = PoolDirectoryService.formatGeneralUseScheduleSummary(schedule, _getTimeUtils());
-    return { ...summary, action: '', minutes: null };
+    return { ...summary, action: '' };
   }
 
   const transition = poolModel.getPublicStatusTransitionToday();
@@ -391,8 +391,7 @@ function getPoolCardAvailabilitySummary(poolModel) {
   return {
     text: PoolCardDisplay.formatPublicStatusTransition(transition),
     label: PoolCardDisplay.formatPublicStatusTransition(transition, { useLongUnits: true }),
-    action: PoolTransitionAction.isValid(action) ? action : '',
-    minutes: Number.isInteger(transition?.minutes) ? transition.minutes : null
+    action: PoolTransitionAction.isValid(action) ? action : ''
   };
 }
 
@@ -424,15 +423,19 @@ function syncPoolTransitionSummary(poolCard) {
     metadata.prepend(summary);
   }
   summary.textContent = summaryState.text;
-  summary.className = PoolCardDisplay.getTransitionSummaryClass(summaryState.action, summaryState.minutes);
+  summary.className = PoolCardDisplay.getTransitionSummaryClass(summaryState.action);
   summary.setAttribute('aria-label', summaryState.label);
 }
 
 /**
- * Refreshes live transition summaries without replacing pool cards.
+ * Refreshes live transition summaries and hydrated hours without replacing pool cards.
  */
-function refreshPoolTransitionSummaries() {
-  document.querySelectorAll('#poolList .pool-card').forEach(syncPoolTransitionSummary);
+function refreshPoolTimeDisplays() {
+  document.querySelectorAll('#poolList .pool-card').forEach(poolCard => {
+    syncPoolTransitionSummary(poolCard);
+    const pool = getPoolModel(poolCard.dataset.poolId);
+    if (pool) refreshHydratedPoolHours(poolCard, pool);
+  });
 }
 
 /**
@@ -904,7 +907,9 @@ function refreshPoolsForCurrentTime() {
   setupPoolAvailabilityControl();
   const nextSignature = getPoolLiveStatusSignature(poolBrowserPools);
   if (nextSignature === poolLiveStatusSignature) {
-    refreshPoolTransitionSummaries();
+    const focusTarget = captureFocusedPoolControl();
+    refreshPoolTimeDisplays();
+    restoreFocusedPoolControl(focusTarget);
     return;
   }
 
@@ -1044,7 +1049,6 @@ function renderPools(pools) {
       transitionText: availabilitySummary.text,
       transitionLabel: availabilitySummary.label,
       transitionAction: availabilitySummary.action,
-      transitionMinutes: availabilitySummary.minutes,
       poolStatus,
       statusTooltip: tooltipText,
       isDetailsHydrated: false
