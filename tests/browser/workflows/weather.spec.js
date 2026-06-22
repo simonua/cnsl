@@ -12,6 +12,21 @@ test.beforeEach(async ({ page }) => {
   await prepareStableWeatherResponses(page);
 });
 
+test('[WF-WEATHER-008] Home starts its weather check before DOM content is ready', async ({ page }) => {
+  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+
+  const weatherRequestTiming = await page.evaluate(alertsUrl => {
+    const navigationEntry = performance.getEntriesByType('navigation')[0];
+    const weatherEntry = performance.getEntriesByName(alertsUrl)[0];
+    return {
+      domContentLoadedAt: navigationEntry && navigationEntry.domContentLoadedEventStart,
+      requestStartedAt: weatherEntry && weatherEntry.startTime
+    };
+  }, AppConfig.WEATHER_ACTIVE_ALERTS_URL);
+
+  expect(weatherRequestTiming.requestStartedAt).toBeLessThan(weatherRequestTiming.domContentLoadedAt);
+});
+
 test('[WF-WEATHER-001] desktop weather safety alerts restore collapsed details on every page', async ({ page }) => {
   await prepareVisibleWeatherAlert(page);
   await page.addInitScript(() => {
@@ -210,7 +225,7 @@ test('[WF-WEATHER-003] turning weather safety alerts off hides an active banner 
   await expect(page.locator('#weatherAlert')).toBeHidden();
 });
 
-test('[WF-WEATHER-007] an expired active alert remains visible while the next view refreshes weather', async ({ page }) => {
+test('[WF-WEATHER-007] an expired active alert remains visible while Home refreshes weather', async ({ page }) => {
   await page.unroute('https://api.weather.gov/**');
   let releaseWeatherResponses;
   const weatherResponsesReleased = new Promise(resolve => {
@@ -245,7 +260,7 @@ test('[WF-WEATHER-007] an expired active alert remains visible while the next vi
     }));
   }, AppConfig.WEATHER_ALERT_DEFAULT_REFRESH_MINUTES);
 
-  await page.goto('/about.html', { waitUntil: 'domcontentloaded' });
+  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
 
   const bannerWasVisibleAtFirstPaint = await page.locator('#weatherAlert').evaluate(banner => new Promise(resolve => {
     banner.ownerDocument.defaultView.requestAnimationFrame(() => resolve(!banner.hidden));

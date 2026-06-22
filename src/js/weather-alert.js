@@ -215,9 +215,5 @@
     });
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', startWeatherAlertUpdates);
-  } else {
-    startWeatherAlertUpdates();
-  }
+  startWeatherAlertUpdates();
 }());

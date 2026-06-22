@@ -116,15 +116,14 @@
   <script src="js/services/device-platform-service.js"></script>
   <script src="js/services/release-notice-service.js"></script>
 
-  <block name="scripts"></block>
-
-  <script src="js/home-banner.js"></script>
-
-  <!-- Weather scripts load after the current view's scripts -->
+  <!-- Weather checks start before route-specific deferred work -->
   <script src="js/config/weather-operating-windows.js" defer></script>
   <script src="js/services/weather-alert-service.js" defer></script>
   <script src="js/weather-alert.js" defer></script>
 
+  <block name="scripts"></block>
+
+  <script src="js/home-banner.js"></script>
   <script src="js/settings.js" defer></script>
 </body>
 
