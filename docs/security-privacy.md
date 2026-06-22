@@ -1,6 +1,6 @@
 # Security And Privacy Decision
 
-Updated: 2026-06-18
+Updated: 2026-06-22
 
 ## Analytics Decision
 
@@ -23,11 +23,13 @@ GitHub Pages does not provide repository-managed HTTP response headers for this 
 | Default, base URL, manifest, worker | Same origin only | Site artifact and PWA lifecycle. |
 | Scripts | Same origin, inline scripts, `https://www.googletagmanager.com`, `https://static.cloudflareinsights.com` | Site JavaScript, structured metadata, the deployed-site Google tag for Analytics, and dynamic Cloudflare JavaScript loaded by the delivery layer. Cloudflare-injected code cannot use a repository-generated nonce or stable hash, so `script-src 'unsafe-inline'` is required. |
 | Styles | Same origin and inline styles | Navigation offset calculation, calendar positioning, and status presentation still use controlled runtime styles. |
-| Connections | Same origin, `https://api.weather.gov`, Google Analytics endpoints, `https://cloudflareinsights.com` | Annual/static content, weather safety alerts, purpose-limited usage measurement, and Cloudflare Insights beacon delivery telemetry. |
+| Connections | Same origin, `https://api.weather.gov`, Google Analytics collection and Google tag endpoints, `https://cloudflareinsights.com` | Annual/static content, weather safety alerts, purpose-limited usage measurement, and Cloudflare Insights beacon delivery telemetry. |
 | Images | Same origin, data URLs, Google Analytics endpoints, `https://www.googletagmanager.com` | Delivered images and Google tag analytics beacon transport. |
 | Frames and objects | None | No embedded third-party user experience is required. |
 
 The browser policy permits inline executable scripts because dynamic JavaScript injected by Cloudflare cannot carry a repository-generated nonce or stable hash. No nonce or hash source is included in `script-src`, because modern browsers would otherwise ignore `'unsafe-inline'` and block the Cloudflare injection. This weakens the browser's protection against injected inline JavaScript across the page, so the build continues to reject authored inline executable scripts other than structured JSON-LD. The `script-src 'unsafe-inline'` and `style-src 'unsafe-inline'` permissions are acknowledged integration constraints rather than blanket security claims. They should be removed if Cloudflare's delivery integration and supported UI styling can operate without them.
+
+The Google Analytics connection allowlist follows Google's current GA4 CSP guidance for `*.google-analytics.com`, `*.analytics.google.com`, and `*.googletagmanager.com`. Advertising endpoints remain excluded because advertising storage, Google signals, and advertising personalization are disabled for this deployment.
 
 ## Weather Service Location Decision
 

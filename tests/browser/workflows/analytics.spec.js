@@ -383,6 +383,52 @@ analyticsTest('[WF-ANALYTICS-012] analytics simulation cannot reach public netwo
   expect([...blockedExternalRequests].sort()).toEqual([...publicUrls].sort());
 });
 
+analyticsTest('[WF-ANALYTICS-017] FAQ policy permits required Google Analytics connection endpoints', async ({
+  blockedExternalRequests,
+  page
+}) => {
+  const analyticsConnectionUrls = [
+    'https://region1.google-analytics.com/g/collect?v=2',
+    'https://region1.analytics.google.com/g/collect?v=2',
+    'https://www.googletagmanager.com/gtag/js?id=G-TEST'
+  ];
+  const observedAnalyticsRequests = [];
+
+  await page.route('https://pools.longreachmarlins.org/**', async route => {
+    const requestedUrl = new URL(route.request().url());
+    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    await route.fulfill({ response });
+  });
+  await page.route('https://www.googletagmanager.com/**', route => route.fulfill({
+    contentType: 'application/javascript',
+    body: ''
+  }));
+  for (const analyticsUrl of analyticsConnectionUrls) {
+    await page.route(analyticsUrl, async route => {
+      observedAnalyticsRequests.push(route.request().url());
+      await route.fulfill({ status: 204 });
+    });
+  }
+  await page.addInitScript(() => {
+    globalThis.cnslPolicyViolations = [];
+    globalThis.document.addEventListener('securitypolicyviolation', event => {
+      globalThis.cnslPolicyViolations.push({
+        blockedUri: event.blockedURI,
+        directive: event.effectiveDirective
+      });
+    });
+  });
+
+  await page.goto('https://pools.longreachmarlins.org/faq.html', { waitUntil: 'domcontentloaded' });
+  await page.evaluate(async urls => {
+    await Promise.all(urls.map(url => globalThis.fetch(url, { mode: 'no-cors' })));
+  }, analyticsConnectionUrls);
+
+  expect(observedAnalyticsRequests.sort()).toEqual([...analyticsConnectionUrls].sort());
+  await expect(page.evaluate(() => globalThis.cnslPolicyViolations)).resolves.toEqual([]);
+  expect(blockedExternalRequests).toEqual([]);
+});
+
 analyticsTest('[WF-ANALYTICS-013] VS Code embedded browsers cannot publish analytics when WebDriver is hidden', async ({
   blockedExternalRequests,
   page

@@ -102,7 +102,7 @@ test('[WF-AGENDA-006] desktop team agendas fill the available team-details width
   await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
 
   const teamCard = page.locator(`.team-card[data-team-id="${AGENDA_TEAM.id}"]`);
-  await teamCard.locator('.team-header__toggle').click();
+  await teamCard.locator('.team-header__toggle').press('Enter');
   await expect.poll(() => teamCard.locator('.favorite-week__days').evaluate(days => {
     const firstDay = days.querySelector('.favorite-week__day');
     const heading = firstDay.querySelector('h4');
