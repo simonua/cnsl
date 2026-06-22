@@ -30,7 +30,7 @@ if (typeof globalThis.Pool === 'undefined') {
     this.featureOverrides = Array.isArray(poolData.featureOverrides)
       ? poolData.featureOverrides.map(override => ({
         ...override,
-        evidence: override.evidence ? { ...override.evidence } : null
+        evidence: { ...override.evidence }
       }))
       : [];
     this.features = this._resolveFeatures();

@@ -257,12 +257,12 @@ for (const { contrast, reference, theme } of [
   { contrast: 'high', reference: 'LIGHT-HIGH-CONTRAST', theme: 'light' },
   { contrast: 'high', reference: 'DARK-HIGH-CONTRAST', theme: 'dark' }
 ]) {
-  test(`[AX-POOLS-002-${reference}] visible feature correction note passes WCAG in ${reference.toLowerCase()}`, async ({ page }) => {
+  test(`[AX-POOLS-002-${reference}] visible feature correction labels pass WCAG in ${reference.toLowerCase()}`, async ({ page }) => {
     const overriddenPool = ANNUAL_POOLS[0];
     await prepareStableWeatherResponses(page);
     await routeAnnualData(page, 'pools', poolData => {
       const overriddenRecord = poolData.pools.find(pool => pool.id === overriddenPool.id);
-      overriddenRecord.features = overriddenRecord.features.filter(feature => feature !== 'yoga');
+      overriddenRecord.features = ['lap'];
       overriddenRecord.featureOverrides = [{
         action: 'add',
         feature: 'yoga',
@@ -270,6 +270,15 @@ for (const { contrast, reference, theme } of [
           type: 'maintainer',
           observedOn: `${ACTIVE_SEASON_YEAR}-06-15`,
           officialSourceCheckedOn: `${ACTIVE_SEASON_YEAR}-06-16`,
+          note: 'Deterministic accessibility fixture.'
+        }
+      }, {
+        action: 'remove',
+        feature: 'lap',
+        evidence: {
+          type: 'official-source',
+          officialSourceCheckedOn: `${ACTIVE_SEASON_YEAR}-06-16`,
+          sourceUrl: 'https://example.com/pool-source',
           note: 'Deterministic accessibility fixture.'
         }
       }];
@@ -280,7 +289,8 @@ for (const { contrast, reference, theme } of [
 
     const overriddenCard = page.locator(`[data-pool-id="${overriddenPool.id}"]`);
     await overriddenCard.locator('.pool-header__toggle').click();
-    await expect(overriddenCard.locator('.pool-features__override-note')).toBeVisible();
+    await expect(overriddenCard.locator('.feature-pill--add')).toBeVisible();
+    await expect(overriddenCard.locator('.feature-pill--remove')).toBeVisible();
 
     await expectNoAccessibilityViolations(page);
   });

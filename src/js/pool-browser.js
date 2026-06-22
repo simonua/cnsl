@@ -338,15 +338,23 @@ function formatPoolHours(pool) {
  */
 function createPoolDetailsViewModel(pool) {
   const features = PreferencesService.getFilterablePoolFeatures(pool);
-  const sortedFeatures = PoolDirectoryService.sortFeaturesForDisplay(features, PreferencesService.groupPoolFeatures);
+  const featureOverrides = Array.isArray(pool.featureOverrides) ? pool.featureOverrides : [];
+  const overridesByFeature = new Map(featureOverrides.map(override => [override.feature, override]));
+  const removedFeatures = featureOverrides
+    .filter(override => override.action === 'remove')
+    .map(override => override.feature);
+  const sortedFeatures = PoolDirectoryService.sortFeaturesForDisplay(
+    [...features, ...removedFeatures],
+    PreferencesService.groupPoolFeatures
+  );
   return {
     pool,
     poolName: pool.name || 'Unknown Pool',
     hoursHtml: formatPoolHours(pool),
-    hasFeatureOverrides: Array.isArray(pool.featureOverrides) && pool.featureOverrides.length > 0,
     featureItems: sortedFeatures.map(feature => ({
       label: PoolDirectoryService.formatFeatureLabel(feature),
       category: PreferencesService.getPoolFeatureCategory(feature),
+      correctionAction: overridesByFeature.get(feature)?.action || '',
       href: feature === 'lessons' ? 'lessons.html' : ''
     })),
     mapsSearchBaseUrl: globalThis.GOOGLE_MAPS_SEARCH_BASE_URL

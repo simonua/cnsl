@@ -111,19 +111,17 @@ describe('PoolCardDisplay', () => {
     assert.equal((html.match(/href="lessons\.html"/g) || []).length, 1);
   });
 
-  it('renders the documented-correction note only for overridden feature lists', () => {
+  it('labels added and removed feature corrections while ignoring unsupported actions', () => {
     const correctedHtml = PoolCardDisplay.renderFeatures([
-      { label: 'Diving board', category: 'recreation' }
-    ], true);
-    const baselineHtml = PoolCardDisplay.renderFeatures([
-      { label: 'Lap', category: 'recreation' }
+      { label: 'Diving board', category: 'recreation', correctionAction: 'add' },
+      { label: 'Main pool slide', category: 'water-play', correctionAction: 'remove' },
+      { label: 'Lap', category: 'water-play', correctionAction: 'replace' }
     ]);
-    const emptyCorrectedHtml = PoolCardDisplay.renderFeatures([], true);
 
-    assert.match(correctedHtml, /<p class="pool-features__override-note">Includes corrections to CA's pool page\.<\/p>/);
-    assert.doesNotMatch(baselineHtml, /pool-features__override-note/);
-    assert.match(emptyCorrectedHtml, /class="status-tbd"/);
-    assert.match(emptyCorrectedHtml, /pool-features__override-note/);
+    assert.match(correctedHtml, /feature-pill--add[^>]*><span class="feature-pill__label">Diving board<\/span> <span class="feature-pill__correction">Added<\/span>/);
+    assert.match(correctedHtml, /feature-pill--remove[^>]*><span class="feature-pill__label">Main pool slide<\/span> <span class="feature-pill__correction">Removed<\/span>/);
+    assert.doesNotMatch(correctedHtml, /feature-pill--replace|Includes corrections/);
+    assert.match(correctedHtml, /feature-pill--water-play">Lap<\/span>/);
   });
 
   it('normalizes categories and missing display state safely', () => {

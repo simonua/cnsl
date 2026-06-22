@@ -2602,12 +2602,6 @@ nav a:focus {
   font-size: 1rem;
 }
 
-.pool-features__override-note {
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  margin: 0.6rem 0 0;
-}
-
 .pool-filter {
   background-color: var(--white);
   border: 1px solid var(--border-color);
@@ -2893,6 +2887,23 @@ button.pool-filter__clear:focus-visible {
   height: 1rem;
   stroke-width: 2.25;
   width: 1rem;
+}
+
+.feature-pill--corrected {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.4rem;
+}
+
+.feature-pill--remove .feature-pill__label {
+  text-decoration: line-through;
+}
+
+.feature-pill__correction {
+  border-left: 1px solid currentcolor;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding-left: 0.4rem;
 }
 
 .pool-filter__option--accessibility,

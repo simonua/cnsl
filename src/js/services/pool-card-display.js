@@ -59,7 +59,7 @@ if (typeof globalThis.PoolCardDisplay === 'undefined') {
       const model = viewModel || {};
       const poolName = model.poolName || 'Unknown Pool';
       const contactHtml = PoolCardDisplay.renderContact(model.pool, poolName, model.mapsSearchBaseUrl);
-      const featuresHtml = PoolCardDisplay.renderFeatures(model.featureItems, model.hasFeatureOverrides === true);
+      const featuresHtml = PoolCardDisplay.renderFeatures(model.featureItems);
       const hoursHtml = typeof model.hoursHtml === 'string' ? model.hoursHtml : '';
       return `${contactHtml}${hoursHtml}${featuresHtml}`;
     }
@@ -165,29 +165,34 @@ if (typeof globalThis.PoolCardDisplay === 'undefined') {
     /**
      * Render sorted feature pills or the retained TBD fallback.
      * @param {Array} featureItems - Sorted display feature records
-     * @param {boolean} hasFeatureOverrides - Whether the effective list includes documented corrections
      * @returns {string} Features HTML
      */
-    static renderFeatures(featureItems, hasFeatureOverrides = false) {
+    static renderFeatures(featureItems) {
       const items = Array.isArray(featureItems) ? featureItems : [];
-      const overrideNoteHtml = hasFeatureOverrides
-        ? '<p class="pool-features__override-note">Includes corrections to CA\'s pool page.</p>'
-        : '';
       if (items.length === 0) {
         return `
         <div class="pool-features">
           <h3>Features</h3>
           <span class="status-tbd">TBD</span>
-          ${overrideNoteHtml}
         </div>`;
       }
 
       const pills = items.map(item => {
         const category = PoolCardDisplay.getFeatureCategory(item && item.category);
         const label = HtmlSafety.escapeHtml(item && item.label);
+        const correctionAction = item && item.correctionAction;
+        const correctionLabel = correctionAction === 'add'
+          ? 'Added'
+          : correctionAction === 'remove' ? 'Removed' : '';
+        const correctionClass = correctionLabel
+          ? ` feature-pill--corrected feature-pill--${correctionAction}`
+          : '';
+        const contentHtml = correctionLabel
+          ? `<span class="feature-pill__label">${label}</span> <span class="feature-pill__correction">${correctionLabel}</span>`
+          : label;
         return item && item.href === 'lessons.html'
-          ? `<a class="feature-pill feature-pill--${category} feature-pill--link" href="lessons.html">${label}<svg class="feature-pill__link-icon icon" aria-hidden="true" focusable="false"><use href="#icon-link"></use></svg></a>`
-          : `<span class="feature-pill feature-pill--${category}">${label}</span>`;
+          ? `<a class="feature-pill feature-pill--${category} feature-pill--link${correctionClass}" href="lessons.html">${contentHtml}<svg class="feature-pill__link-icon icon" aria-hidden="true" focusable="false"><use href="#icon-link"></use></svg></a>`
+          : `<span class="feature-pill feature-pill--${category}${correctionClass}">${contentHtml}</span>`;
       }).join('');
       return `
         <div class="pool-features">
@@ -195,7 +200,6 @@ if (typeof globalThis.PoolCardDisplay === 'undefined') {
           <div class="feature-pills">
             ${pills}
           </div>
-          ${overrideNoteHtml}
         </div>`;
     }
 

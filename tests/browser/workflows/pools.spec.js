@@ -335,7 +335,7 @@ test('[WF-POOLS-028] overridden feature lists identify their documented correcti
   await routeAnnualData(page, 'pools', poolData => {
     const overriddenRecord = poolData.pools.find(pool => pool.id === overriddenPool.id);
     const baselineRecord = poolData.pools.find(pool => pool.id === baselinePool.id);
-    overriddenRecord.features = overriddenRecord.features.filter(feature => feature !== 'yoga');
+    overriddenRecord.features = ['lap'];
     overriddenRecord.featureOverrides = [{
       action: 'add',
       feature: 'yoga',
@@ -343,6 +343,15 @@ test('[WF-POOLS-028] overridden feature lists identify their documented correcti
         type: 'maintainer',
         observedOn: `${ACTIVE_SEASON_YEAR}-06-15`,
         officialSourceCheckedOn: `${ACTIVE_SEASON_YEAR}-06-16`,
+        note: 'Deterministic browser fixture.'
+      }
+    }, {
+      action: 'remove',
+      feature: 'lap',
+      evidence: {
+        type: 'official-source',
+        officialSourceCheckedOn: `${ACTIVE_SEASON_YEAR}-06-16`,
+        sourceUrl: 'https://example.com/pool-source',
         note: 'Deterministic browser fixture.'
       }
     }];
@@ -357,14 +366,10 @@ test('[WF-POOLS-028] overridden feature lists identify their documented correcti
   await baselineCard.locator('.pool-header__toggle').click();
 
   const overriddenFeatures = overriddenCard.locator('.pool-features');
-  const overrideNote = overriddenFeatures.locator('.pool-features__override-note');
-  await expect(overrideNote).toBeVisible();
-  await expect(overriddenFeatures.getByText('Yoga', { exact: true })).toBeVisible();
-  await expect(baselineCard.locator('.pool-features__override-note')).toHaveCount(0);
-  await expect(page.locator('.pool-features__override-note')).toHaveCount(1);
-  expect(await overriddenFeatures.evaluate(section => (
-    section.lastElementChild?.classList.contains('pool-features__override-note') === true
-  ))).toBe(true);
+  await expect(overriddenFeatures.locator('.feature-pill--add')).toContainText(['Yoga', 'Added']);
+  await expect(overriddenFeatures.locator('.feature-pill--remove')).toContainText(['Lap', 'Removed']);
+  await expect(baselineCard.locator('.feature-pill--corrected')).toHaveCount(0);
+  await expect(page.locator('.pool-features__override-note')).toHaveCount(0);
 });
 
 test('[WF-POOLS-004] collapsed favorite pool stays collapsed after filters redraw the directory', async ({ page }) => {
