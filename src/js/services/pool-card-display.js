@@ -177,29 +177,39 @@ if (typeof globalThis.PoolCardDisplay === 'undefined') {
         </div>`;
       }
 
+      const footnotes = [];
       const pills = items.map(item => {
         const category = PoolCardDisplay.getFeatureCategory(item && item.category);
         const label = HtmlSafety.escapeHtml(item && item.label);
         const correctionAction = item && item.correctionAction;
-        const correctionLabel = correctionAction === 'add'
-          ? 'Added'
-          : correctionAction === 'remove' ? 'Removed' : '';
-        const correctionClass = correctionLabel
+        const correctionVerb = correctionAction === 'add'
+          ? 'added'
+          : correctionAction === 'remove' ? 'removed' : '';
+        const correctionClass = correctionVerb
           ? ` feature-pill--corrected feature-pill--${correctionAction}`
           : '';
-        const contentHtml = correctionLabel
-          ? `<span class="feature-pill__label">${label}</span> <span class="feature-pill__correction">${correctionLabel}</span>`
+        const footnoteNumber = correctionVerb ? footnotes.length + 1 : 0;
+        if (correctionVerb) {
+          const listRelationship = correctionAction === 'add' ? 'to' : 'from';
+          footnotes.push(`<li>${label} was ${correctionVerb} ${listRelationship} this list based on current facility information that differs from the CA facility page.</li>`);
+        }
+        const contentHtml = correctionVerb
+          ? `<span class="feature-pill__label">${label}</span><sup class="feature-pill__footnote-marker"><span aria-hidden="true">${footnoteNumber}</span><span class="visually-hidden"> (footnote ${footnoteNumber})</span></sup>`
           : label;
         return item && item.href === 'lessons.html'
           ? `<a class="feature-pill feature-pill--${category} feature-pill--link${correctionClass}" href="lessons.html">${contentHtml}<svg class="feature-pill__link-icon icon" aria-hidden="true" focusable="false"><use href="#icon-link"></use></svg></a>`
           : `<span class="feature-pill feature-pill--${category}${correctionClass}">${contentHtml}</span>`;
       }).join('');
+      const footnotesHtml = footnotes.length > 0
+        ? `<ol class="pool-features__footnotes" aria-label="Feature notes">${footnotes.join('')}</ol>`
+        : '';
       return `
         <div class="pool-features">
           <h3>Features</h3>
           <div class="feature-pills">
             ${pills}
           </div>
+          ${footnotesHtml}
         </div>`;
     }
 

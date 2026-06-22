@@ -111,15 +111,16 @@ describe('PoolCardDisplay', () => {
     assert.equal((html.match(/href="lessons\.html"/g) || []).length, 1);
   });
 
-  it('labels added and removed feature corrections while ignoring unsupported actions', () => {
+  it('notes added and removed feature corrections while ignoring unsupported actions', () => {
     const correctedHtml = PoolCardDisplay.renderFeatures([
       { label: 'Diving board', category: 'recreation', correctionAction: 'add' },
       { label: 'Main pool slide', category: 'water-play', correctionAction: 'remove' },
       { label: 'Lap', category: 'water-play', correctionAction: 'replace' }
     ]);
 
-    assert.match(correctedHtml, /feature-pill--add[^>]*><span class="feature-pill__label">Diving board<\/span> <span class="feature-pill__correction">Added<\/span>/);
-    assert.match(correctedHtml, /feature-pill--remove[^>]*><span class="feature-pill__label">Main pool slide<\/span> <span class="feature-pill__correction">Removed<\/span>/);
+    assert.match(correctedHtml, /feature-pill--add[^>]*><span class="feature-pill__label">Diving board<\/span><sup[^>]*><span aria-hidden="true">1<\/span><span class="visually-hidden"> \(footnote 1\)<\/span><\/sup>/);
+    assert.match(correctedHtml, /feature-pill--remove[^>]*><span class="feature-pill__label">Main pool slide<\/span><sup[^>]*><span aria-hidden="true">2<\/span><span class="visually-hidden"> \(footnote 2\)<\/span><\/sup>/);
+    assert.match(correctedHtml, /<ol class="pool-features__footnotes" aria-label="Feature notes"><li>Diving board was added to this list based on current facility information that differs from the CA facility page.<\/li><li>Main pool slide was removed from this list based on current facility information that differs from the CA facility page.<\/li><\/ol>/);
     assert.doesNotMatch(correctedHtml, /feature-pill--replace|Includes corrections/);
     assert.match(correctedHtml, /feature-pill--water-play">Lap<\/span>/);
   });

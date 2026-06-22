@@ -330,7 +330,7 @@ test('[WF-POOLS-003] pool tile features are ordered by category then alphabetica
   ]);
 });
 
-test('[WF-POOLS-028] overridden feature lists identify their documented correction', async ({ page }) => {
+test('[WF-POOLS-028] overridden feature lists explain their documented corrections in numbered notes', async ({ page }) => {
   const [overriddenPool, baselinePool] = ANNUAL_POOLS;
   await routeAnnualData(page, 'pools', poolData => {
     const overriddenRecord = poolData.pools.find(pool => pool.id === overriddenPool.id);
@@ -366,10 +366,17 @@ test('[WF-POOLS-028] overridden feature lists identify their documented correcti
   await baselineCard.locator('.pool-header__toggle').click();
 
   const overriddenFeatures = overriddenCard.locator('.pool-features');
-  await expect(overriddenFeatures.locator('.feature-pill--add')).toContainText(['Yoga', 'Added']);
-  await expect(overriddenFeatures.locator('.feature-pill--remove')).toContainText(['Lap', 'Removed']);
+  const footnotes = overriddenFeatures.locator('.pool-features__footnotes li');
+  const addedMarker = overriddenFeatures.locator('.feature-pill--add .feature-pill__footnote-marker');
+  const removedMarker = overriddenFeatures.locator('.feature-pill--remove .feature-pill__footnote-marker');
+  const addedFootnoteNumber = Number(await addedMarker.locator('[aria-hidden="true"]').textContent());
+  const removedFootnoteNumber = Number(await removedMarker.locator('[aria-hidden="true"]').textContent());
+  await expect(addedMarker).toContainText(`(footnote ${addedFootnoteNumber})`);
+  await expect(removedMarker).toContainText(`(footnote ${removedFootnoteNumber})`);
+  await expect(footnotes.nth(addedFootnoteNumber - 1)).toHaveText('Yoga was added to this list based on current facility information that differs from the CA facility page.');
+  await expect(footnotes.nth(removedFootnoteNumber - 1)).toHaveText('Lap was removed from this list based on current facility information that differs from the CA facility page.');
   await expect(baselineCard.locator('.feature-pill--corrected')).toHaveCount(0);
-  await expect(page.locator('.pool-features__override-note')).toHaveCount(0);
+  await expect(baselineCard.locator('.pool-features__footnotes')).toHaveCount(0);
 });
 
 test('[WF-POOLS-004] collapsed favorite pool stays collapsed after filters redraw the directory', async ({ page }) => {
@@ -535,7 +542,11 @@ test('[WF-POOLS-022] mobile expanded pool details keep directions in the compact
   await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
 
   const favoriteCard = page.locator('.favorite-card');
-  const officialLinkWidths = await favoriteCard.locator('.ca-link').evaluateAll(links => (
+  const officialLinks = favoriteCard.locator('.ca-link');
+  await expect(officialLinks).toHaveCount(2);
+  await expect(officialLinks.first()).toBeVisible();
+  await expect(officialLinks.last()).toBeVisible();
+  const officialLinkWidths = await officialLinks.evaluateAll(links => (
     links.map(link => link.getBoundingClientRect().width)
   ));
   expect(officialLinkWidths).toEqual([172, 172]);

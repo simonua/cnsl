@@ -2892,18 +2892,31 @@ button.pool-filter__clear:focus-visible {
 .feature-pill--corrected {
   align-items: center;
   display: inline-flex;
-  gap: 0.4rem;
 }
 
 .feature-pill--remove .feature-pill__label {
   text-decoration: line-through;
 }
 
-.feature-pill__correction {
-  border-left: 1px solid currentcolor;
-  font-size: 0.75rem;
+.feature-pill__footnote-marker {
+  align-self: flex-start;
+  font-size: 0.7em;
   font-weight: 700;
-  padding-left: 0.4rem;
+  line-height: 1;
+  margin-left: 0.15rem;
+  position: relative;
+  top: -0.1em;
+}
+
+.pool-features__footnotes {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin: 0.4rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.pool-features__footnotes li + li {
+  margin-top: 0.2rem;
 }
 
 .pool-filter__option--accessibility,

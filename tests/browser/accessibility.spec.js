@@ -257,7 +257,7 @@ for (const { contrast, reference, theme } of [
   { contrast: 'high', reference: 'LIGHT-HIGH-CONTRAST', theme: 'light' },
   { contrast: 'high', reference: 'DARK-HIGH-CONTRAST', theme: 'dark' }
 ]) {
-  test(`[AX-POOLS-002-${reference}] visible feature correction labels pass WCAG in ${reference.toLowerCase()}`, async ({ page }) => {
+  test(`[AX-POOLS-002-${reference}] visible feature correction footnotes pass WCAG in ${reference.toLowerCase()}`, async ({ page }) => {
     const overriddenPool = ANNUAL_POOLS[0];
     await prepareStableWeatherResponses(page);
     await routeAnnualData(page, 'pools', poolData => {
@@ -291,6 +291,7 @@ for (const { contrast, reference, theme } of [
     await overriddenCard.locator('.pool-header__toggle').click();
     await expect(overriddenCard.locator('.feature-pill--add')).toBeVisible();
     await expect(overriddenCard.locator('.feature-pill--remove')).toBeVisible();
+    await expect(overriddenCard.locator('.pool-features__footnotes')).toBeVisible();
 
     await expectNoAccessibilityViolations(page);
   });
