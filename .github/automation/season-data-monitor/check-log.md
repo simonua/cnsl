@@ -429,3 +429,27 @@ Huntington's field-owning team page now explicitly publishes preseason from May 
 | Visitor-facing records | Updated | The undated Upcoming section in What's New summarizes the corrected practice-season transition; existing June 21 sitemap dates were preserved. |
 | Review records | Updated | `OFFICIAL_SOURCE_CHECKED_AT`, `OFFICIAL_SOURCE_UPDATED_AT`, active annual README evidence, and this check-log entry. |
 | Reviewed source baseline | Updated | `source-state.json` refreshed with the accepted June 21 fingerprints and current retained-PDF metadata. |
+
+## 2026-06-22T06:40:55-04:00 Seasonal Data Review
+
+**Active season:** 2026
+
+**Result:** Complete under the existing explicit maintainer exception for merchandise-store availability.
+
+Checked the 139-source inventory:
+
+- The first `pnpm run check:data-updates` attempt stopped on a transient HTTP 502 from the Dickinson facility page; a successful retry reached all 76 modeled-evidence URLs.
+- All 63 uncovered official sources and application-used destinations were then requested separately with live GET requests.
+- 137 required sources returned successful responses.
+- The Long Reach and Phelps Luck merchandise stores were attempted and returned the same HTTP 403 responses covered by the existing availability exception.
+
+GitHub Actions run 27946669606 and issue 24 identified candidate `85090cc8811891c6` for the Clemens Crossing Cyclones staff page. The live field-owning page still lists Nick Barnes as head coach and Sofia Hufft, Sophia Luo, and Yaakov Englander as assistant coaches. Its protected links retain the modeled coach and team-manager contact destinations. The page renders Sophia Luo's email as `sophia.luo@columbiaassociation.org`, while the same link resolves to `mailto:sofia.luo@columbiaassociation.org`. Because the annual email field represents the functional contact destination, the actionable first-party link owns that value and agrees with `teams[id="ccc"].staff`; the differing visible spelling is presentation-only. No staff name, role, email destination, manager listing, general contact, source URL, schema, or normalization changed. Confidence is High, with no residual uncertainty about represented data; the publisher may still align the visible email spelling with its functional link target.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Unchanged | None; `teams[id="ccc"].staff` remains current. |
+| Application-used source destinations | Unchanged | None. |
+| Retained official PDFs | Unchanged | None. |
+| Visitor-facing records | Unchanged | None; What's New and sitemap were not changed. |
+| Review records | Updated | `OFFICIAL_SOURCE_CHECKED_AT`, active annual README evidence, and this check-log entry; `OFFICIAL_SOURCE_UPDATED_AT` remains unchanged. |
+| Reviewed source baseline | Updated | `source-state.json` refreshed with the accepted June 22 staff-page fingerprint and current retained-PDF metadata. |

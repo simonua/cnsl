@@ -1,6 +1,6 @@
 {
   "season": 2026,
-  "acceptedOn": "2026-06-21",
+  "acceptedOn": "2026-06-22",
   "documents": [
     {
       "domain": "pools",
@@ -674,7 +674,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Clemens Crossing Cyclones staff page",
-      "sha256": "7c82d12dd3caa0f1da795fef9821d142e5cb5a22d35e9f01ffed0f3131357c96",
+      "sha256": "8301cfe7b9829388db015a63af3d84fd6d4953ba8614cc85049d5b950ad92e97",
       "sourceIds": [
         "team:ccc:staff"
       ],
