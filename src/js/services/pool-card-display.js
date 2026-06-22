@@ -59,7 +59,7 @@ if (typeof globalThis.PoolCardDisplay === 'undefined') {
       const model = viewModel || {};
       const poolName = model.poolName || 'Unknown Pool';
       const contactHtml = PoolCardDisplay.renderContact(model.pool, poolName, model.mapsSearchBaseUrl);
-      const featuresHtml = PoolCardDisplay.renderFeatures(model.featureItems);
+      const featuresHtml = PoolCardDisplay.renderFeatures(model.featureItems, model.hasFeatureOverrides === true);
       const hoursHtml = typeof model.hoursHtml === 'string' ? model.hoursHtml : '';
       return `${contactHtml}${hoursHtml}${featuresHtml}`;
     }
@@ -164,16 +164,21 @@ if (typeof globalThis.PoolCardDisplay === 'undefined') {
 
     /**
      * Render sorted feature pills or the retained TBD fallback.
-      * @param {Array} featureItems - Sorted display feature records
+     * @param {Array} featureItems - Sorted display feature records
+     * @param {boolean} hasFeatureOverrides - Whether the effective list includes documented corrections
      * @returns {string} Features HTML
      */
-    static renderFeatures(featureItems) {
+    static renderFeatures(featureItems, hasFeatureOverrides = false) {
       const items = Array.isArray(featureItems) ? featureItems : [];
+      const overrideNoteHtml = hasFeatureOverrides
+        ? '<p class="pool-features__override-note">Includes corrections to CA\'s pool page.</p>'
+        : '';
       if (items.length === 0) {
         return `
         <div class="pool-features">
           <h3>Features</h3>
           <span class="status-tbd">TBD</span>
+          ${overrideNoteHtml}
         </div>`;
       }
 
@@ -190,6 +195,7 @@ if (typeof globalThis.PoolCardDisplay === 'undefined') {
           <div class="feature-pills">
             ${pills}
           </div>
+          ${overrideNoteHtml}
         </div>`;
     }
 

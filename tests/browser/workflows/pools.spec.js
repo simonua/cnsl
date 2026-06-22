@@ -330,6 +330,43 @@ test('[WF-POOLS-003] pool tile features are ordered by category then alphabetica
   ]);
 });
 
+test('[WF-POOLS-028] overridden feature lists identify their documented correction', async ({ page }) => {
+  const [overriddenPool, baselinePool] = ANNUAL_POOLS;
+  await routeAnnualData(page, 'pools', poolData => {
+    const overriddenRecord = poolData.pools.find(pool => pool.id === overriddenPool.id);
+    const baselineRecord = poolData.pools.find(pool => pool.id === baselinePool.id);
+    overriddenRecord.features = overriddenRecord.features.filter(feature => feature !== 'yoga');
+    overriddenRecord.featureOverrides = [{
+      action: 'add',
+      feature: 'yoga',
+      evidence: {
+        type: 'maintainer',
+        observedOn: `${ACTIVE_SEASON_YEAR}-06-15`,
+        officialSourceCheckedOn: `${ACTIVE_SEASON_YEAR}-06-16`,
+        note: 'Deterministic browser fixture.'
+      }
+    }];
+    delete baselineRecord.featureOverrides;
+  });
+  await page.goto('/pools.html');
+  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+
+  const overriddenCard = page.locator(`[data-pool-id="${overriddenPool.id}"]`);
+  const baselineCard = page.locator(`[data-pool-id="${baselinePool.id}"]`);
+  await overriddenCard.locator('.pool-header__toggle').click();
+  await baselineCard.locator('.pool-header__toggle').click();
+
+  const overriddenFeatures = overriddenCard.locator('.pool-features');
+  const overrideNote = overriddenFeatures.locator('.pool-features__override-note');
+  await expect(overrideNote).toBeVisible();
+  await expect(overriddenFeatures.getByText('Yoga', { exact: true })).toBeVisible();
+  await expect(baselineCard.locator('.pool-features__override-note')).toHaveCount(0);
+  await expect(page.locator('.pool-features__override-note')).toHaveCount(1);
+  expect(await overriddenFeatures.evaluate(section => (
+    section.lastElementChild?.classList.contains('pool-features__override-note') === true
+  ))).toBe(true);
+});
+
 test('[WF-POOLS-004] collapsed favorite pool stays collapsed after filters redraw the directory', async ({ page }) => {
   await initializeAnalyticsRecorder(page);
   await page.goto('/pools.html');

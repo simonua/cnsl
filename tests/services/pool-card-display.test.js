@@ -111,6 +111,21 @@ describe('PoolCardDisplay', () => {
     assert.equal((html.match(/href="lessons\.html"/g) || []).length, 1);
   });
 
+  it('renders the documented-correction note only for overridden feature lists', () => {
+    const correctedHtml = PoolCardDisplay.renderFeatures([
+      { label: 'Diving board', category: 'recreation' }
+    ], true);
+    const baselineHtml = PoolCardDisplay.renderFeatures([
+      { label: 'Lap', category: 'recreation' }
+    ]);
+    const emptyCorrectedHtml = PoolCardDisplay.renderFeatures([], true);
+
+    assert.match(correctedHtml, /<p class="pool-features__override-note">Includes corrections to CA's pool page\.<\/p>/);
+    assert.doesNotMatch(baselineHtml, /pool-features__override-note/);
+    assert.match(emptyCorrectedHtml, /class="status-tbd"/);
+    assert.match(emptyCorrectedHtml, /pool-features__override-note/);
+  });
+
   it('normalizes categories and missing display state safely', () => {
     assert.equal(PoolCardDisplay.getFeatureCategory('amenities'), 'amenities');
     assert.equal(PoolCardDisplay.getFeatureCategory('bad class'), 'additional');

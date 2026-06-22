@@ -343,6 +343,7 @@ function createPoolDetailsViewModel(pool) {
     pool,
     poolName: pool.name || 'Unknown Pool',
     hoursHtml: formatPoolHours(pool),
+    hasFeatureOverrides: Array.isArray(pool.featureOverrides) && pool.featureOverrides.length > 0,
     featureItems: sortedFeatures.map(feature => ({
       label: PoolDirectoryService.formatFeatureLabel(feature),
       category: PreferencesService.getPoolFeatureCategory(feature),

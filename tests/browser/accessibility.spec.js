@@ -1,18 +1,21 @@
 const { test, expect } = require('./browser-test');
 const AxeBuilder = require('@axe-core/playwright').default;
 const {
+  ACTIVE_SEASON_YEAR,
   AUDIENCE_VIEWPORTS,
   MOBILE_VIEWPORT,
   getOffSeasonReferenceTime,
   prepareStableWeatherResponses,
   prepareVisibleWeatherAlert,
   readAnnualData,
+  routeAnnualData,
   seedPreferences,
   setAgendaReferenceTime
 } = require('./browser-test-helpers');
 
 const ACCESSIBILITY_TEST_TIMEOUT_MS = 90000;
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
+const ANNUAL_POOLS = readAnnualData('pools').pools;
 const ANNUAL_TEAMS = readAnnualData('teams').teams;
 const AGENDA_TEAM = ANNUAL_TEAMS.find(team => team.practice?.preseason?.length && team.practice?.regular);
 const CALENDAR_TEAM = ANNUAL_TEAMS.find(team => team.calendarUrl);
@@ -247,6 +250,41 @@ test('[AX-POOLS-001] location-aware pool sorting has no WCAG A or AA automated v
 
   await expectNoAccessibilityViolations(page);
 });
+
+for (const { contrast, reference, theme } of [
+  { contrast: 'standard', reference: 'LIGHT', theme: 'light' },
+  { contrast: 'standard', reference: 'DARK', theme: 'dark' },
+  { contrast: 'high', reference: 'LIGHT-HIGH-CONTRAST', theme: 'light' },
+  { contrast: 'high', reference: 'DARK-HIGH-CONTRAST', theme: 'dark' }
+]) {
+  test(`[AX-POOLS-002-${reference}] visible feature correction note passes WCAG in ${reference.toLowerCase()}`, async ({ page }) => {
+    const overriddenPool = ANNUAL_POOLS[0];
+    await prepareStableWeatherResponses(page);
+    await routeAnnualData(page, 'pools', poolData => {
+      const overriddenRecord = poolData.pools.find(pool => pool.id === overriddenPool.id);
+      overriddenRecord.features = overriddenRecord.features.filter(feature => feature !== 'yoga');
+      overriddenRecord.featureOverrides = [{
+        action: 'add',
+        feature: 'yoga',
+        evidence: {
+          type: 'maintainer',
+          observedOn: `${ACTIVE_SEASON_YEAR}-06-15`,
+          officialSourceCheckedOn: `${ACTIVE_SEASON_YEAR}-06-16`,
+          note: 'Deterministic accessibility fixture.'
+        }
+      }];
+    });
+    await seedPreferences(page, { contrast, theme });
+    await page.goto('/pools.html');
+    await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
+
+    const overriddenCard = page.locator(`[data-pool-id="${overriddenPool.id}"]`);
+    await overriddenCard.locator('.pool-header__toggle').click();
+    await expect(overriddenCard.locator('.pool-features__override-note')).toBeVisible();
+
+    await expectNoAccessibilityViolations(page);
+  });
+}
 
 for (const theme of ['light', 'dark']) {
   test(`[AX-WEATHER-001-${theme.toUpperCase()}] visible weather safety alert has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
