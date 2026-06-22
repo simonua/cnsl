@@ -89,7 +89,7 @@ Treat an HTTP `2xx` or `204` collection response as proof that Google accepted a
 - Confirm application measurement sends no PII, contact details, coordinates, free-form text, persistent app-authored visitor identifier, user-property data, selected filter value or other preference value, arbitrary URL query or fragment value, or referrer. Favorite pool/team events may include one selection validated against the current annual directory, or fixed `none` when cleared. Pool-specific interactions may include a public pool identifier validated against the current annual directory. Measurement may also count aggregate public page paths, app-version adoption, coarse feature-interaction categories, and only documented fixed campaign labels for app-published inbound links.
 - Compare delivered requests with the categorical data-collection boundary in [Security And Privacy Decision](security-privacy.md); any field outside that boundary requires a separate privacy review before collection.
 - Confirm Settings exposes no obsolete analytics-consent toggle or stored analytics preference.
-- Check the browser console for Content Security Policy violations on all published routes while analytics is active on HTTPS.
+- Check the browser console for enforced and report-only Content Security Policy violations on all published routes while analytics is active on HTTPS. If Cloudflare Client-side security emits a `Content-Security-Policy-Report-Only` header, confirm its Scripts and Connections allowlists remain aligned with the application-owned policy in [Security And Privacy Decision](security-privacy.md); changing the HTML meta policy does not update the Cloudflare rule.
 
 ### GA Administration And Reportability
 

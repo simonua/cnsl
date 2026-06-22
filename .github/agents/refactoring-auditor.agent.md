@@ -56,6 +56,7 @@ Treat perpetual compatibility as technical debt, not a neutral default. For ever
 - Check that validation and consumption agree. Treat an accepted legacy shape that downstream code ignores, empties, or only partially interprets as an actionable contract defect.
 - Require acceptance checks that search for retired symbols, reject or deliberately migrate legacy input, remove unused dependencies and registrations, and preserve the one current contract across materially different execution paths.
 - Preserve immutable historical annual assets and dated release records; retire their runtime compatibility only when no current application contract depends on it.
+- Treat the attention banner as an explicitly retained current capability even when `APP_ATTENTION_NOTICE` is `null`, no notice is active, or prior notice content has expired. Do not recommend retiring its reusable configuration, storage, controller, semantic markup, theme styling, analytics vocabulary, or focused coverage unless the product owner explicitly requests capability retirement; expired notice content may be removed independently.
 
 When prioritizing retirement, use demonstrated correctness risk, maintenance fan-out, runtime cost, security exposure, and migration complexity. A small isolated deletion may be low priority; a misleading accepted contract, duplicated state owner, or compatibility branch that changes current behavior may warrant medium or high priority under the existing classification rules.
 

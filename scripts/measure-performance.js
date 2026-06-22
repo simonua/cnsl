@@ -19,6 +19,7 @@ const PERFORMANCE_PROFILES = Object.freeze({
 });
 const PERFORMANCE_PROFILE_NAME = process.env.CNSL_PERF_PROFILE || 'desktop';
 const PERFORMANCE_PROFILE = PERFORMANCE_PROFILES[PERFORMANCE_PROFILE_NAME];
+const HOME_NAVIGATION_ALIAS_CACHE_KEYS = 1;
 const PWA_CRITICAL_RESOURCE_BUDGET = 75;
 const ROUTE_PHASE_TIMEOUT_MS = 30000;
 const ROUTE_PHASE_MARKS = Object.freeze({
@@ -129,11 +130,25 @@ async function waitForServer() {
   throw new Error(`Performance server did not start at ${COLD_ORIGIN}.`);
 }
 
-function measureResourceTier(resources) {
-  const bytes = resources
-    .filter(resource => resource !== './')
-    .reduce((total, resource) => total + fs.statSync(path.join(OUT_DIR, resource)).size, 0);
+function measureResourceTier(resources, getResourceBytes = resource => fs.statSync(path.join(OUT_DIR, resource)).size) {
+  const bytes = resources.reduce((total, resource) => total + getResourceBytes(resource), 0);
   return { bytes, resources: resources.length };
+}
+
+/**
+ * Report canonical install acquisition separately from logical cache aliases.
+ * @param {string[]} resources - Canonical install-critical resource paths
+ * @param {Function} getResourceBytes - Resolves one canonical artifact size
+ * @returns {{bytes: number, installBytes: number, installRequests: number, logicalCacheKeys: number, resources: number}} Install-tier metrics
+ */
+function measureInstallResourceTier(resources, getResourceBytes = resource => fs.statSync(path.join(OUT_DIR, resource)).size) {
+  const tier = measureResourceTier(resources, getResourceBytes);
+  return {
+    ...tier,
+    installBytes: tier.bytes,
+    installRequests: tier.resources,
+    logicalCacheKeys: tier.resources + HOME_NAVIGATION_ALIAS_CACHE_KEYS
+  };
 }
 
 function measurePwaTiers() {
@@ -141,7 +156,7 @@ function measurePwaTiers() {
   vm.runInNewContext(fs.readFileSync(path.join(OUT_DIR, 'precache-manifest.js'), 'utf8'), context);
   return {
     inventory: measureResourceTier(context.self.PRECACHE_RESOURCES),
-    core: measureResourceTier(context.self.PRECACHE_CORE_RESOURCES),
+    core: measureInstallResourceTier(context.self.PRECACHE_CORE_RESOURCES),
     optional: measureResourceTier(context.self.PRECACHE_OPTIONAL_RESOURCES)
   };
 }
@@ -399,8 +414,8 @@ function reportWarnings(routeResults, pwaTiers) {
       if (count > 1) warnings.push(`${route.name} requested the ${domain} annual domain ${count} times in one run.`);
     });
   });
-  if (pwaTiers.core.resources > PWA_CRITICAL_RESOURCE_BUDGET * BUDGET_SCALE) warnings.push(`PWA critical install resources ${pwaTiers.core.resources} exceeds ${PWA_CRITICAL_RESOURCE_BUDGET * BUDGET_SCALE}.`);
-  if (pwaTiers.core.bytes > 1200000 * BUDGET_SCALE) warnings.push(`PWA critical install bytes ${pwaTiers.core.bytes} exceeds ${1200000 * BUDGET_SCALE}.`);
+  if (pwaTiers.core.installRequests > PWA_CRITICAL_RESOURCE_BUDGET * BUDGET_SCALE) warnings.push(`PWA critical install requests ${pwaTiers.core.installRequests} exceeds ${PWA_CRITICAL_RESOURCE_BUDGET * BUDGET_SCALE}.`);
+  if (pwaTiers.core.installBytes > 1200000 * BUDGET_SCALE) warnings.push(`PWA critical install bytes ${pwaTiers.core.installBytes} exceeds ${1200000 * BUDGET_SCALE}.`);
   warnings.forEach(warning => console.warn(`PERFORMANCE WARNING: ${warning}`));
   return warnings;
 }
@@ -485,7 +500,7 @@ async function main() {
     printWarmTable(warmMeasurement);
     console.log(`Worker ${warmMeasurement.workerVersion}: ready median ${warmMeasurement.workerReadyMs.median} ms (${warmMeasurement.workerReadyMs.min}-${warmMeasurement.workerReadyMs.max} ms), cache resources median ${warmMeasurement.cacheResources.median}.`);
     console.log(`PWA cache inventory: ${pwaTiers.inventory.resources} resources / ${pwaTiers.inventory.bytes} bytes.`);
-    console.log(`PWA install-critical core: ${pwaTiers.core.resources} resources / ${pwaTiers.core.bytes} bytes.`);
+    console.log(`PWA install-critical core: ${pwaTiers.core.installRequests} requests / ${pwaTiers.core.installBytes} bytes / ${pwaTiers.core.logicalCacheKeys} logical cache keys.`);
     console.log(`PWA cache-on-use optional tier: ${pwaTiers.optional.resources} resources / ${pwaTiers.optional.bytes} bytes.`);
     const warnings = reportWarnings(routeResults, pwaTiers);
     console.log(`Performance measurement completed with ${warnings.length} warning(s) across ${RUN_COUNT} cold and installed-navigation run(s) per route.`);
@@ -520,6 +535,7 @@ module.exports = {
   ROUTE_PHASE_MARKS,
   ROUTES,
   maximumDomainRequests,
+  measureInstallResourceTier,
   median,
   spread,
   summarizeRouteSamples,

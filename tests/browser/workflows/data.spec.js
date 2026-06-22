@@ -188,7 +188,7 @@ test('[WF-DATA-007-POOLS] pool summaries and requested details render before opt
       await route.continue();
     });
   }
-  await page.route('**/js/services/pool-link-helper.js*', async route => {
+  await page.route('**/js/services/pool-schedule-display.js*', async route => {
     await detailRequestPaused;
     await route.continue();
   });
@@ -253,7 +253,7 @@ test('[WF-DATA-007-POOLS] pool summaries and requested details render before opt
 });
 
 test('[WF-DATA-013-POOLS] pool summaries remain usable when detail scripts fail', async ({ page }) => {
-  await page.route('**/js/services/pool-link-helper.js*', route => route.abort());
+  await page.route('**/js/services/pool-schedule-display.js*', route => route.abort());
   await page.goto('/pools.html');
 
   await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');

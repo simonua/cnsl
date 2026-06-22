@@ -18,7 +18,7 @@
   const HOME_PAGE_URL = `https://${HOME_PAGE_HOSTNAME}`;
   const AUTHOR_NAME = 'Simon Kurtz';
   const AUTHOR_EMAIL = 'simonkurtz+pool-app@gmail.com';
-  const APP_ATTENTION_NOTICE_UPDATED_AT = '2026-06-15T12:31:18-04:00';
+  const APP_ATTENTION_NOTICE = null;
 
   // Published campaign attribution and share destinations.
   const PUBLISHED_CAMPAIGN_NAME = `${YEAR}_pool_season`;
@@ -99,6 +99,7 @@
   );
   const POOL_DETAIL_DEPENDENCIES = Object.freeze([
     'js/services/pool-link-helper.js',
+    'js/services/pool-schedule-display.js',
     'js/services/pool-hours-display.js',
     'js/services/pool-calendar-service.js',
     'js/services/pool-week-state-service.js',
@@ -192,20 +193,6 @@
     }).format(sourceTimestamp);
     return `${date}, ${time}`;
   }
-
-  const APP_ATTENTION_NOTICE = Object.freeze({
-    DISMISSIBLE: true,
-    EXPIRES_AT: '2026-06-19T23:59:59-04:00',
-    MESSAGE: 'Some pools may be shown as "Closed for the season" on the official CA website at this time. This may be due to pre-season schedules until the main schedule starts June 20.',
-    UPDATED_AT: APP_ATTENTION_NOTICE_UPDATED_AT,
-    UPDATED_LABEL: formatOfficialSourceTimestamp(APP_ATTENTION_NOTICE_UPDATED_AT, {
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      month: 'long',
-      year: 'numeric'
-    })
-  });
 
   const OFFICIAL_SOURCE_LONG_LABEL_OPTIONS = Object.freeze({
     day: 'numeric',

@@ -1,6 +1,8 @@
 (function initializeHomeBanners() {
   'use strict';
 
+  const MAX_TIMER_DELAY_MS = 2147483647;
+
   /**
     * Controls the visibility, acknowledgement, and analytics for an application banner.
    * @private
@@ -87,44 +89,66 @@
   }
 
   /**
-   * Displays the configured attention notice unless this revision was dismissed.
+   * Hides an attention notice at its deadline without overflowing browser timers.
+   * @param {HTMLElement} notice - Attention notice element
+   * @param {number} expiresAt - Expiration time in milliseconds since the Unix epoch
+   * @private
+   */
+  function scheduleAttentionExpiry(notice, expiresAt) {
+    const remainingTime = expiresAt - Date.now();
+    if (remainingTime <= 0) {
+      notice.hidden = true;
+      return;
+    }
+    window.setTimeout(
+      () => scheduleAttentionExpiry(notice, expiresAt),
+      Math.min(remainingTime, MAX_TIMER_DELAY_MS)
+    );
+  }
+
+  /**
+   * Displays a configured attention notice until it is dismissed or expires.
    * @param {Storage|null} storage - Available browser local storage
    * @param {Object|null} bannerNames - Analytics banner-name constants
    * @private
    */
   function showAttentionBanner(storage, bannerNames) {
     const notice = document.getElementById('attentionBanner');
+    const message = document.getElementById('attentionBannerMessage');
+    const updated = document.getElementById('attentionBannerUpdated');
+    const updatedTime = document.getElementById('attentionBannerUpdatedTime');
     const closeButton = document.getElementById('closeAttentionBanner');
     const config = window.APP_ATTENTION_NOTICE;
-    if (!notice || !closeButton || !config) return;
+    if (!notice || !message || !updated || !updatedTime || !closeButton || !config) return;
 
     const expiresAt = Date.parse(config.EXPIRES_AT);
-    if (!Number.isFinite(expiresAt) || Date.now() >= expiresAt) {
-      notice.hidden = true;
-      return;
-    }
+    const updatedAt = Date.parse(config.UPDATED_AT);
+    const hasValidContent = typeof config.MESSAGE === 'string'
+      && config.MESSAGE.trim().length > 0
+      && typeof config.UPDATED_LABEL === 'string'
+      && config.UPDATED_LABEL.trim().length > 0;
+    if (!hasValidContent || !Number.isFinite(expiresAt) || !Number.isFinite(updatedAt) || Date.now() >= expiresAt) return;
 
     let dismissedRevision = null;
     try {
       dismissedRevision = storage && storage.getItem(window.APP_ATTENTION_NOTICE_DISMISSED_STORAGE_KEY);
     } catch (_error) {} // eslint-disable-line no-empty
-    if (config.DISMISSIBLE && dismissedRevision === config.UPDATED_AT) {
-      notice.hidden = true;
-      return;
-    }
+    if (config.DISMISSIBLE === true && dismissedRevision === config.UPDATED_AT) return;
 
+    message.textContent = config.MESSAGE;
+    updatedTime.dateTime = config.UPDATED_AT;
+    updatedTime.textContent = config.UPDATED_LABEL;
+    updated.hidden = false;
     notice.hidden = false;
-    window.setTimeout(() => {
-      notice.hidden = true;
-    }, expiresAt - Date.now());
-    closeButton.hidden = !config.DISMISSIBLE;
-    if (!config.DISMISSIBLE) return;
+    scheduleAttentionExpiry(notice, expiresAt);
+    closeButton.hidden = config.DISMISSIBLE !== true;
+    if (config.DISMISSIBLE !== true) return;
 
     closeButton.addEventListener('click', () => {
       try {
         if (storage) storage.setItem(window.APP_ATTENTION_NOTICE_DISMISSED_STORAGE_KEY, config.UPDATED_AT);
       } catch (_error) {
-        // The visual dismissal remains available when storage access is blocked.
+        // Visual dismissal remains available when storage access is blocked.
       }
       notice.hidden = true;
       if (window.cnslAnalytics) {

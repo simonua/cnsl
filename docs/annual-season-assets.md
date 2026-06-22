@@ -58,7 +58,7 @@ Each season year begins a new major application version. Patch and minor release
 - Keep one matching schema beside each JSON data file and validate the JSON against it.
 - Declare each schema's top-level `"version"` metadata value as `"V1"` for its first annual definition; carry the value forward unchanged when its validation contract is identical, excluding annotations, and advance it only when that contract changes.
 - Use JSON Schema `format: "date"` for calendar dates so impossible dates are rejected, and reference a shared `HttpsUrl` definition for every populated application-used official source or destination. Use a named empty-or-HTTPS definition only for fields whose empty string has an intentional meaning.
-- Require active pool records to use stable IDs, official CA and schedule URLs, and the complete structured `location` object. Legacy flat pool addresses remain a runtime compatibility concern, not an annual-data schema alternative.
+- Require active pool records to use stable IDs, official CA and schedule URLs, and the complete structured `location` object. Nested `location` is the only current annual-data and runtime address contract; do not add flat-address compatibility fields.
 - Keep individual clock formats in the schemas and validate cross-field chronology in `scripts/validate-season-data.js`: every meet or team timing window ends after it starts, and dual-meet start, relay check-in, first-swim, and end values remain ordered.
 - Classify every pool schedule activity through [Pool Activity Access Classification](pool-activity-classification.md). Update that matrix and the annual pool schema together before accepting a new activity label, combined activity array, or access rule.
 

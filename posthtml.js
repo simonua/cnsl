@@ -318,11 +318,10 @@ function writePwaArtifacts() {
     `assets/data/${appConfig.YEAR}/teams/teams.json`,
     `assets/data/${appConfig.YEAR}/meets/meets.json`
   ];
-  const resources = ['./', ...collectPrecacheResources(outDir).sort()];
+  const resources = collectPrecacheResources(outDir).sort();
   const cacheOnUseScripts = new Set(CACHE_ON_USE_SCRIPT_RESOURCES);
   const installCriticalPages = new Set(INSTALL_CRITICAL_PAGES);
-  const coreResources = resources.filter(resource => resource === './'
-    || installCriticalPages.has(resource)
+  const coreResources = resources.filter(resource => installCriticalPages.has(resource)
     || resource === appConfig.EXPERIMENTAL_SETTINGS_URL
     || (/\.(?:css|js|webmanifest)$/i.test(resource) && !cacheOnUseScripts.has(resource))
     || resource.startsWith(`assets/data/${appConfig.YEAR}/`));

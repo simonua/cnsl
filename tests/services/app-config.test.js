@@ -41,6 +41,7 @@ describe('app-config', () => {
     assert.equal(context.ANALYTICS_APP_VERSION_STORAGE_KEY, config.ANALYTICS_APP_VERSION_STORAGE_KEY);
     assert.equal(context.ANALYTICS_UPGRADE_PATH_STORAGE_KEY, config.ANALYTICS_UPGRADE_PATH_STORAGE_KEY);
     assert.equal(context.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, config.ANALYTICS_VERSION_REPORTED_STORAGE_KEY);
+    assert.equal(context.APP_ATTENTION_NOTICE, null);
     assert.equal(context.APP_ATTENTION_NOTICE_DISMISSED_STORAGE_KEY, config.APP_ATTENTION_NOTICE_DISMISSED_STORAGE_KEY);
     assert.equal(context.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY, config.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY);
     assert.equal(context.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY, config.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY);
@@ -101,16 +102,8 @@ describe('app-config', () => {
     assert.equal(config.PUBLISHED_CAMPAIGNS.every(campaign => Object.isFrozen(campaign)), true);
   });
 
-  it('publishes the immutable attention notice with an Eastern timestamp', () => {
-    const { MESSAGE, UPDATED_LABEL, ...noticeContract } = config.APP_ATTENTION_NOTICE;
-    assert.deepEqual(noticeContract, {
-      DISMISSIBLE: true,
-      EXPIRES_AT: '2026-06-19T23:59:59-04:00',
-      UPDATED_AT: '2026-06-15T12:31:18-04:00'
-    });
-    assert.ok(MESSAGE.length > 0);
-    assert.ok(UPDATED_LABEL.length > 0);
-    assert.equal(Object.isFrozen(config.APP_ATTENTION_NOTICE), true);
+  it('publishes the dormant attention notice capability and its revision storage key', () => {
+    assert.equal(config.APP_ATTENTION_NOTICE, null);
     assert.equal(config.APP_ATTENTION_NOTICE_DISMISSED_STORAGE_KEY, 'cnsl_attention_notice_dismissed');
   });
 
@@ -135,6 +128,8 @@ describe('app-config', () => {
     assert.equal(Object.isFrozen(config.MY_MEET_DAY_OPTIONAL_DEPENDENCIES), true);
     assert.ok(config.POOL_DETAIL_DEPENDENCIES.indexOf('js/services/pool-calendar-service.js')
       < config.POOL_DETAIL_DEPENDENCIES.indexOf('js/services/pool-week-state-service.js'));
+    assert.ok(config.POOL_DETAIL_DEPENDENCIES.indexOf('js/services/pool-schedule-display.js')
+      < config.POOL_DETAIL_DEPENDENCIES.indexOf('js/services/pool-hours-display.js'));
     assert.ok(config.POOL_DETAIL_DEPENDENCIES.indexOf('js/services/team-schedule-service.js')
       < config.POOL_DETAIL_DEPENDENCIES.indexOf('js/services/pool-hours-view-model-service.js'));
     assert.ok(config.POOL_ENRICHMENT_DEPENDENCIES.indexOf('js/models/team.js')

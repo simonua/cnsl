@@ -9,14 +9,14 @@
     <span></span>
   </button>
 </header>
-<aside class="attention-banner" id="attentionBanner" role="alert" aria-label="Pool status notice" hidden>
+<aside class="attention-banner" id="attentionBanner" role="alert" aria-label="Important notice" hidden>
   <div class="attention-banner__inner">
     <svg class="icon attention-banner__icon" aria-hidden="true" focusable="false"><use href="#icon-warning-triangle"></use></svg>
     <div class="attention-banner__copy">
-      <p class="attention-banner__message">{{ APP_ATTENTION_NOTICE.MESSAGE }}</p>
-      <p class="attention-banner__updated">Updated <time datetime="{{ APP_ATTENTION_NOTICE.UPDATED_AT }}">{{ APP_ATTENTION_NOTICE.UPDATED_LABEL }}</time></p>
+      <p class="attention-banner__message" id="attentionBannerMessage"></p>
+      <p class="attention-banner__updated" id="attentionBannerUpdated" hidden>Updated <time id="attentionBannerUpdatedTime"></time></p>
     </div>
-    <button class="attention-banner__close" id="closeAttentionBanner" type="button" aria-label="Dismiss attention notice" title="Dismiss attention notice" hidden>
+    <button class="attention-banner__close" id="closeAttentionBanner" type="button" aria-label="Dismiss important notice" title="Dismiss important notice" hidden>
       <span aria-hidden="true">&times;</span>
     </button>
   </div>

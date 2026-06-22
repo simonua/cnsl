@@ -273,7 +273,6 @@ const precacheResources = manifestContext.self.PRECACHE_RESOURCES;
 const precacheCoreResources = manifestContext.self.PRECACHE_CORE_RESOURCES;
 const precacheOptionalResources = manifestContext.self.PRECACHE_OPTIONAL_RESOURCES;
 const calculateResourceBytes = resources => resources
-  .filter(resource => resource !== './')
   .reduce((total, resource) => total + fs.statSync(path.join(outDir, resource)).size, 0);
 assert.ok(Array.isArray(precacheResources), 'The generated precache inventory must define an array.');
 assert.ok(Array.isArray(precacheCoreResources), 'The generated precache inventory must define a core array.');
@@ -289,7 +288,6 @@ assert.deepEqual(
 );
 assert.equal(new Set(precacheResources).size, precacheResources.length, 'Precache resources must not be duplicated across cache tiers.');
 [
-  './',
   'index.html',
   'offline.html',
   'pools.html',
@@ -303,6 +301,7 @@ assert.equal(new Set(precacheResources).size, precacheResources.length, 'Precach
   `assets/data/${YEAR}/teams/teams.json`,
   `assets/data/${YEAR}/meets/meets.json`
 ].forEach(resource => assert.ok(precacheCoreResources.includes(resource), `Install-critical inventory is missing: ${resource}`));
+assert.ok(!precacheCoreResources.includes('./'), 'The Home navigation alias must reuse the canonical index.html payload instead of adding another install request.');
 INSTALL_CRITICAL_PAGES.forEach(resource => {
   assert.ok(precacheCoreResources.includes(resource), `Install-critical page must remain in the core tier: ${resource}`);
   const pageHtml = fs.readFileSync(path.join(outDir, resource), 'utf8');
@@ -330,7 +329,7 @@ siteVerificationFiles.forEach(resource => {
 });
 assert.ok(!precacheResources.some(resource => resource.includes('/data/2025/')), 'Archived season data must not be precached.');
 assert.ok(!precacheResources.some(resource => /^assets\/images\/logos\/(?!team-logos@2x\.png$)[^/]+\.png$/i.test(resource)), 'Individual team logos must not be precached once the sprite is published.');
-precacheResources.filter(resource => resource !== './').forEach(resource => {
+precacheResources.forEach(resource => {
   assert.ok(fs.existsSync(path.join(outDir, resource)), `Precache inventory references an absent artifact: ${resource}`);
 });
 
@@ -339,6 +338,7 @@ assert.doesNotMatch(worker, /const CACHE_VERSION = 'development'/, 'Built servic
 assert.match(worker, /js\/config\/app-config\.js/, 'Service worker must load shared application configuration.');
 assert.match(worker, /precache-manifest\.js/, 'Service worker must import the generated precache inventory.');
 assert.match(worker, /self\.PRECACHE_CORE_RESOURCES/, 'Service worker installation must use the generated core inventory.');
+assert.match(worker, /cacheRequiredResources/, 'Service worker installation must cache Home aliases from one canonical payload.');
 assert.doesNotMatch(worker, /cacheOptionalResources/, 'Service worker installation must not wait for optional cache warming.');
 
 const analytics = fs.readFileSync(path.join(outDir, 'js', 'analytics.js'), 'utf8');

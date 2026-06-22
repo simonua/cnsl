@@ -8,6 +8,7 @@ const {
   ROUTE_PHASE_MARKS,
   ROUTES,
   maximumDomainRequests,
+  measureInstallResourceTier,
   median,
   spread,
   summarizeRouteSamples,
@@ -36,6 +37,16 @@ function createSample(overrides = {}) {
 describe('performance measurement reporting', () => {
   it('should retain measured headroom in the install-critical resource budget', () => {
     assert.equal(PWA_CRITICAL_RESOURCE_BUDGET, 75);
+  });
+
+  it('should distinguish canonical install requests from logical Home cache keys', () => {
+    assert.deepEqual(measureInstallResourceTier(['index.html', 'offline.html'], () => 0), {
+      bytes: 0,
+      installBytes: 0,
+      installRequests: 2,
+      logicalCacheKeys: 3,
+      resources: 2
+    });
   });
 
   it('should include Home with a visitor-ready content boundary', () => {

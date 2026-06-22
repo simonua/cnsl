@@ -8,7 +8,6 @@ const { APP_VERSION, DEPLOYMENT_VERSION_FILE, LOCAL_DEVELOPMENT_HOSTNAMES, LOCAL
 const workerSourcePath = path.join(__dirname, '..', '..', 'service-worker.js');
 const workerSource = fs.readFileSync(workerSourcePath, 'utf8');
 const coreResources = [
-  './',
   'index.html',
   'offline.html',
   'css/styles.css',
@@ -152,6 +151,26 @@ describe('service worker cache strategy', () => {
     assert.equal(optionalRequests, 0);
   });
 
+  it('should fetch Home once and cache both navigation forms', async () => {
+    let homeRequests = 0;
+    const harness = createWorkerHarness(coreResources);
+    harness.setFetchImplementation(async request => {
+      const url = new URL(typeof request === 'string' ? request : request.url);
+      if (url.pathname === '/index.html') homeRequests += 1;
+      return new Response(`network:${url.pathname}`, { status: 200 });
+    });
+
+    await harness.dispatch('install');
+
+    const rootKey = 'https://pools.longreachmarlins.org/?v=development';
+    const indexKey = 'https://pools.longreachmarlins.org/index.html?v=development';
+    assert.equal(homeRequests, 1);
+    assert.ok(harness.cacheRecords.has(rootKey));
+    assert.ok(harness.cacheRecords.has(indexKey));
+    assert.equal(await harness.cacheRecords.get(rootKey).text(), 'network:/index.html');
+    assert.equal(await harness.cacheRecords.get(indexKey).text(), 'network:/index.html');
+  });
+
   it('should reject installation when the required offline shell cannot be cached', async () => {
     const harness = createWorkerHarness(coreResources);
     harness.setFetchImplementation(async request => {
@@ -162,6 +181,7 @@ describe('service worker cache strategy', () => {
 
     await assert.rejects(() => harness.dispatch('install'), /Offline page unavailable/);
     assert.equal(harness.getSkipWaitingCalls(), 0);
+    assert.ok(harness.deletedCaches.includes(`${PWA_CACHE_PREFIX}development`));
   });
 
   it('should serve the offline page when uncached navigation fails', async () => {

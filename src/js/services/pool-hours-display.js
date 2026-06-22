@@ -54,9 +54,9 @@ if (typeof globalThis.PoolHoursDisplay === 'undefined') {
       const safeStatusText = HtmlSafety.escapeHtml(poolStatus.status || '');
       const safeStatusTooltip = HtmlSafety.escapeHtml(model.statusTooltip || 'Status unknown');
       const statusTransition = model.statusTransition;
-      const statusCountdown = PoolScheduleDisplay.formatPublicStatusTransition(statusTransition);
-      const statusCountdownLabel = PoolScheduleDisplay.formatPublicStatusTransition(statusTransition, { useLongUnits: true });
-      const statusCountdownClass = PoolScheduleDisplay.getPublicStatusTransitionClass(statusTransition);
+      const statusCountdown = PoolCardDisplay.formatPublicStatusTransition(statusTransition);
+      const statusCountdownLabel = PoolCardDisplay.formatPublicStatusTransition(statusTransition, { useLongUnits: true });
+      const statusCountdownClass = PoolCardDisplay.getPublicStatusTransitionClass(statusTransition);
       const statusAction = statusTransition && PoolTransitionAction.isValid(statusTransition.action)
         ? statusTransition.action
         : '';

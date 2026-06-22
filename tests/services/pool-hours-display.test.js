@@ -119,10 +119,12 @@ describe('PoolHoursDisplay', () => {
       PoolTransitionAction,
       HtmlSafety: { escapeHtml: value => String(value).replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character])) },
       IconCatalog: { getPoolStatusGlyph: () => '⚫', render: () => '' },
-      PoolScheduleDisplay: {
-        render: () => '',
+      PoolCardDisplay: {
         formatPublicStatusTransition: (transition, options) => options ? 'Long countdown' : 'Countdown',
         getPublicStatusTransitionClass: () => 'pool-status-countdown'
+      },
+      PoolScheduleDisplay: {
+        render: () => ''
       }
     };
     context.globalThis = context;

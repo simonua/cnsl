@@ -17,6 +17,8 @@ Classify every superseded surface before editing:
 - **Temporary migration:** A verified current consumer still needs the old contract while an explicit transition is underway.
 - **Obsolete:** No verified current consumer remains, or the path is retained only by tests, fixtures, comments, historical possibility, unreferenced exports, or speculative future use.
 
+An explicit product-owner retention requirement is current-contract evidence even when a capability is not presently configured or visible. In particular, the attention banner remains a current contract when `APP_ATTENTION_NOTICE` is `null` or no notice is active. Distinguish removable expired notice content from the retained reusable capability and its configuration, storage, controller, markup, styling, analytics, and focused test surfaces.
+
 Deprecation is not a permanent classification. A temporary migration must identify its consumer, owner, supported scope, removal condition, and focused coverage. If those facts cannot be established, remove the path.
 
 ## Procedure
@@ -36,6 +38,7 @@ Deprecation is not a permanent classification. A temporary migration must identi
 
 - Do not rewrite archived annual data or dated release history while retiring runtime compatibility.
 - Do not remove a current public, persistence, offline, accessibility, analytics privacy, or trust-boundary contract without migration evidence and focused regression coverage.
+- Do not retire the attention-banner capability because it is dormant, unconfigured, hidden, or between notices. Retire it only after an explicit product-owner decision; removing an expired notice instance does not authorize removing the reusable support surface.
 - Do not introduce a generic abstraction solely to hide old and new paths behind one API. Migrate callers, then delete the obsolete path.
 - Do not leave commented-out implementations, unused aliases, no-op flags, permissive validators, or production hooks that exist only for tests.
 - Do not add telemetry to discover compatibility use unless it satisfies the repository analytics privacy boundary and has explicit review.

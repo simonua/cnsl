@@ -2,69 +2,38 @@
 
 Review date: 2026-06-22
 
-## Scope And Validation
+## Current Status
 
-This plan contains only actionable engineering work supported by the current repository state. The 2026-06-22 review covered route startup and progressive loading, annual-data request ownership, schedule enrichment, PWA resource policy, retained storage migrations, trust boundaries, accessibility-sensitive rendering, focused browser coverage, and comparable performance measurements.
+No actionable refactoring opportunity remains after the 2026-06-22 implementation and focused verification. Create a new recommendation only when current evidence identifies a concrete defect, obsolete contract, or measured visitor benefit.
 
-No active refactoring recommendation remains. Continue to apply the guardrails and reassess the two temporary migrations only when their documented removal conditions are reached.
+The attention banner is an explicitly retained application capability. Its active configuration is currently `null`, so no notice is displayed, but the reusable configuration, storage, controller, semantic markup, theme styles, analytics allowlist, and focused browser coverage are current supported surfaces. An expired notice instance does not make that capability obsolete.
 
 ## Priority Matrix
 
-| Priority | Actionable Finding | Visitor / Engineering Impact | Effort |
+| Priority | Actionable Finding | Impact | Effort |
 | --- | --- | --- | --- |
-| **RED - High** | No demonstrated accessibility, data-integrity, security, release, or material current-runtime defect | None | None |
-| **ORANGE - Medium** | No active recommendation supported by current evidence | None | None |
-| **GREEN - Low** | No standalone cleanup or documentation item is meaningful enough to retain | None | None |
+| **RED - High** | None | No demonstrated accessibility, data-integrity, security, release, or material correctness defect | None |
+| **ORANGE - Medium** | None | No active simplification has a demonstrated contract or maintenance benefit | None |
+| **GREEN - Low** | None | No standalone cleanup is meaningful enough to retain | None |
 
-## High Priority
+## Monitored Boundaries
 
-No active High-priority recommendation is supported by current repository evidence.
+These are current migration contracts with future review conditions, not active refactoring work:
 
-## Medium Priority
-
-No active Medium-priority recommendation is supported by current repository evidence.
-
-## Low Priority
-
-No active Low-priority recommendation is supported by current repository evidence.
-
-## Retirement Assessment
-
-| Surface | Classification | Consumer / Owner / Removal Condition |
+| Surface | Current Owner | Review Condition |
 | --- | --- | --- |
-| Flat pool location projections and renderer/link fallbacks | Retired | Current source and tests use nested `location`; searches found no unexplained delivered compatibility reads. |
-| Duplicate `DataManager` JSON transport | Retired | `FileHelper.loadJsonFile()` is the single transport owner; `DataManager` retains annual validation, deduplication, and manager orchestration. |
-| Manager `clearData()` methods | Current contract | `DataManager.refresh()` clears an initialized domain manager before reloading that domain. |
-| Analytics reads of predecessor storage candidates | Temporary migration | `analytics.js` owns upgrade attribution fallbacks. Reassess after the full 2027 season and remove candidate reads only when the report-based condition recorded in source is satisfied. |
-| `practiceAgeGroups` preference input | Temporary migration | `PreferencesService` owns persisted profiles and rewrites this property to canonical `practiceGroups`. Remove no earlier than 2027-10-01 with focused migration/current-contract coverage. |
-
-No obsolete runtime alias, fallback payload, feature flag, adapter, dependency, script registration, or cache entry with a verified current removal boundary was found beyond the already completed retirements. The two temporary migrations are not current backlog actions because their documented removal conditions have not elapsed.
+| Analytics predecessor storage candidates | `analytics.js` | Reassess after the full 2027 season and remove only when the source-recorded report condition is satisfied |
+| `practiceAgeGroups` preference input | `PreferencesService` | Remove no earlier than 2027-10-01 with focused migration and current-contract coverage |
 
 ## Evidence-Based Exclusions
 
-Current evidence does not support a framework or bundler migration, annual-document split, per-card annual requests, persistent model cache, runtime index, `content-visibility`, incremental rendering, or virtualization. Active collections remain small, annual requests are deduplicated, and collapsed detail DOM remains empty until requested.
+Current evidence does not support a framework or bundler migration, annual-document split, per-card annual requests, persistent model cache, schedule index, `content-visibility`, incremental rendering, or virtualization. Active collections remain small, `DataManager` shares each annual-domain request, Pool construction is inexpensive, and collapsed Pool, Team, and Meet details remain empty until requested.
 
-Keep Team and Meet enrichment automatic because it contributes to the effective Pool schedule contract. No cache-tier change is supported without a separate reviewed offline-contract decision and current `verify:pwa` evidence.
-
-My Meet Day remains experimental and must not be graduated by this plan. Favorite Pool Today on Home remains excluded. Do not introduce either feature through refactoring work.
-
-## Phased Roadmap
-
-No implementation phases are active. Create a new evidence-based roadmap only when a future review identifies actionable work.
+Generated-markup and URL reviews found contextual escaping, destination validation, and hostile-input coverage at the inspected annual-data, storage, and query-parameter boundaries. Browser coverage exercises semantic disclosure state, keyboard focus, loading announcements, and WCAG A/AA scans. Delivered-site HTTPS, manual assistive-technology, and field-device checks remain release activities rather than refactoring findings.
 
 ## Guardrails
 
-- Do not modify `src/assets/data/` during general refactoring. Seasonal facts and schemas require authoritative evidence, annual workflow records, and human review.
-- Never edit `out/`; it is generated by `pnpm run build`.
-- Preserve `getDataManager()`, one shared pending request and manager collection per annual domain, and source ownership across Pools, Teams, and Meets.
-- Retire obsolete definitions, branches, callers, fixtures, tests, types, dependencies, registrations, documentation, build rules, and cache references together. Retained migration paths must keep an owner, current consumer, removal condition, and focused coverage.
-- Preserve the PostHTML static-site architecture, native DOM APIs, explicit classic-script order, CSP and rendering trust boundaries, analytics privacy limits, WCAG 2.0 AA behavior, and current first-install offline commitments.
-- Keep collapsed details empty and hydrate only requested content. Do not replace one shared annual document with per-card requests.
-- Keep performance budgets advisory until comparable local and approved delivered-site samples establish stable variance. Do not navigate an automated browser to production.
-- Run only change-scoped unit and browser tests for implementation work, with required lint, build, data, PWA, accessibility, and performance gates selected by the affected boundary.
-
-## Priority Summary
-
-- **RED - High:** No demonstrated High-priority defect or release risk.
-- **ORANGE - Medium:** No active Medium-priority recommendation.
-- **GREEN - Low:** No standalone Low-priority cleanup is meaningful enough to retain.
+- Retain the attention-banner capability unless the product owner explicitly changes this requirement. A dormant `APP_ATTENTION_NOTICE` value means no active message; it is not removal evidence.
+- Do not restore the expired June notice or embed inactive notice copy in shared HTML. Future notices must use the nullable runtime contract and safe text population.
+- Keep revision-scoped dismissal, expiry, non-dismissible mode, storage-failure resilience, fixed analytics vocabulary, semantic markup, and light/dark/high-contrast coverage together as one supported behavior.
+- Do not introduce a framework, bundler, data-schema, or runtime-validation migration without separate current evidence and review.

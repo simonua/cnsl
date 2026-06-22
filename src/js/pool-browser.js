@@ -137,7 +137,7 @@ function getPoolWeekStart(poolId) {
  * @returns {string} - Tooltip text
  */
 function getStatusTooltip(statusKind) {
-  return PoolScheduleDisplay.getStatusTooltip(statusKind);
+  return PoolCardDisplay.getStatusTooltip(statusKind);
 }
 
 
@@ -387,17 +387,10 @@ function getPoolCardAvailabilitySummary(poolModel) {
   }
 
   const transition = poolModel.getPublicStatusTransitionToday();
-  const isClosedAllDay = poolModel.isClosedToPublicAllDayToday();
-  const isClosedForDay = poolModel.isClosedToPublicForDay();
   const action = transition?.action;
   return {
-    text: PoolScheduleDisplay.formatPublicStatusSummary(transition, isClosedAllDay, isClosedForDay),
-    label: PoolScheduleDisplay.formatPublicStatusSummary(
-      transition,
-      isClosedAllDay,
-      isClosedForDay,
-      { useLongUnits: true }
-    ),
+    text: PoolCardDisplay.formatPublicStatusTransition(transition),
+    label: PoolCardDisplay.formatPublicStatusTransition(transition, { useLongUnits: true }),
     action: PoolTransitionAction.isValid(action) ? action : ''
   };
 }

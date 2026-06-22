@@ -101,6 +101,51 @@ describe('PoolCardDisplay', () => {
     assert.match(html, /class="status-tbd">[^<]+<\/span>/);
   });
 
+  it('maps every semantic current status to meaningful copy independent of color', () => {
+    const tooltips = new Map([
+      ['open', PoolCardDisplay.getStatusTooltip('open')],
+      ['practice-only', PoolCardDisplay.getStatusTooltip('practice-only')],
+      ['special-event', PoolCardDisplay.getStatusTooltip('special-event')],
+      ['closed-to-public', PoolCardDisplay.getStatusTooltip('closed-to-public')],
+      ['schedule-not-found', PoolCardDisplay.getStatusTooltip('schedule-not-found')],
+      ['status-not-applicable', PoolCardDisplay.getStatusTooltip('status-not-applicable')],
+      ['missing', PoolCardDisplay.getStatusTooltip('missing')],
+      ['closed', PoolCardDisplay.getStatusTooltip('closed')],
+      ['restricted', PoolCardDisplay.getStatusTooltip('restricted')]
+    ]);
+
+    tooltips.forEach(tooltip => assert.ok(tooltip.trim().length > 0));
+    assert.equal(tooltips.get('practice-only'), tooltips.get('special-event'));
+    assert.equal(tooltips.get('practice-only'), tooltips.get('restricted'));
+    assert.equal(tooltips.get('closed-to-public'), tooltips.get('closed'));
+    assert.notEqual(tooltips.get('open'), tooltips.get('closed'));
+  });
+
+  it('formats public status transitions with compact and accessible units', () => {
+    assert.equal(PoolCardDisplay.formatPublicStatusTransition({ action: 'opens', minutes: 1 }), 'Opens in 1 min');
+    assert.equal(PoolCardDisplay.formatPublicStatusTransition({ action: 'opens', minutes: 59 }), 'Opens in 59 mins');
+    assert.equal(PoolCardDisplay.formatPublicStatusTransition({ action: 'opens', minutes: 60 }), 'Opens in 1 hr 0 mins');
+    assert.equal(PoolCardDisplay.formatPublicStatusTransition({ action: 'opens', minutes: 61 }), 'Opens in 1 hr 1 min');
+    assert.equal(PoolCardDisplay.formatPublicStatusTransition({ action: 'opens', minutes: 122 }), 'Opens in 2 hrs 2 mins');
+    assert.equal(PoolCardDisplay.formatPublicStatusTransition({ action: 'closes', minutes: 1 }), 'Closes in 1 min');
+    assert.equal(PoolCardDisplay.formatPublicStatusTransition({ action: 'closes', minutes: 122 }), 'Closes in 2 hrs 2 mins');
+    assert.equal(PoolCardDisplay.formatPublicStatusTransition({ action: 'closes', minutes: 121 }, { useLongUnits: true }), 'Closes in 2 hours 1 minute');
+    assert.equal(PoolCardDisplay.formatPublicStatusTransition({ action: 'opens', minutes: 1 }, { useLongUnits: true }), 'Opens in 1 minute');
+    assert.equal(PoolCardDisplay.formatPublicStatusTransition({ action: 'opens', minutes: 2 }, { useLongUnits: true }), 'Opens in 2 minutes');
+    assert.equal(PoolCardDisplay.formatPublicStatusTransition({ action: 'opens', minutes: 61 }, { useLongUnits: true }), 'Opens in 1 hour 1 minute');
+    assert.equal(PoolCardDisplay.formatPublicStatusTransition(null), '');
+    assert.equal(PoolCardDisplay.formatPublicStatusTransition({ action: 'opens', minutes: 0 }), '');
+    assert.equal(PoolCardDisplay.formatPublicStatusTransition({ action: 'closed', minutes: 15 }), '');
+  });
+
+  it('adds caution styling only for a closing transition within the next hour', () => {
+    assert.equal(PoolCardDisplay.getPublicStatusTransitionClass({ action: 'closes', minutes: 59 }), 'pool-status-countdown pool-status-countdown--caution');
+    assert.equal(PoolCardDisplay.getPublicStatusTransitionClass({ action: 'closes', minutes: 60 }), 'pool-status-countdown');
+    assert.equal(PoolCardDisplay.getPublicStatusTransitionClass({ action: 'opens', minutes: 15 }), 'pool-status-countdown');
+    assert.equal(PoolCardDisplay.getPublicStatusTransitionClass(null), 'pool-status-countdown');
+    assert.equal(PoolCardDisplay.getPublicStatusTransitionClass({ action: 'closes', minutes: 0 }), 'pool-status-countdown');
+  });
+
   it('links only the fixed Lessons destination from feature pills', () => {
     const html = PoolCardDisplay.renderFeatures([
       { label: 'Lessons', category: 'young-swimmers', href: 'javascript:alert(1)' },

@@ -391,51 +391,6 @@ main.container > .container {
   padding-inline: 0;
 }
 
-/* Header - Sticky at top */
-.header {
-  background: linear-gradient(135deg, var(--accent-bg), var(--accent-dark));
-  color: var(--accent-text);
-  padding: 0.75rem 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  z-index: 1001;
-  box-shadow: var(--shadow);
-  min-height: var(--header-height);
-  width: 100%;
-}
-
-.header .logo {
-  height: 50px;
-  width: auto;
-  border-radius: 8px;
-  transition: var(--transition);
-}
-
-.header .logo:hover {
-  transform: scale(1.05);
-}
-
-.header .site-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0;
-  text-align: center;
-  flex: 1;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-}
-
-.header a {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  color: inherit;
-}
-
 .attention-banner {
   background-color: var(--attention-bg);
   border-bottom: 3px solid var(--attention-border);
@@ -511,6 +466,51 @@ button.attention-banner__close:focus {
   outline: 3px solid currentColor;
   outline-offset: 2px;
   transform: none;
+}
+
+/* Header - Sticky at top */
+.header {
+  background: linear-gradient(135deg, var(--accent-bg), var(--accent-dark));
+  color: var(--accent-text);
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 1001;
+  box-shadow: var(--shadow);
+  min-height: var(--header-height);
+  width: 100%;
+}
+
+.header .logo {
+  height: 50px;
+  width: auto;
+  border-radius: 8px;
+  transition: var(--transition);
+}
+
+.header .logo:hover {
+  transform: scale(1.05);
+}
+
+.header .site-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  text-align: center;
+  flex: 1;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.header a {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
 }
 
 .weather-alert {

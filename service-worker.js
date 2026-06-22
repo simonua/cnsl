@@ -9,6 +9,8 @@ try {
 }
 
 const CACHE_NAME = `${PWA_CACHE_PREFIX}${CACHE_VERSION}`;
+const HOME_DOCUMENT_RESOURCE = 'index.html';
+const HOME_NAVIGATION_ALIAS = './';
 const OFFLINE_PAGE = 'offline.html';
 const DEPLOYMENT_VERSION_URL = new URL(globalThis.DEPLOYMENT_VERSION_FILE, APP_BASE_URL);
 
@@ -18,8 +20,7 @@ const isDevelopment = LOCAL_DEVELOPMENT_HOSTNAMES.includes(self.location.hostnam
                       || LOCAL_DEVELOPMENT_HOSTNAMES.some(hostname => self.location.href.includes(hostname));
 
 const MINIMUM_OFFLINE_RESOURCES = [
-  './',
-  'index.html',
+  HOME_DOCUMENT_RESOURCE,
   OFFLINE_PAGE,
   'css/styles.css',
   'js/navigation.js',
@@ -39,6 +40,18 @@ function createStaticResourceCacheKey(resource) {
 
 const PRECACHE_CORE_RESOURCES = self.PRECACHE_CORE_RESOURCES || MINIMUM_OFFLINE_RESOURCES;
 const CORE_RESOURCES = [...new Set(PRECACHE_CORE_RESOURCES.map(createVersionedUrl))];
+
+/**
+ * Cache every required artifact and add the Home navigation alias without another fetch.
+ * @param {Cache} cache - Versioned application cache
+ * @returns {Promise<void>} Promise settled after required resources and the alias are cached
+ */
+async function cacheRequiredResources(cache) {
+  await cache.addAll(CORE_RESOURCES);
+  const homeResponse = await cache.match(createVersionedUrl(HOME_DOCUMENT_RESOURCE));
+  if (!homeResponse) throw new Error('The required Home document was not cached.');
+  await cache.put(createVersionedUrl(HOME_NAVIGATION_ALIAS), homeResponse);
+}
 
 async function findCachedNavigationResponse(request) {
   const cache = await caches.open(CACHE_NAME);
@@ -68,14 +81,15 @@ self.addEventListener("install", event => {
     caches.open(CACHE_NAME)
       .then(async cache => {
         console.log(`Creating cache: ${CACHE_NAME}`);
-        await cache.addAll(CORE_RESOURCES);
+        await cacheRequiredResources(cache);
       })
       .then(() => {
         console.log(`Cache ${CACHE_NAME} created successfully`);
         // Force the new service worker to activate immediately
         return self.skipWaiting();
       })
-      .catch(error => {
+      .catch(async error => {
+        await caches.delete(CACHE_NAME);
         console.error('Cache creation failed:', error);
         throw error;
       })

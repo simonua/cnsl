@@ -16,6 +16,89 @@ if (typeof globalThis.PoolCardDisplay === 'undefined') {
     static STATUS_COLORS = Object.freeze(['green', 'red', 'yellow', 'gray']);
 
     /**
+     * Format a same-day public opening or closing transition.
+     * @param {Object|null} transition - Public status action and positive minutes until it occurs
+     * @param {Object} options - Display formatting options
+     * @returns {string} Display label, or an empty string without a supported transition
+     */
+    static formatPublicStatusTransition(transition, options = {}) {
+      if (!transition || !PoolTransitionAction.isValid(transition.action)) return '';
+      const actionLabel = transition.action === PoolTransitionAction.OPENS ? 'Opens' : 'Closes';
+      return PoolCardDisplay.formatStatusCountdown(actionLabel, transition.minutes, options.useLongUnits === true);
+    }
+
+    /**
+     * Map semantic public transition urgency to status-countdown presentation.
+     * @param {Object|null} transition - Public status action and minutes until it occurs
+     * @returns {string} CSS classes for the transition label
+     */
+    static getPublicStatusTransitionClass(transition) {
+      const isImminentClosing = transition
+        && transition.action === PoolTransitionAction.CLOSES
+        && Number.isInteger(transition.minutes)
+        && transition.minutes > 0
+        && transition.minutes < 60;
+      return isImminentClosing
+        ? 'pool-status-countdown pool-status-countdown--caution'
+        : 'pool-status-countdown';
+    }
+
+    /**
+     * Map semantic current status to explanatory copy.
+     * @param {string} statusKind - Current PoolStatus kind
+     * @returns {string} User-facing status explanation
+     */
+    static getStatusTooltip(statusKind) {
+      switch (statusKind) {
+        case 'open':
+          return 'Open for public use';
+        case 'closed':
+        case 'closed-to-public':
+          return 'Currently closed';
+        case 'restricted':
+        case 'practice-only':
+        case 'special-event':
+        case 'swim-meet':
+          return 'Special schedule or restrictions';
+        case 'schedule-not-found':
+        case 'unavailable':
+          return 'Schedule not available';
+        case 'status-not-applicable':
+          return 'Current status not applicable';
+        default:
+          return 'Status unknown';
+      }
+    }
+
+    /**
+     * Format a positive transition countdown.
+     * @param {string} action - Visible action label
+     * @param {number} minutesUntilChange - Positive minutes until transition
+     * @param {boolean} useLongUnits - Whether to spell out time units
+     * @returns {string} Countdown label or empty string
+     */
+    static formatStatusCountdown(action, minutesUntilChange, useLongUnits = false) {
+      if (!Number.isInteger(minutesUntilChange) || minutesUntilChange <= 0) return '';
+
+      if (minutesUntilChange < 60) {
+        const unit = minutesUntilChange === 1
+          ? (useLongUnits ? 'minute' : 'min')
+          : (useLongUnits ? 'minutes' : 'mins');
+        return `${action} in ${minutesUntilChange} ${unit}`;
+      }
+
+      const hours = Math.floor(minutesUntilChange / 60);
+      const minutes = minutesUntilChange % 60;
+      const hourUnit = hours === 1
+        ? (useLongUnits ? 'hour' : 'hr')
+        : (useLongUnits ? 'hours' : 'hrs');
+      const minuteUnit = minutes === 1
+        ? (useLongUnits ? 'minute' : 'min')
+        : (useLongUnits ? 'minutes' : 'mins');
+      return `${action} in ${hours} ${hourUnit} ${minutes} ${minuteUnit}`;
+    }
+
+    /**
      * Render a pool directory card.
       * @param {Object} viewModel - Display-ready pool state and trusted nested fragments
      * @returns {string} Pool card HTML
