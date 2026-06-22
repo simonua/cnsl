@@ -5105,6 +5105,10 @@ html[data-hide-home-intro="true"] .welcome-section {
     width: 100%;
   }
 
+  .team-details > .favorite-week {
+    max-width: none;
+  }
+
   .team-card .favorite-week__days,
   .team-card .favorite-week__event-heading,
   .team-card .favorite-week__events .sessions {

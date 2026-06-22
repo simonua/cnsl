@@ -96,7 +96,7 @@ test('[WF-AGENDA-001] team directory shows the same next practices and swim even
   await expect(page.locator('#favoriteWeek .favorite-week__events li')).toHaveText(teamEvents);
 });
 
-test('[WF-AGENDA-006] desktop team agendas align to the centered team-details measure', async ({ page }) => {
+test('[WF-AGENDA-006] desktop team agendas fill the available team-details width', async ({ page }) => {
   await setAgendaReferenceTime(page);
   await page.goto('/teams.html');
   await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
@@ -107,11 +107,13 @@ test('[WF-AGENDA-006] desktop team agendas align to the centered team-details me
     const firstDay = days.querySelector('.favorite-week__day');
     const heading = firstDay.querySelector('h4');
     const events = firstDay.querySelector('.favorite-week__events');
+    const details = days.closest('.team-details');
     return {
       aligned: Math.abs(heading.getBoundingClientRect().left - events.getBoundingClientRect().left) <= 1,
-      width: Math.round(days.getBoundingClientRect().width)
+      fillsDetails: Math.abs(days.getBoundingClientRect().width - details.getBoundingClientRect().width) <= 1,
+      widerThanCompactMeasure: days.getBoundingClientRect().width > 44 * 16
     };
-  })).toEqual({ aligned: true, width: 704 });
+  })).toEqual({ aligned: true, fillsDetails: true, widerThanCompactMeasure: true });
 });
 
 test('[WF-AGENDA-002] home page shows the next practices and swim event for a selected favorite team', async ({ page }) => {
