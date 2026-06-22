@@ -4,6 +4,7 @@ const {
   ACTIVE_SEASON_YEAR,
   AUDIENCE_VIEWPORTS,
   MOBILE_VIEWPORT,
+  activeSeasonDate,
   getOffSeasonReferenceTime,
   prepareStableWeatherResponses,
   prepareVisibleWeatherAlert,
@@ -268,6 +269,37 @@ for (const { contrast, reference, theme } of [
     await closedHelp.focus();
     await expect(closedHelp).toBeFocused();
     await expect(page.locator(`#${await closedHelp.getAttribute('aria-describedby')}`)).toBeVisible();
+
+    await expectNoAccessibilityViolations(page);
+  });
+}
+
+for (const { contrast, reference, theme } of [
+  { contrast: 'standard', reference: 'LIGHT', theme: 'light' },
+  { contrast: 'standard', reference: 'DARK', theme: 'dark' },
+  { contrast: 'high', reference: 'LIGHT-HIGH-CONTRAST', theme: 'light' },
+  { contrast: 'high', reference: 'DARK-HIGH-CONTRAST', theme: 'dark' }
+]) {
+  test(`[AX-POOLS-004-${reference}] later closing countdown passes WCAG in ${reference.toLowerCase()}`, async ({ page }) => {
+    await page.clock.setFixedTime(activeSeasonDate('05-26T14:59:00-04:00'));
+    await prepareStableWeatherResponses(page);
+    await routeAnnualData(page, 'pools', poolData => {
+      poolData.pools.forEach((pool, index) => {
+        pool.schedules = index === 0 ? [{
+          startDate: `${ACTIVE_SEASON_YEAR}-05-23`,
+          endDate: `${ACTIVE_SEASON_YEAR}-09-07`,
+          hours: [{
+            weekDays: ['Tue'], startTime: '1:00PM', endTime: '4:00PM',
+            types: ['Rec Swim'], accessStatus: 'public'
+          }]
+        }] : [];
+        pool.scheduleOverrides = [];
+      });
+    });
+    await seedPreferences(page, { contrast, theme });
+    await page.goto('/pools.html');
+    await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
+    await expect(page.locator('.pool-transition-summary--closing-later')).toBeVisible();
 
     await expectNoAccessibilityViolations(page);
   });

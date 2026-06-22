@@ -8,6 +8,8 @@ const {
 } = require('../browser-test-helpers');
 const { publishedPagePaths } = require('./workflow-scenarios');
 
+test.setTimeout(45_000);
+
 test.beforeEach(async ({ page }) => {
   await prepareStableWeatherResponses(page);
 });

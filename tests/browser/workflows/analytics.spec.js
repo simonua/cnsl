@@ -9,6 +9,11 @@ test.beforeEach(async ({ page }) => {
   await prepareStableWeatherResponses(page);
 });
 
+test.afterEach(async ({ page }) => {
+  await page.unrouteAll({ behavior: 'ignoreErrors' });
+  await page.context().unrouteAll({ behavior: 'ignoreErrors' });
+});
+
 analyticsTest.describe('app version reporting', () => {
 analyticsTest.describe.configure({ mode: 'serial' });
 

@@ -556,8 +556,9 @@ test('[WF-AGENDA-005] changing to an unavailable favorite does not display the p
   await seedPreferences(page, { favoriteTeamId: AGENDA_TEAM.id });
   await page.goto('/index.html');
 
-  const priorHeading = await page.locator('#favoriteWeekTitle').textContent();
-  expect(priorHeading).toMatch(/^Upcoming .+ Events$/);
+  const favoriteWeekTitle = page.locator('#favoriteWeekTitle');
+  await expect(favoriteWeekTitle).toHaveText(/^Upcoming .+ Events$/);
+  const priorHeading = await favoriteWeekTitle.textContent();
 
   await page.evaluate(() => {
     localStorage.setItem('cnsl_preferences', JSON.stringify({ favoriteTeamId: 'former-team' }));
@@ -565,7 +566,7 @@ test('[WF-AGENDA-005] changing to an unavailable favorite does not display the p
   });
 
   await expect(page.locator('#favoriteWeek')).toBeVisible();
-  await expect(page.locator('#favoriteWeekTitle')).toHaveText('Favorite team not found');
+  await expect(favoriteWeekTitle).toHaveText('Favorite team not found');
   await expect(page.locator('#favoriteWeekStatus')).toHaveText('That team is not listed this season. Please choose another favorite on the Teams page.');
   await expect(page.locator('#favoriteWeek')).not.toContainText(priorHeading);
 });

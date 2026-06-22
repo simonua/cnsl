@@ -1131,3 +1131,47 @@ test('[WF-POOLS-025] collapsed opening and closing countdowns update without int
   await expect(openingCard.locator('.pool-transition-summary')).toHaveText('Opens in 1 min');
   await expect(meetCard.locator('.pool-transition-summary')).toHaveText('Opens in 1 min');
 });
+
+test('[WF-POOLS-031] closing countdown changes from warning to urgent color at one hour', async ({ page }) => {
+  await page.clock.install({ time: activeSeasonDate('05-26T14:59:00-04:00') });
+  const closingPool = ANNUAL_POOLS[0];
+  await routeAnnualData(page, 'pools', poolData => {
+    poolData.pools.forEach((pool, index) => {
+      pool.schedules = index === 0 ? [{
+        startDate: `${ACTIVE_SEASON_YEAR}-05-23`,
+        endDate: `${ACTIVE_SEASON_YEAR}-09-07`,
+        hours: [{
+          weekDays: ['Tue'], startTime: '1:00PM', endTime: '4:00PM',
+          types: ['Rec Swim'], accessStatus: 'public'
+        }]
+      }] : [];
+      pool.scheduleOverrides = [];
+    });
+  });
+  await page.goto('/pools.html');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
+
+  const countdown = page.locator(`.pool-card[data-pool-id="${closingPool.id}"] .pool-transition-summary`);
+  await expect(countdown).toHaveText('Closes in 1 hr 1 min');
+  await expect(countdown).toHaveClass(/pool-transition-summary--closing-later/);
+  await expect.poll(() => countdown.evaluate((element, colorToken) => {
+    const probe = globalThis.document.createElement('span');
+    probe.style.color = `var(${colorToken})`;
+    globalThis.document.body.append(probe);
+    const matches = globalThis.getComputedStyle(element).color === globalThis.getComputedStyle(probe).color;
+    probe.remove();
+    return matches;
+  }, '--warning-text-color')).toBe(true);
+
+  await page.clock.fastForward(60 * 1000);
+  await expect(countdown).toHaveText('Closes in 1 hr 0 mins');
+  await expect(countdown).not.toHaveClass(/pool-transition-summary--closing-later/);
+  await expect.poll(() => countdown.evaluate((element, colorToken) => {
+    const probe = globalThis.document.createElement('span');
+    probe.style.color = `var(${colorToken})`;
+    globalThis.document.body.append(probe);
+    const matches = globalThis.getComputedStyle(element).color === globalThis.getComputedStyle(probe).color;
+    probe.remove();
+    return matches;
+  }, '--error-text-color')).toBe(true);
+});

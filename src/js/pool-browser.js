@@ -374,16 +374,16 @@ function getPoolModel(poolId) {
 /**
  * Build the collapsed-card availability summary for the active filter.
  * @param {Pool|null} poolModel - Pool domain model
- * @returns {{ text: string, label: string, action: string }} Display-ready availability summary
+ * @returns {{ text: string, label: string, action: string, minutes: number|null }} Display-ready availability summary
  */
 function getPoolCardAvailabilitySummary(poolModel) {
-  if (!poolModel) return { text: '', label: '', action: '' };
+  if (!poolModel) return { text: '', label: '', action: '', minutes: null };
 
   const dayOffset = PoolDirectoryService.getFutureAvailabilityDayOffset(poolAvailabilityFilter);
   if (dayOffset !== null) {
     const schedule = poolModel.getGeneralUseScheduleOnDayOffset(dayOffset);
     const summary = PoolDirectoryService.formatGeneralUseScheduleSummary(schedule, _getTimeUtils());
-    return { ...summary, action: '' };
+    return { ...summary, action: '', minutes: null };
   }
 
   const transition = poolModel.getPublicStatusTransitionToday();
@@ -391,7 +391,8 @@ function getPoolCardAvailabilitySummary(poolModel) {
   return {
     text: PoolCardDisplay.formatPublicStatusTransition(transition),
     label: PoolCardDisplay.formatPublicStatusTransition(transition, { useLongUnits: true }),
-    action: PoolTransitionAction.isValid(action) ? action : ''
+    action: PoolTransitionAction.isValid(action) ? action : '',
+    minutes: Number.isInteger(transition?.minutes) ? transition.minutes : null
   };
 }
 
@@ -423,7 +424,7 @@ function syncPoolTransitionSummary(poolCard) {
     metadata.prepend(summary);
   }
   summary.textContent = summaryState.text;
-  summary.className = `pool-transition-summary${summaryState.action ? ` pool-transition-summary--${summaryState.action}` : ''}`;
+  summary.className = PoolCardDisplay.getTransitionSummaryClass(summaryState.action, summaryState.minutes);
   summary.setAttribute('aria-label', summaryState.label);
 }
 
@@ -1043,6 +1044,7 @@ function renderPools(pools) {
       transitionText: availabilitySummary.text,
       transitionLabel: availabilitySummary.label,
       transitionAction: availabilitySummary.action,
+      transitionMinutes: availabilitySummary.minutes,
       poolStatus,
       statusTooltip: tooltipText,
       isDetailsHydrated: false

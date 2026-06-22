@@ -27,6 +27,7 @@ const viewModel = {
   transitionText: 'Opens in 1h 15m',
   transitionLabel: 'Opens in 1 hour 15 minutes',
   transitionAction: 'opens',
+  transitionMinutes: 75,
   poolStatus: { color: 'green' },
   statusTooltip: 'Open <public>',
   featureItems: [
@@ -146,6 +147,22 @@ describe('PoolCardDisplay', () => {
     assert.equal(PoolCardDisplay.getPublicStatusTransitionClass({ action: 'closes', minutes: 0 }), 'pool-status-countdown');
   });
 
+  it('uses warning styling until a closing transition is within one hour', () => {
+    assert.equal(
+      PoolCardDisplay.getTransitionSummaryClass('closes', 61),
+      'pool-transition-summary pool-transition-summary--closes pool-transition-summary--closing-later'
+    );
+    assert.equal(
+      PoolCardDisplay.getTransitionSummaryClass('closes', 60),
+      'pool-transition-summary pool-transition-summary--closes'
+    );
+    assert.equal(
+      PoolCardDisplay.getTransitionSummaryClass('opens', 61),
+      'pool-transition-summary pool-transition-summary--opens'
+    );
+    assert.equal(PoolCardDisplay.getTransitionSummaryClass('', 61), 'pool-transition-summary');
+  });
+
   it('links only the fixed Lessons destination from feature pills', () => {
     const html = PoolCardDisplay.renderFeatures([
       { label: 'Lessons', category: 'young-swimmers', href: 'javascript:alert(1)' },
@@ -243,7 +260,8 @@ describe('PoolCardDisplay', () => {
       ...viewModel,
       transitionText: 'Closes in 45 min',
       transitionLabel: 'Closes in 45 minutes',
-      transitionAction: 'closes'
+      transitionAction: 'closes',
+      transitionMinutes: 45
     });
     const neutralHtml = PoolCardDisplay.render({
       ...viewModel,
@@ -255,6 +273,7 @@ describe('PoolCardDisplay', () => {
     assert.match(transitionOnlyHtml, /Opens in 1h 15m/);
     assert.doesNotMatch(transitionOnlyHtml, /distance-badge/);
     assert.match(closingHtml, /pool-transition-summary--closes" aria-label="Closes in 45 minutes">Closes in 45 min/);
+    assert.doesNotMatch(closingHtml, /pool-transition-summary--closing-later/);
     assert.doesNotMatch(neutralHtml, /pool-transition-summary--(?:opens|closes)/);
     assert.match(distanceOnlyHtml, /distance-badge/);
     assert.doesNotMatch(distanceOnlyHtml, /pool-transition-summary/);

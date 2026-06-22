@@ -112,7 +112,12 @@ if (typeof globalThis.PoolCardDisplay === 'undefined') {
       const isFavorite = model.isFavorite === true;
       const isExpanded = model.isExpanded === true;
       const distanceHtml = PoolCardDisplay.renderDistance(model.distanceMiles);
-      const transitionHtml = PoolCardDisplay.renderTransition(model.transitionText, model.transitionLabel, model.transitionAction);
+      const transitionHtml = PoolCardDisplay.renderTransition(
+        model.transitionText,
+        model.transitionLabel,
+        model.transitionAction,
+        model.transitionMinutes
+      );
       const metadataHtml = transitionHtml || distanceHtml
         ? `<span class="pool-header__metadata">${transitionHtml}${distanceHtml}</span>`
         : '';
@@ -326,16 +331,29 @@ if (typeof globalThis.PoolCardDisplay === 'undefined') {
      * @param {string} transitionText - Visible transition text
      * @param {string} transitionLabel - Accessible transition label
      * @param {string} transitionAction - Semantic transition action
+     * @param {number} transitionMinutes - Positive minutes until the transition
      * @returns {string} Transition HTML
      */
-    static renderTransition(transitionText, transitionLabel, transitionAction) {
+    static renderTransition(transitionText, transitionLabel, transitionAction, transitionMinutes) {
       if (typeof transitionText !== 'string' || transitionText.length === 0) return '';
       const safeText = HtmlSafety.escapeHtml(transitionText);
       const safeLabel = HtmlSafety.escapeHtml(transitionLabel || transitionText);
-      const actionClass = PoolTransitionAction.isValid(transitionAction)
-        ? ` pool-transition-summary--${transitionAction}`
-        : '';
-      return `<span class="pool-transition-summary${actionClass}" aria-label="${safeLabel}">${safeText}</span>`;
+      const transitionClass = PoolCardDisplay.getTransitionSummaryClass(transitionAction, transitionMinutes);
+      return `<span class="${transitionClass}" aria-label="${safeLabel}">${safeText}</span>`;
+    }
+
+    /**
+     * Map a pool-card transition to semantic presentation classes.
+     * @param {string} transitionAction - Semantic transition action
+     * @param {number} transitionMinutes - Positive minutes until the transition
+     * @returns {string} CSS classes for the pool-card transition
+     */
+    static getTransitionSummaryClass(transitionAction, transitionMinutes) {
+      if (!PoolTransitionAction.isValid(transitionAction)) return 'pool-transition-summary';
+      const closesLater = transitionAction === PoolTransitionAction.CLOSES
+        && Number.isInteger(transitionMinutes)
+        && transitionMinutes > 60;
+      return `pool-transition-summary pool-transition-summary--${transitionAction}${closesLater ? ' pool-transition-summary--closing-later' : ''}`;
     }
 
     /**
