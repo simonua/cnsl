@@ -48,6 +48,54 @@ test.beforeEach(async ({ page }) => {
   await prepareStableWeatherResponses(page);
 });
 
+test('[WF-POOLS-029] pool status guide explains every public-access status on hover and focus', async ({ page }) => {
+  await page.setViewportSize(MOBILE_VIEWPORT);
+  await page.goto('/pools.html');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
+
+  const guide = page.locator('#poolStatusLegend');
+  const criteria = [
+    {
+      label: 'Open for public use',
+      description: /General public use is available now.*shared schedules/
+    },
+    {
+      label: 'Special schedule or restrictions',
+      description: /class or program, swim-team practice, special event, or swim meet/
+    },
+    {
+      label: 'Currently closed',
+      description: /No published public-use period is active now.*practice.*earlier or later today/
+    },
+    {
+      label: 'Schedule not available or applicable',
+      description: /schedule is not published or available.*future-day availability filter/
+    }
+  ];
+
+  await expect(guide.getByRole('button')).toHaveCount(criteria.length);
+  await expect(guide.locator('[role="tooltip"]')).toHaveCount(criteria.length);
+
+  const hoverButton = guide.getByRole('button', { name: criteria[0].label });
+  const hoverTooltip = page.locator(`#${await hoverButton.getAttribute('aria-describedby')}`);
+  await expect(hoverTooltip).toBeHidden();
+  await hoverButton.hover();
+  await expect(hoverTooltip).toBeVisible();
+
+  for (const criterion of criteria) {
+    const button = guide.getByRole('button', { name: criterion.label });
+    const tooltip = page.locator(`#${await button.getAttribute('aria-describedby')}`);
+    await button.focus();
+    await expect(button).toBeFocused();
+    await expect(button).toHaveAccessibleDescription(criterion.description);
+    await expect(tooltip).toBeVisible();
+    expect(await tooltip.evaluate(element => {
+      const bounds = element.getBoundingClientRect();
+      return bounds.left >= 0 && bounds.right <= document.documentElement.clientWidth;
+    })).toBe(true);
+  }
+});
+
 test('[WF-POOLS-001] pool feature filters expose their state and resulting count', async ({ page }) => {
   await initializeAnalyticsRecorder(page);
   await seedPreferences(page, { contrast: 'high', textSize: 'extra-large' });

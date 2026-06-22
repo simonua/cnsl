@@ -195,7 +195,7 @@ test('[WF-DATA-007-POOLS] pool summaries and requested details render before opt
     for (const color of ['green', 'yellow', 'red', 'gray']) {
       await expect(page.locator(`.pool-status-legend .pool-status-indicator.${color}`)).toBeVisible();
     }
-    await expect(page.locator('.pool-status-legend__item')).toHaveText([
+    await expect(page.locator('.pool-status-legend__label')).toHaveText([
       'Open for public use',
       'Special schedule or restrictions',
       'Currently closed',

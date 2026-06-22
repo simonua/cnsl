@@ -257,6 +257,28 @@ for (const { contrast, reference, theme } of [
   { contrast: 'high', reference: 'LIGHT-HIGH-CONTRAST', theme: 'light' },
   { contrast: 'high', reference: 'DARK-HIGH-CONTRAST', theme: 'dark' }
 ]) {
+  test(`[AX-POOLS-003-${reference}] visible pool status help passes WCAG in ${reference.toLowerCase()}`, async ({ page }) => {
+    await page.setViewportSize(MOBILE_VIEWPORT);
+    await prepareStableWeatherResponses(page);
+    await seedPreferences(page, { contrast, theme });
+    await page.goto('/pools.html');
+    await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
+
+    const closedHelp = page.locator('#poolStatusLegend').getByRole('button', { exact: true, name: 'Currently closed' });
+    await closedHelp.focus();
+    await expect(closedHelp).toBeFocused();
+    await expect(page.locator(`#${await closedHelp.getAttribute('aria-describedby')}`)).toBeVisible();
+
+    await expectNoAccessibilityViolations(page);
+  });
+}
+
+for (const { contrast, reference, theme } of [
+  { contrast: 'standard', reference: 'LIGHT', theme: 'light' },
+  { contrast: 'standard', reference: 'DARK', theme: 'dark' },
+  { contrast: 'high', reference: 'LIGHT-HIGH-CONTRAST', theme: 'light' },
+  { contrast: 'high', reference: 'DARK-HIGH-CONTRAST', theme: 'dark' }
+]) {
   test(`[AX-POOLS-002-${reference}] visible feature correction footnotes pass WCAG in ${reference.toLowerCase()}`, async ({ page }) => {
     const overriddenPool = ANNUAL_POOLS[0];
     await prepareStableWeatherResponses(page);

@@ -73,10 +73,38 @@
       <section class="pool-status-legend" id="poolStatusLegend" aria-labelledby="poolStatusLegendTitle" hidden>
         <h2 class="pool-status-legend__title" id="poolStatusLegendTitle">Pool Status Guide</h2>
         <ul class="pool-status-legend__items">
-          <li class="pool-status-legend__item"><span class="pool-status-indicator green" aria-hidden="true"></span>Open for public use</li>
-          <li class="pool-status-legend__item"><span class="pool-status-indicator yellow" aria-hidden="true"></span>Special schedule or restrictions</li>
-          <li class="pool-status-legend__item"><span class="pool-status-indicator red" aria-hidden="true"></span>Currently closed</li>
-          <li class="pool-status-legend__item"><span class="pool-status-indicator gray" aria-hidden="true"></span>Schedule not available or applicable</li>
+          <li class="pool-status-legend__item">
+            <button class="pool-status-legend__help" type="button" aria-describedby="poolStatusGreenHelp">
+              <span class="pool-status-indicator green" aria-hidden="true"></span>
+              <span class="pool-status-legend__label">Open for public use</span>
+              <span class="pool-status-legend__help-icon" aria-hidden="true">?</span>
+            </button>
+            <span class="pool-status-legend__tooltip" id="poolStatusGreenHelp" role="tooltip">General public use is available now. This includes recreational, lap, adult, senior, wading-pool, and Wibit periods, plus shared schedules where a public-use activity remains available.</span>
+          </li>
+          <li class="pool-status-legend__item">
+            <button class="pool-status-legend__help" type="button" aria-describedby="poolStatusYellowHelp">
+              <span class="pool-status-indicator yellow" aria-hidden="true"></span>
+              <span class="pool-status-legend__label">Special schedule or restrictions</span>
+              <span class="pool-status-legend__help-icon" aria-hidden="true">?</span>
+            </button>
+            <span class="pool-status-legend__tooltip" id="poolStatusYellowHelp" role="tooltip">General public swimming is not available now because the pool is being used for a class or program, swim-team practice, special event, or swim meet. The scheduled participants may still use the pool.</span>
+          </li>
+          <li class="pool-status-legend__item">
+            <button class="pool-status-legend__help" type="button" aria-describedby="poolStatusRedHelp">
+              <span class="pool-status-indicator red" aria-hidden="true"></span>
+              <span class="pool-status-legend__label">Currently closed</span>
+              <span class="pool-status-legend__help-icon" aria-hidden="true">?</span>
+            </button>
+            <span class="pool-status-legend__tooltip" id="poolStatusRedHelp" role="tooltip">No published public-use period is active now, or the schedule explicitly closes the pool to the public. A swim-team practice or another activity may still be scheduled earlier or later today; expand the pool details to check.</span>
+          </li>
+          <li class="pool-status-legend__item">
+            <button class="pool-status-legend__help" type="button" aria-describedby="poolStatusGrayHelp">
+              <span class="pool-status-indicator gray" aria-hidden="true"></span>
+              <span class="pool-status-legend__label">Schedule not available or applicable</span>
+              <span class="pool-status-legend__help-icon" aria-hidden="true">?</span>
+            </button>
+            <span class="pool-status-legend__tooltip" id="poolStatusGrayHelp" role="tooltip">The web app cannot determine a current status because a schedule is not published or available, or live status does not apply while a future-day availability filter is selected.</span>
+          </li>
         </ul>
         <p class="pool-status-legend__note"><i>Opens in ...</i> and <i>Closes in ...</i> are quick guides based on today's published public hours. They may not reflect every schedule exception or last-minute change. Please check the expanded pool details before heading out.</p>
       </section>

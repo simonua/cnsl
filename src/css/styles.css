@@ -3229,13 +3229,71 @@ button.pool-filter__clear:focus-visible {
 }
 
 .pool-status-legend__item {
-  align-items: center;
-  display: inline-flex;
   font-size: 0.9rem;
+  position: relative;
 }
 
-.pool-status-legend__item .pool-status-indicator {
-  margin-right: 0.4rem;
+.pool-status-legend__help {
+  align-items: center;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: var(--text-dark);
+  cursor: help;
+  display: flex;
+  font: inherit;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+  padding: 0.25rem 0;
+  text-align: left;
+  width: 100%;
+}
+
+.pool-status-legend__help .pool-status-indicator {
+  margin-right: 0;
+}
+
+.pool-status-legend__label {
+  min-width: 0;
+}
+
+.pool-status-legend__help-icon {
+  align-items: center;
+  border: 1px solid var(--primary-color);
+  border-radius: 50%;
+  color: var(--primary-text-color);
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 0.75rem;
+  font-weight: 700;
+  height: 1.25rem;
+  justify-content: center;
+  width: 1.25rem;
+}
+
+.pool-status-legend__tooltip {
+  background-color: var(--tooltip-bg);
+  border-radius: 6px;
+  color: var(--tooltip-text);
+  font-size: 0.85rem;
+  font-weight: normal;
+  left: 0;
+  line-height: 1.4;
+  opacity: 0;
+  padding: 0.65rem 0.75rem;
+  pointer-events: none;
+  position: absolute;
+  text-align: left;
+  top: calc(100% - 0.15rem);
+  visibility: hidden;
+  width: 100%;
+  z-index: 1000;
+}
+
+.pool-status-legend__help:hover + .pool-status-legend__tooltip,
+.pool-status-legend__help:focus + .pool-status-legend__tooltip {
+  opacity: 1;
+  visibility: visible;
 }
 
 .pool-status-legend__note {
