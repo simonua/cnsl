@@ -1,6 +1,6 @@
 const { test, expect } = require('../browser-test');
 
-const VISIBLE_DATED_RELEASE_COUNT = 10;
+const VISIBLE_DATED_RELEASE_COUNT = 5;
 
 test('[WF-RELEASE-002] release history reveals older releases on request', async ({ page }) => {
   await page.goto('/whats-new.html');
