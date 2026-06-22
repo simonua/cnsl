@@ -4937,6 +4937,19 @@
         "wading",
         "wifi"
       ],
+      "featureOverrides": [
+        {
+          "feature": "diving board",
+          "action": "add",
+          "evidence": {
+            "type": "maintainer",
+            "observedOn": "2026-06-21",
+            "officialSourceCheckedOn": "2026-06-22",
+            "sourceUrl": "https://services8.arcgis.com/Qah4YRlnA96tI4X9/arcgis/rest/services/CA_Ammenities/FeatureServer/0?f=pjson",
+            "note": "Observed installed and in use; the CA Pool Guide independently lists Diving board while the Locust Park facility page omits it."
+          }
+        }
+      ],
       "scheduleUrl": "https://www.columbiaassociation.org/wp-content/uploads/Locust_Park.pdf",
       "schedules": [
         {

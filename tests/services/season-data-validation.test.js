@@ -104,6 +104,45 @@ describe('season data validation', () => {
       assert.ok(validateSchema('pools', insecurePoolsData, poolSchema).length > 0);
     });
 
+    it('should enforce annotated pool feature override evidence', () => {
+      const overrideSchema = {
+        $ref: '#/definitions/FeatureOverride',
+        definitions: poolSchema.definitions
+      };
+      const localObservation = {
+        feature: 'diving board',
+        action: 'add',
+        evidence: {
+          type: 'maintainer',
+          observedOn: '2026-06-21',
+          officialSourceCheckedOn: '2026-06-22',
+          note: 'Observed in use.'
+        }
+      };
+      const officialCorrection = {
+        feature: 'wifi',
+        action: 'remove',
+        evidence: {
+          type: 'official-source',
+          officialSourceCheckedOn: '2026-06-22',
+          sourceUrl: 'https://example.com/pool-source',
+          note: 'Official correction.'
+        }
+      };
+
+      assert.equal(poolSchema.version, 'V17');
+      assert.deepEqual(validateSchema('featureOverride', localObservation, overrideSchema), []);
+      assert.deepEqual(validateSchema('featureOverride', officialCorrection, overrideSchema), []);
+
+      const missingObservationDate = structuredClone(localObservation);
+      delete missingObservationDate.evidence.observedOn;
+      assert.ok(validateSchema('featureOverride', missingObservationDate, overrideSchema).length > 0);
+
+      const insecureOfficialSource = structuredClone(officialCorrection);
+      insecureOfficialSource.evidence.sourceUrl = 'http://example.com/pool-source';
+      assert.ok(validateSchema('featureOverride', insecureOfficialSource, overrideSchema).length > 0);
+    });
+
     it('should enforce real meet dates and HTTPS sources in annual schemas', () => {
       const invalidMeetsData = structuredClone(meetsData);
       invalidMeetsData.regular_meets[0].date = '2026-02-30';
@@ -233,6 +272,42 @@ describe('season data validation', () => {
 
       assert.equal(errors.length, 1);
       assertDiagnostic(errors, 'Known Pool', 'lane');
+    });
+
+    it('should reject ineffective, conflicting, or observation-only feature removals', () => {
+      const observationEvidence = {
+        type: 'maintainer',
+        observedOn: '2026-06-21',
+        officialSourceCheckedOn: '2026-06-22',
+        note: 'Fixture observation.'
+      };
+      const errors = collectIntegrityErrors({
+        season: 2026,
+        poolsData: {
+          caPoolDirectoryUrl: 'https://pools.test/directory', caPoolGuideUrl: 'https://pools.test/guide',
+          seasonStartDate: '2026-05-23', seasonEndDate: '2026-09-07',
+          pools: [{
+            id: 'pool', name: 'Known Pool', caUrl: 'https://pools.test/known',
+            scheduleUrl: 'https://pools.test/Known_Pool.pdf', location: { googleMapsUrl: 'https://maps.google.com/known' },
+            laneCount: 6, laneLengthUnits: 'yards', laneLength: 25,
+            features: ['diving board', 'lap'], schedules: [],
+            featureOverrides: [{ feature: 'lap', action: 'add', evidence: observationEvidence }, {
+              feature: 'diving board', action: 'remove', evidence: observationEvidence
+            }, {
+              feature: 'wifi', action: 'add', evidence: observationEvidence
+            }, {
+              feature: 'wifi', action: 'add', evidence: observationEvidence
+            }]
+          }]
+        },
+        teamsData: { teams: [] },
+        meetsData: { url: 'https://league.test/meets.pdf', regular_meets: [], special_meets: [] }
+      });
+
+      assert.equal(errors.length, 3);
+      assertDiagnostic(errors, 'Known Pool', 'lap', 'already present');
+      assertDiagnostic(errors, 'Known Pool', 'diving board', 'official-source');
+      assertDiagnostic(errors, 'Known Pool', 'wifi', 'only one override');
     });
 
     it('should reject pool hours that do not end after their start time', () => {

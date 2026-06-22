@@ -43,6 +43,39 @@ describe('Pool', () => {
       assert.equal(pool.periodSchedule.getPoolStatus(), PoolStatus);
     });
 
+    it('applies annotated feature additions and removals without mutating the published baseline', () => {
+      const data = createSamplePoolData({
+        features: ['lap', 'main pool slide'],
+        featureOverrides: [{
+          feature: 'diving board',
+          action: 'add',
+          evidence: {
+            type: 'maintainer',
+            observedOn: '2026-06-21',
+            officialSourceCheckedOn: '2026-06-22',
+            note: 'Fixture observation.'
+          }
+        }, {
+          feature: 'main pool slide',
+          action: 'remove',
+          evidence: {
+            type: 'official-source',
+            officialSourceCheckedOn: '2026-06-22',
+            sourceUrl: 'https://example.com/pool-source',
+            note: 'Fixture correction.'
+          }
+        }]
+      });
+
+      const pool = new Pool(data);
+
+      assert.deepEqual(pool.publishedFeatures, ['lap', 'main pool slide']);
+      assert.deepEqual(pool.features, ['lap', 'diving board']);
+      assert.notEqual(pool.publishedFeatures, data.features);
+      assert.notEqual(pool.featureOverrides[0], data.featureOverrides[0]);
+      assert.notEqual(pool.featureOverrides[0].evidence, data.featureOverrides[0].evidence);
+    });
+
   });
 
   describe('schedule output', () => {

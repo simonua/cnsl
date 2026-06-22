@@ -165,6 +165,36 @@ function validatePoolScheduleHours(errors, poolName, scope, schedules) {
   });
 }
 
+function validatePoolFeatureOverrides(errors, pool, season) {
+  const publishedFeatures = new Set(pool.features || []);
+  const overriddenFeatures = new Set();
+  (pool.featureOverrides || []).forEach((override) => {
+    const label = `${pool.name} feature override for ${override.feature}`;
+    if (overriddenFeatures.has(override.feature)) {
+      errors.push(`${label} must be unique; only one override is allowed per feature.`);
+    }
+    overriddenFeatures.add(override.feature);
+    if (override.action === 'add' && publishedFeatures.has(override.feature)) {
+      errors.push(`${label} cannot add a feature already present in the published baseline.`);
+    }
+    if (override.action === 'remove' && !publishedFeatures.has(override.feature)) {
+      errors.push(`${label} cannot remove a feature absent from the published baseline.`);
+    }
+    if (override.action === 'remove' && override.evidence.type !== 'official-source') {
+      errors.push(`${label} requires official-source evidence to remove a published feature.`);
+    }
+    if (override.evidence.observedOn) {
+      validateSeasonDate(errors, `${label} observation date`, override.evidence.observedOn, season);
+    }
+    validateSeasonDate(
+      errors,
+      `${label} official-source check date`,
+      override.evidence.officialSourceCheckedOn,
+      season
+    );
+  });
+}
+
 function hasRecognizedPoolLocation(location, poolNames) {
   if (location.startsWith("Each Team's Home Pool")) {
     return true;
@@ -205,6 +235,7 @@ function collectIntegrityErrors({ meetsData, poolsData, season, teamsData }) {
     });
     validatePoolScheduleHours(errors, pool.name, 'schedule', pool.schedules);
     validatePoolScheduleHours(errors, pool.name, 'schedule override', pool.scheduleOverrides || []);
+    validatePoolFeatureOverrides(errors, pool, season);
   });
 
   teams.forEach((team) => {

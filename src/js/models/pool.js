@@ -26,7 +26,14 @@ if (typeof globalThis.Pool === 'undefined') {
     this.laneCount = Number.isInteger(poolData.laneCount) && poolData.laneCount > 0 ? poolData.laneCount : null;
     this.laneLengthUnits = ['meters', 'yards'].includes(poolData.laneLengthUnits) ? poolData.laneLengthUnits : null;
     this.laneLength = Number.isFinite(poolData.laneLength) && poolData.laneLength > 0 ? poolData.laneLength : null;
-    this.features = Array.isArray(poolData.features) ? [...poolData.features] : [];
+    this.publishedFeatures = Array.isArray(poolData.features) ? [...poolData.features] : [];
+    this.featureOverrides = Array.isArray(poolData.featureOverrides)
+      ? poolData.featureOverrides.map(override => ({
+        ...override,
+        evidence: override.evidence ? { ...override.evidence } : null
+      }))
+      : [];
+    this.features = this._resolveFeatures();
     this.scheduleOverrides = Array.isArray(poolData.scheduleOverrides) ? [...poolData.scheduleOverrides] : [];
     this.schedulePeriods = Array.isArray(poolData.schedules) ? [...poolData.schedules] : [];
     this.periodSchedule = new PoolPeriodScheduleService({
@@ -36,6 +43,23 @@ if (typeof globalThis.Pool === 'undefined') {
       getTimeUtils: () => this._getTimeUtils(),
       getPoolStatus: () => this._getPoolStatus()
     });
+  }
+
+  /**
+   * Apply annotated annual-data corrections without changing the published feature baseline.
+   * @private
+   * @returns {string[]} Effective feature labels in stable display order
+   */
+  _resolveFeatures() {
+    const effectiveFeatures = new Set(this.publishedFeatures);
+    this.featureOverrides.forEach((override) => {
+      if (override.action === 'remove') {
+        effectiveFeatures.delete(override.feature);
+      } else if (override.action === 'add') {
+        effectiveFeatures.add(override.feature);
+      }
+    });
+    return [...effectiveFeatures];
   }
 
   /**

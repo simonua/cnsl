@@ -348,7 +348,7 @@ function describeReviewScope(change, season) {
   const targets = (change.sourceIds || []).map((sourceId) => {
     const [type, identifier, role] = sourceId.split(':');
     if (type === 'pool' && role === 'facility') {
-      return `pools[id="${identifier}"].{name,address,phone,features,caUrl}`;
+      return `pools[id="${identifier}"].{name,address,phone,features,featureOverrides,caUrl}`;
     }
     if (type === 'pool' && role === 'schedule') {
       return `pools[id="${identifier}"].{scheduleUrl,schedules}`;

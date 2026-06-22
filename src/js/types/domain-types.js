@@ -38,6 +38,22 @@
  */
 
 /**
+ * @typedef {Object} PoolFeatureOverrideEvidence
+ * @property {'maintainer'|'official-source'} type
+ * @property {string} [observedOn]
+ * @property {string} officialSourceCheckedOn
+ * @property {string} [sourceUrl]
+ * @property {string} note
+ */
+
+/**
+ * @typedef {Object} PoolFeatureOverride
+ * @property {string} feature
+ * @property {'add'|'remove'} action
+ * @property {PoolFeatureOverrideEvidence} evidence
+ */
+
+/**
  * @typedef {Object} PoolRecord
  * @property {string} [id]
  * @property {string} name
@@ -49,6 +65,7 @@
  * @property {'meters'|'yards'|null} laneLengthUnits
  * @property {number|null} laneLength
  * @property {string[]} features
+ * @property {PoolFeatureOverride[]} [featureOverrides]
  * @property {PoolScheduleRecord[]} schedules
  * @property {PoolScheduleRecord[]} [scheduleOverrides]
  */

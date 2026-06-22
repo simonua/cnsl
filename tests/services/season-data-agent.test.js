@@ -255,6 +255,10 @@ describe('season data agent', () => {
         describeReviewScope({ domains: ['meets', 'teams'], sourceIds: ['league:publication'] }, 2026),
         /meets\/meets\.json, src\/assets\/data\/2026\/teams\/teams\.json/
       );
+      assert.strictEqual(
+        describeReviewScope({ domains: ['pools'], sourceIds: ['pool:lpp:facility'] }, 2026),
+        'src/assets/data/2026/pools/pools.json: pools[id="lpp"].{name,address,phone,features,featureOverrides,caUrl}'
+      );
     });
   });
 

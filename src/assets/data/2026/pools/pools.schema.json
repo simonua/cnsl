@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://example.com/pools.schema.json",
-    "version": "V16",
+    "version": "V17",
     "title": "Pool Data Schema",
     "description": "Schema for pool data containing schedules, features, and location information",
     "type": "object",
@@ -64,7 +64,15 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/FeatureType"
-                    }
+                    },
+                    "uniqueItems": true
+                },
+                "featureOverrides": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FeatureOverride"
+                    },
+                    "uniqueItems": true
                 },
                 "laneCount": {
                     "type": "integer",
@@ -486,6 +494,90 @@
                 "wifi",
                 "yoga"
             ]
+        },
+        "FeatureOverride": {
+            "type": "object",
+            "properties": {
+                "feature": {
+                    "$ref": "#/definitions/FeatureType"
+                },
+                "action": {
+                    "enum": [
+                        "add",
+                        "remove"
+                    ]
+                },
+                "evidence": {
+                    "$ref": "#/definitions/FeatureOverrideEvidence"
+                }
+            },
+            "required": [
+                "feature",
+                "action",
+                "evidence"
+            ],
+            "additionalProperties": false
+        },
+        "FeatureOverrideEvidence": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "enum": [
+                        "maintainer",
+                        "official-source"
+                    ]
+                },
+                "observedOn": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "officialSourceCheckedOn": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "sourceUrl": {
+                    "$ref": "#/definitions/HttpsUrl"
+                },
+                "note": {
+                    "$ref": "#/definitions/NonEmptyString"
+                }
+            },
+            "required": [
+                "type",
+                "officialSourceCheckedOn",
+                "note"
+            ],
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "maintainer"
+                            }
+                        }
+                    },
+                    "then": {
+                        "required": [
+                            "observedOn"
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "official-source"
+                            }
+                        }
+                    },
+                    "then": {
+                        "required": [
+                            "sourceUrl"
+                        ]
+                    }
+                }
+            ],
+            "additionalProperties": false
         },
         "WeekDayType": {
             "type": "string",
