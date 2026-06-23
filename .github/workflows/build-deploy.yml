@@ -20,6 +20,7 @@ on:
       - 'scripts/adapters/app-config.js'
       - 'scripts/adapters/weather-alert-service.js'
       - 'scripts/lib/classic-script-loader.js'
+      - 'scripts/lib/page-build-coordinator.js'
       - 'scripts/lib/pwa-resource-policy.js'
       - 'scripts/validate-browser-javascript.js'
       - 'scripts/verify-pwa-build.js'

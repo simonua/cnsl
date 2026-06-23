@@ -14,6 +14,7 @@ describe('deployment workflow', () => {
       'package.json',
       'pnpm-lock.yaml',
       'pnpm-workspace.yaml',
+      'scripts/lib/page-build-coordinator.js',
       'scripts/lib/pwa-resource-policy.js'
     ].forEach(policyFile => {
       const escapedPolicyFile = policyFile.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

@@ -4,16 +4,14 @@ Review date: 2026-06-23
 
 ## Audit Scope And Validation
 
-This local audit reviewed delivered browser JavaScript, PostHTML build sequencing, automation scripts, views and shared script order, the single stylesheet, unit and browser test organization, declared dependencies, service-worker and generated cache policy, Node adapters, GitHub Actions path ownership, documentation, active configuration, and recent repository history. It did not modify application code, generated output, workflows, dependencies, or annual data.
+This local audit reviewed delivered browser JavaScript, PostHTML build sequencing, automation scripts, views and shared script order, the single stylesheet, unit and browser test organization, declared dependencies, service-worker and generated cache policy, Node adapters, GitHub Actions path ownership, documentation, active configuration, and recent repository history.
 
 Validation was static and read-only except for this plan update:
 
 - Ranked delivered JavaScript, automation, CSS, views, and tests by size, then compared the largest files with recent 120-commit churn and their existing service boundaries.
 - Searched definitions and consumers across runtime scripts, views, lazy script lists, adapters, test manifests, tests, configuration, documentation, build validation, and PWA policy before classifying retirement candidates.
 - Reviewed the current recorded `desktop` and `mobile-slow` performance evidence in `docs/release-checklist.md`. The existing local generated inventory was read without rebuilding and contained 74 install-critical resources totaling 1,261,131 bytes; this corroborates the recorded warning but is not a fresh source-comparable performance run.
-- Exercised the current 14-page PostHTML transform in memory without writing files. All current pages completed before the existing aggregate callback, but a delayed-transform probe demonstrated that the aggregate does not own asynchronous completion because its mapped values are `undefined`.
 - Reviewed relevant `git log` and `git blame` history to avoid reopening recently completed refactors or treating documented migration windows as dead compatibility.
-- Did not run application tests, build, PWA verification, browser automation, or fresh performance profiles because this audit changes documentation only and must not regenerate `out/`.
 
 No demonstrated accessibility barrier, data-integrity defect, active security exposure, or current release failure supports a `RED - High` item. The Cloudflare inline-script CSP exception, attention banner, and two storage migrations remain documented current contracts.
 
@@ -24,8 +22,7 @@ Render every priority matrix with a `Key` column immediately to the left of `Pri
 | Key | Priority | Actionable Finding | Impact | Effort |
 | --- | --- | --- | --- | --- |
 | <!-- No key --> | 🔴 **High** | None | No demonstrated accessibility, data-integrity, security, release, or material runtime defect | None |
-| M1 | 🟠 **Medium** | Make PostHTML page completion an owned promise contract | Prevents future asynchronous transforms or failures from finalizing PWA artifacts and the development reload marker too early | Low to medium |
-| M2 | 🟠 **Medium** | Attribute and reduce the measured Meets cold-route CPU and delivery cost | Improves useful schedule readiness on slower CPUs while preserving progressive details and request deduplication | Medium |
+| M1 | 🟠 **Medium** | Attribute and reduce the measured Meets cold-route CPU and delivery cost | Improves useful schedule readiness on slower CPUs while preserving progressive details and request deduplication | Medium |
 | L1 | 🟢 **Low** | Consolidate season-neutral watcher configuration and its CI ownership | Removes unused watcher variants and avoids stale active-season rebuild behavior during rollover | Low |
 | L2 | 🟢 **Low** | Retire obsolete browser-global lint registrations | Restores `no-undef` protection for seven names with no current definition or consumer | Low |
 
@@ -35,32 +32,7 @@ No high-priority item is supported by current repository evidence. Promote an it
 
 ## Medium Priority
 
-### 1. Make PostHTML Page Completion An Owned Promise Contract
-
-**Finding:** `posthtml.js` creates `pageBuilds` with `files.map`, but the callback does not return the `.process(...).then(...).catch(...)` promise. `Promise.all(pageBuilds)` therefore receives only `undefined` values and cannot guarantee that page writes succeeded before PWA inventory generation, the development build marker, or the success log. Current synchronous behavior happens to settle in time, but the contract fails as soon as a transform is delayed and does not route page rejection through the aggregate catch.
-
-**Repository evidence:**
-
-- `posthtml.js:367-388` starts each page transform without returning it; `posthtml.js:390-397` treats the resulting array as completion ownership and then writes PWA artifacts and the development marker.
-- `browser-sync.config.js:4-7` explicitly relies on the marker being written only after complete output is ready.
-- The in-memory current-pipeline probe completed all 14 current pages before the aggregate callback, so no current artifact corruption was asserted. A delayed PostHTML transform produced `pwa-write` before `page-write`, proving that the aggregate itself provides no ordering guarantee.
-- Repository searches found service-worker tests and artifact validation, but no focused test that delays or rejects one page transform and asserts finalization order.
-
-**Scoped plan:**
-
-1. Return each PostHTML processing promise from the `files.map` callback and let one aggregate owner handle success and failure.
-2. Finalize PWA artifacts, write the development marker, and print success only after every rendered page has been written.
-3. On any page failure, preserve the nonzero exit, do not publish a completion marker, and do not report a successful complete build.
-4. Add the smallest testable boundary needed to inject a delayed and a rejected page transform; do not introduce a second build pipeline or generic task framework.
-
-**Acceptance checks:**
-
-- A delayed page transform demonstrably blocks PWA finalization, marker creation, and the success log until its page write completes.
-- A rejected page transform produces a nonzero result and no completion marker or success message.
-- Searches show no unobserved page-processing promise or duplicate finalization path remains.
-- Run the exact new build-sequencing unit test, `pnpm run lint`, `pnpm run build`, and `pnpm run verify:pwa`.
-
-### 2. Attribute And Reduce The Measured Meets Cold-Route Cost
+### 1. Attribute And Reduce The Measured Meets Cold-Route Cost
 
 **Finding:** The latest comparable Meets baseline is healthy on desktop but exceeds the route's advisory usable, request, and decoded-byte budgets on the slower-CPU profile. The delay is concentrated before and during primary-data readiness rather than in optional detail hydration, and the three-run spread is wide enough to require attribution before choosing an optimization.
 
@@ -139,10 +111,9 @@ No high-priority item is supported by current repository evidence. Promote an it
 
 | Phase | Work | Prerequisites | Exit Evidence |
 | --- | --- | --- | --- |
-| 1. Build ownership | Complete Medium item 1 | None | Delayed and rejected page transforms prove finalization order; build and PWA verification pass |
-| 2. Measured route work | Complete Medium item 2 | Stable build sequencing and comparable local environment | Before/after three-run route evidence shows lower attributed cost with preserved request, accessibility, and offline contracts |
-| 3. Development configuration | Complete Low item 3 | No active season-data edit in progress | One season-neutral watcher, direct CI path ownership, focused tests, and smoke evidence |
-| 4. Registration cleanup | Complete Low item 4 | None; may run independently | Retired-name searches are clean and lint passes |
+| 1. Measured route work | Complete M1 | Comparable local environment | Before/after three-run route evidence shows lower attributed cost with preserved request, accessibility, and offline contracts |
+| 2. Development configuration | Complete L1 | No active season-data edit in progress | One season-neutral watcher, direct CI path ownership, focused tests, and smoke evidence |
+| 3. Registration cleanup | Complete L2 | None; may run independently | Retired-name searches are clean and lint passes |
 
 ## Monitored Boundaries
 
@@ -168,5 +139,5 @@ These are current migration contracts with future review conditions, not active 
 ## Priority Summary
 
 - **High:** No actionable item is supported by current evidence.
-- **Medium:** Own PostHTML page completion before finalization; attribute and reduce the measured slower-CPU Meets cold-route cost.
+- **Medium:** Attribute and reduce the measured slower-CPU Meets cold-route cost.
 - **Low:** Consolidate season-neutral watcher and CI ownership; remove seven obsolete browser-global lint registrations.

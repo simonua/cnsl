@@ -5,6 +5,7 @@ const { copyBrowserJavaScript } = require('./scripts/validate-browser-javascript
 const appConfig = require('./scripts/adapters/app-config.js');
 const WeatherAlertService = require('./scripts/adapters/weather-alert-service.js');
 const { DEVELOPMENT_BUILD_MARKER } = require('./scripts/lib/development-server.js');
+const { coordinatePageBuilds } = require('./scripts/lib/page-build-coordinator.js');
 const { CACHE_ON_USE_SCRIPT_RESOURCES, INSTALL_CRITICAL_PAGES } = require('./scripts/lib/pwa-resource-policy.js');
 const annualDataSourceDir = './src/assets/data';
 const activeSeason = String(appConfig.YEAR);
@@ -364,13 +365,13 @@ const files = fs.readdirSync(srcDir)
 // Process each file
 const totalFiles = files.length;
 
-const pageBuilds = files.map(file => {
+coordinatePageBuilds(files, file => {
   const srcPath = path.join(srcDir, file);
   const outPath = path.join(outDir, file);
 
   const html = fs.readFileSync(srcPath, 'utf8');
 
-  posthtml()
+  return posthtml()
     .use(extend)
     .use(includePlugin)
     .use(expressions)
@@ -385,14 +386,10 @@ const pageBuilds = files.map(file => {
       console.error(`❌ [${timestamp()}] Error processing ${file}:`, error);
       throw error;
     });
-});
-
-Promise.all(pageBuilds)
-  .then(() => {
+}, () => {
     writePwaArtifacts();
     writeDevelopmentBuildMarker();
     console.log(`✅ [${timestamp()}] Build completed! Processed ${totalFiles} HTML files.`);
-  })
-  .catch(() => {
-    process.exitCode = 1;
-  });
+}, () => {
+  process.exitCode = 1;
+});
