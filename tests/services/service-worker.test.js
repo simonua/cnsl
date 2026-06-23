@@ -3,7 +3,14 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const { APP_VERSION, DEPLOYMENT_VERSION_FILE, LOCAL_DEVELOPMENT_HOSTNAMES, LOCAL_DEVELOPMENT_PORT, PWA_CACHE_PREFIX } = require('../../scripts/adapters/app-config.js');
+const {
+  APP_VERSION,
+  DEPLOYMENT_VERSION_FILE,
+  LOCAL_DEVELOPMENT_HOSTNAMES,
+  LOCAL_DEVELOPMENT_PORT,
+  PWA_CACHE_PREFIX,
+  SERVICE_WORKER_MESSAGE_TYPES
+} = require('../../scripts/adapters/app-config.js');
 
 const workerSourcePath = path.join(__dirname, '..', '..', 'service-worker.js');
 const workerSource = fs.readFileSync(workerSourcePath, 'utf8');
@@ -71,6 +78,7 @@ function createWorkerHarness(precacheResources, options = {}) {
     LOCAL_DEVELOPMENT_HOSTNAMES,
     LOCAL_DEVELOPMENT_PORT,
     PWA_CACHE_PREFIX,
+    SERVICE_WORKER_MESSAGE_TYPES,
     APP_VERSION,
     DEPLOYMENT_VERSION_FILE,
     self: scope,
@@ -314,7 +322,7 @@ describe('service worker cache strategy', () => {
 
     assert.deepEqual(harness.deletedCaches, [`${PWA_CACHE_PREFIX}old`]);
     assert.equal(harness.clientMessages.length, 1);
-    assert.equal(harness.clientMessages[0].type, 'SW_UPDATED');
+    assert.equal(harness.clientMessages[0].type, SERVICE_WORKER_MESSAGE_TYPES.UPDATED);
     assert.equal(harness.clientMessages[0].version, APP_VERSION);
   });
 
@@ -323,12 +331,12 @@ describe('service worker cache strategy', () => {
     const messages = [];
 
     await harness.dispatch('message', {
-      data: { type: 'GET_APP_VERSION' },
+      data: { type: SERVICE_WORKER_MESSAGE_TYPES.VERSION_REQUEST },
       source: { postMessage: message => messages.push(message) }
     });
 
     assert.equal(messages.length, 1);
-    assert.equal(messages[0].type, 'APP_VERSION');
+    assert.equal(messages[0].type, SERVICE_WORKER_MESSAGE_TYPES.VERSION_RESPONSE);
     assert.equal(messages[0].version, APP_VERSION);
   });
 
@@ -392,7 +400,7 @@ describe('service worker cache strategy', () => {
     assert.equal(unavailable.status, 503);
   });
 
-  it('should cache basic static network responses and accept skip-waiting messages', async () => {
+  it('should cache basic static network responses', async () => {
     const harness = createWorkerHarness(coreResources);
     harness.setFetchImplementation(async request => {
       const response = new Response(`network:${request.url}`, { status: 200 });
@@ -401,7 +409,5 @@ describe('service worker cache strategy', () => {
     });
     const response = await harness.dispatch('fetch', { method: 'GET', mode: 'cors', url: 'https://pools.longreachmarlins.org/new-resource.js' });
     assert.match(await response.text(), /new-resource\.js/);
-    await harness.dispatch('message', { data: { type: 'SKIP_WAITING' } });
-    assert.equal(harness.getSkipWaitingCalls(), 1);
   });
 });

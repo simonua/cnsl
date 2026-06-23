@@ -168,7 +168,8 @@
   }
 
   navigator.serviceWorker.addEventListener('message', event => {
-    if (event.data?.type === 'APP_VERSION' || event.data?.type === 'SW_UPDATED') {
+    if (event.data?.type === window.SERVICE_WORKER_MESSAGE_TYPES.VERSION_RESPONSE
+        || event.data?.type === window.SERVICE_WORKER_MESSAGE_TYPES.UPDATED) {
       updateDisplayedAppVersion(event.data.version);
     }
   });
@@ -193,7 +194,7 @@
 
   registerServiceWorker(currentBuildVersion)
     .then(registration => {
-      registration.active?.postMessage({ type: 'GET_APP_VERSION' });
+      registration.active?.postMessage({ type: window.SERVICE_WORKER_MESSAGE_TYPES.VERSION_REQUEST });
       return checkForDeploymentUpdate();
     })
     .catch(error => console.error('Service Worker registration failed:', error));

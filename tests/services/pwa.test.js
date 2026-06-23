@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const { SERVICE_WORKER_MESSAGE_TYPES } = require('../../scripts/adapters/app-config.js');
 
 const pwaSourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'pwa.js');
 const pwaSource = fs.readFileSync(pwaSourcePath, 'utf8');
@@ -26,6 +27,7 @@ function createWindow(location = {}) {
     PWA_CACHE_PREFIX: 'cnsl-static-',
     SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY: 'cnsl_service_worker_update_checked_at',
     SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY: 'cnsl_service_worker_upgrade_from_version',
+    SERVICE_WORKER_MESSAGE_TYPES,
     APP_VERSION: '2.13.1',
     location: {
       href: 'https://pools.longreachmarlins.org/index.html',
@@ -79,7 +81,7 @@ describe('PWA update startup', () => {
     assert.equal(fetchCalls[0].url, 'https://pools.longreachmarlins.org/version.txt');
     assert.equal(fetchCalls[0].options.cache, 'no-store');
     assert.equal(workerMessages.length, 1);
-    assert.equal(workerMessages[0].type, 'GET_APP_VERSION');
+    assert.equal(workerMessages[0].type, SERVICE_WORKER_MESSAGE_TYPES.VERSION_REQUEST);
   });
 
   it('should limit update checks to once per minute across page navigation', async () => {
@@ -375,7 +377,7 @@ describe('PWA update startup', () => {
       window: createWindow()
     });
     await new Promise(resolve => setImmediate(resolve));
-    messageListener({ data: { type: 'APP_VERSION', version: '2.13.0' } });
+    messageListener({ data: { type: SERVICE_WORKER_MESSAGE_TYPES.VERSION_RESPONSE, version: '2.13.0' } });
 
     assert.equal(versionLink.textContent, '2.13.1');
     assert.equal(attributes.get('href'), 'whats-new.html');
@@ -405,7 +407,7 @@ describe('PWA update startup', () => {
       window: createWindow()
     });
     await new Promise(resolve => setImmediate(resolve));
-    messageListener({ data: { type: 'APP_VERSION', version: 'javascript:alert(1)' } });
+    messageListener({ data: { type: SERVICE_WORKER_MESSAGE_TYPES.VERSION_RESPONSE, version: 'javascript:alert(1)' } });
 
     assert.equal(versionLink.textContent, '2.13.1');
     assert.equal(attributeUpdates, 0);
@@ -549,7 +551,7 @@ describe('PWA update startup', () => {
       window: createWindow()
     });
     await new Promise(resolve => setImmediate(resolve));
-    messageListener({ data: { type: 'SW_UPDATED', version: '2.13.1' } });
+    messageListener({ data: { type: SERVICE_WORKER_MESSAGE_TYPES.UPDATED, version: '2.13.1' } });
     messageListener({ data: { type: 'OTHER', version: '2.13.1' } });
 
     assert.equal(versionLink.textContent, '2.13.1');
@@ -571,6 +573,8 @@ describe('PWA update startup', () => {
     runPwa({ console, document: { getElementById: () => null }, navigator, window: createWindow() });
     await new Promise(resolve => setImmediate(resolve));
 
-    messageListeners.forEach(listener => listener({ data: { type: 'APP_VERSION', version: '2.13.1' } }));
+    messageListeners.forEach(listener => listener({
+      data: { type: SERVICE_WORKER_MESSAGE_TYPES.VERSION_RESPONSE, version: '2.13.1' }
+    }));
   });
 });

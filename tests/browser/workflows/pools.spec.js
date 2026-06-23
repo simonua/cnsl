@@ -286,7 +286,7 @@ test('[WF-POOLS-002] pool availability filters cover live status and the upcomin
     globalThis.TimeUtils.getCurrentEasternTimeInfo = () => ({
       date: `${globalThis.YEAR}-05-26`, day: 'Tue', minutes: 15 * 60, isValid: true
     });
-    globalThis.dispatchEvent(new globalThis.Event('cnsl:preferences-changed'));
+    globalThis.dispatchEvent(new globalThis.Event(globalThis.PREFERENCES_CHANGED_EVENT_NAME));
   });
   await page.locator('#togglePoolFeatureFilters').click();
   await expect(page.getByLabel('When pools are open for general use')).toBeVisible();

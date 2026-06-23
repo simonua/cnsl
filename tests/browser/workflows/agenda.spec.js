@@ -315,7 +315,7 @@ test('[WF-AGENDA-008] dedicated My Meet Day route loads only after the experimen
 
   await page.evaluate(teamId => {
     globalThis.PreferencesService.save({ experimentalFeatures: ['my-meet-day'], favoriteTeamId: teamId });
-    globalThis.dispatchEvent(new globalThis.CustomEvent('cnsl:preferences-changed'));
+    globalThis.dispatchEvent(new globalThis.CustomEvent(globalThis.PREFERENCES_CHANGED_EVENT_NAME));
   }, MEET_DAY_TEAM.id);
 
   await dependencyRequests.lastDependencyRequested;
@@ -343,7 +343,7 @@ test('[WF-AGENDA-008] dedicated My Meet Day route loads only after the experimen
 
   await page.evaluate(() => {
     globalThis.PreferencesService.save({ experimentalFeatures: ['my-meet-day'], favoriteTeamId: '' });
-    globalThis.dispatchEvent(new globalThis.CustomEvent('cnsl:preferences-changed'));
+    globalThis.dispatchEvent(new globalThis.CustomEvent(globalThis.PREFERENCES_CHANGED_EVENT_NAME));
   });
   await expect(page.locator('#myMeetDay')).toBeHidden();
   await expect(page.locator('#myMeetDayNoFavorite')).toBeVisible();
@@ -534,7 +534,7 @@ test('[WF-AGENDA-004] home page loads agenda dependencies only after a favorite 
 
   await page.evaluate(teamId => {
     globalThis.PreferencesService.save({ favoriteTeamId: teamId });
-    globalThis.dispatchEvent(new globalThis.CustomEvent('cnsl:preferences-changed'));
+    globalThis.dispatchEvent(new globalThis.CustomEvent(globalThis.PREFERENCES_CHANGED_EVENT_NAME));
   }, AGENDA_TEAM.id);
 
   await dependencyRequests.lastDependencyRequested;
@@ -562,7 +562,7 @@ test('[WF-AGENDA-005] changing to an unavailable favorite does not display the p
 
   await page.evaluate(() => {
     localStorage.setItem('cnsl_preferences', JSON.stringify({ favoriteTeamId: 'former-team' }));
-    globalThis.dispatchEvent(new globalThis.Event('cnsl:preferences-changed'));
+    globalThis.dispatchEvent(new globalThis.Event(globalThis.PREFERENCES_CHANGED_EVENT_NAME));
   });
 
   await expect(page.locator('#favoriteWeek')).toBeVisible();

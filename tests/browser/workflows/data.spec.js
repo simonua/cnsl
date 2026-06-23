@@ -155,7 +155,7 @@ test('[WF-DATA-007] footer keeps the last weather update current while weather c
   await page.evaluate(() => {
     const preferences = globalThis.PreferencesService.get();
     globalThis.PreferencesService.save({ ...preferences, weatherRefreshMinutes: 0 });
-    globalThis.dispatchEvent(new CustomEvent('cnsl:preferences-changed'));
+    globalThis.dispatchEvent(new CustomEvent(globalThis.PREFERENCES_CHANGED_EVENT_NAME));
   });
   await expect(weatherFreshness).toBeHidden();
   await expect(weatherFreshness).toHaveAttribute('aria-hidden', 'true');
@@ -165,7 +165,7 @@ test('[WF-DATA-007] footer keeps the last weather update current while weather c
     localStorage.removeItem('cnsl_weather_alert_last_successful_check');
     const preferences = globalThis.PreferencesService.get();
     globalThis.PreferencesService.save({ ...preferences, weatherRefreshMinutes: 5 });
-    globalThis.dispatchEvent(new CustomEvent('cnsl:preferences-changed'));
+    globalThis.dispatchEvent(new CustomEvent(globalThis.PREFERENCES_CHANGED_EVENT_NAME));
   });
   await expect(weatherFreshness).toBeHidden();
   await expect(weatherFreshness).toHaveAttribute('aria-hidden', 'true');

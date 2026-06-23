@@ -46,6 +46,10 @@ describe('app-config', () => {
     assert.equal(context.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY, config.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY);
     assert.equal(context.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY, config.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY);
     assert.equal(context.PREFERENCES_CHANGED_EVENT_NAME, config.PREFERENCES_CHANGED_EVENT_NAME);
+    assert.deepEqual(
+      Object.fromEntries(Object.entries(context.SERVICE_WORKER_MESSAGE_TYPES)),
+      config.SERVICE_WORKER_MESSAGE_TYPES
+    );
     assert.equal(context.WEATHER_ALERT_STATUS_CHANGED_EVENT_NAME, config.WEATHER_ALERT_STATUS_CHANGED_EVENT_NAME);
     assert.equal(context.ROUTE_WARMUP_CHANNEL_NAME, config.ROUTE_WARMUP_CHANNEL_NAME);
     assert.equal(context.EXPERIMENTAL_SETTINGS_URL, config.EXPERIMENTAL_SETTINGS_URL);
@@ -79,6 +83,15 @@ describe('app-config', () => {
       READY: 'ready'
     });
     assert.equal(Object.isFrozen(config.ROUTE_WARMUP_READINESS_STATES), true);
+  });
+
+  it('publishes the immutable service-worker message contract', () => {
+    assert.deepEqual(config.SERVICE_WORKER_MESSAGE_TYPES, {
+      UPDATED: 'SW_UPDATED',
+      VERSION_REQUEST: 'GET_APP_VERSION',
+      VERSION_RESPONSE: 'APP_VERSION'
+    });
+    assert.equal(Object.isFrozen(config.SERVICE_WORKER_MESSAGE_TYPES), true);
   });
 
   it('publishes immutable analytics deployment modes', () => {

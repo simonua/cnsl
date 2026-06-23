@@ -120,7 +120,7 @@ self.addEventListener("activate", event => {
       return self.clients.matchAll().then(clients => {
         clients.forEach(client => {
           client.postMessage({
-            type: 'SW_UPDATED',
+            type: globalThis.SERVICE_WORKER_MESSAGE_TYPES.UPDATED,
             version: globalThis.APP_VERSION
           });
         });
@@ -262,12 +262,9 @@ self.addEventListener("fetch", event => {
 
 // Handle messages from clients
 self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
-  if (event.data && event.data.type === 'GET_APP_VERSION' && event.source) {
+  if (event.data && event.data.type === globalThis.SERVICE_WORKER_MESSAGE_TYPES.VERSION_REQUEST && event.source) {
     event.source.postMessage({
-      type: 'APP_VERSION',
+      type: globalThis.SERVICE_WORKER_MESSAGE_TYPES.VERSION_RESPONSE,
       version: globalThis.APP_VERSION
     });
   }
