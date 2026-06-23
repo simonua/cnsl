@@ -104,6 +104,6 @@ Run `\.\start.ps1` from PowerShell for the interactive developer menu. It covers
 
 - ESLint 10+ with flat config (`eslint.config.js`).
 - Three environments: browser JS (`src/js/`), Node build scripts, service worker.
-- App globals (jQuery, DataManager, etc.) are declared in the ESLint config.
+- Intentional classic-script application globals are declared in the ESLint config.
 - A lint failure blocks the GitHub build and must be resolved before deployment.
 - Values exposed by `src/js/config/app-config.js` must be read from `globalThis` or `window` in browser scripts rather than repeated as local literals. Use an intentional bare script global only when it is established by the surrounding module and declared in `eslint.config.js`.

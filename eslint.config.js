@@ -19,7 +19,7 @@ module.exports = [
     },
   },
 
-  // Browser JS (src/js/) — jQuery globals, browser environment
+  // Browser JS (src/js/) — classic-script application globals, browser environment
   {
     files: ['src/js/**/*.js'],
     languageOptions: {
@@ -27,8 +27,6 @@ module.exports = [
       sourceType: 'script',
       globals: {
         ...globals.browser,
-        $: 'readonly',
-        jQuery: 'readonly',
         // App globals loaded via <script> tags
         AnalyticsInteractionType: 'readonly',
         DataManager: 'readonly',
@@ -39,7 +37,6 @@ module.exports = [
         Pool: 'readonly',
         Team: 'readonly',
         Meet: 'readonly',
-        PoolSchedule: 'readonly',
         PoolScheduleDisplay: 'readonly',
         PoolPeriodScheduleService: 'readonly',
         PoolHoursDisplay: 'readonly',
@@ -59,12 +56,9 @@ module.exports = [
         PracticeRangeStatus: 'readonly',
         PoolNames: 'readonly',
         FileHelper: 'readonly',
-        CacheService: 'readonly',
         PreferencesService: 'readonly',
         TimeUtils: 'readonly',
         TeamScheduleService: 'readonly',
-        CNSLSearchEngine: 'readonly',
-        WeatherService: 'readonly',
         WeatherAlertService: 'readonly',
         WeatherAlertDisplay: 'readonly',
         WeatherAlertSource: 'readonly',
@@ -72,7 +66,6 @@ module.exports = [
         generateEnhancedPoolLink: 'readonly',
         getPoolDataFromLocation: 'readonly',
         formatPoolCourseLabel: 'readonly',
-        handleSearch: 'readonly',
         YEAR: 'readonly',
       },
     },

@@ -35,8 +35,8 @@ description: "Use when changing browser JavaScript under src/js, including runti
 
 ## Code Organization
 
-- **Models** (`src/js/models/`): Data classes and domain value objects (e.g., `Pool`, `PoolSchedule`). No DOM access.
-- **Services** (`src/js/services/`): Reusable logic (e.g., `TimeUtils`, `CacheService`). No DOM access.
+- **Models** (`src/js/models/`): Data classes and domain value objects (e.g., `Pool`, `Team`). No DOM access.
+- **Services** (`src/js/services/`): Reusable logic (e.g., `TimeUtils`, `DataManager`). No DOM access.
 - **Types** (`src/js/types/`): Immutable runtime state/constants (e.g., `PoolStatus`), not seasonal source vocabularies.
 - **Config** (`src/js/config/`): Configuration values.
 - **Managers** (`src/js/managers/`): Orchestrators that coordinate services and models (e.g., `PoolsManager`).

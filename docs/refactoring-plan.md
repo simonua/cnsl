@@ -23,7 +23,7 @@ Render every priority matrix with a `Key` column immediately to the left of `Pri
 | --- | --- | --- | --- | --- |
 | <!-- No key --> | 🔴 **High** | None | No demonstrated accessibility, data-integrity, security, release, or material runtime defect | None |
 | <!-- No key --> | 🟠 **Medium** | None | No measured medium-priority refactoring remains open | None |
-| L1 | 🟢 **Low** | Retire obsolete browser-global lint registrations | Restores `no-undef` protection for seven names with no current definition or consumer | Low |
+| <!-- No key --> | 🟢 **Low** | None | No evidence-backed maintenance cleanup remains open | None |
 
 ## High Priority
 
@@ -35,35 +35,7 @@ No medium-priority item is supported by current repository evidence.
 
 ## Low Priority
 
-### 1. Retire Obsolete Browser-Global Lint Registrations
-
-**Finding:** Seven browser globals remain allowlisted even though no maintained runtime definition or consumer exists. These entries are obsolete support surface and can hide accidental references from ESLint's `no-undef` rule.
-
-**Repository evidence:**
-
-- `eslint.config.js:30-31`, `eslint.config.js:42`, `eslint.config.js:62`, `eslint.config.js:66-67`, and `eslint.config.js:75` register `$`, `jQuery`, `PoolSchedule`, `CacheService`, `CNSLSearchEngine`, `WeatherService`, and `handleSearch` as read-only globals.
-- Exact whole-repository searches excluding generated output and dependencies found no maintained runtime definition or consumer for those names; `$(` had no maintained JavaScript consumer.
-- `.github/instructions/build.instructions.md` still describes jQuery as an application global, and `.github/instructions/data.instructions.md` still describes a removed `CacheService` localStorage layer. These are stale guidance to retire with the lint registrations, not current-contract evidence.
-- No matching view script, lazy dependency, adapter, browser-module manifest, test, fixture, current documentation contract, build rule, dependency, or PWA registration was found.
-
-**Scoped plan:**
-
-1. Remove the seven obsolete global declarations and update the inaccurate jQuery environment comment.
-2. Remove the stale jQuery and `CacheService` statements from the scoped instruction files so repository guidance describes the current runtime.
-3. Do not add aliases or compatibility shims; any newly exposed reference must instead identify and load its real semantic owner.
-4. Search the full retirement surface again after removal.
-
-**Acceptance checks:**
-
-- Exact searches return no unexplained references to the seven retired names.
-- ESLint rejects a fixture-owned accidental reference rather than accepting it as a configured global.
-- `pnpm run lint` passes with no replacement allowlist or dependency.
-
-## Phased Roadmap
-
-| Phase | Work | Prerequisites | Exit Evidence |
-| --- | --- | --- | --- |
-| 1. Registration cleanup | Complete L1 | None | Retired-name searches are clean and lint passes |
+No low-priority item is supported by current repository evidence.
 
 ## Monitored Boundaries
 
@@ -90,4 +62,4 @@ These are current migration contracts with future review conditions, not active 
 
 - **High:** No actionable item is supported by current evidence.
 - **Medium:** No actionable item is supported by current evidence.
-- **Low:** Remove seven obsolete browser-global lint registrations.
+- **Low:** No actionable item is supported by current evidence.

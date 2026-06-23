@@ -81,7 +81,6 @@ description: "Use when working with JSON data files, schemas, data loading, sour
 - `FileHelper` resolves the correct base path for dev vs. production.
 - The published active season is selected by the immutable `YEAR` constant in `src/js/config/app-config.js`.
 - `DataManager` coordinates loading across all three data sources.
-- Data is cached in `localStorage` via `CacheService` with expiration.
 
 ## Non-Seasonal Lesson Providers
 
