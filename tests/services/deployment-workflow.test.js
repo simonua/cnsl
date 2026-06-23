@@ -6,6 +6,14 @@ const path = require('node:path');
 const repositoryRoot = path.join(__dirname, '..', '..');
 const workflowPath = path.join(repositoryRoot, '.github', 'workflows', 'build-deploy.yml');
 
+function getDirectLocalModules(sourceFile) {
+  const source = fs.readFileSync(path.join(repositoryRoot, sourceFile), 'utf8');
+  return [...source.matchAll(/require\(['"](\.\/.+?)['"]\)/g)].map(([, modulePath]) => {
+    const normalizedPath = path.posix.normalize(modulePath.replace(/^\.\//, ''));
+    return path.posix.extname(normalizedPath) ? normalizedPath : `${normalizedPath}.js`;
+  });
+}
+
 describe('deployment workflow', () => {
   it('should run for every dependency policy file', () => {
     const workflow = fs.readFileSync(workflowPath, 'utf8');
@@ -14,8 +22,8 @@ describe('deployment workflow', () => {
       'package.json',
       'pnpm-lock.yaml',
       'pnpm-workspace.yaml',
-      'scripts/lib/page-build-coordinator.js',
-      'scripts/lib/pwa-resource-policy.js'
+      ...getDirectLocalModules('posthtml.js'),
+      ...getDirectLocalModules('browser-sync.config.js')
     ].forEach(policyFile => {
       const escapedPolicyFile = policyFile.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       assert.match(workflow, new RegExp(`^      - '${escapedPolicyFile}'$`, 'm'));
