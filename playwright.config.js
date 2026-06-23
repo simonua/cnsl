@@ -5,6 +5,8 @@ const MIN_PLAYWRIGHT_WORKERS = 2;
 const MAX_PLAYWRIGHT_WORKERS = 3;
 const CI_WORKER_COUNTS = new Set(['1', '2']);
 const PROGRESS_REPORTER = require.resolve('./scripts/playwright-progress-reporter.js');
+const PLAYWRIGHT_SERVER_PORT = Number(process.env.CNSL_PLAYWRIGHT_PORT || 4173);
+const PLAYWRIGHT_SERVER_URL = `http://127.0.0.1:${PLAYWRIGHT_SERVER_PORT}`;
 
 function getPlaywrightWorkerCount() {
   const requestedWorkerCount = process.env.CNSL_PLAYWRIGHT_WORKERS;
@@ -36,7 +38,7 @@ module.exports = defineConfig({
     timeout: 10000
   },
   use: {
-    baseURL: 'http://127.0.0.1:4173',
+    baseURL: PLAYWRIGHT_SERVER_URL,
     reducedMotion: 'reduce',
     serviceWorkers: 'block',
     trace: 'retain-on-failure'
@@ -48,8 +50,8 @@ module.exports = defineConfig({
     }
   ],
   webServer: {
-    command: 'pnpm exec http-server ./out -p 4173 -c-1',
-    url: 'http://127.0.0.1:4173/index.html',
+    command: `pnpm exec http-server ./out -p ${PLAYWRIGHT_SERVER_PORT} -c-1`,
+    url: `${PLAYWRIGHT_SERVER_URL}/index.html`,
     reuseExistingServer: !process.env.CI,
     stdout: 'ignore',
     stderr: 'pipe'

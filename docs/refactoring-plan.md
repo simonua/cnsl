@@ -22,7 +22,7 @@ Render every priority matrix with a `Key` column immediately to the left of `Pri
 | Key | Priority | Actionable Finding | Impact | Effort |
 | --- | --- | --- | --- | --- |
 | <!-- No key --> | 🔴 **High** | None | No demonstrated accessibility, data-integrity, security, release, or material runtime defect | None |
-| M1 | 🟠 **Medium** | Attribute and reduce the measured Meets cold-route CPU and delivery cost | Improves useful schedule readiness on slower CPUs while preserving progressive details and request deduplication | Medium |
+| <!-- No key --> | 🟠 **Medium** | None | No measured medium-priority refactoring remains open | None |
 | L1 | 🟢 **Low** | Consolidate season-neutral watcher configuration and its CI ownership | Removes unused watcher variants and avoids stale active-season rebuild behavior during rollover | Low |
 | L2 | 🟢 **Low** | Retire obsolete browser-global lint registrations | Restores `no-undef` protection for seven names with no current definition or consumer | Low |
 
@@ -32,33 +32,11 @@ No high-priority item is supported by current repository evidence. Promote an it
 
 ## Medium Priority
 
-### 1. Attribute And Reduce The Measured Meets Cold-Route Cost
-
-**Finding:** The latest comparable Meets baseline is healthy on desktop but exceeds the route's advisory usable, request, and decoded-byte budgets on the slower-CPU profile. The delay is concentrated before and during primary-data readiness rather than in optional detail hydration, and the three-run spread is wide enough to require attribution before choosing an optimization.
-
-**Repository evidence:**
-
-- `docs/release-checklist.md:127-130` records three desktop runs at 448 / 452 / 465 ms usable with a 76 ms long-task median, versus three `mobile-slow` runs at 1,165 / 2,220 / 2,588 ms usable, 1,004 / 1,457 / 2,403 ms primary-data-ready, and an 840 ms long-task median. Both profiles used 49 requests, 877,619 decoded bytes, and one request per annual domain.
-- `scripts/measure-performance.js:26-40` defines the ordered Meets phases and advisory budgets of 1,800 ms usable, 45 requests, and 800,000 decoded bytes; `scripts/measure-performance.js:407-420` reports those overruns as warnings rather than weakening or blocking the gate.
-- `src/views/meets.html:50-61` keeps only summary dependencies on the initial route path.
-- `src/js/meets-browser.js:11-18`, `src/js/meets-browser.js:327-338`, and `src/js/meets-browser.js:430-489` load enrichment separately, keep collapsed detail DOM empty, and hydrate only requested or initially expanded dates. Eager hidden-detail rendering and duplicate annual fetches are therefore rejected as causes.
-
-**Scoped plan:**
-
-1. Capture comparable three-run `desktop` and `mobile-slow` traces on one unchanged machine and working-tree state; add the unthrottled `mobile` profile only if viewport and CPU effects need separation.
-2. Attribute the long task and pre-`primary-data-ready` time among shared script parsing/evaluation, dependency/data delay, meet model construction, sorting/grouping, summary DOM work, and paint.
-3. Optimize only the demonstrated dominant owner. Prefer removing or deferring unnecessary work over adding caches, indexes, document splitting, virtualization, or a bundler.
-4. Preserve one shared fetch per annual domain, build-version propagation, empty collapsed details, interaction-driven hydration, deep links, favorites, focus and scroll stability, accessible loading/failure states, and offline behavior.
-
-**Acceptance checks:**
-
-- Record minimum / median / maximum usable, primary-data-ready, summary-visible, and optional-enrichment-settled times for three comparable runs per required profile, plus FCP, DOM readiness, long-task time, requests, decoded/transferred bytes, annual-domain request maxima, and installed first/repeat navigation.
-- Demonstrate a material reduction in the attributed median and spread without increasing the 49-request baseline, exceeding one request per annual domain, or moving optional detail work onto the summary-critical path.
-- Run the exact affected unit tests, `pnpm run lint`, `pnpm run build`, affected Meets workflow and accessibility IDs through `scripts/run-playwright.js`, `pnpm run verify:pwa`, and the comparable performance profiles.
+No medium-priority item is supported by current repository evidence.
 
 ## Low Priority
 
-### 3. Consolidate Season-Neutral Watcher Configuration And CI Ownership
+### 1. Consolidate Season-Neutral Watcher Configuration And CI Ownership
 
 **Finding:** The canonical watcher and two unreferenced package-script variants repeat active-year paths. All three currently hard-code `2026`, while the application and build derive the active season from `app-config.js`. A future `YEAR` activation can therefore leave local active-season edits unwatched. The helper imported directly by both PostHTML and BrowserSync is also absent from the build workflow's path filter.
 
@@ -83,7 +61,7 @@ No high-priority item is supported by current repository evidence. Promote an it
 - A workflow-boundary test covers every direct local module imported by `posthtml.js` and `browser-sync.config.js`, including `scripts/lib/development-server.js`.
 - Run the exact nodemon and workflow tests, `pnpm run lint`, and one local watcher smoke check without modifying `src/assets/data/`.
 
-### 4. Retire Obsolete Browser-Global Lint Registrations
+### 2. Retire Obsolete Browser-Global Lint Registrations
 
 **Finding:** Seven browser globals remain allowlisted even though no maintained runtime definition or consumer exists. These entries are obsolete support surface and can hide accidental references from ESLint's `no-undef` rule.
 
@@ -111,9 +89,8 @@ No high-priority item is supported by current repository evidence. Promote an it
 
 | Phase | Work | Prerequisites | Exit Evidence |
 | --- | --- | --- | --- |
-| 1. Measured route work | Complete M1 | Comparable local environment | Before/after three-run route evidence shows lower attributed cost with preserved request, accessibility, and offline contracts |
-| 2. Development configuration | Complete L1 | No active season-data edit in progress | One season-neutral watcher, direct CI path ownership, focused tests, and smoke evidence |
-| 3. Registration cleanup | Complete L2 | None; may run independently | Retired-name searches are clean and lint passes |
+| 1. Development configuration | Complete L1 | No active season-data edit in progress | One season-neutral watcher, direct CI path ownership, focused tests, and smoke evidence |
+| 2. Registration cleanup | Complete L2 | None; may run independently | Retired-name searches are clean and lint passes |
 
 ## Monitored Boundaries
 
@@ -139,5 +116,5 @@ These are current migration contracts with future review conditions, not active 
 ## Priority Summary
 
 - **High:** No actionable item is supported by current evidence.
-- **Medium:** Attribute and reduce the measured slower-CPU Meets cold-route cost.
+- **Medium:** No actionable item is supported by current evidence.
 - **Low:** Consolidate season-neutral watcher and CI ownership; remove seven obsolete browser-global lint registrations.

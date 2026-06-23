@@ -50,9 +50,11 @@ test('[WF-SETTINGS-003] home page settings reminder is dismissed permanently by 
 
 test('[WF-SETTINGS-001] settings dialog is evenly inset on mobile and centered on desktop', async ({ page }) => {
   await page.goto('/index.html');
+  await expect(page.locator('script[data-settings-controller]')).toHaveCount(0);
   const pageBoundsBeforeOpen = await page.locator('main').boundingBox();
   await page.getByRole('link', { name: 'Settings' }).first().click();
   await expect(page.locator('#settingsDialog')).toBeVisible();
+  await expect(page.locator('script[data-settings-controller]')).toHaveCount(1);
   const pageBoundsAfterOpen = await page.locator('main').boundingBox();
 
   expect(pageBoundsAfterOpen.x).toBe(pageBoundsBeforeOpen.x);
@@ -63,6 +65,7 @@ test('[WF-SETTINGS-001] settings dialog is evenly inset on mobile and centered o
   await page.goto('/settings.html');
   const dialog = page.locator('#settingsDialog');
   await expect(dialog).toBeVisible();
+  await expect(page.locator('script[data-settings-controller]')).toHaveCount(1);
   let bounds = await dialog.boundingBox();
 
   expect(bounds.x).toBeGreaterThanOrEqual(8);

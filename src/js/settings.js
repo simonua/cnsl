@@ -1,6 +1,11 @@
 (function initializeSettingsDialog() {
   'use strict';
 
+  const controllerSource = document.currentScript && document.currentScript.src
+    ? new URL(document.currentScript.src, document.baseURI)
+    : null;
+  const assetVersion = controllerSource ? controllerSource.searchParams.get('v') : '';
+  let openSettingsDialogRequest = null;
   const dependencyScripts = [
     { source: 'js/services/time-utils.js', ready: () => Boolean(window.TimeUtils) },
     { source: 'js/types/pool-enums.js', ready: () => Boolean(window.PoolStatus) },
@@ -14,6 +19,20 @@
   ];
 
   /**
+   * Applies the Settings controller build version to a dependency URL.
+   * @param {string} source - Relative dependency source
+   * @returns {string} Versioned dependency URL or the unchanged source
+   * @private
+   */
+  function getDependencySource(source) {
+    if (!assetVersion) return source;
+
+    const dependencySource = new URL(source, document.baseURI);
+    dependencySource.searchParams.set('v', assetVersion);
+    return dependencySource.toString();
+  }
+
+  /**
    * Loads one settings dependency unless its global is already ready.
    * @param {Object} dependency - Dependency source and readiness test
    * @returns {Promise<void>} Promise settled after dependency initialization
@@ -23,7 +42,11 @@
     if (dependency.ready()) return Promise.resolve();
 
     return new Promise((resolve, reject) => {
-      const existing = Array.from(document.scripts).find(script => script.getAttribute('src') === dependency.source);
+      const existing = Array.from(document.scripts).find(script => {
+        const scriptSource = script.getAttribute('src');
+        return scriptSource && new URL(scriptSource, document.baseURI).pathname
+          === new URL(dependency.source, document.baseURI).pathname;
+      });
       const script = existing || document.createElement('script');
       /**
        * Resolves after verifying that the loaded dependency initialized.
@@ -45,7 +68,7 @@
       script.addEventListener('load', handleLoad, { once: true });
       script.addEventListener('error', handleError, { once: true });
       if (!existing) {
-        script.src = dependency.source;
+        script.src = getDependencySource(dependency.source);
         document.body.appendChild(script);
       }
     });
@@ -317,7 +340,11 @@
     weatherCheckStatus.replaceChildren(unavailableMessage, 'Most recent successful weather check: ', time, offMessage ? `.${offMessage}` : '');
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  /**
+   * Initializes the Settings form and dialog behavior when its shared markup is available.
+   * @private
+   */
+  function initializeSettingsController() {
     const dialog = document.getElementById('settingsDialog');
     const form = document.getElementById('settingsForm');
     if (!dialog || !form) return;
@@ -477,6 +504,8 @@
       loadExperimentalOptions();
     }
 
+    openSettingsDialogRequest = openSettingsDialog;
+
     form.addEventListener('change', event => {
       const theme = form.querySelector('input[name="theme"]:checked');
       const textSize = form.querySelector('input[name="textSize"]:checked');
@@ -563,14 +592,23 @@
     });
     window.addEventListener('cnsl:weather-alert-status-changed', renderWeatherCheckStatus);
 
-    document.addEventListener('click', event => {
-      const trigger = event.target.closest('a[href="settings.html"], [data-settings-open]');
-      if (!trigger) return;
-      event.preventDefault();
-      openSettingsDialog(trigger);
-    });
-
     const automaticLauncher = document.querySelector('[data-settings-auto-open]');
     if (automaticLauncher) openSettingsDialog(automaticLauncher);
+  }
+
+  globalThis.cnslSettings = Object.freeze({
+    /**
+     * Opens the initialized Settings dialog for a launcher.
+     * @param {Element} trigger - Element that requested the dialog
+     */
+    open(trigger) {
+      if (openSettingsDialogRequest) openSettingsDialogRequest(trigger);
+    }
   });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeSettingsController, { once: true });
+  } else {
+    initializeSettingsController();
+  }
 }());
