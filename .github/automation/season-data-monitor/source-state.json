@@ -1,6 +1,6 @@
 {
   "season": 2026,
-  "acceptedOn": "2026-06-22",
+  "acceptedOn": "2026-06-23",
   "documents": [
     {
       "domain": "pools",
@@ -349,7 +349,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Columbia Association outdoor swim lessons page",
-      "sha256": "63178e7df7f87f43573504c293045e9de74c42bc805b748a2023c10318028816",
+      "sha256": "7da6a42e670cf524a7ad10cae3b18a4a3bcc1d1743c16880f5f87fadae9182ed",
       "sourceIds": [
         "lessons:outdoor-swim-programs"
       ],
@@ -637,7 +637,7 @@
       ],
       "fingerprint": "outdoor-pool-schedules",
       "label": "Columbia Association pool schedule page",
-      "sha256": "2321747a3f17430992330c5843c215268ebbaa15e2e53f4edb8bbbf49810f89b",
+      "sha256": "6476c43ef95f71f1f6943b6b8f2eefcb4976489f361cd92b0276aed8cb281a4e",
       "sourceIds": [
         "pools:outdoor-schedule-index"
       ],
@@ -842,7 +842,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Oakland Mills Tigersharks practice schedule page",
-      "sha256": "2db189d6173738f1687f920503d23af39d008efc9cdbbfbf88ada40ed6a79f93",
+      "sha256": "ae1a0d246b96c2c97a9dbb1636267b9748793fc3db6cb77575f45656c8626d55",
       "sourceIds": [
         "team:omts:practice"
       ],

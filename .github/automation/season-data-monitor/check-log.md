@@ -453,3 +453,29 @@ GitHub Actions run 27946669606 and issue 24 identified candidate `85090cc8811891
 | Visitor-facing records | Unchanged | None; What's New and sitemap were not changed. |
 | Review records | Updated | `OFFICIAL_SOURCE_CHECKED_AT`, active annual README evidence, and this check-log entry; `OFFICIAL_SOURCE_UPDATED_AT` remains unchanged. |
 | Reviewed source baseline | Updated | `source-state.json` refreshed with the accepted June 22 staff-page fingerprint and current retained-PDF metadata. |
+
+## 2026-06-23T04:58:05-04:00 Seasonal Data Review
+
+**Active season:** 2026
+
+**Result:** Complete under the existing explicit maintainer exception for merchandise-store and booster-site availability.
+
+Checked the 139-source inventory:
+
+- `pnpm run check:data-updates` reached all 76 modeled-evidence URLs and reproduced candidate `202eb3699571d646` for the three issue-scoped pages.
+- All 63 uncovered official sources and application-used destinations were requested separately with live GET requests.
+- 136 required sources returned successful responses.
+- The Long Reach and Phelps Luck merchandise stores and the Long Reach booster site were attempted and returned HTTP 403 responses covered by the existing availability exception.
+
+Columbia Association's field-owning Outdoor Swim Lessons page retained all represented locations, weekdays, formats, dates, preparation guidance, weather policy, registration destination, and Personal Swim Training destination. CA's main lessons page independently corroborated the one-week morning and six-week evening formats and linked to the same program pages. The pool schedule index retained all 23 outdoor-pool short links, and each resolved with HTTP 200 to the exact `pools[].scheduleUrl` destination already stored.
+
+The Oakland Mills Tigersharks practice page remained reachable at the modeled URL but published only a 2026 welcome and registration notice, a Google Calendar subscription, and a download label without an actionable schedule link or complete detailed practice table. The current central CNSL practice PDF returned HTTP 200, byte-matched retained evidence, and continued to support the modeled Oakland Mills pool associations while publishing only team-wide preseason and regular time windows. Detailed age-group transcription remains incomplete because no current official source publishes it completely. The field-owning pages and central publisher document do not conflict; no represented value, source destination, normalization, or schema changed. Confidence is High with no residual uncertainty about modeled fields.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Unchanged | None. |
+| Application-used source destinations | Unchanged | None; all 23 pool schedule links and the reviewed lesson and Oakland Mills destinations remain current. |
+| Retained official PDFs | Unchanged | None. |
+| Visitor-facing records | Unchanged | None; What's New and sitemap were not changed. |
+| Review records | Updated | `OFFICIAL_SOURCE_CHECKED_AT`, active annual README evidence, and this check-log entry; `OFFICIAL_SOURCE_UPDATED_AT` remains unchanged. |
+| Reviewed source baseline | Updated | `source-state.json` refreshed with the accepted June 23 candidate fingerprints and current retained-PDF metadata. |

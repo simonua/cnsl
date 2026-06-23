@@ -12,7 +12,7 @@
     teams: `assets/data/${YEAR}/teams/teams.json`
   });
   const APP_TIMEZONE = 'America/New_York';
-  const OFFICIAL_SOURCE_CHECKED_AT = '2026-06-22T06:40:55-04:00';
+  const OFFICIAL_SOURCE_CHECKED_AT = '2026-06-23T04:58:05-04:00';
   const OFFICIAL_SOURCE_UPDATED_AT = '2026-06-21T11:58:31-04:00';
   const HOME_PAGE_HOSTNAME = 'pools.longreachmarlins.org';
   const HOME_PAGE_URL = `https://${HOME_PAGE_HOSTNAME}`;
