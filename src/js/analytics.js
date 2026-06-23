@@ -137,7 +137,8 @@
     'favorite_pool', 'favorite_team', 'pool_feature_filters'
   ]);
   const FAVORITE_SETTING_NAMES = new Set(['favorite_pool', 'favorite_team']);
-  const EMPTY_FAVORITE_SELECTION = 'none';
+  const EMPTY_PUBLISHED_SELECTION = 'none';
+  const PUBLISHED_SELECTION_SEPARATOR = '|';
 
   // Upgrade tracking
 
@@ -625,10 +626,9 @@
     if (normalizedValues.some(value => !publishedValues.has(value))) return;
 
     const eventParameters = { setting_name: settingName };
-    if (FAVORITE_SETTING_NAMES.has(settingName)) {
-      if (normalizedValues.length > 1) return;
-      eventParameters.selection = normalizedValues[0] || EMPTY_FAVORITE_SELECTION;
-    }
+    if (FAVORITE_SETTING_NAMES.has(settingName) && normalizedValues.length > 1) return;
+    eventParameters.selection = normalizedValues.join(PUBLISHED_SELECTION_SEPARATOR)
+      || EMPTY_PUBLISHED_SELECTION;
 
     publishEvent(ANALYTICS_EVENT_NAMES.SETTING_CHANGE, eventParameters);
   }

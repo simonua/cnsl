@@ -138,17 +138,25 @@ test('[WF-POOLS-001] pool feature filters expose their state and resulting count
     page.locator('.pool-filter__option--water-play > span').first().evaluate(chip => globalThis.getComputedStyle(chip).backgroundColor)
   ]);
   expect(new Set(chipColors).size).toBe(3);
-  await page.locator('input[name="poolFeature"]').first().check();
+  const featureInputs = page.locator('input[name="poolFeature"]');
+  const firstFeature = await featureInputs.nth(0).inputValue();
+  const secondFeature = await featureInputs.nth(1).inputValue();
+  await featureInputs.nth(0).check();
 
   await expect(page.locator('#poolFilterSummary')).toHaveText(new RegExp(`\\d+ \\/ ${totalPoolCount} pools`));
   await expect(page.locator('#poolFeatureFilterCount')).toHaveText('1 selected');
+  await featureInputs.nth(1).check();
+  await expect(page.locator('#poolFeatureFilterCount')).toHaveText('2 selected');
 
   await page.locator('#clearPoolFeatureFilters').click();
   await expect(filters).toHaveAttribute('aria-expanded', 'true');
   await expect(page.locator('#poolFilterSummary')).toHaveText(`${totalPoolCount} pools`);
+  const sortedFeatures = [firstFeature, secondFeature]
+    .sort((first, second) => first.localeCompare(second));
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_setting_change'))).toEqual([
-    ['event', 'ca_setting_change', { setting_name: 'pool_feature_filters' }],
-    ['event', 'ca_setting_change', { setting_name: 'pool_feature_filters' }]
+    ['event', 'ca_setting_change', { setting_name: 'pool_feature_filters', selection: firstFeature }],
+    ['event', 'ca_setting_change', { setting_name: 'pool_feature_filters', selection: sortedFeatures.join('|') }],
+    ['event', 'ca_setting_change', { setting_name: 'pool_feature_filters', selection: 'none' }]
   ]);
 
   await page.locator('#poolFeatureFilterOptions').evaluate(options => {
@@ -160,7 +168,7 @@ test('[WF-POOLS-001] pool feature filters expose their state and resulting count
     options.appendChild(untrustedInput);
     untrustedInput.dispatchEvent(new options.ownerDocument.defaultView.Event('change', { bubbles: true }));
   });
-  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_setting_change'))).toHaveLength(2);
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_setting_change'))).toHaveLength(3);
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')).poolFeatureFilters)).toEqual([]);
 });
 
