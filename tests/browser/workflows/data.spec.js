@@ -133,7 +133,7 @@ test('[WF-DATA-007] footer keeps the last weather update current while weather c
 
   await page.evaluate(updatedAt => {
     localStorage.setItem('cnsl_weather_alert_last_successful_check', JSON.stringify({ updatedAt }));
-    globalThis.dispatchEvent(new CustomEvent('cnsl:weather-alert-status-changed'));
+    globalThis.dispatchEvent(new CustomEvent(globalThis.WEATHER_ALERT_STATUS_CHANGED_EVENT_NAME));
   }, WEATHER_REFRESHED_AT);
   await expect(weatherTimestamp).toHaveText('June 2, 2:20 PM');
 

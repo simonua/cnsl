@@ -4,26 +4,27 @@ Review date: 2026-06-23
 
 ## Audit Scope And Validation
 
-This local audit reviewed delivered browser JavaScript, PostHTML build sequencing, automation scripts, views and shared script order, the single stylesheet, unit and browser test organization, declared dependencies, service-worker and generated cache policy, Node adapters, GitHub Actions path ownership, documentation, active configuration, and recent repository history.
+This local audit reviewed the clean current working tree at `fa0ad65`, recent refactoring history, delivered browser JavaScript, PostHTML build and development sequencing, tests, views and CSS, automation, declared dependencies, GitHub Actions ownership, documentation, PWA cache policy, current recorded performance evidence, code-retirement surfaces, sibling execution paths, semantic constants, JSDoc contracts, accessibility coverage, and security and trust boundaries.
 
-Validation was static and read-only except for this plan update:
+Validation was deterministic and read-only except for this plan update:
 
-- Ranked delivered JavaScript, automation, CSS, views, and tests by size, then compared the largest files with recent 120-commit churn and their existing service boundaries.
-- Searched definitions and consumers across runtime scripts, views, lazy script lists, adapters, test manifests, tests, configuration, documentation, build validation, and PWA policy before classifying retirement candidates.
-- Reviewed the current recorded `desktop` and `mobile-slow` performance evidence in `docs/release-checklist.md`. The existing local generated inventory was read without rebuilding and contained 74 install-critical resources totaling 1,261,131 bytes; this corroborates the recorded warning but is not a fresh source-comparable performance run.
-- Reviewed relevant `git log` and `git blame` history to avoid reopening recently completed refactors or treating documented migration windows as dead compatibility.
+- Ranked maintained source, test, view, style, workflow, and documentation files by size and compared the largest surfaces with 120-commit churn.
+- Inspected the last 20 commits and recent versions of this plan so completed build completion, watcher, CI ownership, settings-loading, annual-shape, and lint-registration work was not reopened.
+- Parsed all 65 files under `src/js/` with Acorn and found zero named class, function, constructor, or method declarations without directly associated JSDoc.
+- Searched delivered globals, script lists, lazy dependencies, adapters, tests, fixtures, configuration, documentation, build rules, PWA policy, package declarations, storage keys, custom events, generated-markup sinks, and URL helpers for duplicate, obsolete, or unowned contracts.
+- Reviewed GitHub Actions commands and path ownership, 138 stable browser IDs, 240 accessibility-related browser assertions, generated PWA inventory ownership, and the documented Cloudflare CSP exception.
+- Reviewed the recorded three-run `desktop` and `mobile-slow` Meets evidence in `docs/release-checklist.md`; no new build, application test, browser run, or performance profile was executed for this documentation-only audit.
+- Confirmed all declared development dependencies have a package-script, configuration, source, or test owner. `rimraf` is invoked by the `clean` package script and therefore does not require a source-text import.
 
-No demonstrated accessibility barrier, data-integrity defect, active security exposure, or current release failure supports a `RED - High` item. The Cloudflare inline-script CSP exception, attention banner, and two storage migrations remain documented current contracts.
+No demonstrated accessibility barrier, data-integrity defect, active security exposure, release failure, or material current runtime failure supports a high-priority item. The attention banner, Cloudflare inline-script CSP exception, analytics predecessor lookup, and `practiceAgeGroups` storage migration remain documented current contracts.
 
 ## Priority Matrix
 
-Render every priority matrix with a `Key` column immediately to the left of `Priority`. Key actionable findings independently within each priority category using `H`, `M`, or `L` followed by a one-based index, such as `H1`, `M1`, and `L1`. Always show High, Medium, and Low, even when a category has no actionable finding. Keep the colored priority circle in every `Priority` cell: 🔴 for High, 🟠 for Medium, and 🟢 for Low. For an empty category, leave `Key` blank, use `None` for the finding, and summarize why no item qualifies in the remaining cells.
-
 | Key | Priority | Actionable Finding | Impact | Effort |
 | --- | --- | --- | --- | --- |
-| <!-- No key --> | 🔴 **High** | None | No demonstrated accessibility, data-integrity, security, release, or material runtime defect | None |
-| <!-- No key --> | 🟠 **Medium** | None | No measured medium-priority refactoring remains open | None |
-| <!-- No key --> | 🟢 **Low** | None | No evidence-backed maintenance cleanup remains open | None |
+| <!-- No key --> | 🔴 **RED - High** | None | No demonstrated accessibility, data-integrity, security, release, or material runtime defect | None |
+| <!-- No key --> | 🟠 **ORANGE - Medium** | None | No measured medium-priority refactoring remains open | None |
+| <!-- No key --> | 🟢 **GREEN - Low** | None | No evidence-backed maintenance cleanup remains open | None |
 
 ## High Priority
 
@@ -39,24 +40,25 @@ No low-priority item is supported by current repository evidence.
 
 ## Monitored Boundaries
 
-These are current migration contracts with future review conditions, not active refactoring work:
+These are current contracts with future review conditions, not active refactoring work:
 
 | Surface | Current Owner | Review Condition |
 | --- | --- | --- |
+| Attention banner capability | `app-config.js`, `home-banner.js`, shared markup, styles, analytics, and focused tests | Remove only after an explicit product-owner decision; dormant configuration is not retirement evidence |
 | Analytics predecessor storage candidates | `analytics.js` | Reassess after the full 2027 season and remove only when the source-recorded report condition is satisfied |
 | `practiceAgeGroups` preference input | `PreferencesService` | Remove no earlier than 2027-10-01 with focused migration and current-contract coverage |
+| Cloudflare inline-script CSP exception | Shared CSP, artifact verification, and `docs/security-privacy.md` | Remove only after delivered-site review proves Cloudflare and Analytics operate without it |
 
 ## Guardrails
 
 - Do not modify `src/assets/data/` during general refactoring. Seasonal facts and schemas require authoritative evidence, annual workflow records, and human review.
 - Never edit `out/`; it is generated by `pnpm run build`.
-- Retain the attention-banner capability unless the product owner explicitly changes this requirement. A dormant `APP_ATTENTION_NOTICE` value means no active message; it is not removal evidence.
-- Retain the documented Cloudflare `script-src 'unsafe-inline'` integration constraint until a delivered-site review proves Cloudflare and Analytics operate without it; authored inline executable scripts remain prohibited.
-- Preserve the analytics predecessor candidates and `practiceAgeGroups` migration until their recorded 2027 review conditions are met. Tests alone neither justify early removal nor permanent retention after those conditions.
-- Retire obsolete production code and its tests, fixtures, types, registrations, dependencies, documentation, build rules, and cache entries together. Keep a compatibility path only for a verified consumer with an owner, removal condition, and focused coverage.
-- Do not introduce a framework, bundler, data split, cache, index, or rendering mechanism without current evidence of visitor or maintenance benefit.
-- Preserve the current install-critical offline routes and one-fetch annual-data contract unless measured evidence and an explicit offline-product decision support changing them.
-- Keep local verification scoped to the changed behavior. Do not run complete unit or browser suites for these focused refactors unless a failure or shared contract justifies named additional coverage.
+- Preserve the attention banner, Cloudflare CSP exception, analytics predecessor lookup, and `practiceAgeGroups` migration under the monitored conditions above.
+- Retire obsolete production code and its tests, fixtures, types, registrations, dependencies, documentation, build rules, and cache entries together. Keep compatibility only for a verified consumer with an owner, removal condition, and focused coverage.
+- Do not introduce a framework, bundler, data split, cache, index, projection, or rendering mechanism without current measured visitor or maintenance benefit and an explicit replacement boundary.
+- Preserve the generated PWA core/optional inventory, build-version coherence, install-critical offline routes, and one-fetch annual-data contract unless measured evidence and an explicit offline-product decision support changing them.
+- Keep performance budgets advisory until reviewed variance supports a blocking threshold. Do not weaken a warning to make a run pass.
+- Keep local verification scoped to changed behavior. Complete unit and browser suites remain CI-owned unless an explicit full-suite investigation is requested.
 
 ## Priority Summary
 

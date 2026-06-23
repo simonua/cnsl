@@ -46,6 +46,7 @@ describe('app-config', () => {
     assert.equal(context.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY, config.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY);
     assert.equal(context.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY, config.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY);
     assert.equal(context.PREFERENCES_CHANGED_EVENT_NAME, config.PREFERENCES_CHANGED_EVENT_NAME);
+    assert.equal(context.WEATHER_ALERT_STATUS_CHANGED_EVENT_NAME, config.WEATHER_ALERT_STATUS_CHANGED_EVENT_NAME);
     assert.equal(context.ROUTE_WARMUP_CHANNEL_NAME, config.ROUTE_WARMUP_CHANNEL_NAME);
     assert.equal(context.EXPERIMENTAL_SETTINGS_URL, config.EXPERIMENTAL_SETTINGS_URL);
     assert.equal(context.MY_MEET_DAY_HOME_LOOKAHEAD_DAYS, 2);
@@ -153,6 +154,7 @@ describe('app-config', () => {
 
   it('publishes named app-owned local storage keys', () => {
     assert.equal(config.PREFERENCES_CHANGED_EVENT_NAME, 'cnsl:preferences-changed');
+    assert.equal(config.WEATHER_ALERT_STATUS_CHANGED_EVENT_NAME, 'cnsl:weather-alert-status-changed');
     assert.equal(config.ANALYTICS_APP_VERSION_STORAGE_KEY, 'cnsl_analytics_current_version');
     assert.equal(config.ANALYTICS_UPGRADE_PATH_STORAGE_KEY, 'cnsl_analytics_pending_upgrade_path');
     assert.equal(config.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, 'cnsl_analytics_version_reported');

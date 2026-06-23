@@ -145,7 +145,7 @@
    */
   function notifyWeatherAlertStatus(status) {
     WeatherAlertService.setLatestStatus(status);
-    window.dispatchEvent(new CustomEvent('cnsl:weather-alert-status-changed'));
+    window.dispatchEvent(new CustomEvent(globalThis.WEATHER_ALERT_STATUS_CHANGED_EVENT_NAME));
   }
 
   /**
@@ -207,7 +207,7 @@
     });
     window.addEventListener(globalThis.PREFERENCES_CHANGED_EVENT_NAME, refreshWeatherAlert);
     window.addEventListener(globalThis.PREFERENCES_CHANGED_EVENT_NAME, globalThis.renderFooterWeatherFreshness);
-    window.addEventListener('cnsl:weather-alert-status-changed', globalThis.renderFooterWeatherFreshness);
+    window.addEventListener(globalThis.WEATHER_ALERT_STATUS_CHANGED_EVENT_NAME, globalThis.renderFooterWeatherFreshness);
     window.addEventListener('storage', event => {
       if (event.key === WeatherAlertService.LAST_SUCCESSFUL_CHECK_KEY) {
         globalThis.renderFooterWeatherFreshness();

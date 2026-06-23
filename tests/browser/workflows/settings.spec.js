@@ -671,7 +671,7 @@ test('[WF-SETTINGS-006] weather safety alerts retain the last successful check w
       storage: null
     });
     globalThis.WeatherAlertService.setLatestStatus(status);
-    globalThis.dispatchEvent(new CustomEvent('cnsl:weather-alert-status-changed'));
+    globalThis.dispatchEvent(new CustomEvent(globalThis.WEATHER_ALERT_STATUS_CHANGED_EVENT_NAME));
   }, ACTIVE_SEASON_YEAR);
 
   const weatherCheckStatus = page.locator('#weatherCheckStatus');

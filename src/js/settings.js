@@ -590,7 +590,7 @@
       }
       if (restoreFocusTo && restoreFocusTo.isConnected) restoreFocusTo.focus();
     });
-    window.addEventListener('cnsl:weather-alert-status-changed', renderWeatherCheckStatus);
+    window.addEventListener(globalThis.WEATHER_ALERT_STATUS_CHANGED_EVENT_NAME, renderWeatherCheckStatus);
 
     const automaticLauncher = document.querySelector('[data-settings-auto-open]');
     if (automaticLauncher) openSettingsDialog(automaticLauncher);
