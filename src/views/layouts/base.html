@@ -15,6 +15,19 @@
     object-src 'none';
     script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://static.cloudflareinsights.com;
     style-src 'self' 'unsafe-inline'; worker-src 'self';" />
+  <style>
+    :root {
+      --initial-page-background: #f8f9fa;
+      background-color: var(--initial-page-background);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --initial-page-background: #101820;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="css/styles.css" />
   <block name="metadata">
     <title>CA Outdoor Pools &amp; CNSL Swim Teams</title>
     <meta name="description" content="Find Columbia Association outdoor pools and CNSL swim teams for summer swimming in Columbia, Maryland." />
@@ -46,8 +59,6 @@
       "inLanguage": "en-US"
     }
   </script>
-
-  <link rel="stylesheet" href="css/styles.css" />
   <link rel="manifest" href="manifest.webmanifest" />
   <script src="js/config/app-config.js"></script>
   <script src="js/services/season-service.js"></script>

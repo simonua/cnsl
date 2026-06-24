@@ -28,10 +28,22 @@ describe('font loading boundary', () => {
     assert.match(stylesSource, /font-family:\s*-apple-system,\s*BlinkMacSystemFont,\s*'Segoe UI'/);
   });
 
-  it('loads the one site stylesheet synchronously before body content can render', () => {
+  it('paints the initial canvas and loads the one site stylesheet before head scripts', () => {
     const stylesheetTag = '<link rel="stylesheet" href="css/styles.css" />';
-    assert.equal(layoutSource.includes(stylesheetTag), true);
-    assert.ok(layoutSource.indexOf(stylesheetTag) < layoutSource.indexOf('</head>'));
+    const contentSecurityPolicyIndex = layoutSource.indexOf('<meta http-equiv="Content-Security-Policy"');
+    const initialCanvasIndex = layoutSource.indexOf('<style>');
+    const stylesheetIndex = layoutSource.indexOf(stylesheetTag);
+    const initialCanvasSource = layoutSource.slice(0, stylesheetIndex);
+
+    assert.notEqual(contentSecurityPolicyIndex, -1);
+    assert.notEqual(initialCanvasIndex, -1);
+    assert.notEqual(stylesheetIndex, -1);
+    assert.match(initialCanvasSource, /--initial-page-background:\s*#f8f9fa/);
+    assert.match(initialCanvasSource, /@media\s*\(prefers-color-scheme:\s*dark\)[\s\S]*--initial-page-background:\s*#101820/);
+    assert.ok(contentSecurityPolicyIndex < initialCanvasIndex);
+    assert.ok(initialCanvasIndex < stylesheetIndex);
+    assert.ok(stylesheetIndex < layoutSource.indexOf('<script'));
+    assert.ok(stylesheetIndex < layoutSource.indexOf('</head>'));
     assert.doesNotMatch(stylesheetTag, /media=|disabled|onload/i);
   });
 });
