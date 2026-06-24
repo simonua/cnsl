@@ -29,7 +29,8 @@ Both modes prepare verified changes in the current working tree only. Creating o
 
 ## Published History
 
-- Treat the wording and item membership of every dated version article in `src/views/whats-new.html` as a published historical record. Never edit, remove, or append bullets to an existing dated entry.
+- Treat the wording and item membership of every dated version article in `src/views/whats-new.html` as a published historical record. Never edit, remove, or append bullets to an existing dated entry unless the maintainer explicitly requests a historical copy review.
+- During an explicit historical copy review, simplify wording only. Preserve each claim's facts, labels, links, item membership, release meaning, and version placement.
 - Reordering unchanged bullets in a dated article is permitted only when the user explicitly requests an importance review across published releases.
 - If the user explicitly requests a historical release-date header correction, update only the affected heading dates using verified publication dates; do not change the article copy or bullets.
 - Treat the current `APP_VERSION` and its matching dated entry as the prior published release boundary, not as a draft that can be amended.
@@ -51,7 +52,7 @@ In Upcoming mode:
 
 In Release mode:
 
-- Add a new dated version article above all earlier dated entries in `src/views/whats-new.html`, using a heading in the format `Version X.Y.Z - Month D, YYYY`; do not revise an existing version article unless the explicit historical header-correction exception applies.
+- Add a new dated version article above all earlier dated entries in `src/views/whats-new.html`, using a heading in the format `Version X.Y.Z - Month D, YYYY`; do not revise an existing version article unless an explicit historical copy or header review applies.
 - Promote the released items out of `Upcoming`, leaving any remaining unreleased items there.
 - After adding the dated article, keep the ten newest dated release articles visible above the older-release disclosure and move the former tenth visible release to the start of the archived release content.
 - Update `APP_VERSION` and `APP_LAST_UPDATED_ON` in `src/js/config/app-config.js` for the new stable release.
@@ -71,7 +72,7 @@ Preserve the progressive release-history structure in `src/views/whats-new.html`
 
 ## What's New Writing Rules
 
-The What's New page is for families and visitors, not an engineering changelog. Use concise benefit-oriented language and describe only observable behavior backed by the diff.
+The What's New page is for families and visitors, not an engineering changelog. Write at about an eighth-grade reading level. Use common words, short sentences, and active voice. Lead with the result visitors will notice, and include only enough detail to understand the change. Do not explain code, file loading, caching, browser behavior, data processing, or other internal work unless a visitor must understand it or take action. Avoid technical jargon; explain any necessary official or technical term in plain language the first time.
 
 Keep each note broadly applicable. Describe the general capability or visitor benefit, and omit individual team or venue names plus team-specific operational particulars such as exact arrival or warm-up times, parking locations, merchandise locations, concession offerings or payment methods, and similar guidance that applies only to one team or meet.
 
@@ -89,7 +90,7 @@ Use judgment when categories overlap. Do not preserve implementation order or gr
 
 ## Verification
 
-After editing, review the diff to confirm that no previously dated wording or item membership changed, any explicitly requested historical importance review changed order only, each note is evidenced, and no engineering-only note appears in What's New.
+After editing, review the diff to confirm that no previously dated wording or item membership changed without an explicit historical review, any requested copy review preserved facts and membership, any requested importance review changed order only, each note is evidenced, and no engineering-only note appears in What's New.
 
 For Upcoming mode, run the focused verification required by the affected feature work and report it.
 

@@ -12,6 +12,8 @@ This guide records the visual decisions for the CA Pool & CNSL Assistant. Apply 
 ## Voice And Manners
 
 - Write like a helpful local swim parent: warm, familiar, straightforward, and respectful.
+- Aim for about an eighth-grade reading level in visitor-facing text. Prefer common words, short sentences, and active voice. Start with what the visitor needs to know or will notice, then add only the detail needed to understand or act.
+- Avoid internal implementation terms and technical jargon. When an exact official or technical term is necessary, explain it in plain language the first time.
 - Use first person when the maintainer is speaking and address visitors directly as `you` when guidance is clearer that way.
 - Refer to the software as `the web app` when describing what it does. Reserve `CNSL` for the league or proper names, and do not use `CNSL` as the actor for web-app behavior.
 - Use `please` for requests, corrections, and troubleshooting steps. Thank visitors when they share feedback, report a correction, or recommend a community resource.
