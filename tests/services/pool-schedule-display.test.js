@@ -158,7 +158,7 @@ describe('PoolScheduleDisplay', () => {
       assert.doesNotMatch(plain, /schedule-activity--event/);
     });
 
-    it('renders distinct valid source updates as escaped muted context', () => {
+    it('renders distinct valid source updates as escaped numbered footnotes', () => {
       const sourceUpdate = {
         sourceName: 'Official <Publisher>',
         updatedOn: '2026-06-24',
@@ -173,11 +173,15 @@ describe('PoolScheduleDisplay', () => {
         }]
       }], options);
 
-      assert.equal((html.match(/schedule-activity__source-update/g) || []).length, 1);
+      assert.equal((html.match(/class="schedule-activity__source-update"/g) || []).length, 1);
+      assert.equal((html.match(/schedule-activity__footnote-marker/g) || []).length, 2);
+      assert.match(html, /<sup class="schedule-activity__footnote-marker"><span aria-hidden="true">1<\/span><span class="visually-hidden"> \(schedule note 1\)<\/span><\/sup>/);
+      assert.match(html, /<ol class="schedule-activity__footnotes" aria-label="Schedule notes"><li class="schedule-activity__source-update">/);
       assert.match(html, /Sunday &lt;hours&gt; for June 19-August 9\. Official &lt;Publisher&gt; data updated Jun 24, 2026\./);
       assert.doesNotMatch(html, /<Publisher>|<hours>/);
       assert.equal(PoolScheduleDisplay.formatSourceUpdateHtml({ ...sourceUpdate, updatedOn: '2026-02-30' }), '');
       assert.equal(PoolScheduleDisplay.formatSourceUpdateHtml({ ...sourceUpdate, sourceName: '' }), '');
+      assert.deepEqual(PoolScheduleDisplay.getSourceUpdateFootnotes(null), []);
       assert.equal(PoolScheduleDisplay.renderSourceUpdates(null), '');
     });
 

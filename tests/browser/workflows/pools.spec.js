@@ -1195,7 +1195,7 @@ test('[WF-POOLS-031] closing countdown remains red across the one-hour boundary'
   }, '--error-text-color')).toBe(true);
 });
 
-test('[WF-POOLS-032] schedule source updates remain subtle and fit narrow pool details', async ({ page }) => {
+test('[WF-POOLS-032] schedule source updates render as subtle footnotes and fit narrow pool details', async ({ page }) => {
   const sourceUpdatePool = ANNUAL_POOLS[0];
   await page.setViewportSize(MOBILE_VIEWPORT);
   await page.clock.setFixedTime(activeSeasonDate('06-24T12:00:00-04:00'));
@@ -1224,12 +1224,18 @@ test('[WF-POOLS-032] schedule source updates remain subtle and fit narrow pool d
   await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 
   const favoriteCard = page.locator('.favorite-card');
+  const marker = favoriteCard.locator('.schedule-activity__footnote-marker');
+  const footnotes = favoriteCard.locator('.schedule-activity__footnotes');
   const annotation = favoriteCard.locator('.schedule-activity__source-update');
+  await expect(marker).toHaveCount(1);
+  await expect(marker).toContainText('1');
+  await expect(marker).toContainText('(schedule note 1)');
+  await expect(footnotes).toHaveAttribute('aria-label', 'Schedule notes');
   await expect(annotation).toHaveCount(1);
   await expect(annotation).toHaveText('Fixture lap and rec swim hours. Official Publisher data updated Jun 24, 2026.');
-  expect(await annotation.evaluate(element => {
+  expect(await footnotes.evaluate(element => {
     const cardBounds = element.closest('.pool-card').getBoundingClientRect();
-    const annotationBounds = element.getBoundingClientRect();
+    const footnotesBounds = element.getBoundingClientRect();
     const documentElement = globalThis.document.documentElement;
     const styles = globalThis.getComputedStyle(element);
     const probe = globalThis.document.createElement('span');
@@ -1238,7 +1244,7 @@ test('[WF-POOLS-032] schedule source updates remain subtle and fit narrow pool d
     const usesMutedColor = styles.color === globalThis.getComputedStyle(probe).color;
     probe.remove();
     return {
-      fitsCard: annotationBounds.left >= cardBounds.left && annotationBounds.right <= cardBounds.right,
+      fitsCard: footnotesBounds.left >= cardBounds.left && footnotesBounds.right <= cardBounds.right,
       noPageOverflow: documentElement.scrollWidth <= documentElement.clientWidth + 1,
       usesMutedColor
     };

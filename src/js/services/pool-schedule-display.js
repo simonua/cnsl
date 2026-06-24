@@ -117,21 +117,42 @@ if (typeof globalThis.PoolScheduleDisplay === 'undefined') {
       const overrideNotice = schedule.hasOverrides && schedule.overrideReason
         ? `<div class="override-notice">${PoolScheduleDisplay.escapeHtml(schedule.overrideReason)}</div>`
         : '';
-      const slots = schedule.timeSlots.map(slot => PoolScheduleDisplay.renderSlot(slot, day, options, useActivityColors)).join('');
+      const sourceUpdateFootnotes = PoolScheduleDisplay.getSourceUpdateFootnotes(schedule.timeSlots);
+      const slots = schedule.timeSlots.map(slot => {
+        const sourceUpdateHtml = PoolScheduleDisplay.formatSourceUpdateHtml(slot.sourceUpdate);
+        const sourceUpdateFootnoteNumber = sourceUpdateHtml
+          ? sourceUpdateFootnotes.indexOf(sourceUpdateHtml) + 1
+          : 0;
+        return PoolScheduleDisplay.renderSlot(slot, day, options, useActivityColors, sourceUpdateFootnoteNumber);
+      }).join('');
       const sourceUpdates = PoolScheduleDisplay.renderSourceUpdates(schedule.timeSlots);
       return `${overrideNotice}${slots}${sourceUpdates}`;
     }
 
     /**
-     * Render each distinct accepted source update once beneath its schedule day.
+     * Collect each distinct, validated source update in display order.
+     * @param {Array} slots - Effective operating periods for one day
+     * @returns {Array<string>} Escaped footnote contents
+     */
+    static getSourceUpdateFootnotes(slots) {
+      return [...new Set((Array.isArray(slots) ? slots : [])
+        .map(slot => PoolScheduleDisplay.formatSourceUpdateHtml(slot.sourceUpdate))
+        .filter(Boolean))];
+    }
+
+    /**
+     * Render each distinct accepted source update once as a schedule footnote.
      * @param {Array} slots - Effective operating periods for one day
      * @returns {string} Escaped source-update markup
      */
     static renderSourceUpdates(slots) {
-      const renderedUpdates = new Set((Array.isArray(slots) ? slots : [])
-        .map(slot => PoolScheduleDisplay.formatSourceUpdateHtml(slot.sourceUpdate))
-        .filter(Boolean));
-      return [...renderedUpdates].join('');
+      const footnotes = PoolScheduleDisplay.getSourceUpdateFootnotes(slots);
+      if (footnotes.length === 0) return '';
+
+      const footnotesHtml = footnotes
+        .map(footnote => `<li class="schedule-activity__source-update">${footnote}</li>`)
+        .join('');
+      return `<ol class="schedule-activity__footnotes" aria-label="Schedule notes">${footnotesHtml}</ol>`;
     }
 
     /**
@@ -165,7 +186,7 @@ if (typeof globalThis.PoolScheduleDisplay === 'undefined') {
         timeZone: 'UTC',
         year: 'numeric'
       });
-      return `<span class="schedule-activity__source-update">${PoolScheduleDisplay.escapeHtml(sourceUpdate.note.trim())} ${PoolScheduleDisplay.escapeHtml(sourceUpdate.sourceName.trim())} data updated ${PoolScheduleDisplay.escapeHtml(formattedDate)}.</span>`;
+      return `${PoolScheduleDisplay.escapeHtml(sourceUpdate.note.trim())} ${PoolScheduleDisplay.escapeHtml(sourceUpdate.sourceName.trim())} data updated ${PoolScheduleDisplay.escapeHtml(formattedDate)}.`;
     }
 
     /**
@@ -174,9 +195,10 @@ if (typeof globalThis.PoolScheduleDisplay === 'undefined') {
      * @param {Object} day - Parent day state
      * @param {Object} options - Formatting dependencies
      * @param {boolean} useActivityColors - Whether activity tint classes should be included
+    * @param {number} sourceUpdateFootnoteNumber - One-based source-update footnote number, or zero
      * @returns {string} Time slot HTML
      */
-    static renderSlot(slot, day, options, useActivityColors) {
+      static renderSlot(slot, day, options, useActivityColors, sourceUpdateFootnoteNumber = 0) {
       const timeUtils = options.timeUtils;
       const activityText = PoolScheduleDisplay.formatActivityText(slot.activities, timeUtils);
       const practiceTeamHtml = PoolScheduleDisplay.formatPracticeTeamHtml(
@@ -206,8 +228,11 @@ if (typeof globalThis.PoolScheduleDisplay === 'undefined') {
         const safeAccessibleLabel = PoolScheduleDisplay.escapeHtml(`${activityText} official details (opens in new tab)`);
         activityLabelHtml = `<a class="schedule-activity__link schedule-activity__source-link" href="${sourceHref}" target="_blank" rel="noopener" aria-label="${safeAccessibleLabel}" data-analytics-context="official_information">${safeActivityText}</a>`;
       }
+      const sourceUpdateMarkerHtml = sourceUpdateFootnoteNumber > 0
+        ? `<sup class="schedule-activity__footnote-marker"><span aria-hidden="true">${sourceUpdateFootnoteNumber}</span><span class="visually-hidden"> (schedule note ${sourceUpdateFootnoteNumber})</span></sup>`
+        : '';
       const activityHtml = safeActivityText
-        ? `<span class="schedule-activity__label${restrictedClass}">${activityLabelHtml}</span>${practiceTeamHtml}`
+        ? `<span class="schedule-activity__label${restrictedClass}">${activityLabelHtml}${sourceUpdateMarkerHtml}</span>${practiceTeamHtml}`
         : '';
       const notesHtml = slot.notes
         ? `<span class="schedule-activity__note">${PoolScheduleDisplay.escapeHtml(slot.notes)}</span>`
