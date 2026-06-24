@@ -53,7 +53,7 @@ Use `publish` mode only after an explicit request to publish, push, or open a pu
 
 1. Update only the host team's matching `homeMeetGuides` record in `src/assets/data/<YEAR>/teams/teams.json`. Set `source.receivedOn` to the communication date. Do not duplicate pool addresses or course details already resolved from pool data.
 2. Add a concise evidence entry to `src/assets/data/<YEAR>/README.md` that records the source owner, affected fields, normalization decisions, superseded facts, omitted matchup-only or personal details, conflicts, confidence, and residual uncertainty.
-3. Append a local-correction entry to `.github/automation/season-data-monitor/check-log.md`, and add its `update` row to the top `Latest Activity` table using the monitor README's column rules. Keep the summary table newest-first and the detailed entries append-only. End the detailed entry with the required `Area`, `Status`, and `Details` update table.
+3. Record the correction using the canonical completion-response and check-log contract in `.github/automation/season-data-monitor/README.md`.
 4. A supplied manager message is not a comprehensive online source review. Unless the current task separately completes every required live source request, do not change `OFFICIAL_SOURCE_CHECKED_AT`, `OFFICIAL_SOURCE_UPDATED_AT`, or `.github/automation/season-data-monitor/source-state.json`. State that they remain unchanged.
 5. Update focused unit coverage in `tests/services/meet-day-guide-service.test.js` only when behavior or a reusable rendering contract changed. Exercise shared guidance through a deterministic home-team fixture and role-specific guidance through an away-team fixture. Assert semantic role selection, fixture-value flow, escaping, omission, and accessible structure without pinning active-season entities or manager-supplied prose. Annual schema and integrity validation, not duplicated text assertions, covers ordinary active-data corrections.
 6. Do not edit generated `out/` files. Do not add a What's New item or version change for an ordinary data correction.
@@ -112,13 +112,4 @@ Report the matchup, mapped and omitted facts, changed files, evidence confidence
 - Rendered view: a fenced `text` block containing the normalized `#myMeetDay` text
 ```
 
-Place the My Meet Day outputs immediately before the final `Updates` section. End the response and matching check-log entry with this table, with nothing after it:
-
-| Area | Status | Details |
-| --- | --- | --- |
-| Modeled application data | Updated / Unchanged / Not completed | Name changed team-guide properties, or `None`. |
-| Application-used source destinations | Updated / Unchanged / Not completed | Name changed URLs, or `None`. |
-| Retained official PDFs | Updated / Unchanged / Not completed | Name added or replaced files, or `None`. |
-| Visitor-facing records | Updated / Unchanged / Not completed | Name What's New and sitemap edits, or `None`. |
-| Review records | Updated / Unchanged / Not completed | Name annual README and check-log edits and timestamp handling. |
-| Reviewed source baseline | Updated / Unchanged / Not completed | State whether `source-state.json` changed. |
+Place the My Meet Day outputs immediately before the final `Updates` section. End the response and matching check-log entry using the canonical table in the monitor README's `Check Log` section, naming the changed team-guide properties and timestamp handling in the applicable details cells.

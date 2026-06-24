@@ -103,15 +103,4 @@ State:
 - Whether `YEAR` changed and why.
 - Commands run and any intentionally incomplete domain awaiting source data.
 
-Make an `Updates` table the final section of the response. Put the validation offer and any other prose before this table so nothing follows it. Use `Updated`, `Unchanged`, or `Not completed`, name changed files or modeled properties, and write `None` when an area did not change:
-
-| Area | Status | Details |
-| --- | --- | --- |
-| Modeled application data | Updated / Unchanged / Not completed | Name changed records and properties, or `None`. |
-| Application-used source destinations | Updated / Unchanged / Not completed | Name changed URLs, or `None`. |
-| Retained official PDFs | Updated / Unchanged / Not completed | Name added or replaced files, or `None`. |
-| Visitor-facing records | Updated / Unchanged / Not completed | Name What's New and sitemap edits, or `None`. |
-| Review records | Updated / Unchanged / Not completed | Name timestamp, annual README, and check-log edits. |
-| Reviewed source baseline | Updated / Unchanged / Not completed | State whether `source-state.json` was refreshed. |
-
-Append the same table, with values for that run, as the final content of the matching detailed `.github/automation/season-data-monitor/check-log.md` entry. Also add the run to the top `Latest Activity` table using the classification and column rules in the monitor README; keep the summary table newest-first and the detailed entries append-only.
+Follow the canonical completion-response and check-log contract in `.github/automation/season-data-monitor/README.md`. Put the validation offer and any other prose before the required final `Updates` table.

@@ -66,6 +66,19 @@ The command's clean result applies only to URLs it collected. Before reporting a
 
 ## Check Log
 
-Append every completed online source review to [`check-log.md`](check-log.md). Use the review-completion timestamp in `America/New_York` with an explicit UTC offset, record the active season and source counts, and state whether the overall check was complete. End each entry with the same `Area`, `Status`, and `Details` update-summary table used in the reviewer response. Include modeled application data, application-used source destinations, retained official PDFs, visitor-facing records, review records, and the reviewed source baseline; use `Updated`, `Unchanged`, or `Not completed`, and state `None` for unchanged areas.
+This section is the canonical contract for seasonal-data completion responses and [`check-log.md`](check-log.md). Workflows that write either output must reference this section instead of copying its rules or table template.
+
+Append every completed online source review to the check log. Use the review-completion timestamp in `America/New_York` with an explicit UTC offset, record the active season and source counts, and state whether the overall check was complete. Preserve detailed entries in append-only order.
 
 Whenever an online review, local correction, or seasonal-data maintenance workflow appends a detailed entry, also add one row to the top `Latest Activity` table. Keep that table newest-first while preserving detailed entries in append-only order. Use `check` when the activity only reviews or verifies existing state. Use `update` when repository data, a data contract, a visitor-used destination or retained source, or visitor-facing content or behavior changes. In `Data point`, name the most specific modeled record or property changed; leave it visibly blank for checks and for maintenance that does not change modeled data by writing `<!-- -->` as the lint-compatible cell source. Use `Summary` for the general outcome, including clean or incomplete checks and non-data maintenance. Preserve prior entries; `update-report.md` remains an ephemeral candidate report and is not the historical audit log.
+
+End every seasonal-data completion response and matching detailed check-log entry with the following `Updates` table, with nothing after it. Use `Updated`, `Unchanged`, or `Not completed`, name changed files or modeled properties, and write `None` when an area did not change.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Updated / Unchanged / Not completed | Name changed records and properties, or `None`. |
+| Application-used source destinations | Updated / Unchanged / Not completed | Name changed URLs, or `None`. |
+| Retained official PDFs | Updated / Unchanged / Not completed | Name added or replaced files, or `None`. |
+| Visitor-facing records | Updated / Unchanged / Not completed | Name What's New and sitemap edits, or `None`. |
+| Review records | Updated / Unchanged / Not completed | Name timestamp, annual README, and check-log edits. |
+| Reviewed source baseline | Updated / Unchanged / Not completed | State whether `source-state.json` was refreshed. |

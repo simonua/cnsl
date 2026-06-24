@@ -72,7 +72,7 @@ Preserve the progressive release-history structure in `src/views/whats-new.html`
 
 ## What's New Writing Rules
 
-The What's New page is for families and visitors, not an engineering changelog. Write at about an eighth-grade reading level. Use common words, short sentences, and active voice. Lead with the result visitors will notice, and include only enough detail to understand the change. Do not explain code, file loading, caching, browser behavior, data processing, or other internal work unless a visitor must understand it or take action. Avoid technical jargon; explain any necessary official or technical term in plain language the first time.
+Follow the repository's Audience and Tone and What's New rules. The page is for families and visitors, not an engineering changelog.
 
 Keep each note broadly applicable. Describe the general capability or visitor benefit, and omit individual team or venue names plus team-specific operational particulars such as exact arrival or warm-up times, parking locations, merchandise locations, concession offerings or payment methods, and similar guidance that applies only to one team or meet.
 
