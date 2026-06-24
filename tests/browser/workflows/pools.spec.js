@@ -1195,7 +1195,7 @@ test('[WF-POOLS-031] closing countdown remains red across the one-hour boundary'
   }, '--error-text-color')).toBe(true);
 });
 
-test('[WF-POOLS-032] schedule source updates render as subtle footnotes and fit narrow pool details', async ({ page }) => {
+test('[WF-POOLS-032] schedule source updates render below date tiles with weekdays and fit narrow pool details', async ({ page }) => {
   const sourceUpdatePool = ANNUAL_POOLS[0];
   await page.setViewportSize(MOBILE_VIEWPORT);
   await page.clock.setFixedTime(activeSeasonDate('06-24T12:00:00-04:00'));
@@ -1205,7 +1205,7 @@ test('[WF-POOLS-032] schedule source updates render as subtle footnotes and fit 
       startDate: `${ACTIVE_SEASON_YEAR}-05-23`,
       endDate: `${ACTIVE_SEASON_YEAR}-09-07`,
       hours: [{
-        weekDays: ['Wed'],
+        weekDays: ['Wed', 'Sun'],
         types: ['Laps', 'Rec Swim'],
         accessStatus: 'public',
         startTime: '12:00pm',
@@ -1219,7 +1219,10 @@ test('[WF-POOLS-032] schedule source updates render as subtle footnotes and fit 
     }];
     pool.scheduleOverrides = [];
   });
-  await seedPreferences(page, { favoritePoolName: sourceUpdatePool.name });
+  await seedPreferences(page, {
+    favoritePoolName: sourceUpdatePool.name,
+    poolScheduleLayout: 'calendar'
+  });
   await page.goto('/pools.html');
   await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 
@@ -1227,16 +1230,15 @@ test('[WF-POOLS-032] schedule source updates render as subtle footnotes and fit 
   const marker = favoriteCard.locator('.schedule-activity__footnote-marker');
   const footnotes = favoriteCard.locator('.schedule-activity__footnotes');
   const annotation = favoriteCard.locator('.schedule-activity__source-update');
-  await expect(marker).toHaveCount(1);
-  await expect(marker).toContainText('1');
-  await expect(marker).toContainText('(schedule note 1)');
+  await expect(marker).toHaveCount(2);
+  await expect(marker).toHaveText(['1 (schedule note 1)', '1 (schedule note 1)']);
   await expect(footnotes).toHaveAttribute('aria-label', 'Schedule notes');
   await expect(annotation).toHaveCount(1);
-  await expect(annotation).toHaveText('Fixture lap and rec swim hours. Official Publisher data updated Jun 24, 2026.');
+  await expect(annotation).toHaveText('Wednesday and Sunday: Fixture lap and rec swim hours. Official Publisher data updated Jun 24, 2026.');
   expect(await footnotes.evaluate(element => {
     const cardBounds = element.closest('.pool-card').getBoundingClientRect();
     const footnotesBounds = element.getBoundingClientRect();
-    const documentElement = globalThis.document.documentElement;
+    const calendar = element.previousElementSibling;
     const styles = globalThis.getComputedStyle(element);
     const probe = globalThis.document.createElement('span');
     probe.style.color = 'var(--text-muted)';
@@ -1245,8 +1247,9 @@ test('[WF-POOLS-032] schedule source updates render as subtle footnotes and fit 
     probe.remove();
     return {
       fitsCard: footnotesBounds.left >= cardBounds.left && footnotesBounds.right <= cardBounds.right,
-      noPageOverflow: documentElement.scrollWidth <= documentElement.clientWidth + 1,
+      outsideDateTiles: calendar?.classList.contains('schedule-calendar') === true
+        && element.closest('.schedule-calendar__day') === null,
       usesMutedColor
     };
-  })).toEqual({ fitsCard: true, noPageOverflow: true, usesMutedColor: true });
+  })).toEqual({ fitsCard: true, outsideDateTiles: true, usesMutedColor: true });
 });

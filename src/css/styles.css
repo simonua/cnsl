@@ -4192,10 +4192,6 @@ html[data-hide-home-intro="true"] .welcome-section {
   margin-top: 0.2rem;
 }
 
-.schedule-calendar .schedule-activity__footnotes {
-  margin: 0.35rem 0.35rem 0;
-}
-
 .schedule-calendar .schedule-activity__team-names {
   color: var(--text-muted);
   margin-top: 0.15rem;

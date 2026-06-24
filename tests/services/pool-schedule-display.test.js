@@ -158,11 +158,11 @@ describe('PoolScheduleDisplay', () => {
       assert.doesNotMatch(plain, /schedule-activity--event/);
     });
 
-    it('renders distinct valid source updates as escaped numbered footnotes', () => {
+    it('renders distinct valid source updates below the week with affected weekdays', () => {
       const sourceUpdate = {
         sourceName: 'Official <Publisher>',
         updatedOn: '2026-06-24',
-        note: 'Sunday <hours> for June 19-August 9.'
+        note: 'Fixture <hours> for June 19-August 9.'
       };
       const html = PoolScheduleDisplay.render([{
         day: 'Wed',
@@ -171,13 +171,19 @@ describe('PoolScheduleDisplay', () => {
         }, {
           startTime: '2:00PM', endTime: '3:00PM', activities: ['Laps'], accessStatus: 'public', sourceUpdate
         }]
-      }], options);
+      }, {
+        day: 'Fri',
+        timeSlots: [{
+          startTime: '1:00PM', endTime: '2:00PM', activities: ['Rec Swim'], accessStatus: 'public', sourceUpdate
+        }]
+      }], { ...options, layout: 'calendar' });
 
       assert.equal((html.match(/class="schedule-activity__source-update"/g) || []).length, 1);
-      assert.equal((html.match(/schedule-activity__footnote-marker/g) || []).length, 2);
+      assert.equal((html.match(/schedule-activity__footnote-marker/g) || []).length, 3);
       assert.match(html, /<sup class="schedule-activity__footnote-marker"><span aria-hidden="true">1<\/span><span class="visually-hidden"> \(schedule note 1\)<\/span><\/sup>/);
-      assert.match(html, /<ol class="schedule-activity__footnotes" aria-label="Schedule notes"><li class="schedule-activity__source-update">/);
-      assert.match(html, /Sunday &lt;hours&gt; for June 19-August 9\. Official &lt;Publisher&gt; data updated Jun 24, 2026\./);
+      assert.match(html, /<ol class="schedule-activity__footnotes" aria-label="Schedule notes"><li class="schedule-activity__source-update"><strong>Wednesday and Friday:<\/strong>/);
+      assert.match(html, /Fixture &lt;hours&gt; for June 19-August 9\. Official &lt;Publisher&gt; data updated Jun 24, 2026\./);
+      assert.ok(html.indexOf('schedule-activity__footnotes') > html.lastIndexOf('</section>'));
       assert.doesNotMatch(html, /<Publisher>|<hours>/);
       assert.equal(PoolScheduleDisplay.formatSourceUpdateHtml({ ...sourceUpdate, updatedOn: '2026-02-30' }), '');
       assert.equal(PoolScheduleDisplay.formatSourceUpdateHtml({ ...sourceUpdate, sourceName: '' }), '');

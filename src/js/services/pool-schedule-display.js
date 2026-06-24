@@ -6,6 +6,16 @@
 if (typeof globalThis.PoolScheduleDisplay === 'undefined') {
   /** Formats display-ready weekly pool schedules as escaped HTML. */
   class PoolScheduleDisplay {
+    static DAY_NAMES = Object.freeze({
+      Mon: 'Monday',
+      Tue: 'Tuesday',
+      Wed: 'Wednesday',
+      Thu: 'Thursday',
+      Fri: 'Friday',
+      Sat: 'Saturday',
+      Sun: 'Sunday'
+    });
+
     static LAYOUTS = ['list', 'calendar'];
 
     /**
@@ -17,12 +27,13 @@ if (typeof globalThis.PoolScheduleDisplay === 'undefined') {
     static render(weekSchedule, options = {}) {
       const layout = PoolScheduleDisplay.LAYOUTS.includes(options.layout) ? options.layout : 'list';
       const days = PoolScheduleDisplay.createDays(weekSchedule, options.weekStart, options.today);
+      const sourceUpdateFootnotes = PoolScheduleDisplay.getSourceUpdateFootnotes(days);
 
       if (layout === 'calendar') {
-        return PoolScheduleDisplay.renderCalendar(days, options);
+        return PoolScheduleDisplay.renderCalendar(days, options, sourceUpdateFootnotes);
       }
 
-      return PoolScheduleDisplay.renderList(days, options);
+      return PoolScheduleDisplay.renderList(days, options, sourceUpdateFootnotes);
     }
 
     /**
@@ -33,7 +44,7 @@ if (typeof globalThis.PoolScheduleDisplay === 'undefined') {
      * @returns {Array} Display-ready day records
      */
     static createDays(weekSchedule = [], weekStart = new Date(), today = new Date()) {
-      const dayOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      const dayOrder = Object.keys(PoolScheduleDisplay.DAY_NAMES);
 
       return dayOrder.map((day, index) => {
         const date = new Date(weekStart);
@@ -53,26 +64,28 @@ if (typeof globalThis.PoolScheduleDisplay === 'undefined') {
      * Render the compact list presentation retained as the default.
      * @param {Array} days - Display-ready day records
      * @param {Object} options - Formatting dependencies
+     * @param {Array} sourceUpdateFootnotes - Week-level source-update notes
      * @returns {string} Schedule HTML
      */
-    static renderList(days, options) {
+    static renderList(days, options, sourceUpdateFootnotes = []) {
       const daysHtml = days.map(day => {
         const className = day.isCurrentDay ? 'day-schedule is-today' : 'day-schedule';
         const heading = PoolScheduleDisplay.renderHeading(day);
-        const content = PoolScheduleDisplay.renderDayContent(day, options, false);
+        const content = PoolScheduleDisplay.renderDayContent(day, options, false, sourceUpdateFootnotes);
         return `<div class="${className}"><strong class="day-schedule__heading">${heading}:</strong></div>${content}`;
       }).join('');
 
-      return `<div class="hours-details pool-schedule-list">${daysHtml}</div>`;
+      return `<div class="hours-details pool-schedule-list">${daysHtml}</div>${PoolScheduleDisplay.renderSourceUpdates(sourceUpdateFootnotes)}`;
     }
 
     /**
      * Render the calendar presentation with independent daily columns.
      * @param {Array} days - Display-ready day records
      * @param {Object} options - Formatting dependencies
+    * @param {Array} sourceUpdateFootnotes - Week-level source-update notes
      * @returns {string} Schedule HTML
      */
-    static renderCalendar(days, options) {
+      static renderCalendar(days, options, sourceUpdateFootnotes = []) {
       const daysHtml = days.map(day => {
         const className = day.isCurrentDay ? 'schedule-calendar__day is-today' : 'schedule-calendar__day';
         const todayLabel = day.isCurrentDay ? '<span class="schedule-calendar__today">Today</span>' : '';
@@ -80,14 +93,14 @@ if (typeof globalThis.PoolScheduleDisplay === 'undefined') {
         const swimMeetClass = hasSwimMeet ? ' has-swim-meet' : '';
         const swimMeetLabel = hasSwimMeet ? '<span class="schedule-calendar__meet">Swim League</span>' : '';
         const overrideClass = day.schedule && day.schedule.hasOverrides ? ' has-override' : '';
-        const content = PoolScheduleDisplay.renderDayContent(day, options, true);
+        const content = PoolScheduleDisplay.renderDayContent(day, options, true, sourceUpdateFootnotes);
 
         return `<section class="${className}${swimMeetClass}${overrideClass}" aria-label="${day.day} ${day.monthDay}">`
           + `<header class="schedule-calendar__header"><strong>${day.day}</strong><span>${day.monthDay}</span>${swimMeetLabel}${todayLabel}</header>`
           + `${content}</section>`;
       }).join('');
 
-      return `<div class="hours-details schedule-calendar" aria-label="Weekly pool calendar">${daysHtml}</div>`;
+      return `<div class="hours-details schedule-calendar" aria-label="Weekly pool calendar">${daysHtml}</div>${PoolScheduleDisplay.renderSourceUpdates(sourceUpdateFootnotes)}`;
     }
 
     /**
@@ -105,9 +118,10 @@ if (typeof globalThis.PoolScheduleDisplay === 'undefined') {
      * @param {Object} day - Display-ready day record
      * @param {Object} options - Formatting dependencies
      * @param {boolean} useActivityColors - Whether activity tint classes should be included
+    * @param {Array} sourceUpdateFootnotes - Week-level source-update notes
      * @returns {string} Day content HTML
      */
-    static renderDayContent(day, options, useActivityColors) {
+      static renderDayContent(day, options, useActivityColors, sourceUpdateFootnotes = []) {
       const schedule = day.schedule;
       if (!schedule || !Array.isArray(schedule.timeSlots) || schedule.timeSlots.length === 0) {
         const closedClass = useActivityColors ? ' time-slot schedule-activity schedule-activity--restricted' : ' time-slot';
@@ -117,40 +131,56 @@ if (typeof globalThis.PoolScheduleDisplay === 'undefined') {
       const overrideNotice = schedule.hasOverrides && schedule.overrideReason
         ? `<div class="override-notice">${PoolScheduleDisplay.escapeHtml(schedule.overrideReason)}</div>`
         : '';
-      const sourceUpdateFootnotes = PoolScheduleDisplay.getSourceUpdateFootnotes(schedule.timeSlots);
       const slots = schedule.timeSlots.map(slot => {
         const sourceUpdateHtml = PoolScheduleDisplay.formatSourceUpdateHtml(slot.sourceUpdate);
         const sourceUpdateFootnoteNumber = sourceUpdateHtml
-          ? sourceUpdateFootnotes.indexOf(sourceUpdateHtml) + 1
+          ? sourceUpdateFootnotes.findIndex(footnote => footnote.html === sourceUpdateHtml) + 1
           : 0;
         return PoolScheduleDisplay.renderSlot(slot, day, options, useActivityColors, sourceUpdateFootnoteNumber);
       }).join('');
-      const sourceUpdates = PoolScheduleDisplay.renderSourceUpdates(schedule.timeSlots);
-      return `${overrideNotice}${slots}${sourceUpdates}`;
+      return `${overrideNotice}${slots}`;
     }
 
     /**
-     * Collect each distinct, validated source update in display order.
-     * @param {Array} slots - Effective operating periods for one day
-     * @returns {Array<string>} Escaped footnote contents
+     * Collect distinct validated source updates and their affected weekdays in display order.
+     * @param {Array} days - Display-ready week records
+     * @returns {Array<Object>} Escaped footnote contents and applicable weekday names
      */
-    static getSourceUpdateFootnotes(slots) {
-      return [...new Set((Array.isArray(slots) ? slots : [])
-        .map(slot => PoolScheduleDisplay.formatSourceUpdateHtml(slot.sourceUpdate))
-        .filter(Boolean))];
+    static getSourceUpdateFootnotes(days) {
+      const footnotesByHtml = new Map();
+
+      for (const day of Array.isArray(days) ? days : []) {
+        const slots = day.schedule && Array.isArray(day.schedule.timeSlots)
+          ? day.schedule.timeSlots
+          : [];
+        for (const slot of slots) {
+          const html = PoolScheduleDisplay.formatSourceUpdateHtml(slot.sourceUpdate);
+          if (!html) continue;
+
+          const footnote = footnotesByHtml.get(html) || { dayNames: [], html };
+          const dayName = PoolScheduleDisplay.DAY_NAMES[day.day];
+          if (dayName && !footnote.dayNames.includes(dayName)) footnote.dayNames.push(dayName);
+          footnotesByHtml.set(html, footnote);
+        }
+      }
+
+      return [...footnotesByHtml.values()];
     }
 
     /**
      * Render each distinct accepted source update once as a schedule footnote.
-     * @param {Array} slots - Effective operating periods for one day
+     * @param {Array} footnotes - Week-level source-update notes
      * @returns {string} Escaped source-update markup
      */
-    static renderSourceUpdates(slots) {
-      const footnotes = PoolScheduleDisplay.getSourceUpdateFootnotes(slots);
-      if (footnotes.length === 0) return '';
+    static renderSourceUpdates(footnotes) {
+      const validFootnotes = Array.isArray(footnotes) ? footnotes : [];
+      if (validFootnotes.length === 0) return '';
 
-      const footnotesHtml = footnotes
-        .map(footnote => `<li class="schedule-activity__source-update">${footnote}</li>`)
+      const footnotesHtml = validFootnotes
+        .map(footnote => {
+          const dayNames = new Intl.ListFormat('en-US', { style: 'long', type: 'conjunction' }).format(footnote.dayNames);
+          return `<li class="schedule-activity__source-update"><strong>${dayNames}:</strong> ${footnote.html}</li>`;
+        })
         .join('');
       return `<ol class="schedule-activity__footnotes" aria-label="Schedule notes">${footnotesHtml}</ol>`;
     }
