@@ -625,6 +625,39 @@ test('[WF-POOLS-022] mobile expanded pool details keep directions in the compact
   expect(layout.caWebsiteIsUnderPhone).toBe(true);
 });
 
+test('[WF-POOLS-033] first expansion stays visually quiet while pool details load', async ({ page }) => {
+  let releaseDetailDependency;
+  const detailDependencyPaused = new Promise(resolve => {
+    releaseDetailDependency = resolve;
+  });
+  await page.route('**/js/services/pool-link-helper.js*', async route => {
+    await detailDependencyPaused;
+    await route.continue();
+  });
+
+  try {
+    await page.goto('/pools.html');
+    await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
+
+    const poolCard = page.locator('.pool-card').first();
+    const toggle = poolCard.locator('.pool-header__toggle');
+    const details = poolCard.locator('.pool-details');
+    await toggle.click();
+
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    await expect(details).not.toHaveAttribute('hidden', '');
+    await expect(details).toHaveAttribute('aria-busy', 'true');
+    await expect(details).toHaveText('');
+  } finally {
+    releaseDetailDependency();
+  }
+
+  const details = page.locator('.pool-card').first().locator('.pool-details');
+  await expect(details).toHaveAttribute('data-pool-details-hydrated', 'true');
+  await expect(details).toHaveAttribute('aria-busy', 'false');
+  await expect(details.locator('.pool-contact')).toBeVisible();
+});
+
 test('[WF-POOLS-020] linked pool expands without moving the page and keeps a clear directions action', async ({ page }) => {
   await page.goto(`/pools.html?pool=${CONTACT_POOL.id}`);
   await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
@@ -1211,7 +1244,7 @@ test('[WF-POOLS-032] schedule source updates render below date tiles with weekda
         startTime: '12:00pm',
         endTime: '7:00pm',
         sourceUpdate: {
-          sourceName: 'Official Publisher',
+          sourceName: 'Columbia Association',
           updatedOn: `${ACTIVE_SEASON_YEAR}-06-24`,
           note: 'Fixture lap and rec swim hours.'
         }
@@ -1234,22 +1267,27 @@ test('[WF-POOLS-032] schedule source updates render below date tiles with weekda
   await expect(marker).toHaveText(['1 (schedule note 1)', '1 (schedule note 1)']);
   await expect(footnotes).toHaveAttribute('aria-label', 'Schedule notes');
   await expect(annotation).toHaveCount(1);
-  await expect(annotation).toHaveText('Wednesday and Sunday: Fixture lap and rec swim hours. Official Publisher data updated Jun 24, 2026.');
+  await expect(annotation).toHaveText('Wednesday and Sunday: Fixture lap and rec swim hours. CA data updated Jun 24, 2026.');
   expect(await footnotes.evaluate(element => {
     const cardBounds = element.closest('.pool-card').getBoundingClientRect();
     const footnotesBounds = element.getBoundingClientRect();
     const calendar = element.previousElementSibling;
+    const calendarBounds = calendar.getBoundingClientRect();
+    const annotationBounds = element.querySelector('.schedule-activity__source-update').getBoundingClientRect();
     const styles = globalThis.getComputedStyle(element);
+    const rootFontSize = Number.parseFloat(globalThis.getComputedStyle(globalThis.document.documentElement).fontSize);
     const probe = globalThis.document.createElement('span');
     probe.style.color = 'var(--text-muted)';
     globalThis.document.body.append(probe);
     const usesMutedColor = styles.color === globalThis.getComputedStyle(probe).color;
     probe.remove();
     return {
+      alignsNearCalendarEdge: annotationBounds.left - calendarBounds.left <= rootFontSize * 1.6,
       fitsCard: footnotesBounds.left >= cardBounds.left && footnotesBounds.right <= cardBounds.right,
       outsideDateTiles: calendar?.classList.contains('schedule-calendar') === true
         && element.closest('.schedule-calendar__day') === null,
+      usesLargerText: Math.abs(Number.parseFloat(styles.fontSize) - (rootFontSize * 0.85)) < 0.1,
       usesMutedColor
     };
-  })).toEqual({ fitsCard: true, outsideDateTiles: true, usesMutedColor: true });
+  })).toEqual({ alignsNearCalendarEdge: true, fitsCard: true, outsideDateTiles: true, usesLargerText: true, usesMutedColor: true });
 });

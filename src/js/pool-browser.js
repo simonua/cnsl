@@ -483,7 +483,6 @@ async function hydratePoolDetails(poolCard) {
     || details.dataset.poolDetailsUnavailable === 'true') return details;
 
   details.setAttribute('aria-busy', 'true');
-  details.innerHTML = '<p class="pool-details__loading" role="status">Loading pool details...</p>';
   try {
     await loadPoolDetailDependencies();
   } catch (error) {

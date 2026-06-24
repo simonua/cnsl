@@ -185,6 +185,14 @@ describe('PoolScheduleDisplay', () => {
       assert.match(html, /Fixture &lt;hours&gt; for June 19-August 9\. Official &lt;Publisher&gt; data updated Jun 24, 2026\./);
       assert.ok(html.indexOf('schedule-activity__footnotes') > html.lastIndexOf('</section>'));
       assert.doesNotMatch(html, /<Publisher>|<hours>/);
+      assert.equal(PoolScheduleDisplay.formatSourceUpdateHtml({
+        ...sourceUpdate,
+        sourceName: 'Columbia Association'
+      }), 'Fixture &lt;hours&gt; for June 19-August 9. CA data updated Jun 24, 2026.');
+      assert.equal(PoolScheduleDisplay.formatSourceUpdateHtml({
+        ...sourceUpdate,
+        sourceName: 'Columbia Neighborhood Swim League'
+      }), 'Fixture &lt;hours&gt; for June 19-August 9. CNSL data updated Jun 24, 2026.');
       assert.equal(PoolScheduleDisplay.formatSourceUpdateHtml({ ...sourceUpdate, updatedOn: '2026-02-30' }), '');
       assert.equal(PoolScheduleDisplay.formatSourceUpdateHtml({ ...sourceUpdate, sourceName: '' }), '');
       assert.deepEqual(PoolScheduleDisplay.getSourceUpdateFootnotes(null), []);

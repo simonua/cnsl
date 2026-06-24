@@ -18,6 +18,11 @@ if (typeof globalThis.PoolScheduleDisplay === 'undefined') {
 
     static LAYOUTS = ['list', 'calendar'];
 
+    static SOURCE_NAME_ABBREVIATIONS = Object.freeze({
+      'Columbia Association': 'CA',
+      'Columbia Neighborhood Swim League': 'CNSL'
+    });
+
     /**
      * Render a weekly schedule in the requested presentation.
      * @param {Array} weekSchedule - Normalized days with time slots
@@ -216,7 +221,11 @@ if (typeof globalThis.PoolScheduleDisplay === 'undefined') {
         timeZone: 'UTC',
         year: 'numeric'
       });
-      return `${PoolScheduleDisplay.escapeHtml(sourceUpdate.note.trim())} ${PoolScheduleDisplay.escapeHtml(sourceUpdate.sourceName.trim())} data updated ${PoolScheduleDisplay.escapeHtml(formattedDate)}.`;
+      const sourceName = sourceUpdate.sourceName.trim();
+      const displaySourceName = Object.hasOwn(PoolScheduleDisplay.SOURCE_NAME_ABBREVIATIONS, sourceName)
+        ? PoolScheduleDisplay.SOURCE_NAME_ABBREVIATIONS[sourceName]
+        : sourceName;
+      return `${PoolScheduleDisplay.escapeHtml(sourceUpdate.note.trim())} ${PoolScheduleDisplay.escapeHtml(displaySourceName)} data updated ${PoolScheduleDisplay.escapeHtml(formattedDate)}.`;
     }
 
     /**
