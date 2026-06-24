@@ -118,7 +118,54 @@ if (typeof globalThis.PoolScheduleDisplay === 'undefined') {
         ? `<div class="override-notice">${PoolScheduleDisplay.escapeHtml(schedule.overrideReason)}</div>`
         : '';
       const slots = schedule.timeSlots.map(slot => PoolScheduleDisplay.renderSlot(slot, day, options, useActivityColors)).join('');
-      return `${overrideNotice}${slots}`;
+      const sourceUpdates = PoolScheduleDisplay.renderSourceUpdates(schedule.timeSlots);
+      return `${overrideNotice}${slots}${sourceUpdates}`;
+    }
+
+    /**
+     * Render each distinct accepted source update once beneath its schedule day.
+     * @param {Array} slots - Effective operating periods for one day
+     * @returns {string} Escaped source-update markup
+     */
+    static renderSourceUpdates(slots) {
+      const renderedUpdates = new Set((Array.isArray(slots) ? slots : [])
+        .map(slot => PoolScheduleDisplay.formatSourceUpdateHtml(slot.sourceUpdate))
+        .filter(Boolean));
+      return [...renderedUpdates].join('');
+    }
+
+    /**
+     * Format validated source-update metadata as muted visitor context.
+     * @param {Object|null} sourceUpdate - Candidate source-update metadata
+     * @returns {string} Escaped source-update markup, or an empty string when invalid
+     */
+    static formatSourceUpdateHtml(sourceUpdate) {
+      if (!sourceUpdate
+        || typeof sourceUpdate.sourceName !== 'string'
+        || typeof sourceUpdate.note !== 'string'
+        || !sourceUpdate.sourceName.trim()
+        || !sourceUpdate.note.trim()) return '';
+
+      const dateMatch = typeof sourceUpdate.updatedOn === 'string'
+        ? /^(\d{4})-(\d{2})-(\d{2})$/.exec(sourceUpdate.updatedOn)
+        : null;
+      if (!dateMatch) return '';
+
+      const year = Number(dateMatch[1]);
+      const monthIndex = Number(dateMatch[2]) - 1;
+      const day = Number(dateMatch[3]);
+      const updateDate = new Date(Date.UTC(year, monthIndex, day));
+      if (updateDate.getUTCFullYear() !== year
+        || updateDate.getUTCMonth() !== monthIndex
+        || updateDate.getUTCDate() !== day) return '';
+
+      const formattedDate = updateDate.toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'short',
+        timeZone: 'UTC',
+        year: 'numeric'
+      });
+      return `<span class="schedule-activity__source-update">${PoolScheduleDisplay.escapeHtml(sourceUpdate.note.trim())} ${PoolScheduleDisplay.escapeHtml(sourceUpdate.sourceName.trim())} data updated ${PoolScheduleDisplay.escapeHtml(formattedDate)}.</span>`;
     }
 
     /**

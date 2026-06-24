@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://example.com/pools.schema.json",
-    "version": "V17",
+    "version": "V18",
     "title": "Pool Data Schema",
     "description": "Schema for pool data containing schedules, features, and location information",
     "type": "object",
@@ -232,12 +232,37 @@
                 "sourceUrl": {
                     "$ref": "#/definitions/HttpsUrl",
                     "description": "Official source URL for details about this scheduled activity"
+                },
+                "sourceUpdate": {
+                    "$ref": "#/definitions/SourceUpdate",
+                    "description": "Concise provenance for a schedule item changed during an accepted source review"
                 }
             },
             "required": [
                 "weekDays",
                 "types",
                 "accessStatus"
+            ],
+            "additionalProperties": false
+        },
+        "SourceUpdate": {
+            "type": "object",
+            "properties": {
+                "sourceName": {
+                    "$ref": "#/definitions/NonEmptyString"
+                },
+                "updatedOn": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "note": {
+                    "$ref": "#/definitions/NonEmptyString"
+                }
+            },
+            "required": [
+                "sourceName",
+                "updatedOn",
+                "note"
             ],
             "additionalProperties": false
         },

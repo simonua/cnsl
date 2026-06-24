@@ -1,6 +1,6 @@
 {
   "season": 2026,
-  "acceptedOn": "2026-06-23",
+  "acceptedOn": "2026-06-24",
   "documents": [
     {
       "domain": "pools",
@@ -70,15 +70,15 @@
     {
       "domain": "pools",
       "label": "Dorsey Hall pool schedule",
-      "localPath": "pools/pool-schedules/dhp/2026-06-17/Dorsey_Hall.pdf",
+      "localPath": "pools/pool-schedules/dhp/2026-06-24/Dorsey_Hall.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Dorsey_Hall.pdf",
       "sourceIds": [
         "pool:dhp:schedule"
       ],
-      "etag": "\"6a316182-eb1f\"",
-      "lastModified": "Tue, 16 Jun 2026 14:45:22 GMT",
-      "contentLength": "60191",
-      "sha256": "dcb17ce6fb44260477616d8ccb067cf3ad3895db586cc04684cc2e2ec878afef"
+      "etag": "\"6a3ac305-e611\"",
+      "lastModified": "Tue, 23 Jun 2026 17:31:49 GMT",
+      "contentLength": "58897",
+      "sha256": "a3f787ac0aaed487dfaf6fc703f71ca69e844175eecd377bca2c29d498296d7d"
     },
     {
       "domain": "pools",
@@ -637,7 +637,7 @@
       ],
       "fingerprint": "outdoor-pool-schedules",
       "label": "Columbia Association pool schedule page",
-      "sha256": "6476c43ef95f71f1f6943b6b8f2eefcb4976489f361cd92b0276aed8cb281a4e",
+      "sha256": "c27fee2610eefbc2a4aeb20aa7af77f69bbc8209f9f007252f4e11cba659ea66",
       "sourceIds": [
         "pools:outdoor-schedule-index"
       ],

@@ -351,6 +351,46 @@ for (const { contrast, reference, theme } of [
   });
 }
 
+for (const { contrast, reference, theme } of [
+  { contrast: 'standard', reference: 'LIGHT', theme: 'light' },
+  { contrast: 'standard', reference: 'DARK', theme: 'dark' },
+  { contrast: 'high', reference: 'LIGHT-HIGH-CONTRAST', theme: 'light' },
+  { contrast: 'high', reference: 'DARK-HIGH-CONTRAST', theme: 'dark' }
+]) {
+  test(`[AX-POOLS-005-${reference}] visible schedule source updates pass WCAG in ${reference.toLowerCase()}`, async ({ page }) => {
+    const sourceUpdatePool = ANNUAL_POOLS[0];
+    await page.setViewportSize(MOBILE_VIEWPORT);
+    await page.clock.setFixedTime(activeSeasonDate('06-24T12:00:00-04:00'));
+    await prepareStableWeatherResponses(page);
+    await routeAnnualData(page, 'pools', poolData => {
+      const pool = poolData.pools.find(record => record.id === sourceUpdatePool.id);
+      pool.schedules = [{
+        startDate: `${ACTIVE_SEASON_YEAR}-05-23`,
+        endDate: `${ACTIVE_SEASON_YEAR}-09-07`,
+        hours: [{
+          weekDays: ['Wed'],
+          types: ['Laps', 'Rec Swim'],
+          accessStatus: 'public',
+          startTime: '12:00pm',
+          endTime: '7:00pm',
+          sourceUpdate: {
+            sourceName: 'Official Publisher',
+            updatedOn: `${ACTIVE_SEASON_YEAR}-06-24`,
+            note: 'Deterministic accessibility fixture.'
+          }
+        }]
+      }];
+      pool.scheduleOverrides = [];
+    });
+    await seedPreferences(page, { contrast, favoritePoolName: sourceUpdatePool.name, theme });
+    await page.goto('/pools.html');
+    await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
+    await expect(page.locator('.favorite-card .schedule-activity__source-update')).toBeVisible();
+
+    await expectNoAccessibilityViolations(page);
+  });
+}
+
 for (const theme of ['light', 'dark']) {
   test(`[AX-WEATHER-001-${theme.toUpperCase()}] visible weather safety alert has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT);

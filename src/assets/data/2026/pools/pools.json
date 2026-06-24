@@ -1946,8 +1946,13 @@
                 "Rec Swim"
               ],
               "accessStatus": "public",
-              "startTime": "12:00pm",
-              "endTime": "8:30pm"
+              "startTime": "11:00am",
+              "endTime": "7:00pm",
+              "sourceUpdate": {
+                "sourceName": "Columbia Association",
+                "updatedOn": "2026-06-24",
+                "note": "Lap and rec swim hours for June 19-August 9."
+              }
             }
           ]
         },

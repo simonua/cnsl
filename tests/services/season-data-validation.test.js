@@ -130,7 +130,7 @@ describe('season data validation', () => {
         }
       };
 
-      assert.equal(poolSchema.version, 'V17');
+      assert.equal(poolSchema.version, 'V18');
       assert.deepEqual(validateSchema('featureOverride', localObservation, overrideSchema), []);
       assert.deepEqual(validateSchema('featureOverride', officialCorrection, overrideSchema), []);
 
@@ -141,6 +141,23 @@ describe('season data validation', () => {
       const insecureOfficialSource = structuredClone(officialCorrection);
       insecureOfficialSource.evidence.sourceUrl = 'http://example.com/pool-source';
       assert.ok(validateSchema('featureOverride', insecureOfficialSource, overrideSchema).length > 0);
+    });
+
+    it('should enforce structured pool schedule source-update metadata', () => {
+      const sourceUpdateSchema = {
+        $ref: '#/definitions/SourceUpdate',
+        definitions: poolSchema.definitions
+      };
+      const sourceUpdate = {
+        sourceName: 'Columbia Association',
+        updatedOn: '2026-06-24',
+        note: 'Sunday lap and rec swim hours for June 19-August 9.'
+      };
+
+      assert.deepEqual(validateSchema('sourceUpdate', sourceUpdate, sourceUpdateSchema), []);
+      assert.ok(validateSchema('sourceUpdate', { ...sourceUpdate, updatedOn: '2026-02-30' }, sourceUpdateSchema).length > 0);
+      assert.ok(validateSchema('sourceUpdate', { ...sourceUpdate, sourceName: '' }, sourceUpdateSchema).length > 0);
+      assert.ok(validateSchema('sourceUpdate', { ...sourceUpdate, extra: true }, sourceUpdateSchema).length > 0);
     });
 
     it('should enforce real meet dates and HTTPS sources in annual schemas', () => {

@@ -180,6 +180,7 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
         notes: hour.notes || '',
         accessStatus: hour.accessStatus,
         sourceUrl: hour.sourceUrl || '',
+        sourceUpdate: hour.sourceUpdate ? { ...hour.sourceUpdate } : null,
         isSpecialEvent: hour.isSpecialEvent === true,
         isOverride: true,
         overrideReason: override.reason || null,
@@ -210,7 +211,8 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
         overrideReason: slot.overrideReason,
         meetDate: slot.meetDate,
         meetPoolId: slot.meetPoolId,
-        sourceUrl: slot.sourceUrl
+        sourceUrl: slot.sourceUrl,
+        sourceUpdate: slot.sourceUpdate
       }));
     }
 
@@ -257,6 +259,7 @@ if (typeof globalThis.PoolPeriodScheduleService === 'undefined') {
         notes: hour.notes || '',
         accessStatus: hour.accessStatus,
         sourceUrl: hour.sourceUrl || '',
+        sourceUpdate: hour.sourceUpdate ? { ...hour.sourceUpdate } : null,
         isSpecialEvent: hour.isSpecialEvent === true,
         isOverride: false
       })));

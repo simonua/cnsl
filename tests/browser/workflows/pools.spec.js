@@ -1194,3 +1194,53 @@ test('[WF-POOLS-031] closing countdown remains red across the one-hour boundary'
     return matches;
   }, '--error-text-color')).toBe(true);
 });
+
+test('[WF-POOLS-032] schedule source updates remain subtle and fit narrow pool details', async ({ page }) => {
+  const sourceUpdatePool = ANNUAL_POOLS[0];
+  await page.setViewportSize(MOBILE_VIEWPORT);
+  await page.clock.setFixedTime(activeSeasonDate('06-24T12:00:00-04:00'));
+  await routeAnnualData(page, 'pools', poolData => {
+    const pool = poolData.pools.find(record => record.id === sourceUpdatePool.id);
+    pool.schedules = [{
+      startDate: `${ACTIVE_SEASON_YEAR}-05-23`,
+      endDate: `${ACTIVE_SEASON_YEAR}-09-07`,
+      hours: [{
+        weekDays: ['Wed'],
+        types: ['Laps', 'Rec Swim'],
+        accessStatus: 'public',
+        startTime: '12:00pm',
+        endTime: '7:00pm',
+        sourceUpdate: {
+          sourceName: 'Official Publisher',
+          updatedOn: `${ACTIVE_SEASON_YEAR}-06-24`,
+          note: 'Fixture lap and rec swim hours.'
+        }
+      }]
+    }];
+    pool.scheduleOverrides = [];
+  });
+  await seedPreferences(page, { favoritePoolName: sourceUpdatePool.name });
+  await page.goto('/pools.html');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
+
+  const favoriteCard = page.locator('.favorite-card');
+  const annotation = favoriteCard.locator('.schedule-activity__source-update');
+  await expect(annotation).toHaveCount(1);
+  await expect(annotation).toHaveText('Fixture lap and rec swim hours. Official Publisher data updated Jun 24, 2026.');
+  expect(await annotation.evaluate(element => {
+    const cardBounds = element.closest('.pool-card').getBoundingClientRect();
+    const annotationBounds = element.getBoundingClientRect();
+    const documentElement = globalThis.document.documentElement;
+    const styles = globalThis.getComputedStyle(element);
+    const probe = globalThis.document.createElement('span');
+    probe.style.color = 'var(--text-muted)';
+    globalThis.document.body.append(probe);
+    const usesMutedColor = styles.color === globalThis.getComputedStyle(probe).color;
+    probe.remove();
+    return {
+      fitsCard: annotationBounds.left >= cardBounds.left && annotationBounds.right <= cardBounds.right,
+      noPageOverflow: documentElement.scrollWidth <= documentElement.clientWidth + 1,
+      usesMutedColor
+    };
+  })).toEqual({ fitsCard: true, noPageOverflow: true, usesMutedColor: true });
+});

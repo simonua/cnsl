@@ -128,6 +128,9 @@
   --release-bugfix-bg: var(--error-soft-bg);
   --release-bugfix-border: var(--error-color);
   --release-bugfix-text: var(--error-text-color);
+  --release-data-update-bg: var(--feature-amenities-bg);
+  --release-data-update-border: var(--feature-amenities-border);
+  --release-data-update-text: var(--feature-amenities-text);
   --header-height: 4.625rem;
   --footer-height: 4.95rem;
   --footer-bottom-clearance: env(safe-area-inset-bottom, 0rem);
@@ -3837,6 +3840,12 @@ button.pool-filter__clear:focus-visible {
   font-weight: 500;
 }
 
+.release-label--data-update {
+  background: var(--release-data-update-bg);
+  border-color: var(--release-data-update-border);
+  color: var(--release-data-update-text);
+}
+
 .faq-item a {
   color: var(--primary-color);
   text-decoration: none;
@@ -4057,6 +4066,15 @@ html[data-hide-home-intro="true"] .welcome-section {
   margin-left: 0.35rem;
 }
 
+.schedule-activity__source-update {
+  color: var(--text-muted);
+  display: block;
+  font-size: 0.78rem;
+  font-style: italic;
+  line-height: 1.3;
+  margin: 0.2rem 0 0.35rem 1rem;
+}
+
 .pool-schedule-list .schedule-activity__team-names {
   color: var(--text-muted);
   display: block;
@@ -4165,6 +4183,10 @@ html[data-hide-home-intro="true"] .welcome-section {
 .schedule-calendar .schedule-activity__note {
   color: var(--text-muted);
   margin-top: 0.2rem;
+}
+
+.schedule-calendar .schedule-activity__source-update {
+  margin: 0.25rem 0.35rem 0;
 }
 
 .schedule-calendar .schedule-activity__team-names {

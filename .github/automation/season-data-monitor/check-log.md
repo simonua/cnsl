@@ -479,3 +479,45 @@ The Oakland Mills Tigersharks practice page remained reachable at the modeled UR
 | Visitor-facing records | Unchanged | None; What's New and sitemap were not changed. |
 | Review records | Updated | `OFFICIAL_SOURCE_CHECKED_AT`, active annual README evidence, and this check-log entry; `OFFICIAL_SOURCE_UPDATED_AT` remains unchanged. |
 | Reviewed source baseline | Updated | `source-state.json` refreshed with the accepted June 23 candidate fingerprints and current retained-PDF metadata. |
+
+## 2026-06-24T07:23:33-04:00 Seasonal Data Review
+
+**Active season:** 2026
+
+**Result:** Complete for candidate `2c84668ffcf4f330` under the existing explicit maintainer exception for merchandise-store and booster-site availability.
+
+Checked the 139-source inventory built from the active 2026 JSON and annual README:
+
+- `pnpm run check:data-updates` reached all 76 monitor-collected modeled-evidence URLs and reported no new candidate differences against the accepted baseline.
+- All 63 official sources and application-used destinations outside the monitor were attempted separately with live GET requests.
+- 136 required sources returned successful responses.
+- The Long Reach and Phelps Luck merchandise stores and the Long Reach booster site were attempted and returned HTTP 403 responses covered by the established availability exception.
+- No non-exempt source failed or remained unattempted.
+
+The accepted current Dorsey Hall PDF changes Sunday Laps and Rec Swim during June 19 - August 9 from noon - 8:30 PM to 11:00 AM - 7:00 PM. Every other extracted schedule line remains unchanged. The pool-specific Columbia Association PDF directly owns those hours, and the schedule page independently identifies that document as updated June 23. All 23 published outdoor-pool schedule links remain at the exact `pools[].scheduleUrl` destinations already stored. Current live evidence does not contradict the accepted update, and no other candidate difference was reported. No official source conflict, normalization change, schema change, or residual uncertainty remains. Confidence is High.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Updated | Dorsey Hall `schedules` Sunday Laps and Rec Swim hours for June 19 - August 9 changed to 11:00 AM - 7:00 PM in `pools/pools.json`. |
+| Application-used source destinations | Unchanged | None; `caPoolGuideUrl` and all 23 `pools[].scheduleUrl` values remain current. |
+| Retained official PDFs | Updated | Added `pools/pool-schedules/dhp/2026-06-24/Dorsey_Hall.pdf`; the June 17 artifact remains retained. |
+| Visitor-facing records | Updated | Added the Dorsey Hall Sunday-hours item to the undated Upcoming section in `src/views/whats-new.html` and updated the Pools page `lastmod` in `sitemap.xml`. |
+| Review records | Updated | Updated `OFFICIAL_SOURCE_CHECKED_AT`, `OFFICIAL_SOURCE_UPDATED_AT`, active annual README evidence, and this check-log entry. |
+| Reviewed source baseline | Updated | `source-state.json` refreshed with the accepted Dorsey Hall document and schedule-page evidence. |
+
+## 2026-06-24 Source Update Annotation
+
+**Active season:** 2026
+
+**Result:** Local provenance-contract and presentation update; no new online official-source review performed.
+
+At the maintainer's direction, pool schema V18 adds structured `sourceUpdate` metadata to schedule hours. The accepted Dorsey Hall June 19 - August 9 Sunday Laps and Rec Swim entry records Columbia Association as the source and June 24, 2026 as the application-data update date. The web app shows that context once beneath the affected Sunday schedule in smaller muted text. The represented hours, retained source evidence, source destinations, completed-review timestamps, and reviewed source baseline remain unchanged.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Updated | Added `sourceUpdate` to the corrected Dorsey Hall Sunday hours and advanced `pools.schema.json` to V18. |
+| Application-used source destinations | Unchanged | None. |
+| Retained official PDFs | Unchanged | None. |
+| Visitor-facing records | Updated | The affected schedule now shows a concise, unobtrusive source-update note. |
+| Review records | Updated | Updated the active annual README and this check-log entry; official-source timestamps remain unchanged. |
+| Reviewed source baseline | Unchanged | No source was re-requested or replaced, so `source-state.json` remains current. |

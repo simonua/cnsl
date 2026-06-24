@@ -8,6 +8,13 @@
 /** @typedef {'cash'|'credit'|'other'|'paypal'|'venmo'} PaymentMethodValue */
 
 /**
+ * @typedef {Object} PoolScheduleSourceUpdate
+ * @property {string} sourceName
+ * @property {string} updatedOn
+ * @property {string} note
+ */
+
+/**
  * @typedef {Object} PoolLocation
  * @property {string} street
  * @property {string} city
@@ -28,6 +35,7 @@
  * @property {string} [endTime]
  * @property {string} [notes]
  * @property {string} [sourceUrl]
+ * @property {PoolScheduleSourceUpdate} [sourceUpdate]
  */
 
 /**

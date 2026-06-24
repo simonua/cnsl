@@ -158,6 +158,29 @@ describe('PoolScheduleDisplay', () => {
       assert.doesNotMatch(plain, /schedule-activity--event/);
     });
 
+    it('renders distinct valid source updates as escaped muted context', () => {
+      const sourceUpdate = {
+        sourceName: 'Official <Publisher>',
+        updatedOn: '2026-06-24',
+        note: 'Sunday <hours> for June 19-August 9.'
+      };
+      const html = PoolScheduleDisplay.render([{
+        day: 'Wed',
+        timeSlots: [{
+          startTime: '1:00PM', endTime: '2:00PM', activities: ['Rec Swim'], accessStatus: 'public', sourceUpdate
+        }, {
+          startTime: '2:00PM', endTime: '3:00PM', activities: ['Laps'], accessStatus: 'public', sourceUpdate
+        }]
+      }], options);
+
+      assert.equal((html.match(/schedule-activity__source-update/g) || []).length, 1);
+      assert.match(html, /Sunday &lt;hours&gt; for June 19-August 9\. Official &lt;Publisher&gt; data updated Jun 24, 2026\./);
+      assert.doesNotMatch(html, /<Publisher>|<hours>/);
+      assert.equal(PoolScheduleDisplay.formatSourceUpdateHtml({ ...sourceUpdate, updatedOn: '2026-02-30' }), '');
+      assert.equal(PoolScheduleDisplay.formatSourceUpdateHtml({ ...sourceUpdate, sourceName: '' }), '');
+      assert.equal(PoolScheduleDisplay.renderSourceUpdates(null), '');
+    });
+
     it('keeps public follow-on slots ordinary within a swim meet override', () => {
       const day = { isCurrentDay: false };
       const meetSlot = { startTime: '7:00AM', endTime: '12:00PM', activities: ['Swim Meet'], accessStatus: 'swim-meet', notes: '', isOverride: true };

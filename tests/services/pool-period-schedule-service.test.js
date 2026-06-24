@@ -11,7 +11,11 @@ const schedules = [{
   startDate: '2026-06-01',
   endDate: '2026-06-07',
   hours: [
-    { weekDays: ['Mon'], startTime: '1:00PM', endTime: '5:00PM', types: ['Rec Swim'], accessStatus: 'public', sourceUrl: 'https://example.com/activity' },
+    {
+      weekDays: ['Mon'], startTime: '1:00PM', endTime: '5:00PM', types: ['Rec Swim'], accessStatus: 'public',
+      sourceUrl: 'https://example.com/activity',
+      sourceUpdate: { sourceName: 'Official Publisher', updatedOn: '2026-06-02', note: 'Corrected public hours.' }
+    },
     { weekDays: ['Tue'], startTime: '2:00PM', endTime: '4:00PM', types: ['Practice'], accessStatus: 'practice-only' }
   ]
 }];
@@ -120,9 +124,12 @@ describe('PoolPeriodScheduleService', () => {
       assert.equal(specialEvent.find(slot => slot.isOverride).isSpecialEvent, true);
     });
 
-    it('preserves official activity source URLs in regular and override schedules', () => {
+    it('preserves official activity source metadata in regular and override schedules', () => {
       const regular = createService({ scheduleOverrides: [] }).getWeekScheduleForDate(new Date(2026, 5, 1));
       assert.equal(regular[0].timeSlots[0].sourceUrl, 'https://example.com/activity');
+      assert.deepEqual(regular[0].timeSlots[0].sourceUpdate, {
+        sourceName: 'Official Publisher', updatedOn: '2026-06-02', note: 'Corrected public hours.'
+      });
 
       const overrideService = createService({
         scheduleOverrides: [{
@@ -135,12 +142,14 @@ describe('PoolPeriodScheduleService', () => {
             endTime: '3:00PM',
             types: ['Aqua Fitness'],
             accessStatus: 'restricted',
-            sourceUrl: 'https://example.com/override'
+            sourceUrl: 'https://example.com/override',
+            sourceUpdate: { sourceName: 'Official Publisher', updatedOn: '2026-06-03', note: 'Corrected class hours.' }
           }]
         }]
       });
       const override = overrideService.getWeekScheduleForDate(new Date(2026, 5, 1))[0].timeSlots;
       assert.equal(override.find(slot => slot.accessStatus === 'restricted').sourceUrl, 'https://example.com/override');
+      assert.equal(override.find(slot => slot.accessStatus === 'restricted').sourceUpdate.updatedOn, '2026-06-03');
       assert.equal(override.filter(slot => slot.accessStatus === 'public').every(slot => slot.sourceUrl === 'https://example.com/activity'), true);
     });
 
