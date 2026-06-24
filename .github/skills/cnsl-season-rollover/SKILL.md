@@ -114,4 +114,4 @@ Make an `Updates` table the final section of the response. Put the validation of
 | Review records | Updated / Unchanged / Not completed | Name timestamp, annual README, and check-log edits. |
 | Reviewed source baseline | Updated / Unchanged / Not completed | State whether `source-state.json` was refreshed. |
 
-Append the same table, with values for that run, as the final content of the matching `.github/automation/season-data-monitor/check-log.md` entry.
+Append the same table, with values for that run, as the final content of the matching detailed `.github/automation/season-data-monitor/check-log.md` entry. Also add the run to the top `Latest Activity` table using the classification and column rules in the monitor README; keep the summary table newest-first and the detailed entries append-only.

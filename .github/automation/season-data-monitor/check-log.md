@@ -1,6 +1,36 @@
 # Seasonal Data Update Check Log
 
-This append-only log records completed online checks of official active-season sources. Each entry uses an `America/New_York` timestamp with an explicit UTC offset, states whether the overall check was complete, and ends with an update-summary table.
+This log records completed online checks of official active-season sources and local seasonal-data updates. Detailed entries remain append-only. The latest-activity index stays in reverse chronological order and links each check or update to its general outcome. Each detailed online-check entry uses an `America/New_York` timestamp with an explicit UTC offset, states whether the overall check was complete, and ends with an update-summary table.
+
+## Latest Activity
+
+| Date | Type | Data point | Summary |
+| --- | --- | --- | --- |
+| 2026-06-24 Source Update Annotation | update | Dorsey Hall Sunday schedule `sourceUpdate` | Added structured source and application-update context to the corrected Sunday hours and displayed it with the schedule. |
+| 2026-06-24T07:23:33-04:00 Seasonal Data Review | update | Dorsey Hall Sunday Laps and Rec Swim hours | Corrected the June 19 - August 9 hours to 11:00 AM - 7:00 PM and retained the current official PDF. |
+| 2026-06-23T04:58:05-04:00 Seasonal Data Review | check | <!-- --> | Completed the 139-source review; represented lesson, pool-link, and Oakland Mills practice data remained current. |
+| 2026-06-22T06:40:55-04:00 Seasonal Data Review | check | <!-- --> | Completed the 139-source review; the Clemens Crossing staff record and functional contact destinations remained current. |
+| 2026-06-21T11:58:31-04:00 Seasonal Data Review | update | Huntington preseason and regular practice dates | Corrected the preseason end and regular-season start and end dates from the current team page. |
+| 2026-06-19 Universal Relay Reminder Normalization | update | Relay early-departure reminder | Removed duplicate seasonal copies and made the reminder universal application guidance. |
+| 2026-06-19 Home-Team Setup Wording Correction | update | Kendall Ridge home-team setup location | Corrected the accepted setup-location wording for Long Reach families. |
+| 2026-06-19 Home-Team Merchandise Guidance Correction | update | Kendall Ridge home-team helpful notes | Added the home-team-only merchandise location. |
+| 2026-06-19 Home-Team Helpful-Note Ordering Correction | update | <!-- --> | Reordered accepted home-team notes without changing their data. |
+| 2026-06-19 Role-Specific Parking Correction | update | Kendall Ridge home-team and visiting-team parking notes | Replaced shared parking text with role-specific guidance and updated My Meet Day selection. |
+| 2026-06-19T08:57:44-04:00 Pool Schedule Audit | update | Pool holiday and closure schedule overrides | Classified 48 replacement-day schedules, retained the current Bryant Woods PDF, and updated schedule resolution. |
+| 2026-06-19 Local Manager Correction | update | Kendall Ridge home-team arrival time | Added the 6:50 AM Long Reach arrival time and team-specific label. |
+| 2026-06-18T11:53:27-04:00 | check | <!-- --> | Completed the 139-source review; represented outdoor lesson data and destinations remained current. |
+| 2026-06-17 Local Manager Correction | update | Kendall Ridge concessions and visiting-team warm-up | Added concession drinks and a 7:25 AM visiting-team warm-up and simplified shared cash guidance. |
+| 2026-06-17T09:58:31-04:00 | update | Huntington practice group; Dickinson schedule URL | Corrected the practice-group label, updated the Dickinson destination, and refreshed 23 retained pool PDFs. |
+| 2026-06-17T06:39:31-04:00 | update | Kendall Ridge shared and visiting-team guidance | Updated parking, concessions, setup, check-in, and source-date details from manager guidance. |
+| 2026-06-16T07:31:14-04:00 | update | <!-- --> | Tightened annual schema and validation contracts without changing current modeled values. |
+| 2026-06-16T07:07:01-04:00 | update | Kendall Ridge concession categories | Reclassified the unchanged concession list into meal and snack groups. |
+| 2026-06-15T21:28:22-04:00 | update | Pool features | Distinguished feature locations and types and added the Jeffers Hill wading-pool slide. |
+| 2026-06-15T08:41:26-04:00 | update | Aqua Fitness dates and access; pool activity status; Clemens Crossing assistant coach | Corrected program boundaries, activity classifications, and Sophia Luo's name. |
+| 2026-06-13T21:03:58-04:00 | update | Kendall Ridge arrival and swimmer check-in guidance | Completed the source review and recorded separately supplied Long Reach host-team guidance. |
+| 2026-06-13T09:03:27-04:00 | check | <!-- --> | Completed the 135-source review; no represented data or destinations changed. |
+| 2026-06-11T18:08:10-04:00 | check | <!-- --> | Completed the 135-source review; no represented data or destinations changed. |
+| 2026-06-10T22:13:23-04:00 | check | <!-- --> | Completed the 135-source review under the availability exception; no represented data changed. |
+| 2026-06-10T06:56:02-04:00 | check | <!-- --> | The review was incomplete because one application-used destination could not be verified; no represented data changed. |
 
 ## 2026-06-10T06:56:02-04:00
 

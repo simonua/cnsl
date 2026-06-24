@@ -76,7 +76,9 @@ Do not list raw page fingerprint changes as data changes. They are investigation
 
 ## Completion Report
 
-Make an `Updates` table the final section of every completion response and the corresponding check-log entry. Put the optional `pnpm run validate:data` offer and all other prose before this table so nothing follows it. Use `Updated`, `Unchanged`, or `Not completed`, name changed files or modeled properties, and write `None` when an area did not change:
+When writing the corresponding check-log entry, also add its row to the top `Latest Activity` table using the classification and column rules in the monitor README. Keep the summary table newest-first and the detailed entries append-only.
+
+Make an `Updates` table the final section of every completion response and the corresponding detailed check-log entry. Put the optional `pnpm run validate:data` offer and all other prose before this table so nothing follows it. Use `Updated`, `Unchanged`, or `Not completed`, name changed files or modeled properties, and write `None` when an area did not change:
 
 | Area | Status | Details |
 | --- | --- | --- |
