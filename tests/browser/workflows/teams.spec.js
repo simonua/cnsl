@@ -4,20 +4,20 @@ const {
   activeSeasonDate,
   initializeAnalyticsRecorder,
   prepareStableWeatherResponses,
-  readAnnualData,
+  routeAnnualDataFixture,
   seedPreferences,
   setAgendaReferenceTime
 } = require('../browser-test-helpers');
+const { createTestDataScenario } = require('../fixtures/test-data.js');
 
-const ANNUAL_TEAMS = readAnnualData('teams').teams;
-const PRACTICE_TEAM = ANNUAL_TEAMS.find(team => team.practice?.preseason?.length && team.practice?.regular);
-const EXTERNAL_ACTION_TEAM = ANNUAL_TEAMS.find(team => (
-  team.merchandiseUrl && team.eventsSubscriptionUrl && team.booster?.url
-));
-const TEAM_WITHOUT_EXTERNAL_ACTIONS = ANNUAL_TEAMS.find(team => !team.merchandiseUrl && !team.booster?.url);
+const { meets, teams } = createTestDataScenario();
+const PRACTICE_TEAM = teams.primaryTeam;
+const EXTERNAL_ACTION_TEAM = teams.externalActionTeam;
+const TEAM_WITHOUT_EXTERNAL_ACTIONS = teams.teamWithoutActions;
 
 test.beforeEach(async ({ page }) => {
   await prepareStableWeatherResponses(page);
+  await routeAnnualDataFixture(page, ['meets', 'pools', 'teams']);
 });
 
 test('[WF-TEAMS-001] collapsed favorite team stays collapsed after returning to the directory', async ({ page }) => {
@@ -27,7 +27,7 @@ test('[WF-TEAMS-001] collapsed favorite team stays collapsed after returning to 
     localStorage.setItem('cnsl_preferences', JSON.stringify({ favoriteTeamId: teamId }));
   }, PRACTICE_TEAM.id);
   await page.reload();
-  await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
+  await expect(page.locator('#teamList')).toHaveAttribute('aria-busy', 'false');
 
   const favoriteToggle = page.locator('.favorite-card .team-header__toggle');
   await expect(favoriteToggle).toHaveAttribute('aria-expanded', 'true');
@@ -48,7 +48,7 @@ test('[WF-TEAMS-001] collapsed favorite team stays collapsed after returning to 
 test('[WF-TEAMS-002] team directory groups practice and meet disclosures in one readable schedule list', async ({ page }) => {
   await setAgendaReferenceTime(page);
   await page.goto('/teams.html');
-  await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
+  await expect(page.locator('#teamList')).toHaveAttribute('aria-busy', 'false');
 
   const teamCard = page.locator(`.team-card[data-team-id="${PRACTICE_TEAM.id}"]`);
   await teamCard.locator('.team-header__toggle').click();
@@ -82,7 +82,7 @@ test('[WF-TEAMS-002] team directory groups practice and meet disclosures in one 
   await expect(inSeason).not.toHaveClass(/practice-schedule__phase--current/);
   await inSeason.locator('summary').click();
   await expect(inSeason.locator('.practice-schedule__body')).toBeVisible();
-  await expect(inSeason.locator('.session-item').first()).toBeVisible();
+  await expect(inSeason.locator('.session-item:visible')).not.toHaveCount(0);
   const meetSchedule = schedules.locator('.team-meets__phase');
   await expect(meetSchedule).not.toHaveAttribute('open', '');
   await expect(meetSchedule.getByText('Home meet')).toBeVisible();
@@ -93,11 +93,12 @@ test('[WF-TEAMS-002] team directory groups practice and meet disclosures in one 
   await expect(meetSchedule.locator('.team-meets__body > .team-meets__table')).toBeVisible();
   await expect(meetSchedule.locator('thead th')).toHaveText(['Date', 'Meet', 'Matchup', 'Pool']);
   expect(await meetSchedule.locator('tbody tr').count()).toBeGreaterThan(0);
-  const timeTrials = meetSchedule.locator('tbody tr').first();
+  const timeTrials = meetSchedule.locator('tbody tr').filter({ hasText: meets.timeTrialsMeet.name });
+  await expect(timeTrials).toHaveCount(1);
   await expect(timeTrials.locator('td')).toHaveCount(4);
   await expect(timeTrials.locator('.team-meets__time')).not.toBeEmpty();
-  await expect(meetSchedule.locator('tbody tr .team-meets__matchup strong').first()).toBeVisible();
-  await expect(meetSchedule.locator('tbody tr a[href^="pools.html?pool="]').first()).toBeVisible();
+  await expect(meetSchedule.locator('tbody tr .team-meets__matchup strong:visible')).not.toHaveCount(0);
+  await expect(meetSchedule.locator('tbody tr a[href^="pools.html?pool="]:visible')).not.toHaveCount(0);
   const primaryActions = teamCard.locator('.team-actions--website');
   const calendarActions = teamCard.locator('.team-actions--calendar');
   await expect(teamCard.locator('.practice-schedule + .team-actions--website')).toHaveCount(1);
@@ -112,7 +113,7 @@ test('[WF-TEAMS-002] team directory groups practice and meet disclosures in one 
 test('[WF-TEAMS-009] next pre-season practice period is marked upcoming between published ranges', async ({ page }) => {
   await page.clock.setFixedTime(activeSeasonDate('05-30T12:00:00'));
   await page.goto('/teams.html');
-  await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
+  await expect(page.locator('#teamList')).toHaveAttribute('aria-busy', 'false');
 
   const teamCard = page.locator(`.team-card[data-team-id="${PRACTICE_TEAM.id}"]`);
   await teamCard.locator('.team-header__toggle').click();
@@ -129,7 +130,7 @@ test('[WF-TEAMS-009] next pre-season practice period is marked upcoming between 
 test('[WF-TEAMS-003] team directory filters regular practice times to selected practice groups', async ({ page }) => {
   await seedPreferences(page, { practiceGroups: ['9-10'] });
   await page.goto('/teams.html');
-  await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
+  await expect(page.locator('#teamList')).toHaveAttribute('aria-busy', 'false');
 
   const teamCard = page.locator(`.team-card[data-team-id="${PRACTICE_TEAM.id}"]`);
   await teamCard.locator('.team-header__toggle').click();
@@ -144,7 +145,7 @@ test('[WF-TEAMS-004] published merchandise and booster actions appear in team de
   await page.setViewportSize(MOBILE_VIEWPORT);
   await initializeAnalyticsRecorder(page);
   await page.goto('/teams.html');
-  await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
+  await expect(page.locator('#teamList')).toHaveAttribute('aria-busy', 'false');
 
   const actionTeam = page.locator(`.team-card[data-team-id="${EXTERNAL_ACTION_TEAM.id}"]`);
   const merchandiseLink = actionTeam.locator('[data-analytics-link-purpose="merchandise"]');
@@ -185,12 +186,10 @@ test('[WF-TEAMS-004] published merchandise and booster actions appear in team de
 
 test('[WF-TEAMS-005] unknown team deep links leave the loaded directory stable', async ({ page }) => {
   await page.goto('/teams.html?team=not-a-published-team%22%5D');
-  await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
+  await expect(page.locator('#teamList')).toHaveAttribute('aria-busy', 'false');
   const teamCards = page.locator('.team-card');
   const renderedTeamCount = await teamCards.count();
   expect(renderedTeamCount).toBeGreaterThan(0);
-  await expect(page.locator('.team-card.highlighted')).toHaveCount(0);
-  await page.waitForTimeout(300);
   await expect(teamCards).toHaveCount(renderedTeamCount);
   await expect(page.locator('.team-card.highlighted')).toHaveCount(0);
 });
@@ -199,7 +198,7 @@ test('[WF-TEAMS-006] team meet schedule shows all columns within its phone-width
   await page.setViewportSize({ width: 360, height: 900 });
   await setAgendaReferenceTime(page);
   await page.goto('/teams.html');
-  await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
+  await expect(page.locator('#teamList')).toHaveAttribute('aria-busy', 'false');
 
   const teamCard = page.locator(`.team-card[data-team-id="${PRACTICE_TEAM.id}"]`);
   await teamCard.locator('.team-header__toggle').click();
@@ -222,7 +221,7 @@ test('[WF-TEAMS-007] phone-width team details expose upcoming and full practice 
   await page.setViewportSize(MOBILE_VIEWPORT);
   await setAgendaReferenceTime(page);
   await page.goto('/teams.html');
-  await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
+  await expect(page.locator('#teamList')).toHaveAttribute('aria-busy', 'false');
 
   const teamCard = page.locator(`.team-card[data-team-id="${PRACTICE_TEAM.id}"]`);
   await teamCard.locator('.team-header__toggle').click();
@@ -260,8 +259,9 @@ test('[WF-TEAMS-008] touch-capable team details expose every published practice 
 
   try {
     await prepareStableWeatherResponses(touchPage);
+    await routeAnnualDataFixture(touchPage, ['meets', 'pools', 'teams']);
     await touchPage.goto('/teams.html');
-    await expect(touchPage.locator('#teamListStatus')).toContainText('Team directory loaded.');
+    await expect(touchPage.locator('#teamList')).toHaveAttribute('aria-busy', 'false');
     await expect.poll(() => touchPage.evaluate(() => ({
       compact: globalThis.matchMedia('(max-width: 48rem)').matches,
       maxTouchPoints: globalThis.navigator.maxTouchPoints

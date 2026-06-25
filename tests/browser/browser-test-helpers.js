@@ -1,6 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const AppConfig = require('../../scripts/adapters/app-config.js');
+const { createTestDataFixture } = require('./fixtures/test-data.js');
 
 const ALLOWED_ANNUAL_DATA_DOMAINS = new Set(['meets', 'pools', 'teams']);
 const ACTIVE_SEASON_YEAR = AppConfig.YEAR;
@@ -52,11 +53,20 @@ function getOffSeasonReferenceTime() {
 async function routeAnnualData(page, domain, transform) {
   await page.route(getAnnualDataRoute(domain), async route => {
     const response = await route.fetch();
-    const annualData = await response.json();
-    const fixtureData = structuredClone(annualData);
+    const fixtureData = createTestDataFixture()[domain];
     const transformedData = await transform(fixtureData);
     await route.fulfill({ response, json: transformedData ?? fixtureData });
   });
+}
+
+async function routeAnnualDataFixture(page, domains, transforms = {}) {
+  const fixture = createTestDataFixture();
+  await Promise.all(domains.map(domain => routeAnnualData(page, domain, annualData => {
+    const fixtureData = structuredClone(annualData);
+    const transform = transforms[domain];
+    return transform ? transform(fixtureData) : fixtureData;
+  })));
+  return fixture;
 }
 
 async function prepareStableWeatherResponses(page) {
@@ -122,6 +132,7 @@ module.exports = {
   prepareVisibleWeatherAlert,
   readAnnualData,
   routeAnnualData,
+  routeAnnualDataFixture,
   seedPreferences,
   setAgendaReferenceTime
 };

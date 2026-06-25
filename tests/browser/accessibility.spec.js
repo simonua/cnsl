@@ -8,27 +8,21 @@ const {
   getOffSeasonReferenceTime,
   prepareStableWeatherResponses,
   prepareVisibleWeatherAlert,
-  readAnnualData,
   routeAnnualData,
+  routeAnnualDataFixture,
   seedPreferences,
   setAgendaReferenceTime
 } = require('./browser-test-helpers');
+const { createTestDataScenario } = require('./fixtures/test-data.js');
 
 const ACCESSIBILITY_TEST_TIMEOUT_MS = 90000;
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
-const ANNUAL_POOLS = readAnnualData('pools').pools;
-const ANNUAL_TEAMS = readAnnualData('teams').teams;
-const AGENDA_TEAM = ANNUAL_TEAMS.find(team => team.practice?.preseason?.length && team.practice?.regular);
-const CALENDAR_TEAM = ANNUAL_TEAMS.find(team => team.calendarUrl);
-const SUBSCRIPTION_TEAM = ANNUAL_TEAMS.find(team => team.eventsSubscriptionUrl);
-const MEET_DAY_TEAM = ANNUAL_TEAMS.find(team => team.homeMeetGuides?.some(guide => {
-  const paymentMethods = guide.general?.concessions?.paymentMethods || [];
-  return paymentMethods.includes('paypal') && paymentMethods.includes('venmo');
-}));
-const MEET_DAY_MEET = readAnnualData('meets').regular_meets.find(meet => (
-  MEET_DAY_TEAM.keywords.some(keyword => [meet.home_team, meet.visiting_team]
-    .some(name => name.toLowerCase() === keyword.toLowerCase()))
-));
+const { meets, pools, teams } = createTestDataScenario();
+const AGENDA_TEAM = teams.primaryTeam;
+const CALENDAR_TEAM = teams.primaryTeam;
+const SUBSCRIPTION_TEAM = teams.externalActionTeam;
+const MEET_DAY_TEAM = teams.primaryTeam;
+const MEET_DAY_MEET = meets.awayMeet;
 
 function getMeetDayReferenceTime() {
   const referenceTime = new Date(`${MEET_DAY_MEET.date}T12:00:00-04:00`);
@@ -38,6 +32,9 @@ function getMeetDayReferenceTime() {
 
 test.describe.configure({ mode: 'default' });
 test.setTimeout(ACCESSIBILITY_TEST_TIMEOUT_MS);
+test.beforeEach(async ({ page }) => {
+  await routeAnnualDataFixture(page, ['meets', 'pools', 'teams']);
+});
 
 async function expectNoAccessibilityViolations(page) {
   const results = await new AxeBuilder({ page })
@@ -88,7 +85,7 @@ for (const theme of ['light', 'dark']) {
 
         if (scenario.name === 'pools') {
           await page.locator('#togglePoolFeatureFilters').click();
-          const poolToggle = page.locator('.pool-header__toggle').first();
+          const poolToggle = page.locator(`[data-pool-id="${pools.contactPool.id}"] .pool-header__toggle`);
           if (await poolToggle.getAttribute('aria-expanded') !== 'true') await poolToggle.click();
           await page.locator('input[name="poolFeature"]').evaluateAll(inputs => inputs.forEach(input => {
             input.checked = true;
@@ -107,7 +104,7 @@ for (const theme of ['light', 'dark']) {
         }
 
         if (scenario.name === 'meets') {
-          const meetCard = page.locator('.meet-date-card').first();
+          const meetCard = page.locator(`.meet-date-card[data-meet-date="${meets.awayMeet.date}"]`);
           const meetToggle = meetCard.locator('.meet-date-header__toggle');
           if (await meetToggle.getAttribute('aria-expanded') !== 'true') await meetToggle.click();
           await expect(meetCard.locator('.meet-date-details')).toHaveAttribute('data-meet-details-hydrated', 'true');
@@ -126,7 +123,7 @@ for (const theme of ['light', 'dark']) {
     await page.goto('/meets.html');
     await expect(page.locator('#meetList')).toHaveAttribute('aria-busy', 'false');
 
-    const meetCard = page.locator('.meet-date-card').first();
+    const meetCard = page.locator(`.meet-date-card[data-meet-date="${meets.awayMeet.date}"]`);
     const meetToggle = meetCard.locator('.meet-date-header__toggle');
     await meetToggle.hover();
     await meetToggle.focus();
@@ -312,7 +309,7 @@ for (const { contrast, reference, theme } of [
   { contrast: 'high', reference: 'DARK-HIGH-CONTRAST', theme: 'dark' }
 ]) {
   test(`[AX-POOLS-002-${reference}] visible feature correction footnotes pass WCAG in ${reference.toLowerCase()}`, async ({ page }) => {
-    const overriddenPool = ANNUAL_POOLS[0];
+    const overriddenPool = pools.contactPool;
     await prepareStableWeatherResponses(page);
     await routeAnnualData(page, 'pools', poolData => {
       const overriddenRecord = poolData.pools.find(pool => pool.id === overriddenPool.id);
@@ -358,7 +355,7 @@ for (const { contrast, reference, theme } of [
   { contrast: 'high', reference: 'DARK-HIGH-CONTRAST', theme: 'dark' }
 ]) {
   test(`[AX-POOLS-005-${reference}] visible schedule source updates pass WCAG in ${reference.toLowerCase()}`, async ({ page }) => {
-    const sourceUpdatePool = ANNUAL_POOLS[0];
+    const sourceUpdatePool = pools.contactPool;
     await page.setViewportSize(MOBILE_VIEWPORT);
     await page.clock.setFixedTime(activeSeasonDate('06-24T12:00:00-04:00'));
     await prepareStableWeatherResponses(page);

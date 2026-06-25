@@ -2,16 +2,16 @@ const { test, expect } = require('../browser-test');
 const {
   MOBILE_VIEWPORT,
   prepareStableWeatherResponses,
-  readAnnualData,
+  routeAnnualDataFixture,
   seedPreferences
 } = require('../browser-test-helpers');
+const { createTestDataScenario } = require('../fixtures/test-data.js');
 
-const ANNUAL_MEETS = readAnnualData('meets');
+const { annualData, meets, pools, teams } = createTestDataScenario();
+const ANNUAL_MEETS = annualData.meets;
 const REGULAR_MEET_DATES = [...new Set(ANNUAL_MEETS.regular_meets.map(meet => meet.date))].sort();
-const TIME_TRIALS_MEET = ANNUAL_MEETS.special_meets.find(meet => meet.timeWindowKey === 'timeTrials');
-const FAVORITE_TEAM = readAnnualData('teams').teams.find(team => ANNUAL_MEETS.regular_meets.filter(meet => (
-  team.keywords.some(keyword => [meet.home_team, meet.visiting_team].some(name => name.toLowerCase() === keyword.toLowerCase()))
-)).length > 1);
+const TIME_TRIALS_MEET = meets.timeTrialsMeet;
+const FAVORITE_TEAM = teams.primaryTeam;
 
 function getMeetTime(date, time) {
   return new Date(`${date}T${time}-04:00`);
@@ -25,6 +25,7 @@ function getPreviousDay(date) {
 
 test.beforeEach(async ({ page }) => {
   await prepareStableWeatherResponses(page);
+  await routeAnnualDataFixture(page, ['meets', 'pools', 'teams']);
 });
 
 test('[WF-MEETS-001] meet pool links open the expanded destination without moving the page', async ({ page }) => {
@@ -35,10 +36,12 @@ test('[WF-MEETS-001] meet pool links open the expanded destination without movin
     localStorage.setItem('cnsl_preferences', JSON.stringify({ locationAwarenessEnabled: true }));
   });
   await page.goto('/meets.html');
-  await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
-  await expect(page.locator('#meetList .meet-details').first()).toBeVisible();
+  await expect(page.locator('#meetList')).toHaveAttribute('aria-busy', 'false');
+  await expect(page.locator('#meetList .meet-details:visible')).not.toHaveCount(0);
 
-  const poolLink = page.locator('.pool-link').last();
+  const poolLink = page.locator(
+    `.meet-date-card[data-meet-date="${meets.laterAwayMeet.date}"] .pool-link[href="pools.html?pool=${pools.secondaryPool.id}"]`
+  );
   const targetPoolId = await poolLink.evaluate(link => new URL(link.href).searchParams.get('pool'));
   await poolLink.evaluate(link => {
     const card = link.closest('.meet-date-card');
@@ -49,8 +52,8 @@ test('[WF-MEETS-001] meet pool links open the expanded destination without movin
   await poolLink.click();
 
   const targetCard = page.locator(`.pool-card[data-pool-id="${targetPoolId}"]`);
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
-  await expect(page.locator('.distance-badge').first()).toBeVisible();
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
+  await expect(page.locator('.distance-badge:visible')).not.toHaveCount(0);
   await expect.poll(() => page.evaluate(() => new URL(globalThis.location.href).searchParams.get('pool'))).toBe(targetPoolId);
   await expect(targetCard.locator('.pool-header__toggle')).toHaveAttribute('aria-expanded', 'true');
   await expect.poll(() => page.evaluate(() => globalThis.scrollY)).toBe(0);
@@ -59,7 +62,7 @@ test('[WF-MEETS-001] meet pool links open the expanded destination without movin
 test('[WF-MEETS-002] favorite team matchups appear first on every meet day they compete', async ({ page }) => {
   await seedPreferences(page, { favoriteTeamId: FAVORITE_TEAM.id });
   await page.goto('/meets.html');
-  await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
+  await expect(page.locator('#meetList')).toHaveAttribute('aria-busy', 'false');
 
   const dateCards = page.locator('.meet-date-card');
   for (let index = 0; index < await dateCards.count(); index += 1) {
@@ -94,7 +97,7 @@ test('[WF-MEETS-003] regular meet-day labels advance from upcoming through ongoi
   await page.setViewportSize(MOBILE_VIEWPORT);
   await page.clock.install({ time: getMeetTime(REGULAR_MEET_DATES[0], '06:59:30') });
   await page.goto('/meets.html');
-  await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
+  await expect(page.locator('#meetList')).toHaveAttribute('aria-busy', 'false');
 
   const firstDualMeet = page.locator(`.meet-date-card[data-meet-date="${REGULAR_MEET_DATES[0]}"]`);
   const secondDualMeet = page.locator(`.meet-date-card[data-meet-date="${REGULAR_MEET_DATES[1]}"]`);
@@ -136,7 +139,7 @@ test('[WF-MEETS-004] Time Trials advances from upcoming to ongoing using its pub
   beforeStart.setSeconds(beforeStart.getSeconds() - 30);
   await page.clock.install({ time: beforeStart });
   await page.goto('/meets.html');
-  await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
+  await expect(page.locator('#meetList')).toHaveAttribute('aria-busy', 'false');
 
   const timeTrials = page.locator(`.meet-date-card[data-meet-date="${TIME_TRIALS_MEET.date}"]`);
   await expect(timeTrials.locator('.meet-live-badge')).toHaveText('Upcoming');
@@ -150,7 +153,7 @@ test('[WF-MEETS-004] Time Trials advances from upcoming to ongoing using its pub
 test('[WF-MEETS-005] next-day meet labels emphasize tomorrow separately from later dates', async ({ page }) => {
   await page.clock.install({ time: getPreviousDay(TIME_TRIALS_MEET.date) });
   await page.goto('/meets.html');
-  await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
+  await expect(page.locator('#meetList')).toHaveAttribute('aria-busy', 'false');
 
   const timeTrialsRelativeDay = page.locator(`.meet-date-card[data-meet-date="${TIME_TRIALS_MEET.date}"] .meet-date-header__relative`);
   await expect(timeTrialsRelativeDay).toHaveText('tomorrow');

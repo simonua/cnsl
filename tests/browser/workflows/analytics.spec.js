@@ -598,7 +598,7 @@ test('[WF-ANALYTICS-004] directory detail opens publish only a broad directory n
 test('[WF-ANALYTICS-007] external links publish fixed destinations without URL details', async ({ page }) => {
   await initializeAnalyticsRecorder(page);
   await page.goto('/pools.html');
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 
   const poolCard = page.locator('[data-pool-card]').first();
   const poolId = await poolCard.getAttribute('data-pool-id');

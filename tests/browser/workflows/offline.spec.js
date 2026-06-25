@@ -9,7 +9,7 @@ test.beforeEach(async ({ page }) => {
 
 test('[WF-OFFLINE-001] loaded directory features remain usable while offline status is announced', async ({ page, context }) => {
   await page.goto('/teams.html');
-  await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
+  await expect(page.locator('#teamList')).toHaveAttribute('aria-busy', 'false');
   await expect(page.locator('#connectivityStatus')).toBeHidden();
 
   await context.setOffline(true);

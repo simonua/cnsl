@@ -3,34 +3,22 @@ const {
   ACTIVE_SEASON_YEAR,
   MOBILE_VIEWPORT,
   activeSeasonDate,
-  getAnnualDataRoute,
   initializeAnalyticsRecorder,
   prepareStableWeatherResponses,
-  readAnnualData,
   routeAnnualData,
+  routeAnnualDataFixture,
   seedPreferences
 } = require('../browser-test-helpers');
+const { createTestDataScenario } = require('../fixtures/test-data.js');
 
-const ANNUAL_POOLS = readAnnualData('pools').pools;
-const ANNUAL_TEAMS = readAnnualData('teams').teams;
-const ANNUAL_MEETS = readAnnualData('meets');
-const CONTACT_POOL = ANNUAL_POOLS.find(pool => pool.phone && pool.location && pool.caUrl);
-const TIME_TRIALS_MEET = ANNUAL_MEETS.special_meets.find(meet => meet.timeWindowKey === 'timeTrials');
-const MEET_CALENDAR_POOL = ANNUAL_POOLS.find(pool => (
-  ANNUAL_TEAMS.some(team => team.timeTrialsPool === pool.name)
-  && ANNUAL_MEETS.regular_meets.some(meet => meet.location === `${pool.name} Pool`)
-));
-const HOSTED_REGULAR_MEET = ANNUAL_MEETS.regular_meets.find(meet => meet.location === `${MEET_CALENDAR_POOL.name} Pool`);
-const SPECIAL_EVENT_POOL = ANNUAL_POOLS.find(pool => pool.scheduleOverrides?.some(override => (
-  override.hours.some(hours => hours.accessStatus === 'special-event')
-)));
-const SPECIAL_EVENT_OVERRIDE = SPECIAL_EVENT_POOL.scheduleOverrides.find(override => (
-  override.hours.some(hours => hours.accessStatus === 'special-event')
-));
-const ENRICHED_PRACTICE_TEAM = ANNUAL_TEAMS.find(team => team.practice?.regular?.morning?.[0]?.location);
-const ENRICHED_PRACTICE_POOL = ANNUAL_POOLS.find(pool => (
-  ENRICHED_PRACTICE_TEAM.practice.regular.morning[0].location === `${pool.name} Pool`
-));
+const { meets, pools } = createTestDataScenario();
+const CONTACT_POOL = pools.contactPool;
+const TIME_TRIALS_MEET = meets.timeTrialsMeet;
+const MEET_CALENDAR_POOL = pools.contactPool;
+const HOSTED_REGULAR_MEET = meets.homeMeet;
+const SPECIAL_EVENT_POOL = pools.specialEventPool;
+const [SPECIAL_EVENT_OVERRIDE] = SPECIAL_EVENT_POOL.scheduleOverrides;
+const ENRICHED_PRACTICE_POOL = pools.contactPool;
 const OFFICIAL_SCHEDULE_FIXTURE_URL = 'https://official-pools.example/schedules/current-pool.pdf';
 
 function getRelativeDate(date, dayOffset) {
@@ -46,6 +34,7 @@ function getMonthDay(date) {
 
 test.beforeEach(async ({ page }) => {
   await prepareStableWeatherResponses(page);
+  await routeAnnualDataFixture(page, ['meets', 'pools', 'teams']);
 });
 
 test('[WF-POOLS-029] pool status guide explains every public-access status on hover and focus', async ({ page }) => {
@@ -100,7 +89,7 @@ test('[WF-POOLS-001] pool feature filters expose their state and resulting count
   await initializeAnalyticsRecorder(page);
   await seedPreferences(page, { contrast: 'high', textSize: 'extra-large' });
   await page.goto('/pools.html');
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
   const totalPoolCount = await page.locator('#poolList .pool-card').count();
   expect(totalPoolCount).toBeGreaterThan(0);
 
@@ -180,7 +169,7 @@ test('[WF-POOLS-014] yoga feature filter finds the pool with published yoga prog
     });
   });
   await page.goto('/pools.html');
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
   const totalPoolCount = await page.locator('#poolList .pool-card').count();
 
   await page.locator('#togglePoolFeatureFilters').click();
@@ -199,7 +188,7 @@ test('[WF-POOLS-018] lessons feature identifies CA outdoor lesson pools and link
     });
   });
   await page.goto('/pools.html');
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
   const totalPoolCount = await page.locator('#poolList .pool-card').count();
 
   await page.locator('#togglePoolFeatureFilters').click();
@@ -208,7 +197,7 @@ test('[WF-POOLS-018] lessons feature identifies CA outdoor lesson pools and link
   await expect(page.locator('#poolFilterSummary')).toHaveText(`3 / ${totalPoolCount} pools`);
   await expect(page.locator('#poolList .pool-card')).toHaveCount(3);
 
-  const firstPool = page.locator('#poolList .pool-card').first();
+  const firstPool = page.locator(`.pool-card[data-pool-id="${CONTACT_POOL.id}"]`);
   await firstPool.locator('.pool-header__toggle').click();
   const lessonsPill = firstPool.getByRole('link', { name: 'Lessons' });
   const lessonsLinkIcon = lessonsPill.locator('.feature-pill__link-icon');
@@ -226,7 +215,7 @@ test('[WF-POOLS-019] main-pool and kids slide filters remain distinct', async ({
     });
   });
   await page.goto('/pools.html');
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
   const totalPoolCount = await page.locator('#poolList .pool-card').count();
 
   await page.locator('#togglePoolFeatureFilters').click();
@@ -244,9 +233,7 @@ test('[WF-POOLS-019] main-pool and kids slide filters remain distinct', async ({
 });
 
 test('[WF-POOLS-002] pool availability filters cover live status and the upcoming seven days', async ({ page }) => {
-  await page.route(getAnnualDataRoute('pools'), async route => {
-    const response = await route.fetch();
-    const poolData = await response.json();
+  await routeAnnualData(page, 'pools', poolData => {
     poolData.pools.forEach((pool, index) => {
       pool.schedules = [{
         startDate: `${ACTIVE_SEASON_YEAR}-05-23`,
@@ -278,7 +265,6 @@ test('[WF-POOLS-002] pool availability filters cover live status and the upcomin
       }];
       pool.scheduleOverrides = [];
     });
-    await route.fulfill({ response, json: poolData });
   });
   await page.goto('/pools.html');
   const totalPoolCount = await page.locator('#poolList .pool-card').count();
@@ -353,9 +339,7 @@ test('[WF-POOLS-002] pool availability filters cover live status and the upcomin
 });
 
 test('[WF-POOLS-003] pool tile features are ordered by category then alphabetically', async ({ page }) => {
-  await page.route(getAnnualDataRoute('pools'), async route => {
-    const response = await route.fetch();
-    const poolData = await response.json();
+  await routeAnnualData(page, 'pools', poolData => {
     const scrambledFeatures = [
       'wifi', 'main pool slide', 'wading pool slide', 'wading', 'lap',
       'ada compliant', 'bathhouse', 'family changing room', 'main pool beach entry'
@@ -363,12 +347,11 @@ test('[WF-POOLS-003] pool tile features are ordered by category then alphabetica
     poolData.pools.forEach(pool => {
       pool.features = scrambledFeatures;
     });
-    await route.fulfill({ response, json: poolData });
   });
   await page.goto('/pools.html');
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 
-  const firstPoolCard = page.locator('.pool-card').first();
+  const firstPoolCard = page.locator(`.pool-card[data-pool-id="${CONTACT_POOL.id}"]`);
   await firstPoolCard.locator('.pool-header__toggle').click();
   await expect(firstPoolCard.locator('.pool-course')).toHaveCount(0);
   await expect(firstPoolCard.locator('.feature-pill')).toHaveText([
@@ -387,7 +370,8 @@ test('[WF-POOLS-003] pool tile features are ordered by category then alphabetica
 });
 
 test('[WF-POOLS-028] overridden feature lists explain their documented corrections in numbered notes', async ({ page }) => {
-  const [overriddenPool, baselinePool] = ANNUAL_POOLS;
+  const overriddenPool = pools.contactPool;
+  const baselinePool = pools.hostPool;
   await routeAnnualData(page, 'pools', poolData => {
     const overriddenRecord = poolData.pools.find(pool => pool.id === overriddenPool.id);
     const baselineRecord = poolData.pools.find(pool => pool.id === baselinePool.id);
@@ -414,7 +398,7 @@ test('[WF-POOLS-028] overridden feature lists explain their documented correctio
     delete baselineRecord.featureOverrides;
   });
   await page.goto('/pools.html');
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 
   const overriddenCard = page.locator(`[data-pool-id="${overriddenPool.id}"]`);
   const baselineCard = page.locator(`[data-pool-id="${baselinePool.id}"]`);
@@ -442,7 +426,7 @@ test('[WF-POOLS-004] collapsed favorite pool stays collapsed after filters redra
     localStorage.setItem('cnsl_preferences', JSON.stringify({ favoritePoolName: poolName }));
   }, CONTACT_POOL.name);
   await page.reload();
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 
   let favoriteToggle = page.locator('.favorite-card .pool-header__toggle');
   await expect(favoriteToggle).toHaveAttribute('aria-expanded', 'true');
@@ -459,7 +443,7 @@ test('[WF-POOLS-004] collapsed favorite pool stays collapsed after filters redra
   ]);
 
   await page.locator('#togglePoolFeatureFilters').click();
-  await page.locator('input[name="poolFeature"]').first().check();
+  await page.getByLabel('Meter lanes').check();
   await page.locator('#clearPoolFeatureFilters').click();
   favoriteToggle = page.locator('.favorite-card .pool-header__toggle');
   await expect(favoriteToggle).toHaveAttribute('aria-expanded', 'false');
@@ -476,7 +460,7 @@ test('[WF-POOLS-005] location distances use outlined pills and can sort nearest 
 
   const sortControl = page.locator('#poolSortControls');
   const firstDistance = page.locator('.distance-badge').first();
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
   await expect(firstDistance).toBeVisible();
   await page.locator('#togglePoolFeatureFilters').press('Enter');
   await expect(page.locator('#togglePoolFeatureFilters')).toHaveAttribute('aria-expanded', 'true');
@@ -530,7 +514,7 @@ test('[WF-POOLS-023] desktop expanded pool details group official links and fit 
     poolScheduleLayout: 'calendar'
   });
   await page.goto('/pools.html');
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 
   const favoriteCard = page.locator('.favorite-card');
   const calendar = favoriteCard.locator('.schedule-calendar');
@@ -597,7 +581,7 @@ test('[WF-POOLS-022] mobile expanded pool details keep directions in the compact
   await page.setViewportSize({ width: 390, height: 844 });
   await seedPreferences(page, { favoritePoolName: CONTACT_POOL.name });
   await page.goto('/pools.html');
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 
   const favoriteCard = page.locator('.favorite-card');
   const officialLinks = favoriteCard.locator('.ca-link');
@@ -639,7 +623,7 @@ test('[WF-POOLS-033] first expansion stays visually quiet while pool details loa
     await page.goto('/pools.html');
     await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 
-    const poolCard = page.locator('.pool-card').first();
+    const poolCard = page.locator(`.pool-card[data-pool-id="${CONTACT_POOL.id}"]`);
     const toggle = poolCard.locator('.pool-header__toggle');
     const details = poolCard.locator('.pool-details');
     await toggle.click();
@@ -652,7 +636,7 @@ test('[WF-POOLS-033] first expansion stays visually quiet while pool details loa
     releaseDetailDependency();
   }
 
-  const details = page.locator('.pool-card').first().locator('.pool-details');
+  const details = page.locator(`.pool-card[data-pool-id="${CONTACT_POOL.id}"] .pool-details`);
   await expect(details).toHaveAttribute('data-pool-details-hydrated', 'true');
   await expect(details).toHaveAttribute('aria-busy', 'false');
   await expect(details.locator('.pool-contact')).toBeVisible();
@@ -660,7 +644,7 @@ test('[WF-POOLS-033] first expansion stays visually quiet while pool details loa
 
 test('[WF-POOLS-020] linked pool expands without moving the page and keeps a clear directions action', async ({ page }) => {
   await page.goto(`/pools.html?pool=${CONTACT_POOL.id}`);
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 
   const linkedPool = page.locator(`.pool-card[data-pool-id="${CONTACT_POOL.id}"]`);
   await expect(linkedPool).toHaveClass(/highlighted/);
@@ -674,9 +658,9 @@ test('[WF-POOLS-007] mobile calendar schedules reveal today when a pool is expan
   await page.clock.setFixedTime(activeSeasonDate('06-24T12:00:00-04:00'));
   await seedPreferences(page, { poolScheduleLayout: 'calendar' });
   await page.goto('/pools.html');
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 
-  const firstPool = page.locator('.pool-card').first();
+  const firstPool = page.locator(`.pool-card[data-pool-id="${CONTACT_POOL.id}"]`);
   await firstPool.locator('.pool-header__toggle').click();
   expect(await firstPool.locator('.address-section').evaluate(element => ({
     fits: element.scrollWidth <= element.clientWidth + 1,
@@ -701,7 +685,7 @@ test('[WF-POOLS-016] weekly calendars highlight modeled swim meets and Time Tria
   await page.clock.setFixedTime(getRelativeDate(TIME_TRIALS_MEET.date, -4));
   await seedPreferences(page, { favoritePoolName: MEET_CALENDAR_POOL.name, poolScheduleLayout: 'calendar' });
   await page.goto('/pools.html');
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 
   const calendar = page.locator('.favorite-card .schedule-calendar');
   const timeTrials = calendar.locator('.schedule-calendar__day').filter({ hasText: getMonthDay(TIME_TRIALS_MEET.date) });
@@ -733,7 +717,7 @@ test('[WF-POOLS-017] weekly calendars highlight public pool-party overrides as e
   await page.clock.setFixedTime(getRelativeDate(SPECIAL_EVENT_OVERRIDE.startDate, -3));
   await seedPreferences(page, { favoritePoolName: SPECIAL_EVENT_POOL.name, poolScheduleLayout: 'calendar' });
   await page.goto('/pools.html');
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 
   const specialEvent = page.locator('.favorite-card .schedule-calendar__day').filter({ hasText: getMonthDay(SPECIAL_EVENT_OVERRIDE.startDate) });
   await expect(specialEvent.locator('.schedule-activity--event.override-slot')).toBeVisible();
@@ -744,7 +728,7 @@ test('[WF-POOLS-021] Aqua Fitness schedules link to official class details', asy
   await page.clock.setFixedTime(activeSeasonDate('06-22T12:00:00-04:00'));
   await seedPreferences(page, { poolScheduleLayout: 'list' });
   await page.goto('/pools.html');
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 
   const poolCards = page.locator('.pool-card');
   const poolIds = await poolCards.evaluateAll(cards => cards.map(card => card.dataset.poolId));
@@ -767,7 +751,8 @@ test('[WF-POOLS-021] Aqua Fitness schedules link to official class details', asy
   expect(nonSourcePoolId).toBeTruthy();
   const sourcePool = page.locator(`.pool-card[data-pool-id="${sourcePoolId}"]`);
   const nonSourcePool = page.locator(`.pool-card[data-pool-id="${nonSourcePoolId}"]`);
-  const sourceLink = sourcePool.getByRole('link', { name: 'Aqua Fitness official details (opens in new tab)' }).first();
+  const sourceLink = sourcePool.getByRole('link', { name: 'Aqua Fitness official details (opens in new tab)' });
+  await expect(sourceLink).toHaveCount(1);
   await expect(sourceLink).toHaveAttribute('href', /^https:\/\//);
   await expect(sourceLink).toHaveAttribute('target', '_blank');
   await expect(sourceLink).toHaveAttribute('rel', 'noopener');
@@ -776,14 +761,16 @@ test('[WF-POOLS-021] Aqua Fitness schedules link to official class details', asy
   const sourcePoolName = await sourcePool.getAttribute('data-pool-name');
   await seedPreferences(page, { favoritePoolName: sourcePoolName, poolScheduleLayout: 'calendar' });
   await page.reload();
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
-  await expect(page.locator('.favorite-card .schedule-calendar .schedule-activity__source-link').first()).toBeVisible();
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
+  const favoriteSourceLink = page.locator('.favorite-card .schedule-calendar .schedule-activity__source-link');
+  await expect(favoriteSourceLink).toHaveCount(1);
+  await expect(favoriteSourceLink).toBeVisible();
 });
 
 test('[WF-POOLS-008] desktop site header remains visible while the pool directory scrolls', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto('/pools.html');
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 
   await page.locator('#mainContent').evaluate(main => {
     const scrollSpacer = globalThis.document.createElement('div');
@@ -806,11 +793,12 @@ test('[WF-POOLS-008] desktop site header remains visible while the pool director
 test('[WF-POOLS-009] practice-only schedules identify teams from detailed schedule overlap where available', async ({ page }) => {
   await page.clock.setFixedTime(activeSeasonDate('06-25T12:00:00-04:00'));
   await page.goto('/pools.html');
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 
   const poolCard = page.locator(`.pool-card[data-pool-id="${ENRICHED_PRACTICE_POOL.id}"]`);
   await poolCard.locator('.pool-header__toggle').click();
-  const enrichedTeamNames = poolCard.locator('.schedule-activity__team-names').first();
+  const enrichedTeamNames = poolCard.locator('.schedule-activity__team-names');
+  await expect(enrichedTeamNames).toHaveCount(1);
   await expect(enrichedTeamNames).not.toBeEmpty();
   expect(await enrichedTeamNames.evaluate(element => (
     element.getBoundingClientRect().top >= element.previousElementSibling.getBoundingClientRect().bottom
@@ -833,9 +821,9 @@ test('[WF-POOLS-010] practice-only schedules do not infer a team from pool assoc
     teamData.teams.forEach(team => delete team.practice);
   });
   await page.goto('/pools.html');
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 
-  const firstPool = page.locator('.pool-card').first();
+  const firstPool = page.locator(`.pool-card[data-pool-id="${CONTACT_POOL.id}"]`);
   await firstPool.locator('.pool-header__toggle').click();
   await expect(firstPool).toContainText('CNSL Practice Only');
   await expect(firstPool.locator('.schedule-activity__team-names')).toHaveCount(0);
@@ -854,9 +842,9 @@ test('[WF-POOLS-011] team-only practice uses restricted live status and public a
     });
   });
   await page.goto('/pools.html');
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 
-  const fixturePoolId = await page.locator('.pool-card').first().getAttribute('data-pool-id');
+  const fixturePoolId = CONTACT_POOL.id;
   let fixturePool = page.locator(`.pool-card[data-pool-id="${fixturePoolId}"]`);
   await fixturePool.locator('.pool-header__toggle').click();
   await expect(fixturePool).toContainText('Team Practice Only');
@@ -882,9 +870,9 @@ test('[WF-POOLS-012] live status updates after a team-only practice period ends 
     });
   });
   await page.goto('/pools.html');
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 
-  const fixturePool = page.locator('.pool-card').first();
+  const fixturePool = page.locator(`.pool-card[data-pool-id="${CONTACT_POOL.id}"]`);
   const toggle = fixturePool.locator('.pool-header__toggle');
   await toggle.evaluate(button => button.click());
   await expect(fixturePool.locator('.open-status')).toContainText('Closed to the public');
@@ -911,9 +899,9 @@ test('[WF-POOLS-013] open-now results update after a public-use period ends with
     });
   });
   await page.goto('/pools.html');
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 
-  const fixturePoolId = await page.locator('.pool-card').first().getAttribute('data-pool-id');
+  const fixturePoolId = CONTACT_POOL.id;
   await page.locator('#togglePoolFeatureFilters').evaluate(button => button.click());
   await page.selectOption('#poolAvailabilityFilter', 'open-now');
   const fixturePool = page.locator(`.pool-card[data-pool-id="${fixturePoolId}"]`);
@@ -953,9 +941,7 @@ test('[WF-POOLS-030] meet enrichment immediately reconciles live status and open
   const meetRequestPaused = new Promise(resolve => {
     releaseMeetRequest = resolve;
   });
-  await page.route(getAnnualDataRoute('meets'), async route => {
-    const response = await route.fetch();
-    const meetData = await response.json();
+  await routeAnnualData(page, 'meets', async meetData => {
     await meetRequestPaused;
     meetData.regular_meets = [{
       date: `${ACTIVE_SEASON_YEAR}-06-20`,
@@ -965,7 +951,6 @@ test('[WF-POOLS-030] meet enrichment immediately reconciles live status and open
       location: `${fixturePoolName} Pool`
     }];
     meetData.special_meets = [];
-    await route.fulfill({ response, json: meetData });
   });
 
   let initialVisiblePoolCount;
@@ -1015,7 +1000,7 @@ test('[WF-POOLS-024] semantic practice status drives detail and calendar styling
     });
   });
   await page.goto('/pools.html');
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 
   let publishedSession;
   for (const poolCard of await page.locator('.pool-card').all()) {
@@ -1032,9 +1017,7 @@ test('[WF-POOLS-024] semantic practice status drives detail and calendar styling
 
 test('[WF-POOLS-015] opens-soon results update when a public opening enters the next hour', async ({ page }) => {
   await page.clock.install({ time: activeSeasonDate('05-26T13:59:30-04:00') });
-  await page.route(getAnnualDataRoute('pools'), async route => {
-    const response = await route.fetch();
-    const poolData = await response.json();
+  await routeAnnualData(page, 'pools', poolData => {
     poolData.pools.forEach(pool => {
       pool.schedules = [{
         startDate: `${ACTIVE_SEASON_YEAR}-05-23`,
@@ -1049,10 +1032,9 @@ test('[WF-POOLS-015] opens-soon results update when a public opening enters the 
       }];
       pool.scheduleOverrides = [];
     });
-    await route.fulfill({ response, json: poolData });
   });
   await page.goto('/pools.html');
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
   const totalPoolCount = await page.locator('#poolList .pool-card').count();
 
   await page.locator('#togglePoolFeatureFilters').click();
@@ -1080,7 +1062,7 @@ test('[WF-POOLS-026] Masters-only hours are restricted program access instead of
   await page.goto('/pools.html');
   await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 
-  const fixturePoolId = await page.locator('.pool-card').first().getAttribute('data-pool-id');
+  const fixturePoolId = CONTACT_POOL.id;
   let fixturePool = page.locator(`.pool-card[data-pool-id="${fixturePoolId}"]`);
   await fixturePool.locator('.pool-header__toggle').click();
   await expect(fixturePool.locator('.open-status')).toContainText('Restricted Access');
@@ -1121,7 +1103,7 @@ test('[WF-POOLS-027] replacement-day hours remove the recurring schedule tail', 
   await page.goto('/pools.html');
   await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
 
-  const fixturePool = page.locator('.pool-card').first();
+  const fixturePool = page.locator(`.pool-card[data-pool-id="${CONTACT_POOL.id}"]`);
   await fixturePool.locator('.pool-header__toggle').click();
   await expect(fixturePool.locator('.open-status')).toContainText('Open Now');
   await expect(fixturePool.locator('.pool-transition-summary')).toContainText('Closes in 30 mins');
@@ -1132,13 +1114,11 @@ test('[WF-POOLS-027] replacement-day hours remove the recurring schedule tail', 
 
 test('[WF-POOLS-025] collapsed and expanded countdowns update without interaction', async ({ page }) => {
   await page.clock.install({ time: activeSeasonDate('05-26T14:58:30-04:00') });
-  const closingPool = ANNUAL_POOLS[0];
-  const openingPool = ANNUAL_POOLS[1];
-  const meetPool = ANNUAL_POOLS[2];
+  const closingPool = pools.contactPool;
+  const openingPool = pools.hostPool;
+  const meetPool = pools.secondaryPool;
   await seedPreferences(page, { favoritePoolExpanded: false, favoritePoolName: meetPool.name });
-  await page.route(getAnnualDataRoute('pools'), async route => {
-    const response = await route.fetch();
-    const poolData = await response.json();
+  await routeAnnualData(page, 'pools', poolData => {
     poolData.pools.forEach((pool, index) => {
       pool.schedules = [{
         startDate: `${ACTIVE_SEASON_YEAR}-05-23`,
@@ -1157,7 +1137,6 @@ test('[WF-POOLS-025] collapsed and expanded countdowns update without interactio
       }];
       pool.scheduleOverrides = [];
     });
-    await route.fulfill({ response, json: poolData });
   });
   await page.goto('/pools.html');
   await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
@@ -1188,7 +1167,7 @@ test('[WF-POOLS-025] collapsed and expanded countdowns update without interactio
 
 test('[WF-POOLS-031] closing countdown remains red across the one-hour boundary', async ({ page }) => {
   await page.clock.install({ time: activeSeasonDate('05-26T14:59:00-04:00') });
-  const closingPool = ANNUAL_POOLS[0];
+  const closingPool = pools.contactPool;
   await routeAnnualData(page, 'pools', poolData => {
     poolData.pools.forEach((pool, index) => {
       pool.schedules = index === 0 ? [{
@@ -1229,7 +1208,7 @@ test('[WF-POOLS-031] closing countdown remains red across the one-hour boundary'
 });
 
 test('[WF-POOLS-032] schedule source updates render below date tiles with weekdays and fit narrow pool details', async ({ page }) => {
-  const sourceUpdatePool = ANNUAL_POOLS[0];
+  const sourceUpdatePool = pools.contactPool;
   await page.setViewportSize(MOBILE_VIEWPORT);
   await page.clock.setFixedTime(activeSeasonDate('06-24T12:00:00-04:00'));
   await routeAnnualData(page, 'pools', poolData => {

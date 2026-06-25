@@ -1,12 +1,12 @@
 # CNSL Engineering Refactoring Plan
 
-Review date: 2026-06-23
+Review date: 2026-06-25
 
 ## Current Status And Validation
 
 This plan contains only actionable open refactoring work. The current review found no remaining item supported by repository evidence.
 
-Current validation includes focused service-worker configuration, page-controller, and worker tests; generated build and PWA verification; exact affected browser workflows; repository lint; retired-symbol and duplicated-literal searches; editor diagnostics; and diff-integrity checks. The most recent three-run Meets `desktop`, unthrottled `mobile`, and `mobile-slow` evidence remains recorded in [the release checklist](release-checklist.md). Delivered-HTTPS Cloudflare, Analytics, and PWA behavior remains a manual external-browser release check.
+Current validation includes schema-valid relational annual fixtures, focused browser workflows and accessibility checks, a source audit of browser selectors, and unit-gated browser source contracts. Exact behavior scenarios use fixture-owned records, directory readiness is semantic, fixed Playwright sleeps are prohibited, and remaining positional assertions verify explicit order, layout, or deterministic fixture contracts. The most recent three-run Meets `desktop`, unthrottled `mobile`, and `mobile-slow` evidence remains recorded in [the release checklist](release-checklist.md). Delivered-HTTPS Cloudflare, Analytics, and PWA behavior remains a manual external-browser release check.
 
 ## Priority Matrix
 

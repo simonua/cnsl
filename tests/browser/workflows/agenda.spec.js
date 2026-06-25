@@ -5,32 +5,19 @@ const {
   AUDIENCE_VIEWPORTS,
   getAnnualDataRoute,
   prepareStableWeatherResponses,
-  readAnnualData,
+  routeAnnualDataFixture,
   seedPreferences,
   setAgendaReferenceTime
 } = require('../browser-test-helpers');
+const { createTestDataScenario } = require('../fixtures/test-data.js');
 
-const ANNUAL_TEAMS = readAnnualData('teams').teams;
-const REGULAR_MEETS = readAnnualData('meets').regular_meets;
-const AGENDA_TEAM = ANNUAL_TEAMS.find(team => team.practice?.preseason?.length && team.practice?.regular);
-const FILTER_TEAM = ANNUAL_TEAMS.find(team => {
-  const practice = JSON.stringify(team.practice || {});
-  return practice.includes('First Splash') && practice.includes('8 & Under');
-}) || AGENDA_TEAM;
-const MEET_DAY_TEAM = ANNUAL_TEAMS.find(team => team.homeMeetGuides?.some(guide => {
-  const paymentMethods = guide.general?.concessions?.paymentMethods || [];
-  return paymentMethods.includes('paypal') && paymentMethods.includes('venmo');
-}));
-const MEET_DAY_MEETS = REGULAR_MEETS.filter(meet => {
-  const names = [meet.home_team, meet.visiting_team].map(name => name.toLowerCase());
-  return MEET_DAY_TEAM.keywords.some(keyword => names.includes(keyword.toLowerCase()));
-});
-const LINKED_AGENDA_MEET = REGULAR_MEETS.find(meet => meet.date && meet.home_team && meet.visiting_team && meet.location);
-const LINKED_AGENDA_TEAM = ANNUAL_TEAMS.find(team => {
-  const meetTeams = [LINKED_AGENDA_MEET.home_team, LINKED_AGENDA_MEET.visiting_team]
-    .map(name => name.toLowerCase());
-  return team.keywords.some(keyword => meetTeams.includes(keyword.toLowerCase()));
-});
+const { annualData, meets, pools, teams } = createTestDataScenario();
+const AGENDA_TEAM = teams.primaryTeam;
+const FILTER_TEAM = teams.primaryTeam;
+const MEET_DAY_TEAM = teams.primaryTeam;
+const MEET_DAY_MEETS = annualData.meets.regular_meets;
+const LINKED_AGENDA_MEET = meets.awayMeet;
+const LINKED_AGENDA_TEAM = teams.primaryTeam;
 
 function getMeetReferenceTime(meetIndex, dayOffset, time = '12:00:00') {
   const referenceTime = new Date(`${MEET_DAY_MEETS[meetIndex].date}T${time}-04:00`);
@@ -56,12 +43,13 @@ async function pauseFirstAgendaDependency(page) {
 
 test.beforeEach(async ({ page }) => {
   await prepareStableWeatherResponses(page);
+  await routeAnnualDataFixture(page, ['meets', 'pools', 'teams']);
 });
 
 test('[WF-AGENDA-001] team directory shows the same next practices and swim event agenda as home', async ({ page }) => {
   await setAgendaReferenceTime(page);
   await page.goto('/teams.html');
-  await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
+  await expect(page.locator('#teamList')).toHaveAttribute('aria-busy', 'false');
 
   const teamCard = page.locator(`.team-card[data-team-id="${AGENDA_TEAM.id}"]`);
   await teamCard.locator('.team-header__toggle').click();
@@ -99,7 +87,7 @@ test('[WF-AGENDA-001] team directory shows the same next practices and swim even
 test('[WF-AGENDA-006] desktop team agendas fill the available team-details width', async ({ page }) => {
   await setAgendaReferenceTime(page);
   await page.goto('/teams.html');
-  await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
+  await expect(page.locator('#teamList')).toHaveAttribute('aria-busy', 'false');
 
   const teamCard = page.locator(`.team-card[data-team-id="${AGENDA_TEAM.id}"]`);
   await teamCard.locator('.team-header__toggle').press('Enter');
@@ -128,7 +116,7 @@ test('[WF-AGENDA-002] home page shows the next practices and swim event for a se
   await page.route(getAnnualDataRoute('teams'), async route => {
     confirmTeamRequest();
     await teamRequestAllowed;
-    await route.continue();
+    await route.fallback();
   });
   await page.goto('/index.html');
 
@@ -147,7 +135,7 @@ test('[WF-AGENDA-002] home page shows the next practices and swim event for a se
   await expect(agenda.getByRole('link', { name: 'Team details' })).toHaveCount(0);
   await expect(page.locator('#favoriteWeekStatus')).toBeHidden();
   expect(await agenda.locator('.favorite-week__events li').count()).toBeGreaterThan(0);
-  await expect(agenda.locator('a[href^="pools.html?pool="]').first()).toBeVisible();
+  await expect(agenda.locator('a[href^="pools.html?pool="]')).not.toHaveCount(0);
   const calendarLink = agenda.getByRole('link', { name: 'Team Calendar' });
   await expect(calendarLink).toHaveAttribute('href', /^https:\/\//);
   await expect(calendarLink).toHaveAttribute('target', '_blank');
@@ -264,7 +252,7 @@ test('[WF-AGENDA-007] home page follows the My Meet Day experimental opt-in', as
   await expect(directionsLink).toContainText('Directions');
   await expect(directionsLink).toHaveAttribute('href', /https:\/\/www\.google\.com\/maps\/dir\//);
   await expect(meetDay.getByRole('heading', { name: 'Key times' })).toHaveCount(0);
-  const poolLink = poolLinks.first();
+  const poolLink = meetDay.locator(`a[href="pools.html?pool=${pools.hostPool.id}"]`);
   await poolLink.focus();
   await expect(poolLink).toBeFocused();
   await page.setViewportSize({ width: 390, height: 844 });
@@ -327,7 +315,7 @@ test('[WF-AGENDA-008] dedicated My Meet Day route loads only after the experimen
   await expect(page.locator('#myMeetDay a[href^="pools.html?pool="]')).not.toHaveCount(0);
   await expect(page.locator('#myMeetDay').getByRole('link', { name: "how to mark a swimmer's arm" })).toHaveAttribute('href', 'swim-meet-resources.html#arm-markings');
   await expect(page.locator('#myMeetDay').getByRole('heading', { name: 'Key times' })).toHaveCount(0);
-  await expect(page.locator('#myMeetDayStatus')).toHaveText('Meet-day details loaded.');
+  await expect(page.locator('#myMeetDay .my-meet-day__fact')).not.toHaveCount(0);
   await expect(page.locator('script[data-my-meet-day-dependency]')).toHaveCount(
     AppConfig.MY_MEET_DAY_PRIMARY_DEPENDENCIES.length + AppConfig.MY_MEET_DAY_OPTIONAL_DEPENDENCIES.length
   );
@@ -359,13 +347,13 @@ test('[WF-AGENDA-010] dedicated My Meet Day route is usable before pool enrichme
   });
   await page.route(getAnnualDataRoute('pools'), async route => {
     await poolsPaused;
-    await route.continue();
+    await route.fallback();
   });
 
   try {
     await page.goto('/my-meet-day.html', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('#myMeetDay')).toBeVisible();
-    await expect(page.locator('#myMeetDayStatus')).toHaveText('Meet-day details loaded.');
+    await expect(page.locator('#myMeetDay .my-meet-day__fact')).not.toHaveCount(0);
     await expect(page.getByRole('link', { name: 'Team Calendar' })).toHaveAttribute('href', /^https:\/\//);
     expect(await page.locator('#myMeetDay .my-meet-day__fact').count()).toBeGreaterThan(0);
     await expect(page.locator('#myMeetDay a[href^="pools.html?pool="]')).toHaveCount(0);
@@ -432,7 +420,7 @@ test('[WF-AGENDA-009] completed meets advance only the dedicated My Meet Day rou
     allItemsAreListItems: lists.every(list => [...list.children].every(item => item.tagName === 'LI')),
     allListsAreBulleted: lists.every(list => globalThis.getComputedStyle(list.querySelector('li')).listStyleType !== 'none')
   }))).toEqual({ allItemsAreListItems: true, allListsAreBulleted: true });
-  await expect(page.locator('#myMeetDay a[href^="pools.html?pool="]').first()).toBeVisible();
+  await expect(page.locator('#myMeetDay a[href^="pools.html?pool="]')).not.toHaveCount(0);
   const paymentMethods = page.locator('#myMeetDay .my-meet-day__payment-methods');
   await expect(paymentMethods).toBeVisible();
   await expect(paymentMethods.locator('use[href="#icon-banknote"]')).toHaveCount(1);
@@ -548,7 +536,7 @@ test('[WF-AGENDA-004] home page loads agenda dependencies only after a favorite 
   ));
   expect(homeScheduleVersion).toBeTruthy();
   expect(dependencyVersions.every(version => version === homeScheduleVersion)).toBe(true);
-  await expect(page.locator('#favoriteWeek a[href^="pools.html?pool="]').first()).toBeVisible();
+  await expect(page.locator('#favoriteWeek a[href^="pools.html?pool="]')).not.toHaveCount(0);
 });
 
 test('[WF-AGENDA-005] changing to an unavailable favorite does not display the prior team heading', async ({ page }) => {

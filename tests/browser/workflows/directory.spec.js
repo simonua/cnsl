@@ -10,7 +10,7 @@ test.beforeEach(async ({ page }) => {
 
 test('[WF-DIR-001] directory disclosures work without rendered inline event handlers', async ({ page }) => {
   await page.goto('/pools.html');
-  await expect(page.locator('#poolListStatus')).toContainText('Pool directory loaded.');
+  await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
   const poolToggle = page.locator('.pool-header__toggle').first();
   await expect(poolToggle).toHaveAttribute('aria-expanded', 'false');
   await poolToggle.click();
@@ -18,7 +18,7 @@ test('[WF-DIR-001] directory disclosures work without rendered inline event hand
   await expect(page.locator('#poolList [onclick], #poolList [onerror]')).toHaveCount(0);
 
   await page.goto('/teams.html');
-  await expect(page.locator('#teamListStatus')).toContainText('Team directory loaded.');
+  await expect(page.locator('#teamList')).toHaveAttribute('aria-busy', 'false');
   const teamToggle = page.locator('.team-header__toggle').first();
   await expect(teamToggle).toHaveAttribute('aria-expanded', 'false');
   await teamToggle.click();
@@ -26,7 +26,7 @@ test('[WF-DIR-001] directory disclosures work without rendered inline event hand
   await expect(page.locator('#teamList [onclick], #teamList [onerror]')).toHaveCount(0);
 
   await page.goto('/meets.html');
-  await expect(page.locator('#meetListStatus')).toContainText('Meet schedule loaded.');
+  await expect(page.locator('#meetList')).toHaveAttribute('aria-busy', 'false');
   const meetToggle = page.locator('.meet-date-header__toggle').first();
   const initiallyExpanded = await meetToggle.getAttribute('aria-expanded');
   await meetToggle.focus();
