@@ -193,6 +193,8 @@ describe('PoolScheduleDisplay', () => {
         ...sourceUpdate,
         sourceName: 'Columbia Neighborhood Swim League'
       }), 'Fixture &lt;hours&gt; for June 19-August 9. CNSL data updated Jun 24, 2026.');
+      assert.equal(PoolScheduleDisplay.formatSourceUpdateHtml({ ...sourceUpdate, updatedOn: null }), '');
+      assert.equal(PoolScheduleDisplay.formatSourceUpdateHtml({ ...sourceUpdate, updatedOn: 'June 24, 2026' }), '');
       assert.equal(PoolScheduleDisplay.formatSourceUpdateHtml({ ...sourceUpdate, updatedOn: '2026-02-30' }), '');
       assert.equal(PoolScheduleDisplay.formatSourceUpdateHtml({ ...sourceUpdate, sourceName: '' }), '');
       assert.deepEqual(PoolScheduleDisplay.getSourceUpdateFootnotes(null), []);

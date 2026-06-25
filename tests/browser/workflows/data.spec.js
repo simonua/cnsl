@@ -217,7 +217,8 @@ test('[WF-DATA-007-POOLS] pool summaries and requested details render before opt
     const firstPool = page.locator('#poolList .pool-card').first();
     await firstPool.locator('.pool-header__toggle').click();
     await expect(firstPool.locator('.pool-details')).toHaveAttribute('aria-busy', 'true');
-    await expect(firstPool.locator('.pool-details [role="status"]')).toBeVisible();
+    await expect(firstPool.locator('.pool-details')).toHaveAttribute('data-pool-details-hydrated', 'false');
+    await expect(firstPool.locator('.pool-details')).toBeEmpty();
     releaseDetailRequest();
     await expect(firstPool.locator('.pool-details')).toHaveAttribute('data-pool-details-hydrated', 'true');
     await expect(firstPool.locator('.pool-contact')).toBeVisible();
