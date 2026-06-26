@@ -1,4 +1,5 @@
 const fs = require('fs');
+const crypto = require('crypto');
 const path = require('path');
 const posthtml = require('posthtml');
 const { copyBrowserJavaScript } = require('./scripts/validate-browser-javascript');
@@ -162,14 +163,30 @@ const versionStaticAssetsPlugin = (tree) => {
   return tree;
 };
 
-const validateInlineScriptsPlugin = (tree) => {
+const validateInlineContentPlugin = (tree) => {
+  let earlyThemeBootstrapCount = 0;
+  let initialCanvasStyle = null;
+  let initialCanvasStyleCount = 0;
   let policyMeta = null;
 
   tree.walk(node => {
     if (node.tag === 'script' && (!node.attrs || !node.attrs.src)) {
-      if (!node.attrs || node.attrs.type !== 'application/ld+json') {
+      const isStructuredData = node.attrs && node.attrs.type === 'application/ld+json';
+      const isEarlyThemeBootstrap = node.attrs
+        && node.attrs['data-cfasync'] === 'false'
+        && node.attrs['data-theme-bootstrap'] === 'true';
+      if (isEarlyThemeBootstrap) earlyThemeBootstrapCount += 1;
+      if (!isStructuredData && !isEarlyThemeBootstrap) {
         throw new Error('Inline executable scripts are not permitted; use a same-origin script asset instead.');
       }
+    }
+    if (node.tag === 'style') {
+      const isInitialCanvasStyle = node.attrs && node.attrs['data-initial-canvas'] === 'true';
+      if (!isInitialCanvasStyle) {
+        throw new Error('Inline style blocks are not permitted; use the site stylesheet instead.');
+      }
+      initialCanvasStyle = node;
+      initialCanvasStyleCount += 1;
     }
     if (node.tag === 'meta' && node.attrs && node.attrs['http-equiv'] === 'Content-Security-Policy') {
       policyMeta = node;
@@ -179,6 +196,18 @@ const validateInlineScriptsPlugin = (tree) => {
 
   if (!policyMeta) {
     throw new Error('Shared Content-Security-Policy metadata is missing from a rendered page.');
+  }
+  if (earlyThemeBootstrapCount !== 1) {
+    throw new Error('Each rendered page must include exactly one Cloudflare-safe early theme bootstrap.');
+  }
+  if (initialCanvasStyleCount !== 1) {
+    throw new Error('Each rendered page must include exactly one initial canvas style block.');
+  }
+
+  const initialCanvasCss = initialCanvasStyle.content.join('');
+  const initialCanvasHash = crypto.createHash('sha256').update(initialCanvasCss).digest('base64');
+  if (!policyMeta.attrs.content.includes(`'sha256-${initialCanvasHash}'`)) {
+    throw new Error('The Content-Security-Policy style hash does not match the initial canvas style block.');
   }
 
   return tree;
@@ -375,7 +404,7 @@ coordinatePageBuilds(files, file => {
     .use(extend)
     .use(includePlugin)
     .use(expressions)
-    .use(validateInlineScriptsPlugin)
+    .use(validateInlineContentPlugin)
     .use(versionStaticAssetsPlugin)
     .process(html)
     .then(result => {

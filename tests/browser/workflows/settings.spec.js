@@ -487,6 +487,27 @@ test('[WF-SETTINGS-004] system theme follows OS color scheme changes while expli
   await expect(root).toHaveAttribute('data-color-scheme', 'dark');
 });
 
+test('[WF-SETTINGS-016] saved dark theme applies before external assets are available', async ({ page }) => {
+  await page.addInitScript(() => {
+    globalThis.localStorage.setItem('cnsl_preferences', JSON.stringify({ theme: 'dark' }));
+  });
+  await page.route('**/*.js*', route => route.abort());
+  await page.route('**/css/styles.css*', route => route.abort());
+  await page.goto('/index.html');
+
+  const root = page.locator('html');
+  await expect(root).toHaveAttribute('data-theme', 'dark');
+  await expect(root).toHaveAttribute('data-color-scheme', 'dark');
+  await expect.poll(() => root.evaluate(element => ({
+    backgroundColor: globalThis.getComputedStyle(element).backgroundColor,
+    colorScheme: globalThis.getComputedStyle(element).colorScheme
+  }))).toEqual({
+    backgroundColor: 'rgb(16, 24, 32)',
+    colorScheme: 'dark'
+  });
+  await expect.poll(() => page.locator('body').evaluate(element => globalThis.getComputedStyle(element).backgroundColor)).toBe('rgb(16, 24, 32)');
+});
+
 test('[WF-SETTINGS-008] accessibility settings apply immediately, persist locally, and report categories only', async ({ page }) => {
   await initializeAnalyticsRecorder(page);
   await page.goto('/settings.html');

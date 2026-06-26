@@ -14,16 +14,42 @@
     manifest-src 'self';
     object-src 'none';
     script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://static.cloudflareinsights.com;
-    style-src 'self' 'unsafe-inline'; worker-src 'self';" />
-  <style>
+    style-src 'self' 'sha256-W0PHZusQgQ2dWoSMM9pp0mPEp/gtQakxLnUAXflYMaE=';
+    style-src-attr 'unsafe-inline'; worker-src 'self';" />
+  <script data-cfasync="false" data-theme-bootstrap="true">
+    let selectedTheme = 'system';
+    try {
+      const storedPreferences = JSON.parse(localStorage.getItem('{{ PREFERENCES_STORAGE_KEY }}') || '{}');
+      if (storedPreferences.theme === 'light' || storedPreferences.theme === 'dark') {
+        selectedTheme = storedPreferences.theme;
+      }
+    } catch {}
+    const selectedColorScheme = selectedTheme === 'system'
+      ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      : selectedTheme;
+    document.documentElement.dataset.theme = selectedTheme;
+    document.documentElement.dataset.colorScheme = selectedColorScheme;
+  </script>
+  <style data-initial-canvas="true">
     :root {
       --initial-page-background: #f8f9fa;
+      background-color: var(--initial-page-background);
+      color-scheme: light;
+    }
+
+    :root[data-color-scheme="dark"] {
+      --initial-page-background: #101820;
+      color-scheme: dark;
+    }
+
+    body {
       background-color: var(--initial-page-background);
     }
 
     @media (prefers-color-scheme: dark) {
-      :root {
+      :root:not([data-color-scheme="light"]) {
         --initial-page-background: #101820;
+        color-scheme: dark;
       }
     }
   </style>

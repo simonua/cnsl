@@ -1,6 +1,6 @@
 # Security And Privacy Decision
 
-Updated: 2026-06-23
+Updated: 2026-06-25
 
 ## Analytics Decision
 
@@ -22,12 +22,12 @@ GitHub Pages does not provide repository-managed HTTP response headers for this 
 | --- | --- | --- |
 | Default, base URL, manifest, worker | Same origin only | Site artifact and PWA lifecycle. |
 | Scripts | Same origin, inline scripts, `https://www.googletagmanager.com`, `https://static.cloudflareinsights.com` | Site JavaScript, structured metadata, the deployed-site Google tag for Analytics, and dynamic Cloudflare JavaScript loaded by the delivery layer. Cloudflare-injected code cannot use a repository-generated nonce or stable hash, so `script-src 'unsafe-inline'` is required. |
-| Styles | Same origin and inline styles | Navigation offset calculation, calendar positioning, and status presentation still use controlled runtime styles. |
+| Styles | Same origin, the hashed initial canvas block, and inline style attributes | The exact early light/dark canvas is authorized by SHA-256. Navigation offset and calendar positioning still use controlled runtime style attributes. Arbitrary inline style blocks are not allowed. |
 | Connections | Same origin, `https://api.weather.gov`, Google Analytics collection and Google tag endpoints, `https://cloudflareinsights.com` | Annual/static content, weather safety alerts, purpose-limited usage measurement, and Cloudflare Insights beacon delivery telemetry. |
 | Images | Same origin, data URLs, Google Analytics endpoints, `https://www.googletagmanager.com` | Delivered images and Google tag analytics beacon transport. |
 | Frames and objects | None | No embedded third-party user experience is required. |
 
-The browser policy permits inline executable scripts because dynamic JavaScript injected by Cloudflare cannot carry a repository-generated nonce or stable hash. No nonce or hash source is included in `script-src`, because modern browsers would otherwise ignore `'unsafe-inline'` and block the Cloudflare injection. This weakens the browser's protection against injected inline JavaScript across the page, so the build continues to reject authored inline executable scripts other than structured JSON-LD. The `script-src 'unsafe-inline'` and `style-src 'unsafe-inline'` permissions are acknowledged integration constraints rather than blanket security claims. They should be removed if Cloudflare's delivery integration and supported UI styling can operate without them.
+The browser policy permits inline executable scripts because dynamic JavaScript injected by Cloudflare cannot carry a repository-generated nonce or stable hash. No nonce or hash source is included in `script-src`, because modern browsers would otherwise ignore `'unsafe-inline'` and block the Cloudflare injection. This weakens the browser's protection against injected inline JavaScript across the page, so the build continues to reject authored inline executable scripts other than structured JSON-LD and the marked early-theme bootstrap. The build also permits exactly one inline style block and verifies that its exact SHA-256 appears in `style-src`. The narrower `style-src-attr 'unsafe-inline'` remains for controlled runtime positioning and should be removed when those assignments move to a fixed class or another CSP-compatible presentation contract.
 
 The Google Analytics connection allowlist follows Google's current GA4 CSP guidance for `*.google-analytics.com`, `*.analytics.google.com`, and `*.googletagmanager.com`. Advertising endpoints remain excluded because advertising storage, Google signals, and advertising personalization are disabled for this deployment.
 
@@ -39,7 +39,7 @@ Weather safety alerts use a fixed Columbia-area point representing the pool area
 
 ## Validation
 
-- The artifact verifier requires a valid fail-closed analytics deployment marker and the runtime capability gate; requires analytics storage to remain granted for reportable aggregate visit and session measurement; permits only the reviewed app-share and flyer campaign tuples and a parameter-free flyer visit count for the locally consumed flyer link; permits validated favorite and pool feature selections while rejecting other transmitted setting values and direct Google tracking calls outside the analytics module; protects the advertising and navigation-data guardrails; requires the documented Cloudflare inline-script exception; and rejects the removed consent loader or consent setting. The build still rejects authored inline executable scripts before producing the artifact.
+- The artifact verifier requires a valid fail-closed analytics deployment marker and the runtime capability gate; requires analytics storage to remain granted for reportable aggregate visit and session measurement; permits only the reviewed app-share and flyer campaign tuples and a parameter-free flyer visit count for the locally consumed flyer link; permits validated favorite and pool feature selections while rejecting other transmitted setting values and direct Google tracking calls outside the analytics module; protects the advertising and navigation-data guardrails; requires the documented Cloudflare inline-script exception and exact initial-canvas style hash; and rejects the removed consent loader or consent setting. The build rejects other authored inline executable scripts and style blocks before producing the artifact.
 - Automated accessibility scans exercise all published routes under the enforced default policy.
 - The secure-origin release checklist requires browser-tab and installed-PWA analytics transport checks, payload inspection, GA administration review, an explicit reportability result, and a browser-console review of both enforced and report-only CSP violations while deployed-site analytics is active.
 - Published text in About, FAQ, Settings, and What's New describes the visitor-facing privacy behavior.
