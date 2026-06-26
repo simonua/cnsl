@@ -18,15 +18,15 @@
     {
       "domain": "pools",
       "label": "Bryant Woods pool schedule",
-      "localPath": "pools/pool-schedules/bwp/2026-06-19/Bryant_Woods.pdf",
+      "localPath": "pools/pool-schedules/bwp/2026-06-25/Bryant_Woods.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Bryant_Woods.pdf",
       "sourceIds": [
         "pool:bwp:schedule"
       ],
-      "etag": "\"6a345e79-e79d\"",
-      "lastModified": "Thu, 18 Jun 2026 21:09:13 GMT",
-      "contentLength": "59293",
-      "sha256": "35c49b9c450c4cf8012f5003498d59314c3126e86be180044d151af937a35d66"
+      "etag": "\"6a3d6b7c-e7c8\"",
+      "lastModified": "Thu, 25 Jun 2026 17:55:08 GMT",
+      "contentLength": "59336",
+      "sha256": "81a4fb11e3badb5b5a28646fdaace735d41d94f5186a17b5290c21d0097ff2ba"
     },
     {
       "domain": "pools",
@@ -637,7 +637,7 @@
       ],
       "fingerprint": "outdoor-pool-schedules",
       "label": "Columbia Association pool schedule page",
-      "sha256": "42a40f2cfbf5e615291f0295d4e21074fe70d9273de090bc8c70a3ac6e7b301a",
+      "sha256": "c0d4212022daea202ffd178dbe371ca5c3f5d170bb61b17b8b936456c6f70177",
       "sourceIds": [
         "pools:outdoor-schedule-index"
       ],

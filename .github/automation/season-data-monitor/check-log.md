@@ -8,6 +8,7 @@ This log records completed online checks of official active-season sources and l
 
 | Date | Type | Data point | Summary |
 | --- | --- | --- | --- |
+| [2026-06-25T21:47:16-04:00 Seasonal Data Review](#activity-2026-06-25t214716-0400-seasonal-data-review) | update | <!-- --> | Completed the 139-source review and retained the current Bryant Woods PDF; represented schedules and destinations remained current. |
 | [2026-06-25 Long Reach Away-Team Guidance](#activity-2026-06-25-long-reach-away-team-guidance) | update | Phelps Luck visiting-team arrival and warm-up times | Added the 7:15 AM Long Reach arrival and 7:30 AM visiting-team warm-up. |
 | [2026-06-25T06:52:40-04:00 Seasonal Data Review](#activity-2026-06-25t065240-0400-seasonal-data-review) | check | <!-- --> | Completed the 139-source review; represented outdoor lesson data and pool schedule destinations remained current. |
 | [2026-06-24 Source Update Annotation](#activity-2026-06-24-source-update-annotation) | update | Dorsey Hall Sunday schedule `sourceUpdate` | Added structured source and application-update context to the corrected Sunday hours and displayed it with the schedule. |
@@ -35,6 +36,35 @@ This log records completed online checks of official active-season sources and l
 | [2026-06-11T18:08:10-04:00](#activity-2026-06-11t180810-0400) | check | <!-- --> | Completed the 135-source review; no represented data or destinations changed. |
 | [2026-06-10T22:13:23-04:00](#activity-2026-06-10t221323-0400) | check | <!-- --> | Completed the 135-source review under the availability exception; no represented data changed. |
 | [2026-06-10T06:56:02-04:00](#activity-2026-06-10t065602-0400) | check | <!-- --> | The review was incomplete because one application-used destination could not be verified; no represented data changed. |
+
+<a id="activity-2026-06-25t214716-0400-seasonal-data-review"></a>
+
+## 2026-06-25T21:47:16-04:00 Seasonal Data Review
+
+**Active season:** 2026
+
+**Result:** Complete for candidate `8f5b1fda1221cd46` under the existing explicit maintainer exception for merchandise-store and booster-site availability.
+
+Checked the 139-source inventory built from the active 2026 JSON and annual README:
+
+- `pnpm run check:data-updates` reached all 76 monitor-collected modeled-evidence URLs and reported the Bryant Woods document and pool-schedule page candidates.
+- All 63 official sources and application-used destinations outside the monitor were attempted separately with live GET requests.
+- 136 required sources returned successful responses.
+- The Long Reach and Phelps Luck merchandise stores and the Long Reach booster site were attempted and returned HTTP 403 responses covered by the established availability exception.
+- No non-exempt source failed or remained unattempted.
+
+The current pool-specific Bryant Woods PDF newly prints Friday Aqua Fitness from 10:45 AM to 11:40 AM during June 19 - August 9. `pools[id="bwp"].schedules` already represents that restricted Friday period from the field-owning Columbia Association Aqua Fitness class series, which independently publishes seven Friday occurrences from June 26 through August 7. The regenerated PDF was retained as current corroborating evidence; no modeled schedule value changed.
+
+The Columbia Association pool schedule index identifies Bryant Woods as updated June 25, remains at the modeled `caPoolGuideUrl`, publishes all 23 outdoor-pool short links, and resolves each with HTTP 200 to the exact `pools[].scheduleUrl` destination already stored. No official-source conflict, normalization change, schema change, or residual uncertainty remains. Confidence is High.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Unchanged | None; Bryant Woods Friday Aqua Fitness was already represented from the CA class series. |
+| Application-used source destinations | Unchanged | None; `caPoolGuideUrl` and all 23 `pools[].scheduleUrl` values remain current. |
+| Retained official PDFs | Updated | Added `pools/pool-schedules/bwp/2026-06-25/Bryant_Woods.pdf`; earlier Bryant Woods artifacts remain retained. |
+| Visitor-facing records | Unchanged | None; What's New and sitemap were not changed. |
+| Review records | Updated | Updated `OFFICIAL_SOURCE_CHECKED_AT`, active annual README evidence, and this check-log entry; `OFFICIAL_SOURCE_UPDATED_AT` remains unchanged. |
+| Reviewed source baseline | Updated | `source-state.json` refreshed with the accepted June 25 Bryant Woods document and schedule-page evidence. |
 
 <a id="activity-2026-06-25-long-reach-away-team-guidance"></a>
 
