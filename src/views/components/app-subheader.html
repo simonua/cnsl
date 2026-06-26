@@ -1,0 +1,51 @@
+<div class="app-subheader" id="appSubheader" aria-label="Application notices">
+  <aside class="attention-banner" id="attentionBanner" role="alert" aria-label="Important notice" hidden>
+    <div class="attention-banner__inner">
+      <svg class="icon attention-banner__icon" aria-hidden="true" focusable="false"><use href="#icon-warning-triangle"></use></svg>
+      <div class="attention-banner__copy">
+        <p class="attention-banner__message" id="attentionBannerMessage"></p>
+        <p class="attention-banner__updated" id="attentionBannerUpdated" hidden>Updated <time id="attentionBannerUpdatedTime"></time></p>
+      </div>
+      <button class="attention-banner__close" id="closeAttentionBanner" type="button" aria-label="Dismiss important notice" title="Dismiss important notice" hidden>
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+  </aside>
+  <section class="weather-alert" id="weatherAlert" role="alert" aria-label="Weather alert" hidden>
+    <div class="weather-alert__inner">
+      <div class="weather-alert__copy">
+        <strong class="weather-alert__title">
+          <svg class="icon weather-alert__warning-icon" aria-hidden="true" focusable="false"><use href="#icon-warning-triangle"></use></svg>
+          <span>Weather alert</span>
+        </strong>
+        <div class="weather-alert__details" id="weatherAlertDetails">
+          <p class="weather-alert__message" id="weatherAlertMessage"></p>
+          <p class="weather-alert__updated">Last updated <time id="weatherAlertUpdated"></time></p>
+          <div class="weather-alert__actions">
+            <a class="weather-alert__link weather-alert__link--nws" id="weatherAlertSourceLink" href="{{ EXTERNAL_LINKS.NATIONAL_WEATHER_SERVICE_PUBLIC_ALERTS }}" target="_blank" rel="noopener noreferrer" hidden>
+              <span>NWS local alerts<span class="visually-hidden"> (opens in new tab)</span></span>
+            </a>
+            <a class="weather-alert__link" id="weatherAlertPoolDirectoryLink" href="{{ ACTIVE_SEASON.CA_POOL_DIRECTORY_URL }}" target="_blank" rel="noopener noreferrer" data-analytics-context="weather_status">
+              <span class="weather-alert__live-indicator" aria-hidden="true"></span>
+              <span>Live pool status<span class="visually-hidden"> (opens in new tab)</span></span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <button class="weather-alert__toggle" id="weatherAlertToggle" type="button" aria-expanded="true" aria-controls="weatherAlertDetails" aria-label="Collapse weather safety alert" title="Collapse weather safety alert">
+        <span class="weather-alert__toggle-icon" aria-hidden="true">&#9650;</span>
+      </button>
+    </div>
+  </section>
+  <include src="components/connectivity-status.html"></include>
+  <include src="components/release-notice.html"></include>
+  <include src="components/settings-notice.html"></include>
+</div>
+<script src="js/types/weather-alert-source.js"></script>
+<script src="js/weather-alert-display.js"></script>
+<script src="js/weather-alert-cached.js"></script>
+<script src="js/connectivity-status.js"></script>
+<script src="js/services/device-platform-service.js"></script>
+<script src="js/services/release-notice-service.js"></script>
+<script src="js/services/settings-notice-service.js"></script>
+<script src="js/home-banner.js"></script>

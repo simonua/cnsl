@@ -14,7 +14,7 @@ test.beforeEach(async ({ page }) => {
   await prepareStableWeatherResponses(page);
 });
 
-test('[WF-SETTINGS-003] home page settings reminder is dismissed permanently by link or close button', async ({ page }) => {
+test('[WF-SETTINGS-003] shared settings reminder is dismissed permanently by link or close button', async ({ page }) => {
   await initializeAnalyticsRecorder(page);
   await page.goto('/index.html');
 
@@ -45,7 +45,7 @@ test('[WF-SETTINGS-003] home page settings reminder is dismissed permanently by 
   ]);
 
   await page.goto('/pools.html');
-  await expect(page.locator('#settingsNotice')).toHaveCount(0);
+  await expect(page.locator('#settingsNotice')).toBeHidden();
 });
 
 test('[WF-SETTINGS-001] settings dialog is evenly inset on mobile and centered on desktop', async ({ page }) => {

@@ -145,6 +145,27 @@ test('[WF-NAV-003] home startup falls back to directory document prefetches', as
   await expect(page.locator('script[type="speculationrules"]')).toHaveCount(0);
 });
 
+test('[WF-NAV-007] shared subheader keeps notice state and scrolls with page content', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('cnsl_current_version', globalThis.APP_VERSION || '0.0.0');
+    localStorage.setItem('cnsl_settings_notice_dismissed', 'true');
+  });
+  await page.goto('/faq.html');
+
+  const subheader = page.locator('#appSubheader');
+  await expect(subheader).toHaveCSS('position', 'static');
+  await expect(subheader.locator('#attentionBanner')).toHaveCount(1);
+  await expect(subheader.locator('#weatherAlert')).toHaveCount(1);
+  await expect(subheader.locator('#connectivityStatus')).toHaveCount(1);
+  await expect(subheader.locator('#releaseNotice')).toHaveCount(1);
+  await expect(subheader.locator('#settingsNotice')).toHaveCount(1);
+
+  const initialTop = await subheader.evaluate(element => element.getBoundingClientRect().top);
+  await page.evaluate(() => globalThis.scrollTo(0, globalThis.document.documentElement.scrollHeight));
+  await expect.poll(() => subheader.evaluate(element => element.getBoundingClientRect().top)).toBeLessThan(initialTop);
+  await expect(page.locator('.header')).toHaveCSS('position', 'fixed');
+});
+
 for (const scenario of WARMED_ROUTE_SCENARIOS) {
   test(`[${scenario.reference}] ${scenario.title} navigation keeps Home visible until primary rendering is ready`, async ({ page }) => {
     const pageErrors = [];

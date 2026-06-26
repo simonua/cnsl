@@ -213,9 +213,5 @@
     banners.forEach(banner => banner.show());
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', showApplicationBanners);
-  } else {
-    showApplicationBanners();
-  }
+  showApplicationBanners();
 }());

@@ -22,9 +22,5 @@
     window.addEventListener('offline', renderConnectionStatus);
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', startConnectionStatusUpdates);
-  } else {
-    startConnectionStatusUpdates();
-  }
+  startConnectionStatusUpdates();
 }());

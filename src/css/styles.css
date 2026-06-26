@@ -382,6 +382,30 @@ body {
   Shared shell, header, and navigation
   ========================================================================== */
 
+@view-transition {
+  navigation: auto;
+}
+
+.app-subheader {
+  flex: 0 0 auto;
+  position: static;
+  view-transition-name: app-subheader;
+  width: 100%;
+}
+
+::view-transition-old(app-subheader),
+::view-transition-new(app-subheader) {
+  animation-duration: 0.15s;
+  mix-blend-mode: normal;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(app-subheader),
+  ::view-transition-new(app-subheader) {
+    animation: none;
+  }
+}
+
 /* Container */
 .container {
   width: 100%;
