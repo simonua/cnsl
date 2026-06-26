@@ -24,4 +24,21 @@ describe('HTML output', () => {
     assert.match(result.html, /<p>Beforeafter<\/p>/);
     assert.match(result.html, /<section><p>Content<\/p><\/section>/);
   });
+
+  it('should not create a comment opener from text around a removed token', () => {
+    const tree = ['<!', '<!-- authoring note -->', '-->'];
+
+    assert.throws(
+      () => stripAuthoringComments(tree),
+      /unrecognized comment token/
+    );
+  });
+
+  it('should leave malformed nested comment source without an opener', async () => {
+    const result = await posthtml()
+      .use(stripAuthoringComments)
+      .process('<!<!-- authoring note -->-->');
+
+    assert.doesNotMatch(result.html, /<!--/);
+  });
 });

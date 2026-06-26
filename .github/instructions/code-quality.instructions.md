@@ -26,6 +26,12 @@ description: "Use when changing URL handling, navigation, generated markup, exte
 - Do not use `innerHTML` with raw external or stored data, even when the current dataset appears maintained or trusted.
 - Do not pass raw query strings, URL fragments, referrers, or destination values into analytics. Only a separately reviewed, fixed campaign tuple from an app-published inbound link may be allowlisted and mapped to GA campaign fields; reject arbitrary campaign values and retain the remaining privacy boundary in the JavaScript instructions.
 
+## Structured Markup Processing
+
+- Never sanitize, remove, or rewrite HTML comments, tags, attributes, scripts, styles, or other multi-character markup constructs with regular-expression or substring replacement. A one-pass replacement can join surrounding fragments into a new dangerous construct, and repeated replacement remains an error-prone HTML parser substitute.
+- Process HTML with the repository's established parser or DOM APIs and operate on complete parsed nodes or tokens. For generated text or attributes, use destination-specific validation and contextual encoding instead of deleting suspicious syntax. If parsed input is malformed, ambiguous, or leaves a forbidden construct after processing, reject it or fail the build rather than repairing and emitting it.
+- Before adding markup normalization or sanitization, search for the existing semantic owner and review sibling build-time and browser-time paths. Do not introduce a second ad hoc sanitizer when a parser, `HtmlSafety`, or another established boundary already owns the operation.
+
 ## Dynamic Regular Expressions
 
 - Prefer exact string comparisons or `includes` when regex behavior is unnecessary. When untrusted or computed text must become a literal part of a `RegExp`, escape the complete JavaScript metacharacter set, including backslash, through an established helper or the canonical `/[.*+?^${}()|[\]\\]/g` replacement. Never use a partial character set based only on the current input format.
@@ -35,6 +41,7 @@ description: "Use when changing URL handling, navigation, generated markup, exte
 
 - Add or update focused tests whenever code introduces or changes URL parsing, link generation, generated markup, redirects, storage-to-DOM output, or external-data rendering.
 - Exercise accepted inputs and rejected hostile inputs, including disallowed schemes (`javascript:` and `data:`), malformed URLs, markup/attribute delimiters, encoded components, and control-character or whitespace injection where relevant.
+- For markup removal or normalization, include hostile cases where deleting one complete token, tag, or substring could join retained fragments into a new comment opener, tag, closing delimiter, protocol, or executable construct. Assert that processing either produces structurally safe output or fails closed.
 - Assert the trust-boundary outcome rather than a complete generated string: accepted fixture values remain usable, hostile tags and destinations cannot execute or navigate, and encoding is correct for its context. Do not couple these checks to unrelated static copy or wrapper markup.
 - When a regular-expression assertion verifies that dangerous HTML tags were escaped or rejected, make the tag match case-insensitive, use a tag-name boundary, and include mixed-case hostile input. Prefer structured DOM assertions when the test needs to inspect general HTML rather than one specific forbidden tag, and use the minimum stable markup fragment needed for a Node-only security check.
 - Keep reusable sanitization logic in a service with unit coverage, and add browser coverage when the value reaches rendered output or an interactive navigation workflow.
