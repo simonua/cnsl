@@ -26,6 +26,11 @@ description: "Use when changing URL handling, navigation, generated markup, exte
 - Do not use `innerHTML` with raw external or stored data, even when the current dataset appears maintained or trusted.
 - Do not pass raw query strings, URL fragments, referrers, or destination values into analytics. Only a separately reviewed, fixed campaign tuple from an app-published inbound link may be allowlisted and mapped to GA campaign fields; reject arbitrary campaign values and retain the remaining privacy boundary in the JavaScript instructions.
 
+## Dynamic Regular Expressions
+
+- Prefer exact string comparisons or `includes` when regex behavior is unnecessary. When untrusted or computed text must become a literal part of a `RegExp`, escape the complete JavaScript metacharacter set, including backslash, through an established helper or the canonical `/[.*+?^${}()|[\]\\]/g` replacement. Never use a partial character set based only on the current input format.
+- Keep `regexp-safety/complete-escaping` enabled for every JavaScript file. Extend its focused configuration test when another safe construction is intentionally supported; do not disable or bypass the rule at a call site.
+
 ## Regression Coverage
 
 - Add or update focused tests whenever code introduces or changes URL parsing, link generation, generated markup, redirects, storage-to-DOM output, or external-data rendering.

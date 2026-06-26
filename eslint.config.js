@@ -1,12 +1,50 @@
 const js = require('@eslint/js');
 const globals = require('globals');
 
+const COMPLETE_REGEXP_ESCAPE_PATTERN = /[.*+?^${}()|[\]\\]/.source;
+const regexpSafetyPlugin = {
+  rules: {
+    'complete-escaping': {
+      meta: {
+        type: 'problem',
+        docs: {
+          description: 'Require complete metacharacter escaping when text is interpolated into a regular expression.'
+        },
+        messages: {
+          incomplete: 'Regular expression escaping must include every metacharacter, including backslash. Prefer a non-regex comparison when possible.'
+        },
+        schema: []
+      },
+      create(context) {
+        return {
+          CallExpression(node) {
+            const { callee, arguments: callArguments } = node;
+            if (callee.type !== 'MemberExpression'
+              || callee.computed
+              || callee.property.name !== 'replace'
+              || callArguments.length < 2) return;
+
+            const [pattern, replacement] = callArguments;
+            if (!pattern.regex || replacement.type !== 'Literal' || replacement.value !== '\\$&') return;
+            if (pattern.regex.pattern === COMPLETE_REGEXP_ESCAPE_PATTERN && pattern.regex.flags.includes('g')) return;
+
+            context.report({ node, messageId: 'incomplete' });
+          }
+        };
+      }
+    }
+  }
+};
+
 module.exports = [
   js.configs.recommended,
 
   // Shared source-length boundary
   {
     files: ['**/*.js'],
+    plugins: {
+      'regexp-safety': regexpSafetyPlugin,
+    },
     rules: {
       'max-len': ['error', {
         code: 250,
@@ -16,6 +54,7 @@ module.exports = [
         ignoreTemplateLiterals: true,
         ignoreRegExpLiterals: true,
       }],
+      'regexp-safety/complete-escaping': 'error',
     },
   },
 

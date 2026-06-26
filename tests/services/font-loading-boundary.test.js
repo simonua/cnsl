@@ -66,7 +66,7 @@ describe('font loading boundary', () => {
     assert.ok(initialCanvasMatch);
     const initialCanvasHash = crypto.createHash('sha256').update(initialCanvasMatch[1]).digest('base64');
 
-    assert.match(layoutSource, new RegExp(`style-src 'self' 'sha256-${initialCanvasHash.replace(/[+/=]/g, '\\$&')}'`));
+    assert.ok(layoutSource.includes(`style-src 'self' 'sha256-${initialCanvasHash}'`));
     assert.match(layoutSource, /style-src-attr 'unsafe-inline'/);
     assert.doesNotMatch(layoutSource, /style-src 'self' 'unsafe-inline'/);
     assert.match(posthtmlSource, /The Content-Security-Policy style hash does not match the initial canvas style block/);
