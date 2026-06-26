@@ -21,6 +21,7 @@ on:
       - 'scripts/adapters/weather-alert-service.js'
       - 'scripts/lib/classic-script-loader.js'
       - 'scripts/lib/development-server.js'
+      - 'scripts/lib/html-output.js'
       - 'scripts/lib/page-build-coordinator.js'
       - 'scripts/lib/pwa-resource-policy.js'
       - 'scripts/validate-browser-javascript.js'
