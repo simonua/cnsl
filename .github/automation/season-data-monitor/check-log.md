@@ -8,6 +8,7 @@ This log records completed online checks of official active-season sources and l
 
 | Date | Type | Data point | Summary |
 | --- | --- | --- | --- |
+| [2026-06-25 Long Reach Away-Team Guidance](#activity-2026-06-25-long-reach-away-team-guidance) | update | Phelps Luck visiting-team arrival and warm-up times | Added the 7:15 AM Long Reach arrival and 7:30 AM visiting-team warm-up. |
 | [2026-06-25T06:52:40-04:00 Seasonal Data Review](#activity-2026-06-25t065240-0400-seasonal-data-review) | check | <!-- --> | Completed the 139-source review; represented outdoor lesson data and pool schedule destinations remained current. |
 | [2026-06-24 Source Update Annotation](#activity-2026-06-24-source-update-annotation) | update | Dorsey Hall Sunday schedule `sourceUpdate` | Added structured source and application-update context to the corrected Sunday hours and displayed it with the schedule. |
 | [2026-06-24T07:23:33-04:00 Seasonal Data Review](#activity-2026-06-24t072333-0400-seasonal-data-review) | update | Dorsey Hall Sunday Laps and Rec Swim hours | Corrected the June 19 - August 9 hours to 11:00 AM - 7:00 PM and retained the current official PDF. |
@@ -34,6 +35,25 @@ This log records completed online checks of official active-season sources and l
 | [2026-06-11T18:08:10-04:00](#activity-2026-06-11t180810-0400) | check | <!-- --> | Completed the 135-source review; no represented data or destinations changed. |
 | [2026-06-10T22:13:23-04:00](#activity-2026-06-10t221323-0400) | check | <!-- --> | Completed the 135-source review under the availability exception; no represented data changed. |
 | [2026-06-10T06:56:02-04:00](#activity-2026-06-10t065602-0400) | check | <!-- --> | The review was incomplete because one application-used destination could not be verified; no represented data changed. |
+
+<a id="activity-2026-06-25-long-reach-away-team-guidance"></a>
+
+## 2026-06-25 Long Reach Away-Team Guidance
+
+**Active season:** 2026
+
+**Result:** Local manager-supplied data correction; no new online official-source review performed.
+
+A directly supplied Long Reach away-team manager communication for the June 27 meet at Phelps Luck established that Marlins swimmers should arrive by 7:15 AM and that visiting-team warm-ups begin at 7:30 AM. The Phelps Luck `homeMeetGuides` record stores both values under `visitingTeam`, keeps `homeTeam` empty, and records the communication date and visiting-team source role. The published 8:00 AM first-swim time remains owned by the meet schedule and was not duplicated. Competitive commentary and practice encouragement were omitted because they are not durable public meet guidance. No personal details, manager-only coordination, conflict, or superseded fact was present. The identified Long Reach manager owns these away-team operational times, confidence is High, and there is no residual uncertainty. `OFFICIAL_SOURCE_CHECKED_AT`, `OFFICIAL_SOURCE_UPDATED_AT`, and the reviewed source baseline remain unchanged because this correction was not a completed online official-source review and did not add or replace retained source documents.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Updated | Added Phelps Luck's `homeMeetGuides[poolId="plp"]` with Long Reach `visitingTeam.arrivalTime` and `visitingTeam.warmupTime` in `teams/teams.json`. |
+| Application-used source destinations | Unchanged | None. |
+| Retained official PDFs | Unchanged | None. |
+| Visitor-facing records | Unchanged | None; What's New and sitemap were not changed for this operational data correction. |
+| Review records | Updated | Updated the active annual README and this check-log entry; official-source timestamps remain unchanged. |
+| Reviewed source baseline | Unchanged | This local manager correction did not change `source-state.json`. |
 
 <a id="activity-2026-06-25t065240-0400-seasonal-data-review"></a>
 

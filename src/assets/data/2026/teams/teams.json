@@ -729,6 +729,20 @@
       "eventsSubscriptionUrl": "",
       "homePools": ["Phelps Luck"],
       "timeTrialsPool": "Phelps Luck",
+      "homeMeetGuides": [
+        {
+          "poolId": "plp",
+          "source": {
+            "type": "visiting-team-manager",
+            "receivedOn": "2026-06-25"
+          },
+          "homeTeam": null,
+          "visitingTeam": {
+            "arrivalTime": "07:15",
+            "warmupTime": "07:30"
+          }
+        }
+      ],
       "practicePools": ["Phelps Luck", "Kendall Ridge", "Locust Park"],
       "practice": {
         "url": "https://www.gomotionapp.com/team/reccnslpls/page/practices",
