@@ -506,6 +506,20 @@ test('[WF-SETTINGS-016] saved dark theme applies before external assets are avai
     colorScheme: 'dark'
   });
   await expect.poll(() => page.locator('body').evaluate(element => globalThis.getComputedStyle(element).backgroundColor)).toBe('rgb(16, 24, 32)');
+  await expect.poll(() => page.locator('.header').evaluate(element => {
+    const style = globalThis.getComputedStyle(element);
+    return {
+      backgroundImage: style.backgroundImage,
+      height: element.getBoundingClientRect().height,
+      position: style.position
+    };
+  })).toEqual({
+    backgroundImage: 'linear-gradient(135deg, rgb(23, 108, 174), rgb(17, 86, 134))',
+    height: 74,
+    position: 'fixed'
+  });
+  await expect(page.locator('#site-title')).toHaveCSS('color', 'rgb(241, 245, 248)');
+  await expect(page.locator('#site-title')).toHaveCSS('font-size', '20px');
 });
 
 test('[WF-SETTINGS-008] accessibility settings apply immediately, persist locally, and report categories only', async ({ page }) => {
