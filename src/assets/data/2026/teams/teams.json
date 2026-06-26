@@ -734,12 +734,33 @@
           "poolId": "plp",
           "source": {
             "type": "visiting-team-manager",
-            "receivedOn": "2026-06-25"
+            "receivedOn": "2026-06-26"
+          },
+          "general": {
+            "concessions": {
+              "paymentMethods": ["cash"],
+              "mealItems": [
+                "breakfast sandwiches",
+                "lunch options",
+                "pancakes and sausage"
+              ]
+            }
           },
           "homeTeam": null,
           "visitingTeam": {
-            "arrivalTime": "07:15",
-            "warmupTime": "07:30"
+            "arrivalTime": "07:10",
+            "arrivalGuidance": "Families may enter the pool area starting at 7:05 AM; please be ready to walk in with the team.",
+            "parkingNotes": [
+              "Please park at Phelps Luck Elementary School, along Phelps Luck Drive or High Tor Hill, or on neighborhood side streets.",
+              "Please do not block driveways, park in the bike lane, or use the Eataliano parking lot; vehicles in the bike lane may be towed."
+            ],
+            "familySetupLocation": "on the diving well side of the pool, up the hill on the left",
+            "swimmerCheckInLocation": "at the check-in table next to the diving well",
+            "warmupTime": "07:25",
+            "helpfulNotes": [
+              "All first- and second-half timers must attend the timer meeting around 7:30 AM in the baby pool.",
+              "Meet entries are posted on the black sandwich board near the diving well."
+            ]
           }
         }
       ],
