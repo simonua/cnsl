@@ -23,9 +23,12 @@
       }
     </script>
   </block>
+
   <block name="content">
     <h1><span data-seasonal-content>{{ YEAR }} </span>Meet Schedule</h1>
+
     <include src="components/off-season-message.html"></include>
+
     <div class="container">
       <div class="cnsl-link-section">
         <div class="cnsl-link-card">
@@ -39,15 +42,16 @@
 
       <div data-seasonal-content>
         <p class="visually-hidden" id="meetListStatus" role="status" aria-live="polite">Loading meet schedule.</p>
+
+        <!-- The meet browser replaces this loading region with the active schedule. -->
         <div id="meetList" class="meet-list" aria-busy="true">
-          <!-- Meets will be loaded dynamically via JavaScript -->
         </div>
       </div>
     </div>
   </block>
 
   <block name="scripts">
-    <!-- Summary dependencies load before the directory controller. -->
+    <!-- Schedule state, safe rendering, and meet models load before data access. -->
     <script src="js/services/time-utils.js"></script>
     <script src="js/types/schedule-state.js"></script>
     <script src="js/services/html-safety.js"></script>
@@ -55,7 +59,7 @@
     <script src="js/managers/meets-manager.js"></script>
     <script src="js/services/data-manager.js"></script>
 
-    <!-- Fetch paths and the controller preserve their dependency order. -->
+    <!-- Fetch readiness and file access load before the route controller. -->
     <script src="js/route-warmup-readiness.js" defer></script>
     <script src="js/services/file-helper.js" defer></script>
     <script src="js/meets-browser.js" defer></script>

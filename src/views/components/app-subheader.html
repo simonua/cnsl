@@ -1,4 +1,5 @@
 <div class="app-subheader" id="appSubheader" aria-label="Application notices">
+  <!-- Time-sensitive notice configured by the application owner. -->
   <aside class="attention-banner" id="attentionBanner" role="alert" aria-label="Important notice" hidden>
     <div class="attention-banner__inner">
       <svg class="icon attention-banner__icon" aria-hidden="true" focusable="false"><use href="#icon-warning-triangle"></use></svg>
@@ -11,6 +12,8 @@
       </button>
     </div>
   </aside>
+
+  <!-- Weather safety status and links to current official information. -->
   <section class="weather-alert" id="weatherAlert" role="alert" aria-label="Weather alert" hidden>
     <div class="weather-alert__inner">
       <div class="weather-alert__copy">
@@ -37,10 +40,16 @@
       </button>
     </div>
   </section>
+
+  <!-- Connectivity, release, and settings notices share this subheader stack. -->
   <include src="components/connectivity-status.html"></include>
+
   <include src="components/release-notice.html"></include>
+
   <include src="components/settings-notice.html"></include>
 </div>
+
+<!-- Notice types, services, and controllers load in provider-first order. -->
 <script src="js/types/weather-alert-source.js"></script>
 <script src="js/weather-alert-display.js"></script>
 <script src="js/weather-alert-cached.js"></script>

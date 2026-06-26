@@ -134,28 +134,36 @@
       }
     </script>
   </block>
+
   <block name="content">
     <h1>Frequently Asked Questions</h1>
+
     <div class="container">
       <div id="faqList" class="faq-list" data-analytics-context="official_information">
+        <!-- Questions are grouped by visitor task and source responsibility. -->
         <section class="faq-list__category" aria-labelledby="faq-functionality">
           <h2 id="faq-functionality" class="faq-list__heading">Using the App</h2>
+
           <article class="faq-item">
             <h3>What is CNSL?</h3>
             <p><a href="{{ EXTERNAL_LINKS.OFFICIAL_CNSL_SITE }}" target="_blank" rel="noopener">CNSL</a> stands for Columbia Neighborhood Swim League, a summer recreational swim league in Columbia, MD.</p>
           </article>
+
           <article class="faq-item">
             <h3>How do I find a pool schedule, team practice, or meet?</h3>
             <p>Use the <a href="pools.html">Pools page</a> for outdoor pool information, the <a href="teams.html">Teams page</a> for team and practice details, and the <a href="meets.html">Meets page</a> for meet dates and host pools.</p>
           </article>
+
           <article class="faq-item">
             <h3>What time zone does the app use?</h3>
             <p>All dates and times in the app are shown in Eastern Daylight Time (EDT).</p>
           </article>
+
           <article class="faq-item">
             <h3>Why do meet locations show lane and course measurements?</h3>
             <p>Lane counts and course measurements can help families and teams understand a meet's setup. They also provide useful context when comparing times from meter and yard pools. For official course terminology and rules, see <a href="{{ EXTERNAL_LINKS.USA_SWIMMING_RULES_POLICIES }}" target="_blank" rel="noopener">USA Swimming Rules &amp; Policies</a>. Columbia Association and CNSL remain the official sources for local pool and meet information.</p>
           </article>
+
           <article class="faq-item">
             <h3>Can I install the app and use it offline?</h3>
             <p>Yes. You can add the app to your phone or tablet's home screen. After you have opened the app online, key pool, team, and meet information remains available when your connection is limited or unavailable.</p>
@@ -176,10 +184,12 @@
 
         <section class="faq-list__category" aria-labelledby="faq-sources">
           <h2 id="faq-sources" class="faq-list__heading">Official Information and Corrections</h2>
+
           <article class="faq-item">
             <h3>Is this an official web app?</h3>
             <p>No. I built this as an independent community project; Columbia Association (CA) and CNSL do not operate or sponsor it. I use their publications as the official sources for the {{ YEAR }} outdoor pool season, so please check there before making time-sensitive plans.</p>
           </article>
+
           <article class="faq-item">
             <h3>Where does this app get its data, and when was it checked?</h3>
             <p class="faq-item__source-freshness"><strong>Season data last checked:</strong> <time datetime="{{ OFFICIAL_SOURCE_CHECKED_AT }}">{{ OFFICIAL_SOURCE_CHECKED_LABEL }}</time></p>
@@ -189,6 +199,7 @@
             <p>Tips shared through social media, email, or team chats are helpful, too. I add those details once they also appear in an official public source.</p>
             <p>Schedules can change, so it is always worth a quick check before heading out.</p>
           </article>
+
           <article class="faq-item">
             <h3>What if information in this app does not match an official source?</h3>
             <p>Please send me a note through the <a href="contact.html">Contact page</a> and include a link to the official CA or CNSL source. Thank you for helping me keep the app accurate. I will review the difference and correct the app when needed, though I cannot change what CA or CNSL publishes. I maintain this project in my spare time, so a fix may take a little while.</p>
@@ -197,15 +208,18 @@
 
         <section class="faq-list__category" aria-labelledby="faq-privacy">
           <h2 id="faq-privacy" class="faq-list__heading">Privacy and Preferences</h2>
+
           <article class="faq-item">
             <h3>What data is measured or stored?</h3>
             <p>You do not need an account or need to share your name or contact details. Your preferences stay in your browser. Google Analytics uses its own first-party identifier to provide combined reports about visits and general feature use. A fixed campaign label is also included when someone opens the app from its published flyer QR code or a Text, Email, Facebook, or X link shared from the app. Advertising personalization and Google signals are disabled.</p>
             <p>The app includes selected favorite pools and teams in aggregate reports after checking each choice against the published directory. Pool page and schedule link clicks include the public pool identifier and a fixed action label after checking the pool against the current directory. Other external-link clicks include a fixed destination label, such as Columbia Association, Google Maps, email, or phone call, but not the full address, query, message, email address, or phone number. It does not send Google Analytics your name, contact details, account information, current location, other saved choices, filters, free-form text, or referring page. A fixed label from an app-published campaign link may show how visitors found the app, and that label is removed from the address in your browser. You can also read <a href="{{ EXTERNAL_LINKS.GOOGLE_ANALYTICS_PRIVACY_GUIDANCE }}" target="_blank" rel="noopener noreferrer">Google's guidance about personally identifiable information in Analytics</a>.</p>
           </article>
+
           <article class="faq-item">
             <h3>Does the app use my location?</h3>
             <p>Distance estimates are off by default. If you turn them on in <a href="settings.html">Settings</a>, your browser shares your current location only long enough to calculate nearby pool distances. The app does not track, save, or send your location.</p>
           </article>
+
           <article class="faq-item" id="weather-safety-location">
             <h3>Does weather safety use my current location?</h3>
             <p>No. Weather checks use one fixed point for the Columbia pool area, not your current location. You can see the same National Weather Service information here:</p>
@@ -216,6 +230,7 @@
             </ul>
             <p>Optional location access is separate and is used only to estimate distances to pools. Even when you allow it, the app does not track, save, or send your location.</p>
           </article>
+
           <article class="faq-item">
             <h3>Where are my preferences saved?</h3>
             <p>Your settings stay in the browser on your device. Combined analytics reports may show that a type of setting was changed. Favorite pool and team changes also include the selected public pool name or team identifier, or that the favorite was cleared. Pool feature filter changes include the selected public feature names, or that the filters were cleared; other setting choices are not included. You can remove your preferences from the <a href="settings.html">Settings page</a> or by clearing this site's browser data.</p>
@@ -224,6 +239,7 @@
 
         <section class="faq-list__category" aria-labelledby="faq-feedback">
           <h2 id="faq-feedback" class="faq-list__heading">Feedback and Requests</h2>
+
           <article class="faq-item">
             <h3>How can I request a feature or share feedback?</h3>
             <p>Use the <a href="contact.html">Contact page</a> to share a feature request or feedback about what would make the app more useful for your summer swim experience.</p>
@@ -232,6 +248,7 @@
 
         <section class="faq-list__category" aria-labelledby="faq-code">
           <h2 id="faq-code" class="faq-list__heading">Open Source Code</h2>
+
           <article class="faq-item">
             <h3>Can I view or reuse the app source code?</h3>
             <p>Yes. The app source is available in the <a href="{{ EXTERNAL_LINKS.GITHUB_REPOSITORY }}" target="_blank" rel="noopener">public GitHub repository</a> and is released under the <a href="{{ EXTERNAL_LINKS.GITHUB_LICENSE }}" target="_blank" rel="noopener">MIT License</a>.</p>

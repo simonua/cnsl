@@ -22,8 +22,10 @@
       }
     </script>
   </block>
+
   <block name="content">
     <h1>Resources</h1>
+
     <div class="container">
       <section class="prose-section resources-introduction" aria-labelledby="resourcesIntroductionTitle">
         <h2 class="visually-hidden" id="resourcesIntroductionTitle">About These Resources</h2>
@@ -31,6 +33,7 @@
         <p>Use the resources below to mark swimmer arms, understand meet roles, organize line-ups, and help families find the web app.</p>
       </section>
 
+      <!-- Meet preparation guides and shareable team materials. -->
       <div class="resources-grid">
         <section class="resource-card resource-card--arm-marking arm-marking-guide" id="arm-markings" aria-labelledby="armMarkingsTitle">
           <div class="arm-marking-guide__content">
@@ -137,6 +140,7 @@
       </div>
     </div>
 
+    <!-- The flyer preview loads its PDF only when this dialog opens. -->
     <dialog class="flyer-dialog" id="flyerDialog" aria-labelledby="flyerDialogTitle">
       <div class="flyer-dialog__header">
         <h2 id="flyerDialogTitle">Web App Flyer</h2>
@@ -146,7 +150,9 @@
       <p class="flyer-dialog__fallback">If the preview is unavailable, <a href="assets/swim-meet-resources/ca-pool-cnsl-assistant-flyer.pdf" download data-analytics-resource-name="web_app_flyer" data-analytics-resource-action="download">download the flyer PDF</a>.</p>
     </dialog>
   </block>
+
   <block name="scripts">
+    <!-- The flyer controller owns lazy preview loading and dialog behavior. -->
     <script src="js/flyer-preview.js"></script>
   </block>
 </extends>

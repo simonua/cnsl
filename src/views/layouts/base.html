@@ -16,6 +16,8 @@
     script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://static.cloudflareinsights.com;
     style-src 'self' 'sha256-7sFihAW7vemlGfMqhOKBRZPWUactS+9JqK2kwn4PoAY=';
     style-src-attr 'unsafe-inline'; worker-src 'self';" />
+
+  <!-- Runs before stylesheets so the first painted canvas matches the saved theme. -->
   <script data-cfasync="false" data-theme-bootstrap="true">
     let selectedTheme = 'system';
     try {
@@ -30,6 +32,8 @@
     document.documentElement.dataset.theme = selectedTheme;
     document.documentElement.dataset.colorScheme = selectedColorScheme;
   </script>
+
+  <!-- Minimal first-paint styles; the CSP hash is validated during the build. -->
   <style data-initial-canvas="true">
     :root {
       --initial-page-background: #f8f9fa;
@@ -147,7 +151,10 @@
       }
     }
   </style>
+
   <link rel="stylesheet" href="css/styles.css" />
+
+  <!-- Route templates replace this metadata block with page-specific search content. -->
   <block name="metadata">
     <title>CA Outdoor Pools &amp; CNSL Swim Teams</title>
     <meta name="description" content="Find Columbia Association outdoor pools and CNSL swim teams for summer swimming in Columbia, Maryland." />
@@ -164,6 +171,7 @@
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:image" content="{{ HOME_PAGE_URL }}/assets/images/cnsl-logo.jpg" />
   <meta name="twitter:image:alt" content="CNSL Columbia Neighborhood Swim League logo" />
+
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -179,7 +187,10 @@
       "inLanguage": "en-US"
     }
   </script>
+
   <link rel="manifest" href="manifest.webmanifest" />
+
+  <!-- Shared providers load before every route and its deferred controllers. -->
   <script src="js/config/app-config.js"></script>
   <script src="js/services/season-service.js"></script>
   <script src="js/season-view.js"></script>

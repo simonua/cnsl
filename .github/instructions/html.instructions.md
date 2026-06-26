@@ -17,6 +17,14 @@ description: "Use when changing PostHTML views, layouts, components, semantic st
 - Components live in `src/views/components/` (header, nav, footer, search, quick-links).
 - There is one layout: `src/views/layouts/base.html`.
 
+## Authoring Readability
+
+- Be generous with vertical whitespace by using exactly one empty line at each larger logical boundary, including before sibling `section`, `article`, `aside`, `dialog`, `form`, major control group, PostHTML `include` or `block`, and script or metadata group. One empty line is sufficient: never use two or more consecutive empty lines for separation. Also place exactly one empty line between a major item's closing tag and the next sibling when that makes the boundary easier to scan. Keep `<extends>` directly adjacent to its first `<block>` because `posthtml-extend` treats intervening whitespace as page content and will not apply the layout correctly.
+- Keep tightly related leaf markup compact. Do not insert blank lines between a label and its control, an icon and its text, or other nodes that form one small semantic unit.
+- Add concise HTML comments to identify non-obvious regions, dynamic-population boundaries, state groups, modal content, and script dependency groups. Explain purpose, ownership, or ordering rather than restating the next element name. Place each comment immediately before the element or element group it describes, with no blank line between them; put any separating whitespace before the comment instead.
+- Treat these comments as source-only maintainer documentation. The PostHTML build strips HTML comments from generated pages; never depend on a comment for browser behavior, conditional markup, visitor information, accessibility, security, or build metadata.
+- Prefer one useful comment for a coherent region over comments on every element. Small single-purpose components may need whitespace only, or no additional delineation when their structure is already obvious.
+
 ## Rules
 
 - Use semantic HTML5 elements (`<main>`, `<nav>`, `<header>`, `<footer>`, `<section>`, `<article>`).

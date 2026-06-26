@@ -7,6 +7,7 @@ const appConfig = require('./scripts/adapters/app-config.js');
 const WeatherAlertService = require('./scripts/adapters/weather-alert-service.js');
 const { DEVELOPMENT_BUILD_MARKER } = require('./scripts/lib/development-server.js');
 const { coordinatePageBuilds } = require('./scripts/lib/page-build-coordinator.js');
+const { stripAuthoringComments } = require('./scripts/lib/html-output.js');
 const { CACHE_ON_USE_SCRIPT_RESOURCES, INSTALL_CRITICAL_PAGES } = require('./scripts/lib/pwa-resource-policy.js');
 const annualDataSourceDir = './src/assets/data';
 const activeSeason = String(appConfig.YEAR);
@@ -406,6 +407,7 @@ coordinatePageBuilds(files, file => {
     .use(expressions)
     .use(validateInlineContentPlugin)
     .use(versionStaticAssetsPlugin)
+    .use(stripAuthoringComments)
     .process(html)
     .then(result => {
       fs.writeFileSync(outPath, result.html);

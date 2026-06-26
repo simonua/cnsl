@@ -15,10 +15,13 @@
 
   <block name="content">
     <h1 class="experimental-heading experimental-heading--centered"><span>My Meet Day</span><span class="experimental-badge">Experimental</span></h1>
+
     <include src="components/off-season-message.html"></include>
+
     <div class="my-meet-day-view" data-seasonal-content>
       <p class="visually-hidden" id="myMeetDayStatus" role="status" aria-live="polite">Loading meet-day details.</p>
 
+      <!-- Only one meet-day availability state is shown at a time. -->
       <div class="my-meet-day-view__state experimental-surface" id="myMeetDayDisabled" hidden>
         <p>My Meet Day is an experimental feature and is off on this device.</p>
         <a class="directory-link" href="settings.html">Open Experimental Features</a>
@@ -46,11 +49,13 @@
       <div class="my-meet-day my-meet-day--page" id="myMeetDay" hidden>
         <div id="myMeetDayContent"></div>
       </div>
+
       <div id="myMeetDayCalendarActions" hidden></div>
     </div>
   </block>
 
   <block name="scripts">
+    <!-- The route controller resolves preferences, schedule state, and guidance. -->
     <script src="js/my-meet-day.js" defer></script>
   </block>
 </extends>

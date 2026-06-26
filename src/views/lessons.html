@@ -22,8 +22,10 @@
       }
     </script>
   </block>
+
   <block name="content">
     <h1>Swim Lessons</h1>
+
     <div class="container">
       <section class="prose-section" aria-labelledby="lessonsIntroductionTitle">
         <h2 id="lessonsIntroductionTitle">Find a Swim Lesson Provider</h2>
@@ -33,6 +35,8 @@
       <section aria-labelledby="lessonProvidersTitle">
         <h2 class="visually-hidden" id="lessonProvidersTitle">Lesson Providers</h2>
         <p class="visually-hidden" id="lessonProviderStatus" role="status" aria-live="polite">Loading lesson provider information.</p>
+
+        <!-- Lesson providers are populated from the maintained lesson directory. -->
         <div class="resources-grid lessons-provider-list" id="lessonProviderList" aria-busy="true"></div>
       </section>
 
@@ -53,7 +57,9 @@
       </section>
     </div>
   </block>
+
   <block name="scripts">
+    <!-- Provider validation and rendering dependencies must precede the route controller. -->
     <script src="js/services/file-helper.js"></script>
     <script src="js/services/html-safety.js"></script>
     <script src="js/services/lesson-provider-service.js"></script>

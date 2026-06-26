@@ -12,11 +12,15 @@
     <meta name="twitter:title" content="Install App" />
     <meta name="twitter:description" content="Add the CA Pool and CNSL web app to an Android or Apple Home Screen." />
   </block>
+
   <block name="content">
     <h1>Install App</h1>
+
     <div class="install-page">
       <p class="install-page__intro">Add the web app to your Home Screen for quick access to pools, teams, and meets. On a phone or tablet, the matching instructions open automatically.</p>
       <p class="install-page__status" id="installAppStatus" role="status" aria-live="polite" hidden></p>
+
+      <!-- Platform-specific choices are expanded by the install controller. -->
       <div class="install-options">
         <details class="install-option" id="androidInstallOption">
           <summary class="install-option__summary">
@@ -33,6 +37,7 @@
             </ol>
           </div>
         </details>
+
         <details class="install-option" id="appleInstallOption">
           <summary class="install-option__summary">
             <span class="install-option__heading"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-smartphone"></use></svg><span>Apple</span></span>
@@ -53,6 +58,7 @@
   </block>
 
   <block name="scripts">
+    <!-- Platform detection selects the relevant install instructions. -->
     <script src="js/install-app.js" defer></script>
   </block>
 </extends>

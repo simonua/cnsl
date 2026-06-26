@@ -36,93 +36,104 @@
       }
     </script>
   </block>
+
   <block name="content">
     <include src="components/off-season-message.html"></include>
+
     <div class="home-view" data-seasonal-content>
-    <div class="welcome-section">
-      <h1 class="welcome-title">CA Outdoor Pools &amp; CNSL Swim Teams</h1>
-      <p class="welcome-message">
-        Find {{ YEAR }} hours, locations, and features for Columbia Association (CA) outdoor pools, plus Columbia Neighborhood Swim League (CNSL) swim teams, practice schedules, and meet information.
-      </p>
-    </div>
-    <div class="season-info">
-      <p class="season-text">The {{ YEAR }} season runs from <b><time datetime="{{ ACTIVE_SEASON.START_DATE_ON }}">{{ ACTIVE_SEASON.START_DATE_LABEL }}</time></b> to <b><time datetime="{{ ACTIVE_SEASON.END_DATE_ON }}">{{ ACTIVE_SEASON.END_DATE_LABEL }}</time></b>.</p>
-      <p class="ca-directory-link">
-        <a href="{{ ACTIVE_SEASON.CA_POOL_SCHEDULES_URL }}" target="_blank" rel="noopener" class="directory-link" data-analytics-context="official_information">
-          <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-book-open"></use></svg>CA's {{ YEAR }} Pool Season
-        </a>
-      </p>
-    </div>
-    <include src="components/quick-links.html"></include>
-    <section class="my-meet-day my-meet-day--home" id="myMeetDay" aria-labelledby="myMeetDayTitle" data-experimental-feature="{{ EXPERIMENTAL_FEATURE_IDS.MY_MEET_DAY }}" hidden>
-      <div class="favorite-week__heading my-meet-day__heading">
-        <h2><button class="favorite-week__toggle my-meet-day__toggle" id="myMeetDayToggle" type="button" aria-expanded="true" aria-controls="myMeetDayContent"><span class="my-meet-day__toggle-title" id="myMeetDayTitle">My Meet Day</span><span class="my-meet-day__toggle-controls"><span class="experimental-badge">Experimental</span><span class="favorite-week__toggle-icon" aria-hidden="true">&#9650;</span></span></button></h2>
+      <div class="welcome-section">
+        <h1 class="welcome-title">CA Outdoor Pools &amp; CNSL Swim Teams</h1>
+        <p class="welcome-message">
+          Find {{ YEAR }} hours, locations, and features for Columbia Association (CA) outdoor pools, plus Columbia Neighborhood Swim League (CNSL) swim teams, practice schedules, and meet information.
+        </p>
       </div>
-      <div class="favorite-week__content" id="myMeetDayContent"></div>
-    </section>
-    <section class="favorite-week" id="favoriteWeek" aria-labelledby="favoriteWeekTitle" hidden>
-      <div class="favorite-week__heading">
-        <h2><button class="favorite-week__toggle" id="favoriteWeekToggle" type="button" aria-expanded="true" aria-controls="favoriteWeekContent"><span id="favoriteWeekTitle"></span><span class="favorite-week__toggle-icon" aria-hidden="true">&#9650;</span></button></h2>
+
+      <div class="season-info">
+        <p class="season-text">The {{ YEAR }} season runs from <b><time datetime="{{ ACTIVE_SEASON.START_DATE_ON }}">{{ ACTIVE_SEASON.START_DATE_LABEL }}</time></b> to <b><time datetime="{{ ACTIVE_SEASON.END_DATE_ON }}">{{ ACTIVE_SEASON.END_DATE_LABEL }}</time></b>.</p>
+        <p class="ca-directory-link">
+          <a href="{{ ACTIVE_SEASON.CA_POOL_SCHEDULES_URL }}" target="_blank" rel="noopener" class="directory-link" data-analytics-context="official_information">
+            <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-book-open"></use></svg>CA's {{ YEAR }} Pool Season
+          </a>
+        </p>
       </div>
-      <div class="favorite-week__content" id="favoriteWeekContent">
-        <p class="favorite-week__status" id="favoriteWeekStatus" role="status" aria-live="polite" hidden></p>
-        <div id="favoriteWeekSchedule"></div>
-        <div id="favoriteTeamCalendarActions" hidden></div>
-      </div>
-    </section>
-    <section class="share-site" id="shareSite" aria-labelledby="shareSiteTitle" hidden>
-      <h2 class="share-site__title" id="shareSiteTitle">Install &amp; Share</h2>
-      <div class="share-site__links">
-        <button class="share-site__link" id="shareQrButton" data-analytics-share-method="qr_code" type="button" aria-controls="shareQrDialog" aria-haspopup="dialog">
-          <svg class="icon share-site__icon" aria-hidden="true" focusable="false"><use href="#icon-qr-code"></use></svg>
-          <span>QR Code</span>
-        </button>
-        <a class="share-site__link" data-analytics-share-method="text" href="{{ EXTERNAL_LINKS.SMS_SHARE }}">
-          <svg class="icon share-site__icon" aria-hidden="true" focusable="false"><use href="#icon-message-circle"></use></svg>
-          <span>Text</span>
-        </a>
-        <a class="share-site__link" data-analytics-share-method="email" href="{{ EXTERNAL_LINKS.EMAIL_SHARE }}">
-          <svg class="icon share-site__icon" aria-hidden="true" focusable="false"><use href="#icon-mail"></use></svg>
-          <span>Email</span>
-        </a>
-        <a class="share-site__link" data-analytics-share-method="facebook" href="{{ EXTERNAL_LINKS.FACEBOOK_SHARE }}" target="_blank" rel="noopener noreferrer">
-          <svg class="icon share-site__icon share-site__icon--facebook" aria-hidden="true" focusable="false"><use href="#icon-facebook"></use></svg>
-          <span>Facebook<span class="visually-hidden"> (opens in new tab)</span></span>
-        </a>
-        <a class="share-site__link" data-analytics-share-method="x" href="{{ EXTERNAL_LINKS.X_SHARE }}" target="_blank" rel="noopener noreferrer">
-          <svg class="icon share-site__icon share-site__icon--brand" aria-hidden="true" focusable="false"><use href="#icon-x-brand"></use></svg>
-          <span class="visually-hidden">Share on X (opens in new tab)</span>
-        </a>
-      </div>
-      <div class="share-site__install">
-        <a class="share-site__link" href="install.html">
-          <svg class="icon share-site__icon" aria-hidden="true" focusable="false"><use href="#icon-smartphone"></use></svg>
-          <span>Install app</span>
-        </a>
-      </div>
-      <dialog class="share-qr-dialog" id="shareQrDialog" aria-labelledby="shareQrTitle" aria-describedby="shareQrUrl">
-        <div class="share-qr-dialog__panel">
-          <div class="share-qr-dialog__header">
-            <h3 id="shareQrTitle">Scan to Open Site</h3>
-            <button class="share-qr-dialog__close" id="closeShareQrDialog" type="button" aria-label="Close QR code">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <img class="share-qr-dialog__image" src="assets/images/share-site-qr.svg" alt="QR code for {{ HOME_PAGE_URL }}" width="328" height="328" />
-          <p class="share-qr-dialog__url" id="shareQrUrl"><a href="{{ HOME_PAGE_URL }}/">{{ HOME_PAGE_URL }}</a></p>
+
+      <include src="components/quick-links.html"></include>
+
+      <!-- Personalized home sections appear only when their data is available. -->
+      <section class="my-meet-day my-meet-day--home" id="myMeetDay" aria-labelledby="myMeetDayTitle" data-experimental-feature="{{ EXPERIMENTAL_FEATURE_IDS.MY_MEET_DAY }}" hidden>
+        <div class="favorite-week__heading my-meet-day__heading">
+          <h2><button class="favorite-week__toggle my-meet-day__toggle" id="myMeetDayToggle" type="button" aria-expanded="true" aria-controls="myMeetDayContent"><span class="my-meet-day__toggle-title" id="myMeetDayTitle">My Meet Day</span><span class="my-meet-day__toggle-controls"><span class="experimental-badge">Experimental</span><span class="favorite-week__toggle-icon" aria-hidden="true">&#9650;</span></span></button></h2>
         </div>
-      </dialog>
-      <div class="share-site__feedback" data-analytics-context="feedback">
-        <a class="share-site__link" href="contact.html">
-          <svg class="icon share-site__icon" aria-hidden="true" focusable="false"><use href="#icon-mail"></use></svg>
-          <span>Send Feedback</span>
-        </a>
-      </div>
-    </section>
+        <div class="favorite-week__content" id="myMeetDayContent"></div>
+      </section>
+
+      <section class="favorite-week" id="favoriteWeek" aria-labelledby="favoriteWeekTitle" hidden>
+        <div class="favorite-week__heading">
+          <h2><button class="favorite-week__toggle" id="favoriteWeekToggle" type="button" aria-expanded="true" aria-controls="favoriteWeekContent"><span id="favoriteWeekTitle"></span><span class="favorite-week__toggle-icon" aria-hidden="true">&#9650;</span></button></h2>
+        </div>
+        <div class="favorite-week__content" id="favoriteWeekContent">
+          <p class="favorite-week__status" id="favoriteWeekStatus" role="status" aria-live="polite" hidden></p>
+          <div id="favoriteWeekSchedule"></div>
+          <div id="favoriteTeamCalendarActions" hidden></div>
+        </div>
+      </section>
+
+      <section class="share-site" id="shareSite" aria-labelledby="shareSiteTitle" hidden>
+        <h2 class="share-site__title" id="shareSiteTitle">Install &amp; Share</h2>
+        <div class="share-site__links">
+          <button class="share-site__link" id="shareQrButton" data-analytics-share-method="qr_code" type="button" aria-controls="shareQrDialog" aria-haspopup="dialog">
+            <svg class="icon share-site__icon" aria-hidden="true" focusable="false"><use href="#icon-qr-code"></use></svg>
+            <span>QR Code</span>
+          </button>
+          <a class="share-site__link" data-analytics-share-method="text" href="{{ EXTERNAL_LINKS.SMS_SHARE }}">
+            <svg class="icon share-site__icon" aria-hidden="true" focusable="false"><use href="#icon-message-circle"></use></svg>
+            <span>Text</span>
+          </a>
+          <a class="share-site__link" data-analytics-share-method="email" href="{{ EXTERNAL_LINKS.EMAIL_SHARE }}">
+            <svg class="icon share-site__icon" aria-hidden="true" focusable="false"><use href="#icon-mail"></use></svg>
+            <span>Email</span>
+          </a>
+          <a class="share-site__link" data-analytics-share-method="facebook" href="{{ EXTERNAL_LINKS.FACEBOOK_SHARE }}" target="_blank" rel="noopener noreferrer">
+            <svg class="icon share-site__icon share-site__icon--facebook" aria-hidden="true" focusable="false"><use href="#icon-facebook"></use></svg>
+            <span>Facebook<span class="visually-hidden"> (opens in new tab)</span></span>
+          </a>
+          <a class="share-site__link" data-analytics-share-method="x" href="{{ EXTERNAL_LINKS.X_SHARE }}" target="_blank" rel="noopener noreferrer">
+            <svg class="icon share-site__icon share-site__icon--brand" aria-hidden="true" focusable="false"><use href="#icon-x-brand"></use></svg>
+            <span class="visually-hidden">Share on X (opens in new tab)</span>
+          </a>
+        </div>
+        <div class="share-site__install">
+          <a class="share-site__link" href="install.html">
+            <svg class="icon share-site__icon" aria-hidden="true" focusable="false"><use href="#icon-smartphone"></use></svg>
+            <span>Install app</span>
+          </a>
+        </div>
+
+        <!-- QR sharing stays in the same section as its trigger and fallback links. -->
+        <dialog class="share-qr-dialog" id="shareQrDialog" aria-labelledby="shareQrTitle" aria-describedby="shareQrUrl">
+          <div class="share-qr-dialog__panel">
+            <div class="share-qr-dialog__header">
+              <h3 id="shareQrTitle">Scan to Open Site</h3>
+              <button class="share-qr-dialog__close" id="closeShareQrDialog" type="button" aria-label="Close QR code">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <img class="share-qr-dialog__image" src="assets/images/share-site-qr.svg" alt="QR code for {{ HOME_PAGE_URL }}" width="328" height="328" />
+            <p class="share-qr-dialog__url" id="shareQrUrl"><a href="{{ HOME_PAGE_URL }}/">{{ HOME_PAGE_URL }}</a></p>
+          </div>
+        </dialog>
+        <div class="share-site__feedback" data-analytics-context="feedback">
+          <a class="share-site__link" href="contact.html">
+            <svg class="icon share-site__icon" aria-hidden="true" focusable="false"><use href="#icon-mail"></use></svg>
+            <span>Send Feedback</span>
+          </a>
+        </div>
+      </section>
     </div>
   </block>
 
   <block name="scripts">
+    <!-- Home controllers load after shared services supplied by the base layout. -->
     <script src="js/route-warmup.js" defer></script>
     <script src="js/home-schedule.js" defer></script>
     <script src="js/home-share.js" defer></script>

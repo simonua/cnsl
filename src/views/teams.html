@@ -23,9 +23,12 @@
       }
     </script>
   </block>
+
   <block name="content">
     <h1>Swim Teams</h1>
+
     <include src="components/off-season-message.html"></include>
+
     <div class="container">
       <div class="cnsl-link-section">
         <div class="cnsl-link-card">
@@ -35,23 +38,25 @@
           </a>
         </div>
       </div>
+
       <div data-seasonal-content>
         <p class="visually-hidden" id="teamListStatus" role="status" aria-live="polite">Loading team information.</p>
+
+        <!-- The team browser replaces this loading region with the active directory. -->
         <div id="teamList" class="team-list" aria-busy="true">
-          <!-- Teams will be loaded dynamically via JavaScript -->
         </div>
       </div>
     </div>
   </block>
 
   <block name="scripts">
-    <!-- Summary dependencies load before the directory controller. -->
+    <!-- Safe rendering and team models load before data access. -->
     <script src="js/services/html-safety.js"></script>
     <script src="js/models/team.js"></script>
     <script src="js/managers/teams-manager.js"></script>
     <script src="js/services/data-manager.js"></script>
 
-    <!-- Fetch paths and the controller preserve their dependency order. -->
+    <!-- Fetch readiness and file access load before the route controller. -->
     <script src="js/route-warmup-readiness.js" defer></script>
     <script src="js/services/file-helper.js" defer></script>
     <script src="js/teams-browser.js" defer></script>
