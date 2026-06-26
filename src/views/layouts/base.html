@@ -14,7 +14,7 @@
     manifest-src 'self';
     object-src 'none';
     script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://static.cloudflareinsights.com;
-    style-src 'self' 'sha256-pr5zm7tt5/x0AOvKMl6nFKpQdNwQCrNDOTcvT8gBRy0=';
+    style-src 'self' 'sha256-7sFihAW7vemlGfMqhOKBRZPWUactS+9JqK2kwn4PoAY=';
     style-src-attr 'unsafe-inline'; worker-src 'self';" />
   <script data-cfasync="false" data-theme-bootstrap="true">
     let selectedTheme = 'system';
@@ -36,6 +36,7 @@
       --initial-header-end: #004578;
       --initial-header-start: #005ea8;
       --initial-header-text: #ffffff;
+      --initial-page-text: #212529;
       background-color: var(--initial-page-background);
       color-scheme: light;
     }
@@ -45,11 +46,15 @@
       --initial-header-end: #115686;
       --initial-header-start: #176cae;
       --initial-header-text: #f1f5f8;
+      --initial-page-text: #f1f5f8;
       color-scheme: dark;
     }
 
     body {
       background-color: var(--initial-page-background);
+      color: var(--initial-page-text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      line-height: 1.6;
       margin: 0;
     }
 
@@ -117,12 +122,27 @@
       padding-top: 4.625rem;
     }
 
+    .nav-menu {
+      visibility: hidden;
+    }
+
+    @media (max-width: 48rem) {
+      .header {
+        min-height: 5.5rem;
+      }
+
+      .page-wrap {
+        padding-top: 5.5rem;
+      }
+    }
+
     @media (prefers-color-scheme: dark) {
       :root:not([data-color-scheme="light"]) {
         --initial-page-background: #101820;
         --initial-header-end: #115686;
         --initial-header-start: #176cae;
         --initial-header-text: #f1f5f8;
+        --initial-page-text: #f1f5f8;
         color-scheme: dark;
       }
     }

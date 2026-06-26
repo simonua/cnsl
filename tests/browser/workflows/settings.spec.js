@@ -488,6 +488,7 @@ test('[WF-SETTINGS-004] system theme follows OS color scheme changes while expli
 });
 
 test('[WF-SETTINGS-016] saved dark theme applies before external assets are available', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.addInitScript(() => {
     globalThis.localStorage.setItem('cnsl_preferences', JSON.stringify({ theme: 'dark' }));
   });
@@ -515,11 +516,12 @@ test('[WF-SETTINGS-016] saved dark theme applies before external assets are avai
     };
   })).toEqual({
     backgroundImage: 'linear-gradient(135deg, rgb(23, 108, 174), rgb(17, 86, 134))',
-    height: 74,
+    height: 88,
     position: 'fixed'
   });
   await expect(page.locator('#site-title')).toHaveCSS('color', 'rgb(241, 245, 248)');
   await expect(page.locator('#site-title')).toHaveCSS('font-size', '20px');
+  await expect(page.locator('#navMenu')).toHaveCSS('visibility', 'hidden');
 });
 
 test('[WF-SETTINGS-008] accessibility settings apply immediately, persist locally, and report categories only', async ({ page }) => {
