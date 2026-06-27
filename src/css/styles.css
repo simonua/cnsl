@@ -4452,7 +4452,7 @@ html[data-hide-home-intro="true"] .welcome-section {
   transition: opacity 0.3s;
   font-size: 0.85rem;
   font-weight: normal;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .status-tooltip .tooltip-text::after {
