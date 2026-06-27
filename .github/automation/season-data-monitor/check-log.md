@@ -8,6 +8,7 @@ This log records completed online checks of official active-season sources and l
 
 | Date | Type | Data point | Summary |
 | --- | --- | --- | --- |
+| [2026-06-27T07:27:41-04:00 Seasonal Data Review](#activity-2026-06-27t072741-0400-seasonal-data-review) | update | Owen Brown Barracudas assistant coach | Added Grace DeJarnette from the current staff page; represented practice values remained current. |
 | [2026-06-26 Phelps Luck Meet Guidance](#activity-2026-06-26-phelps-luck-meet-guidance) | update | Phelps Luck shared concessions and Long Reach visiting-team guidance | Updated Marlins times and added entry, parking, setup, check-in, timer, entry-board, and concession details. |
 | [2026-06-25T21:47:16-04:00 Seasonal Data Review](#activity-2026-06-25t214716-0400-seasonal-data-review) | update | <!-- --> | Completed the 139-source review and retained the current Bryant Woods PDF; represented schedules and destinations remained current. |
 | [2026-06-25 Long Reach Away-Team Guidance](#activity-2026-06-25-long-reach-away-team-guidance) | update | Phelps Luck visiting-team arrival and warm-up times | Added the 7:15 AM Long Reach arrival and 7:30 AM visiting-team warm-up. |
@@ -37,6 +38,35 @@ This log records completed online checks of official active-season sources and l
 | [2026-06-11T18:08:10-04:00](#activity-2026-06-11t180810-0400) | check | <!-- --> | Completed the 135-source review; no represented data or destinations changed. |
 | [2026-06-10T22:13:23-04:00](#activity-2026-06-10t221323-0400) | check | <!-- --> | Completed the 135-source review under the availability exception; no represented data changed. |
 | [2026-06-10T06:56:02-04:00](#activity-2026-06-10t065602-0400) | check | <!-- --> | The review was incomplete because one application-used destination could not be verified; no represented data changed. |
+
+<a id="activity-2026-06-27t072741-0400-seasonal-data-review"></a>
+
+## 2026-06-27T07:27:41-04:00 Seasonal Data Review
+
+**Active season:** 2026
+
+**Result:** Complete for candidate `2af97c0e762d4ec8` under the existing explicit maintainer exception for merchandise-store and booster-site availability.
+
+Checked the 139-source inventory built from the active 2026 JSON and annual README:
+
+- `pnpm run check:data-updates` reached all 76 monitor-collected modeled-evidence URLs and reproduced the two issue-scoped Owen Brown Barracudas page candidates.
+- All 63 official sources and application-used destinations outside the monitor were attempted separately with live GET requests.
+- 136 required sources returned successful responses.
+- The Long Reach and Phelps Luck merchandise stores and the Long Reach booster site were attempted and returned HTTP 403 responses covered by the established availability exception.
+- No non-exempt source failed or remained unattempted.
+
+The field-owning practice page retains every represented preseason and regular-season date, day, location, group, and time. No `teams[id="obb"].practice` value or destination changed.
+
+The field-owning staff page newly lists Grace DeJarnette as an assistant coach and publishes `grace.dejarnette@columbiaassociation.org`. The same page independently repeats her in its staff cards as Grace Dejarnette with the same role and contact destination. The detailed roster owns the displayed `DeJarnette` capitalization; the secondary card does not conflict about her identity, role, or email. The accepted addition required no normalization or schema change, no other staff value or application-used destination changed, confidence is High, and there is no residual uncertainty.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Updated | Added Grace DeJarnette as an assistant coach with her published email and advanced `teams[id="obb"].staff.verifiedOn` in `teams/teams.json`; OBB practice values remain unchanged. |
+| Application-used source destinations | Unchanged | None. |
+| Retained official PDFs | Unchanged | None. |
+| Visitor-facing records | Updated | Added the coaching-staff data update to Upcoming in `src/views/whats-new.html` and advanced the Teams `lastmod` in `sitemap.xml`. |
+| Review records | Updated | Updated `OFFICIAL_SOURCE_CHECKED_AT`, `OFFICIAL_SOURCE_UPDATED_AT`, active annual README evidence, and this check-log entry. |
+| Reviewed source baseline | Updated | `source-state.json` refreshed with the accepted June 27 OBB practice and staff page fingerprints. |
 
 <a id="activity-2026-06-26-phelps-luck-meet-guidance"></a>
 

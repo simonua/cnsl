@@ -1,6 +1,6 @@
 {
   "season": 2026,
-  "acceptedOn": "2026-06-25",
+  "acceptedOn": "2026-06-27",
   "documents": [
     {
       "domain": "pools",
@@ -818,7 +818,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Owen Brown Barracudas practice schedule page",
-      "sha256": "f3ce192ccabd743a86433bd54a71002baefd3e985283ca40f8aaec839af5980b",
+      "sha256": "5b28559fd850f40abcd48449b0d981f12983f5df390734757fe1f12d21686444",
       "sourceIds": [
         "team:obb:practice"
       ],
@@ -830,7 +830,7 @@
       ],
       "fingerprint": "visible-text",
       "label": "Owen Brown Barracudas staff page",
-      "sha256": "96b1054c35ca90d76548590248d05f17ee14603587b030c0f1dcb317871743fa",
+      "sha256": "4c40d2f2e7c42e57160400f7b4301b4e03a64c1d74c3d89b7dd9a86dff886820",
       "sourceIds": [
         "team:obb:staff"
       ],

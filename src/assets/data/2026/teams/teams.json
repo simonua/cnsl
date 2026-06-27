@@ -670,11 +670,12 @@
       },
       "staff": {
         "sourceUrl": "https://www.gomotionapp.com/team/reccnslobb/page/system/coaches",
-        "verifiedOn": "2026-05-24",
+        "verifiedOn": "2026-06-27",
         "coaches": [
           { "name": "Ryan Megdiche", "role": "Head Coach", "email": "ryan.megdiche@columbiaassociation.org" },
           { "name": "Lexi Sloan", "role": "Assistant Coach", "email": "alexandra.sloan@columbiaassociation.org" },
-          { "name": "Bogdan Hilotii", "role": "Assistant Coach", "email": "bogdan.hilotii@columbiaassociation.org" }
+          { "name": "Bogdan Hilotii", "role": "Assistant Coach", "email": "bogdan.hilotii@columbiaassociation.org" },
+          { "name": "Grace DeJarnette", "role": "Assistant Coach", "email": "grace.dejarnette@columbiaassociation.org" }
         ],
         "managers": [
           { "name": "Jean-Marie Baldi", "role": "Team Manager", "email": "jmbaldi@owenbrownbarracudas.com" },
