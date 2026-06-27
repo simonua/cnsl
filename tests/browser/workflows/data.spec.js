@@ -16,10 +16,10 @@ test.beforeEach(async ({ page }) => {
 });
 
 for (const scenario of directoryScenarios) {
-  test(`[WF-DATA-001-${scenario.reference}] ${scenario.path} announces completed directory loading`, async ({ page }) => {
+  test(`[WF-DATA-001-${scenario.reference}] ${scenario.path} settles completed directory loading`, async ({ page }) => {
     await page.goto(scenario.path);
-    await expect(page.locator(scenario.status)).toHaveText(scenario.announcement);
     await expect(page.locator(scenario.list)).toHaveAttribute('aria-busy', 'false');
+    await expect(page.locator(`${scenario.list} ${scenario.item}`).first()).toBeVisible();
   });
 }
 

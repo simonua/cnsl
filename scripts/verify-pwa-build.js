@@ -162,7 +162,7 @@ function createMemoryStorage() {
   };
 }
 
-function verifyAnalyticsArtifact(appConfigSource, interactionTypeSource, analyticsSource) {
+async function verifyAnalyticsArtifact(appConfigSource, interactionTypeSource, analyticsSource) {
   const appendedScripts = [];
   const lockRequests = [];
   let scriptLoadListener;
@@ -193,7 +193,8 @@ function verifyAnalyticsArtifact(appConfigSource, interactionTypeSource, analyti
       userAgent: 'CNSL artifact verifier',
       webdriver: false
     },
-    sessionStorage
+    sessionStorage,
+    setTimeout
   };
   context.window = context;
   context.document = {
@@ -243,7 +244,7 @@ function verifyAnalyticsArtifact(appConfigSource, interactionTypeSource, analyti
   assert.equal(pageDefaults[1].allow_google_signals, false, 'Analytics must disable Google advertising signals.');
   assert.equal(pageDefaults[1].allow_ad_personalization_signals, false, 'Analytics must disable advertising personalization.');
 
-  scriptLoadListener();
+  await scriptLoadListener();
   const publishedCommands = getCommands();
   const configCommand = publishedCommands.find(command => command[0] === 'config');
   assert.ok(configCommand, 'Analytics must configure the reviewed GA4 web stream after the tag library loads.');
@@ -374,8 +375,6 @@ assert.doesNotMatch(analytics, /(?:pool|team|meet)_(?:id|name)\s*:/, 'Analytics 
 assert.doesNotMatch(analytics, /(?:latitude|longitude|coordinates|user_agent|platform)\s*:/, 'Analytics must not send location or device-identifying values.');
 assert.doesNotMatch(nonAnalyticsBrowserCode, /\b(?:window\.)?gtag\s*\(/, 'Delivered browser scripts must publish measurement only through the analytics module API.');
 assert.doesNotMatch(analytics, /\b(?:user_id|user_properties|document\.referrer)\b/, 'Analytics must not add identifiers, user profiling values, or browser referrers.');
-verifyAnalyticsArtifact(appConfig, analyticsInteractionType, analytics);
-
 const generatedViewPages = fs.readdirSync(path.join(__dirname, '..', 'src', 'views'), { withFileTypes: true })
   .filter(entry => entry.isFile() && entry.name.endsWith('.html'))
   .map(entry => entry.name);
@@ -505,7 +504,14 @@ assert.match(robots, new RegExp(`Sitemap: ${siteOrigin.replace(/[.*+?^${}()|[\]\
 const customDomain = fs.readFileSync(path.join(outDir, 'CNAME'), 'utf8').trim();
 assert.equal(customDomain, HOME_PAGE_HOSTNAME, 'Published GitHub Pages output must retain the configured custom domain.');
 
-console.log(`Verified PWA artifact for the ${YEAR} season: ${artifactBytes} delivered bytes.`);
-console.log(`PWA cache inventory: ${precacheResources.length} resources / ${calculateResourceBytes(precacheResources)} bytes.`);
-console.log(`PWA install-critical core: ${precacheCoreResources.length} resources / ${calculateResourceBytes(precacheCoreResources)} bytes.`);
+verifyAnalyticsArtifact(appConfig, analyticsInteractionType, analytics)
+  .then(() => {
+    console.log(`Verified PWA artifact for the ${YEAR} season: ${artifactBytes} delivered bytes.`);
+    console.log(`PWA cache inventory: ${precacheResources.length} resources / ${calculateResourceBytes(precacheResources)} bytes.`);
+    console.log(`PWA install-critical core: ${precacheCoreResources.length} resources / ${calculateResourceBytes(precacheCoreResources)} bytes.`);
+  })
+  .catch(error => {
+    console.error(error);
+    process.exitCode = 1;
+  });
 console.log(`PWA cache-on-use optional tier: ${precacheOptionalResources.length} resources / ${calculateResourceBytes(precacheOptionalResources)} bytes.`);

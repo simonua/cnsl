@@ -485,7 +485,10 @@
     try {
       await lockManager.request(
         window.ANALYTICS_VERSION_REPORTED_STORAGE_KEY,
-        publishVersionAndUpgradeIfNeeded
+        async () => {
+          await new Promise(resolve => window.setTimeout(resolve, 0));
+          publishVersionAndUpgradeIfNeeded();
+        }
       );
     } catch (_error) {
       publishVersionAndUpgradeIfNeeded();
