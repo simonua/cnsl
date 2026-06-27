@@ -55,7 +55,7 @@ Run `\.\start.ps1` from PowerShell for the interactive developer menu. It covers
 
 ## Build Pipeline
 
-1. `rimraf out` — Clean output directory
+1. `pnpm run clean` — Remove the output directory with Node's built-in filesystem API
 2. `node posthtml.js` — Custom build script that:
    - Copies `src/assets/` and `src/css/` to `out/`
    - Parses `src/js/` with Acorn, rejects CommonJS, Node.js runtime code, and Node-environment guards, then copies validated scripts byte-for-byte to `out/js/`

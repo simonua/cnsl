@@ -4,7 +4,7 @@
   "description": "![GitHub Pages](https://img.shields.io/badge/hosted%20on-GitHub%20Pages-121013?logo=github&logoColor=white&style=flat-square)\r ![PWA Ready](https://img.shields.io/badge/PWA-ready-0abf53?logo=googlechrome&logoColor=white&style=flat-square)\r ![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)",
   "main": "service-worker.js",
   "scripts": {
-    "clean": "rimraf out",
+    "clean": "node -e \"require('node:fs').rmSync('out', { recursive: true, force: true })\"",
     "build": "pnpm run clean && node posthtml.js",
     "watch": "nodemon",
     "serve": "http-server ./out -p 9090 -c-1 -o",
@@ -57,7 +57,6 @@
     "pdftotext-wasm": "0.1.0",
     "posthtml": "^0.16.7",
     "posthtml-expressions": "^1.11.4",
-    "posthtml-extend": "^0.6.5",
-    "rimraf": "^6.1.3"
+    "posthtml-extend": "^0.6.5"
   }
 }
