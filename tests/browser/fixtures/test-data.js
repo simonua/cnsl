@@ -210,7 +210,14 @@ function createTestDataFixture() {
       shortName: 'Barracudas',
       homePool: hostPool.name
     }),
-    homeMeetGuides: [createMeetGuide(hostPool.id)]
+    homeMeetGuides: [createMeetGuide(hostPool.id)],
+    staff: {
+      sourceUrl: `https://fixtures.example/teams/${TEST_IDENTITIES.teams.opponent.id}/staff`,
+      verifiedOn: `${YEAR}-05-01`,
+      coaches: [{ name: 'Fixture Sparse Coach', role: 'Head Coach' }],
+      managers: [{ name: 'Fixture Sparse Manager', role: 'Team Manager' }],
+      contacts: [{ audience: 'managers', label: 'All managers', email: 'sparse.managers@fixtures.example' }]
+    }
   };
   const externalActionTeam = createBaseTeam({
     ...TEST_IDENTITIES.teams.externalActions,

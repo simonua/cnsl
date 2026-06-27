@@ -149,6 +149,22 @@ test('[WF-TEAMS-010] staff email actions distinguish personal and shared address
   await groupEmail.focus();
   await expect(groupEmail).toBeFocused();
   await expect(groupEmail).toHaveCSS('text-decoration-line', 'none');
+
+  const sparseTeamCard = page.locator(`.team-card[data-team-id="${teams.opponentTeam.id}"]`);
+  await sparseTeamCard.locator('.team-header__toggle').click();
+  const sparseStaffColumns = sparseTeamCard.locator('.team-staff__columns > div');
+  await expect(sparseTeamCard.getByRole('link', { name: 'Email all managers' })).toHaveCount(1);
+  await expect(sparseTeamCard.getByRole('link', { name: 'Email all coaches' })).toHaveCount(0);
+  const staffListTops = await sparseStaffColumns.locator('.team-staff__list').evaluateAll(lists => (
+    lists.map(list => list.getBoundingClientRect().top)
+  ));
+  expect(Math.abs(staffListTops[0] - staffListTops[1])).toBeLessThan(1);
+
+  await page.setViewportSize(MOBILE_VIEWPORT);
+  const mobileStaffColumnBoxes = await sparseStaffColumns.evaluateAll(columns => (
+    columns.map(column => column.getBoundingClientRect()).map(({ top, bottom }) => ({ top, bottom }))
+  ));
+  expect(mobileStaffColumnBoxes[1].top).toBeGreaterThan(mobileStaffColumnBoxes[0].bottom);
 });
 
 test('[WF-TEAMS-003] team directory filters regular practice times to selected practice groups', async ({ page }) => {

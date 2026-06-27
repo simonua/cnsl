@@ -484,16 +484,20 @@ test('[WF-AGENDA-009] completed meets advance only the dedicated My Meet Day rou
       + firstGroup.querySelector('svg').getBoundingClientRect().width
       + Number.parseFloat(globalThis.getComputedStyle(firstGroup.querySelector('strong')).columnGap || globalThis.getComputedStyle(firstGroup.querySelector('strong')).gap);
     const firstItemLeft = firstGroup.querySelector('li').getBoundingClientRect().left;
+    const menuWidth = menu.getBoundingClientRect().width;
+    const groupWidths = groups.map(group => group.getBoundingClientRect().width);
     const groupTops = groups.map(group => Math.round(group.getBoundingClientRect().top));
 
     return {
-      firstRowGroupCount: groupTops.filter(top => top === groupTops[0]).length,
+      groupsFillMenuWidth: groupWidths.every(width => Math.abs(width - menuWidth) <= 1),
+      groupsOccupySeparateRows: new Set(groupTops).size === groups.length,
       itemAlignedWithHeadingText: Math.abs(firstItemLeft - headingTextLeft) <= 1,
       pageOverflow: globalThis.document.documentElement.scrollWidth > globalThis.document.documentElement.clientWidth,
       rowOverflow: element.scrollWidth > element.clientWidth
     };
   })).toEqual({
-    firstRowGroupCount: 2,
+    groupsFillMenuWidth: true,
+    groupsOccupySeparateRows: true,
     itemAlignedWithHeadingText: true,
     pageOverflow: false,
     rowOverflow: false
