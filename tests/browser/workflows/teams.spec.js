@@ -127,6 +127,30 @@ test('[WF-TEAMS-009] next pre-season practice period is marked upcoming between 
   await expect(upcomingPeriod.locator('.practice-period__badge')).toHaveText('Upcoming period');
 });
 
+test('[WF-TEAMS-010] staff email actions distinguish personal and shared addresses', async ({ page }) => {
+  await page.goto('/teams.html');
+  await expect(page.locator('#teamList')).toHaveAttribute('aria-busy', 'false');
+
+  const teamCard = page.locator(`.team-card[data-team-id="${PRACTICE_TEAM.id}"]`);
+  await teamCard.locator('.team-header__toggle').click();
+  const staffSection = teamCard.locator('.team-staff');
+
+  await expect(staffSection.getByRole('link', { name: 'Email Fixture Head Coach' })).toHaveAttribute('href', 'mailto:head.coach@fixtures.example');
+  await expect(staffSection.getByRole('link', { name: 'Email Fixture Assistant Coach' })).toHaveCount(0);
+  await expect(staffSection.getByRole('link', { name: 'Email Fixture Team Manager' })).toHaveAttribute('href', 'mailto:manager@fixtures.example');
+  await expect(staffSection.getByRole('link', { name: 'Email all coaches' })).toHaveAttribute('href', 'mailto:coaches@fixtures.example');
+  await expect(staffSection.getByRole('link', { name: 'Email all managers' })).toHaveAttribute('href', 'mailto:managers@fixtures.example');
+  await expect(staffSection.locator('.team-staff__group-email')).toHaveCount(2);
+  await expect(staffSection.getByRole('link', { name: / via / })).toHaveCount(0);
+  await expect(staffSection.locator('.team-staff__columns > div > :first-child')).toHaveClass(['team-staff__group-emails', 'team-staff__group-emails']);
+
+  const groupEmail = staffSection.getByRole('link', { name: 'Email all coaches' });
+  await expect(groupEmail).toHaveCSS('text-decoration-line', 'none');
+  await groupEmail.focus();
+  await expect(groupEmail).toBeFocused();
+  await expect(groupEmail).toHaveCSS('text-decoration-line', 'none');
+});
+
 test('[WF-TEAMS-003] team directory filters regular practice times to selected practice groups', async ({ page }) => {
   await seedPreferences(page, { practiceGroups: ['9-10'] });
   await page.goto('/teams.html');

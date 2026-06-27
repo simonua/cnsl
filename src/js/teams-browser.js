@@ -578,44 +578,31 @@ function formatTeamStaff(staff) {
     return emailUrl ? `<a class="team-staff__email" href="${emailUrl}" aria-label="${safeLabel}" title="${safeLabel}">${mailIcon}</a>` : '';
   };
   /**
-   * Formats direct and shared email links for one staff member.
+   * Formats a direct email link for one staff member.
    * @param {Object} member - Staff member record
-   * @param {string} audience - Staff audience identifier
-   * @returns {string} Staff email-links HTML
+   * @returns {string} Staff email-link HTML
    * @private
    */
-  const formatMemberEmails = (member, audience) => {
-    const emailLinks = [];
-    const usedEmails = new Set();
-    /**
-     * Adds one safe email link unless its address has already been used.
-     * @param {string} email - Published email address
-     * @param {string} label - Accessible link label
-     * @private
-     */
-    const addEmailLink = (email, label) => {
-      if (!email || usedEmails.has(email.toLowerCase())) return;
-
-      usedEmails.add(email.toLowerCase());
-      emailLinks.push(formatEmail(email, label));
-    };
-
-    addEmailLink(member.email, `Email ${member.name}`);
-    getAudienceContacts(audience).forEach(contact => {
-      addEmailLink(contact.email, `Email ${member.name} via ${contact.label}`);
-    });
-
-    return emailLinks.length > 0 ? `<span class="team-staff__email-links">${emailLinks.join('')}</span>` : '';
+  const formatMemberEmail = member => {
+    const emailLink = formatEmail(member.email, `Email ${member.name}`);
+    return emailLink ? `<span class="team-staff__email-links">${emailLink}</span>` : '';
   };
   /**
-   * Formats fallback shared contacts for a staff audience.
+   * Formats shared contact actions for a staff audience.
    * @param {string} audience - Staff audience identifier
-   * @returns {string} Shared email-links HTML
+   * @returns {string} Shared email actions HTML
    * @private
    */
   const formatAudienceEmails = audience => {
-    const emailLinks = getAudienceContacts(audience).map(contact => formatEmail(contact.email, `Email ${contact.label}`)).join('');
-    return emailLinks ? `<span class="team-staff__email-links team-staff__email-links--fallback">${emailLinks}</span>` : '';
+    const emailLinks = getAudienceContacts(audience).map(contact => {
+      const emailUrl = TeamsBrowserSafety.safeMailtoUrl(contact.email);
+      if (!emailUrl) return '';
+
+      const contactLabel = String(contact.label || 'staff');
+      const actionLabel = `Email ${contactLabel.charAt(0).toLowerCase()}${contactLabel.slice(1)}`;
+      return `<a class="team-staff__group-email" href="${emailUrl}">${mailIcon}<span>${TeamsBrowserSafety.escapeHtml(actionLabel)}</span></a>`;
+    }).join('');
+    return emailLinks ? `<div class="team-staff__group-emails">${emailLinks}</div>` : '';
   };
   /**
    * Formats a staff audience list or its empty-state contact.
@@ -626,10 +613,11 @@ function formatTeamStaff(staff) {
    * @private
    */
   const formatMembers = (members, audience, emptyMessage) => {
-    if (members.length === 0) return `<p class="team-staff__empty">${emptyMessage}${formatAudienceEmails(audience)}</p>`;
+    const audienceEmails = formatAudienceEmails(audience);
+    if (members.length === 0) return `${audienceEmails}<p class="team-staff__empty">${emptyMessage}</p>`;
 
-    return `<ul class="team-staff__list">${members.map(member => `
-      <li><span class="team-staff__name">${TeamsBrowserSafety.escapeHtml(member.name)}</span><span class="team-staff__details"><span class="team-staff__separator" aria-hidden="true">-</span><span class="team-staff__role">${TeamsBrowserSafety.escapeHtml(member.role)}</span>${formatMemberEmails(member, audience)}</span></li>
+    return `${audienceEmails}<ul class="team-staff__list">${members.map(member => `
+      <li><span class="team-staff__name">${TeamsBrowserSafety.escapeHtml(member.name)}</span><span class="team-staff__details"><span class="team-staff__separator" aria-hidden="true">-</span><span class="team-staff__role">${TeamsBrowserSafety.escapeHtml(member.role)}</span>${formatMemberEmail(member)}</span></li>
     `).join('')}</ul>`;
   };
 

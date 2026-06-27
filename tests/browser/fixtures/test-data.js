@@ -187,7 +187,22 @@ function createTestDataFixture() {
       homePool: contactPool.name
     }),
     practice: createPractice(contactPool.name),
-    homeMeetGuides: [createMeetGuide(contactPool.id)]
+    homeMeetGuides: [createMeetGuide(contactPool.id)],
+    staff: {
+      sourceUrl: `https://fixtures.example/teams/${TEST_IDENTITIES.teams.primary.id}/staff`,
+      verifiedOn: `${YEAR}-05-01`,
+      coaches: [
+        { name: 'Fixture Head Coach', role: 'Head Coach', email: 'head.coach@fixtures.example' },
+        { name: 'Fixture Assistant Coach', role: 'Assistant Coach' }
+      ],
+      managers: [
+        { name: 'Fixture Team Manager', role: 'Team Manager', email: 'manager@fixtures.example' }
+      ],
+      contacts: [
+        { audience: 'coaches', label: 'All coaches', email: 'coaches@fixtures.example' },
+        { audience: 'managers', label: 'All managers', email: 'managers@fixtures.example' }
+      ]
+    }
   };
   const opponentTeam = {
     ...createBaseTeam({
