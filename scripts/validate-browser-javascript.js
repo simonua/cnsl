@@ -39,19 +39,45 @@ function isNodeEnvironmentGuard(node) {
     && ['module', 'process', 'require', 'window'].includes(node.argument.name);
 }
 
+function getMemberPropertyName(node) {
+  if (node.type !== 'MemberExpression') return null;
+  if (!node.computed && node.property.type === 'Identifier') return node.property.name;
+  if (node.computed && node.property.type === 'Literal' && typeof node.property.value === 'string') {
+    return node.property.value;
+  }
+  return null;
+}
+
+function isRuntimeStyleAccess(node) {
+  return node.type === 'MemberExpression' && getMemberPropertyName(node) === 'style';
+}
+
+function isStyleAttributeWrite(node) {
+  if (node.type !== 'CallExpression' || node.callee.type !== 'MemberExpression') return false;
+  const methodName = getMemberPropertyName(node.callee);
+  const styleArgumentIndex = methodName === 'setAttribute' ? 0 : methodName === 'setAttributeNS' ? 1 : -1;
+  const styleArgument = node.arguments[styleArgumentIndex];
+  return styleArgumentIndex >= 0
+    && styleArgument?.type === 'Literal'
+    && styleArgument.value === 'style';
+}
+
 function assertBrowserOnly(source, relativePath) {
   const tree = parse(source, { ecmaVersion: 2023, sourceType: 'script' });
   const violations = new Set();
 
   walk(tree, (node, parent) => {
     if (isNodeEnvironmentGuard(node)) violations.add('Node-only environment guard');
+    if (isRuntimeStyleAccess(node) || isStyleAttributeWrite(node)) {
+      violations.add('runtime style attribute write');
+    }
     if (node.type !== 'Identifier' || isNonReferenceIdentifier(node, parent)) return;
     const violation = FORBIDDEN_IDENTIFIERS.get(node.name);
     if (violation) violations.add(violation);
   });
 
   if (violations.size > 0) {
-    throw new Error(`${relativePath} contains production-forbidden Node.js code: ${[...violations].join(', ')}`);
+    throw new Error(`${relativePath} contains production-forbidden code: ${[...violations].join(', ')}`);
   }
 }
 

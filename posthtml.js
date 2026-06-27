@@ -187,6 +187,9 @@ const validateInlineContentPlugin = (tree) => {
   let policyMeta = null;
 
   tree.walk(node => {
+    if (node.attrs && Object.prototype.hasOwnProperty.call(node.attrs, 'style')) {
+      throw new Error('Inline style attributes are not permitted; use the site stylesheet instead.');
+    }
     if (node.tag === 'script' && (!node.attrs || !node.attrs.src)) {
       const isStructuredData = node.attrs && node.attrs.type === 'application/ld+json';
       const isEarlyThemeBootstrap = node.attrs

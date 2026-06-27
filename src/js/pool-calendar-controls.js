@@ -52,19 +52,15 @@ if (typeof globalThis.PoolCalendarControls === 'undefined') {
     }
 
     /**
-     * Positions, opens, and focuses a pool week picker.
+     * Opens and focuses a pool week picker.
      * @param {Element} button - Calendar button that opened the picker
      * @param {Element} navigation - Pool week-navigation container
      */
     static showPicker(button, navigation) {
       const picker = navigation.querySelector('.week-picker');
       if (!picker) return;
-      const buttonRect = button.getBoundingClientRect();
-      const navigationRect = navigation.getBoundingClientRect();
       picker.hidden = false;
       button.setAttribute('aria-expanded', 'true');
-      picker.style.left = `${buttonRect.left - navigationRect.left}px`;
-      picker.style.top = `${buttonRect.bottom - navigationRect.top + 5}px`;
       picker.classList.add('active');
       picker.click();
       if (picker.showPicker) picker.showPicker(); else picker.focus();

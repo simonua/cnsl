@@ -681,6 +681,36 @@ test('[WF-POOLS-007] mobile calendar schedules reveal today when a pool is expan
   })).toBe(true);
 });
 
+test('[WF-POOLS-034] week picker stays anchored and unclipped without inline positioning', async ({ page }) => {
+  await seedPreferences(page, { favoritePoolName: CONTACT_POOL.name });
+
+  for (const viewport of [{ width: 1280, height: 900 }, MOBILE_VIEWPORT]) {
+    await page.setViewportSize(viewport);
+    await page.goto('/pools.html');
+    await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
+
+    const favoriteCard = page.locator('.favorite-card');
+    const button = favoriteCard.locator('.calendar-btn');
+    const picker = favoriteCard.locator('.week-picker');
+    await button.focus();
+    await page.keyboard.press('Enter');
+
+    await expect(button).toHaveAttribute('aria-expanded', 'true');
+    await expect(picker).not.toHaveAttribute('hidden', '');
+    await expect(picker).not.toHaveAttribute('style', /.+/);
+    expect(await favoriteCard.evaluate(card => {
+      const buttonBounds = card.querySelector('.calendar-btn').getBoundingClientRect();
+      const pickerBounds = card.querySelector('.week-picker').getBoundingClientRect();
+      const wrapperBounds = card.querySelector('.calendar-picker').getBoundingClientRect();
+      return {
+        anchoredBelow: pickerBounds.top >= buttonBounds.bottom,
+        fitsViewport: pickerBounds.left >= 0 && pickerBounds.right <= globalThis.innerWidth,
+        sharesAnchor: Math.abs(pickerBounds.left - wrapperBounds.left) <= 1
+      };
+    })).toEqual({ anchoredBelow: true, fitsViewport: true, sharesAnchor: true });
+  }
+});
+
 test('[WF-POOLS-016] weekly calendars highlight modeled swim meets and Time Trials as meet days', async ({ page }) => {
   await page.clock.setFixedTime(getRelativeDate(TIME_TRIALS_MEET.date, -4));
   await seedPreferences(page, { favoritePoolName: MEET_CALENDAR_POOL.name, poolScheduleLayout: 'calendar' });

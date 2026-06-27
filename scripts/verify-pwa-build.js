@@ -445,8 +445,9 @@ Object.entries(canonicalPages).forEach(([page, canonical]) => {
   assert.match(html, /script-src[^;"]*'unsafe-inline'/, `${page} must permit Cloudflare-injected inline scripts that cannot use a nonce or stable hash.`);
   assert.doesNotMatch(html, /script-src[^;"]*'(?:sha(?:256|384|512)-|nonce-)/, `${page} must not include a nonce or hash source that causes browsers to ignore unsafe-inline.`);
   assert.match(html, /style-src 'self' 'sha256-[A-Za-z0-9+/]+='/, `${page} must authorize the exact initial canvas style block by hash.`);
-  assert.match(html, /style-src-attr 'unsafe-inline'/, `${page} must permit controlled runtime positioning through style attributes.`);
+  assert.doesNotMatch(html, /style-src-attr/, `${page} must not permit inline style attributes.`);
   assert.doesNotMatch(html, /style-src 'self' 'unsafe-inline'/, `${page} must not permit arbitrary inline style blocks.`);
+  assert.doesNotMatch(html, /\sstyle=/i, `${page} must not publish inline style attributes.`);
   assert.match(html, /connect-src[^;"]*https:\/\/\*\.google-analytics\.com/, `${page} must permit Google Analytics collection requests.`);
   assert.match(html, /connect-src[^;"]*https:\/\/\*\.analytics\.google\.com/, `${page} must permit Google Analytics regional collection requests.`);
   assert.match(html, /connect-src[^;"]*https:\/\/\*\.googletagmanager\.com/, `${page} must permit Google tag connection requests.`);

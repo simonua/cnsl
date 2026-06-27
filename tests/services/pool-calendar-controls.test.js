@@ -74,22 +74,19 @@ describe('PoolCalendarControls', () => {
     assert.equal(controls.handleClick({ target: unrelated }, createActions(calls)), undefined);
   });
 
-  it('positions and opens the native week picker', () => {
+  it('opens the native week picker without runtime style attributes', () => {
     const controls = loadControls();
     let clicked = false;
     let shown = false;
     const picker = {
       classList: { add: value => { assert.equal(value, 'active'); } },
       click: () => { clicked = true; },
-      showPicker: () => { shown = true; },
-      style: {}
+      showPicker: () => { shown = true; }
     };
-    const navigation = { querySelector: () => picker, getBoundingClientRect: () => ({ left: 10, top: 20 }) };
-    const button = { getBoundingClientRect: () => ({ left: 30, bottom: 50 }), setAttribute: () => {} };
+    const navigation = { querySelector: () => picker };
+    const button = { setAttribute: () => {} };
     controls.showPicker(button, navigation);
     assert.equal(picker.hidden, false);
-    assert.equal(picker.style.left, '20px');
-    assert.equal(picker.style.top, '35px');
     assert.equal(clicked, true);
     assert.equal(shown, true);
     assert.equal(controls.showPicker(button, { querySelector: () => null }), undefined);
@@ -101,18 +98,15 @@ describe('PoolCalendarControls', () => {
     const picker = {
       classList: { add: () => {} },
       click: () => {},
-      focus: () => { focused = true; },
-      style: {}
+      focus: () => { focused = true; }
     };
     const navigation = {
       dataset: { poolId: 'bwp' },
-      getBoundingClientRect: () => ({ left: 0, top: 0 }),
       querySelector: () => picker
     };
     const target = {
       classList: { contains: value => value === 'calendar-btn' },
       closest: selector => selector === '.pool-week-navigation' ? navigation : null,
-      getBoundingClientRect: () => ({ left: 0, bottom: 0 }),
       setAttribute: () => {}
     };
     controls.handleClick({ target }, createActions([]));

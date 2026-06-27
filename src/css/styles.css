@@ -975,13 +975,13 @@ button.home-banner__close:focus {
 
 /* Navigation Menu */
 .nav-menu {
-  position: fixed;
-  top: 0;
+  position: absolute;
+  top: 100%;
   right: 0;
   width: min(58vw, 14rem);
-  height: 100vh;
+  height: calc(100dvh - 100%);
   background: linear-gradient(180deg, var(--accent-bg), var(--accent-dark));
-  padding-top: var(--nav-top-offset, var(--header-height));
+  overflow-y: auto;
   transform: translateX(100%);
   transition: transform var(--navigation-transition-duration) ease,
     visibility 0s linear var(--navigation-transition-duration);
@@ -3504,7 +3504,6 @@ button.pool-filter__clear:focus-visible {
   padding: 0.75rem;
   margin: 0.5rem 0 1rem 0;
   border: 1px solid var(--border-color);
-  position: relative; /* Add relative positioning for absolute child positioning */
 }
 
 .week-controls-row {
@@ -3520,7 +3519,11 @@ button.pool-filter__clear:focus-visible {
   align-items: center;
   gap: 0.5rem;
   flex-shrink: 0;
-  position: relative; /* Add relative positioning for calendar picker */
+}
+
+.calendar-picker {
+  display: flex;
+  position: relative;
 }
 
 .week-display {
@@ -3558,11 +3561,6 @@ button.pool-filter__clear:focus-visible {
   cursor: not-allowed;
 }
 
-.week-picker.hidden {
-  display: none;
-}
-
-/* Position the hidden date picker near the calendar button */
 .week-picker {
   padding: 0.4rem 0.8rem 0.4rem 2.2rem;
   font-size: 0.9rem;
@@ -3573,14 +3571,12 @@ button.pool-filter__clear:focus-visible {
   cursor: pointer;
   transition: var(--transition);
   min-width: 140px;
-  /* Position will be set dynamically by JavaScript */
   position: absolute;
-  top: 0;
+  top: calc(100% + 0.3rem);
   left: 0;
   z-index: 1000;
   opacity: 0;
   pointer-events: none;
-  /* Make it very small when hidden to avoid affecting layout */
   width: 1px;
   height: 1px;
   padding: 0;
@@ -3658,16 +3654,20 @@ button.pool-filter__clear:focus-visible {
     max-width: 100%;
   }
 
+  .calendar-picker {
+    align-items: center;
+    flex-direction: column;
+  }
+
   .calendar-btn {
     font-size: 1rem;
     padding: 0.35rem 0.5rem;
   }
 
-  /* Adjust date picker positioning for mobile */
   .week-picker {
     position: relative;
     top: auto;
-    right: auto;
+    left: auto;
     opacity: 1;
     pointer-events: auto;
     margin-top: 0.5rem;
@@ -3686,6 +3686,11 @@ button.pool-filter__clear:focus-visible {
     width: 100%;
   }
 
+  .calendar-picker,
+  .calendar-btn {
+    width: 100%;
+  }
+
   .nav-btn {
     font-size: 0.85rem;
     padding: 0.35rem 0.7rem;
@@ -3694,6 +3699,7 @@ button.pool-filter__clear:focus-visible {
   }
 
   .week-picker {
+    max-width: 100%;
     min-width: 120px;
     font-size: 0.85rem;
   }

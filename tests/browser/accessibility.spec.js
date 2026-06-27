@@ -436,6 +436,19 @@ for (const theme of ['light', 'dark']) {
     await expectNoAccessibilityViolations(page);
   });
 
+  test(`[AX-POOLS-006-${theme.toUpperCase()}] open mobile week picker has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
+    await page.setViewportSize(MOBILE_VIEWPORT);
+    await loadScenario(page, pageScenarios.find(scenario => scenario.name === 'pools'), theme);
+    const firstPool = page.locator('.pool-card').first();
+    await firstPool.locator('[data-pool-card-action="toggle"]').click();
+    await expect(firstPool.locator('.pool-details')).toHaveAttribute('aria-busy', 'false');
+    await firstPool.locator('.calendar-btn').focus();
+    await page.keyboard.press('Enter');
+    await expect(firstPool.locator('.week-picker')).not.toHaveAttribute('hidden', '');
+
+    await expectNoAccessibilityViolations(page);
+  });
+
   test(`[AX-INSTALL-001-${theme.toUpperCase()}] expanded iOS install guidance has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await page.addInitScript(() => {

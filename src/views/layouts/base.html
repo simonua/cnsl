@@ -15,7 +15,7 @@
     object-src 'none';
     script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://static.cloudflareinsights.com;
     style-src 'self' 'sha256-7sFihAW7vemlGfMqhOKBRZPWUactS+9JqK2kwn4PoAY=';
-    style-src-attr 'unsafe-inline'; worker-src 'self';" />
+    worker-src 'self';" />
 
   <!-- Runs before stylesheets so the first painted canvas matches the saved theme. -->
   <script data-cfasync="false" data-theme-bootstrap="true">
@@ -233,8 +233,6 @@
     <include src="components/header.html"></include>
 
     <include src="components/app-subheader.html"></include>
-
-    <include src="components/nav.html"></include>
 
     <div class="nav-overlay" id="navOverlay" aria-hidden="true"></div>
 

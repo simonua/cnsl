@@ -23,6 +23,7 @@ description: "Use when changing URL handling, navigation, generated markup, exte
 ## Rendering And Navigation
 
 - Prefer setting text content and validated element properties over emitting HTML strings. For property assignment, set a parsed and allowlisted URL value without HTML entity encoding; reserve the `HtmlSafety` destination helpers for markup strings. When existing controllers build markup, keep text escaping and destination validation visibly adjacent to the interpolation site.
+- Follow the canonical CSS ownership and CSP boundary in `css.instructions.md`. JavaScript and generated markup must express presentation through stylesheet classes, attributes, selectors, and layout relationships, never HTML `style` attributes, `element.style`, `setAttribute('style', ...)`, or equivalent runtime injection.
 - Do not use `innerHTML` with raw external or stored data, even when the current dataset appears maintained or trusted.
 - Do not pass raw query strings, URL fragments, referrers, or destination values into analytics. Only a separately reviewed, fixed campaign tuple from an app-published inbound link may be allowlisted and mapped to GA campaign fields; reject arbitrary campaign values and retain the remaining privacy boundary in the JavaScript instructions.
 

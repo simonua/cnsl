@@ -61,14 +61,15 @@ describe('font loading boundary', () => {
     assert.match(posthtmlSource, /earlyThemeBootstrapCount !== 1/);
   });
 
-  it('authorizes only the exact initial canvas style text and controlled runtime style attributes', () => {
+  it('authorizes only the exact initial canvas style text and rejects style attributes', () => {
     const initialCanvasMatch = layoutSource.match(/<style data-initial-canvas="true">([\s\S]*?)<\/style>/);
     assert.ok(initialCanvasMatch);
     const initialCanvasHash = crypto.createHash('sha256').update(initialCanvasMatch[1]).digest('base64');
 
     assert.ok(layoutSource.includes(`style-src 'self' 'sha256-${initialCanvasHash}'`));
-    assert.match(layoutSource, /style-src-attr 'unsafe-inline'/);
+    assert.doesNotMatch(layoutSource, /style-src-attr/);
     assert.doesNotMatch(layoutSource, /style-src 'self' 'unsafe-inline'/);
+    assert.match(posthtmlSource, /Inline style attributes are not permitted; use the site stylesheet instead\./);
     assert.match(posthtmlSource, /The Content-Security-Policy style hash does not match the initial canvas style block/);
   });
 });

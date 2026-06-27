@@ -35,6 +35,13 @@ describe('validate browser JavaScript', () => {
     assert.doesNotThrow(() => assertBrowserOnly(source, 'safe.js'));
   });
 
+  it('rejects runtime style attribute writes', () => {
+    assert.throws(() => assertBrowserOnly("element.style.setProperty('--offset', '1rem');", 'unsafe.js'));
+    assert.throws(() => assertBrowserOnly("element['style'].left = '1rem';", 'unsafe.js'));
+    assert.throws(() => assertBrowserOnly("element.setAttribute('style', 'display: none');", 'unsafe.js'));
+    assert.throws(() => assertBrowserOnly("element.setAttributeNS(null, 'style', 'display: none');", 'unsafe.js'));
+  });
+
   it('copies validated scripts byte-for-byte', () => {
     const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'cnsl-browser-copy-'));
     const sourceDirectory = path.join(temporaryRoot, 'source');

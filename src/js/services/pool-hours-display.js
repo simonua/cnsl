@@ -82,9 +82,14 @@ if (typeof globalThis.PoolHoursDisplay === 'undefined') {
             <span class="week-text">Week of ${safeWeekStartText} - ${safeWeekEndText}</span>
           </div>
           <div class="nav-buttons">
-            <button class="nav-btn calendar-btn" data-pool-id="${safePoolId}" aria-label="Choose a week for ${safePoolName}" aria-controls="${safeWeekPickerId}" aria-expanded="false" ${!model.hasDateRange ? 'disabled' : ''}>
-              ${IconCatalog.render('calendar')}
-            </button>
+            <div class="calendar-picker">
+              <button class="nav-btn calendar-btn" data-pool-id="${safePoolId}" aria-label="Choose a week for ${safePoolName}" aria-controls="${safeWeekPickerId}" aria-expanded="false" ${!model.hasDateRange ? 'disabled' : ''}>
+                ${IconCatalog.render('calendar')}
+              </button>
+              <input type="date" class="week-picker" id="${safeWeekPickerId}" aria-label="Week to display for ${safePoolName}" hidden
+                     value="${HtmlSafety.escapeHtml(model.weekStartInputValue || '')}"
+                     ${dateRangeAttributes}>
+            </div>
             <button class="nav-btn today-btn" data-pool-id="${safePoolId}" ${model.isTodayDisabled ? 'disabled' : ''}>
               Today
             </button>
@@ -96,9 +101,6 @@ if (typeof globalThis.PoolHoursDisplay === 'undefined') {
             </button>
           </div>
         </div>
-        <input type="date" class="week-picker" id="${safeWeekPickerId}" aria-label="Week to display for ${safePoolName}" hidden
-               value="${HtmlSafety.escapeHtml(model.weekStartInputValue || '')}"
-               ${dateRangeAttributes}>
       </div>
       ${scheduleHtml}
     </div>

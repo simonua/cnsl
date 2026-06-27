@@ -38,18 +38,6 @@ function closeMenu(restoreFocus = false) {
 }
 
 /**
- * Updates the mobile navigation offset to clear the fixed header.
- */
-function updateNavigationOffset() {
-  const nav = document.getElementById('navMenu');
-  const header = document.querySelector('.header');
-  if (!nav || !header) return;
-
-  const headerBottom = Math.ceil(header.getBoundingClientRect().bottom);
-  nav.style.setProperty('--nav-top-offset', `${headerBottom}px`);
-}
-
-/**
  * Determines whether the mobile navigation menu is expanded.
  * @param {Element|null} hamburger - Navigation menu button
  * @returns {boolean} Whether the menu is expanded
@@ -103,7 +91,6 @@ function toggleMenu() {
     return;
   }
 
-  updateNavigationOffset();
   nav.classList.add('active');
   nav.setAttribute('aria-hidden', 'false');
   nav.inert = false;
@@ -169,7 +156,6 @@ function handleStickyFooter() {
 document.addEventListener('DOMContentLoaded', () => {
   const hamburger = document.querySelector('.hamburger');
   const overlay = document.getElementById('navOverlay');
-  updateNavigationOffset();
   updateExperimentalNavigation();
   if (hamburger) hamburger.addEventListener('click', toggleMenu);
   if (overlay) overlay.addEventListener('click', () => closeMenu(true));
@@ -210,7 +196,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Handle resize events
   window.addEventListener('resize', () => {
-    updateNavigationOffset();
     handleStickyFooter();
   });
   window.addEventListener(globalThis.PREFERENCES_CHANGED_EVENT_NAME, updateExperimentalNavigation);
