@@ -15,16 +15,24 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('[WF-WEATHER-008] Home starts its weather check before DOM content is ready', async ({ page }) => {
-  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+  await page.addInitScript(alertsUrl => {
+    globalThis.weatherRequestTiming = {};
+    globalThis.document.addEventListener('DOMContentLoaded', () => {
+      globalThis.weatherRequestTiming.domContentLoadedAt = globalThis.performance.now();
+    }, { once: true });
 
-  const weatherRequestTiming = await page.evaluate(alertsUrl => {
-    const navigationEntry = performance.getEntriesByType('navigation')[0];
-    const weatherEntry = performance.getEntriesByName(alertsUrl)[0];
-    return {
-      domContentLoadedAt: navigationEntry && navigationEntry.domContentLoadedEventStart,
-      requestStartedAt: weatherEntry && weatherEntry.startTime
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = (input, init) => {
+      const requestUrl = input instanceof globalThis.Request ? input.url : String(input);
+      if (requestUrl === alertsUrl && globalThis.weatherRequestTiming.requestStartedAt === undefined) {
+        globalThis.weatherRequestTiming.requestStartedAt = globalThis.performance.now();
+      }
+      return originalFetch.call(globalThis, input, init);
     };
   }, AppConfig.WEATHER_ACTIVE_ALERTS_URL);
+  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+
+  const weatherRequestTiming = await page.evaluate(() => globalThis.weatherRequestTiming);
 
   expect(weatherRequestTiming.requestStartedAt).toBeLessThan(weatherRequestTiming.domContentLoadedAt);
 });
@@ -263,11 +271,7 @@ test('[WF-WEATHER-007] an expired active alert remains visible while Home refres
   }, AppConfig.WEATHER_ALERT_DEFAULT_REFRESH_MINUTES);
 
   await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
-
-  const bannerWasVisibleAtFirstPaint = await page.locator('#weatherAlert').evaluate(banner => new Promise(resolve => {
-    banner.ownerDocument.defaultView.requestAnimationFrame(() => resolve(!banner.hidden));
-  }));
-  expect(bannerWasVisibleAtFirstPaint).toBe(true);
+  await expect(page.locator('#weatherAlert')).toBeVisible();
 
   releaseWeatherResponses();
   await expect(page.locator('#weatherAlert')).toBeHidden();

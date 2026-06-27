@@ -61,7 +61,9 @@ for (const scenario of directoryScenarios.filter(({ reference }) => reference !=
         await expect(page.locator(`${scenario.list} ${scenario.item}`).first()).toBeVisible();
       } else {
         await expect(page.locator(scenario.list)).toHaveAttribute('aria-busy', 'true');
-        await expect(page.locator(scenario.list)).toBeEmpty();
+        await expect(page.locator(`${scenario.list} .search-directory-summary`)).toBeVisible();
+        await expect(page.locator(`${scenario.list} .search-directory-summary__item`).first()).toBeVisible();
+        await expect(page.locator(`${scenario.list} ${scenario.item}`)).toHaveCount(0);
         await expect(page.locator('#poolStatusLegend')).toBeHidden();
       }
     } finally {
