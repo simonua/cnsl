@@ -2,15 +2,15 @@
   <block name="metadata">
     <title>{{ YEAR }} Columbia Association Pool Hours &amp; Schedules</title>
     <meta name="analytics-page-title" content="Pools" />
-    <meta name="description" content="Browse Columbia Association outdoor pools in Columbia, MD, with facility features and published schedule details for the {{ YEAR }} season." />
+    <meta name="description" content="See which Columbia Association outdoor pools are scheduled open now. Browse {{ YEAR }} hours, locations, features, and published schedules in Columbia, MD." />
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
     <link rel="canonical" href="{{ HOME_PAGE_URL }}/pools.html" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="{{ YEAR }} Columbia Association Pool Hours &amp; Schedules" />
-    <meta property="og:description" content="Browse Columbia Association outdoor pools in Columbia, MD, with facility features and published schedule details for the {{ YEAR }} season." />
+    <meta property="og:description" content="See which Columbia Association outdoor pools are scheduled open now. Browse {{ YEAR }} hours, locations, features, and published schedules in Columbia, MD." />
     <meta property="og:url" content="{{ HOME_PAGE_URL }}/pools.html" />
     <meta name="twitter:title" content="{{ YEAR }} Columbia Association Pool Hours &amp; Schedules" />
-    <meta name="twitter:description" content="Browse Columbia Association outdoor pools in Columbia, MD, with facility features and published schedule details for the {{ YEAR }} season." />
+    <meta name="twitter:description" content="See which Columbia Association outdoor pools are scheduled open now. Browse {{ YEAR }} hours, locations, features, and published schedules in Columbia, MD." />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -76,7 +76,8 @@
       <p class="visually-hidden" id="poolListStatus" role="status" aria-live="polite">Loading pool information.</p>
 
       <!-- The pool browser replaces this loading region with directory summaries. -->
-      <div id="poolList" class="pool-list" aria-busy="true">
+      <div id="poolList" class="pool-list" aria-busy="false">
+        <search-directory-summary domain="pools"></search-directory-summary>
       </div>
 
       <section class="pool-status-legend" id="poolStatusLegend" aria-labelledby="poolStatusLegendTitle" hidden>

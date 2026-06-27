@@ -3234,6 +3234,39 @@ button.pool-filter__clear:focus-visible {
   font-weight: 600;
 }
 
+.search-directory-summary {
+  padding: 1rem;
+}
+
+.search-directory-summary__heading {
+  font-size: 1rem;
+  margin: 0 0 0.25rem;
+}
+
+.search-directory-summary__intro {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 0 0 0.75rem;
+}
+
+.search-directory-summary__list {
+  display: grid;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.search-directory-summary__item {
+  display: grid;
+  gap: 0.125rem;
+}
+
+.search-directory-summary__detail {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
 .pool-status-legend {
   border-top: 1px solid var(--border-color);
   margin: 1rem auto 0;

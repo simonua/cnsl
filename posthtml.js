@@ -9,10 +9,13 @@ const { DEVELOPMENT_BUILD_MARKER } = require('./scripts/lib/development-server.j
 const { coordinatePageBuilds } = require('./scripts/lib/page-build-coordinator.js');
 const { stripAuthoringComments } = require('./scripts/lib/html-output.js');
 const { CACHE_ON_USE_SCRIPT_RESOURCES, INSTALL_CRITICAL_PAGES } = require('./scripts/lib/pwa-resource-policy.js');
+const { createPoolSummaryNode, createTeamSummaryNode } = require('./scripts/lib/search-directory-summary.js');
 const annualDataSourceDir = './src/assets/data';
 const activeSeason = String(appConfig.YEAR);
 const activeSeasonPoolsPath = path.join(annualDataSourceDir, activeSeason, 'pools', 'pools.json');
+const activeSeasonTeamsPath = path.join(annualDataSourceDir, activeSeason, 'teams', 'teams.json');
 const activeSeasonPools = JSON.parse(fs.readFileSync(activeSeasonPoolsPath, 'utf8'));
+const activeSeasonTeams = JSON.parse(fs.readFileSync(activeSeasonTeamsPath, 'utf8'));
 const whatsNewSource = fs.readFileSync('./src/views/whats-new.html', 'utf8');
 
 function createAppVersionWhatsNewUrl() {
@@ -140,6 +143,19 @@ const includePlugin = (tree) => {
 
     const content = readComponent(src);
     return { content: tree.parser(content) };
+  });
+  return tree;
+};
+
+const searchDirectorySummaryPlugin = (tree) => {
+  tree.match({ tag: 'search-directory-summary' }, node => {
+    if (node.attrs?.domain === 'pools') {
+      return createPoolSummaryNode(activeSeasonPools.pools, activeSeason);
+    }
+    if (node.attrs?.domain === 'teams') {
+      return createTeamSummaryNode(activeSeasonTeams.teams, activeSeason);
+    }
+    throw new Error('Search directory summary requires a supported domain.');
   });
   return tree;
 };
@@ -405,6 +421,7 @@ coordinatePageBuilds(files, file => {
     .use(extend)
     .use(includePlugin)
     .use(expressions)
+    .use(searchDirectorySummaryPlugin)
     .use(validateInlineContentPlugin)
     .use(versionStaticAssetsPlugin)
     .use(stripAuthoringComments)

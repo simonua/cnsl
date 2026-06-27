@@ -36,10 +36,10 @@ test.beforeEach(async ({ page }) => {
   await routeAnnualDataFixture(page, ['meets', 'pools', 'teams']);
 });
 
-async function expectNoAccessibilityViolations(page) {
-  const results = await new AxeBuilder({ page })
-    .withTags(WCAG_TAGS)
-    .analyze();
+async function expectNoAccessibilityViolations(page, includeSelector) {
+  const axeBuilder = new AxeBuilder({ page }).withTags(WCAG_TAGS);
+  if (includeSelector) axeBuilder.include(includeSelector);
+  const results = await axeBuilder.analyze();
   const violations = results.violations.map(violation => ({
     id: violation.id,
     impact: violation.impact,
@@ -115,6 +115,27 @@ for (const theme of ['light', 'dark']) {
     }
   });
 }
+
+test('[AX-DIRECTORY-001] pool and team fallbacks remain accessible without application scripts', async ({ page }) => {
+  await page.route(/\/js\/.*\.js(?:\?.*)?$/, route => route.abort('blockedbyclient'));
+
+  for (const path of ['/pools.html', '/teams.html']) {
+    await page.goto(path);
+    const directory = page.locator('.search-directory-summary');
+    const items = directory.locator('.search-directory-summary__item');
+
+    await expect(directory).toBeVisible();
+    await expect(directory.locator('h2')).toHaveCount(1);
+    await expect(items.first()).toBeVisible();
+    expect(await items.count()).toBeGreaterThan(0);
+    await expect(directory.locator('a').first()).toHaveAttribute('href', /^https:\/\//);
+    await expect(directory.locator('a').first()).toHaveAttribute('rel', /\bnoopener\b/);
+    await expect(directory.locator('a').first()).toHaveAttribute('target', '_blank');
+    await expect(directory.locator('.search-directory-summary__detail').first()).not.toHaveText('');
+    await expect(directory.locator('..')).toHaveAttribute('aria-busy', 'false');
+    await expectNoAccessibilityViolations(page, '.search-directory-summary');
+  }
+});
 
 for (const theme of ['light', 'dark']) {
   test(`[AX-MEETS-001-${theme.toUpperCase()}-HIGH-CONTRAST] meet disclosure focus and details pass WCAG in ${theme} high contrast`, async ({ page }) => {

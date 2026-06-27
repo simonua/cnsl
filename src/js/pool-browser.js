@@ -1305,6 +1305,8 @@ async function startPoolBrowser() {
     return;
   }
 
+  setPoolListStatus('Loading pool information.', true);
+
   try {
     // Initialize the data manager with the new OOP system
     await initializePoolBrowser();

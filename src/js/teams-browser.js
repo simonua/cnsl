@@ -918,6 +918,7 @@ async function startTeamsBrowser() {
   }
 
   const teamList = document.getElementById("teamList");
+  setTeamListStatus('Loading team information.', true);
   teamList.addEventListener('click', event => {
     const toggleButton = event.target.closest('[data-team-card-action="toggle"]');
     if (toggleButton) {
