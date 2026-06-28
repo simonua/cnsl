@@ -550,7 +550,7 @@ analyticsTest('[WF-ANALYTICS-006] app share campaigns publish reviewed attributi
     await route.fulfill({ response });
   });
 
-  for (const campaignMedium of ['email', 'facebook', 'qr', 'text', 'x']) {
+  for (const campaignMedium of ['email', 'facebook', 'qr', 'text']) {
     const appCampaign = AppConfig.PUBLISHED_CAMPAIGNS.find(campaign => campaign.source === 'app' && campaign.medium === campaignMedium);
     await page.goto(`${AppConfig.HOME_PAGE_URL}/?utm_source=${appCampaign.source}&utm_medium=${appCampaign.medium}&utm_campaign=${appCampaign.name}`, { waitUntil: 'domcontentloaded' });
     await expect(page).toHaveURL(`${AppConfig.HOME_PAGE_URL}/`);

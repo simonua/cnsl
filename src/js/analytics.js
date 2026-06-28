@@ -50,7 +50,7 @@
     'judge', 'line_up_aid', 'timer', 'timesheet_runner', 'web_app_flyer'
   ]);
 
-  const ALLOWED_SHARE_METHODS = new Set(['email', 'facebook', 'qr_code', 'text', 'x']);
+  const ALLOWED_SHARE_METHODS = new Set(['email', 'facebook', 'qr_code', 'text']);
 
   // External-link classification
 
@@ -83,8 +83,7 @@
     SPIRIT_SALE: 'spirit_sale',
     TEAM_UNIFY: 'team_unify',
     TEXT_MESSAGE: 'text_message',
-    USA_SWIMMING: 'usa_swimming',
-    X: 'x'
+    USA_SWIMMING: 'usa_swimming'
   });
   const ALLOWED_EXTERNAL_LINK_DESTINATIONS = new Set(Object.values(EXTERNAL_LINK_DESTINATIONS));
   const EXTERNAL_LINK_HOST_DESTINATIONS = Object.freeze({
@@ -104,8 +103,7 @@
     'www.linkedin.com': EXTERNAL_LINK_DESTINATIONS.LINKEDIN,
     'www.longreachmarlins.org': EXTERNAL_LINK_DESTINATIONS.LONG_REACH_MARLINS,
     'www.teamunify.com': EXTERNAL_LINK_DESTINATIONS.TEAM_UNIFY,
-    'www.usaswimming.org': EXTERNAL_LINK_DESTINATIONS.USA_SWIMMING,
-    'x.com': EXTERNAL_LINK_DESTINATIONS.X
+    'www.usaswimming.org': EXTERNAL_LINK_DESTINATIONS.USA_SWIMMING
   });
   const EXTERNAL_LINK_HOST_SUFFIX_DESTINATIONS = Object.freeze([
     Object.freeze({ destination: EXTERNAL_LINK_DESTINATIONS.SPIRIT_SALE, suffix: '.spiritsale.com' })

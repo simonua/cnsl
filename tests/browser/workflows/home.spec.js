@@ -26,7 +26,7 @@ test('[WF-HOME-001] season summary and sharing actions appear only on the home p
   await expect(page.getByRole('link', { name: 'Text' })).toHaveAttribute('href', AppConfig.EXTERNAL_LINKS.SMS_SHARE);
   await expect(page.getByRole('link', { name: 'Email' })).toHaveAttribute('href', AppConfig.EXTERNAL_LINKS.EMAIL_SHARE);
   await expect(page.getByRole('link', { name: 'Facebook (opens in new tab)' })).toHaveAttribute('href', AppConfig.EXTERNAL_LINKS.FACEBOOK_SHARE);
-  await expect(page.getByRole('link', { name: 'X (opens in new tab)' })).toHaveAttribute('href', AppConfig.EXTERNAL_LINKS.X_SHARE);
+  await expect(page.locator('[data-analytics-share-method="x"]')).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'Send Feedback' })).toHaveAttribute('href', 'contact.html');
   await page.getByRole('link', { name: 'Swim Meets' }).focus();
   await page.keyboard.press('Tab');
@@ -47,13 +47,11 @@ test('[WF-HOME-001] season summary and sharing actions appear only on the home p
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Facebook (opens in new tab)' })).toBeFocused();
   await page.keyboard.press('Tab');
-  await expect(page.getByRole('link', { name: 'X (opens in new tab)' })).toBeFocused();
-  await page.keyboard.press('Tab');
   await expect(page.locator('.share-site__install').getByRole('link', { name: 'Install app' })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Send Feedback' })).toBeFocused();
 
-  for (const method of ['text', 'email', 'facebook', 'x']) {
+  for (const method of ['text', 'email', 'facebook']) {
     await page.locator(`[data-analytics-share-method="${method}"] .share-site__icon`).evaluate(icon => {
       icon.parentElement.addEventListener('click', event => event.preventDefault(), { once: true });
       icon.dispatchEvent(new globalThis.MouseEvent('click', { bubbles: true, cancelable: true }));
@@ -63,8 +61,7 @@ test('[WF-HOME-001] season summary and sharing actions appear only on the home p
     ['event', 'ca_share', { method: 'qr_code', content_type: 'website', item_id: 'home_page' }],
     ['event', 'ca_share', { method: 'text', content_type: 'website', item_id: 'home_page' }],
     ['event', 'ca_share', { method: 'email', content_type: 'website', item_id: 'home_page' }],
-    ['event', 'ca_share', { method: 'facebook', content_type: 'website', item_id: 'home_page' }],
-    ['event', 'ca_share', { method: 'x', content_type: 'website', item_id: 'home_page' }]
+    ['event', 'ca_share', { method: 'facebook', content_type: 'website', item_id: 'home_page' }]
   ]);
 
   await page.locator('a.directory-link').evaluate(link => {
@@ -126,19 +123,18 @@ test('[WF-HOME-002] home page keeps compact link actions readable on narrow phon
   ))).toBe(2);
   await expect.poll(() => page.evaluate(() => {
     const qrLabel = globalThis.document.querySelector('#shareQrButton span');
-    const facebookLink = globalThis.document.querySelector('[data-analytics-share-method="facebook"]');
-    const xLink = globalThis.document.querySelector('[data-analytics-share-method="x"]');
+    const shareLinks = [...globalThis.document.querySelectorAll('.share-site__links .share-site__link')];
     const updatedTime = globalThis.document.querySelector('.footer__data-freshness time:last-of-type');
     const lineCount = element => new Set([...element.getClientRects()].map(rect => Math.round(rect.top))).size;
 
     return {
-      facebookIsWider: facebookLink.getBoundingClientRect().width > xLink.getBoundingClientRect().width,
+      shareLinkWidthsMatch: new Set(shareLinks.map(link => link.getBoundingClientRect().width.toFixed(2))).size === 1,
       fitsViewport: globalThis.document.documentElement.scrollWidth <= globalThis.innerWidth,
       qrLabelLines: lineCount(qrLabel),
       updatedDateLines: lineCount(updatedTime)
     };
   })).toEqual({
-    facebookIsWider: true,
+    shareLinkWidthsMatch: true,
     fitsViewport: true,
     qrLabelLines: 1,
     updatedDateLines: 1
