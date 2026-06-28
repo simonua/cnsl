@@ -485,4 +485,19 @@ for (const theme of ['light', 'dark']) {
 
     await expectNoAccessibilityViolations(page);
   });
+
+  test(`[AX-INSTALL-003-${theme.toUpperCase()}-HIGH-CONTRAST] focused header install action has no WCAG A or AA automated violations in ${theme} high contrast`, async ({ page }) => {
+    await page.setViewportSize(MOBILE_VIEWPORT);
+    await prepareStableWeatherResponses(page);
+    await seedPreferences(page, { contrast: 'high', theme });
+    await page.goto('/about.html');
+
+    const installLink = page.locator('#headerInstallLink');
+    await expect(installLink).toBeVisible();
+    await installLink.hover();
+    await installLink.focus();
+    await expect(installLink).toBeFocused();
+
+    await expectNoAccessibilityViolations(page);
+  });
 }

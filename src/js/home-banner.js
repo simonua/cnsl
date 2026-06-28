@@ -12,16 +12,16 @@
      * Creates a banner controller from element identifiers and banner callbacks.
      * @param {Object} options - Banner configuration
      * @param {string} options.noticeId - Banner container element identifier
-     * @param {string} options.linkId - Banner link element identifier
+      * @param {string[]} options.linkIds - Banner link element identifiers
      * @param {string} options.closeButtonId - Dismiss button element identifier
      * @param {string} options.bannerName - Analytics banner name
      * @param {Function} options.shouldShow - Determines whether the banner should be shown
      * @param {Function} options.acknowledge - Records acknowledgement of the banner
      * @param {Function} [options.prepare] - Prepares banner content before display
      */
-    constructor({ noticeId, linkId, closeButtonId, bannerName, shouldShow, acknowledge, prepare }) {
+    constructor({ noticeId, linkIds, closeButtonId, bannerName, shouldShow, acknowledge, prepare }) {
       this.noticeId = noticeId;
-      this.linkId = linkId;
+      this.linkIds = linkIds;
       this.closeButtonId = closeButtonId;
       this.bannerName = bannerName;
       this.shouldShow = shouldShow;
@@ -47,9 +47,9 @@
      */
     show() {
       const notice = document.getElementById(this.noticeId);
-      const link = document.getElementById(this.linkId);
+      const links = this.linkIds.map(linkId => document.getElementById(linkId));
       const closeButton = document.getElementById(this.closeButtonId);
-      if (!notice || !link || !closeButton || !this.shouldShow()) return;
+      if (!notice || links.some(link => !link) || !closeButton || !this.shouldShow()) return;
 
       if (this.prepare) this.prepare();
       notice.hidden = false;
@@ -64,9 +64,11 @@
         notice.hidden = true;
       };
 
-      link.addEventListener('click', () => {
-        this.trackInteraction('open');
-        acknowledgeAndHide();
+      links.forEach(link => {
+        link.addEventListener('click', () => {
+          this.trackInteraction('open');
+          acknowledgeAndHide();
+        });
       });
       closeButton.addEventListener('click', () => {
         this.trackInteraction('dismiss');
@@ -186,7 +188,7 @@
     const banners = [
       new HomeBanner({
         noticeId: 'releaseNotice',
-        linkId: 'releaseNoticeLink',
+        linkIds: ['releaseNoticeLink'],
         closeButtonId: 'closeReleaseNotice',
         bannerName: bannerNames && bannerNames.RELEASE_NOTICE,
         shouldShow: () => Boolean(releaseVersion && window.ReleaseNoticeService)
@@ -201,7 +203,7 @@
       }),
       new HomeBanner({
         noticeId: 'settingsNotice',
-        linkId: 'settingsNoticeLink',
+        linkIds: ['settingsNoticeLink', 'settingsNoticeInstallLink'],
         closeButtonId: 'closeSettingsNotice',
         bannerName: bannerNames && bannerNames.SETTINGS_NOTICE,
         shouldShow: () => Boolean(window.SettingsNoticeService)

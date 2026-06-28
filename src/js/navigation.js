@@ -2,6 +2,8 @@
  * Navigation functionality for mobile menu
  */
 
+const STANDALONE_DISPLAY_MODE_QUERY = '(display-mode: standalone)';
+
 /**
  * Closes the mobile navigation menu
  * @param {boolean} restoreFocus - Whether focus should return to the menu button
@@ -14,6 +16,7 @@ function closeMenu(restoreFocus = false) {
   const footer = document.querySelector('.footer');
   const skipLink = document.querySelector('.skip-link');
   const homeLink = document.querySelector('.header a');
+  const installLink = document.getElementById('headerInstallLink');
 
   if (nav) {
     nav.classList.remove('active');
@@ -34,7 +37,34 @@ function closeMenu(restoreFocus = false) {
     if (footer) footer.inert = false;
     if (skipLink) skipLink.inert = false;
     if (homeLink) homeLink.inert = false;
+    if (installLink) installLink.inert = false;
   }
+}
+
+/**
+ * Reveals the header install action only while the web app runs in a browser.
+ */
+function initializeHeaderInstallLink() {
+  const installLink = document.getElementById('headerInstallLink');
+  if (!installLink || !globalThis.DevicePlatformService) return;
+
+  const displayModeQuery = window.matchMedia(STANDALONE_DISPLAY_MODE_QUERY);
+  let installedDuringSession = false;
+
+  /** Updates visibility from current installation and display-mode signals. */
+  const updateVisibility = () => {
+    installLink.hidden = installedDuringSession || globalThis.DevicePlatformService.isStandalone(
+      displayModeQuery.matches,
+      navigator.standalone
+    );
+  };
+
+  updateVisibility();
+  displayModeQuery.addEventListener('change', updateVisibility);
+  window.addEventListener('appinstalled', () => {
+    installedDuringSession = true;
+    updateVisibility();
+  });
 }
 
 /**
@@ -84,6 +114,7 @@ function toggleMenu() {
   const footer = document.querySelector('.footer');
   const skipLink = document.querySelector('.skip-link');
   const homeLink = document.querySelector('.header a');
+  const installLink = document.getElementById('headerInstallLink');
   if (!nav || !hamburger) return;
 
   if (isMenuOpen(hamburger)) {
@@ -102,6 +133,7 @@ function toggleMenu() {
   if (footer) footer.inert = true;
   if (skipLink) skipLink.inert = true;
   if (homeLink) homeLink.inert = true;
+  if (installLink) installLink.inert = true;
   hamburger.focus();
 }
 
@@ -156,6 +188,7 @@ function handleStickyFooter() {
 document.addEventListener('DOMContentLoaded', () => {
   const hamburger = document.querySelector('.hamburger');
   const overlay = document.getElementById('navOverlay');
+  initializeHeaderInstallLink();
   updateExperimentalNavigation();
   if (hamburger) hamburger.addEventListener('click', toggleMenu);
   if (overlay) overlay.addEventListener('click', () => closeMenu(true));

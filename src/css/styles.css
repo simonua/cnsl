@@ -540,6 +540,45 @@ button.attention-banner__close:focus {
   color: inherit;
 }
 
+.header__actions {
+  align-items: center;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.25rem;
+}
+
+.header .header-install-link {
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: var(--accent-text);
+  display: inline-flex;
+  height: 44px;
+  justify-content: center;
+  min-width: 44px;
+  width: 44px;
+}
+
+.header .header-install-link[hidden] {
+  display: none;
+}
+
+.header .header-install-link:hover,
+.header .header-install-link:focus {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--accent-text);
+  text-decoration: none;
+}
+
+.header .header-install-link:focus-visible {
+  outline-color: var(--accent-text);
+}
+
+.header-install-link .icon {
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
 .weather-alert {
   --weather-alert-border-size: 3px;
   --weather-alert-min-height: 70px;
@@ -609,10 +648,29 @@ button.attention-banner__close:focus {
   color: var(--text-muted);
 }
 
+.home-banner__actions {
+  align-items: baseline;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
+  justify-content: center;
+}
+
 .home-banner__message a,
 .home-banner__message a:visited {
   color: var(--primary-color);
   font-weight: 600;
+}
+
+.home-banner__action-link {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.3rem;
+}
+
+.home-banner__action-icon {
+  height: 1rem;
+  width: 1rem;
 }
 
 button.home-banner__close {
@@ -671,7 +729,7 @@ button.home-banner__close:focus {
     column-gap: 0.75rem;
   }
 
-  .home-banner__separator {
+  .home-banner__message > .home-banner__separator {
     display: none;
   }
 }

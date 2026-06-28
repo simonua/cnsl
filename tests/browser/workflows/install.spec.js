@@ -1,5 +1,6 @@
 const { test, expect } = require('../browser-test');
 const {
+  AUDIENCE_VIEWPORTS,
   MOBILE_VIEWPORT,
   initializeAnalyticsRecorder,
   prepareStableWeatherResponses
@@ -27,6 +28,9 @@ test('[WF-INSTALL-001] first mobile use keeps settings and links to Apple instal
 
   await expect(page.locator('#releaseNotice')).toBeHidden();
   await expect(page.locator('#settingsNotice')).toBeVisible();
+  const bannerInstallLink = page.locator('#settingsNoticeInstallLink');
+  await expect(bannerInstallLink).toBeVisible();
+  await expect(bannerInstallLink).toHaveAttribute('href', 'install.html');
   await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_current_version'))).toBe(currentVersion);
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')))).toEqual({ theme: 'dark' });
 
@@ -38,7 +42,7 @@ test('[WF-INSTALL-001] first mobile use keeps settings and links to Apple instal
   await expect(navigationInstallLink).toBeVisible();
   await expect(navigationInstallLink).toHaveAttribute('href', 'install.html');
   await page.getByRole('button', { name: 'Close navigation menu' }).click();
-  await homeInstallLink.click();
+  await bannerInstallLink.click();
   await expect(page).toHaveURL(/\/install\.html$/);
   await expect(page.locator('#appleInstallOption')).toHaveAttribute('open', '');
   await expect(page.locator('#androidInstallOption')).not.toHaveAttribute('open', '');
@@ -162,4 +166,52 @@ test('[WF-INSTALL-005] unavailable Android browser prompt leaves manual guidance
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_install_interaction'))).toEqual([
     ['event', 'ca_install_interaction', { install_action: 'prompt_open' }]
   ]);
+});
+
+test('[WF-INSTALL-006] header install action persists in browser mode and hides after installation', async ({ page }) => {
+  await page.setViewportSize(AUDIENCE_VIEWPORTS.NARROW_PHONE);
+  await page.goto('/about.html');
+
+  const installLink = page.locator('#headerInstallLink');
+  await expect(installLink).toBeVisible();
+  await expect(installLink).toHaveAttribute('href', 'install.html');
+  await expect(installLink).toHaveAttribute('title', 'Install app');
+  await expect(installLink).toHaveAccessibleName('Install app');
+  await expect.poll(() => installLink.evaluate(link => {
+    const bounds = link.getBoundingClientRect();
+    return { height: bounds.height, width: bounds.width };
+  })).toEqual({ height: 44, width: 44 });
+  await expect.poll(() => page.locator('.header').evaluate(header => {
+    const homeBounds = header.querySelector('a[aria-label="Home"]').getBoundingClientRect();
+    const titleBounds = header.querySelector('.site-title').getBoundingClientRect();
+    const actionBounds = header.querySelector('.header__actions').getBoundingClientRect();
+    const headerBounds = header.getBoundingClientRect();
+    return {
+      actionAfterTitle: actionBounds.left >= titleBounds.right,
+      controlsContained: Math.max(homeBounds.bottom, titleBounds.bottom, actionBounds.bottom) <= headerBounds.bottom,
+      titleAfterHome: titleBounds.left >= homeBounds.right
+    };
+  })).toEqual({ actionAfterTitle: true, controlsContained: true, titleAfterHome: true });
+
+  await installLink.click();
+  await expect(page).toHaveURL(/\/install\.html$/);
+  await page.evaluate(() => globalThis.dispatchEvent(new Event('appinstalled')));
+  await expect(page.locator('#headerInstallLink')).toBeHidden();
+});
+
+test('[WF-INSTALL-007] header install action stays hidden in standalone display mode', async ({ page }) => {
+  await page.addInitScript(() => {
+    const browserMatchMedia = globalThis.matchMedia.bind(globalThis);
+    globalThis.matchMedia = query => query === '(display-mode: standalone)'
+      ? {
+        addEventListener() {},
+        matches: true,
+        media: query,
+        removeEventListener() {}
+      }
+      : browserMatchMedia(query);
+  });
+
+  await page.goto('/about.html');
+  await expect(page.locator('#headerInstallLink')).toBeHidden();
 });

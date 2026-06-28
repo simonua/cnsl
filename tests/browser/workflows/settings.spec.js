@@ -14,13 +14,14 @@ test.beforeEach(async ({ page }) => {
   await prepareStableWeatherResponses(page);
 });
 
-test('[WF-SETTINGS-003] shared settings reminder is dismissed permanently by link or close button', async ({ page }) => {
+test('[WF-SETTINGS-003] shared first-visit reminder is dismissed permanently by either link or close button', async ({ page }) => {
   await initializeAnalyticsRecorder(page);
   await page.goto('/index.html');
 
   const notice = page.locator('#settingsNotice');
   await expect(notice).toBeVisible();
-  await expect(notice).toContainText('First time here? Set your preferences in Settings!');
+  await expect(notice.getByRole('link', { name: 'Set preferences' })).toBeVisible();
+  await expect(notice.getByRole('link', { name: 'Install app' })).toBeVisible();
   await page.locator('#settingsNoticeLink').click();
   await expect(page.locator('#settingsDialog')).toBeVisible();
   await expect(notice).toBeHidden();
@@ -32,12 +33,22 @@ test('[WF-SETTINGS-003] shared settings reminder is dismissed permanently by lin
 
   await page.evaluate(() => localStorage.removeItem('cnsl_settings_notice_dismissed'));
   await page.reload();
+  await page.locator('#settingsNoticeInstallLink').click();
+  await expect(page).toHaveURL(/\/install\.html$/);
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_settings_notice_dismissed'))).toBe('true');
+  await page.goto('/index.html');
+  await expect(notice).toBeHidden();
+
+  await page.evaluate(() => localStorage.removeItem('cnsl_settings_notice_dismissed'));
+  await page.reload();
   await expect(notice).toBeVisible();
   await page.getByRole('button', { name: 'Dismiss settings reminder' }).focus();
   await page.keyboard.press('Enter');
   await expect(notice).toBeHidden();
   await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_settings_notice_dismissed'))).toBe('true');
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_banner_interaction' && eventArguments[2].banner_name === 'settings_notice'))).toEqual([
+    ['event', 'ca_banner_interaction', { banner_name: 'settings_notice', banner_action: 'view' }],
+    ['event', 'ca_banner_interaction', { banner_name: 'settings_notice', banner_action: 'open' }],
     ['event', 'ca_banner_interaction', { banner_name: 'settings_notice', banner_action: 'view' }],
     ['event', 'ca_banner_interaction', { banner_name: 'settings_notice', banner_action: 'open' }],
     ['event', 'ca_banner_interaction', { banner_name: 'settings_notice', banner_action: 'view' }],

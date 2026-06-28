@@ -3,10 +3,15 @@
     <img src="assets/images/cnsl-logo.jpg" alt="CNSL Logo" class="logo" />
   </a>
   <p class="site-title" id="site-title">CA Pool &amp; CNSL Assistant</p>
-  <button class="hamburger" type="button" aria-label="Open navigation menu" aria-controls="navMenu" aria-expanded="false">
-    <span></span>
-    <span></span>
-    <span></span>
-  </button>
+  <div class="header__actions">
+    <a class="header-install-link" id="headerInstallLink" href="install.html" aria-label="Install app" title="Install app" hidden>
+      <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-smartphone"></use></svg>
+    </a>
+    <button class="hamburger" type="button" aria-label="Open navigation menu" aria-controls="navMenu" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
   <include src="components/nav.html"></include>
 </header>
