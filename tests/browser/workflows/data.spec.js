@@ -387,6 +387,44 @@ test('[WF-DATA-012-MEETS] meet summaries and plain requested details survive opt
   await expect(stableRequestedCard.locator('.pool-link')).toHaveCount(0);
 });
 
+test('[WF-DATA-014-MEETS] build-generated meet summaries remain usable and are enhanced in place', async ({ page }) => {
+  let releaseMeetData;
+  const meetDataPaused = new Promise(resolve => {
+    releaseMeetData = resolve;
+  });
+  await page.route(getAnnualDataRoute('meets'), async route => {
+    await meetDataPaused;
+    await route.continue();
+  });
+
+  try {
+    await page.goto('/meets.html', { waitUntil: 'domcontentloaded' });
+    const firstCard = page.locator('#meetList .meet-date-card').first();
+    await expect(firstCard).toBeVisible();
+    await expect(page.locator('#meetList')).toHaveAttribute('aria-busy', 'false');
+    expect(await page.evaluate(() => performance.getEntriesByName('cnsl:meets:summary-visible').length)).toBe(1);
+    expect(await page.evaluate(() => performance.getEntriesByName('cnsl:meets:primary-data-ready').length)).toBe(0);
+    await firstCard.evaluate(card => {
+      card.dataset.buildShellObserved = 'true';
+    });
+    await firstCard.locator('.meet-date-header__toggle').click();
+    await expect(firstCard.locator('.meet-date-details')).toBeVisible();
+    await expect(firstCard.locator('.meet-date-details')).toHaveAttribute('aria-busy', 'true');
+  } finally {
+    releaseMeetData();
+  }
+
+  await expect.poll(() => page.evaluate(() => performance.getEntriesByName('cnsl:meets:primary-data-ready').length)).toBe(1);
+  const reusedCard = page.locator('#meetList .meet-date-card[data-build-shell-observed="true"]');
+  await expect(reusedCard).toHaveCount(1);
+  await expect(reusedCard).toHaveAttribute('id', /^meet-date-\d{4}-\d{2}-\d{2}$/);
+  await expect(reusedCard.locator('.meet-date-header__toggle')).toHaveAttribute('aria-expanded', 'true');
+  await expect(reusedCard.locator('.meet-date-header__toggle')).toHaveAttribute('aria-controls', /^meet-details-\d{4}-\d{2}-\d{2}$/);
+  await expect(reusedCard.locator('.meet-date-header__toggle time')).toHaveAttribute('datetime', /^\d{4}-\d{2}-\d{2}$/);
+  await expect(reusedCard.locator('.meet-date-details')).toHaveAttribute('data-meet-details-hydrated', 'true');
+  await expect(reusedCard.locator('.meet-details').first()).toBeVisible();
+});
+
 test('[WF-DATA-008] generic routes use compact weather eligibility without loading pools data', async ({ page }) => {
   const poolDataRequests = [];
   page.on('request', request => {

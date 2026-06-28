@@ -13,6 +13,7 @@ const {
   spread,
   summarizeRouteSamples,
   summarizeWarmSamples,
+  validateRoutePhaseOrder,
   waitForRoutePhases
 } = require('../../scripts/measure-performance.js');
 
@@ -76,6 +77,24 @@ describe('performance measurement reporting', () => {
       Teams: ['primary-data-ready', 'summary-visible', 'optional-enrichment-settled']
     });
     assert.equal(ROUTE_PHASE_TIMEOUT_MS, 30000);
+  });
+
+  it('should allow build-generated Meet summaries before primary data while retaining lifecycle validation', () => {
+    assert.doesNotThrow(() => validateRoutePhaseOrder('Meets', {
+      'optional-enrichment-settled': 700,
+      'primary-data-ready': 300,
+      'summary-visible': 100
+    }));
+    assert.throws(() => validateRoutePhaseOrder('Pools', {
+      'optional-enrichment-settled': 700,
+      'primary-data-ready': 300,
+      'summary-visible': 100
+    }), /lifecycle order/);
+    assert.throws(() => validateRoutePhaseOrder('Meets', {
+      'optional-enrichment-settled': 250,
+      'primary-data-ready': 300,
+      'summary-visible': 100
+    }), /lifecycle order/);
   });
 
   it('should wait for every declared phase while leaving routes without phases unchanged', async () => {

@@ -9,12 +9,15 @@ const { DEVELOPMENT_BUILD_MARKER } = require('./scripts/lib/development-server.j
 const { coordinatePageBuilds } = require('./scripts/lib/page-build-coordinator.js');
 const { stripAuthoringComments } = require('./scripts/lib/html-output.js');
 const { CACHE_ON_USE_SCRIPT_RESOURCES, INSTALL_CRITICAL_PAGES } = require('./scripts/lib/pwa-resource-policy.js');
+const { createMeetDateSummaryNode } = require('./scripts/lib/meet-date-summary.js');
 const { createPoolSummaryNode, createTeamSummaryNode } = require('./scripts/lib/search-directory-summary.js');
 const annualDataSourceDir = './src/assets/data';
 const activeSeason = String(appConfig.YEAR);
 const activeSeasonPoolsPath = path.join(annualDataSourceDir, activeSeason, 'pools', 'pools.json');
+const activeSeasonMeetsPath = path.join(annualDataSourceDir, activeSeason, 'meets', 'meets.json');
 const activeSeasonTeamsPath = path.join(annualDataSourceDir, activeSeason, 'teams', 'teams.json');
 const activeSeasonPools = JSON.parse(fs.readFileSync(activeSeasonPoolsPath, 'utf8'));
+const activeSeasonMeets = JSON.parse(fs.readFileSync(activeSeasonMeetsPath, 'utf8'));
 const activeSeasonTeams = JSON.parse(fs.readFileSync(activeSeasonTeamsPath, 'utf8'));
 const whatsNewSource = fs.readFileSync('./src/views/whats-new.html', 'utf8');
 
@@ -148,6 +151,7 @@ const includePlugin = (tree) => {
 };
 
 const searchDirectorySummaryPlugin = (tree) => {
+  tree.match({ tag: 'meet-date-summary' }, () => createMeetDateSummaryNode(activeSeasonMeets));
   tree.match({ tag: 'search-directory-summary' }, node => {
     if (node.attrs?.domain === 'pools') {
       return createPoolSummaryNode(activeSeasonPools.pools, activeSeason);

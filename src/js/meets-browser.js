@@ -23,6 +23,9 @@ const meetsControllerSource = document.currentScript && document.currentScript.s
   : null;
 const meetsAssetVersion = meetsControllerSource ? meetsControllerSource.searchParams.get('v') : '';
 const meetDetailsHydrationPromises = new WeakMap();
+let meetPrimaryDataReady = false;
+let meetSummaryReady = false;
+let meetSummaryInteractionOccurred = false;
 
 globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.PREPARING);
 
@@ -50,6 +53,16 @@ function markMeetPerformance(phaseName) {
   if (globalThis.performance && typeof globalThis.performance.mark === 'function') {
     globalThis.performance.mark(`cnsl:meets:${phaseName}`);
   }
+}
+
+/**
+ * Reports that build-generated Meet summaries are usable without waiting for annual-data enhancement.
+ */
+function reportMeetSummaryReady() {
+  if (meetSummaryReady) return;
+  meetSummaryReady = true;
+  markMeetPerformance('summary-visible');
+  globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.READY);
 }
 
 /**
@@ -325,6 +338,11 @@ function renderMeetDateDetails(meets) {
 function hydrateMeetDateDetails(meetCard) {
   const details = meetCard?.querySelector('.meet-date-details');
   if (!details || details.dataset.meetDetailsHydrated === 'true') return Promise.resolve(details || null);
+  if (!meetPrimaryDataReady) {
+    details.setAttribute('aria-busy', 'true');
+    if (!details.hidden) details.innerHTML = MEET_DETAILS_LOADING_HTML;
+    return Promise.resolve(details);
+  }
   if (meetDetailsHydrationPromises.has(details)) return meetDetailsHydrationPromises.get(details);
 
   details.setAttribute('aria-busy', 'true');
@@ -413,6 +431,7 @@ async function renderMeets(meets, preserveExpansion = false) {
   });
 
   meetsBrowserMeetGroups = new Map(Object.values(meetsByDate).map(dateMeets => [dateMeets[0].date, dateMeets]));
+  meetPrimaryDataReady = true;
 
   // Find the next upcoming meet date to expand
   let nextUpcomingDateKey = null;
@@ -425,10 +444,14 @@ async function renderMeets(meets, preserveExpansion = false) {
     }
   }
 
-  // Generate HTML for meets grouped by date
-  let html = '';
+  const dateCardTemplate = document.getElementById('meetDateCardTemplate');
+  if (!(dateCardTemplate instanceof HTMLTemplateElement)) {
+    throw new Error('Meet date card template is unavailable.');
+  }
+  const existingCards = new Map(Array.from(list.querySelectorAll('.meet-date-card'))
+    .map(card => [card.dataset.meetDate, card]));
 
-  Object.keys(meetsByDate).forEach((dateKey, dateIndex) => {
+  Object.keys(meetsByDate).forEach(dateKey => {
     const meetDate = TimeUtils.parseDateOnly(meetsByDate[dateKey][0].date);
     const meetDateValue = meetsByDate[dateKey][0].date;
     const dateLiveStatuses = meetsByDate[dateKey].map(meet => meet.getLiveStatus(easternTimeInfo));
@@ -441,13 +464,10 @@ async function renderMeets(meets, preserveExpansion = false) {
 
     // Determine if this card should be expanded (only the next upcoming meet)
     const shouldExpand = expandedDateValues ? expandedDateValues.has(meetDateValue) : dateKey === nextUpcomingDateKey;
-    const collapsedClass = shouldExpand ? '' : 'collapsed';
-    const detailsId = `meet-details-${dateIndex}`;
+    const detailsId = `meet-details-${meetDateValue}`;
 
     // Get the meet name from the first meet on this date
-    const meetName = MeetsBrowserSafety.escapeHtml(meetsByDate[dateKey][0].name || '');
-    const safeDateKey = MeetsBrowserSafety.escapeHtml(dateKey);
-    const safeMeetDateValue = MeetsBrowserSafety.escapeHtml(meetDateValue);
+    const meetName = meetsByDate[dateKey][0].name || '';
     const liveStatusBadge = isCompleted
       ? '<span class="meet-live-badge meet-live-badge--completed"><span class="meet-live-badge__check" aria-hidden="true">&#10003;</span> Completed</span>'
       : liveStatusTarget && liveStatusTarget.date === meetDateValue
@@ -457,35 +477,40 @@ async function renderMeets(meets, preserveExpansion = false) {
       ? `<span class="meet-date-header__relative upcoming-day-pill${relativeDayOffset === 0 ? ' upcoming-day-pill--today' : relativeDayOffset === 1 ? ' upcoming-day-pill--tomorrow' : ''}">${MeetsBrowserSafety.escapeHtml(relativeDay)}</span>`
       : '';
 
-    html += `
-      <div class="meet-date-card ${collapsedClass}" data-meet-card data-meet-date="${safeMeetDateValue}" data-analytics-context="meet_details">
-        <div class="meet-date-header" data-meet-card-header>
-          <div class="date-and-name">
-            <h2><button type="button" class="meet-date-header__toggle" data-meet-card-action="toggle" aria-expanded="${String(shouldExpand)}" aria-controls="${detailsId}">${safeDateKey}</button></h2>
-            ${meetName ? `<span class="meet-name-header">${meetName}</span>` : ''}
-          </div>
-          <div class="status-container">
-            ${liveStatusBadge}
-            ${relativeDayBadge}
-            ${isCompleted ? '' : `<span class="visually-hidden">${isToday ? 'Meet is today' : 'Upcoming meet'}</span>`}
-          </div>
-        </div>
-        <div class="meet-date-details" id="${detailsId}" data-meet-details-hydrated="false" aria-busy="${String(shouldExpand)}"${shouldExpand ? '' : ' hidden'}>
-          ${shouldExpand ? MEET_DETAILS_LOADING_HTML : ''}
-    `;
+    let meetCard = existingCards.get(meetDateValue);
+    if (!meetCard) {
+      meetCard = dateCardTemplate.content.firstElementChild.cloneNode(true);
+    }
+    existingCards.delete(meetDateValue);
+    meetCard.id = `meet-date-${meetDateValue}`;
+    meetCard.dataset.meetDate = meetDateValue;
+    meetCard.classList.toggle('collapsed', !shouldExpand);
 
-    html += `
-        </div>
-      </div>
-    `;
+    const toggleButton = meetCard.querySelector('.meet-date-header__toggle');
+    const nameElement = meetCard.querySelector('.meet-name-header');
+    const statusContainer = meetCard.querySelector('.status-container');
+    const details = meetCard.querySelector('.meet-date-details');
+    let dateElement = toggleButton.querySelector('time');
+    if (!dateElement) {
+      dateElement = document.createElement('time');
+      toggleButton.replaceChildren(dateElement);
+    }
+    dateElement.dateTime = meetDateValue;
+    dateElement.textContent = dateKey;
+    toggleButton.setAttribute('aria-expanded', String(shouldExpand));
+    toggleButton.setAttribute('aria-controls', detailsId);
+    nameElement.textContent = meetName;
+    nameElement.hidden = !meetName;
+    statusContainer.innerHTML = `${liveStatusBadge}${relativeDayBadge}${isCompleted ? '' : `<span class="visually-hidden">${isToday ? 'Meet is today' : 'Upcoming meet'}</span>`}`;
+    details.id = detailsId;
+    const isHydrated = details.dataset.meetDetailsHydrated === 'true';
+    details.hidden = !shouldExpand;
+    details.setAttribute('aria-busy', String(shouldExpand && !isHydrated));
+    if (!isHydrated) details.innerHTML = shouldExpand ? MEET_DETAILS_LOADING_HTML : '';
+    list.insertBefore(meetCard, dateCardTemplate);
   });
 
-  // If no meets have valid dates
-  if (html === '') {
-    html = "<p>No scheduled meets found.</p>";
-  }
-
-  list.innerHTML = html;
+  existingCards.forEach(card => card.remove());
   if (!document.prerendering) hydrateExpandedMeetDateDetails();
 }
 
@@ -553,6 +578,7 @@ function toggleMeetDate(header) {
   const toggleButton = header.querySelector('.meet-date-header__toggle');
   const details = meetCard.querySelector('.meet-date-details');
   const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
+  if (!meetPrimaryDataReady) meetSummaryInteractionOccurred = true;
   meetCard.classList.toggle('collapsed', isExpanded);
   toggleButton.setAttribute('aria-expanded', String(!isExpanded));
   if (!isExpanded && window.cnslAnalytics) {
@@ -622,14 +648,15 @@ async function startMeetsBrowser() {
     const header = meetCard && meetCard.querySelector('[data-meet-card-header]');
     if (header && toggleButton && (toggleButton.getAttribute('aria-expanded') !== 'true' || event.target.closest('[data-meet-card-header]'))) toggleMeetDate(header);
   });
+  if (meetList.querySelector('.meet-date-card')) reportMeetSummaryReady();
 
   try {
     await initializeMeetsBrowser();
     markMeetPerformance('primary-data-ready');
     const allMeets = meetsBrowserDataManager.getMeets().getAllMeets();
     meetsBrowserMeets = allMeets;
-    await renderMeets(allMeets);
-    markMeetPerformance('summary-visible');
+    await renderMeets(allMeets, meetSummaryInteractionOccurred);
+    reportMeetSummaryReady();
     scheduleNextMeetLiveStatusRefresh();
     setMeetListStatus(`Meet schedule loaded. ${allMeets.length} meets available.`, false);
     globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.READY);
@@ -637,9 +664,13 @@ async function startMeetsBrowser() {
 
   } catch (error) {
     console.error("Error loading meets:", error);
-    meetList.innerHTML = `<p>${IconCatalog.getTextGlyph('warning')} The meet schedule did not load. Please check your connection and refresh the page to try again.</p>`;
-    setMeetListStatus('The meet schedule did not load. Please check your connection and refresh the page to try again.', false);
-    globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.READY);
+    if (!meetList.querySelector('.meet-date-card')) {
+      meetList.innerHTML = `<p>${IconCatalog.getTextGlyph('warning')} The meet schedule did not load. Please check your connection and refresh the page to try again.</p>`;
+      globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.READY);
+    } else {
+      reportMeetSummaryReady();
+    }
+    setMeetListStatus('Published meet dates remain available, but current details did not load. Please refresh the page to try again.', false);
   }
 }
 

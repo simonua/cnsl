@@ -1,6 +1,7 @@
 const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
+const posthtml = require('posthtml');
 const vm = require('node:vm');
 const {
   APP_VERSION,
@@ -138,6 +139,7 @@ function calculateDirectoryBytes(directory) {
 
 const artifactBytes = calculateDirectoryBytes(outDir);
 const activeSeasonPools = JSON.parse(fs.readFileSync(path.join(outDir, 'assets', 'data', String(YEAR), 'pools', 'pools.json'), 'utf8'));
+const activeSeasonMeets = JSON.parse(fs.readFileSync(path.join(outDir, 'assets', 'data', String(YEAR), 'meets', 'meets.json'), 'utf8'));
 const weatherOperatingWindowsPath = path.join(outDir, 'js', 'config', 'weather-operating-windows.js');
 const weatherOperatingWindowsContext = {};
 vm.runInNewContext(fs.readFileSync(weatherOperatingWindowsPath, 'utf8'), weatherOperatingWindowsContext);
@@ -262,6 +264,81 @@ async function verifyAnalyticsArtifact(appConfigSource, interactionTypeSource, a
     publishedCommands.some(command => command[0] === 'event' && command[1] === 'ca_version' && command[2]?.app_version === APP_VERSION),
     'Analytics must publish the configured application version.'
   );
+}
+
+async function verifyMeetDateSummaryArtifact() {
+  const meetHtml = fs.readFileSync(path.join(outDir, 'meets.html'), 'utf8');
+  const dateCards = [];
+  const templates = [];
+  let meetList;
+
+  await posthtml().use(tree => {
+    tree.match({ tag: 'section', attrs: { id: 'meetList' } }, node => {
+      meetList = node;
+      return node;
+    });
+    tree.match({ tag: 'template', attrs: { id: 'meetDateCardTemplate' } }, node => {
+      templates.push(node);
+      return node;
+    });
+    tree.match({ tag: 'article' }, node => {
+      const classNames = String(node.attrs?.class || '').split(/\s+/);
+      if (classNames.includes('meet-date-card') && node.attrs['data-meet-date'] !== 'template') dateCards.push(node);
+      return node;
+    });
+    return tree;
+  }).process(meetHtml);
+
+  const expectedDates = [...new Set([
+    ...(activeSeasonMeets.regular_meets || []),
+    ...(activeSeasonMeets.special_meets || [])
+  ].map(meet => meet.date))].sort();
+  assert.ok(meetList, 'Meet artifact must publish its schedule list.');
+  assert.equal(meetList.attrs['aria-label'], 'Published meet dates', 'Meet schedule section must expose a concise accessible name.');
+  assert.match(meetHtml, new RegExp(`<title>${YEAR} CNSL Swim Meet Schedule \\| Columbia, MD</title>`), 'Meet search title must include the season, CNSL, schedule topic, and location.');
+  assert.match(meetHtml, new RegExp(`regular dual meets and special meets for the ${YEAR} CNSL season in Columbia, Maryland`), 'Meet page must publish concise visible schedule context.');
+  const collectionPage = [...meetHtml.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+    .map(([, value]) => JSON.parse(value))
+    .find(value => value['@type'] === 'CollectionPage');
+  assert.ok(collectionPage, 'Meet artifact must publish CollectionPage structured data.');
+  assert.equal(collectionPage.inLanguage, 'en-US', 'Meet CollectionPage must identify its content language.');
+  assert.equal(collectionPage.about?.['@type'], 'SportsOrganization', 'Meet CollectionPage must identify CNSL as a sports organization.');
+  assert.equal(collectionPage.about?.sport, 'Swimming', 'Meet CollectionPage must identify its sport.');
+  assert.equal(collectionPage.spatialCoverage?.name, 'Columbia, Maryland', 'Meet CollectionPage must identify its geographic coverage.');
+  assert.equal(templates.length, 1, 'Meet artifact must publish one reusable date-card template.');
+  assert.deepEqual(
+    dateCards.map(card => card.attrs['data-meet-date']),
+    expectedDates,
+    'Build-generated Meet date cards must match the sorted distinct dates in active annual data.'
+  );
+  assert.ok(dateCards.every(card => meetList.content.includes(card)), 'Build-generated Meet cards must be direct schedule-list children.');
+  assert.ok(meetList.content.includes(templates[0]), 'Meet date-card template must be a direct schedule-list child.');
+
+  dateCards.forEach(card => {
+    const descendants = [];
+    const collectDescendants = value => {
+      if (!value || typeof value !== 'object') return;
+      if (Array.isArray(value)) {
+        value.forEach(collectDescendants);
+        return;
+      }
+      descendants.push(value);
+      collectDescendants(value.content);
+    };
+    collectDescendants(card.content);
+    const toggle = descendants.find(node => String(node.attrs?.class || '').split(/\s+/).includes('meet-date-header__toggle'));
+    const dateElement = descendants.find(node => node.tag === 'time');
+    const details = descendants.find(node => String(node.attrs?.class || '').split(/\s+/).includes('meet-date-details'));
+    const dateValue = card.attrs['data-meet-date'];
+    assert.equal(card.attrs.id, `meet-date-${dateValue}`, 'Each build-generated Meet date card must publish a stable fragment identifier.');
+    assert.ok(toggle && dateElement && details, 'Each build-generated Meet date card must include its disclosure control, date, and details region.');
+    assert.equal(dateElement.attrs.datetime, dateValue, 'Each build-generated Meet date must publish its machine-readable value.');
+    assert.equal(toggle.attrs['aria-controls'], details.attrs.id, 'Each Meet disclosure control must reference its own details region.');
+    assert.equal(toggle.attrs['aria-expanded'], 'false', 'Build-generated Meet date cards must start collapsed.');
+    assert.ok(Object.hasOwn(details.attrs, 'hidden'), 'Collapsed Meet details must start hidden.');
+    assert.equal(details.attrs['data-meet-details-hydrated'], 'false', 'Build-generated Meet details must remain unhydrated.');
+    assert.equal(details.content?.length || 0, 0, 'Build-generated Meet details must not contain hidden detail markup.');
+  });
 }
 
 const manifest = JSON.parse(fs.readFileSync(path.join(outDir, 'manifest.webmanifest'), 'utf8'));
@@ -503,7 +580,10 @@ assert.match(robots, new RegExp(`Sitemap: ${siteOrigin.replace(/[.*+?^${}()|[\]\
 const customDomain = fs.readFileSync(path.join(outDir, 'CNAME'), 'utf8').trim();
 assert.equal(customDomain, HOME_PAGE_HOSTNAME, 'Published GitHub Pages output must retain the configured custom domain.');
 
-verifyAnalyticsArtifact(appConfig, analyticsInteractionType, analytics)
+Promise.all([
+  verifyAnalyticsArtifact(appConfig, analyticsInteractionType, analytics),
+  verifyMeetDateSummaryArtifact()
+])
   .then(() => {
     console.log(`Verified PWA artifact for the ${YEAR} season: ${artifactBytes} delivered bytes.`);
     console.log(`PWA cache inventory: ${precacheResources.length} resources / ${calculateResourceBytes(precacheResources)} bytes.`);

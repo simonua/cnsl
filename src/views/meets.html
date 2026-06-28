@@ -1,15 +1,15 @@
 <extends src="base.html">
   <block name="metadata">
-    <title>{{ YEAR }} CNSL Swim Meet Schedule</title>
+    <title>{{ YEAR }} CNSL Swim Meet Schedule | Columbia, MD</title>
     <meta name="analytics-page-title" content="Meets" />
     <meta name="description" content="Check the published {{ YEAR }} Columbia Neighborhood Swim League regular and special meet schedule with pool location links in Columbia, Maryland." />
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
     <link rel="canonical" href="{{ HOME_PAGE_URL }}/meets.html" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="{{ YEAR }} CNSL Swim Meet Schedule" />
+    <meta property="og:title" content="{{ YEAR }} CNSL Swim Meet Schedule | Columbia, MD" />
     <meta property="og:description" content="Check the published {{ YEAR }} Columbia Neighborhood Swim League regular and special meet schedule with pool location links in Columbia, Maryland." />
     <meta property="og:url" content="{{ HOME_PAGE_URL }}/meets.html" />
-    <meta name="twitter:title" content="{{ YEAR }} CNSL Swim Meet Schedule" />
+    <meta name="twitter:title" content="{{ YEAR }} CNSL Swim Meet Schedule | Columbia, MD" />
     <meta name="twitter:description" content="Check the published {{ YEAR }} Columbia Neighborhood Swim League regular and special meet schedule with pool location links in Columbia, Maryland." />
     <script type="application/ld+json">
       {
@@ -18,8 +18,16 @@
         "name": "{{ YEAR }} CNSL Swim Meet Schedule",
         "url": "{{ HOME_PAGE_URL }}/meets.html",
         "description": "Published regular and special Columbia Neighborhood Swim League meet schedules for {{ YEAR }}.",
+        "inLanguage": "en-US",
         "isPartOf": { "@id": "{{ HOME_PAGE_URL }}/#website" },
-        "about": { "@type": "Thing", "name": "CNSL swim meets" }
+        "about": {
+          "@type": "SportsOrganization",
+          "name": "Columbia Neighborhood Swim League",
+          "alternateName": "CNSL",
+          "sport": "Swimming",
+          "url": "{{ EXTERNAL_LINKS.OFFICIAL_CNSL_SITE }}"
+        },
+        "spatialCoverage": { "@type": "Place", "name": "Columbia, Maryland" }
       }
     </script>
   </block>
@@ -41,11 +49,13 @@
       </div>
 
       <div data-seasonal-content>
-        <p class="visually-hidden" id="meetListStatus" role="status" aria-live="polite">Loading meet schedule.</p>
+        <p>Browse published regular dual meets and special meets for the {{ YEAR }} CNSL season in Columbia, Maryland.</p>
+        <p class="visually-hidden" id="meetListStatus" role="status" aria-live="polite">Published meet dates are available. Current details are loading.</p>
 
-        <!-- The meet browser replaces this loading region with the active schedule. -->
-        <div id="meetList" class="meet-list" aria-busy="true">
-        </div>
+        <!-- Build-time date cards remain useful while the meet browser adds current state and details. -->
+        <section id="meetList" class="meet-list" aria-label="Published meet dates" aria-busy="false">
+          <meet-date-summary></meet-date-summary>
+        </section>
       </div>
     </div>
   </block>

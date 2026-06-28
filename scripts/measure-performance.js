@@ -246,12 +246,7 @@ async function collectPageMetrics(page, route, usableMs, responseMetrics = null)
 
   const missingPhase = phaseNames.find(phaseName => !Number.isFinite(browserMetrics.phases[phaseName]));
   if (missingPhase) throw new Error(`${route.name} performance mark is missing: ${missingPhase}.`);
-  if (phaseNames.length > 0) {
-    const phaseTimings = phaseNames.map(phaseName => browserMetrics.phases[phaseName]);
-    if (phaseTimings.some((timing, index) => index > 0 && timing < phaseTimings[index - 1])) {
-      throw new Error(`${route.name} performance marks are not in lifecycle order.`);
-    }
-  }
+  validateRoutePhaseOrder(route.name, browserMetrics.phases);
 
   return {
     ...browserMetrics,
@@ -260,6 +255,25 @@ async function collectPageMetrics(page, route, usableMs, responseMetrics = null)
     requests: responseMetrics?.requests ?? browserMetrics.requests,
     usableMs
   };
+}
+
+/**
+ * Validates route phase ordering while allowing build-generated Meet summaries to precede annual data.
+ * @param {string} routeName - Measured route name
+ * @param {Object<string, number|null>} phases - Recorded phase timings
+ * @throws {Error} When a route records phases outside its supported lifecycle
+ */
+function validateRoutePhaseOrder(routeName, phases) {
+  const primaryReady = phases['primary-data-ready'];
+  const summaryVisible = phases['summary-visible'];
+  const enrichmentSettled = phases['optional-enrichment-settled'];
+  if (![primaryReady, summaryVisible, enrichmentSettled].every(Number.isFinite)) return;
+
+  const summaryOrderIsValid = routeName === 'Meets' || primaryReady <= summaryVisible;
+  const enrichmentOrderIsValid = enrichmentSettled >= Math.max(primaryReady, summaryVisible);
+  if (!summaryOrderIsValid || !enrichmentOrderIsValid) {
+    throw new Error(`${routeName} performance marks are not in lifecycle order.`);
+  }
 }
 
 /**
@@ -540,5 +554,6 @@ module.exports = {
   spread,
   summarizeRouteSamples,
   summarizeWarmSamples,
+  validateRoutePhaseOrder,
   waitForRoutePhases
 };
