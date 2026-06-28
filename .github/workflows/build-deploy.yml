@@ -22,6 +22,7 @@ on:
       - 'scripts/lib/classic-script-loader.js'
       - 'scripts/lib/development-server.js'
       - 'scripts/lib/html-output.js'
+      - 'scripts/lib/meet-date-summary.js'
       - 'scripts/lib/page-build-coordinator.js'
       - 'scripts/lib/pwa-resource-policy.js'
       - 'scripts/lib/search-directory-summary.js'

@@ -21,4 +21,5 @@ description: "Use when creating or modifying GitHub Actions workflows. Covers SH
 ## Maintenance
 
 - Keep `.github/dependabot.yml` configured for `github-actions` updates.
+- For `.github/workflows/build-deploy.yml` path filters, follow the canonical **Build Dependency Registration** rules in `build.instructions.md` so every artifact-affecting dependency triggers deployment and remains covered by the deterministic workflow contract test.
 - Confirm workflow syntax and execute the local build command before completing workflow changes.

@@ -1,5 +1,5 @@
 ---
-description: "Use when working with the build pipeline, dev server, testing, linting, or CI/CD. Covers pnpm, PostHTML, and dev workflow."
+description: "Use when working with the build pipeline, build dependency registration, deploy triggers, dev server, testing, linting, or CI/CD. Covers pnpm, PostHTML, and dev workflow."
 ---
 
 # Build & Development Conventions
@@ -65,6 +65,14 @@ Run `\.\start.ps1` from PowerShell for the interactive developer menu. It covers
    - Processes HTML with PostHTML (extend + include plugins)
    - Publishes only `data/<YEAR>/` for the configured active season; all other annual data folders are excluded
    - Excludes retained active-season PDF evidence directories and `images/logos/originals/` from copy
+
+## Build Dependency Registration
+
+- When adding, moving, renaming, or removing a file used by the build, development server, artifact verification, or deployment, inventory every integration surface that owns that file. Update all applicable registrations in the same change rather than relying on the file's presence in the repository.
+- Import new build-time modules from `posthtml.js` or the narrow existing build owner that consumes them. Add each build-affecting file to the `on.push.paths` allowlist in `.github/workflows/build-deploy.yml` unless an existing directory glob already covers it. Files under `src/**` are already covered and must not be listed individually.
+- Keep supporting registrations aligned with the file's role. This may include `nodemon.json` watch paths, PostHTML copy or validation policy, PWA core or optional resource policy, browser-script ordering, ESLint scope, and package or workspace metadata. Register a file only where that subsystem actually consumes or watches it.
+- Keep `tests/services/deployment-workflow.test.js` as the deterministic contract for deployment-trigger coverage. When introducing another build entry point or dependency pattern, extend the test's dependency discovery instead of adding a second hand-maintained expected-file list.
+- Remove stale imports, trigger paths, watches, resource entries, and contract expectations when retiring a build dependency. Run the focused registration test and `pnpm run build` after changing this dependency graph.
 
 ## Output
 
