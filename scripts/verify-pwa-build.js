@@ -60,14 +60,16 @@ const canonicalPages = {
   'pools.html': `${siteOrigin}/pools.html`,
   'teams.html': `${siteOrigin}/teams.html`,
   'meets.html': `${siteOrigin}/meets.html`,
-  'lessons.html': `${siteOrigin}/`,
+  'lessons.html': `${siteOrigin}/lessons.html`,
   'faq.html': `${siteOrigin}/faq.html`,
-  'settings.html': `${siteOrigin}/`,
-  'whats-new.html': `${siteOrigin}/`,
-  'about.html': `${siteOrigin}/`,
-  'contact.html': `${siteOrigin}/`,
-  'offline.html': `${siteOrigin}/`,
-  'swim-meet-resources.html': `${siteOrigin}/`
+  'install.html': `${siteOrigin}/install.html`,
+  'settings.html': `${siteOrigin}/settings.html`,
+  'whats-new.html': `${siteOrigin}/whats-new.html`,
+  'about.html': `${siteOrigin}/about.html`,
+  'contact.html': `${siteOrigin}/contact.html`,
+  'my-meet-day.html': `${siteOrigin}/my-meet-day.html`,
+  'offline.html': `${siteOrigin}/offline.html`,
+  'swim-meet-resources.html': `${siteOrigin}/swim-meet-resources.html`
 };
 const indexablePages = new Set(['index.html', 'pools.html', 'teams.html', 'meets.html', 'faq.html']);
 const analyticsPageTitles = {
@@ -572,6 +574,7 @@ assert.equal((sitemap.match(/<urlset/g) || []).length, 1, 'Sitemap must contain 
 const sitemapUrls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(([, url]) => url);
 const indexableCanonicalUrls = [...indexablePages].map(page => canonicalPages[page]);
 assert.deepEqual(sitemapUrls, indexableCanonicalUrls, 'Sitemap must publish exactly the canonical URLs of indexable pages.');
+assert.doesNotMatch(sitemap, /<(?:changefreq|priority)>/, 'Sitemap must omit crawler hints that search engines ignore.');
 
 const robots = fs.readFileSync(path.join(outDir, 'robots.txt'), 'utf8');
 assert.doesNotMatch(robots, /Disallow: \/offline\.html/, 'Crawler rules must allow discovery of the offline noindex directive.');
