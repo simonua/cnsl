@@ -109,7 +109,6 @@ describe('app-config', () => {
       { medium: 'facebook', name: '2026_pool_season', source: 'app' },
       { medium: 'qr', name: '2026_pool_season', source: 'app' },
       { medium: 'text', name: '2026_pool_season', source: 'app' },
-      { medium: 'x', name: '2026_pool_season', source: 'app' },
       { medium: 'qr', name: '2026_pool_season', source: 'flyer' }
     ]);
     assert.equal(Object.isFrozen(config.PUBLISHED_CAMPAIGNS), true);

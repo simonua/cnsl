@@ -60,7 +60,7 @@ const canonicalPages = {
   'teams.html': `${siteOrigin}/teams.html`,
   'meets.html': `${siteOrigin}/meets.html`,
   'lessons.html': `${siteOrigin}/`,
-  'faq.html': `${siteOrigin}/`,
+  'faq.html': `${siteOrigin}/faq.html`,
   'settings.html': `${siteOrigin}/`,
   'whats-new.html': `${siteOrigin}/`,
   'about.html': `${siteOrigin}/`,
@@ -68,7 +68,7 @@ const canonicalPages = {
   'offline.html': `${siteOrigin}/`,
   'swim-meet-resources.html': `${siteOrigin}/`
 };
-const indexablePages = new Set(['index.html', 'pools.html', 'teams.html', 'meets.html']);
+const indexablePages = new Set(['index.html', 'pools.html', 'teams.html', 'meets.html', 'faq.html']);
 const analyticsPageTitles = {
   'index.html': 'Home',
   'pools.html': 'Pools',
@@ -365,7 +365,6 @@ assert.deepEqual(JSON.parse(JSON.stringify(appConfigBrowserContext.PUBLISHED_CAM
   { medium: 'facebook', name: `${YEAR}_pool_season`, source: 'app' },
   { medium: 'qr', name: `${YEAR}_pool_season`, source: 'app' },
   { medium: 'text', name: `${YEAR}_pool_season`, source: 'app' },
-  { medium: 'x', name: `${YEAR}_pool_season`, source: 'app' },
   { medium: 'qr', name: `${YEAR}_pool_season`, source: 'flyer' }
 ], 'Delivered campaign attribution must contain only the reviewed app-share and flyer tuples.');
 assert.doesNotMatch(analytics, /setting_value\s*:/, 'Settings measurement must not expose a general selected-value field.');

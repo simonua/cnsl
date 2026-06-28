@@ -26,8 +26,7 @@
     EMAIL: Object.freeze({ medium: 'email', name: PUBLISHED_CAMPAIGN_NAME, source: 'app' }),
     FACEBOOK: Object.freeze({ medium: 'facebook', name: PUBLISHED_CAMPAIGN_NAME, source: 'app' }),
     QR: Object.freeze({ medium: 'qr', name: PUBLISHED_CAMPAIGN_NAME, source: 'app' }),
-    TEXT: Object.freeze({ medium: 'text', name: PUBLISHED_CAMPAIGN_NAME, source: 'app' }),
-    X: Object.freeze({ medium: 'x', name: PUBLISHED_CAMPAIGN_NAME, source: 'app' })
+    TEXT: Object.freeze({ medium: 'text', name: PUBLISHED_CAMPAIGN_NAME, source: 'app' })
   });
   const FLYER_QR_CAMPAIGN = Object.freeze({ medium: 'qr', name: PUBLISHED_CAMPAIGN_NAME, source: 'flyer' });
   const PUBLISHED_CAMPAIGNS = Object.freeze([
@@ -225,8 +224,7 @@
     NATIONAL_WEATHER_SERVICE_POINT: WEATHER_POINT_URL,
     OFFICIAL_CNSL_SITE: 'https://www.gomotionapp.com/team/reccnsl/page/home',
     USA_SWIMMING_RULES_POLICIES: 'https://www.usaswimming.org/resources/rules-regulations',
-    SMS_SHARE: `sms:?&body=${encodeURIComponent(buildShareMessage(APP_SHARE_CAMPAIGNS.TEXT))}`,
-    X_SHARE: `https://x.com/intent/post?text=${encodeURIComponent(SHARE_MESSAGE_PREFIX)}&url=${encodeURIComponent(buildPublishedCampaignUrl(APP_SHARE_CAMPAIGNS.X))}`
+    SMS_SHARE: `sms:?&body=${encodeURIComponent(buildShareMessage(APP_SHARE_CAMPAIGNS.TEXT))}`
   });
 
   // Weather alert experience policy.
