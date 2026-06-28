@@ -445,6 +445,8 @@ coordinatePageBuilds(files, file => {
     writePwaArtifacts();
     writeDevelopmentBuildMarker();
     console.log(`✅ [${timestamp()}] Build completed! Processed ${totalFiles} HTML files.`);
-}, () => {
+}, error => {
+  const errorMessage = error instanceof Error ? error.message : String(error);
+  console.error(`❌ [${timestamp()}] Build failed before PWA finalization: ${errorMessage}`);
   process.exitCode = 1;
 });
