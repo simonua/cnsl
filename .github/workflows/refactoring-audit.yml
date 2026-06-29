@@ -2,9 +2,6 @@ name: Weekly Refactoring Audit
 
 on:
   workflow_dispatch:
-  schedule:
-    # Runs Mondays at 06:41 UTC.
-    - cron: '41 6 * * 1'
 
 permissions:
   contents: read
