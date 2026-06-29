@@ -659,7 +659,6 @@ async function startMeetsBrowser() {
     reportMeetSummaryReady();
     scheduleNextMeetLiveStatusRefresh();
     setMeetListStatus(`Meet schedule loaded. ${allMeets.length} meets available.`, false);
-    globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.READY);
     scheduleMeetsBrowserActivationWork();
 
   } catch (error) {

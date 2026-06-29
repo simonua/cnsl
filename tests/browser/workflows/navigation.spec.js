@@ -64,13 +64,22 @@ test('[WF-NAV-001] navigation contains keyboard focus and restores it when dismi
 test('[WF-NAV-002] home startup warms each primary directory route without optional annual data', async ({ page }) => {
   const requestedUrls = [];
   page.on('request', request => requestedUrls.push(request.url()));
+  await page.addInitScript(() => {
+    globalThis.recordedSpeculationRules = [];
+    const appendChild = globalThis.Node.prototype.appendChild;
+    globalThis.Node.prototype.appendChild = function appendChildWithSpeculationRulesCapture(child) {
+      if (child instanceof globalThis.HTMLScriptElement && child.type === 'speculationrules') {
+        globalThis.recordedSpeculationRules.push(JSON.parse(child.textContent));
+      }
+      return Reflect.apply(appendChild, this, [child]);
+    };
+  });
 
   await page.goto('/index.html');
   const warmupResult = await page.evaluate(() => globalThis.cnslRouteWarmup.startupPromise);
-  await page.waitForLoadState('networkidle');
 
   expect(warmupResult).toEqual({ mode: 'prerender', routeCount: 3 });
-  const prerenderRules = await page.locator('script[type="speculationrules"]').evaluate(element => JSON.parse(element.textContent));
+  const prerenderRules = await page.evaluate(() => globalThis.recordedSpeculationRules.at(-1));
   expect(prerenderRules.prerender).toHaveLength(1);
   expect(prerenderRules.prerender[0].urls).toEqual(WARMED_ROUTE_SCENARIOS.map(scenario => (
     new URL(`/${scenario.path}`, page.url()).href

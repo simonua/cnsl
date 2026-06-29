@@ -63,7 +63,7 @@ test('[WF-SETTINGS-001] settings dialog is evenly inset on mobile and centered o
   await page.goto('/index.html');
   await expect(page.locator('script[data-settings-controller]')).toHaveCount(0);
   const pageBoundsBeforeOpen = await page.locator('main').boundingBox();
-  await page.getByRole('link', { name: 'Settings' }).first().click();
+  await page.locator('#settingsNoticeLink').click();
   await expect(page.locator('#settingsDialog')).toBeVisible();
   await expect(page.locator('script[data-settings-controller]')).toHaveCount(1);
   const pageBoundsAfterOpen = await page.locator('main').boundingBox();

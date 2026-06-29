@@ -14,7 +14,7 @@
     manifest-src 'self';
     object-src 'none';
     script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://static.cloudflareinsights.com;
-    style-src 'self' 'sha256-opPSExNGEXVDmKb3eSnWVVNV08X5Yr72sRMAVVpQRsw=';
+    style-src 'self' 'sha256-J/AduYo3s8Zxliv2bjGPyFAkRePlwGX56VMa1JRhulk=';
     worker-src 'self';" />
 
   <!-- Runs before stylesheets so the first painted canvas matches the saved theme. -->
@@ -100,6 +100,17 @@
       margin: 0;
       text-align: center;
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .header__actions {
+      align-items: center;
+      display: flex;
+      flex: 0 0 auto;
+      gap: 0.25rem;
+    }
+
+    .header .header-install-link[hidden] {
+      display: none;
     }
 
     .hamburger {
