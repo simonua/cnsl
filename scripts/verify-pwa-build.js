@@ -604,13 +604,18 @@ const settingsHtml = fs.readFileSync(path.join(outDir, 'settings.html'), 'utf8')
 assert.doesNotMatch(settingsHtml, /name="analyticsEnabled"/, 'Settings must not expose a removed analytics-consent choice.');
 
 const homeHtml = fs.readFileSync(path.join(outDir, 'index.html'), 'utf8');
-assert.ok(homeHtml.includes(`<title>${YEAR} CA Outdoor Pools &amp; CNSL Swim Teams</title>`), 'Home search title must emphasize the active season, CA outdoor pools, and CNSL swim teams.');
+assert.ok(homeHtml.includes(`<title>${YEAR} Columbia Association Pools &amp; CNSL Swim Teams</title>`), 'Home search title must emphasize the active season, Columbia Association pools, and CNSL swim teams.');
 assert.match(homeHtml, /<meta name="description" content="[^"]*Columbia Association outdoor pool[^"]*CNSL swim teams[^"]*">/, 'Home search description must explain its CA outdoor pool and CNSL swim team coverage.');
 assert.match(homeHtml, /<h1 class="welcome-title">CA Outdoor Pools &amp; CNSL Swim Teams<\/h1>/, 'Home heading must clearly identify its primary pool and swim team topics.');
 assert.ok(homeHtml.includes(`href="${activeSeasonPools.caPoolGuideUrl}"`), 'Home page must render its official pool-schedule destination from active annual metadata.');
 assert.ok(homeHtml.includes(`datetime="${activeSeasonPools.seasonStartDate}">${formatSeasonDate(activeSeasonPools.seasonStartDate)}</time>`), 'Home page must render the active annual season start date.');
 assert.ok(homeHtml.includes(`datetime="${activeSeasonPools.seasonEndDate}">${formatSeasonDate(activeSeasonPools.seasonEndDate)}</time>`), 'Home page must render the active annual season end date.');
 assert.ok(homeHtml.includes(`href="${activeSeasonPools.caPoolDirectoryUrl}"`), 'Shared weather alert must render its official pool-directory destination from active annual metadata.');
+
+const poolsHtml = fs.readFileSync(path.join(outDir, 'pools.html'), 'utf8');
+assert.ok(poolsHtml.includes(`<title>${YEAR} Columbia Association Pools: Hours &amp; Schedules</title>`), 'Pool search title must identify the active season, Columbia Association pools, hours, and schedules.');
+assert.match(poolsHtml, /<meta name="description" content="[^"]*Columbia Association pool status[^"]*outdoor pool hours[^"]*addresses[^"]*maps[^"]*accessibility features[^"]*schedules[^"]*">/, 'Pool search description must cover the report-supported status, schedule, location, and accessibility intents.');
+assert.match(poolsHtml, /<h1>Pools &amp; Hours<\/h1>/, 'Pool page must retain its concise visitor-facing heading.');
 
 const faqHtml = fs.readFileSync(path.join(outDir, 'faq.html'), 'utf8');
 assert.ok(faqHtml.includes(`href="${activeSeasonPools.caPoolGuideUrl}"`), 'FAQ must render its official pool-source destination from active annual metadata.');
