@@ -548,6 +548,27 @@ button.attention-banner__close:focus {
   gap: 0.25rem;
 }
 
+@media (min-width: 40rem) {
+  .header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+
+  .header > a[aria-label="Home"] {
+    grid-column: 1;
+    justify-self: start;
+  }
+
+  .header .site-title {
+    grid-column: 2;
+  }
+
+  .header__actions {
+    grid-column: 3;
+    justify-self: end;
+  }
+}
+
 .header .header-install-link {
   align-items: center;
   border: 1px solid transparent;
@@ -625,7 +646,7 @@ button.attention-banner__close:focus {
   margin: 0 auto;
   max-width: 1200px;
   min-height: 3.25rem;
-  padding: 0.6rem 0.5rem 0.6rem 1rem;
+  padding: 0.6rem 0.5rem;
 }
 
 .home-banner__message {

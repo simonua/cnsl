@@ -59,3 +59,28 @@ test('[WF-LAYOUT-005] mobile directory page titles remain compact', async ({ pag
     })).toEqual({ fontSize: 24, singleLine: true });
   }
 });
+
+test('[WF-LAYOUT-007] shared header and update notice align their centered content', async ({ page }) => {
+  await page.setViewportSize(AUDIENCE_VIEWPORTS.WIDE_DESKTOP);
+  await page.goto('/pools.html');
+  await page.locator('#releaseNotice').evaluate(notice => {
+    notice.hidden = false;
+  });
+
+  await expect.poll(() => page.evaluate(() => {
+    const center = selector => {
+      const bounds = globalThis.document.querySelector(selector).getBoundingClientRect();
+      return (bounds.left + bounds.right) / 2;
+    };
+    const headerCenter = center('.header');
+    const noticeCenter = center('#releaseNotice');
+    const titleCenter = center('.header .site-title');
+    const messageCenter = center('#releaseNotice .home-banner__message');
+
+    return {
+      centersAligned: Math.abs(titleCenter - messageCenter) <= 0.5,
+      noticeCentered: Math.abs(messageCenter - noticeCenter) <= 0.5,
+      titleCentered: Math.abs(titleCenter - headerCenter) <= 0.5
+    };
+  })).toEqual({ centersAligned: true, noticeCentered: true, titleCentered: true });
+});
