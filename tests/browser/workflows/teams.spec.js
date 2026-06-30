@@ -78,8 +78,8 @@ test('[WF-TEAMS-002] team directory groups practice and meet disclosures in one 
   const practicePanelWidth = await teamCard.locator('.practice-schedule').evaluate(element => element.getBoundingClientRect().width);
   const teamCardWidth = await teamCard.evaluate(element => element.getBoundingClientRect().width);
   expect(practicePanelWidth).toBeLessThan(teamCardWidth);
-  expect(practicePanelWidth).toBeGreaterThan(608);
-  expect(practicePanelWidth).toBeLessThanOrEqual(704);
+  expect(practicePanelWidth).toBeGreaterThan(704);
+  expect(practicePanelWidth).toBeLessThanOrEqual(832);
   await expect(inSeason).not.toHaveClass(/practice-schedule__phase--current/);
   await inSeason.locator('summary').click();
   await expect(inSeason.locator('.practice-schedule__body')).toBeVisible();

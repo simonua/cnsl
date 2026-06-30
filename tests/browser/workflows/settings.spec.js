@@ -14,56 +14,97 @@ test.beforeEach(async ({ page }) => {
   await prepareStableWeatherResponses(page);
 });
 
-test('[WF-SETTINGS-003] shared first-visit reminder is dismissed permanently by either link or close button', async ({ page }) => {
+test.describe('first-visit welcome', () => {
+  test.use({ firstVisit: true });
+
+test('[WF-SETTINGS-003] first-visit welcome presents key value and is dismissed permanently by its actions', async ({ page }) => {
   await initializeAnalyticsRecorder(page);
   await page.goto('/index.html');
 
-  const notice = page.locator('#settingsNotice');
-  await expect(notice).toBeVisible();
-  await expect(notice.getByRole('link', { name: 'Set preferences' })).toBeVisible();
-  await expect(notice.getByRole('link', { name: 'Install app' })).toBeVisible();
-  await page.locator('#settingsNoticeLink').click();
+  const welcome = page.getByRole('dialog', { name: 'Welcome to the CA Pool & CNSL Assistant!' });
+  await expect(welcome).toBeVisible();
+  await expect(welcome.locator('.welcome-dialog__benefits li')).toHaveCount(6);
+  await expect(welcome.locator('.welcome-dialog__benefits use[href="#icon-smartphone"]')).toHaveCount(1);
+  await expect(welcome.locator('#welcomeDialogPrivacy')).toHaveText(
+    'Free and private: Always free and anonymous. Your preferences stay on your device, and no personal data is tracked.'
+  );
+  await expect(welcome.locator('#welcomeDialogIndependence')).toHaveText(
+    'Independent community project: This is not an official CA or CNSL web app and is not affiliated with either organization.'
+  );
+  await expect(welcome.locator('#welcomeDialogIndependence > em')).toHaveCount(1);
+  await expect(welcome.getByRole('link', { name: 'Set your favorites & preferences' })).toHaveAttribute('href', 'settings.html');
+  await expect(welcome.getByRole('link', { name: 'Find all this information in FAQs' })).toHaveAttribute('href', 'faq.html');
+  await page.locator('#welcomeSettingsLink').click();
   await expect(page.locator('#settingsDialog')).toBeVisible();
-  await expect(notice).toBeHidden();
+  await expect(welcome).toBeHidden();
   await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_settings_notice_dismissed'))).toBe('true');
 
   await page.getByRole('button', { name: 'Close settings' }).click();
   await page.goto('/index.html');
-  await expect(notice).toBeHidden();
+  await expect(welcome).toBeHidden();
 
   await page.evaluate(() => localStorage.removeItem('cnsl_settings_notice_dismissed'));
   await page.reload();
-  await page.locator('#settingsNoticeInstallLink').click();
-  await expect(page).toHaveURL(/\/install\.html$/);
+  await page.locator('#welcomeFaqLink').click();
+  await expect(page).toHaveURL(/\/faq\.html$/);
   await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_settings_notice_dismissed'))).toBe('true');
   await page.goto('/index.html');
-  await expect(notice).toBeHidden();
+  await expect(welcome).toBeHidden();
 
   await page.evaluate(() => localStorage.removeItem('cnsl_settings_notice_dismissed'));
   await page.reload();
-  await expect(notice).toBeVisible();
-  await page.getByRole('button', { name: 'Dismiss settings reminder' }).focus();
+  await expect(welcome).toBeVisible();
+  await page.getByRole('button', { name: 'Close welcome' }).focus();
   await page.keyboard.press('Enter');
-  await expect(notice).toBeHidden();
+  await expect(welcome).toBeHidden();
   await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_settings_notice_dismissed'))).toBe('true');
-  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_banner_interaction' && eventArguments[2].banner_name === 'settings_notice'))).toEqual([
-    ['event', 'ca_banner_interaction', { banner_name: 'settings_notice', banner_action: 'view' }],
-    ['event', 'ca_banner_interaction', { banner_name: 'settings_notice', banner_action: 'open' }],
-    ['event', 'ca_banner_interaction', { banner_name: 'settings_notice', banner_action: 'view' }],
-    ['event', 'ca_banner_interaction', { banner_name: 'settings_notice', banner_action: 'open' }],
-    ['event', 'ca_banner_interaction', { banner_name: 'settings_notice', banner_action: 'view' }],
-    ['event', 'ca_banner_interaction', { banner_name: 'settings_notice', banner_action: 'dismiss' }]
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_banner_interaction' && eventArguments[2].banner_name === 'welcome_dialog'))).toEqual([
+    ['event', 'ca_banner_interaction', { banner_name: 'welcome_dialog', banner_action: 'view' }],
+    ['event', 'ca_banner_interaction', { banner_name: 'welcome_dialog', banner_action: 'open' }],
+    ['event', 'ca_banner_interaction', { banner_name: 'welcome_dialog', banner_action: 'view' }],
+    ['event', 'ca_banner_interaction', { banner_name: 'welcome_dialog', banner_action: 'open' }],
+    ['event', 'ca_banner_interaction', { banner_name: 'welcome_dialog', banner_action: 'view' }],
+    ['event', 'ca_banner_interaction', { banner_name: 'welcome_dialog', banner_action: 'dismiss' }]
   ]);
 
   await page.goto('/pools.html');
-  await expect(page.locator('#settingsNotice')).toBeHidden();
+  await expect(welcome).toBeHidden();
+});
+
+test('[WF-SETTINGS-017] first-visit welcome fits compact phone and closes with Escape', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.goto('/index.html');
+
+  const welcome = page.locator('#welcomeDialog');
+  await expect(welcome).toBeVisible();
+  const fit = await welcome.evaluate(element => {
+    const bounds = element.getBoundingClientRect();
+    return {
+      bottom: bounds.bottom,
+      clientHeight: element.clientHeight,
+      overflowY: globalThis.getComputedStyle(element).overflowY,
+      scrollHeight: element.scrollHeight,
+      top: bounds.top,
+      viewportHeight: globalThis.innerHeight
+    };
+  });
+  expect(fit.top).toBeGreaterThanOrEqual(0);
+  expect(fit.bottom).toBeLessThanOrEqual(fit.viewportHeight);
+  expect(fit.scrollHeight).toBeGreaterThan(fit.clientHeight);
+  expect(fit.overflowY).toBe('auto');
+  await welcome.getByRole('link', { name: 'Find all this information in FAQs' }).scrollIntoViewIfNeeded();
+  await expect(welcome.getByRole('link', { name: 'Find all this information in FAQs' })).toBeVisible();
+
+  await page.keyboard.press('Escape');
+  await expect(welcome).toBeHidden();
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_settings_notice_dismissed'))).toBe('true');
 });
 
 test('[WF-SETTINGS-001] settings dialog is evenly inset on mobile and centered on desktop', async ({ page }) => {
   await page.goto('/index.html');
   await expect(page.locator('script[data-settings-controller]')).toHaveCount(0);
   const pageBoundsBeforeOpen = await page.locator('main').boundingBox();
-  await page.locator('#settingsNoticeLink').click();
+  await page.locator('#welcomeSettingsLink').click();
   await expect(page.locator('#settingsDialog')).toBeVisible();
   await expect(page.locator('script[data-settings-controller]')).toHaveCount(1);
   const pageBoundsAfterOpen = await page.locator('main').boundingBox();
@@ -192,6 +233,8 @@ test('[WF-SETTINGS-001] settings dialog is evenly inset on mobile and centered o
     || forceUpdateButtonBounds.x + forceUpdateButtonBounds.width <= resetButtonBounds.x
     || resetButtonBounds.x + resetButtonBounds.width <= forceUpdateButtonBounds.x).toBe(true);
 });
+
+  });
 
 test('[WF-SETTINGS-013] force update reports progress and recovers without changing preferences', async ({ page }) => {
   await seedPreferences(page, { theme: 'dark' });

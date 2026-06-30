@@ -222,6 +222,8 @@
     GITHUB_REPOSITORY: 'https://github.com/simonua/cnsl',
     GOOGLE_ANALYTICS_PRIVACY_GUIDANCE: 'https://support.google.com/analytics/answer/6366371?hl=en#zippy=%2Cin-this-article',
     AUTHOR_LINKEDIN_URL: 'https://www.linkedin.com/in/simonkurtz',
+    CA_APP_APPLE: 'https://apps.apple.com/us/app/columbia-association/id6737633417',
+    CA_APP_GOOGLE_PLAY: 'https://play.google.com/store/apps/details?id=com.daxko.club.automation.columbiaassn',
     NATIONAL_WEATHER_SERVICE_ACTIVE_ALERTS: WEATHER_ACTIVE_ALERTS_URL,
     NATIONAL_WEATHER_SERVICE_PUBLIC_ALERTS: WEATHER_PUBLIC_ALERTS_URL,
     NATIONAL_WEATHER_SERVICE_POINT: WEATHER_POINT_URL,
@@ -260,7 +262,7 @@
   const APP_VERSION_STORAGE_KEY = 'cnsl_current_version';
   const SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY = 'cnsl_service_worker_update_checked_at';
   const SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY = 'cnsl_service_worker_upgrade_from_version';
-  const SETTINGS_NOTICE_DISMISSED_STORAGE_KEY = 'cnsl_settings_notice_dismissed';
+  const WELCOME_DIALOG_DISMISSED_STORAGE_KEY = 'cnsl_settings_notice_dismissed';
   const WEATHER_ALERT_LAST_SUCCESSFUL_CHECK_STORAGE_KEY = 'cnsl_weather_alert_last_successful_check';
   const WEATHER_ALERT_STATUS_STORAGE_KEY = 'cnsl_weather_alert_status';
   const WEATHER_ALERT_DISCLOSURE_STORAGE_KEY = 'cnsl_weather_alert_expanded';
@@ -271,7 +273,7 @@
     APP_ATTENTION_NOTICE_DISMISSED_STORAGE_KEY,
     PREFERENCES_STORAGE_KEY,
     APP_VERSION_STORAGE_KEY,
-    SETTINGS_NOTICE_DISMISSED_STORAGE_KEY,
+    WELCOME_DIALOG_DISMISSED_STORAGE_KEY,
     WEATHER_ALERT_LAST_SUCCESSFUL_CHECK_STORAGE_KEY
   ]);
   const APP_SESSION_STORAGE_KEYS = Object.freeze([
@@ -286,7 +288,7 @@
   const DEPLOYMENT_VERSION_FILE = 'version.txt';
   const PWA_CACHE_PREFIX = 'cnsl-static-';
   const LOCAL_DEVELOPMENT_HOSTNAMES = Object.freeze(['localhost', '127.0.0.1']);
-  const LOCAL_DEVELOPMENT_PORT = '9090';
+  const LOCAL_DEVELOPMENT_PORT = '3100';
 
   const RUNTIME_CONFIG = Object.freeze({
     ANNUAL_DATA_PATHS,
@@ -326,8 +328,8 @@
     SERVICE_WORKER_MESSAGE_TYPES,
     SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY,
     SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY,
-    SETTINGS_NOTICE_DISMISSED_STORAGE_KEY,
     TEAM_AGENDA_DEPENDENCIES,
+    WELCOME_DIALOG_DISMISSED_STORAGE_KEY,
     WEATHER_ALERT_DEFAULT_REFRESH_MINUTES,
     WEATHER_ALERT_DISCLOSURE_STORAGE_KEY,
     WEATHER_ALERT_MOBILE_MEDIA_QUERY,

@@ -42,7 +42,7 @@ const BROWSER_MODULE_MANIFESTS = Object.freeze({
   'release-notice-service': { scripts: ['services/release-notice-service.js'], exports: ['ReleaseNoticeService'] },
   'schedule-state': { scripts: [SCHEDULE_STATE], exports: ['MeetLiveStatus', 'PoolTransitionAction', 'PracticeRangeStatus'] },
   'season-service': { scripts: ['services/season-service.js'], exports: ['SeasonService'] },
-  'settings-notice-service': { scripts: ['services/settings-notice-service.js'], exports: ['SettingsNoticeService'] },
+  'welcome-dialog-service': { scripts: ['services/welcome-dialog-service.js'], exports: ['WelcomeDialogService'] },
   team: { scripts: ['models/team.js'], exports: ['Team'] },
   'team-agenda-display': { scripts: [CONFIG, 'services/html-safety.js', ICONS, 'services/device-platform-service.js', 'services/pool-link-helper.js', TIME, SCHEDULE_STATE, 'models/meet.js', 'services/team-schedule-service.js', 'services/team-agenda-display.js'], exports: ['Meet', 'TeamAgendaDisplay', 'TeamScheduleService', 'TimeUtils'] },
   'team-schedule-service': { scripts: [CONFIG, ICONS, TIME, SCHEDULE_STATE, 'services/team-schedule-service.js'], exports: ['TeamScheduleService', 'TimeUtils'] },

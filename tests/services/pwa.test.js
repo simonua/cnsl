@@ -22,7 +22,7 @@ function createWindow(location = {}) {
   const sessionValues = new Map();
   return {
     LOCAL_DEVELOPMENT_HOSTNAMES: ['localhost', '127.0.0.1'],
-    LOCAL_DEVELOPMENT_PORT: '9090',
+    LOCAL_DEVELOPMENT_PORT: '3100',
     DEPLOYMENT_VERSION_FILE: 'version.txt',
     PWA_CACHE_PREFIX: 'cnsl-static-',
     SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY: 'cnsl_service_worker_update_checked_at',
@@ -269,7 +269,7 @@ describe('PWA update startup', () => {
   it('should clear local workers and application caches during development', async () => {
     const deletedCaches = [];
     let unregisterCalls = 0;
-    const window = createWindow({ href: 'http://localhost:9090/', hostname: 'localhost', port: '9090' });
+    const window = createWindow({ href: 'http://localhost:3100/', hostname: 'localhost', port: '3100' });
     window.caches = {};
     const caches = {
       delete: async name => deletedCaches.push(name),
@@ -290,7 +290,7 @@ describe('PWA update startup', () => {
 
   it('should report local cleanup failures safely', async () => {
     const errors = [];
-    const window = createWindow({ href: 'http://localhost:9090/', hostname: 'localhost', port: '9090' });
+    const window = createWindow({ href: 'http://localhost:3100/', hostname: 'localhost', port: '3100' });
     window.caches = {};
 
     runPwa({

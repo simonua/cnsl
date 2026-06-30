@@ -28,6 +28,17 @@ describe('app-config', () => {
     );
   });
 
+  it('publishes the official Columbia Association app listings', () => {
+    assert.equal(
+      config.EXTERNAL_LINKS.CA_APP_APPLE,
+      'https://apps.apple.com/us/app/columbia-association/id6737633417'
+    );
+    assert.equal(
+      config.EXTERNAL_LINKS.CA_APP_GOOGLE_PLAY,
+      'https://play.google.com/store/apps/details?id=com.daxko.club.automation.columbiaassn'
+    );
+  });
+
   it('publishes browser configuration when evaluated with standard browser globals', () => {
     const context = { APP_VERSION: packageMetadata.version, URL };
 
@@ -56,6 +67,7 @@ describe('app-config', () => {
     assert.equal(context.WEATHER_ALERT_STATUS_CHANGED_EVENT_NAME, config.WEATHER_ALERT_STATUS_CHANGED_EVENT_NAME);
     assert.equal(context.ROUTE_WARMUP_CHANNEL_NAME, config.ROUTE_WARMUP_CHANNEL_NAME);
     assert.equal(context.EXPERIMENTAL_SETTINGS_URL, config.EXPERIMENTAL_SETTINGS_URL);
+    assert.equal(context.LOCAL_DEVELOPMENT_PORT, '3100');
     assert.equal(context.MY_MEET_DAY_HOME_LOOKAHEAD_DAYS, 2);
     assert.equal(
       context.WEATHER_PUBLIC_ALERTS_URL,
@@ -186,7 +198,7 @@ describe('app-config', () => {
       config.APP_ATTENTION_NOTICE_DISMISSED_STORAGE_KEY,
       config.PREFERENCES_STORAGE_KEY,
       config.APP_VERSION_STORAGE_KEY,
-      config.SETTINGS_NOTICE_DISMISSED_STORAGE_KEY,
+      config.WELCOME_DIALOG_DISMISSED_STORAGE_KEY,
       config.WEATHER_ALERT_LAST_SUCCESSFUL_CHECK_STORAGE_KEY
     ]);
     assert.equal(Object.isFrozen(config.APP_LOCAL_STORAGE_KEYS), true);

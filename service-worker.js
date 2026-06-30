@@ -14,7 +14,7 @@ const HOME_NAVIGATION_ALIAS = './';
 const OFFLINE_PAGE = 'offline.html';
 const DEPLOYMENT_VERSION_URL = new URL(globalThis.DEPLOYMENT_VERSION_FILE, APP_BASE_URL);
 
-// Check if running in development mode (localhost or port 9090)
+// Check if running in development mode.
 const isDevelopment = LOCAL_DEVELOPMENT_HOSTNAMES.includes(self.location.hostname)
                       || self.location.port === LOCAL_DEVELOPMENT_PORT
                       || LOCAL_DEVELOPMENT_HOSTNAMES.some(hostname => self.location.href.includes(hostname));

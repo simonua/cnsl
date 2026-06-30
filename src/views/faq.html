@@ -20,6 +20,14 @@
         "mainEntity": [
           {
             "@type": "Question",
+            "name": "How can this web app save me time?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The web app brings published Columbia Association pool schedules and CNSL team and meet information together in one mobile-friendly place. You can install it, save favorites, and keep key information available when your connection is limited. Pool schedules occasionally change after publication, sometimes without a separate notice. During the outdoor season, nightly checks look for changes to official pool schedules, meet details, and team information so updates can be reviewed and added to the web app. Official sources remain the best place to confirm time-sensitive plans."
+            }
+          },
+          {
+            "@type": "Question",
             "name": "What is CNSL?",
             "acceptedAnswer": {
               "@type": "Answer",
@@ -71,7 +79,7 @@
             "name": "Is this an official web app?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "No. I built this as an independent community project; Columbia Association and CNSL do not operate or sponsor it. I use their publications as the official sources, so please check there before making time-sensitive plans."
+              "text": "No. I built this as an independent community project; Columbia Association and CNSL do not operate or sponsor it. I use their publications as the official sources, so please check there before making time-sensitive plans. CA also offers its official Columbia Association app for iPhone, iPad, and Android."
             }
           },
           {
@@ -149,6 +157,17 @@
     <div class="container">
       <div id="faqList" class="faq-list" data-analytics-context="official_information">
         <!-- Questions are grouped by visitor task and source responsibility. -->
+        <section class="faq-list__category" aria-labelledby="faq-why-use-app">
+          <h2 id="faq-why-use-app" class="faq-list__heading">Why Use This Web App?</h2>
+
+          <article class="faq-item">
+            <h3>How can this web app save me time?</h3>
+            <p>The web app brings published Columbia Association pool schedules and CNSL team and meet information together in one mobile-friendly place. You can save favorite pools and teams, install the web app on your device, and keep key information available when your connection is limited.</p>
+            <p class="faq-item__schedule-notice"><strong>Pool schedules occasionally change after they are published, sometimes without a separate notice.</strong> Please confirm time-sensitive plans with the official source linked from the web app.</p>
+            <p>During the outdoor pool season, nightly checks look for changes to official pool schedules, meet details, and team information. When a possible change is found, it is reviewed against the official sources so the web app can be updated. These checks help catch changes, but they do not guarantee that every update will appear right away.</p>
+          </article>
+        </section>
+
         <section class="faq-list__category" aria-labelledby="faq-functionality">
           <h2 id="faq-functionality" class="faq-list__heading">Using the App</h2>
 
@@ -201,6 +220,7 @@
           <article class="faq-item">
             <h3>Is this an official web app?</h3>
             <p>No. I built this as an independent community project; Columbia Association (CA) and CNSL do not operate or sponsor it. I use their publications as the official sources for the {{ YEAR }} outdoor pool season, so please check there before making time-sensitive plans.</p>
+            <p>CA also offers its official Columbia Association app through the <a href="{{ EXTERNAL_LINKS.CA_APP_APPLE }}" target="_blank" rel="noopener">Apple App Store</a> and <a href="{{ EXTERNAL_LINKS.CA_APP_GOOGLE_PLAY }}" target="_blank" rel="noopener">Google Play</a>. Please use whichever option works best for you.</p>
           </article>
 
           <article class="faq-item">

@@ -10,7 +10,10 @@ test.beforeEach(async ({ page }) => {
   await prepareStableWeatherResponses(page);
 });
 
-test('[WF-INSTALL-001] first mobile use keeps settings and links to Apple install guidance', async ({ page }) => {
+test.describe('first mobile visit', () => {
+  test.use({ firstVisit: true });
+
+test('[WF-INSTALL-001] first mobile use keeps welcome and Apple install guidance available', async ({ page }) => {
   await page.setViewportSize(MOBILE_VIEWPORT);
   await initializeAnalyticsRecorder(page);
   await page.addInitScript(() => {
@@ -27,27 +30,27 @@ test('[WF-INSTALL-001] first mobile use keeps settings and links to Apple instal
   const currentVersion = await page.evaluate(() => globalThis.APP_VERSION);
 
   await expect(page.locator('#releaseNotice')).toBeHidden();
-  await expect(page.locator('#settingsNotice')).toBeVisible();
-  const bannerInstallLink = page.locator('#settingsNoticeInstallLink');
-  await expect(bannerInstallLink).toBeVisible();
-  await expect(bannerInstallLink).toHaveAttribute('href', 'install.html');
+  await expect(page.locator('#welcomeDialog')).toBeVisible();
   await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_current_version'))).toBe(currentVersion);
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cnsl_preferences')))).toEqual({ theme: 'dark' });
 
   const homeInstallLink = page.locator('.share-site__links + .share-site__install a[href="install.html"]');
   await expect(homeInstallLink).toBeVisible();
   await expect(homeInstallLink).toHaveAttribute('href', 'install.html');
+   await page.getByRole('button', { name: 'Close welcome' }).click();
   await page.getByRole('button', { name: 'Open navigation menu' }).click();
   const navigationInstallLink = page.locator('#navMenu a[href="install.html"]');
   await expect(navigationInstallLink).toBeVisible();
   await expect(navigationInstallLink).toHaveAttribute('href', 'install.html');
   await page.getByRole('button', { name: 'Close navigation menu' }).click();
-  await bannerInstallLink.click();
+  await homeInstallLink.click();
   await expect(page).toHaveURL(/\/install\.html$/);
   await expect(page.locator('#appleInstallOption')).toHaveAttribute('open', '');
   await expect(page.locator('#androidInstallOption')).not.toHaveAttribute('open', '');
   await expect(page.getByRole('button', { name: 'Install app', exact: true })).toBeHidden();
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_install_interaction'))).toEqual([]);
+});
+
 });
 
 test('[WF-INSTALL-002] Android install view opens matching guidance and offers the browser prompt', async ({ page }) => {

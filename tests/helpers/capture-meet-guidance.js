@@ -7,7 +7,7 @@ const {
   seedPreferences
 } = require('../browser/browser-test-helpers.js');
 
-const DEFAULT_ORIGIN = 'http://localhost:9090';
+const DEFAULT_ORIGIN = 'http://localhost:3100';
 const DEFAULT_OUTPUT_DIRECTORY = path.join('test-results', 'meet-guidance');
 const DEFAULT_TIMEZONE = 'America/New_York';
 const DEFAULT_VIEWPORT = Object.freeze({ height: 1800, width: 1440 });
@@ -34,7 +34,7 @@ Repeatable assertions:
   --exclude-text TEXT    Text prohibited from both rendered views
 
 Other options:
-  --origin URL           Local site origin (default: http://localhost:9090)
+  --origin URL           Local site origin (default: http://localhost:3100)
   --output-directory DIR Screenshot directory (default: test-results/meet-guidance)
   --reference-time TIME  ISO timestamp override; defaults to the day before the meet
   --headed               Show the Chromium window

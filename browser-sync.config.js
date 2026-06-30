@@ -6,7 +6,7 @@ module.exports = {
   injectChanges: false,
   notify: false,
   open: false,
-  port: 9090,
+  port: 3100,
   reloadDebounce: 250,
   reloadDelay: 0,
   script: {

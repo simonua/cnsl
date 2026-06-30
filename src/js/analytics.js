@@ -38,7 +38,7 @@
   const BANNER_NAMES = Object.freeze({
     ATTENTION_NOTICE: 'attention_notice',
     RELEASE_NOTICE: 'release_notice',
-    SETTINGS_NOTICE: 'settings_notice'
+    WELCOME_DIALOG: 'welcome_dialog'
   });
   const ALLOWED_BANNER_NAMES = new Set(Object.values(BANNER_NAMES));
   const ALLOWED_BANNER_ACTIONS = new Set(['dismiss', 'open', 'view']);

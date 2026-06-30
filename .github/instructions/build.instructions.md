@@ -13,7 +13,7 @@ description: "Use when working with the build pipeline, build dependency registr
 
 | Command | Purpose |
 | --- | --- |
-| `pnpm start` | Clean, build, watch for changes, and serve with live reload (port 9090) |
+| `pnpm start` | Clean, build, watch for changes, and serve with live reload (port 3100) |
 | `pnpm run build` | One-time clean build to `out/` |
 | `node --test tests/<area>/<module>.test.js [additional-affected.test.js]` | Run the exact unit-test files affected by the change |
 | `node scripts/run-playwright.js test <spec> --grep "<stable IDs>"` | Run affected browser or accessibility IDs through the serialized Playwright runner |
@@ -28,7 +28,7 @@ Before starting a server or test command, inspect VS Code tasks and operating-sy
 
 Before a local Playwright run, also check whether its configured port (default `4173`) is owned by this workspace. Playwright can reuse an unrelated server when that port already answers `/index.html`, producing misleading cross-project failures. Leave the unrelated process untouched and set `CNSL_PLAYWRIGHT_PORT` to an unused port for the complete command; browser workflow helpers and custom contexts must derive their local origin from that setting rather than repeating the default port.
 
-Before opening any local page, confirm that port 9090 is listening and make a lightweight HTTP request to `http://localhost:9090/`. Reuse a healthy `CNSL: Start Development Server` process across chat sessions. If a task or process is recorded but the health check fails, inspect its output and process state, then recover the shared server rather than navigating to an unavailable page or launching a competing live-reload server.
+Before opening any local page, confirm that port 3100 is listening and make a lightweight HTTP request to `http://localhost:3100/`. Reuse a healthy `CNSL: Start Development Server` process across chat sessions. If a task or process is recorded but the health check fails, inspect its output and process state, then recover the shared server rather than navigating to an unavailable page or launching a competing live-reload server.
 
 The development watcher uses nodemon's polling mode so source edits are detected reliably on Windows. After a successful development build, `posthtml.js` writes `tmp/development-build.txt`; BrowserSync watches only that stable marker and forces one full browser refresh against the complete `out/` artifact. The marker must stay outside `out/` because every build replaces that directory and would drop a file-specific watch. Do not disable nodemon's `legacyWatch` while polling or point BrowserSync directly at source files or the whole `out/` tree. Source events can reload before a rebuild finishes, and output-tree events can reload repeatedly while the directory is replaced.
 

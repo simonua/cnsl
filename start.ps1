@@ -66,7 +66,7 @@ function Write-StatusLine {
 function Test-DevServer {
     $client = [System.Net.Sockets.TcpClient]::new()
     try {
-        $connection = $client.ConnectAsync('127.0.0.1', 9090)
+        $connection = $client.ConnectAsync('127.0.0.1', 3100)
         return $connection.Wait(250) -and $client.Connected
     }
     catch {
@@ -113,7 +113,7 @@ function Show-EnvironmentInfo {
     }
 
     if (Test-DevServer) {
-        Write-StatusLine 'Dev server' 'running at http://localhost:9090/'
+        Write-StatusLine 'Dev server' 'running at http://localhost:3100/'
     }
     else {
         Write-StatusLine 'Dev server' 'not running' Yellow

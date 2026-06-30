@@ -200,6 +200,19 @@ test('[AX-SEASON-001] off-season views have no WCAG A or AA automated violations
 });
 
 for (const theme of ['light', 'dark']) {
+  test.describe(`${theme} theme welcome accessibility`, () => {
+    test.use({ firstVisit: true });
+
+    test(`[AX-WELCOME-001-${theme.toUpperCase()}] first-visit welcome has no WCAG A or AA automated violations`, async ({ page }) => {
+      await prepareStableWeatherResponses(page);
+      await seedPreferences(page, { theme });
+      await page.goto('/index.html');
+      await expect(page.getByRole('dialog', { name: 'Welcome to the CA Pool & CNSL Assistant!' })).toBeVisible();
+
+      await expectNoAccessibilityViolations(page);
+    });
+  });
+
   test(`[AX-SHARE-001-${theme.toUpperCase()}] QR sharing dialog has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {
     await loadScenario(page, pageScenarios.find(scenario => scenario.name === 'home'), theme);
     await page.getByRole('button', { name: 'QR Code' }).click();

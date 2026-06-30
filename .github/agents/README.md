@@ -50,6 +50,7 @@ All agents follow the repository-wide [Copilot instructions](../copilot-instruct
 
 | Skill | Invocation | Purpose | Used by |
 | --- | --- | --- | --- |
+| [`cnsl-site-verification`](../skills/cnsl-site-verification/SKILL.md) | User-invocable | Selects focused verification for CNSL changes, coordinates build and browser checks, and reuses the shared BrowserSync site on port 3100 for local inspection. | Build, behavior, accessibility, PWA, and release-readiness verification across repository tasks. |
 | [`cnsl-season-rollover`](../skills/cnsl-season-rollover/SKILL.md) | User-invocable | Prepares, audits, validates, or activates target-year pool, meet, and team assets using the repository's evidence and source-authority rules. | New-season preparation and activation; consulted by `meet-guidance-updater` and `season-data-reviewer` for the shared annual-data contract. |
 | [`cnsl-code-retirement`](../skills/cnsl-code-retirement/SKILL.md) | Internal workflow | Classifies and removes obsolete code, compatibility paths, fixtures, dependencies, documentation, and registrations when a current implementation supersedes them. | Refactor implementations; consulted by `refactoring-auditor` for retirement findings. |
 | [`cloudflare-verification-handoff`](../skills/cloudflare-verification-handoff/SKILL.md) | User-invocable | Pauses an authorized browser task for the user to complete human verification, then safely resumes the original task. | Any authorized browser workflow interrupted by Cloudflare, Turnstile, CAPTCHA, or another human-verification challenge. |

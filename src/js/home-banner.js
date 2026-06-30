@@ -163,6 +163,60 @@
   }
 
   /**
+   * Displays the first-visit welcome dialog and records its acknowledgement.
+   * @param {Storage|null} storage - Available browser local storage
+   * @param {Object|null} bannerNames - Analytics banner-name constants
+   * @private
+   */
+  function showWelcomeDialog(storage, bannerNames) {
+    const dialog = document.getElementById('welcomeDialog');
+    const closeButton = document.getElementById('closeWelcomeDialog');
+    const links = [
+      document.getElementById('welcomeSettingsLink'),
+      document.getElementById('welcomeFaqLink')
+    ];
+    if (!(dialog instanceof HTMLDialogElement)
+      || !closeButton
+      || links.some(link => !link)
+      || !window.WelcomeDialogService
+      || !window.WelcomeDialogService.shouldShow(storage, window.WELCOME_DIALOG_DISMISSED_STORAGE_KEY)) return;
+
+    const bannerName = bannerNames && bannerNames.WELCOME_DIALOG;
+
+    /**
+     * Publishes a welcome-dialog interaction when analytics is available.
+     * @param {string} action - Dialog interaction action
+     * @private
+     */
+    const trackInteraction = action => {
+      if (!window.cnslAnalytics) return;
+      window.cnslAnalytics.trackInteraction(AnalyticsInteractionType.BANNER, { action, bannerName });
+    };
+
+    /** Records acknowledgement and closes the dialog. @private */
+    const acknowledgeAndClose = () => {
+      window.WelcomeDialogService.dismiss(storage, window.WELCOME_DIALOG_DISMISSED_STORAGE_KEY);
+      if (dialog.open) dialog.close();
+    };
+
+    links.forEach(link => link.addEventListener('click', () => {
+      trackInteraction('open');
+      acknowledgeAndClose();
+    }));
+    closeButton.addEventListener('click', () => {
+      trackInteraction('dismiss');
+      acknowledgeAndClose();
+    });
+    dialog.addEventListener('cancel', () => {
+      trackInteraction('dismiss');
+      window.WelcomeDialogService.dismiss(storage, window.WELCOME_DIALOG_DISMISSED_STORAGE_KEY);
+    });
+
+    dialog.showModal();
+    trackInteraction('view');
+  }
+
+  /**
     * Builds and displays the eligible application banners on the current view.
    * @private
    */
@@ -181,6 +235,7 @@
       && !window.ReleaseNoticeService.getStableVersionParts(acknowledgedVersion);
 
     showAttentionBanner(storage, bannerNames);
+  showWelcomeDialog(storage, bannerNames);
 
     if (isFirstMobileUse) {
       window.ReleaseNoticeService.acknowledge(storage, window.APP_VERSION_STORAGE_KEY, window.APP_VERSION);
@@ -200,15 +255,6 @@
         prepare: () => {
           if (releaseVersion) releaseVersion.textContent = window.ReleaseNoticeService.getAnnouncementVersion(window.APP_VERSION);
         }
-      }),
-      new HomeBanner({
-        noticeId: 'settingsNotice',
-        linkIds: ['settingsNoticeLink', 'settingsNoticeInstallLink'],
-        closeButtonId: 'closeSettingsNotice',
-        bannerName: bannerNames && bannerNames.SETTINGS_NOTICE,
-        shouldShow: () => Boolean(window.SettingsNoticeService)
-          && window.SettingsNoticeService.shouldShow(storage, window.SETTINGS_NOTICE_DISMISSED_STORAGE_KEY),
-        acknowledge: () => window.SettingsNoticeService.dismiss(storage, window.SETTINGS_NOTICE_DISMISSED_STORAGE_KEY)
       })
     ];
 

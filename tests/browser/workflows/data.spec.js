@@ -106,6 +106,27 @@ test('[WF-DATA-006] FAQ and footer distinguish seasonal-source checks from data 
   }
 });
 
+test('[WF-DATA-015] FAQ offers verified official Columbia Association app destinations', async ({ page }) => {
+  await page.goto('/faq.html');
+
+  const officialAppAnswer = page.getByRole('heading', { name: 'Is this an official web app?' })
+    .locator('..');
+  const appleAppLink = officialAppAnswer.getByRole('link', { name: 'Apple App Store' });
+  const googlePlayLink = officialAppAnswer.getByRole('link', { name: 'Google Play' });
+  await expect(appleAppLink).toHaveAttribute(
+    'href',
+    AppConfig.EXTERNAL_LINKS.CA_APP_APPLE
+  );
+  await expect(googlePlayLink).toHaveAttribute(
+    'href',
+    AppConfig.EXTERNAL_LINKS.CA_APP_GOOGLE_PLAY
+  );
+  for (const officialAppLink of [appleAppLink, googlePlayLink]) {
+    await expect(officialAppLink).toHaveAttribute('rel', 'noopener');
+    await expect(officialAppLink).toHaveAttribute('target', '_blank');
+  }
+});
+
 test('[WF-DATA-007] footer keeps the last weather update current while weather checks are enabled', async ({ page }) => {
   let releaseWeatherController;
   const weatherControllerPaused = new Promise(resolve => {

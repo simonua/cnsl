@@ -57,10 +57,10 @@ describe('capture-meet-guidance helper', () => {
     });
 
     it('should allow only local HTTP origins', () => {
-      assert.equal(parseLocalOrigin('http://localhost:9090/path'), 'http://localhost:9090');
-      assert.equal(parseLocalOrigin('http://127.0.0.1:9090'), 'http://127.0.0.1:9090');
-      assert.equal(parseLocalOrigin('http://[::1]:9090'), 'http://[::1]:9090');
-      assert.throws(() => parseLocalOrigin('https://localhost:9090'));
+      assert.equal(parseLocalOrigin('http://localhost:3100/path'), 'http://localhost:3100');
+      assert.equal(parseLocalOrigin('http://127.0.0.1:3100'), 'http://127.0.0.1:3100');
+      assert.equal(parseLocalOrigin('http://[::1]:3100'), 'http://[::1]:3100');
+      assert.throws(() => parseLocalOrigin('https://localhost:3100'));
       assert.throws(() => parseLocalOrigin('https://example.com'));
       assert.throws(() => parseLocalOrigin('not a URL'));
     });
@@ -76,7 +76,7 @@ describe('capture-meet-guidance helper', () => {
         sharedExpectedText: ['Shared fact']
       });
 
-      assert.equal(configuration.origin, 'http://localhost:9090');
+      assert.equal(configuration.origin, 'http://localhost:3100');
       assert.equal(configuration.headless, true);
       assert.equal(configuration.referenceTime.toISOString(), '2026-06-19T17:00:00.000Z');
       assert.deepEqual(configuration.sharedExpectedText, ['Shared fact']);

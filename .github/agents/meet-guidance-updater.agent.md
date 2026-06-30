@@ -85,7 +85,7 @@ Ordinary annual-data corrections do not require unit tests. If behavior or a reu
 
 After the build passes, produce one home-team output and one away-team output from the local built site. Never navigate an automated browser to production.
 
-1. Reuse a healthy local server at `http://localhost:9090/`. If none exists, start the repository's local server and verify the URL responds before browser navigation.
+1. Reuse a healthy local server at `http://localhost:3100/`. If none exists, start the repository's local server and verify the URL responds before browser navigation.
 2. Run the reusable capture helper with the represented meet date and team IDs. Add each accepted fact through repeatable `--shared-text`, `--home-text`, or `--away-text` options according to its audience. Add every intentionally omitted or superseded phrase worth checking through `--exclude-text`. The helper derives a reference time on the day before the meet, uses clean home and away contexts, blocks external requests, stabilizes weather, asserts role-specific text, saves both screenshots, and prints structured JSON containing the normalized rendered views.
 
 ```powershell

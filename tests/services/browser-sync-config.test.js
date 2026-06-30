@@ -9,6 +9,7 @@ describe('BrowserSync development configuration', () => {
     assert.equal(DEVELOPMENT_BUILD_MARKER.replaceAll('\\', '/'), 'tmp/development-build.txt');
     assert.deepEqual(browserSyncConfig.watchEvents, ['add', 'change']);
     assert.equal(browserSyncConfig.injectChanges, false);
+    assert.equal(browserSyncConfig.port, 3100);
     assert.equal(browserSyncConfig.server, 'out');
   });
 });

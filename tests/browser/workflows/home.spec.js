@@ -64,6 +64,10 @@ test('[WF-HOME-001] season summary and sharing actions appear only on the home p
     ['event', 'ca_share', { method: 'facebook', content_type: 'website', item_id: 'home_page' }]
   ]);
 
+  await expect.poll(() => page.locator('.share-site__links .share-site__link').evaluateAll(elements => (
+    new Set(elements.map(element => Math.round(element.getBoundingClientRect().top))).size
+  ))).toBe(1);
+
   await page.locator('a.directory-link').evaluate(link => {
     link.addEventListener('click', event => event.preventDefault(), { once: true });
     link.dispatchEvent(new globalThis.MouseEvent('click', { bubbles: true, cancelable: true }));

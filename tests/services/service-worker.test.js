@@ -348,14 +348,14 @@ describe('service worker cache strategy', () => {
   });
 
   it('should bypass caching for local development requests and report failures safely', async () => {
-    const harness = createWorkerHarness(coreResources, { location: 'http://localhost:9090/service-worker.js' });
+    const harness = createWorkerHarness(coreResources, { location: 'http://localhost:3100/service-worker.js' });
     await harness.dispatch('install');
     assert.equal(harness.getSkipWaitingCalls(), 1);
     harness.setFetchImplementation(async () => new Response('fresh', { status: 200 }));
-    const response = await harness.dispatch('fetch', { method: 'GET', headers: {}, mode: 'cors', url: 'http://localhost:9090/index.html' });
+    const response = await harness.dispatch('fetch', { method: 'GET', headers: {}, mode: 'cors', url: 'http://localhost:3100/index.html' });
     assert.equal(await response.text(), 'fresh');
     harness.setFetchImplementation(async () => { throw new Error('Offline'); });
-    const failedResponse = await harness.dispatch('fetch', { method: 'GET', headers: {}, mode: 'cors', url: 'http://localhost:9090/index.html' });
+    const failedResponse = await harness.dispatch('fetch', { method: 'GET', headers: {}, mode: 'cors', url: 'http://localhost:3100/index.html' });
     assert.equal(failedResponse.status, 500);
   });
 

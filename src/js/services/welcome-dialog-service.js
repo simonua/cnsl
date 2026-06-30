@@ -1,14 +1,14 @@
 /**
- * Remembers whether the first-visit Settings reminder was dismissed on this device.
+ * Remembers whether the first-visit welcome dialog was dismissed on this device.
  */
-if (typeof globalThis.SettingsNoticeService === 'undefined') {
-  /** Reads and persists the first-visit settings reminder state. */
-  class SettingsNoticeService {
+if (typeof globalThis.WelcomeDialogService === 'undefined') {
+  /** Reads and persists the first-visit welcome state. */
+  class WelcomeDialogService {
     /**
-     * Determine whether the settings reminder should be shown.
+     * Determine whether the welcome dialog should be shown.
      * @param {Storage|null} storage - Browser storage or a compatible substitute
-     * @param {string} storageKey - Reminder dismissal key
-     * @returns {boolean} Whether the reminder should be shown
+     * @param {string} storageKey - Welcome dismissal key
+     * @returns {boolean} Whether the dialog should be shown
      */
     static shouldShow(storage, storageKey) {
       if (!storage || !storageKey) return true;
@@ -20,9 +20,9 @@ if (typeof globalThis.SettingsNoticeService === 'undefined') {
     }
 
     /**
-     * Persist dismissal of the settings reminder.
+     * Persist dismissal of the welcome dialog.
      * @param {Storage|null} storage - Browser storage or a compatible substitute
-     * @param {string} storageKey - Reminder dismissal key
+     * @param {string} storageKey - Welcome dismissal key
      * @returns {boolean} Whether dismissal was stored
      */
     static dismiss(storage, storageKey) {
@@ -36,5 +36,5 @@ if (typeof globalThis.SettingsNoticeService === 'undefined') {
     }
   }
 
-  globalThis.SettingsNoticeService = SettingsNoticeService;
+  globalThis.WelcomeDialogService = WelcomeDialogService;
 }

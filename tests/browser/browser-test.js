@@ -5,10 +5,17 @@ const EXTERNAL_HTTP_REQUEST = /^https?:\/\/(?!(?:127\.0\.0\.1|localhost|\[::1\])
 
 const test = base.extend({
   analyticsSimulation: [false, { option: true }],
+  firstVisit: [false, { option: true }],
   blockedExternalRequests: async ({ browserName: _browserName }, use) => {
     await use([]);
   },
-  blockExternalNetwork: [async ({ context, analyticsSimulation, blockedExternalRequests }, use) => {
+  prepareBrowserContext: [async ({ context, analyticsSimulation, blockedExternalRequests, firstVisit }, use) => {
+    if (!firstVisit) {
+      await context.addInitScript(storageKey => {
+        localStorage.setItem(storageKey, 'true');
+      }, AppConfig.WELCOME_DIALOG_DISMISSED_STORAGE_KEY);
+    }
+
     if (analyticsSimulation) {
       await context.addInitScript(({ deploymentMetaName, productionDeployment }) => {
         Object.defineProperty(globalThis.navigator, 'webdriver', {

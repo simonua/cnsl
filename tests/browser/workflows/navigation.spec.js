@@ -44,6 +44,8 @@ test('[WF-NAV-001] navigation contains keyboard focus and restores it when dismi
   await expect(navigation).toHaveCSS('transition-property', 'transform, visibility');
   await expect(navigation).toHaveCSS('transition-duration', '0.15s, 0s');
   await expect(navigation).toHaveCSS('transform', 'matrix(1, 0, 0, 1, 0, 0)');
+  await expect(navigation).toHaveCSS('overflow-x', 'hidden');
+  await expect.poll(() => navigation.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
   await expect(page.getByRole('link', { name: 'Lessons' })).toHaveAttribute('href', 'lessons.html');
   await expect(page.locator('#mainContent')).toHaveJSProperty('inert', true);
 
@@ -167,7 +169,8 @@ test('[WF-NAV-007] shared subheader keeps notice state and scrolls with page con
   await expect(subheader.locator('#weatherAlert')).toHaveCount(1);
   await expect(subheader.locator('#connectivityStatus')).toHaveCount(1);
   await expect(subheader.locator('#releaseNotice')).toHaveCount(1);
-  await expect(subheader.locator('#settingsNotice')).toHaveCount(1);
+  await expect(subheader.locator('#welcomeDialog')).toHaveCount(0);
+  await expect(page.locator('#welcomeDialog')).toHaveCount(1);
 
   const initialTop = await subheader.evaluate(element => element.getBoundingClientRect().top);
   await page.evaluate(() => globalThis.scrollTo(0, globalThis.document.documentElement.scrollHeight));
