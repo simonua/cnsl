@@ -6,6 +6,7 @@ const {
   createClassicScriptLoader,
   resolveBrowserScript
 } = require('../../scripts/lib/classic-script-loader.js');
+const { readPackageVersion } = require('../../scripts/lib/package-version.js');
 
 describe('classic script loader', () => {
   it('loads scripts in a fresh browser-like realm with explicit injection', () => {
@@ -27,7 +28,7 @@ describe('classic script loader', () => {
   });
 
   it('converts realm-owned structured values to host values', () => {
-    const loader = createClassicScriptLoader({ inject: { URL, URLSearchParams } });
+    const loader = createClassicScriptLoader({ inject: { APP_VERSION: readPackageVersion(), URL, URLSearchParams } });
     loader.load('config/app-config.js');
     const hostValue = loader.toHostValue(loader.get('AppConfig').EXTERNAL_LINKS);
 

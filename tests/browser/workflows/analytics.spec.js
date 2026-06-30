@@ -1,6 +1,7 @@
 const { analyticsTest, test, expect } = require('../browser-test');
 const AppConfig = require('../../../scripts/adapters/app-config.js');
 const {
+  PLAYWRIGHT_SERVER_URL,
   initializeAnalyticsRecorder,
   prepareStableWeatherResponses
 } = require('../browser-test-helpers');
@@ -46,7 +47,7 @@ analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and each publi
   await browserContext.route('https://pools.longreachmarlins.org/**', async route => {
     const requestedUrl = new URL(route.request().url());
     const localPath = requestedUrl.pathname === '/pools' ? '/pools.html' : requestedUrl.pathname;
-    const response = await page.request.get(`http://127.0.0.1:4173${localPath}`);
+    const response = await page.request.get(`${PLAYWRIGHT_SERVER_URL}${localPath}`);
     await route.fulfill({ response });
   });
 
@@ -177,7 +178,7 @@ analyticsTest('[WF-ANALYTICS-018] analytics reports installed PWA mode once per 
   }));
   await page.route('https://pools.longreachmarlins.org/**', async route => {
     const requestedUrl = new URL(route.request().url());
-    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    const response = await page.request.get(`${PLAYWRIGHT_SERVER_URL}${requestedUrl.pathname}`);
     await route.fulfill({ response });
   });
   await page.addInitScript(() => {
@@ -229,7 +230,7 @@ analyticsTest('[WF-ANALYTICS-014] concurrent browser contexts publish one app-ve
       });
       return;
     }
-    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    const response = await page.request.get(`${PLAYWRIGHT_SERVER_URL}${requestedUrl.pathname}`);
     await route.fulfill({ response });
   });
   await page.goto('https://pools.longreachmarlins.org/analytics-profile-fixture.html');
@@ -283,7 +284,7 @@ analyticsTest('[WF-ANALYTICS-015] a stale app context cannot downgrade app-versi
   }));
   await page.route('https://pools.longreachmarlins.org/**', async route => {
     const requestedUrl = new URL(route.request().url());
-    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    const response = await page.request.get(`${PLAYWRIGHT_SERVER_URL}${requestedUrl.pathname}`);
     await route.fulfill({ response });
   });
   await page.addInitScript(({ reportedVersionKey }) => {
@@ -308,7 +309,7 @@ analyticsTest('[WF-ANALYTICS-008] analytics records first use without publishing
   }));
   await page.route('https://pools.longreachmarlins.org/**', async route => {
     const requestedUrl = new URL(route.request().url());
-    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    const response = await page.request.get(`${PLAYWRIGHT_SERVER_URL}${requestedUrl.pathname}`);
     await route.fulfill({ response });
   });
 
@@ -330,7 +331,7 @@ analyticsTest('[WF-ANALYTICS-009] analytics uses zero when prior use is known bu
   }));
   await page.route('https://pools.longreachmarlins.org/**', async route => {
     const requestedUrl = new URL(route.request().url());
-    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    const response = await page.request.get(`${PLAYWRIGHT_SERVER_URL}${requestedUrl.pathname}`);
     await route.fulfill({ response });
   });
   await page.addInitScript(({ analyticsVersionKey }) => {
@@ -352,7 +353,7 @@ analyticsTest('[WF-ANALYTICS-010] analytics uses the service-worker upgrade vers
   }));
   await page.route('https://pools.longreachmarlins.org/**', async route => {
     const requestedUrl = new URL(route.request().url());
-    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    const response = await page.request.get(`${PLAYWRIGHT_SERVER_URL}${requestedUrl.pathname}`);
     await route.fulfill({ response });
   });
   await page.addInitScript(({ upgradeFromVersionKey }) => {
@@ -375,7 +376,7 @@ analyticsTest('[WF-ANALYTICS-011] analytics uses the newest predecessor across a
   }));
   await page.route('https://pools.longreachmarlins.org/**', async route => {
     const requestedUrl = new URL(route.request().url());
-    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    const response = await page.request.get(`${PLAYWRIGHT_SERVER_URL}${requestedUrl.pathname}`);
     await route.fulfill({ response });
   });
   await page.addInitScript(storageKeys => {
@@ -441,7 +442,7 @@ analyticsTest('[WF-ANALYTICS-017] FAQ policy permits required Google Analytics c
 
   await page.route('https://pools.longreachmarlins.org/**', async route => {
     const requestedUrl = new URL(route.request().url());
-    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    const response = await page.request.get(`${PLAYWRIGHT_SERVER_URL}${requestedUrl.pathname}`);
     await route.fulfill({ response });
   });
   await page.route('https://www.googletagmanager.com/**', route => route.fulfill({
@@ -487,7 +488,7 @@ analyticsTest('[WF-ANALYTICS-013] VS Code embedded browsers cannot publish analy
   });
   await page.route('https://pools.longreachmarlins.org/**', async route => {
     const requestedUrl = new URL(route.request().url());
-    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    const response = await page.request.get(`${PLAYWRIGHT_SERVER_URL}${requestedUrl.pathname}`);
     await route.fulfill({ response });
   });
 
@@ -512,7 +513,7 @@ test('[WF-ANALYTICS-016] local builds cannot publish analytics when automation s
   });
   await page.route('https://pools.longreachmarlins.org/**', async route => {
     const requestedUrl = new URL(route.request().url());
-    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    const response = await page.request.get(`${PLAYWRIGHT_SERVER_URL}${requestedUrl.pathname}`);
     await route.fulfill({ response });
   });
 
@@ -533,7 +534,7 @@ analyticsTest('[WF-ANALYTICS-002] flyer QR campaign visits publish reviewed attr
   }));
   await page.route('https://pools.longreachmarlins.org/**', async route => {
     const requestedUrl = new URL(route.request().url());
-    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    const response = await page.request.get(`${PLAYWRIGHT_SERVER_URL}${requestedUrl.pathname}`);
     await route.fulfill({ response });
   });
 
@@ -563,7 +564,7 @@ analyticsTest('[WF-ANALYTICS-003] unrecognized campaign input is neither consume
   }));
   await page.route('https://pools.longreachmarlins.org/**', async route => {
     const requestedUrl = new URL(route.request().url());
-    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    const response = await page.request.get(`${PLAYWRIGHT_SERVER_URL}${requestedUrl.pathname}`);
     await route.fulfill({ response });
   });
 
@@ -586,7 +587,7 @@ analyticsTest('[WF-ANALYTICS-006] app share campaigns publish reviewed attributi
   }));
   await page.route('https://pools.longreachmarlins.org/**', async route => {
     const requestedUrl = new URL(route.request().url());
-    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    const response = await page.request.get(`${PLAYWRIGHT_SERVER_URL}${requestedUrl.pathname}`);
     await route.fulfill({ response });
   });
 
@@ -700,7 +701,7 @@ test('[WF-ANALYTICS-007] external links publish fixed destinations without URL d
 test('[WF-ANALYTICS-005] browser verification blocks Google Analytics collection', async ({ page }) => {
   await page.route('https://pools.longreachmarlins.org/**', async route => {
     const requestedUrl = new URL(route.request().url());
-    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    const response = await page.request.get(`${PLAYWRIGHT_SERVER_URL}${requestedUrl.pathname}`);
     await route.fulfill({ response });
   });
 

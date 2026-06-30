@@ -22,6 +22,7 @@ describe('deployment workflow', () => {
       'package.json',
       'pnpm-lock.yaml',
       'pnpm-workspace.yaml',
+      'scripts/adapters/team-schedule-service.js',
       ...getDirectLocalModules('posthtml.js'),
       ...getDirectLocalModules('browser-sync.config.js')
     ].forEach(policyFile => {
@@ -37,5 +38,16 @@ describe('deployment workflow', () => {
     assert.equal(analyticsDeploymentBlocks.length, 2);
     assert.match(workflow, /- name: Build project\n\s+env:\n\s+CNSL_ANALYTICS_DEPLOYMENT: production\n\s+run: pnpm run build/);
     assert.match(workflow, /- name: Verify PWA artifact contract\n\s+env:\n\s+CNSL_ANALYTICS_DEPLOYMENT: production\n\s+run: pnpm run verify:pwa/);
+  });
+
+  it('should tag a new package release only after deployment succeeds', () => {
+    const workflow = fs.readFileSync(workflowPath, 'utf8');
+
+    assert.match(workflow, /tag-release:\n\s+if: github\.event_name == 'push'\n\s+needs: deploy/);
+    assert.match(workflow, /tag-release:[\s\S]*?permissions:\n\s+contents: write/);
+    assert.match(workflow, /run: node scripts\/select-release\.js/);
+    assert.match(workflow, /if: steps\.release\.outputs\.should_tag == 'true'/);
+    assert.match(workflow, /git tag --annotate "\$RELEASE_VERSION" "\$DEPLOY_SHA"/);
+    assert.match(workflow, /git push origin "refs\/tags\/\$\{RELEASE_VERSION\}"/);
   });
 });

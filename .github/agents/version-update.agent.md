@@ -1,6 +1,6 @@
 ---
 name: version-update
-description: "Maintain CNSL release metadata and What's New content. Use when completing significant visitor-facing functionality, preparing an Upcoming feature note, releasing, bumping APP_VERSION, or documenting changes since the last app release. Do not use to interpret annual-source evidence or author the initial note for a material data correction; season-data-reviewer owns that work."
+description: "Maintain CNSL release metadata and What's New content. Use when completing significant visitor-facing functionality, preparing an Upcoming feature note, releasing, bumping the package version, or documenting changes since the last app release. Do not use to interpret annual-source evidence or author the initial note for a material data correction; season-data-reviewer owns that work."
 argument-hint: "Describe unreleased feature changes, or supply a new stable release version such as 2.2.0"
 target: github-copilot
 tools:
@@ -33,7 +33,7 @@ Both modes prepare verified changes in the current working tree only. Creating o
 - During an explicit historical copy review, simplify wording only. Preserve each claim's facts, labels, links, item membership, release meaning, and version placement.
 - Reordering unchanged bullets in a dated article is permitted only when the user explicitly requests an importance review across published releases.
 - If the user explicitly requests a historical release-date header correction, update only the affected heading dates using verified publication dates; do not change the article copy or bullets.
-- Treat the current `APP_VERSION` and its matching dated entry as the prior published release boundary, not as a draft that can be amended.
+- Treat the current `package.json` version and its matching dated entry as the prior published release boundary, not as a draft that can be amended.
 - Functionality not yet included in a newly published stable version belongs only in an undated `Upcoming` section above the dated articles.
 
 ## Scope Review
@@ -48,14 +48,14 @@ In Upcoming mode:
 
 - Update only the undated `Upcoming` section in `src/views/whats-new.html`, creating it above dated entries if needed.
 - Leave interpretation of annual-source evidence and the initial note for a material data correction to `season-data-reviewer`. You may later re-rank that existing note with other `Upcoming` items when reviewing the full list.
-- Do not modify `APP_VERSION`, `APP_LAST_UPDATED_ON`, or any dated release article.
+- Do not modify the `package.json` version, `APP_LAST_UPDATED_ON`, or any dated release article.
 
 In Release mode:
 
 - Add a new dated version article above all earlier dated entries in `src/views/whats-new.html`, using a heading in the format `Version X.Y.Z - Month D, YYYY`; do not revise an existing version article unless an explicit historical copy or header review applies.
 - Promote the released items out of `Upcoming`, leaving any remaining unreleased items there.
 - After adding the dated article, keep the ten newest dated release articles visible above the older-release disclosure and move the former tenth visible release to the start of the archived release content.
-- Update `APP_VERSION` and `APP_LAST_UPDATED_ON` in `src/js/config/app-config.js` for the new stable release.
+- Update the `version` in `package.json` and `APP_LAST_UPDATED_ON` in `src/js/config/app-config.js` for the new stable release. The build generates browser `APP_VERSION` from the package version.
 - Set `APP_LAST_UPDATED_ON` from the current local date in the configured app timezone (`America/New_York`, US Eastern), not from a UTC date that may already have rolled over.
 - Use that same local publication date, written as `Month D, YYYY`, in the new What's New release heading.
 

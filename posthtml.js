@@ -2,7 +2,7 @@ const fs = require('fs');
 const crypto = require('crypto');
 const path = require('path');
 const posthtml = require('posthtml');
-const { copyBrowserJavaScript } = require('./scripts/validate-browser-javascript');
+const { assertBrowserOnly, copyBrowserJavaScript } = require('./scripts/validate-browser-javascript');
 const appConfig = require('./scripts/adapters/app-config.js');
 const WeatherAlertService = require('./scripts/adapters/weather-alert-service.js');
 const { DEVELOPMENT_BUILD_MARKER } = require('./scripts/lib/development-server.js');
@@ -11,6 +11,7 @@ const { stripAuthoringComments } = require('./scripts/lib/html-output.js');
 const { CACHE_ON_USE_SCRIPT_RESOURCES, INSTALL_CRITICAL_PAGES } = require('./scripts/lib/pwa-resource-policy.js');
 const { createMeetDateSummaryNode } = require('./scripts/lib/meet-date-summary.js');
 const { createPoolSummaryNode, createTeamSummaryNode } = require('./scripts/lib/search-directory-summary.js');
+const { createBrowserConfigSource, readPackageVersion } = require('./scripts/lib/package-version.js');
 const annualDataSourceDir = './src/assets/data';
 const activeSeason = String(appConfig.YEAR);
 const activeSeasonPoolsPath = path.join(annualDataSourceDir, activeSeason, 'pools', 'pools.json');
@@ -274,6 +275,18 @@ copyDir('./src/css', path.join(outDir, 'css'));
 // Copy JS directory
 console.log(`⚙️ [${timestamp()}] Copying JS directory...`);
 copyBrowserJavaScript('./src/js', path.join(outDir, 'js'));
+
+function writeAppConfigArtifact() {
+  const relativePath = path.join('config', 'app-config.js');
+  const sourcePath = path.join('src', 'js', relativePath);
+  const outputPath = path.join(outDir, 'js', relativePath);
+  const source = createBrowserConfigSource(readPackageVersion(), fs.readFileSync(sourcePath, 'utf8'));
+  assertBrowserOnly(source, relativePath.replace(/\\/g, '/'));
+  fs.writeFileSync(outputPath, source);
+  console.log(`Generated browser application configuration for version ${appConfig.APP_VERSION}.`);
+}
+
+writeAppConfigArtifact();
 
 function writeWeatherOperatingWindowsArtifact() {
   const operatingWindows = WeatherAlertService.createOperatingWindowSchedule(activeSeasonPools);

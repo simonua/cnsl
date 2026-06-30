@@ -3,6 +3,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
+const packageMetadata = require('../../package.json');
 const { AppConfig: config } = require('../helpers/browser-module-loader.js').loadBrowserModule('app-config');
 
 const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'config', 'app-config.js');
@@ -28,11 +29,12 @@ describe('app-config', () => {
   });
 
   it('publishes browser configuration when evaluated with standard browser globals', () => {
-    const context = { URL };
+    const context = { APP_VERSION: packageMetadata.version, URL };
 
     vm.runInNewContext(source, context, { filename: sourcePath });
 
     assert.equal(context.APP_VERSION, config.APP_VERSION);
+    assert.equal(config.APP_VERSION, packageMetadata.version);
     assert.equal(context.ANALYTICS_DEPLOYMENT_META_NAME, config.ANALYTICS_DEPLOYMENT_META_NAME);
     assert.deepEqual(
       Object.fromEntries(Object.entries(context.ANALYTICS_DEPLOYMENT_MODES)),
@@ -59,6 +61,10 @@ describe('app-config', () => {
       context.WEATHER_PUBLIC_ALERTS_URL,
       'https://forecast.weather.gov/MapClick.php?lat=39.2014&lon=-76.8610'
     );
+  });
+
+  it('requires the package version to be initialized first', () => {
+    assert.throws(() => vm.runInNewContext(source, { URL }, { filename: sourcePath }), /APP_VERSION/);
   });
 
   it('publishes immutable experimental feature configuration', () => {

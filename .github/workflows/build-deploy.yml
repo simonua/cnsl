@@ -18,14 +18,17 @@ on:
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
       - 'scripts/adapters/app-config.js'
+      - 'scripts/adapters/team-schedule-service.js'
       - 'scripts/adapters/weather-alert-service.js'
       - 'scripts/lib/classic-script-loader.js'
       - 'scripts/lib/development-server.js'
       - 'scripts/lib/html-output.js'
       - 'scripts/lib/meet-date-summary.js'
       - 'scripts/lib/page-build-coordinator.js'
+      - 'scripts/lib/package-version.js'
       - 'scripts/lib/pwa-resource-policy.js'
       - 'scripts/lib/search-directory-summary.js'
+      - 'scripts/select-release.js'
       - 'scripts/validate-browser-javascript.js'
       - 'scripts/verify-pwa-build.js'
   workflow_dispatch:
@@ -103,3 +106,32 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
+
+  tag-release:
+    if: github.event_name == 'push'
+    needs: deploy
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out deployed commit
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Select release tag
+        id: release
+        env:
+          DEPLOY_SHA: ${{ github.sha }}
+        run: node scripts/select-release.js
+
+      - name: Record deployed version
+        if: steps.release.outputs.should_tag == 'true'
+        env:
+          DEPLOY_SHA: ${{ github.sha }}
+          RELEASE_VERSION: ${{ steps.release.outputs.release_version }}
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git tag --annotate "$RELEASE_VERSION" "$DEPLOY_SHA" --message "Release ${RELEASE_VERSION}"
+          git push origin "refs/tags/${RELEASE_VERSION}"

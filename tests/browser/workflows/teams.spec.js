@@ -1,6 +1,7 @@
 const { test, expect } = require('../browser-test');
 const {
   MOBILE_VIEWPORT,
+  PLAYWRIGHT_SERVER_URL,
   activeSeasonDate,
   initializeAnalyticsRecorder,
   prepareStableWeatherResponses,
@@ -290,7 +291,7 @@ test('[WF-TEAMS-007] phone-width team details expose upcoming and full practice 
 
 test('[WF-TEAMS-008] touch-capable team details expose every published practice phase', async ({ browser }) => {
   const touchContext = await browser.newContext({
-    baseURL: 'http://127.0.0.1:4173',
+    baseURL: PLAYWRIGHT_SERVER_URL,
     hasTouch: true,
     isMobile: true,
     viewport: { width: 980, height: 915 }

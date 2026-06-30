@@ -423,6 +423,7 @@ precacheResources.forEach(resource => {
 const worker = fs.readFileSync(path.join(outDir, 'service-worker.js'), 'utf8');
 assert.doesNotMatch(worker, /const CACHE_VERSION = 'development'/, 'Built service worker must have a release cache version.');
 assert.match(worker, /js\/config\/app-config\.js/, 'Service worker must load shared application configuration.');
+assert.doesNotMatch(worker, /js\/config\/app-version\.js/, 'Service worker must not load a separate application-version resource.');
 assert.match(worker, /precache-manifest\.js/, 'Service worker must import the generated precache inventory.');
 assert.match(worker, /self\.PRECACHE_CORE_RESOURCES/, 'Service worker installation must use the generated core inventory.');
 assert.match(worker, /cacheRequiredResources/, 'Service worker installation must cache Home aliases from one canonical payload.');
@@ -435,6 +436,7 @@ const appConfig = fs.readFileSync(path.join(outDir, 'js', 'config', 'app-config.
 const pwa = fs.readFileSync(path.join(outDir, 'js', 'pwa.js'), 'utf8');
 const appConfigBrowserContext = { URL };
 vm.runInNewContext(appConfig, appConfigBrowserContext);
+assert.ok(!fs.existsSync(path.join(outDir, 'js', 'config', 'app-version.js')), 'Build output must not contain a standalone application-version resource.');
 const expectedAnalyticsDeployment = process.env.CNSL_ANALYTICS_DEPLOYMENT
   === appConfigBrowserContext.ANALYTICS_DEPLOYMENT_MODES.PRODUCTION
   ? appConfigBrowserContext.ANALYTICS_DEPLOYMENT_MODES.PRODUCTION

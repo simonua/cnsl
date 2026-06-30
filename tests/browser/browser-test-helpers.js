@@ -5,6 +5,8 @@ const { createTestDataFixture } = require('./fixtures/test-data.js');
 
 const ALLOWED_ANNUAL_DATA_DOMAINS = new Set(['meets', 'pools', 'teams']);
 const ACTIVE_SEASON_YEAR = AppConfig.YEAR;
+const PLAYWRIGHT_SERVER_PORT = Number(process.env.CNSL_PLAYWRIGHT_PORT || 4173);
+const PLAYWRIGHT_SERVER_URL = `http://127.0.0.1:${PLAYWRIGHT_SERVER_PORT}`;
 
 const AUDIENCE_VIEWPORTS = Object.freeze({
   COMPACT_PHONE: Object.freeze({ width: 360, height: 780 }),
@@ -123,6 +125,7 @@ module.exports = {
   ACTIVE_SEASON_YEAR,
   AUDIENCE_VIEWPORTS,
   MOBILE_VIEWPORT,
+  PLAYWRIGHT_SERVER_URL,
   activeSeasonDate,
   getAnnualDataRoute,
   getAnnualDataUrlPattern,

@@ -1,20 +1,20 @@
 # CNSL Engineering Refactoring Plan
 
-Review date: 2026-06-27
+Review date: 2026-06-30
 
 ## Current Status And Validation
 
 This plan contains only actionable open refactoring work. The current review found no remaining item supported by repository evidence.
 
-Current validation includes CSS-owned navigation and Pool week-picker positioning, build-time rejection of authored style attributes and browser-script style writes, focused unit contracts, responsive browser workflows, light/dark WCAG A and AA checks, a clean production build, and PWA artifact verification. The generated inventory remains coherent at 75 install-critical and 39 cache-on-use resources. Delivered-HTTPS Cloudflare, Analytics, CSP reporting, and PWA behavior remains a manual external-browser release check.
+Current validation includes focused package-version, application-configuration, service-worker, loader, deployment-registration, release-notice, analytics-publication, and alternate-port browser contracts; JavaScript lint; a clean production build; PWA artifact verification; and comparable three-run `desktop` and `mobile-slow` performance profiles. The generated inventory is coherent at 75 install-critical and 39 cache-on-use resources. Annual data remained deduplicated to one request per domain, and installed routes remained worker-controlled with zero transferred navigation bytes. Existing advisory critical-byte and slower-device CPU warnings remain measurement inputs rather than separate evidence-backed refactoring items. Delivered-HTTPS Cloudflare, Analytics, CSP reporting, and PWA behavior remains a manual external-browser release check.
 
 ## Priority Matrix
 
 | Key | Priority | Actionable Finding | Impact | Effort |
 | --- | --- | --- | --- | --- |
-| <!-- No key --> | 🔴 **RED - High** | None | No demonstrated accessibility, data-integrity, release, or exploitable security defect | None |
-| <!-- No key --> | 🟠 **ORANGE - Medium** | None | No demonstrated maintainability, runtime-contract, or browser-policy gap | None |
-| <!-- No key --> | 🟢 **GREEN - Low** | None | No additional evidence-backed cleanup remains | None |
+| <!-- No key --> | **RED - High** | None | No demonstrated accessibility, data-integrity, release, or exploitable security defect | None |
+| <!-- No key --> | **ORANGE - Medium** | None | No demonstrated maintainability, runtime-contract, or browser-policy gap | None |
+| <!-- No key --> | **GREEN - Low** | None | No separate evidence-backed cleanup remains | None |
 
 ## High Priority
 

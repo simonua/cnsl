@@ -1,4 +1,5 @@
 const { createClassicScriptLoader, toHostValue } = require('../../scripts/lib/classic-script-loader.js');
+const { readPackageVersion } = require('../../scripts/lib/package-version.js');
 
 const CONFIG = 'config/app-config.js';
 const ANALYTICS_TYPES = 'types/analytics-interaction-type.js';
@@ -56,6 +57,7 @@ const BROWSER_MODULE_MANIFESTS = Object.freeze({
 });
 
 const DEFAULT_INJECTIONS = Object.freeze({
+  APP_VERSION: readPackageVersion(),
   Date,
   URL,
   URLSearchParams,
