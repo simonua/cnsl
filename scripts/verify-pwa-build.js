@@ -166,7 +166,7 @@ function createMemoryStorage() {
   };
 }
 
-async function verifyAnalyticsArtifact(appConfigSource, interactionTypeSource, analyticsSource) {
+async function verifyAnalyticsArtifact(appConfigSource, interactionTypeSource, devicePlatformSource, analyticsSource) {
   const appendedScripts = [];
   const lockRequests = [];
   let scriptLoadListener;
@@ -187,6 +187,7 @@ async function verifyAnalyticsArtifact(appConfigSource, interactionTypeSource, a
     history: { replaceState: () => undefined, state: null },
     localStorage,
     location,
+    matchMedia: () => ({ matches: false }),
     navigator: {
       locks: {
         request: (name, callback) => {
@@ -226,6 +227,7 @@ async function verifyAnalyticsArtifact(appConfigSource, interactionTypeSource, a
   vm.createContext(context);
   vm.runInContext(appConfigSource, context, { filename: 'js/config/app-config.js' });
   vm.runInContext(interactionTypeSource, context, { filename: 'js/types/analytics-interaction-type.js' });
+  vm.runInContext(devicePlatformSource, context, { filename: 'js/services/device-platform-service.js' });
   vm.runInContext(analyticsSource, context, { filename: 'js/analytics.js' });
 
   assert.equal(appendedScripts.length, 1, 'Eligible production analytics must inject one Google tag script.');
@@ -262,6 +264,11 @@ async function verifyAnalyticsArtifact(appConfigSource, interactionTypeSource, a
   assert.equal(pageViewCommand[2].page_title, 'Home', 'Published page views must use the reviewed concise title.');
   assert.deepEqual(lockRequests, [context.ANALYTICS_VERSION_REPORTED_STORAGE_KEY], 'Profile-scoped analytics publication must be serialized under its configured storage key.');
   assert.equal(localStorage.getItem(context.ANALYTICS_VERSION_REPORTED_STORAGE_KEY), APP_VERSION, 'Version publication must update the browser-profile marker.');
+  assert.equal(sessionStorage.getItem(context.ANALYTICS_APP_MODE_REPORTED_STORAGE_KEY), 'webpage', 'App-mode publication must update the browser-session marker.');
+  assert.ok(
+    publishedCommands.some(command => command[0] === 'event' && command[1] === 'ca_app_mode' && command[2]?.app_mode === 'webpage'),
+    'Analytics must publish webpage mode for a non-standalone browser session.'
+  );
   assert.ok(
     publishedCommands.some(command => command[0] === 'event' && command[1] === 'ca_version' && command[2]?.app_version === APP_VERSION),
     'Analytics must publish the configured application version.'
@@ -423,6 +430,7 @@ assert.doesNotMatch(worker, /cacheOptionalResources/, 'Service worker installati
 
 const analytics = fs.readFileSync(path.join(outDir, 'js', 'analytics.js'), 'utf8');
 const analyticsInteractionType = fs.readFileSync(path.join(outDir, 'js', 'types', 'analytics-interaction-type.js'), 'utf8');
+const devicePlatform = fs.readFileSync(path.join(outDir, 'js', 'services', 'device-platform-service.js'), 'utf8');
 const appConfig = fs.readFileSync(path.join(outDir, 'js', 'config', 'app-config.js'), 'utf8');
 const pwa = fs.readFileSync(path.join(outDir, 'js', 'pwa.js'), 'utf8');
 const appConfigBrowserContext = { URL };
@@ -584,7 +592,7 @@ const customDomain = fs.readFileSync(path.join(outDir, 'CNAME'), 'utf8').trim();
 assert.equal(customDomain, HOME_PAGE_HOSTNAME, 'Published GitHub Pages output must retain the configured custom domain.');
 
 Promise.all([
-  verifyAnalyticsArtifact(appConfig, analyticsInteractionType, analytics),
+  verifyAnalyticsArtifact(appConfig, analyticsInteractionType, devicePlatform, analytics),
   verifyMeetDateSummaryArtifact()
 ])
   .then(() => {

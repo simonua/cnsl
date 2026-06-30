@@ -96,10 +96,16 @@ analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and each publi
       ['js'],
       ['config', measurementId],
       ['event', 'page_view'],
+      ['event', 'ca_app_mode'],
       ['event', 'ca_version'],
       ['event', 'ca_upgrade']
     ]
   });
+  await expect.poll(() => page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
+    .toContainEqual(['event', 'ca_app_mode', { app_mode: 'webpage' }]);
+  await expect.poll(() => page.evaluate(() => sessionStorage.getItem(
+    globalThis.ANALYTICS_APP_MODE_REPORTED_STORAGE_KEY
+  ))).toBe('webpage');
   await expect.poll(() => page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
     .toContainEqual(['event', 'ca_version', { app_version: appVersion }]);
   await expect.poll(() => page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
@@ -128,6 +134,8 @@ analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and each publi
     }]);
   await expect.poll(() => page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
     .not.toContainEqual(['event', 'ca_version', { app_version: appVersion }]);
+  await expect.poll(() => page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
+    .not.toContainEqual(['event', 'ca_app_mode', { app_mode: 'webpage' }]);
 
   await page.goto('https://pools.longreachmarlins.org/pools', { waitUntil: 'domcontentloaded' });
   await expect.poll(() => page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
@@ -160,6 +168,38 @@ analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and each publi
   await expect.poll(() => page.evaluate(() => localStorage.getItem(globalThis.ANALYTICS_VERSION_REPORTED_STORAGE_KEY)))
     .toBe(appVersion);
   expect(blockedExternalRequests).toEqual([]);
+});
+
+analyticsTest('[WF-ANALYTICS-018] analytics reports installed PWA mode once per browser session', async ({ page }) => {
+  await page.route('https://www.googletagmanager.com/**', route => route.fulfill({
+    contentType: 'application/javascript',
+    body: 'globalThis.cnslTagScriptLoaded = true;'
+  }));
+  await page.route('https://pools.longreachmarlins.org/**', async route => {
+    const requestedUrl = new URL(route.request().url());
+    const response = await page.request.get(`http://127.0.0.1:4173${requestedUrl.pathname}`);
+    await route.fulfill({ response });
+  });
+  await page.addInitScript(() => {
+    const browserMatchMedia = globalThis.matchMedia.bind(globalThis);
+    globalThis.matchMedia = query => query === '(display-mode: standalone)'
+      ? { matches: true }
+      : browserMatchMedia(query);
+  });
+
+  await page.goto('https://pools.longreachmarlins.org/contact.html', { waitUntil: 'domcontentloaded' });
+  await expect.poll(() => page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
+    .toContainEqual(['event', 'ca_app_mode', { app_mode: 'installed' }]);
+  await expect.poll(() => page.evaluate(() => sessionStorage.getItem(
+    globalThis.ANALYTICS_APP_MODE_REPORTED_STORAGE_KEY
+  ))).toBe('installed');
+
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect.poll(() => page.evaluate(() => globalThis.cnslTagScriptLoaded)).toBe(true);
+  const appModeEvents = await page.evaluate(() => globalThis.dataLayer
+    .map(argumentsList => Array.from(argumentsList))
+    .filter(command => command[0] === 'event' && command[1] === 'ca_app_mode'));
+  expect(appModeEvents).toEqual([]);
 });
 
 analyticsTest('[WF-ANALYTICS-014] concurrent browser contexts publish one app-version and upgrade event per profile', async ({

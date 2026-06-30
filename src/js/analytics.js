@@ -7,6 +7,7 @@
   // Published event contract
 
   const ANALYTICS_EVENT_NAMES = Object.freeze({
+    APP_MODE: 'ca_app_mode',
     BANNER_INTERACTION: 'ca_banner_interaction',
     DIRECTORY_DETAIL_OPEN: 'ca_directory_detail_open',
     EXPERIMENTAL_FEATURE_CHANGE: 'ca_experimental_feature_change',
@@ -22,6 +23,11 @@
     VERSION: 'ca_version'
   });
   const ALLOWED_ANALYTICS_EVENT_NAMES = new Set(Object.values(ANALYTICS_EVENT_NAMES));
+  const APP_MODES = Object.freeze({
+    INSTALLED: 'installed',
+    WEBPAGE: 'webpage'
+  });
+  const STANDALONE_DISPLAY_MODE_QUERY = '(display-mode: standalone)';
   const RESOURCE_EVENT_NAMES_BY_ACTION = Object.freeze({
     download: ANALYTICS_EVENT_NAMES.RESOURCE_DOWNLOAD,
     view: ANALYTICS_EVENT_NAMES.RESOURCE_VIEW
@@ -458,10 +464,32 @@
   }
 
   /**
+   * Publishes whether this browser session opened as an installed app or webpage.
+   * @private
+   */
+  function publishAppModeIfNeeded() {
+    const appMode = globalThis.DevicePlatformService.isStandalone(
+      window.matchMedia(STANDALONE_DISPLAY_MODE_QUERY).matches,
+      window.navigator.standalone
+    ) ? APP_MODES.INSTALLED : APP_MODES.WEBPAGE;
+    try {
+      if (window.sessionStorage.getItem(window.ANALYTICS_APP_MODE_REPORTED_STORAGE_KEY) !== null) return;
+      window.sessionStorage.setItem(window.ANALYTICS_APP_MODE_REPORTED_STORAGE_KEY, appMode);
+    } catch (_error) {
+      return;
+    }
+
+    publishEvent(ANALYTICS_EVENT_NAMES.APP_MODE, {
+      app_mode: appMode
+    });
+  }
+
+  /**
    * Publishes profile-scoped version and upgrade analytics from one storage snapshot.
    * @private
    */
   function publishVersionAndUpgradeIfNeeded() {
+    publishAppModeIfNeeded();
     publishVersionIfNeeded();
     publishUpgradeIfNeeded();
   }

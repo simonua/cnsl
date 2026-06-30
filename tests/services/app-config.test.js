@@ -38,6 +38,7 @@ describe('app-config', () => {
       Object.fromEntries(Object.entries(context.ANALYTICS_DEPLOYMENT_MODES)),
       config.ANALYTICS_DEPLOYMENT_MODES
     );
+    assert.equal(context.ANALYTICS_APP_MODE_REPORTED_STORAGE_KEY, config.ANALYTICS_APP_MODE_REPORTED_STORAGE_KEY);
     assert.equal(context.ANALYTICS_APP_VERSION_STORAGE_KEY, config.ANALYTICS_APP_VERSION_STORAGE_KEY);
     assert.equal(context.ANALYTICS_UPGRADE_PATH_STORAGE_KEY, config.ANALYTICS_UPGRADE_PATH_STORAGE_KEY);
     assert.equal(context.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, config.ANALYTICS_VERSION_REPORTED_STORAGE_KEY);
@@ -153,9 +154,11 @@ describe('app-config', () => {
   });
 
   it('publishes named app-owned session storage keys', () => {
+    assert.equal(config.ANALYTICS_APP_MODE_REPORTED_STORAGE_KEY, 'cnsl_analytics_app_mode_reported');
     assert.equal(config.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY, 'cnsl_service_worker_update_checked_at');
     assert.equal(config.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY, 'cnsl_service_worker_upgrade_from_version');
     assert.deepEqual(config.APP_SESSION_STORAGE_KEYS, [
+      config.ANALYTICS_APP_MODE_REPORTED_STORAGE_KEY,
       config.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY,
       config.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY,
       config.WEATHER_ALERT_STATUS_STORAGE_KEY,
