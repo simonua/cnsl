@@ -1,6 +1,6 @@
 {
   "season": 2026,
-  "acceptedOn": "2026-06-27",
+  "acceptedOn": "2026-06-30",
   "documents": [
     {
       "domain": "pools",
@@ -174,15 +174,15 @@
     {
       "domain": "pools",
       "label": "Locust Park pool schedule",
-      "localPath": "pools/pool-schedules/lpp/2026-06-17/Locust_Park.pdf",
+      "localPath": "pools/pool-schedules/lpp/2026-06-30/Locust_Park.pdf",
       "url": "https://www.columbiaassociation.org/wp-content/uploads/Locust_Park.pdf",
       "sourceIds": [
         "pool:lpp:schedule"
       ],
-      "etag": "\"6a31618b-15119\"",
-      "lastModified": "Tue, 16 Jun 2026 14:45:31 GMT",
-      "contentLength": "86297",
-      "sha256": "f0bc9a941d11457eb25576688c8f0f5b9b7d614e1d8bc581c268e905061e2fcc"
+      "etag": "\"6a42bfc3-159f7\"",
+      "lastModified": "Mon, 29 Jun 2026 18:56:03 GMT",
+      "contentLength": "88567",
+      "sha256": "d4dfe456a829221b9c8067276399c24cba4dd072018fe3670a8fac0042ac11ce"
     },
     {
       "domain": "pools",
@@ -637,7 +637,7 @@
       ],
       "fingerprint": "outdoor-pool-schedules",
       "label": "Columbia Association pool schedule page",
-      "sha256": "c0d4212022daea202ffd178dbe371ca5c3f5d170bb61b17b8b936456c6f70177",
+      "sha256": "6d2f238b6db2e0bfc99fe56c4759467e79f6fbf6676c7c21b5e63185cbfaaf55",
       "sourceIds": [
         "pools:outdoor-schedule-index"
       ],
@@ -662,7 +662,7 @@
       ],
       "fingerprint": "publication-links",
       "label": "CNSL publication page",
-      "sha256": "1274b9ddb550b29b9020bcef293cd3de42f718078adbd8e83b5cbb45aa148bb7",
+      "sha256": "05c6ee7c50b27716d467329f8b34dee2303240980c5b5a7a6170f46c62d0837e",
       "sourceIds": [
         "league:publication"
       ],

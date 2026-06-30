@@ -131,7 +131,8 @@
               ],
               "accessStatus": "public",
               "startTime": "7:00pm",
-              "endTime": "10:00pm"
+              "endTime": "10:00pm",
+              "notes": "Wading pool closed during adult hours"
             },
             {
               "weekDays": [
@@ -271,7 +272,8 @@
               ],
               "accessStatus": "public",
               "startTime": "7:00pm",
-              "endTime": "10:00pm"
+              "endTime": "10:00pm",
+              "notes": "Wading pool closed during adult hours"
             },
             {
               "weekDays": [
@@ -5089,8 +5091,8 @@
               ],
               "accessStatus": "public",
               "startTime": "5:00pm",
-              "endTime": "6:30pm",
-              "notes": "Shared lane use"
+              "endTime": "8:00pm",
+              "notes": "Laps: 2 lanes; Rec Swim: 3 lanes; CNSL Practice: 3 lanes"
             },
             {
               "weekDays": [
@@ -8168,6 +8170,18 @@
                 "Mon"
               ],
               "types": [
+                "Aqua Fitness"
+              ],
+              "sourceUrl": "https://www.columbiaassociation.org/wp-content/uploads/Stevens_Forest.pdf",
+              "accessStatus": "restricted",
+              "startTime": "10:30am",
+              "endTime": "11:25am"
+            },
+            {
+              "weekDays": [
+                "Mon"
+              ],
+              "types": [
                 "Laps",
                 "Rec Swim"
               ],
@@ -8207,7 +8221,7 @@
               "endTime": "7:00pm"
             }
           ],
-          "reason": "CNSL swim meet before public hours"
+          "reason": "Howard County High School swim meet before public hours"
         },
         {
           "startDate": "2026-06-06",
@@ -9065,7 +9079,7 @@
               "accessStatus": "public",
               "startTime": "6:00pm",
               "endTime": "7:30pm",
-              "notes": "Shared lanes"
+              "notes": "Laps: 2 lanes; Rec Swim: 2 lanes; CNSL Practice: 4 lanes"
             },
             {
               "weekDays": [

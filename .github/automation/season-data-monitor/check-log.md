@@ -8,6 +8,8 @@ This log records completed online checks of official active-season sources and l
 
 | Date | Type | Data point | Summary |
 | --- | --- | --- | --- |
+| [2026-06-30T05:45:32-04:00 Pool Schedule Audit](#activity-2026-06-30t054532-0400-pool-schedule-audit) | update | Stevens Forest schedule, Talbott Springs lanes, and Bryant Woods wading pool | Audited the current PDFs for all 22 pools other than Locust Park and corrected four represented details. |
+| [2026-06-30T05:09:16-04:00 Seasonal Data Review](#activity-2026-06-30t050916-0400-seasonal-data-review) | update | Locust Park Thursday shared-use hours | Extended the published Thursday evening schedule to 8:00 PM and retained the current official PDF. |
 | [2026-06-27T07:27:41-04:00 Seasonal Data Review](#activity-2026-06-27t072741-0400-seasonal-data-review) | update | Owen Brown Barracudas assistant coach | Added Grace DeJarnette from the current staff page; represented practice values remained current. |
 | [2026-06-26 Phelps Luck Meet Guidance](#activity-2026-06-26-phelps-luck-meet-guidance) | update | Phelps Luck shared concessions and Long Reach visiting-team guidance | Updated Marlins times and added entry, parking, setup, check-in, timer, entry-board, and concession details. |
 | [2026-06-25T21:47:16-04:00 Seasonal Data Review](#activity-2026-06-25t214716-0400-seasonal-data-review) | update | <!-- --> | Completed the 139-source review and retained the current Bryant Woods PDF; represented schedules and destinations remained current. |
@@ -38,6 +40,64 @@ This log records completed online checks of official active-season sources and l
 | [2026-06-11T18:08:10-04:00](#activity-2026-06-11t180810-0400) | check | <!-- --> | Completed the 135-source review; no represented data or destinations changed. |
 | [2026-06-10T22:13:23-04:00](#activity-2026-06-10t221323-0400) | check | <!-- --> | Completed the 135-source review under the availability exception; no represented data changed. |
 | [2026-06-10T06:56:02-04:00](#activity-2026-06-10t065602-0400) | check | <!-- --> | The review was incomplete because one application-used destination could not be verified; no represented data changed. |
+
+<a id="activity-2026-06-30t054532-0400-pool-schedule-audit"></a>
+
+## 2026-06-30T05:45:32-04:00 Pool Schedule Audit
+
+**Active season:** 2026
+
+**Result:** Complete comprehensive review of the current official schedule PDFs for all 22 Columbia Association pools other than Locust Park, under the existing explicit maintainer exception for merchandise-store and booster-site availability.
+
+Checked the 139-source inventory built from the active 2026 JSON and annual README:
+
+- `pnpm run check:data-updates` reached all 76 monitor-collected modeled-evidence URLs and found no new document or page-fingerprint candidates.
+- All 63 official sources and application-used destinations outside the monitor were attempted separately with live GET requests.
+- 136 required sources returned successful responses.
+- The Long Reach and Phelps Luck merchandise stores and the Long Reach booster site were attempted and returned HTTP 403 responses covered by the established availability exception.
+- No non-exempt source failed or remained unattempted.
+
+The newest retained artifact for each audited pool was extracted with layout preservation and byte-matched to its current live-reviewed baseline entry. Historical duplicates were retained as evidence history and were not treated as separate current schedules. The comparison covered period dates, weekdays, ordered activity combinations, access classifications, start and end times, exact lane allocations, shared-use notes, closures, holidays, cancellations, meets, events, and other pool-specific planning details supported by the schema.
+
+Stevens Forest's current PDF explicitly identifies the May 30 event as a Howard County High School meet rather than a CNSL meet. It also publishes restricted Aqua Fitness on September 7 from 10:30 to 11:25 AM. The current CA Aqua Fitness series ends its recurring occurrence list on September 4 but does not explicitly cancel the pool PDF's one-date September 7 exception. The pool-specific schedule owns that date-specific exception, consistent with the previously accepted Bryant Woods holiday-exception decision. Talbott Springs' current PDF explicitly assigns its Monday 6:00 to 7:30 PM shared-use period to two lap lanes, two recreational-swim lanes, and four CNSL Practice lanes. Bryant Woods' current PDF explicitly closes its wading pool during Friday Adult Swim hours. All four changes are High confidence.
+
+Every other audited modeled fact remains current. The review confirmed exact shared-use evidence at Faulkner Ridge, River Hill, Running Brook, Stevens Forest, and Swansfield. Open-during-pep-rally reminders leave the published public intervals and access classifications unchanged, and the repeated pass promotion is not a pool-schedule field; both are non-material. No Moderate or Unresolved finding remains, and no publisher clarification is needed.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Updated | Added `pools[id="sfp"]` September 7 Aqua Fitness from `10:30am` to `11:25am`, corrected its May 30 override reason to Howard County High School swim meet, recorded the `pools[id="tsp"]` Monday shared-use lane allocation, and noted the `pools[id="bwp"]` wading-pool closure during Friday Adult Swim in `pools/pools.json`. |
+| Application-used source destinations | Unchanged | None; all reviewed pool schedule and Aqua Fitness destinations remain current. |
+| Retained official PDFs | Unchanged | None; all 22 newest retained audited PDFs match current live evidence. |
+| Visitor-facing records | Updated | Added the pool-schedule data correction to the undated Upcoming section in `src/views/whats-new.html`; the noindex What's New page has no sitemap entry. |
+| Review records | Updated | Updated `OFFICIAL_SOURCE_CHECKED_AT`, `OFFICIAL_SOURCE_UPDATED_AT`, active annual README evidence, and this check-log entry. |
+| Reviewed source baseline | Updated | `source-state.json` refreshed after the completed review. |
+
+<a id="activity-2026-06-30t050916-0400-seasonal-data-review"></a>
+
+## 2026-06-30T05:09:16-04:00 Seasonal Data Review
+
+**Active season:** 2026
+
+**Result:** Complete for candidate `5f3157ac9b8e2108` under the existing explicit maintainer exception for merchandise-store and booster-site availability.
+
+Checked the 139-source inventory built from the active 2026 JSON and annual README:
+
+- `pnpm run check:data-updates` reached all 76 monitor-collected modeled-evidence URLs and reproduced the Locust Park PDF, CA pool schedule index, and CNSL publication-page candidates.
+- All 63 official sources and application-used destinations outside the monitor were attempted separately with live GET requests.
+- 136 required sources returned successful responses.
+- The Long Reach and Phelps Luck merchandise stores and the Long Reach booster site were attempted and returned HTTP 403 responses covered by the established availability exception.
+- No non-exempt source failed or remained unattempted.
+
+The current field-owning Locust Park PDF explicitly extends the June 19 - August 9 Thursday shared Laps, Rec Swim, and CNSL Practice period from 5:00 - 6:30 PM to 5:00 - 8:00 PM. It assigns two lanes to Laps, three lanes to Rec Swim, and three lanes to CNSL Practice. Every other extracted schedule line remains unchanged. The CA schedule index independently identifies Locust Park as updated June 29 and resolves all 23 outdoor-pool short links with HTTP 200 to the exact `pools[].scheduleUrl` destinations already stored. The CNSL publication page retains the exact meet, practice, and team-assignment PDF destinations already modeled or recorded. No source destination, normalization, or schema changed. The current pool-specific PDF owns the changed time and lane allocation, the publisher index corroborates its currency, no official source conflicts remain, confidence is High, and there is no residual uncertainty.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Updated | Extended `pools[id="lpp"].schedules` Thursday shared Laps, Rec Swim, and CNSL Practice end time from `6:30pm` to `8:00pm` and recorded its two-lane, three-lane, and three-lane allocation in `pools/pools.json`. |
+| Application-used source destinations | Unchanged | None; `caPoolGuideUrl`, all 23 `pools[].scheduleUrl` values, `meets.url`, and retained meet/team document destinations remain current. |
+| Retained official PDFs | Updated | Added `pools/pool-schedules/lpp/2026-06-30/Locust_Park.pdf`; the June 17 artifact remains retained. |
+| Visitor-facing records | Updated | Added the Locust Park schedule data update to Upcoming in `src/views/whats-new.html`; no sitemap entry exists for the noindex What's New page. |
+| Review records | Updated | Updated `OFFICIAL_SOURCE_CHECKED_AT`, `OFFICIAL_SOURCE_UPDATED_AT`, active annual README evidence, and this check-log entry. |
+| Reviewed source baseline | Updated | `source-state.json` refreshed with the accepted June 30 Locust Park document and current candidate-page fingerprints. |
 
 <a id="activity-2026-06-27t072741-0400-seasonal-data-review"></a>
 

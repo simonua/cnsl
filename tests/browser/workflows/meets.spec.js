@@ -160,3 +160,19 @@ test('[WF-MEETS-005] next-day meet labels emphasize tomorrow separately from lat
   await expect(timeTrialsRelativeDay).toHaveClass(/upcoming-day-pill--tomorrow/);
   await expect(page.locator(`.meet-date-card[data-meet-date="${REGULAR_MEET_DATES[0]}"] .meet-date-header__relative`)).not.toHaveClass(/upcoming-day-pill--tomorrow/);
 });
+
+test('[WF-MEETS-006] meet schedule introduction has clear spacing on mobile', async ({ page }) => {
+  await page.setViewportSize(MOBILE_VIEWPORT);
+  await page.goto('/meets.html');
+  await expect(page.locator('#meetList')).toHaveAttribute('aria-busy', 'false');
+
+  const introduction = page.locator('.meet-list-introduction');
+  const meetList = page.locator('#meetList');
+  const gap = await introduction.evaluate((element, list) => {
+    const introductionBounds = element.getBoundingClientRect();
+    const listBounds = list.getBoundingClientRect();
+    return listBounds.top - introductionBounds.bottom;
+  }, await meetList.elementHandle());
+
+  expect(gap).toBeGreaterThanOrEqual(24);
+});

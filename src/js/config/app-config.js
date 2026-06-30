@@ -3,7 +3,7 @@
  */
 (function initializeAppConfig(globalScope) {
   const APP_VERSION = '2.26.8';
-  const APP_LAST_UPDATED_ON = '2026-06-28';
+  const APP_LAST_UPDATED_ON = '2026-06-30';
   // Published site and active season metadata.
   const YEAR = 2026;
   const ANNUAL_DATA_PATHS = Object.freeze({
@@ -12,8 +12,8 @@
     teams: `assets/data/${YEAR}/teams/teams.json`
   });
   const APP_TIMEZONE = 'America/New_York';
-  const OFFICIAL_SOURCE_CHECKED_AT = '2026-06-27T07:27:41-04:00';
-  const OFFICIAL_SOURCE_UPDATED_AT = '2026-06-27T07:27:41-04:00';
+  const OFFICIAL_SOURCE_CHECKED_AT = '2026-06-30T05:45:32-04:00';
+  const OFFICIAL_SOURCE_UPDATED_AT = '2026-06-30T05:45:32-04:00';
   const HOME_PAGE_HOSTNAME = 'pools.longreachmarlins.org';
   const HOME_PAGE_URL = `https://${HOME_PAGE_HOSTNAME}`;
   const AUTHOR_NAME = 'Simon Kurtz';

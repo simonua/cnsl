@@ -4761,6 +4761,10 @@ html[data-hide-home-intro="true"] .welcome-section {
   Meets
   ========================================================================== */
 
+.meet-list-introduction {
+  margin-bottom: 1.5rem;
+}
+
 /* Meet Date Cards - Collapsible */
 .meet-date-card {
   background: var(--white);
