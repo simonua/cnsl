@@ -302,6 +302,9 @@ analyticsTest('[WF-ANALYTICS-015] a stale app context cannot downgrade app-versi
 
 });
 
+analyticsTest.describe('first use', () => {
+analyticsTest.use({ firstVisit: true });
+
 analyticsTest('[WF-ANALYTICS-008] analytics records first use without publishing an upgrade path', async ({ page }) => {
   await page.route('https://www.googletagmanager.com/**', route => route.fulfill({
     contentType: 'application/javascript',
@@ -322,6 +325,8 @@ analyticsTest('[WF-ANALYTICS-008] analytics records first use without publishing
     .filter(argumentsList => argumentsList[0] === 'event')
     .map(argumentsList => argumentsList[1]));
   expect(eventNames).not.toContain('ca_upgrade');
+});
+
 });
 
 analyticsTest('[WF-ANALYTICS-009] analytics uses zero when prior use is known but its version is unavailable', async ({ page }) => {

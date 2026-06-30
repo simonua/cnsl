@@ -31,6 +31,9 @@ description: "Use when changing SEO, page metadata, visible page titles, heading
 ## Structured Data
 
 - Use structured-data types for the entity actually represented by that node. A collection page may describe its general subject with `Thing`, `SportsOrganization`, or another accurate topical type without promoting that subject to a search-feature entity.
+- Keep visible FAQ content as ordinary page content. Google retired FAQ rich results in May 2026, so do not add `FAQPage`, `Question`, or `Answer` markup solely for Google Search presentation.
+- Use `BreadcrumbList` on indexable entity-detail pages when the visible breadcrumb trail matches the structured path. Keep collection pages and entity pages linked in both directions so crawlers and visitors can discover the complete directory without query parameters.
+- Use a representative, inspectable page image for large search and social previews. Do not promote a small generic logo to a large preview solely to satisfy image metadata.
 - Do not use `Event` or `SportsEvent` as a generic topic for a schedule, collection, category, or multi-event page. Google Event markup belongs only on a unique leaf page focused on one publicly attendable event.
 - An Event node must describe the specific visible event and include, at minimum, its unique leaf-page `url`, descriptive `name`, accurate `startDate`, and physical `location`. Add applicable recommended properties such as `endDate`, `eventStatus`, `image`, `description`, `offers`, `organizer`, and `performer` only when the page provides authoritative values.
 - Keep the build's single-event page allowlist and structured-data validation aligned whenever an eligible event-detail page is introduced. Validate Event markup against [Google's current Event structured-data guidance](https://developers.google.com/search/docs/appearance/structured-data/event) before publication.

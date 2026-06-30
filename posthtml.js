@@ -10,6 +10,7 @@ const { coordinatePageBuilds } = require('./scripts/lib/page-build-coordinator.j
 const { stripAuthoringComments } = require('./scripts/lib/html-output.js');
 const { CACHE_ON_USE_SCRIPT_RESOURCES, INSTALL_CRITICAL_PAGES } = require('./scripts/lib/pwa-resource-policy.js');
 const { createMeetDateSummaryNode } = require('./scripts/lib/meet-date-summary.js');
+const { createEntityDetailPages } = require('./scripts/lib/entity-detail-pages.js');
 const { createPoolSummaryNode, createTeamSummaryNode } = require('./scripts/lib/search-directory-summary.js');
 const { createBrowserConfigSource, readPackageVersion } = require('./scripts/lib/package-version.js');
 const annualDataSourceDir = './src/assets/data';
@@ -427,15 +428,49 @@ function writeDevelopmentBuildMarker() {
 // Get all HTML files from src directory
 const files = fs.readdirSync(srcDir)
   .filter(file => file.endsWith('.html'));
+const entityDetailPages = createEntityDetailPages({
+  homePageUrl: appConfig.HOME_PAGE_URL,
+  pools: activeSeasonPools.pools,
+  teams: activeSeasonTeams.teams,
+  year: activeSeason
+});
+
+function writeSitemapArtifact() {
+  const sitemapPath = path.join(outDir, 'sitemap.xml');
+  const sitemapSource = fs.readFileSync('sitemap.xml', 'utf8');
+  const xmlDeclaration = sitemapSource.match(/^<\?xml[^?]+\?>/)?.[0];
+  if (!xmlDeclaration) {
+    throw new Error('The maintained sitemap must begin with an XML declaration.');
+  }
+  return posthtml().use(tree => {
+    tree.match({ tag: 'urlset' }, node => {
+      node.content.push(...entityDetailPages.map(page => ({
+        tag: 'url',
+        content: [
+          { tag: 'loc', content: [page.canonicalUrl] },
+          { tag: 'lastmod', content: ['2026-06-30'] }
+        ]
+      })));
+      return node;
+    });
+    return tree;
+  }).process(sitemapSource).then(result => {
+    fs.writeFileSync(sitemapPath, `${xmlDeclaration}\n${result.html.trimEnd()}\n`);
+    console.log(`Generated sitemap with ${entityDetailPages.length} entity detail pages.`);
+  });
+}
 
 // Process each file
-const totalFiles = files.length;
+const pageJobs = [
+  ...files.map(file => ({ file, sourcePath: path.join(srcDir, file) })),
+  ...entityDetailPages.map(page => ({ file: page.filename, source: page.source }))
+];
+const totalFiles = pageJobs.length;
 
-coordinatePageBuilds(files, file => {
-  const srcPath = path.join(srcDir, file);
+coordinatePageBuilds(pageJobs, page => {
+  const { file } = page;
   const outPath = path.join(outDir, file);
-
-  const html = fs.readFileSync(srcPath, 'utf8');
+  const html = page.source || fs.readFileSync(page.sourcePath, 'utf8');
 
   return posthtml()
     .use(extend)
@@ -454,7 +489,8 @@ coordinatePageBuilds(files, file => {
       console.error(`❌ [${timestamp()}] Error processing ${file}:`, error);
       throw error;
     });
-}, () => {
+}, async () => {
+  await writeSitemapArtifact();
     writePwaArtifacts();
     writeDevelopmentBuildMarker();
     console.log(`✅ [${timestamp()}] Build completed! Processed ${totalFiles} HTML files.`);

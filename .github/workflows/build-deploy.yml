@@ -22,6 +22,7 @@ on:
       - 'scripts/adapters/weather-alert-service.js'
       - 'scripts/lib/classic-script-loader.js'
       - 'scripts/lib/development-server.js'
+      - 'scripts/lib/entity-detail-pages.js'
       - 'scripts/lib/html-output.js'
       - 'scripts/lib/meet-date-summary.js'
       - 'scripts/lib/page-build-coordinator.js'

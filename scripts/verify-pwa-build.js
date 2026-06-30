@@ -95,13 +95,6 @@ function findEventStructuredDataNodes(value, eventNodes = []) {
   return eventNodes;
 }
 
-function collectNodeText(value) {
-  if (Array.isArray(value)) return value.map(collectNodeText).join('');
-  if (typeof value === 'string') return value;
-  if (!value || typeof value !== 'object') return '';
-  return collectNodeText(value.content);
-}
-
 function hasSchemaType(value, expectedType) {
   const schemaTypes = Array.isArray(value?.['@type']) ? value['@type'] : [value?.['@type']];
   return schemaTypes.includes(expectedType);
@@ -154,6 +147,16 @@ function calculateDirectoryBytes(directory) {
 const artifactBytes = calculateDirectoryBytes(outDir);
 const activeSeasonPools = JSON.parse(fs.readFileSync(path.join(outDir, 'assets', 'data', String(YEAR), 'pools', 'pools.json'), 'utf8'));
 const activeSeasonMeets = JSON.parse(fs.readFileSync(path.join(outDir, 'assets', 'data', String(YEAR), 'meets', 'meets.json'), 'utf8'));
+const activeSeasonTeams = JSON.parse(fs.readFileSync(path.join(outDir, 'assets', 'data', String(YEAR), 'teams', 'teams.json'), 'utf8'));
+const entityDetailPages = [
+  ...activeSeasonPools.pools.map(pool => ({ entityType: 'SportsActivityLocation', file: `pool-${pool.id}.html` })),
+  ...activeSeasonTeams.teams.map(team => ({ entityType: 'SportsTeam', file: `team-${team.id}.html` }))
+];
+entityDetailPages.forEach(({ file }) => {
+  canonicalPages[file] = `${siteOrigin}/${file}`;
+  indexablePages.add(file);
+  assert.ok(fs.existsSync(path.join(outDir, file)), `Generated entity detail page must exist: ${file}`);
+});
 const weatherOperatingWindowsPath = path.join(outDir, 'js', 'config', 'weather-operating-windows.js');
 const weatherOperatingWindowsContext = {};
 vm.runInNewContext(fs.readFileSync(weatherOperatingWindowsPath, 'utf8'), weatherOperatingWindowsContext);
@@ -362,38 +365,6 @@ async function verifyMeetDateSummaryArtifact() {
   });
 }
 
-async function verifyFaqStructuredDataArtifact() {
-  const faqHtml = fs.readFileSync(path.join(outDir, 'faq.html'), 'utf8');
-  const visibleQuestions = [];
-  const structuredDataNodes = [];
-
-  await posthtml().use(tree => {
-    tree.match({ tag: 'h3' }, node => {
-      visibleQuestions.push(collectNodeText(node).trim());
-      return node;
-    });
-    tree.match({ tag: 'script', attrs: { type: 'application/ld+json' } }, node => {
-      structuredDataNodes.push(JSON.parse(collectNodeText(node)));
-      return node;
-    });
-    return tree;
-  }).process(faqHtml);
-
-  const faqPages = structuredDataNodes.filter(node => hasSchemaType(node, 'FAQPage'));
-  assert.equal(faqPages.length, 1, 'FAQ artifact must publish exactly one FAQPage structured-data node.');
-  const structuredQuestions = faqPages[0].mainEntity || [];
-  assert.ok(structuredQuestions.every(question => hasSchemaType(question, 'Question')), 'FAQPage mainEntity entries must all be Questions.');
-  assert.ok(
-    structuredQuestions.every(question => hasSchemaType(question.acceptedAnswer, 'Answer') && question.acceptedAnswer.text),
-    'Every structured FAQ question must publish a nonempty accepted Answer.'
-  );
-  assert.deepEqual(
-    structuredQuestions.map(question => question.name).sort(),
-    visibleQuestions.sort(),
-    'FAQPage structured-data questions must match the visible FAQ question set.'
-  );
-}
-
 const manifest = JSON.parse(fs.readFileSync(path.join(outDir, 'manifest.webmanifest'), 'utf8'));
 assert.equal(manifest.id, './', 'The install manifest must retain a stable application id.');
 assert.match(manifest.description, new RegExp(String(YEAR)), 'The install manifest must describe the active season.');
@@ -507,9 +478,7 @@ assert.doesNotMatch(analytics, /(?:pool|team|meet)_(?:id|name)\s*:/, 'Analytics 
 assert.doesNotMatch(analytics, /(?:latitude|longitude|coordinates|user_agent|platform)\s*:/, 'Analytics must not send location or device-identifying values.');
 assert.doesNotMatch(nonAnalyticsBrowserCode, /\b(?:window\.)?gtag\s*\(/, 'Delivered browser scripts must publish measurement only through the analytics module API.');
 assert.doesNotMatch(analytics, /\b(?:user_id|user_properties|document\.referrer)\b/, 'Analytics must not add identifiers, user profiling values, or browser referrers.');
-const generatedViewPages = fs.readdirSync(path.join(__dirname, '..', 'src', 'views'), { withFileTypes: true })
-  .filter(entry => entry.isFile() && entry.name.endsWith('.html'))
-  .map(entry => entry.name);
+const generatedViewPages = Object.keys(canonicalPages);
 generatedViewPages.forEach(page => {
   const html = fs.readFileSync(path.join(outDir, page), 'utf8');
   const primaryHeadings = html.match(/<h1(?:\s|>)/g) || [];
@@ -611,6 +580,7 @@ assert.ok(homeHtml.includes(`href="${activeSeasonPools.caPoolGuideUrl}"`), 'Home
 assert.ok(homeHtml.includes(`datetime="${activeSeasonPools.seasonStartDate}">${formatSeasonDate(activeSeasonPools.seasonStartDate)}</time>`), 'Home page must render the active annual season start date.');
 assert.ok(homeHtml.includes(`datetime="${activeSeasonPools.seasonEndDate}">${formatSeasonDate(activeSeasonPools.seasonEndDate)}</time>`), 'Home page must render the active annual season end date.');
 assert.ok(homeHtml.includes(`href="${activeSeasonPools.caPoolDirectoryUrl}"`), 'Shared weather alert must render its official pool-directory destination from active annual metadata.');
+assert.match(homeHtml, /"@type":\s*"WebSite"[\s\S]*"alternateName":\s*"CA Pools"/, 'Shared WebSite data must publish its concise alternate site name.');
 
 const poolsHtml = fs.readFileSync(path.join(outDir, 'pools.html'), 'utf8');
 assert.ok(poolsHtml.includes(`<title>${YEAR} Columbia Association Pools: Hours &amp; Schedules</title>`), 'Pool search title must identify the active season, Columbia Association pools, hours, and schedules.');
@@ -621,6 +591,18 @@ const faqHtml = fs.readFileSync(path.join(outDir, 'faq.html'), 'utf8');
 assert.ok(faqHtml.includes(`href="${activeSeasonPools.caPoolGuideUrl}"`), 'FAQ must render its official pool-source destination from active annual metadata.');
 assert.match(faqHtml, /Google Analytics uses its own first-party identifier to provide combined reports/, 'FAQ must disclose the first-party Google Analytics storage used for aggregate reporting.');
 assert.match(faqHtml, /does not send Google Analytics your name, contact details, account information/, 'FAQ must disclose that app-defined measurement does not send direct visitor identity fields.');
+assert.doesNotMatch(faqHtml, /"@type":\s*"(?:FAQPage|Question|Answer)"/, 'FAQ must not publish retired Google FAQ rich-result types.');
+assert.match(faqHtml, /"@type":\s*"WebPage"/, 'FAQ must retain ordinary WebPage structured data.');
+
+entityDetailPages.forEach(({ entityType, file }) => {
+  const html = fs.readFileSync(path.join(outDir, file), 'utf8');
+  const structuredData = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+    .map(([, value]) => JSON.parse(value));
+  const graphNodes = structuredData.flatMap(value => value['@graph'] || [value]);
+  assert.equal(graphNodes.filter(node => hasSchemaType(node, entityType)).length, 1, `${file} must publish one ${entityType} node.`);
+  assert.equal(graphNodes.filter(node => hasSchemaType(node, 'BreadcrumbList')).length, 1, `${file} must publish one BreadcrumbList node.`);
+  assert.match(html, /<nav class="entity-breadcrumbs" aria-label="Breadcrumb">/, `${file} must publish a visible breadcrumb trail.`);
+});
 
 const offlineHtml = fs.readFileSync(path.join(outDir, 'offline.html'), 'utf8');
 assert.match(offlineHtml, /<meta name="robots" content="noindex, follow">/, 'Offline fallback must not be indexed.');
@@ -634,6 +616,10 @@ const sitemapUrls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(([, url]) 
 const indexableCanonicalUrls = [...indexablePages].map(page => canonicalPages[page]);
 assert.deepEqual(sitemapUrls, indexableCanonicalUrls, 'Sitemap must publish exactly the canonical URLs of indexable pages.');
 assert.doesNotMatch(sitemap, /<(?:changefreq|priority)>/, 'Sitemap must omit crawler hints that search engines ignore.');
+entityDetailPages.forEach(({ file }) => {
+  assert.ok(precacheOptionalResources.includes(file), `${file} must remain available in the optional PWA tier.`);
+  assert.ok(!precacheCoreResources.includes(file), `${file} must not increase the install-critical PWA tier.`);
+});
 
 const robots = fs.readFileSync(path.join(outDir, 'robots.txt'), 'utf8');
 assert.doesNotMatch(robots, /Disallow: \/offline\.html/, 'Crawler rules must allow discovery of the offline noindex directive.');
@@ -644,7 +630,6 @@ assert.equal(customDomain, HOME_PAGE_HOSTNAME, 'Published GitHub Pages output mu
 
 Promise.all([
   verifyAnalyticsArtifact(appConfig, analyticsInteractionType, devicePlatform, analytics),
-  verifyFaqStructuredDataArtifact(),
   verifyMeetDateSummaryArtifact()
 ])
   .then(() => {

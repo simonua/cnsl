@@ -123,19 +123,48 @@ test('[AX-DIRECTORY-001] pool and team fallbacks remain accessible without appli
     await page.goto(path);
     const directory = page.locator('.search-directory-summary');
     const items = directory.locator('.search-directory-summary__item');
+    const firstLink = directory.locator('a').first();
 
     await expect(directory).toBeVisible();
     await expect(directory.locator('h2')).toHaveCount(1);
     await expect(items.first()).toBeVisible();
     expect(await items.count()).toBeGreaterThan(0);
-    await expect(directory.locator('a').first()).toHaveAttribute('href', /^https:\/\//);
-    await expect(directory.locator('a').first()).toHaveAttribute('rel', /\bnoopener\b/);
-    await expect(directory.locator('a').first()).toHaveAttribute('target', '_blank');
+    await expect(firstLink).toHaveAttribute('href', /^(?:pool|team)-[a-z0-9-]+\.html$/);
+    const detailPath = await firstLink.getAttribute('href');
+    await expect(firstLink).not.toHaveAttribute('target', '_blank');
     await expect(directory.locator('.search-directory-summary__detail').first()).not.toHaveText('');
     await expect(directory.locator('..')).toHaveAttribute('aria-busy', 'false');
     await expectNoAccessibilityViolations(page, '.search-directory-summary');
+
+    await page.goto(`/${detailPath}`);
+    await expect(page.locator('.entity-breadcrumbs')).toBeVisible();
+    await expect(page.locator('h1')).toHaveCount(1);
+    await expect(page.locator('.entity-detail__actions a').first()).toHaveAttribute('href', /^https:\/\//);
+    await expectNoAccessibilityViolations(page, '#mainContent');
   }
 });
+
+for (const theme of ['light', 'dark']) {
+  test(`[AX-DIRECTORY-002-${theme.toUpperCase()}] entity detail pages fit mobile viewports in ${theme} theme`, async ({ page }) => {
+    await page.setViewportSize(MOBILE_VIEWPORT);
+    await seedPreferences(page, { theme });
+    await page.route(/\/js\/.*\.js(?:\?.*)?$/, route => route.abort('blockedbyclient'));
+    await page.goto('/pools.html');
+    const detailPath = await page.locator('.search-directory-summary a').first().getAttribute('href');
+    expect(detailPath).toMatch(/^pool-[a-z0-9-]+\.html$/);
+
+    await page.unroute(/\/js\/.*\.js(?:\?.*)?$/);
+    await page.goto(`/${detailPath}`);
+    await expect(page.locator('.entity-breadcrumbs')).toBeVisible();
+    await expect(page.locator('.entity-detail__facts')).toBeVisible();
+    const hasHorizontalOverflow = await page.evaluate(() => globalThis.document.documentElement.scrollWidth
+      > globalThis.document.documentElement.clientWidth);
+    expect(hasHorizontalOverflow).toBe(false);
+    await page.locator('.entity-breadcrumbs a').first().focus();
+    await expect(page.locator('.entity-breadcrumbs a').first()).toBeFocused();
+    await expectNoAccessibilityViolations(page);
+  });
+}
 
 for (const theme of ['light', 'dark']) {
   test(`[AX-MEETS-001-${theme.toUpperCase()}-HIGH-CONTRAST] meet disclosure focus and details pass WCAG in ${theme} high contrast`, async ({ page }) => {

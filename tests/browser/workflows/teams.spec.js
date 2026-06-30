@@ -1,4 +1,5 @@
 const { test, expect } = require('../browser-test');
+const AppConfig = require('../../../scripts/adapters/app-config.js');
 const {
   MOBILE_VIEWPORT,
   PLAYWRIGHT_SERVER_URL,
@@ -299,6 +300,9 @@ test('[WF-TEAMS-008] touch-capable team details expose every published practice 
   const touchPage = await touchContext.newPage();
 
   try {
+    await touchPage.addInitScript(storageKey => {
+      localStorage.setItem(storageKey, 'true');
+    }, AppConfig.WELCOME_DIALOG_DISMISSED_STORAGE_KEY);
     await prepareStableWeatherResponses(touchPage);
     await routeAnnualDataFixture(touchPage, ['meets', 'pools', 'teams']);
     await touchPage.goto('/teams.html');

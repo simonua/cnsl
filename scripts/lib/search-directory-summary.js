@@ -17,19 +17,6 @@ function requireText(value, fieldName) {
   return value.trim();
 }
 
-function requireHttpsUrl(value, fieldName) {
-  let url;
-  try {
-    url = new URL(value);
-  } catch {
-    throw new Error(`Search directory summary requires a valid ${fieldName}.`);
-  }
-  if (url.protocol !== 'https:') {
-    throw new Error(`Search directory summary requires an HTTPS ${fieldName}.`);
-  }
-  return url.href;
-}
-
 function createSummaryNode({ heading, headingId, intro, items }) {
   return {
     tag: 'section',
@@ -64,7 +51,7 @@ function createItemNode({ detail, name, url }) {
     content: [
       {
         tag: 'a',
-        attrs: { href: url, rel: 'noopener noreferrer', target: '_blank' },
+        attrs: { href: url },
         content: [escapeHtml(name)]
       },
       {
@@ -92,7 +79,7 @@ function createPoolSummaryNode(pools, year) {
       detail: `${street}, ${city}, ${state} ${zip}`,
       name: `${name} Pool`,
       sortName: name,
-      url: requireHttpsUrl(pool.caUrl, `${name} official URL`)
+      url: `pool-${requireText(pool.id, `${name} ID`)}.html`
     };
   }).sort((firstItem, secondItem) => firstItem.sortName.localeCompare(secondItem.sortName))
     .map(createItemNode);
@@ -100,7 +87,7 @@ function createPoolSummaryNode(pools, year) {
   return createSummaryNode({
     heading: `${year} Columbia Association Outdoor Pools`,
     headingId: 'poolDirectorySummaryTitle',
-    intro: 'Browse pool names and Columbia addresses while current hours and schedules load. Each name opens Columbia Association official information.',
+    intro: 'Browse pool names and Columbia addresses while current hours and schedules load. Each name opens a pool information page.',
     items
   });
 }
@@ -115,14 +102,14 @@ function createTeamSummaryNode(teams, year) {
     return {
       detail: `Home ${homePools.length === 1 ? 'pool' : 'pools'}: ${homePools.join(', ')}`,
       name,
-      url: requireHttpsUrl(team.url, `${name} official URL`)
+      url: `team-${requireText(team.id, `${name} ID`)}.html`
     };
   }).sort(byName).map(createItemNode);
 
   return createSummaryNode({
     heading: `${year} Columbia Neighborhood Swim League Teams`,
     headingId: 'teamDirectorySummaryTitle',
-    intro: "Browse CNSL teams and home pools while practice details load. Each name opens the team's official website.",
+    intro: 'Browse CNSL teams and home pools while practice details load. Each name opens a team information page.',
     items
   });
 }
