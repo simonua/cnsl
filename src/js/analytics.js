@@ -150,6 +150,10 @@
   const UNKNOWN_PREVIOUS_VERSION = '0';
   const VS_CODE_BROWSER_USER_AGENT_PATTERN = /\b(?:Code|Code-Insiders|VSCodium)\//;
 
+  // Set during initialization, before prepareUpgradeTracking writes the version marker, so that
+  // app-mode reporting can distinguish a profile's first-ever visit from a returning visit.
+  let openedOnFirstEverVisit = false;
+
   // Private measurement and publishing helpers
 
   /**
@@ -464,6 +468,21 @@
   }
 
   /**
+   * Determines whether this load is the browser profile's first-ever visit to the app.
+   * Must run before prepareUpgradeTracking writes the canonical app-version marker, which is
+   * absent only until the first load records it.
+   * @returns {boolean} Whether no prior app-version marker was stored for this profile
+   * @private
+   */
+  function readFirstEverVisitState() {
+    try {
+      return window.localStorage.getItem(window.ANALYTICS_APP_VERSION_STORAGE_KEY) === null;
+    } catch (_error) {
+      return false;
+    }
+  }
+
+  /**
    * Publishes whether this browser session opened as an installed app or webpage.
    * @private
    */
@@ -474,7 +493,14 @@
     ) ? APP_MODES.INSTALLED : APP_MODES.WEBPAGE;
     try {
       if (window.sessionStorage.getItem(window.ANALYTICS_APP_MODE_REPORTED_STORAGE_KEY) !== null) return;
+
+      // Suppress app-mode reporting on the very first visit from this browser profile.
+      // A first-time visitor cannot have installed the app yet, so they are always in
+      // "webpage" mode. Counting that forced first-visit value would skew aggregate
+      // app-mode data toward "webpage". Installed mode is never suppressed because it
+      // proves the app was added on an earlier visit.
       window.sessionStorage.setItem(window.ANALYTICS_APP_MODE_REPORTED_STORAGE_KEY, appMode);
+      if (openedOnFirstEverVisit && appMode === APP_MODES.WEBPAGE) return;
     } catch (_error) {
       return;
     }
@@ -841,7 +867,13 @@
     && isProductionSite()
     && !isAnalyticsDisabled();
   const publishedCampaign = isAnalyticsEligible ? consumePublishedCampaign() : null;
-  if (isAnalyticsEligible) prepareUpgradeTracking();
+  // Capture first-ever-visit state before prepareUpgradeTracking writes the version marker.
+  // The canonical app-version marker is absent only on a profile's first load, so this is the
+  // last point at which app mode can tell a genuine first visit from a returning one.
+  if (isAnalyticsEligible) {
+    openedOnFirstEverVisit = readFirstEverVisitState();
+    prepareUpgradeTracking();
+  }
 
   // Public API
 

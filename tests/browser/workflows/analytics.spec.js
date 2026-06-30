@@ -203,6 +203,38 @@ analyticsTest('[WF-ANALYTICS-018] analytics reports installed PWA mode once per 
   expect(appModeEvents).toEqual([]);
 });
 
+analyticsTest('[WF-ANALYTICS-019] analytics omits webpage mode on a first-ever visit and reports it on a later session', async ({ page }) => {
+  await page.route('https://www.googletagmanager.com/**', route => route.fulfill({
+    contentType: 'application/javascript',
+    body: 'globalThis.cnslTagScriptLoaded = true;'
+  }));
+  await page.route('https://pools.longreachmarlins.org/**', async route => {
+    const requestedUrl = new URL(route.request().url());
+    const response = await page.request.get(`${PLAYWRIGHT_SERVER_URL}${requestedUrl.pathname}`);
+    await route.fulfill({ response });
+  });
+
+  await page.goto('https://pools.longreachmarlins.org/contact.html', { waitUntil: 'domcontentloaded' });
+  await expect.poll(() => page.evaluate(() => globalThis.cnslTagScriptLoaded)).toBe(true);
+  await expect.poll(() => page.evaluate(() => sessionStorage.getItem(
+    globalThis.ANALYTICS_APP_MODE_REPORTED_STORAGE_KEY
+  ))).toBe('webpage');
+  const firstVisitAppModeEvents = await page.evaluate(() => globalThis.dataLayer
+    .map(argumentsList => Array.from(argumentsList))
+    .filter(command => command[0] === 'event' && command[1] === 'ca_app_mode'));
+  expect(firstVisitAppModeEvents).toEqual([]);
+  await expect.poll(() => page.evaluate(() => localStorage.getItem(globalThis.ANALYTICS_APP_VERSION_STORAGE_KEY)))
+    .not.toBeNull();
+
+  await page.evaluate(() => sessionStorage.clear());
+  await page.goto('https://pools.longreachmarlins.org/contact.html', { waitUntil: 'domcontentloaded' });
+  await expect.poll(() => page.evaluate(() => globalThis.dataLayer.map(argumentsList => Array.from(argumentsList))))
+    .toContainEqual(['event', 'ca_app_mode', { app_mode: 'webpage' }]);
+  await expect.poll(() => page.evaluate(() => sessionStorage.getItem(
+    globalThis.ANALYTICS_APP_MODE_REPORTED_STORAGE_KEY
+  ))).toBe('webpage');
+});
+
 analyticsTest('[WF-ANALYTICS-014] concurrent browser contexts publish one app-version and upgrade event per profile', async ({
   page
 }) => {
