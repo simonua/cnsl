@@ -1,29 +1,29 @@
 <extends src="base.html">
   <block name="metadata">
-    <title>About</title>
-    <meta name="description" content="Learn about this community project for finding Columbia outdoor pool and summer swim information in one place." />
+    <title>About &amp; Contact | CA Pool &amp; CNSL Assistant</title>
+    <meta name="description" content="Learn about this Columbia summer swim community project and contact Simon Kurtz with feedback, feature requests, or data corrections." />
     <meta name="robots" content="noindex, follow" />
     <link rel="canonical" href="{{ HOME_PAGE_URL }}/about.html" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="About" />
-    <meta property="og:description" content="Learn about this community project for finding Columbia outdoor pool and summer swim information in one place." />
+    <meta property="og:title" content="About &amp; Contact | CA Pool &amp; CNSL Assistant" />
+    <meta property="og:description" content="Learn about this Columbia summer swim community project and contact Simon Kurtz with feedback, feature requests, or data corrections." />
     <meta property="og:url" content="{{ HOME_PAGE_URL }}/about.html" />
-    <meta name="twitter:title" content="About" />
-    <meta name="twitter:description" content="Learn about this community project for finding Columbia outdoor pool and summer swim information in one place." />
+    <meta name="twitter:title" content="About &amp; Contact | CA Pool &amp; CNSL Assistant" />
+    <meta name="twitter:description" content="Learn about this Columbia summer swim community project and contact Simon Kurtz with feedback, feature requests, or data corrections." />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "AboutPage",
-        "name": "About CA Pool & CNSL Assistant",
+        "@type": ["AboutPage", "ContactPage"],
+        "name": "About and Contact CA Pool & CNSL Assistant",
         "url": "{{ HOME_PAGE_URL }}/about.html",
         "isPartOf": { "@id": "{{ HOME_PAGE_URL }}/#website" },
-        "description": "A community project for finding Columbia outdoor pool and summer swim information in one place."
+        "description": "Information about a Columbia summer swim community project and ways to contact its maintainer."
       }
     </script>
   </block>
 
   <block name="content">
-    <h1>Made for Columbia Summer Swim</h1>
+    <h1>About &amp; Contact</h1>
 
     <div class="container">
       <section class="faq-list" aria-label="Why this app exists">
@@ -40,6 +40,23 @@
         <article class="faq-item">
           <h2>A Commitment to Free Access</h2>
           <p>This app is free, and I intend to keep it that way. My goal is simple: make pool visits and summer swim plans a little easier for our community.</p>
+        </article>
+
+        <article class="faq-item" id="contact">
+          <h2>Contact Me</h2>
+          <p>Email is the best way to share app feedback, request a feature, or report information that does not match an official source.</p>
+          <ul>
+            <li><a href="{{ EXTERNAL_LINKS.AUTHOR_FEEDBACK_EMAIL_URL }}">General feedback</a></li>
+            <li><a href="{{ EXTERNAL_LINKS.AUTHOR_BUG_FEATURE_EMAIL_URL }}">Report a bug or request a feature</a></li>
+            <li><a href="{{ EXTERNAL_LINKS.AUTHOR_DATA_EMAIL_URL }}">Report a data issue</a></li>
+          </ul>
+          <p>You can also <a href="{{ EXTERNAL_LINKS.AUTHOR_LINKEDIN_URL }}" target="_blank" rel="noopener noreferrer">connect with me on LinkedIn<span class="visually-hidden"> (opens in new tab)</span></a> or <a href="{{ EXTERNAL_LINKS.AUTHOR_FACEBOOK_PROFILE_URL }}" target="_blank" rel="noopener noreferrer">send me a direct message through Messenger<span class="visually-hidden"> (opens in new tab)</span></a>.</p>
+        </article>
+
+        <article class="faq-item">
+          <h2>About App Information</h2>
+          <p>I do my best to keep the app current with official Columbia Association and CNSL publications. If something does not match an official source, please include a link to that source in your message. I can review what the app displays, but I cannot change information published by CA or CNSL. Because I maintain this community project in my spare time, replies and updates may take a little while.</p>
+          <p><strong>Thank you!</strong> <span aria-hidden="true">💙</span> This app is a labor of love. I enjoy working on it, and I hope it helps.</p>
         </article>
       </section>
     </div>

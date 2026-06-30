@@ -66,7 +66,7 @@ const canonicalPages = {
   'settings.html': `${siteOrigin}/settings.html`,
   'whats-new.html': `${siteOrigin}/whats-new.html`,
   'about.html': `${siteOrigin}/about.html`,
-  'contact.html': `${siteOrigin}/contact.html`,
+  'contact.html': `${siteOrigin}/about.html`,
   'my-meet-day.html': `${siteOrigin}/my-meet-day.html`,
   'offline.html': `${siteOrigin}/offline.html`,
   'swim-meet-resources.html': `${siteOrigin}/swim-meet-resources.html`
@@ -93,6 +93,18 @@ function findEventStructuredDataNodes(value, eventNodes = []) {
   }
   Object.values(value).forEach(item => findEventStructuredDataNodes(item, eventNodes));
   return eventNodes;
+}
+
+function collectNodeText(value) {
+  if (Array.isArray(value)) return value.map(collectNodeText).join('');
+  if (typeof value === 'string') return value;
+  if (!value || typeof value !== 'object') return '';
+  return collectNodeText(value.content);
+}
+
+function hasSchemaType(value, expectedType) {
+  const schemaTypes = Array.isArray(value?.['@type']) ? value['@type'] : [value?.['@type']];
+  return schemaTypes.includes(expectedType);
 }
 
 assert.ok(fs.existsSync(outDir), 'Build output is missing. Run pnpm run build before verifying the PWA artifact.');
@@ -350,6 +362,38 @@ async function verifyMeetDateSummaryArtifact() {
   });
 }
 
+async function verifyFaqStructuredDataArtifact() {
+  const faqHtml = fs.readFileSync(path.join(outDir, 'faq.html'), 'utf8');
+  const visibleQuestions = [];
+  const structuredDataNodes = [];
+
+  await posthtml().use(tree => {
+    tree.match({ tag: 'h3' }, node => {
+      visibleQuestions.push(collectNodeText(node).trim());
+      return node;
+    });
+    tree.match({ tag: 'script', attrs: { type: 'application/ld+json' } }, node => {
+      structuredDataNodes.push(JSON.parse(collectNodeText(node)));
+      return node;
+    });
+    return tree;
+  }).process(faqHtml);
+
+  const faqPages = structuredDataNodes.filter(node => hasSchemaType(node, 'FAQPage'));
+  assert.equal(faqPages.length, 1, 'FAQ artifact must publish exactly one FAQPage structured-data node.');
+  const structuredQuestions = faqPages[0].mainEntity || [];
+  assert.ok(structuredQuestions.every(question => hasSchemaType(question, 'Question')), 'FAQPage mainEntity entries must all be Questions.');
+  assert.ok(
+    structuredQuestions.every(question => hasSchemaType(question.acceptedAnswer, 'Answer') && question.acceptedAnswer.text),
+    'Every structured FAQ question must publish a nonempty accepted Answer.'
+  );
+  assert.deepEqual(
+    structuredQuestions.map(question => question.name).sort(),
+    visibleQuestions.sort(),
+    'FAQPage structured-data questions must match the visible FAQ question set.'
+  );
+}
+
 const manifest = JSON.parse(fs.readFileSync(path.join(outDir, 'manifest.webmanifest'), 'utf8'));
 assert.equal(manifest.id, './', 'The install manifest must retain a stable application id.');
 assert.match(manifest.description, new RegExp(String(YEAR)), 'The install manifest must describe the active season.');
@@ -595,6 +639,7 @@ assert.equal(customDomain, HOME_PAGE_HOSTNAME, 'Published GitHub Pages output mu
 
 Promise.all([
   verifyAnalyticsArtifact(appConfig, analyticsInteractionType, devicePlatform, analytics),
+  verifyFaqStructuredDataArtifact(),
   verifyMeetDateSummaryArtifact()
 ])
   .then(() => {

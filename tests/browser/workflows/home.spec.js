@@ -27,7 +27,7 @@ test('[WF-HOME-001] season summary and sharing actions appear only on the home p
   await expect(page.getByRole('link', { name: 'Email' })).toHaveAttribute('href', AppConfig.EXTERNAL_LINKS.EMAIL_SHARE);
   await expect(page.getByRole('link', { name: 'Facebook (opens in new tab)' })).toHaveAttribute('href', AppConfig.EXTERNAL_LINKS.FACEBOOK_SHARE);
   await expect(page.locator('[data-analytics-share-method="x"]')).toHaveCount(0);
-  await expect(page.getByRole('link', { name: 'Send Feedback' })).toHaveAttribute('href', 'contact.html');
+  await expect(page.getByRole('link', { name: 'Send Feedback' })).toHaveAttribute('href', 'about.html#contact');
   await page.getByRole('link', { name: 'Swim Meets' }).focus();
   await page.keyboard.press('Tab');
   await expect(page.getByRole('button', { name: 'QR Code' })).toBeFocused();
