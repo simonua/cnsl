@@ -45,7 +45,7 @@ describe('season monitor evidence boundary', () => {
   });
 
   describe('scheduled deterministic automation', () => {
-    it('should schedule seasonal checks and the weekly refactoring audit', async () => {
+    it('should schedule seasonal checks and preserve the manual refactoring audit', async () => {
       const repositoryRoot = path.resolve(__dirname, '..', '..');
       const workflowsRoot = path.join(repositoryRoot, '.github', 'workflows');
       const workflowFiles = (await fs.readdir(workflowsRoot)).filter((fileName) => fileName.endsWith('.yml'));
@@ -110,9 +110,9 @@ describe('season monitor evidence boundary', () => {
       assert.doesNotMatch(seasonMonitor, /SMTP_|SEASON_MONITOR_EMAIL|--mail-from|--mail-rcpt/);
       assert.doesNotMatch(seasonMonitor, /copilot-swe-agent|season-data-reviewer\.agent/);
       assert.match(refactoringAudit, /^name: Weekly Refactoring Audit$/m);
-      assert.match(refactoringAudit, /Runs Mondays at 06:41 UTC/);
-      assert.match(refactoringAudit, /cron: '41 6 \* \* 1'/);
       assert.match(refactoringAudit, /workflow_dispatch:/);
+      assert.doesNotMatch(refactoringAudit, /^\s+schedule:/m);
+      assert.doesNotMatch(refactoringAudit, /cron:/);
       assert.match(refactoringAudit, /COPILOT_AGENT_TOKEN/);
       assert.match(refactoringAudit, /Scheduled refactoring audit/);
       assert.match(refactoringAudit, /REFACTORING_AUDIT_RECIPIENT: simonua/);

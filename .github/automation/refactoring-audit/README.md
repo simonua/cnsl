@@ -1,10 +1,10 @@
 # Weekly Refactoring Audit
 
-The weekly refactoring audit delegates a documentation-only assessment to GitHub Copilot cloud agent. Copilot reviews the repository using `.github/agents/refactoring-auditor.agent.md` and opens a pull request refreshing `docs/refactoring-plan.md` with evidence-based high, medium, and low priorities. The custom agent targets GitHub Copilot cloud execution and is not intended as a VS Code interactive agent.
+The refactoring audit delegates a documentation-only assessment to GitHub Copilot cloud agent. Copilot reviews the repository using `.github/agents/refactoring-auditor.agent.md` and opens a pull request refreshing `docs/refactoring-plan.md` with evidence-based high, medium, and low priorities. The custom agent targets GitHub Copilot cloud execution and is not intended as a VS Code interactive agent.
 
 ## Schedule And Duplicate Protection
 
-The workflow runs every Monday at 06:41 UTC and can also be run manually. Before assigning a new audit, it looks for an open issue whose title contains `Scheduled refactoring audit`. An existing open audit keeps the schedule from creating overlapping Copilot work. Every new or reused audit issue is assigned to `simonua`, and Copilot is instructed to assign the resulting plan pull request to `simonua` and request review from `simonua`.
+The workflow runs only when manually dispatched. Before assigning a new audit, it looks for an open issue whose title contains `Scheduled refactoring audit`. An existing open audit prevents overlapping Copilot work. Every new or reused audit issue is assigned to `simonua`, and Copilot is instructed to assign the resulting plan pull request to `simonua` and request review from `simonua`.
 
 ## Required Repository Setup
 
