@@ -241,6 +241,10 @@ async function verifyAnalyticsArtifact(appConfigSource, interactionTypeSource, d
 
   vm.createContext(context);
   vm.runInContext(appConfigSource, context, { filename: 'js/config/app-config.js' });
+  // Seed the canonical app-version marker so the artifact represents a returning visitor.
+  // App-mode reporting is intentionally suppressed on a profile's first-ever visit, where a
+  // visitor is always in webpage mode, so verifying webpage publication requires a prior visit.
+  localStorage.setItem(context.ANALYTICS_APP_VERSION_STORAGE_KEY, APP_VERSION);
   vm.runInContext(interactionTypeSource, context, { filename: 'js/types/analytics-interaction-type.js' });
   vm.runInContext(devicePlatformSource, context, { filename: 'js/services/device-platform-service.js' });
   vm.runInContext(analyticsSource, context, { filename: 'js/analytics.js' });
