@@ -284,6 +284,25 @@ test('[WF-SETTINGS-014] preference changes update other open app tabs', async ({
   await secondPage.close();
 });
 
+test('[WF-SETTINGS-018] start page persists locally without reporting the selected page', async ({ page }) => {
+  await initializeAnalyticsRecorder(page);
+  await page.goto('/settings.html');
+
+  await page.locator('#accessibilitySettings summary').click();
+  const startPage = page.getByLabel('Start page');
+  await expect(startPage).toHaveValue('home');
+  await startPage.selectOption('teams');
+
+  await expect.poll(() => page.evaluate(() => (
+    JSON.parse(localStorage.getItem('cnsl_preferences')).startPage
+  ))).toBe('teams');
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => (
+    eventArguments[1] === 'ca_setting_change' && eventArguments[2].setting_name === 'start_page'
+  )))).toEqual([
+    ['event', 'ca_setting_change', { setting_name: 'start_page' }]
+  ]);
+});
+
 test('[WF-SETTINGS-012] settings dialog closes from the backdrop and restores launcher focus', async ({ page }) => {
   await page.setViewportSize(MOBILE_VIEWPORT);
   await page.goto('/settings.html');

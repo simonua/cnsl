@@ -27,6 +27,7 @@ describe('PreferencesService', () => {
         favoriteTeamExpanded: true,
         favoritePoolExpanded: true,
         poolScheduleLayout: 'list',
+        startPage: 'home',
         poolFeatureFilters: [],
         practiceGroups: ['first-splash', '8-under', '9-10', '11-12', '13-14', '15-18'],
         locationAwarenessEnabled: false,
@@ -50,6 +51,7 @@ describe('PreferencesService', () => {
         favoriteTeamExpanded: false,
         favoritePoolExpanded: false,
         poolScheduleLayout: 'calendar',
+        startPage: 'teams',
         poolFeatureFilters: [' main pool slide ', 'Wading Pool Slide', 'main pool slide'],
         practiceGroups: ['15-18', 'first-splash', '9-10', 'unknown'],
         locationAwarenessEnabled: true,
@@ -63,6 +65,7 @@ describe('PreferencesService', () => {
         experimentalFeatures: ['my-meet-day'],
         favoriteTeamId: 'lrm', favoritePoolName: 'Kendall Ridge', favoriteTeamExpanded: false,
         favoritePoolExpanded: false, poolScheduleLayout: 'calendar',
+        startPage: 'teams',
         poolFeatureFilters: ['main pool slide', 'wading pool slide'], practiceGroups: ['first-splash', '9-10', '15-18'],
         locationAwarenessEnabled: true, weatherRefreshMinutes: 10
       });
@@ -98,6 +101,7 @@ describe('PreferencesService', () => {
         experimentalFeatures: [],
         favoriteTeamId: '', favoritePoolName: '', favoriteTeamExpanded: true,
         favoritePoolExpanded: true, poolScheduleLayout: 'list', poolFeatureFilters: [],
+        startPage: 'home',
         practiceGroups: ['first-splash', '8-under', '9-10', '11-12', '13-14', '15-18'],
         locationAwarenessEnabled: false, weatherRefreshMinutes: 5
       });
@@ -107,6 +111,12 @@ describe('PreferencesService', () => {
       assert.equal(PreferencesService.normalize({ weatherRefreshMinutes: 0 }).weatherRefreshMinutes, 0);
       assert.equal(PreferencesService.normalize({ weatherRefreshMinutes: '10' }).weatherRefreshMinutes, 10);
       assert.equal(PreferencesService.normalize({ weatherRefreshMinutes: 15 }).weatherRefreshMinutes, 5);
+    });
+
+    it('accepts only supported start pages', () => {
+      assert.equal(PreferencesService.normalize({ startPage: 'pools' }).startPage, 'pools');
+      assert.equal(PreferencesService.normalize({ startPage: 'teams' }).startPage, 'teams');
+      assert.equal(PreferencesService.normalize({ startPage: 'external' }).startPage, 'home');
     });
 
     it('accepts only supported accessibility preferences', () => {
@@ -425,11 +435,14 @@ describe('PreferencesService', () => {
 
   describe('browser registration', () => {
     it('installs preferences as a browser script global', () => {
+      const startPageSourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'types', 'start-page.js');
       const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'preferences-service.js');
+      const startPageSource = fs.readFileSync(startPageSourcePath, 'utf8');
       const source = fs.readFileSync(sourcePath, 'utf8');
       const context = { window: {}, globalThis: { PREFERENCES_STORAGE_KEY: 'prefs', WEATHER_ALERT_REFRESH_MINUTES_OPTIONS: [0, 5], WEATHER_ALERT_DEFAULT_REFRESH_MINUTES: 5 } };
       Object.assign(context, context.globalThis || {}, context.window || {});
       context.globalThis = context; context.self = context; context.window = context;
+      vm.runInNewContext(startPageSource, context, { filename: startPageSourcePath });
       vm.runInNewContext(source, context, { filename: sourcePath });
       assert.equal(typeof context.window.PreferencesService, 'function');
     });

@@ -132,6 +132,7 @@
     motion: new Set(['reduced', 'system']),
     pool_schedule_layout: new Set(['calendar', 'list']),
     practice_groups: new Set(['changed']),
+    start_page: new Set(['changed']),
     text_size: new Set(['default', 'extra-large', 'large']),
     theme: new Set(['dark', 'light', 'system']),
     underline_links: new Set(['disabled', 'enabled']),

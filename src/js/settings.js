@@ -142,6 +142,7 @@
     form.elements.underlineLinks.checked = preferences.underlineLinks;
     form.elements.hideHomeIntro.checked = preferences.hideHomeIntro;
     form.elements.hidePageHeadings.checked = preferences.hidePageHeadings;
+    form.elements.startPage.value = preferences.startPage;
     form.querySelectorAll('input[name="experimentalFeatures"]').forEach(featureToggle => {
       featureToggle.checked = preferences.experimentalFeatures.includes(featureToggle.value);
       const state = featureToggle.closest('.settings-experiment')?.querySelector('.settings-switch__state');
@@ -241,6 +242,8 @@
       trackFixedSettingChange('hide_home_intro', saved.hideHomeIntro ? 'enabled' : 'disabled');
     } else if (changedField.name === 'hidePageHeadings' && saved.hidePageHeadings !== existing.hidePageHeadings) {
       trackFixedSettingChange('hide_page_headings', saved.hidePageHeadings ? 'enabled' : 'disabled');
+    } else if (changedField.name === 'startPage' && saved.startPage !== existing.startPage) {
+      trackFixedSettingChange('start_page', 'changed');
     } else if (changedField.name === 'experimentalFeatures'
       && saved.experimentalFeatures.join('|') !== existing.experimentalFeatures.join('|')) {
       trackExperimentalFeatureChange(changedField.value, saved.experimentalFeatures.includes(changedField.value));
@@ -276,6 +279,7 @@
     if (existing.underlineLinks !== reset.underlineLinks) trackFixedSettingChange('underline_links', 'disabled');
     if (existing.hideHomeIntro !== reset.hideHomeIntro) trackFixedSettingChange('hide_home_intro', 'disabled');
     if (existing.hidePageHeadings !== reset.hidePageHeadings) trackFixedSettingChange('hide_page_headings', 'disabled');
+    if (existing.startPage !== reset.startPage) trackFixedSettingChange('start_page', 'changed');
     existing.experimentalFeatures
       .filter(featureId => !reset.experimentalFeatures.includes(featureId))
       .forEach(featureId => trackExperimentalFeatureChange(featureId, false));
@@ -522,6 +526,7 @@
         underlineLinks: form.elements.underlineLinks.checked,
         hideHomeIntro: form.elements.hideHomeIntro.checked,
         hidePageHeadings: form.elements.hidePageHeadings.checked,
+        startPage: form.elements.startPage.value,
         experimentalFeatures: Array.from(form.querySelectorAll('input[name="experimentalFeatures"]:checked'), featureToggle => featureToggle.value),
         favoriteTeamId: favoriteTeam.disabled ? existing.favoriteTeamId : favoriteTeam.value,
         favoritePoolName: favoritePool.disabled ? existing.favoritePoolName : favoritePool.value,

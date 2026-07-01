@@ -19,6 +19,8 @@ if (typeof globalThis.PreferencesService === 'undefined') {
 
     static POOL_SCHEDULE_LAYOUTS = ['list', 'calendar'];
 
+    static START_PAGES = Object.freeze(Object.values(globalThis.StartPage.VALUES));
+
     static WEATHER_REFRESH_MINUTES = globalThis.WEATHER_ALERT_REFRESH_MINUTES_OPTIONS;
 
     static volatilePreferences = null;
@@ -88,6 +90,7 @@ if (typeof globalThis.PreferencesService === 'undefined') {
       favoriteTeamExpanded: true,
       favoritePoolExpanded: true,
       poolScheduleLayout: 'list',
+      startPage: globalThis.StartPage.VALUES.HOME,
       poolFeatureFilters: Object.freeze([]),
       practiceGroups: Object.freeze(['first-splash', '8-under', '9-10', '11-12', '13-14', '15-18']),
       locationAwarenessEnabled: false,
@@ -180,6 +183,7 @@ if (typeof globalThis.PreferencesService === 'undefined') {
       const poolScheduleLayout = PreferencesService.POOL_SCHEDULE_LAYOUTS.includes(preferences.poolScheduleLayout)
         ? preferences.poolScheduleLayout
         : 'list';
+      const startPage = globalThis.StartPage.normalize(preferences.startPage);
       const poolFeatureFilters = PreferencesService.normalizeFeatureFilters(preferences.poolFeatureFilters);
       const practiceGroups = PreferencesService.normalizePracticeGroups(
         preferences.practiceGroups,
@@ -206,6 +210,7 @@ if (typeof globalThis.PreferencesService === 'undefined') {
         favoriteTeamExpanded,
         favoritePoolExpanded,
         poolScheduleLayout,
+        startPage,
         poolFeatureFilters,
         practiceGroups,
         locationAwarenessEnabled,

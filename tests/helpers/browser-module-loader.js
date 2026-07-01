@@ -9,19 +9,20 @@ const SCHEDULE_STATE = 'types/schedule-state.js';
 const TIME = 'services/time-utils.js';
 const WEATHER_HAZARD = 'types/weather-hazard.js';
 const WEATHER_SOURCE = 'types/weather-alert-source.js';
+const START_PAGE = 'types/start-page.js';
 
 const BROWSER_MODULE_MANIFESTS = Object.freeze({
   'analytics-interaction-type': { scripts: [ANALYTICS_TYPES], exports: ['AnalyticsExternalLinkPurpose', 'AnalyticsInteractionType'] },
   'app-config': { scripts: [CONFIG], exports: ['AppConfig'] },
   'data-manager': { scripts: [CONFIG, ICONS, TIME, 'types/pool-enums.js', SCHEDULE_STATE, 'services/pool-period-schedule-service.js', 'models/pool.js', 'models/team.js', 'models/meet.js', 'managers/pools-manager.js', 'managers/teams-manager.js', 'managers/meets-manager.js', 'services/file-helper.js', 'services/data-manager.js'], exports: ['DataManager', 'getDataManager'] },
   'device-platform-service': { scripts: ['services/device-platform-service.js'], exports: ['DevicePlatformService'] },
-  'experimental-features-service': { scripts: [CONFIG, 'services/preferences-service.js', 'services/experimental-features-service.js'], exports: ['ExperimentalFeaturesService', 'PreferencesService'] },
+  'experimental-features-service': { scripts: [CONFIG, START_PAGE, 'services/preferences-service.js', 'services/experimental-features-service.js'], exports: ['ExperimentalFeaturesService', 'PreferencesService'] },
   'file-helper': { scripts: [CONFIG, 'services/file-helper.js'], exports: ['FileHelper'] },
   'html-safety': { scripts: ['services/html-safety.js'], exports: ['HtmlSafety'] },
   'icon-catalog': { scripts: [ICONS], exports: ['IconCatalog'] },
   'lesson-provider-service': { scripts: ['services/lesson-provider-service.js'], exports: ['LessonProviderService'] },
   meet: { scripts: [SCHEDULE_STATE, 'models/meet.js'], exports: ['Meet', 'MeetLiveStatus'] },
-  'meet-day-guide-service': { scripts: [CONFIG, ICONS, TIME, SCHEDULE_STATE, 'models/meet.js', 'services/preferences-service.js', 'services/html-safety.js', 'services/device-platform-service.js', 'services/pool-link-helper.js', 'types/meet-team-role.js', PAYMENT_METHOD, 'services/team-schedule-service.js', 'services/team-agenda-display.js', 'services/meet-day-guide-service.js'], exports: ['Meet', 'MeetDayGuideService', 'MeetTeamRole', 'PaymentMethod', 'PreferencesService', 'TeamAgendaDisplay'], realmExports: ['PaymentMethod'] },
+  'meet-day-guide-service': { scripts: [CONFIG, START_PAGE, ICONS, TIME, SCHEDULE_STATE, 'models/meet.js', 'services/preferences-service.js', 'services/html-safety.js', 'services/device-platform-service.js', 'services/pool-link-helper.js', 'types/meet-team-role.js', PAYMENT_METHOD, 'services/team-schedule-service.js', 'services/team-agenda-display.js', 'services/meet-day-guide-service.js'], exports: ['Meet', 'MeetDayGuideService', 'MeetTeamRole', 'PaymentMethod', 'PreferencesService', 'TeamAgendaDisplay'], realmExports: ['PaymentMethod'] },
   'meet-team-role': { scripts: ['types/meet-team-role.js'], exports: ['MeetTeamRole'] },
   'payment-method': { scripts: [PAYMENT_METHOD], exports: ['PaymentMethod'], realmExports: ['PaymentMethod'] },
   'meets-manager': { scripts: [SCHEDULE_STATE, 'models/meet.js', 'managers/meets-manager.js'], exports: ['Meet', 'MeetsManager'] },
@@ -38,7 +39,8 @@ const BROWSER_MODULE_MANIFESTS = Object.freeze({
   'pool-schedule-display': { scripts: [CONFIG, 'services/html-safety.js', ICONS, TIME, SCHEDULE_STATE, 'services/pool-schedule-display.js'], exports: ['PoolScheduleDisplay', 'TimeUtils'] },
   'pool-week-state-service': { scripts: ['services/pool-calendar-service.js', 'services/pool-week-state-service.js'], exports: ['PoolWeekStateService'] },
   'pools-manager': { scripts: [CONFIG, ICONS, TIME, 'types/pool-enums.js', SCHEDULE_STATE, 'services/pool-period-schedule-service.js', 'models/pool.js', 'managers/pools-manager.js'], exports: ['PoolStatus', 'PoolsManager'], realmExports: ['PoolStatus'] },
-  'preferences-service': { scripts: [CONFIG, 'services/preferences-service.js'], exports: ['PreferencesService'] },
+  'preferences-service': { scripts: [CONFIG, START_PAGE, 'services/preferences-service.js'], exports: ['PreferencesService'] },
+  'start-page': { scripts: [START_PAGE], exports: ['StartPage'] },
   'release-notice-service': { scripts: ['services/release-notice-service.js'], exports: ['ReleaseNoticeService'] },
   'schedule-state': { scripts: [SCHEDULE_STATE], exports: ['MeetLiveStatus', 'PoolTransitionAction', 'PracticeRangeStatus'] },
   'season-service': { scripts: ['services/season-service.js'], exports: ['SeasonService'] },

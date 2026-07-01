@@ -33,6 +33,10 @@
     document.documentElement.dataset.colorScheme = selectedColorScheme;
   </script>
 
+  <!-- Resolve a saved start page before the initial page can paint. -->
+  <script src="js/types/start-page.js"></script>
+  <script src="js/start-page-redirect.js" data-preferences-storage-key="{{ PREFERENCES_STORAGE_KEY }}"></script>
+
   <!-- Minimal first-paint styles; the CSP hash is validated during the build. -->
   <style data-initial-canvas="true">
     :root {
