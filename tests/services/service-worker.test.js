@@ -27,6 +27,7 @@ function createWorkerHarness(precacheResources, options = {}) {
   const cacheRecords = new Map();
   const deletedCaches = [];
   const clientMessages = [];
+  const importedScripts = [];
   let skipWaitingCalls = 0;
   let fetchImplementation = async request => new Response(`network:${normalizeUrl(request)}`, { status: 200 });
 
@@ -92,6 +93,7 @@ function createWorkerHarness(precacheResources, options = {}) {
       }
     },
     importScripts: source => {
+      importedScripts.push(source);
       if (options.failPrecacheImport && source.includes('precache-manifest')) throw new Error('No precache inventory');
     },
     console: {
@@ -123,6 +125,7 @@ function createWorkerHarness(precacheResources, options = {}) {
     cacheRecords,
     clientMessages,
     deletedCaches,
+    importedScripts,
     dispatch,
     getSkipWaitingCalls: () => skipWaitingCalls,
     getStaticResourceCacheKey: resource => context.createStaticResourceCacheKey(resource),
@@ -133,6 +136,19 @@ function createWorkerHarness(precacheResources, options = {}) {
 }
 
 describe('service worker cache strategy', () => {
+  it('loads attention-banner semantics before shared application configuration', () => {
+    const harness = createWorkerHarness(coreResources);
+
+    assert.deepEqual(
+      harness.importedScripts.map(source => new URL(source).pathname),
+      [
+        '/js/types/attention-banner-type.js',
+        '/js/config/app-config.js',
+        '/precache-manifest.js'
+      ]
+    );
+  });
+
   it('normalizes unversioned request-like static resources', () => {
     const harness = createWorkerHarness(coreResources);
 

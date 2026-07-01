@@ -1,6 +1,7 @@
 // Cache version - replaced with the build identifier in generated output.
 const CACHE_VERSION = 'development';
 const APP_BASE_URL = new URL('./', self.location.href);
+importScripts(new URL(`js/types/attention-banner-type.js?v=${CACHE_VERSION}`, APP_BASE_URL).toString());
 importScripts(new URL(`js/config/app-config.js?v=${CACHE_VERSION}`, APP_BASE_URL).toString());
 try {
   importScripts(new URL(`precache-manifest.js?v=${CACHE_VERSION}`, APP_BASE_URL).toString());

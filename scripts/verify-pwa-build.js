@@ -443,7 +443,12 @@ precacheResources.forEach(resource => {
 
 const worker = fs.readFileSync(path.join(outDir, 'service-worker.js'), 'utf8');
 assert.doesNotMatch(worker, /const CACHE_VERSION = 'development'/, 'Built service worker must have a release cache version.');
+assert.match(worker, /js\/types\/attention-banner-type\.js/, 'Service worker must load attention-banner semantics.');
 assert.match(worker, /js\/config\/app-config\.js/, 'Service worker must load shared application configuration.');
+assert.ok(
+  worker.indexOf('js/types/attention-banner-type.js') < worker.indexOf('js/config/app-config.js'),
+  'Service worker must load attention-banner semantics before shared application configuration.'
+);
 assert.doesNotMatch(worker, /js\/config\/app-version\.js/, 'Service worker must not load a separate application-version resource.');
 assert.match(worker, /precache-manifest\.js/, 'Service worker must import the generated precache inventory.');
 assert.match(worker, /self\.PRECACHE_CORE_RESOURCES/, 'Service worker installation must use the generated core inventory.');
