@@ -781,12 +781,24 @@ test('[WF-ANALYTICS-007] external links publish fixed destinations without URL d
   await clickWithoutNavigation(poolCard.getByRole('link', { name: 'Visit CA Pool Page' }));
   await clickWithoutNavigation(poolCard.getByRole('link', { name: 'CA Pool Schedule' }));
   await poolCard.evaluate(card => {
+    const appleAppStoreLink = globalThis.document.createElement('a');
+    appleAppStoreLink.href = 'https://apps.apple.com/us/app/example/id123456789';
+    appleAppStoreLink.textContent = 'Apple App Store';
+    appleAppStoreLink.addEventListener('click', event => event.preventDefault(), { once: true });
+    card.append(appleAppStoreLink);
+    appleAppStoreLink.click();
     const appleMapsLink = globalThis.document.createElement('a');
     appleMapsLink.href = 'https://maps.apple.com/?daddr=private+address';
     appleMapsLink.textContent = 'Apple Maps';
     appleMapsLink.addEventListener('click', event => event.preventDefault(), { once: true });
     card.append(appleMapsLink);
     appleMapsLink.click();
+    const googlePlayLink = globalThis.document.createElement('a');
+    googlePlayLink.href = 'https://play.google.com/store/apps/details?id=example.app';
+    googlePlayLink.textContent = 'Google Play';
+    googlePlayLink.addEventListener('click', event => event.preventDefault(), { once: true });
+    card.append(googlePlayLink);
+    googlePlayLink.click();
     const unknownLink = globalThis.document.createElement('a');
     unknownLink.href = 'https://unreviewed.example/private?token=secret#details';
     unknownLink.textContent = 'Unknown destination';
@@ -801,7 +813,9 @@ test('[WF-ANALYTICS-007] external links publish fixed destinations without URL d
     ['event', 'ca_external_link', { link_context: 'pool_details', link_purpose: 'general', link_destination: 'google_maps' }],
     ['event', 'ca_external_link', { link_context: 'pool_details', link_purpose: 'pool_page', link_destination: 'columbia_association', pool_id: poolId }],
     ['event', 'ca_external_link', { link_context: 'pool_details', link_purpose: 'pool_schedule', link_destination: 'columbia_association', pool_id: poolId }],
+    ['event', 'ca_external_link', { link_context: 'pool_details', link_purpose: 'general', link_destination: 'apple_app_store' }],
     ['event', 'ca_external_link', { link_context: 'pool_details', link_purpose: 'general', link_destination: 'apple_maps' }],
+    ['event', 'ca_external_link', { link_context: 'pool_details', link_purpose: 'general', link_destination: 'google_play' }],
     ['event', 'ca_external_link', { link_context: 'pool_details', link_purpose: 'general', link_destination: 'other' }]
   ]);
   await page.evaluate(() => {
@@ -818,7 +832,7 @@ test('[WF-ANALYTICS-007] external links publish fixed destinations without URL d
     scheduleLink.click();
   });
   const externalEvents = await page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_external_link'));
-  expect(externalEvents).toHaveLength(7);
+  expect(externalEvents).toHaveLength(9);
   expect(JSON.stringify(externalEvents)).not.toContain('secret');
   expect(JSON.stringify(externalEvents)).not.toContain('410-');
 });

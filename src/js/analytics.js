@@ -73,6 +73,7 @@
   ]);
   const ALLOWED_EXTERNAL_LINK_PROTOCOLS = new Set(['http:', 'https:', 'mailto:', 'sms:', 'tel:']);
   const EXTERNAL_LINK_DESTINATIONS = Object.freeze({
+    APPLE_APP_STORE: 'apple_app_store',
     APPLE_MAPS: 'apple_maps',
     COLUMBIA_ASSOCIATION: 'columbia_association',
     COLUMBIA_ASSOCIATION_REGISTRATION: 'columbia_association_registration',
@@ -82,6 +83,7 @@
     GO_MOTION: 'go_motion',
     GOOGLE_ANALYTICS_HELP: 'google_analytics_help',
     GOOGLE_MAPS: 'google_maps',
+    GOOGLE_PLAY: 'google_play',
     LINKEDIN: 'linkedin',
     LONG_REACH_MARLINS: 'long_reach_marlins',
     NATIONAL_WEATHER_SERVICE: 'national_weather_service',
@@ -95,6 +97,7 @@
   const ALLOWED_EXTERNAL_LINK_DESTINATIONS = new Set(Object.values(EXTERNAL_LINK_DESTINATIONS));
   const EXTERNAL_LINK_HOST_DESTINATIONS = Object.freeze({
     'api.weather.gov': EXTERNAL_LINK_DESTINATIONS.NATIONAL_WEATHER_SERVICE,
+    'apps.apple.com': EXTERNAL_LINK_DESTINATIONS.APPLE_APP_STORE,
     'columbiaassn.clubautomation.com': EXTERNAL_LINK_DESTINATIONS.COLUMBIA_ASSOCIATION_REGISTRATION,
     'columbiaassociation.org': EXTERNAL_LINK_DESTINATIONS.COLUMBIA_ASSOCIATION,
     'experience.arcgis.com': EXTERNAL_LINK_DESTINATIONS.COLUMBIA_ASSOCIATION,
@@ -102,6 +105,7 @@
     'github.com': EXTERNAL_LINK_DESTINATIONS.GITHUB,
     'maps.app.goo.gl': EXTERNAL_LINK_DESTINATIONS.GOOGLE_MAPS,
     'maps.apple.com': EXTERNAL_LINK_DESTINATIONS.APPLE_MAPS,
+    'play.google.com': EXTERNAL_LINK_DESTINATIONS.GOOGLE_PLAY,
     'support.google.com': EXTERNAL_LINK_DESTINATIONS.GOOGLE_ANALYTICS_HELP,
     'www.columbiaassociation.org': EXTERNAL_LINK_DESTINATIONS.COLUMBIA_ASSOCIATION,
     'www.facebook.com': EXTERNAL_LINK_DESTINATIONS.FACEBOOK,
@@ -123,6 +127,7 @@
 
   // Setting validation
 
+  const LOCATION_AWARENESS_SETTING_NAME = 'location_awareness';
   const START_PAGE_SETTING_NAME = 'start_page';
   const FIXED_SETTING_VALUES = Object.freeze({
     contrast: new Set(['high', 'system']),
@@ -130,7 +135,7 @@
     favorite_team_expanded: new Set(['collapsed', 'expanded']),
     hide_home_intro: new Set(['disabled', 'enabled']),
     hide_page_headings: new Set(['disabled', 'enabled']),
-    location_awareness: new Set(['disabled', 'enabled']),
+    [LOCATION_AWARENESS_SETTING_NAME]: new Set(['disabled', 'enabled']),
     motion: new Set(['reduced', 'system']),
     pool_schedule_layout: new Set(['calendar', 'list']),
     practice_groups: new Set(['changed']),
@@ -140,7 +145,10 @@
     underline_links: new Set(['disabled', 'enabled']),
     weather_refresh_minutes: new Set(['0', '5', '10'])
   });
-  const FIXED_SETTING_SELECTION_NAMES = new Set([START_PAGE_SETTING_NAME]);
+  const FIXED_SETTING_SELECTION_NAMES = new Set([
+    LOCATION_AWARENESS_SETTING_NAME,
+    START_PAGE_SETTING_NAME
+  ]);
   const ALLOWED_PUBLISHED_SETTING_NAMES = new Set([
     'favorite_pool', 'favorite_team', 'pool_feature_filters'
   ]);

@@ -369,6 +369,29 @@ test('[WF-SETTINGS-018] start page persists locally and reports only an allowlis
   ]);
 });
 
+test('[WF-SETTINGS-021] location awareness reports only an allowlisted binary state', async ({ page }) => {
+  await initializeAnalyticsRecorder(page);
+  await page.goto('/settings.html');
+
+  await page.locator('#poolVisitSettings summary').click();
+  await page.getByLabel('Use my current location to estimate distances to pools').check();
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => (
+    eventArguments[1] === 'ca_setting_change' && eventArguments[2].setting_name === 'location_awareness'
+  )))).toEqual([
+    ['event', 'ca_setting_change', { setting_name: 'location_awareness', selection: 'enabled' }]
+  ]);
+
+  await page.evaluate(() => {
+    globalThis.cnslAnalytics.trackInteraction(globalThis.AnalyticsInteractionType.FIXED_SETTING_CHANGE, {
+      settingName: 'location_awareness',
+      settingValue: 'person@example.com'
+    });
+  });
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => (
+    eventArguments[1] === 'ca_setting_change' && eventArguments[2].setting_name === 'location_awareness'
+  )))).toHaveLength(1);
+});
+
 test('[WF-SETTINGS-012] settings dialog closes from the backdrop and restores launcher focus', async ({ page }) => {
   await page.setViewportSize(MOBILE_VIEWPORT);
   await page.goto('/settings.html');
@@ -415,7 +438,7 @@ test('[WF-SETTINGS-002] settings persist choices locally and reset without clear
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_setting_change'))).toEqual([
     ['event', 'ca_setting_change', { setting_name: 'theme' }],
     ['event', 'ca_setting_change', { setting_name: 'pool_schedule_layout' }],
-    ['event', 'ca_setting_change', { setting_name: 'location_awareness' }],
+    ['event', 'ca_setting_change', { setting_name: 'location_awareness', selection: 'enabled' }],
     ['event', 'ca_setting_change', { setting_name: 'weather_refresh_minutes' }],
     ['event', 'ca_setting_change', { setting_name: 'practice_groups' }],
     ['event', 'ca_setting_change', { setting_name: 'practice_groups' }]
@@ -436,7 +459,7 @@ test('[WF-SETTINGS-002] settings persist choices locally and reset without clear
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_setting_change'))).toEqual([
     ['event', 'ca_setting_change', { setting_name: 'theme' }],
     ['event', 'ca_setting_change', { setting_name: 'pool_schedule_layout' }],
-    ['event', 'ca_setting_change', { setting_name: 'location_awareness' }],
+    ['event', 'ca_setting_change', { setting_name: 'location_awareness', selection: 'enabled' }],
     ['event', 'ca_setting_change', { setting_name: 'weather_refresh_minutes' }],
     ['event', 'ca_setting_change', { setting_name: 'practice_groups' }],
     ['event', 'ca_setting_change', { setting_name: 'practice_groups' }],
@@ -521,7 +544,7 @@ test('[WF-SETTINGS-002] settings persist choices locally and reset without clear
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_setting_change'))).toEqual([
     ['event', 'ca_setting_change', { setting_name: 'theme' }],
     ['event', 'ca_setting_change', { setting_name: 'pool_schedule_layout' }],
-    ['event', 'ca_setting_change', { setting_name: 'location_awareness' }],
+    ['event', 'ca_setting_change', { setting_name: 'location_awareness', selection: 'enabled' }],
     ['event', 'ca_setting_change', { setting_name: 'weather_refresh_minutes' }],
     ['event', 'ca_setting_change', { setting_name: 'practice_groups' }],
     ['event', 'ca_setting_change', { setting_name: 'practice_groups' }],
@@ -530,7 +553,7 @@ test('[WF-SETTINGS-002] settings persist choices locally and reset without clear
     ['event', 'ca_setting_change', { setting_name: 'favorite_pool', selection: 'none' }],
     ['event', 'ca_setting_change', { setting_name: 'theme' }],
     ['event', 'ca_setting_change', { setting_name: 'pool_schedule_layout' }],
-    ['event', 'ca_setting_change', { setting_name: 'location_awareness' }],
+    ['event', 'ca_setting_change', { setting_name: 'location_awareness', selection: 'disabled' }],
     ['event', 'ca_setting_change', { setting_name: 'weather_refresh_minutes' }],
     ['event', 'ca_setting_change', { setting_name: 'practice_groups' }],
     ['event', 'ca_setting_change', { setting_name: 'favorite_team', selection: 'none' }]
