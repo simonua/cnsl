@@ -694,9 +694,9 @@ function renderTeamDetails(team) {
 
     ${teamUrl || practiceUrl || boosterUrl ? `
       <div class="team-actions team-actions--website">
-        ${teamUrl ? `<a href="${teamUrl}" target="_blank" rel="noopener" class="btn">${IconCatalog.render('globe')}Team Website</a>` : ''}
-        ${practiceUrl ? `<a href="${practiceUrl}" target="_blank" rel="noopener" class="btn">${IconCatalog.render('calendar')}Practice Schedule</a>` : ''}
-        ${boosterUrl ? `<a href="${boosterUrl}" target="_blank" rel="noopener noreferrer" class="btn">Booster Club</a>` : ''}
+        ${teamUrl ? `<a href="${teamUrl}" target="_blank" rel="noopener" class="btn btn-primary btn-md">${IconCatalog.render('globe')}Team Website</a>` : ''}
+        ${practiceUrl ? `<a href="${practiceUrl}" target="_blank" rel="noopener" class="btn btn-primary btn-md">${IconCatalog.render('calendar')}Practice Schedule</a>` : ''}
+        ${boosterUrl ? `<a href="${boosterUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-md">Booster Club</a>` : ''}
       </div>
     ` : ''}
 
@@ -704,7 +704,7 @@ function renderTeamDetails(team) {
 
     ${resultsUrl ? `
       <div class="team-actions">
-        <a href="${resultsUrl}" target="_blank" rel="noopener" class="btn">${IconCatalog.render('trophy')}Swim Meet Results</a>
+        <a href="${resultsUrl}" target="_blank" rel="noopener" class="btn btn-primary btn-md">${IconCatalog.render('trophy')}Swim Meet Results</a>
       </div>
     ` : ''}
   `;

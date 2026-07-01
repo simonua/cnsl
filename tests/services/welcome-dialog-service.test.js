@@ -42,6 +42,30 @@ describe('WelcomeDialogService', () => {
     });
   });
 
+  describe('navigation suppression', () => {
+    it('should suppress exactly one following page load', () => {
+      const storage = createLocalStorageMock();
+      const storageKey = 'cnsl_welcome_dialog_navigation_suppressed';
+
+      assert.equal(WelcomeDialogService.suppressNextNavigation(storage, storageKey), true);
+      assert.equal(WelcomeDialogService.consumeNavigationSuppression(storage, storageKey), true);
+      assert.equal(storage.getItem(storageKey), null);
+      assert.equal(WelcomeDialogService.consumeNavigationSuppression(storage, storageKey), false);
+    });
+
+    it('should fail safely when current-tab storage is unavailable', () => {
+      const unavailableStorage = {
+        getItem: () => { throw new Error('storage denied'); },
+        setItem: () => { throw new Error('storage denied'); }
+      };
+
+      assert.equal(WelcomeDialogService.suppressNextNavigation(unavailableStorage, 'suppressed'), false);
+      assert.equal(WelcomeDialogService.suppressNextNavigation(null, 'suppressed'), false);
+      assert.equal(WelcomeDialogService.consumeNavigationSuppression(unavailableStorage, 'suppressed'), false);
+      assert.equal(WelcomeDialogService.consumeNavigationSuppression(null, 'suppressed'), false);
+    });
+  });
+
   describe('browser registration', () => {
     it('installs welcome dialog logic as a browser script global', () => {
       const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'services', 'welcome-dialog-service.js');

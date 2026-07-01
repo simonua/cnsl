@@ -841,23 +841,23 @@ button.welcome-dialog__close:focus {
 .welcome-dialog__disclaimer {
   color: var(--text-muted);
   font-size: 0.75rem;
+  text-align: center;
 }
 
 .welcome-dialog__actions {
   align-items: center;
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 0.75rem 1rem;
   justify-content: center;
+  margin-block: 0.35rem;
   text-align: center;
 }
 
-.welcome-dialog__actions .btn {
-  margin: 0.25rem 0 0;
-}
-
-.welcome-dialog__learn-more {
-  font-weight: 600;
+@media (max-width: 32rem) {
+  .welcome-dialog__actions {
+    flex-direction: column;
+  }
 }
 
 @media (max-width: 32rem), (max-height: 38rem) {
@@ -2423,58 +2423,99 @@ input::placeholder {
 /* Buttons */
 .btn,
 .btn:visited {
-  padding: 0.875rem 1.5rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-  border: none;
-  border-radius: 50px;
-  cursor: pointer;
-  transition: var(--transition);
-  min-width: 140px;
-  box-shadow: var(--shadow);
-  text-decoration: none;
-  display: inline-flex;
   align-items: center;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-flex;
+  font-weight: 600;
+  gap: 0.5rem;
   justify-content: center;
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(135deg, var(--accent-bg), var(--accent-dark));
-  color: var(--accent-text);
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  transition: var(--transition);
 }
 
-.btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-  transition: left 0.5s;
+.btn-sm {
+  font-size: 0.8rem;
+  min-height: 2.25rem;
+  padding: 0.35rem 0.75rem;
+}
+
+.btn-md {
+  font-size: 0.9rem;
+  min-height: 2.75rem;
+  padding: 0.55rem 1rem;
+}
+
+.btn-lg {
+  font-size: 1rem;
+  min-height: 3.25rem;
+  padding: 0.7rem 1.25rem;
+}
+
+.btn-xl {
+  font-size: 1.1rem;
+  min-height: 3.75rem;
+  padding: 0.85rem 1.5rem;
 }
 
 .btn .icon {
-  margin-right: 0.35rem;
+  flex: 0 0 auto;
+  height: 1.1em;
+  width: 1.1em;
 }
 
-.btn:hover::before {
-  left: 100%;
+.btn-primary,
+.btn-primary:visited {
+  background: var(--accent-bg);
+  color: var(--accent-text);
 }
 
-.btn:hover,
-.btn:focus,
-.btn:visited:hover,
-.btn:visited:focus {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-hover);
-  background: linear-gradient(135deg, var(--accent-dark), var(--accent-deep));
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary:visited:hover,
+.btn-primary:visited:focus,
+.btn-primary:visited:active {
+  background: var(--accent-dark);
+  box-shadow: 0 2px 8px var(--primary-soft-shadow);
   color: var(--accent-text);
   text-decoration: none;
+  transform: translateY(-1px);
 }
 
-.btn:active {
+.btn-secondary,
+.btn-secondary:visited {
+  background: var(--white);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus,
+.btn-secondary:active,
+.btn-secondary:visited:hover,
+.btn-secondary:visited:focus,
+.btn-secondary:visited:active {
+  background: var(--accent-bg);
+  border-color: var(--accent-bg);
   color: var(--accent-text);
   transform: translateY(-1px);
+}
+
+.btn:focus-visible {
+  outline: 3px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.65;
+  transform: none;
 }
 
 /* ===== Consistent Link Colors ===== */
@@ -5943,13 +5984,6 @@ html[data-hide-home-intro="true"] .welcome-section {
   padding-top: 0;
 }
 
-.team-actions--website .btn,
-.team-actions--calendar .btn {
-  font-size: 0.95rem;
-  min-width: 0;
-  padding: 0.55rem 0.85rem;
-}
-
 /* Team Card Collapsible Functionality */
 .team-card {
   position: relative;
@@ -6075,15 +6109,9 @@ html[data-hide-home-intro="true"] .welcome-section {
 }
 
 .cnsl-link-btn {
-  display: inline-block;
   background: var(--white);
-  color: var(--primary-color);
-  text-decoration: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  font-weight: 600;
-  transition: var(--transition);
   border: 2px solid transparent;
+  color: var(--primary-color);
 }
 
 .cnsl-link-btn:hover {
@@ -6109,10 +6137,6 @@ html[data-hide-home-intro="true"] .welcome-section {
     margin-bottom: 0.75rem;
   }
 
-  .cnsl-link-btn {
-    padding: 0.6rem 1.25rem;
-    font-size: 0.95rem;
-  }
 }
 
 @media (max-width: 30rem) {
@@ -6132,10 +6156,6 @@ html[data-hide-home-intro="true"] .welcome-section {
     font-size: 0.9rem;
   }
 
-  .cnsl-link-btn {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.8rem;
-  }
 }
 
 /* ==========================================================================
@@ -6593,62 +6613,6 @@ html[data-hide-home-intro="true"] .welcome-section {
   margin-top: auto;
 }
 
-.btn-primary, .btn-secondary {
-  padding: 0.6rem 1.2rem;
-  border-radius: 6px;
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 0.9rem;
-  transition: var(--transition);
-  border: none;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.btn-primary {
-  background: var(--accent-bg);
-  color: var(--accent-text);
-}
-
-.btn-primary:visited {
-  background: var(--accent-bg);
-  color: var(--accent-text);
-}
-
-.btn-primary:hover,
-.btn-primary:focus,
-.btn-primary:active,
-.btn-primary:visited:hover,
-.btn-primary:visited:focus,
-.btn-primary:visited:active {
-  background: var(--accent-dark);
-  color: var(--accent-text);
-  text-decoration: none;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px var(--primary-soft-shadow);
-}
-
-.btn-secondary {
-  background: var(--white);
-  color: var(--primary-color);
-  border: 1px solid var(--primary-color);
-}
-
-.btn-secondary:visited {
-  background: var(--white);
-  color: var(--primary-color);
-  border: 1px solid var(--primary-color);
-}
-
-.btn-secondary:hover,
-.btn-secondary:visited:hover {
-  background: var(--accent-bg);
-  color: var(--accent-text);
-  transform: translateY(-1px);
-}
-
 .success-story {
   background: var(--success-story-bg);
   border: 1px solid var(--success-story-border);
@@ -6772,7 +6736,7 @@ html[data-hide-home-intro="true"] .welcome-section {
     min-height: 0;
   }
 
-  .btn-primary, .btn-secondary {
+  .resource-actions .btn {
     justify-content: center;
     text-align: center;
   }
@@ -7357,29 +7321,6 @@ button.settings-dialog__close:focus {
   font-size: 0.9rem;
   line-height: 1.5;
   margin: 0;
-}
-
-.settings-maintenance__item .btn {
-  cursor: pointer;
-  min-height: 3rem;
-}
-
-.settings-clear {
-  background: var(--white);
-  border: 1px solid var(--primary-color);
-  color: var(--primary-color);
-}
-
-.settings-clear:hover,
-.settings-clear:focus {
-  background: var(--accent-bg);
-  color: var(--accent-text);
-}
-
-.settings-clear:focus-visible {
-  box-shadow: inset 0 0 0 3px var(--accent-text);
-  outline: 3px solid var(--primary-color);
-  outline-offset: 2px;
 }
 
 .settings-status {

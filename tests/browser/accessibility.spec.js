@@ -240,6 +240,18 @@ for (const theme of ['light', 'dark']) {
 
       await expectNoAccessibilityViolations(page);
     });
+
+    test(`[AX-WELCOME-002-${theme.toUpperCase()}-HIGH-CONTRAST] first-visit welcome buttons pass WCAG in ${theme} high contrast`, async ({ page }) => {
+      await prepareStableWeatherResponses(page);
+      await seedPreferences(page, { theme, contrast: 'high' });
+      await page.goto('/index.html');
+      const welcome = page.getByRole('dialog', { name: 'Welcome to the CA Pool & CNSL Assistant!' });
+      await expect(welcome).toBeVisible();
+      await welcome.getByRole('link', { name: 'Install the app' }).hover();
+      await welcome.getByRole('link', { name: 'Set preferences' }).focus();
+
+      await expectNoAccessibilityViolations(page, '#welcomeDialog');
+    });
   });
 
   test(`[AX-SHARE-001-${theme.toUpperCase()}] QR sharing dialog has no WCAG A or AA automated violations in ${theme} theme`, async ({ page }) => {

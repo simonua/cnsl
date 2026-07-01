@@ -68,6 +68,14 @@ This guide records the visual decisions for the CA Pool & CNSL Assistant. Apply 
 - Keep text and controls within their containers at supported phone and desktop widths.
 - Verify affected views in light and dark themes and at mobile and desktop sizes before completion.
 
+### Standard Buttons
+
+- Build general action buttons from the shared `.btn` base, one visual variant such as `.btn-primary` or `.btn-secondary`, and one explicit size class.
+- Use `.btn-sm` for compact secondary actions, `.btn-md` for ordinary card and form actions, `.btn-lg` for prominent page or dialog actions, and `.btn-xl` only for an exceptional primary action that needs the largest supported treatment.
+- Let labels determine width. Use a component layout rule only when a group requires equal widths, full-width controls, or another documented container relationship.
+- Keep icon-only controls, disclosure toggles, calendar navigation, and other controls with specialized interaction dimensions under their component classes instead of forcing them into the standard text-button scale.
+- Place familiar decorative icons before button labels, keep them `aria-hidden`, and rely on the shared button gap and icon dimensions rather than literal whitespace or component-specific margins.
+
 ## Audience Viewports
 
 Use CSS-pixel viewport dimensions and fluid layouts. The supported responsive range begins at 320 CSS pixels wide; content and controls must not overflow horizontally at or above that floor.

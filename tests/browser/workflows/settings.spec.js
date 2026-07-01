@@ -17,51 +17,69 @@ test.beforeEach(async ({ page }) => {
 test.describe('first-visit welcome', () => {
   test.use({ firstVisit: true });
 
-test('[WF-SETTINGS-003] first-visit welcome presents key value and is dismissed permanently by its actions', async ({ page }) => {
+test('[WF-SETTINGS-003] first-visit welcome persists until its close button is deliberately pressed', async ({ page }) => {
+  await page.setViewportSize({ width: 1024, height: 768 });
   await initializeAnalyticsRecorder(page);
   await page.goto('/index.html');
 
   const welcome = page.getByRole('dialog', { name: 'Welcome to the CA Pool & CNSL Assistant!' });
   await expect(welcome).toBeVisible();
   await expect(welcome.locator('.welcome-dialog__benefits li')).toHaveCount(6);
-  await expect(welcome.locator('.welcome-dialog__benefits')).toContainText('Choose a simple list or a richer calendar view');
+  await expect(welcome.locator('.welcome-dialog__benefits')).toContainText('Set preferences. Choose a favorite pool, team, and other options.');
+  await expect(welcome.locator('.welcome-dialog__benefits')).toContainText('Choose a list or calendar view');
   await expect(welcome.locator('.welcome-dialog__benefits use[href="#icon-smartphone"]')).toHaveCount(1);
   await expect(welcome.locator('#welcomeDialogPrivacy')).toHaveText(
-    'Free and private: Always free and anonymous. Your preferences stay on your device, and no personal data is tracked.'
+    'Free and private: Free and anonymous. Settings stay on your device. Personal data is not tracked.'
   );
+  const textRowCounts = await welcome.locator('.welcome-dialog__benefits li:nth-child(2) span, #welcomeDialogPrivacy').evaluateAll(elements => elements.map(element => {
+    const textRange = globalThis.document.createRange();
+    textRange.selectNodeContents(element);
+    return new Set([...textRange.getClientRects()].map(rect => Math.round(rect.top))).size;
+  }));
+  expect(textRowCounts).toEqual([1, 1]);
   await expect(welcome.locator('#welcomeDialogIndependence')).toHaveText(
     'Independent community project: This is not an official CA or CNSL web app and is not affiliated with either organization.'
   );
+  await expect(welcome.locator('#welcomeDialogIndependence')).toHaveCSS('text-align', 'center');
   await expect(welcome.locator('#welcomeDialogIndependence > em')).toHaveCount(1);
-  await expect(welcome.getByRole('link', { name: 'Set your favorites & preferences' })).toHaveAttribute('href', 'settings.html');
-  await expect(welcome.getByRole('link', { name: 'Find all this information in FAQs' })).toHaveAttribute('href', 'faq.html');
+  const installLink = welcome.getByRole('link', { name: 'Install the app' });
+  const settingsLink = welcome.getByRole('link', { name: 'Set preferences' });
+  const faqLink = welcome.getByRole('link', { name: 'Read the FAQs' });
+  await expect(installLink).toHaveAttribute('href', 'install.html');
+  await expect(installLink).toHaveClass(/\bbtn-primary\b/);
+  await expect(installLink).toHaveClass(/\bbtn-lg\b/);
+  await expect(installLink.locator('use')).toHaveAttribute('href', '#icon-smartphone');
+  await expect(settingsLink).toHaveAttribute('href', 'settings.html');
+  await expect(settingsLink).toHaveClass(/\bbtn-secondary\b/);
+  await expect(settingsLink).toHaveClass(/\bbtn-lg\b/);
+  await expect(settingsLink.locator('use')).toHaveAttribute('href', '#icon-settings');
+  await expect(faqLink).toHaveAttribute('href', 'faq.html');
+  await expect(faqLink).toHaveClass(/\bbtn-lg\b/);
+  await expect(faqLink.locator('use')).toHaveAttribute('href', '#icon-book-open');
+  const actionPositions = await Promise.all([settingsLink, installLink, faqLink].map(link => link.boundingBox()));
+  const actionCenters = actionPositions.map(position => position.y + (position.height / 2));
+  expect(Math.max(...actionCenters) - Math.min(...actionCenters)).toBeLessThanOrEqual(1);
+  expect(actionPositions[0].x).toBeLessThan(actionPositions[1].x);
+  expect(actionPositions[1].x).toBeLessThan(actionPositions[2].x);
   await page.locator('#welcomeSettingsLink').click();
   await expect(page.locator('#settingsDialog')).toBeVisible();
   await expect(welcome).toBeHidden();
-  await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_settings_notice_dismissed'))).toBe('true');
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_settings_notice_dismissed'))).toBeNull();
 
   await page.getByRole('button', { name: 'Close settings' }).click();
-  await page.goto('/index.html');
   await expect(welcome).toBeHidden();
-
-  await page.evaluate(() => localStorage.removeItem('cnsl_settings_notice_dismissed'));
-  await page.reload();
-  await page.locator('#welcomeFaqLink').click();
-  await expect(page).toHaveURL(/\/faq\.html$/);
-  await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_settings_notice_dismissed'))).toBe('true');
-  await page.goto('/index.html');
-  await expect(welcome).toBeHidden();
-
-  await page.evaluate(() => localStorage.removeItem('cnsl_settings_notice_dismissed'));
   await page.reload();
   await expect(welcome).toBeVisible();
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_settings_notice_dismissed'))).toBeNull();
+
+  await page.keyboard.press('Escape');
+  await expect(welcome).toBeVisible();
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_settings_notice_dismissed'))).toBeNull();
   await page.getByRole('button', { name: 'Close welcome' }).focus();
   await page.keyboard.press('Enter');
   await expect(welcome).toBeHidden();
   await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_settings_notice_dismissed'))).toBe('true');
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => eventArguments[1] === 'ca_banner_interaction' && eventArguments[2].banner_name === 'welcome_dialog'))).toEqual([
-    ['event', 'ca_banner_interaction', { banner_name: 'welcome_dialog', banner_action: 'view' }],
-    ['event', 'ca_banner_interaction', { banner_name: 'welcome_dialog', banner_action: 'open' }],
     ['event', 'ca_banner_interaction', { banner_name: 'welcome_dialog', banner_action: 'view' }],
     ['event', 'ca_banner_interaction', { banner_name: 'welcome_dialog', banner_action: 'open' }],
     ['event', 'ca_banner_interaction', { banner_name: 'welcome_dialog', banner_action: 'view' }],
@@ -72,7 +90,33 @@ test('[WF-SETTINGS-003] first-visit welcome presents key value and is dismissed 
   await expect(welcome).toBeHidden();
 });
 
-test('[WF-SETTINGS-017] first-visit welcome fits compact phone and closes with Escape', async ({ page }) => {
+for (const action of [
+  { id: '019', label: 'Install the app', path: '/install.html' },
+  { id: '020', label: 'Read the FAQs', path: '/faq.html' }
+]) {
+  test(`[WF-SETTINGS-${action.id}] ${action.label} closes the welcome until the destination is refreshed`, async ({ page }) => {
+    await page.goto('/index.html');
+
+    const welcome = page.getByRole('dialog', { name: 'Welcome to the CA Pool & CNSL Assistant!' });
+    await expect(welcome).toBeVisible();
+    const actionLink = welcome.getByRole('link', { name: action.label });
+    await actionLink.scrollIntoViewIfNeeded();
+    await actionLink.click();
+    await expect(page).toHaveURL(new RegExp(`${action.path.replace('.', '\\.')}\\/?$`));
+    await expect.poll(() => page.evaluate(() => ({
+      configured: typeof globalThis.WELCOME_DIALOG_NAVIGATION_SUPPRESSED_STORAGE_KEY === 'string',
+      dismissed: localStorage.getItem('cnsl_settings_notice_dismissed'),
+      open: globalThis.document.getElementById('welcomeDialog')?.open,
+      suppressed: sessionStorage.getItem(globalThis.WELCOME_DIALOG_NAVIGATION_SUPPRESSED_STORAGE_KEY)
+    }))).toEqual({ configured: true, dismissed: null, open: false, suppressed: null });
+
+    await page.reload();
+    await expect(page.locator('#welcomeDialog')).toHaveJSProperty('open', true);
+    await expect(welcome).toBeVisible();
+  });
+}
+
+test('[WF-SETTINGS-017] first-visit welcome fits compact phone and ignores Escape', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 568 });
   await page.goto('/index.html');
 
@@ -93,12 +137,12 @@ test('[WF-SETTINGS-017] first-visit welcome fits compact phone and closes with E
   expect(fit.bottom).toBeLessThanOrEqual(fit.viewportHeight);
   expect(fit.scrollHeight).toBeGreaterThan(fit.clientHeight);
   expect(fit.overflowY).toBe('auto');
-  await welcome.getByRole('link', { name: 'Find all this information in FAQs' }).scrollIntoViewIfNeeded();
-  await expect(welcome.getByRole('link', { name: 'Find all this information in FAQs' })).toBeVisible();
+  await welcome.getByRole('link', { name: 'Read the FAQs' }).scrollIntoViewIfNeeded();
+  await expect(welcome.getByRole('link', { name: 'Read the FAQs' })).toBeVisible();
 
   await page.keyboard.press('Escape');
-  await expect(welcome).toBeHidden();
-  await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_settings_notice_dismissed'))).toBe('true');
+  await expect(welcome).toBeVisible();
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('cnsl_settings_notice_dismissed'))).toBeNull();
 });
 
 test('[WF-SETTINGS-001] settings dialog is evenly inset on mobile and centered on desktop', async ({ page }) => {

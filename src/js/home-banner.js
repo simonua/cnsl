@@ -107,6 +107,19 @@
   }
 
   /**
+   * Gets browser session storage without propagating storage-access errors.
+   * @returns {Storage|null} Available session storage, or null when access is blocked
+   * @private
+   */
+  function getSessionStorage() {
+    try {
+      return window.sessionStorage;
+    } catch (_error) {
+      return null;
+    }
+  }
+
+  /**
    * Hides an attention notice at its deadline without overflowing browser timers.
    * @param {HTMLElement} notice - Attention notice element
    * @param {number} expiresAt - Expiration time in milliseconds since the Unix epoch
@@ -126,7 +139,7 @@
 
   /**
    * Displays a configured attention notice until it is dismissed or expires.
-   * @param {Storage|null} storage - Available browser local storage
+    * @param {Storage|null} storage - Available browser local storage
    * @param {Object|null} bannerNames - Analytics banner-name constants
    * @private
    */
@@ -204,23 +217,32 @@
   }
 
   /**
-   * Displays the first-visit welcome dialog and records its acknowledgement.
+   * Displays the first-visit welcome dialog with temporary action closure and persistent dismissal.
    * @param {Storage|null} storage - Available browser local storage
+    * @param {Storage|null} sessionStorageImplementation - Available current-tab storage
    * @param {Object|null} bannerNames - Analytics banner-name constants
    * @private
    */
-  function showWelcomeDialog(storage, bannerNames) {
+  function showWelcomeDialog(storage, sessionStorageImplementation, bannerNames) {
     const dialog = document.getElementById('welcomeDialog');
     const closeButton = document.getElementById('closeWelcomeDialog');
-    const links = [
-      document.getElementById('welcomeSettingsLink'),
-      document.getElementById('welcomeFaqLink')
+    const settingsLink = document.getElementById('welcomeSettingsLink');
+    const installLink = document.getElementById('welcomeInstallLink');
+    const faqLink = document.getElementById('welcomeFaqLink');
+    const actions = [
+      { link: settingsLink, suppressNextNavigation: false },
+      { link: installLink, suppressNextNavigation: true },
+      { link: faqLink, suppressNextNavigation: true }
     ];
     if (!(dialog instanceof HTMLDialogElement)
       || !closeButton
-      || links.some(link => !link)
+      || actions.some(action => !action.link)
       || !window.WelcomeDialogService
       || !window.WelcomeDialogService.shouldShow(storage, window.WELCOME_DIALOG_DISMISSED_STORAGE_KEY)) return;
+    if (window.WelcomeDialogService.consumeNavigationSuppression(
+      sessionStorageImplementation,
+      window.WELCOME_DIALOG_NAVIGATION_SUPPRESSED_STORAGE_KEY
+    )) return;
 
     const bannerName = bannerNames && bannerNames.WELCOME_DIALOG;
 
@@ -234,23 +256,23 @@
       window.cnslAnalytics.trackInteraction(AnalyticsInteractionType.BANNER, { action, bannerName });
     };
 
-    /** Records acknowledgement and closes the dialog. @private */
-    const acknowledgeAndClose = () => {
-      window.WelcomeDialogService.dismiss(storage, window.WELCOME_DIALOG_DISMISSED_STORAGE_KEY);
-      if (dialog.open) dialog.close();
-    };
-
-    links.forEach(link => link.addEventListener('click', () => {
+    actions.forEach(action => action.link.addEventListener('click', () => {
       trackInteraction('open');
-      acknowledgeAndClose();
+      if (action.suppressNextNavigation) {
+        window.WelcomeDialogService.suppressNextNavigation(
+          sessionStorageImplementation,
+          window.WELCOME_DIALOG_NAVIGATION_SUPPRESSED_STORAGE_KEY
+        );
+      }
+      dialog.close();
     }));
     closeButton.addEventListener('click', () => {
       trackInteraction('dismiss');
-      acknowledgeAndClose();
-    });
-    dialog.addEventListener('cancel', () => {
-      trackInteraction('dismiss');
       window.WelcomeDialogService.dismiss(storage, window.WELCOME_DIALOG_DISMISSED_STORAGE_KEY);
+      dialog.close();
+    });
+    dialog.addEventListener('cancel', event => {
+      event.preventDefault();
     });
 
     dialog.showModal();
@@ -263,6 +285,7 @@
    */
   function showApplicationBanners() {
     const storage = getLocalStorage();
+    const sessionStorageImplementation = getSessionStorage();
     const releaseVersion = document.getElementById('releaseNoticeVersion');
     const bannerNames = window.cnslAnalytics && window.cnslAnalytics.bannerNames;
     const acknowledgedVersion = window.ReleaseNoticeService
@@ -276,7 +299,7 @@
       && !window.ReleaseNoticeService.getStableVersionParts(acknowledgedVersion);
 
     showAttentionBanner(storage, bannerNames);
-  showWelcomeDialog(storage, bannerNames);
+    showWelcomeDialog(storage, sessionStorageImplementation, bannerNames);
 
     if (isFirstMobileUse) {
       window.ReleaseNoticeService.acknowledge(storage, window.APP_VERSION_STORAGE_KEY, window.APP_VERSION);

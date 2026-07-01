@@ -193,8 +193,8 @@
     if (!calendarUrl && !eventsSubscriptionUrl) return '';
 
     return `<div class="team-actions team-actions--calendar">
-      ${calendarUrl ? `<a href="${calendarUrl}" target="_blank" rel="noopener" class="btn">${TeamAgendaIcons.render('calendar')}Team Calendar</a>` : ''}
-      ${eventsSubscriptionUrl ? `<a href="${eventsSubscriptionUrl}" target="_blank" rel="noopener" class="btn">${TeamAgendaIcons.render('calendar')}Subscribe<span class="visually-hidden"> to team events calendar</span></a>` : ''}
+      ${calendarUrl ? `<a href="${calendarUrl}" target="_blank" rel="noopener" class="btn btn-primary btn-md">${TeamAgendaIcons.render('calendar')}Team Calendar</a>` : ''}
+      ${eventsSubscriptionUrl ? `<a href="${eventsSubscriptionUrl}" target="_blank" rel="noopener" class="btn btn-primary btn-md">${TeamAgendaIcons.render('calendar')}Subscribe<span class="visually-hidden"> to team events calendar</span></a>` : ''}
     </div>`;
   }
 

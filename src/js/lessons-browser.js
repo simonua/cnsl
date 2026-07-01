@@ -31,7 +31,7 @@
    */
   function createExternalLink(label, url, purpose) {
     const link = document.createElement('a');
-    link.className = 'btn-primary';
+    link.className = 'btn btn-primary btn-md';
     link.href = url;
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
