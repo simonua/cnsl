@@ -15,8 +15,8 @@
     teams: `assets/data/${YEAR}/teams/teams.json`
   });
   const APP_TIMEZONE = 'America/New_York';
-  const OFFICIAL_SOURCE_CHECKED_AT = '2026-06-30T05:45:32-04:00';
-  const OFFICIAL_SOURCE_UPDATED_AT = '2026-06-30T05:45:32-04:00';
+  const OFFICIAL_SOURCE_CHECKED_AT = '2026-07-01T16:19:26-04:00';
+  const OFFICIAL_SOURCE_UPDATED_AT = '2026-07-01T16:19:26-04:00';
   const HOME_PAGE_HOSTNAME = 'pools.longreachmarlins.org';
   const HOME_PAGE_URL = `https://${HOME_PAGE_HOSTNAME}`;
   const AUTHOR_NAME = 'Simon Kurtz';

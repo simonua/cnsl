@@ -628,11 +628,13 @@ assert.match(homeHtml, /"@type":\s*"WebSite"[\s\S]*"alternateName":\s*"CA Pools"
 
 const poolsHtml = fs.readFileSync(path.join(outDir, 'pools.html'), 'utf8');
 assert.ok(poolsHtml.includes(`<title>${YEAR} Columbia Association Pools: Hours &amp; Schedules</title>`), 'Pool search title must identify the active season, Columbia Association pools, hours, and schedules.');
-assert.match(poolsHtml, /<meta name="description" content="[^"]*Columbia Association pool status[^"]*outdoor pool hours[^"]*addresses[^"]*maps[^"]*accessibility features[^"]*schedules[^"]*">/, 'Pool search description must cover the report-supported status, schedule, location, and accessibility intents.');
+assert.match(poolsHtml, /<meta name="description" content="[^"]*Columbia Association pool status[^"]*scheduled openings[^"]*today[^"]*tomorrow[^"]*any day[^"]*swim season[^"]*outdoor pool hours[^"]*addresses[^"]*maps[^"]*accessibility features[^"]*schedules[^"]*">/, 'Pool search description must cover season-wide daily status, schedule, location, and accessibility intents.');
 assert.match(poolsHtml, /<h1>Pools &amp; Hours<\/h1>/, 'Pool page must retain its concise visitor-facing heading.');
 
 const faqHtml = fs.readFileSync(path.join(outDir, 'faq.html'), 'utf8');
 assert.ok(faqHtml.includes(`href="${activeSeasonPools.caPoolGuideUrl}"`), 'FAQ must render its official pool-source destination from active annual metadata.');
+assert.ok(faqHtml.includes(`href="${activeSeasonPools.caPoolDirectoryUrl}"`), 'FAQ must route location-specific policy searches to the official CA pool directory.');
+assert.match(faqHtml, /pool admission, fees, access rules, or party information/i, 'FAQ must cover report-supported CA pool policy searches without claiming ownership of those rules.');
 assert.match(faqHtml, /Google Analytics uses its own first-party identifier to provide combined reports/, 'FAQ must disclose the first-party Google Analytics storage used for aggregate reporting.');
 assert.match(faqHtml, /does not send Google Analytics your name, contact details, account information/, 'FAQ must disclose that app-defined measurement does not send direct visitor identity fields.');
 assert.doesNotMatch(faqHtml, /"@type":\s*"(?:FAQPage|Question|Answer)"/, 'FAQ must not publish retired Google FAQ rich-result types.');

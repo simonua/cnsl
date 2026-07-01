@@ -8,6 +8,7 @@ This log records completed online checks of official active-season sources and l
 
 | Date | Type | Data point | Summary |
 | --- | --- | --- | --- |
+| [2026-07-01T16:19:26-04:00 Seasonal Data Review](#activity-2026-07-01t161926-0400-seasonal-data-review) | update | Dorsey Hall weekday Laps and Rec Swim closing times | Completed the 139-source review and corrected the published Monday-Friday closing time to 8:00 PM. |
 | [2026-06-30T05:45:32-04:00 Pool Schedule Audit](#activity-2026-06-30t054532-0400-pool-schedule-audit) | update | Stevens Forest schedule, Talbott Springs lanes, and Bryant Woods wading pool | Audited the current PDFs for all 22 pools other than Locust Park and corrected four represented details. |
 | [2026-06-30T05:09:16-04:00 Seasonal Data Review](#activity-2026-06-30t050916-0400-seasonal-data-review) | update | Locust Park Thursday shared-use hours | Extended the published Thursday evening schedule to 8:00 PM and retained the current official PDF. |
 | [2026-06-27T07:27:41-04:00 Seasonal Data Review](#activity-2026-06-27t072741-0400-seasonal-data-review) | update | Owen Brown Barracudas assistant coach | Added Grace DeJarnette from the current staff page; represented practice values remained current. |
@@ -40,6 +41,35 @@ This log records completed online checks of official active-season sources and l
 | [2026-06-11T18:08:10-04:00](#activity-2026-06-11t180810-0400) | check | <!-- --> | Completed the 135-source review; no represented data or destinations changed. |
 | [2026-06-10T22:13:23-04:00](#activity-2026-06-10t221323-0400) | check | <!-- --> | Completed the 135-source review under the availability exception; no represented data changed. |
 | [2026-06-10T06:56:02-04:00](#activity-2026-06-10t065602-0400) | check | <!-- --> | The review was incomplete because one application-used destination could not be verified; no represented data changed. |
+
+<a id="activity-2026-07-01t161926-0400-seasonal-data-review"></a>
+
+## 2026-07-01T16:19:26-04:00 Seasonal Data Review
+
+**Active season:** 2026
+
+**Result:** Complete for candidate `32cc864bf94fe32b` under the existing explicit maintainer exception for merchandise-store and booster-site availability.
+
+Checked the 139-source inventory built from the active 2026 JSON and annual README:
+
+- `pnpm run check:data-updates` reached all 76 monitor-collected modeled-evidence URLs and reproduced the Dorsey Hall PDF, CA Outdoor Swim Lessons page, and CA pool schedule page candidates.
+- All 63 official sources and application-used destinations outside the monitor were attempted separately with live GET requests.
+- 136 required sources returned successful responses.
+- The Long Reach and Phelps Luck merchandise stores and the Long Reach booster site were attempted and returned HTTP 403 responses covered by the established availability exception.
+- No non-exempt source failed or remained unattempted.
+
+The current field-owning Dorsey Hall PDF explicitly changes June 19 - August 9 Monday and Tuesday-Friday Laps and Rec Swim closing times from 8:30 PM to 8:00 PM. Saturday remains open until 8:30 PM, Sunday remains 11:00 AM - 7:00 PM, and every other extracted schedule line remains unchanged. The pool-specific PDF is the definitive publisher record for these hours, its application-used destination remains current, and no official source contradicts the update. Confidence is High with no residual uncertainty.
+
+The field-owning Outdoor Swim Lessons page retains the four morning and three evening locations, their weekdays, 10:00 AM - noon five-day morning format beginning June 22, six-week evening format, preparation list, weather policy, registration destination, and Personal Swim Training alternative recorded in `src/assets/data/lessons.json`. CA's main lessons page independently corroborates the one-week five-day morning and one-day-per-week six-week evening formats. The changed pool schedule page fingerprint does not alter `caPoolGuideUrl` or any of the 23 `pools[].scheduleUrl` destinations. These two page candidates are non-material to represented data and application-used destinations. No normalization or schema change was needed, no source conflict remains, and there is no residual uncertainty.
+
+| Area | Status | Details |
+| --- | --- | --- |
+| Modeled application data | Updated | Changed `pools[id="dhp"]` June 19 - August 9 Monday and Tuesday-Friday Laps and Rec Swim `endTime` values from `8:30pm` to `8:00pm` in `pools/pools.json`. |
+| Application-used source destinations | Unchanged | None; the Dorsey Hall schedule, CA pool guide, all 23 pool schedule, outdoor lesson registration, and Personal Swim Training destinations remain current. |
+| Retained official PDFs | Updated | Added `pools/pool-schedules/dhp/2026-07-01/Dorsey_Hall.pdf`; the June 17 and June 24 artifacts remain retained. |
+| Visitor-facing records | Updated | Added the Dorsey Hall weekday-hours data update to the undated Upcoming section in `src/views/whats-new.html`; the noindex What's New page has no sitemap entry. |
+| Review records | Updated | Updated `OFFICIAL_SOURCE_CHECKED_AT`, `OFFICIAL_SOURCE_UPDATED_AT`, active annual README evidence, and this check-log entry. |
+| Reviewed source baseline | Updated | `source-state.json` refreshed with the accepted July 1 Dorsey Hall document and current candidate-page fingerprints. |
 
 <a id="activity-2026-06-30t054532-0400-pool-schedule-audit"></a>
 

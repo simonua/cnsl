@@ -448,7 +448,7 @@ function writeSitemapArtifact() {
         tag: 'url',
         content: [
           { tag: 'loc', content: [page.canonicalUrl] },
-          { tag: 'lastmod', content: ['2026-06-30'] }
+          { tag: 'lastmod', content: ['2026-07-01'] }
         ]
       })));
       return node;

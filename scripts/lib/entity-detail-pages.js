@@ -120,7 +120,7 @@ function createPoolPage(pool, homePageUrl, year) {
   const filename = `pool-${id}.html`;
   const canonicalUrl = `${homePageUrl}/${filename}`;
   const heading = `${name} Pool`;
-  const description = `${heading} address, features, ${year} schedule links, and official Columbia Association information in Columbia, Maryland.`;
+  const description = `${heading} in Columbia, MD: find its address, map, features, current status and hours, plus the official ${year} Columbia Association schedule.`;
   const facts = [
     { label: 'Address', value: escapeHtml(`${address.street}, ${address.city}, ${address.state} ${address.zip}`) },
     ...(pool.phone ? [{ label: 'Phone', value: `<a href="tel:${escapeHtml(String(pool.phone).replace(/[^+\d]/g, ''))}">${escapeHtml(pool.phone)}</a>` }] : []),
@@ -138,6 +138,8 @@ function createPoolPage(pool, homePageUrl, year) {
     '@type': 'SportsActivityLocation',
     '@id': `${canonicalUrl}#pool`,
     name: heading,
+    alternateName: name,
+    description,
     url: canonicalUrl,
     sameAs: officialUrl,
     address: {
@@ -188,11 +190,13 @@ function createTeamPage(team, homePageUrl, year) {
     : [];
   const filename = `team-${id}.html`;
   const canonicalUrl = `${homePageUrl}/${filename}`;
-  const description = `${name} home pools, practice locations, ${year} schedule links, and official CNSL team information in Columbia, Maryland.`;
   const facts = [
     { label: homePools.length === 1 ? 'Home pool' : 'Home pools', value: escapeHtml(homePools.join(', ')) },
     ...(practicePools.length > 0 ? [{ label: practicePools.length === 1 ? 'Practice pool' : 'Practice pools', value: escapeHtml(practicePools.join(', ')) }] : [])
   ];
+  const homePoolLabel = homePools.length === 1 ? 'home pool' : 'home pools';
+  const description = `${name}: ${year} CNSL ${homePoolLabel} ${homePools.join(', ')}, `
+    + 'practice locations, and official practice and team schedule links in Columbia, MD.';
   const links = [
     `<a href="${escapeHtml(officialUrl)}" target="_blank" rel="noopener noreferrer">Official team website</a>`,
     ...(team.calendarUrl ? [`<a href="${escapeHtml(requireHttpsUrl(team.calendarUrl, `${name} calendar URL`))}" target="_blank" rel="noopener noreferrer">Official team calendar</a>`] : []),
@@ -202,6 +206,8 @@ function createTeamPage(team, homePageUrl, year) {
     '@type': 'SportsTeam',
     '@id': `${canonicalUrl}#team`,
     name,
+    ...(team.shortName ? { alternateName: requireText(team.shortName, `${name} short name`) } : {}),
+    description,
     url: canonicalUrl,
     sameAs: officialUrl,
     sport: 'Swimming',

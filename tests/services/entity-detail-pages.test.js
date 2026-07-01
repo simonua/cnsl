@@ -31,6 +31,7 @@ function createFixturePages(overrides = {}) {
     teams: [{
       id: 'sample-team',
       name: 'Sample & Team',
+      shortName: 'Samples',
       url: 'https://team.example/home',
       calendarUrl: 'https://team.example/calendar',
       homePools: ['Alpha'],
@@ -51,9 +52,16 @@ describe('entity detail pages', () => {
     assert.deepEqual(pages.map(page => page.filename), ['pool-alpha.html', 'team-sample-team.html']);
     assert.equal(poolPage.canonicalUrl, `${homePageUrl}/pool-alpha.html`);
     assert.match(poolPage.source, new RegExp(`<link rel="canonical" href="${homePageUrl}/pool-alpha\\.html"`));
+    assert.match(poolPage.source, /<title>Alpha &amp; &lt;Pool&gt; Pool: 2026 Hours &amp; Schedule<\/title>/);
+    assert.match(poolPage.source, /current status and hours/);
     assert.match(poolPage.source, /"@type": "SportsActivityLocation"/);
+    assert.match(poolPage.source, /"alternateName": "Alpha & \\u003cPool>"/);
     assert.match(poolPage.source, /"@type": "BreadcrumbList"/);
+    assert.match(teamPage.source, /<title>Sample &amp; Team: 2026 CNSL Swim Team<\/title>/);
+    assert.match(teamPage.source, /2026 CNSL home pool Alpha/);
+    assert.match(teamPage.source, /official practice and team schedule links/);
     assert.match(teamPage.source, /"@type": "SportsTeam"/);
+    assert.match(teamPage.source, /"alternateName": "Samples"/);
     assert.match(teamPage.source, /href="teams\.html\?team=sample-team"/);
   });
 
