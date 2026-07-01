@@ -183,6 +183,7 @@ function createMemoryStorage() {
 
 async function verifyAnalyticsArtifact(attentionBannerTypeSource, appConfigSource, interactionTypeSource, startPageSource, devicePlatformSource, analyticsSource) {
   const appendedScripts = [];
+  const globalEventListeners = new Map();
   const lockRequests = [];
   let scriptLoadListener;
   const localStorage = createMemoryStorage();
@@ -217,6 +218,7 @@ async function verifyAnalyticsArtifact(attentionBannerTypeSource, appConfigSourc
     setTimeout
   };
   context.window = context;
+  context.addEventListener = (eventName, listener) => globalEventListeners.set(eventName, listener);
   context.document = {
     addEventListener: () => undefined,
     createElement: tagName => {
@@ -270,6 +272,29 @@ async function verifyAnalyticsArtifact(attentionBannerTypeSource, appConfigSourc
   assert.equal(pageDefaults[1].page_referrer, '', 'Analytics must not send page referrers.');
   assert.equal(pageDefaults[1].allow_google_signals, false, 'Analytics must disable Google advertising signals.');
   assert.equal(pageDefaults[1].allow_ad_personalization_signals, false, 'Analytics must disable advertising personalization.');
+  assert.equal(typeof globalEventListeners.get('error'), 'function', 'Eligible analytics must capture uncaught runtime errors.');
+  assert.equal(typeof globalEventListeners.get('unhandledrejection'), 'function', 'Eligible analytics must capture unhandled promise rejections.');
+
+  const privateErrorMessage = 'Private visitor simon@example.test failed at https://example.test/?token=secret';
+  globalEventListeners.get('error')({
+    colno: 7,
+    error: new TypeError(privateErrorMessage),
+    filename: `${HOME_PAGE_URL}/js/pool-browser.js?token=secret`,
+    lineno: 42,
+    message: privateErrorMessage
+  });
+  const errorCommand = getCommands().find(command => command[0] === 'event' && command[1] === 'ca_error');
+  assert.deepEqual(JSON.parse(JSON.stringify(errorCommand?.[2])), {
+    app_version: APP_VERSION,
+    error_column: 7,
+    error_context: 'runtime',
+    error_fingerprint: errorCommand?.[2]?.error_fingerprint,
+    error_line: 42,
+    error_name: 'TypeError',
+    error_source: '/js/pool-browser.js'
+  }, 'Runtime error measurement must publish only the reviewed anonymous diagnostic fields.');
+  assert.match(errorCommand[2].error_fingerprint, /^[a-f0-9]{8}$/, 'Runtime errors must publish a bounded anonymous fingerprint.');
+  assert.doesNotMatch(JSON.stringify(errorCommand), /simon|example\.test|secret|visitor/i, 'Runtime errors must not publish raw messages, query values, or visitor data.');
 
   await scriptLoadListener();
   const publishedCommands = getCommands();
@@ -490,6 +515,7 @@ assert.doesNotMatch(analytics, /link_(?:url|host)\s*:/, 'External-link measureme
 assert.doesNotMatch(analytics, /resource_(?:url|path|filename)\s*:/, 'Resource measurement must not send URLs, paths, or filenames.');
 assert.doesNotMatch(analytics, /(?:pool|team|meet)_(?:id|name)\s*:/, 'Analytics must not send selected pool, team, or meet identities.');
 assert.doesNotMatch(analytics, /(?:latitude|longitude|coordinates|user_agent|platform)\s*:/, 'Analytics must not send location or device-identifying values.');
+assert.doesNotMatch(analytics, /(?:error_message|error_stack|stack_trace)\s*:/, 'Analytics must not send raw error messages or stack traces.');
 assert.doesNotMatch(nonAnalyticsBrowserCode, /\b(?:window\.)?gtag\s*\(/, 'Delivered browser scripts must publish measurement only through the analytics module API.');
 assert.doesNotMatch(analytics, /\b(?:user_id|user_properties|document\.referrer)\b/, 'Analytics must not add identifiers, user profiling values, or browser referrers.');
 const generatedViewPages = Object.keys(canonicalPages);

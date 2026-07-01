@@ -10,6 +10,7 @@
     APP_MODE: 'ca_app_mode',
     BANNER_INTERACTION: 'ca_banner_interaction',
     DIRECTORY_DETAIL_OPEN: 'ca_directory_detail_open',
+    ERROR: 'ca_error',
     EXPERIMENTAL_FEATURE_CHANGE: 'ca_experimental_feature_change',
     EXTERNAL_LINK: 'ca_external_link',
     FLYER_VISIT: 'ca_flyer_visit',
@@ -153,6 +154,20 @@
   const UNKNOWN_PREVIOUS_VERSION = '0';
   const VS_CODE_BROWSER_USER_AGENT_PATTERN = /\b(?:Code|Code-Insiders|VSCodium)\//;
 
+  // Error tracking
+
+  const ALLOWED_ERROR_NAMES = new Set([
+    'AggregateError', 'Error', 'EvalError', 'RangeError', 'ReferenceError', 'SyntaxError', 'TypeError', 'URIError'
+  ]);
+  const ERROR_CONTEXTS = Object.freeze({
+    PROMISE_REJECTION: 'promise_rejection',
+    RUNTIME: 'runtime'
+  });
+  const ERROR_FINGERPRINT_OFFSET = 2166136261;
+  const ERROR_FINGERPRINT_PRIME = 16777619;
+  const MAX_ERROR_EVENTS_PER_PAGE = 5;
+  const reportedErrorFingerprints = new Set();
+
   // Set during initialization, before prepareUpgradeTracking writes the version marker, so that
   // app-mode reporting can distinguish a profile's first-ever visit from a returning visit.
   let openedOnFirstEverVisit = false;
@@ -259,6 +274,125 @@
     } else {
       window.gtag('event', eventName);
     }
+  }
+
+  /**
+   * Resolves a bounded standard error name without publishing custom text.
+   * @param {*} candidateError - Error-like value raised by the browser
+   * @returns {string} Standard error name or a fixed fallback
+   * @private
+   */
+  function getMeasuredErrorName(candidateError) {
+    try {
+      return ALLOWED_ERROR_NAMES.has(candidateError?.name) ? candidateError.name : 'UnknownError';
+    } catch (_error) {
+      return 'UnknownError';
+    }
+  }
+
+  /**
+   * Produces a stable grouping value from privacy-reviewed error fields.
+   * @param {string[]} signatureParts - Privacy-reviewed error signature fields
+   * @returns {string} Eight-character hexadecimal fingerprint
+   * @private
+   */
+  function getAnonymousErrorFingerprint(signatureParts) {
+    let fingerprint = ERROR_FINGERPRINT_OFFSET;
+    const signature = signatureParts.join('|');
+    for (let index = 0; index < signature.length; index += 1) {
+      fingerprint ^= signature.charCodeAt(index);
+      fingerprint = Math.imul(fingerprint, ERROR_FINGERPRINT_PRIME);
+    }
+    return (fingerprint >>> 0).toString(16).padStart(8, '0');
+  }
+
+  /**
+   * Classifies a script source without publishing external or visitor-controlled URLs.
+   * @param {*} filename - Browser-provided script filename
+   * @returns {string} Validated app script path or a fixed source category
+   * @private
+   */
+  function getMeasuredErrorSource(filename) {
+    if (typeof filename !== 'string' || filename === '') return 'unknown_source';
+
+    try {
+      const sourceUrl = new URL(filename, window.location.href);
+      const appOrigin = new URL(window.location.href).origin;
+      if (sourceUrl.origin !== appOrigin) return 'external_script';
+      if (/^\/js\/[a-z0-9][a-z0-9./-]*\.js$/i.test(sourceUrl.pathname)) return sourceUrl.pathname;
+      return 'app_document';
+    } catch (_error) {
+      return 'unknown_source';
+    }
+  }
+
+  /**
+   * Normalizes a browser line or column number to a bounded measurement value.
+   * @param {*} candidateNumber - Browser-provided source position
+   * @returns {number} Positive source position or zero when unavailable
+   * @private
+   */
+  function getMeasuredSourcePosition(candidateNumber) {
+    return Number.isInteger(candidateNumber) && candidateNumber > 0 && candidateNumber <= 1000000
+      ? candidateNumber
+      : 0;
+  }
+
+  /**
+   * Publishes one deduplicated privacy-limited error occurrence.
+   * @param {string} errorContext - Fixed runtime or promise-rejection context
+   * @param {*} candidateError - Error-like value raised by the browser
+   * @param {*} filename - Browser-provided script filename
+   * @param {*} lineNumber - Browser-provided source line
+   * @param {*} columnNumber - Browser-provided source column
+   * @private
+   */
+  function trackError(errorContext, candidateError, filename, lineNumber, columnNumber) {
+    if (!Object.values(ERROR_CONTEXTS).includes(errorContext)
+      || reportedErrorFingerprints.size >= MAX_ERROR_EVENTS_PER_PAGE) return;
+
+    const errorName = getMeasuredErrorName(candidateError);
+    const errorSource = getMeasuredErrorSource(filename);
+    const errorLine = getMeasuredSourcePosition(lineNumber);
+    const errorColumn = getMeasuredSourcePosition(columnNumber);
+    const fingerprint = getAnonymousErrorFingerprint([
+      errorContext,
+      errorName,
+      errorSource,
+      String(errorLine),
+      String(errorColumn)
+    ]);
+    if (reportedErrorFingerprints.has(fingerprint)) return;
+    reportedErrorFingerprints.add(fingerprint);
+
+    publishEvent(ANALYTICS_EVENT_NAMES.ERROR, {
+      app_version: window.APP_VERSION,
+      error_column: errorColumn,
+      error_context: errorContext,
+      error_fingerprint: fingerprint,
+      error_line: errorLine,
+      error_name: errorName,
+      error_source: errorSource
+    });
+  }
+
+  /**
+   * Captures uncaught runtime errors and unhandled promise rejections at the window boundary.
+   * @private
+   */
+  function initializeErrorTracking() {
+    window.addEventListener('error', event => {
+      trackError(
+        ERROR_CONTEXTS.RUNTIME,
+        event.error,
+        event.filename,
+        event.lineno,
+        event.colno
+      );
+    });
+    window.addEventListener('unhandledrejection', event => {
+      trackError(ERROR_CONTEXTS.PROMISE_REJECTION, event.reason, '', 0, 0);
+    });
   }
 
   /**
@@ -949,6 +1083,7 @@
     page_title: getMeasuredPageTitle(),
     ...getMeasuredPageParameters()
   });
+  initializeErrorTracking();
 
   const script = document.createElement('script');
   script.id = 'cnslAnalyticsScript';

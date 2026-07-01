@@ -171,6 +171,68 @@ analyticsTest('[WF-ANALYTICS-001] analytics publishes a page view and each publi
   expect(blockedExternalRequests).toEqual([]);
 });
 
+analyticsTest('[WF-ANALYTICS-020] analytics groups runtime failures without publishing raw error or visitor data', async ({ page }) => {
+  await page.route('https://www.googletagmanager.com/**', route => route.fulfill({
+    contentType: 'application/javascript',
+    body: 'globalThis.cnslTagScriptLoaded = true;'
+  }));
+  await page.route('https://pools.longreachmarlins.org/**', async route => {
+    const requestedUrl = new URL(route.request().url());
+    const response = await page.request.get(`${PLAYWRIGHT_SERVER_URL}${requestedUrl.pathname}`);
+    await route.fulfill({ response });
+  });
+
+  await page.goto('https://pools.longreachmarlins.org/index.html', { waitUntil: 'domcontentloaded' });
+  await expect.poll(() => page.evaluate(() => globalThis.cnslTagScriptLoaded)).toBe(true);
+  const errorEvents = await page.evaluate(() => {
+    const privateMessage = 'Account simon@example.test failed at https://example.test/?token=secret';
+    const runtimeError = new TypeError(privateMessage);
+    const runtimeEvent = new ErrorEvent('error', {
+      colno: 7,
+      error: runtimeError,
+      filename: `${globalThis.location.origin}/js/pool-browser.js?token=secret`,
+      lineno: 42,
+      message: privateMessage
+    });
+    globalThis.dispatchEvent(runtimeEvent);
+    globalThis.dispatchEvent(runtimeEvent);
+
+    const rejectionEvent = new Event('unhandledrejection');
+    Object.defineProperty(rejectionEvent, 'reason', {
+      value: new RangeError('Private swimmer name and 410-555-0199')
+    });
+    globalThis.dispatchEvent(rejectionEvent);
+
+    return globalThis.dataLayer
+      .map(argumentsList => Array.from(argumentsList))
+      .filter(command => command[0] === 'event' && command[1] === 'ca_error');
+  });
+
+  expect(errorEvents).toHaveLength(2);
+  expect(errorEvents.map(command => command[2])).toEqual([
+    expect.objectContaining({
+      app_version: AppConfig.APP_VERSION,
+      error_column: 7,
+      error_context: 'runtime',
+      error_line: 42,
+      error_name: 'TypeError',
+      error_source: '/js/pool-browser.js'
+    }),
+    expect.objectContaining({
+      app_version: AppConfig.APP_VERSION,
+      error_column: 0,
+      error_context: 'promise_rejection',
+      error_line: 0,
+      error_name: 'RangeError',
+      error_source: 'unknown_source'
+    })
+  ]);
+  for (const command of errorEvents) {
+    expect(command[2].error_fingerprint).toMatch(/^[a-f0-9]{8}$/);
+  }
+  expect(JSON.stringify(errorEvents)).not.toMatch(/simon|example\.test|secret|swimmer|410-555/i);
+});
+
 analyticsTest('[WF-ANALYTICS-018] analytics reports installed PWA mode once per browser session', async ({ page }) => {
   await page.route('https://www.googletagmanager.com/**', route => route.fulfill({
     contentType: 'application/javascript',
