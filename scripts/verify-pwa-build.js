@@ -181,7 +181,7 @@ function createMemoryStorage() {
   };
 }
 
-async function verifyAnalyticsArtifact(attentionBannerTypeSource, appConfigSource, interactionTypeSource, devicePlatformSource, analyticsSource) {
+async function verifyAnalyticsArtifact(attentionBannerTypeSource, appConfigSource, interactionTypeSource, startPageSource, devicePlatformSource, analyticsSource) {
   const appendedScripts = [];
   const lockRequests = [];
   let scriptLoadListener;
@@ -247,6 +247,7 @@ async function verifyAnalyticsArtifact(attentionBannerTypeSource, appConfigSourc
   // visitor is always in webpage mode, so verifying webpage publication requires a prior visit.
   localStorage.setItem(context.ANALYTICS_APP_VERSION_STORAGE_KEY, APP_VERSION);
   vm.runInContext(interactionTypeSource, context, { filename: 'js/types/analytics-interaction-type.js' });
+  vm.runInContext(startPageSource, context, { filename: 'js/types/start-page.js' });
   vm.runInContext(devicePlatformSource, context, { filename: 'js/services/device-platform-service.js' });
   vm.runInContext(analyticsSource, context, { filename: 'js/analytics.js' });
 
@@ -452,6 +453,7 @@ assert.doesNotMatch(worker, /cacheOptionalResources/, 'Service worker installati
 const analytics = fs.readFileSync(path.join(outDir, 'js', 'analytics.js'), 'utf8');
 const attentionBannerType = fs.readFileSync(path.join(outDir, 'js', 'types', 'attention-banner-type.js'), 'utf8');
 const analyticsInteractionType = fs.readFileSync(path.join(outDir, 'js', 'types', 'analytics-interaction-type.js'), 'utf8');
+const startPage = fs.readFileSync(path.join(outDir, 'js', 'types', 'start-page.js'), 'utf8');
 const devicePlatform = fs.readFileSync(path.join(outDir, 'js', 'services', 'device-platform-service.js'), 'utf8');
 const appConfig = fs.readFileSync(path.join(outDir, 'js', 'config', 'app-config.js'), 'utf8');
 const pwa = fs.readFileSync(path.join(outDir, 'js', 'pwa.js'), 'utf8');
@@ -565,6 +567,10 @@ Object.entries(canonicalPages).forEach(([page, canonical]) => {
     html.indexOf('js/config/app-config.js?v=') < html.indexOf('js/analytics.js?v='),
     `${page} must load application URL configuration before analytics handling.`
   );
+  assert.ok(
+    html.indexOf('js/types/start-page.js?v=') < html.indexOf('js/analytics.js?v='),
+    `${page} must load start-page values before analytics handling.`
+  );
   assert.match(html, /js\/analytics\.js\?v=/, `${page} must load deployed-site analytics handling.`);
   assert.match(html, /id="connectivityStatus"/, `${page} must include shared offline connection status.`);
   assert.match(html, /js\/connectivity-status\.js\?v=/, `${page} must load shared offline connection-status handling.`);
@@ -636,7 +642,7 @@ const customDomain = fs.readFileSync(path.join(outDir, 'CNAME'), 'utf8').trim();
 assert.equal(customDomain, HOME_PAGE_HOSTNAME, 'Published GitHub Pages output must retain the configured custom domain.');
 
 Promise.all([
-  verifyAnalyticsArtifact(attentionBannerType, appConfig, analyticsInteractionType, devicePlatform, analytics),
+  verifyAnalyticsArtifact(attentionBannerType, appConfig, analyticsInteractionType, startPage, devicePlatform, analytics),
   verifyMeetDateSummaryArtifact()
 ])
   .then(() => {
