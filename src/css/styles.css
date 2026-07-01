@@ -11,6 +11,7 @@
   Theme tokens
   ========================================================================== */
 :root {
+  --directory-loading-delay: 0.2s;
   --primary-color: #005ea8;
   --primary-dark: #004578;
   --primary-text-color: #004578;
@@ -3479,11 +3480,23 @@ button.pool-filter__clear:focus-visible {
   min-height: 50vh;
   padding: 2rem 1rem;
   text-align: center;
+  visibility: hidden;
 }
 
 .pool-list[data-directory-enhancing="true"] > .directory-loading,
 .team-list[data-directory-enhancing="true"] > .directory-loading {
+  animation: reveal-directory-loading 0s linear var(--directory-loading-delay) forwards;
   display: grid;
+}
+
+:root[data-start-page-pending="true"] .directory-loading {
+  animation: none;
+}
+
+@keyframes reveal-directory-loading {
+  to {
+    visibility: visible;
+  }
 }
 
 .pool-list[data-directory-enhancing="true"] > .search-directory-summary,

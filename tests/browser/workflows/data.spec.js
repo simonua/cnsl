@@ -54,9 +54,20 @@ for (const scenario of directoryScenarios.filter(({ reference }) => reference !=
       await primaryRequestPaused;
       await route.continue();
     });
+    await page.addInitScript(listSelector => {
+      globalThis.directoryLoadingVisibilityAtFirstPaint = new Promise(resolve => {
+        globalThis.addEventListener('load', () => {
+          globalThis.requestAnimationFrame(() => {
+            const loadingMessage = globalThis.document.querySelector(`${listSelector} .directory-loading`);
+            resolve(loadingMessage ? globalThis.getComputedStyle(loadingMessage).visibility : 'missing');
+          });
+        }, { once: true });
+      });
+    }, scenario.list);
 
     try {
       await page.goto(scenario.path, { waitUntil: 'domcontentloaded' });
+      expect(await page.evaluate(() => globalThis.directoryLoadingVisibilityAtFirstPaint)).toBe('hidden');
       await expect(page.locator(scenario.list)).toHaveAttribute('aria-busy', 'true');
       await expect(page.locator(scenario.list)).toHaveAttribute('data-directory-enhancing', 'true');
       await expect(page.locator(`${scenario.list} .directory-loading`)).toBeVisible();
