@@ -6,11 +6,34 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('[WF-START-PAGE-001] clean root launches use the saved page while explicit Home remains available', async ({ page }) => {
+  await page.addInitScript(() => {
+    const HOME_PAINT_STORAGE_KEY = 'test_home_painted_before_start_page';
+    const recordVisibleHomeView = () => {
+      const isPendingRoot = globalThis.location.pathname === '/'
+        && globalThis.document.documentElement.dataset.startPagePending === 'true';
+      const mainContent = globalThis.document.getElementById('mainContent');
+      if (isPendingRoot
+        && mainContent
+        && globalThis.getComputedStyle(globalThis.document.body).visibility !== 'hidden') {
+        globalThis.sessionStorage.setItem(HOME_PAINT_STORAGE_KEY, 'true');
+      }
+    };
+
+    new MutationObserver(recordVisibleHomeView).observe(globalThis.document, {
+      attributes: true,
+      childList: true,
+      subtree: true
+    });
+  });
   await seedPreferences(page, { startPage: 'pools' });
 
   await page.goto('/');
   await expect(page).toHaveURL(/\/pools\.html$/);
   await expect(page.getByRole('heading', { level: 1, name: 'Pools' })).toBeVisible();
+  await expect.poll(() => page.evaluate(() => (
+    globalThis.sessionStorage.getItem('test_home_painted_before_start_page')
+  ))).toBeNull();
+  await expect(page.locator('html')).not.toHaveAttribute('data-start-page-pending');
 
   await page.goto('/index.html');
   await expect(page).toHaveURL(/\/index\.html$/);
@@ -24,4 +47,5 @@ test('[WF-START-PAGE-002] invalid stored preferences leave a clean root launch o
 
   await expect(page).toHaveURL(/\/$/);
   await expect(page.getByRole('heading', { level: 1, name: 'CA Outdoor Pools & CNSL Swim Teams' })).toBeVisible();
+  await expect(page.locator('html')).not.toHaveAttribute('data-start-page-pending');
 });

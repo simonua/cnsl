@@ -19,6 +19,7 @@
 
   <!-- Runs before stylesheets so the first painted canvas matches the saved theme. -->
   <script data-cfasync="false" data-theme-bootstrap="true">
+    document.documentElement.dataset.startPagePending = 'true';
     let selectedTheme = 'system';
     try {
       const storedPreferences = JSON.parse(localStorage.getItem('{{ PREFERENCES_STORAGE_KEY }}') || '{}');
@@ -34,8 +35,8 @@
   </script>
 
   <!-- Resolve a saved start page before the initial page can paint. -->
-  <script src="js/types/start-page.js"></script>
-  <script src="js/start-page-redirect.js" data-preferences-storage-key="{{ PREFERENCES_STORAGE_KEY }}"></script>
+  <script src="js/types/start-page.js" data-cfasync="false"></script>
+  <script src="js/start-page-redirect.js" data-cfasync="false" data-preferences-storage-key="{{ PREFERENCES_STORAGE_KEY }}"></script>
 
   <!-- Minimal first-paint styles; the CSP hash is validated during the build. -->
   <style data-initial-canvas="true">
@@ -64,6 +65,10 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       line-height: 1.6;
       margin: 0;
+    }
+
+    :root[data-start-page-pending="true"] body {
+      visibility: hidden;
     }
 
     .header {
@@ -229,6 +234,7 @@
   <link rel="manifest" href="manifest.webmanifest" />
 
   <!-- Shared providers load before every route and its deferred controllers. -->
+  <script src="js/types/attention-banner-type.js"></script>
   <script src="js/config/app-config.js"></script>
   <script src="js/services/season-service.js"></script>
   <script src="js/season-view.js"></script>
