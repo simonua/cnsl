@@ -9,17 +9,20 @@ test('[WF-START-PAGE-001] clean root launches use the saved page while explicit 
   await page.addInitScript(() => {
     const HOME_PAINT_STORAGE_KEY = 'test_home_painted_before_start_page';
     const recordVisibleHomeView = () => {
-      const isPendingRoot = globalThis.location.pathname === '/'
-        && globalThis.document.documentElement.dataset.startPagePending === 'true';
+      const storedPreferences = JSON.parse(
+        globalThis.localStorage.getItem('cnsl_preferences') || '{}'
+      );
+      const isRedirectingRoot = globalThis.location.pathname === '/'
+        && storedPreferences.startPage === 'pools';
       const mainContent = globalThis.document.getElementById('mainContent');
-      if (isPendingRoot
+      if (isRedirectingRoot
         && mainContent
         && globalThis.getComputedStyle(globalThis.document.body).visibility !== 'hidden') {
         globalThis.sessionStorage.setItem(HOME_PAINT_STORAGE_KEY, 'true');
       }
     };
 
-    new MutationObserver(recordVisibleHomeView).observe(globalThis.document, {
+    new globalThis.MutationObserver(recordVisibleHomeView).observe(globalThis.document, {
       attributes: true,
       childList: true,
       subtree: true

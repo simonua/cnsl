@@ -30,9 +30,10 @@
     DISMISSIBLE: true,
     EXPIRES_AT: `${YEAR}-07-05T00:00:00-04:00`,
     MESSAGE: 'All CA outdoor pools are open from noon to 7:00 PM on Independence Day, July 4.',
+    SHOW_UPDATED: false,
     STARTS_AT: `${YEAR}-06-27T00:00:00-04:00`,
-    UPDATED_AT: `${YEAR}-06-27T00:00:00-04:00`,
-    UPDATED_LABEL: `June 27, ${YEAR} at 12:00 AM`
+    TYPE: globalScope.AttentionBannerType.VALUES.INFORMATION,
+    UPDATED_AT: `${YEAR}-06-27T00:00:00-04:00`
   });
 
   // Published campaign attribution and share destinations.

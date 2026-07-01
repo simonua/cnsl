@@ -4,7 +4,7 @@ const vm = require('node:vm');
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const packageMetadata = require('../../package.json');
-const { AppConfig: config } = require('../helpers/browser-module-loader.js').loadBrowserModule('app-config');
+const { AppConfig: config, AttentionBannerType } = require('../helpers/browser-module-loader.js').loadBrowserModule('app-config');
 
 const sourcePath = path.join(__dirname, '..', '..', 'src', 'js', 'config', 'app-config.js');
 const source = fs.readFileSync(sourcePath, 'utf8');
@@ -40,7 +40,7 @@ describe('app-config', () => {
   });
 
   it('publishes browser configuration when evaluated with standard browser globals', () => {
-    const context = { APP_VERSION: packageMetadata.version, URL };
+    const context = { APP_VERSION: packageMetadata.version, AttentionBannerType, URL };
 
     vm.runInNewContext(source, context, { filename: sourcePath });
 
@@ -76,7 +76,7 @@ describe('app-config', () => {
   });
 
   it('requires the package version to be initialized first', () => {
-    assert.throws(() => vm.runInNewContext(source, { URL }, { filename: sourcePath }), /APP_VERSION/);
+    assert.throws(() => vm.runInNewContext(source, { AttentionBannerType, URL }, { filename: sourcePath }), /APP_VERSION/);
   });
 
   it('publishes immutable experimental feature configuration', () => {
@@ -137,6 +137,9 @@ describe('app-config', () => {
   it('publishes the scheduled Independence Day notice and its revision storage key', () => {
     assert.equal(config.APP_ATTENTION_NOTICE.STARTS_AT, `${config.YEAR}-06-27T00:00:00-04:00`);
     assert.equal(config.APP_ATTENTION_NOTICE.EXPIRES_AT, `${config.YEAR}-07-05T00:00:00-04:00`);
+    assert.equal(config.APP_ATTENTION_NOTICE.TYPE, AttentionBannerType.VALUES.INFORMATION);
+    assert.equal(config.APP_ATTENTION_NOTICE.SHOW_UPDATED, false);
+    assert.equal(Object.hasOwn(config.APP_ATTENTION_NOTICE, 'UPDATED_LABEL'), false);
     assert.deepEqual(config.INDEPENDENCE_DAY_NOTICE_SCHEDULE, {
       DATE: `${config.YEAR}-07-04`,
       PUBLIC_END_TIME: '7:00pm',

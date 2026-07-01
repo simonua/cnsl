@@ -1,8 +1,8 @@
 <div class="app-subheader" id="appSubheader" role="region" aria-label="Application notices">
   <!-- Time-sensitive notice configured by the application owner. -->
-  <aside class="attention-banner" id="attentionBanner" role="alert" aria-label="Important notice" hidden>
+  <aside class="attention-banner" id="attentionBanner" hidden>
     <div class="attention-banner__inner">
-      <svg class="icon attention-banner__icon" aria-hidden="true" focusable="false"><use href="#icon-warning-triangle"></use></svg>
+      <svg class="icon attention-banner__icon" aria-hidden="true" focusable="false"><use id="attentionBannerIconUse"></use></svg>
       <div class="attention-banner__copy">
         <p class="attention-banner__message" id="attentionBannerMessage"></p>
         <p class="attention-banner__updated" id="attentionBannerUpdated" hidden>Updated <time id="attentionBannerUpdatedTime"></time></p>

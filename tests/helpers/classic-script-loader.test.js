@@ -29,6 +29,7 @@ describe('classic script loader', () => {
 
   it('converts realm-owned structured values to host values', () => {
     const loader = createClassicScriptLoader({ inject: { APP_VERSION: readPackageVersion(), URL, URLSearchParams } });
+    loader.load('types/attention-banner-type.js');
     loader.load('config/app-config.js');
     const hostValue = loader.toHostValue(loader.get('AppConfig').EXTERNAL_LINKS);
 

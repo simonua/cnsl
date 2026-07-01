@@ -83,6 +83,12 @@
   --attention-control-hover: #ffe69c;
   --attention-muted: #594600;
   --attention-text: #332600;
+  --attention-information-bg: #e7f4fc;
+  --attention-information-border: #2c7da8;
+  --attention-information-control: #005a85;
+  --attention-information-control-hover: #cde9f7;
+  --attention-information-muted: #28566f;
+  --attention-information-text: #123a4d;
   --success-story-bg: linear-gradient(135deg, rgba(40, 167, 69, 0.05), rgba(40, 167, 69, 0.02));
   --success-story-border: rgba(40, 167, 69, 0.2);
   --meet-today-bg: #f8fff9;
@@ -211,6 +217,12 @@
   --attention-control-hover: #4a3d1a;
   --attention-muted: #eadb9a;
   --attention-text: #fff4cc;
+  --attention-information-bg: #142d40;
+  --attention-information-border: #58b0ee;
+  --attention-information-control: #8bd3ff;
+  --attention-information-control-hover: #1d4663;
+  --attention-information-muted: #b8dff5;
+  --attention-information-text: #e2f4ff;
   --success-story-bg: linear-gradient(135deg, rgba(74, 196, 107, 0.13), rgba(74, 196, 107, 0.06));
   --success-story-border: rgba(74, 196, 107, 0.32);
   --meet-today-bg: #183326;
@@ -262,6 +274,8 @@
   --current-text: #004b43;
   --home-meet-text: #003f70;
   --neutral-status-color: #303030;
+  --attention-information-border: #004578;
+  --attention-information-control: #003f70;
   --shadow: 0 0 0 1px var(--border-color);
   --shadow-hover: 0 0 0 2px var(--border-color);
 }
@@ -283,6 +297,8 @@
   --current-text: #9cf4e8;
   --home-meet-text: #bde5ff;
   --neutral-status-color: #e6e6e6;
+  --attention-information-border: #73c9ff;
+  --attention-information-control: #bde5ff;
   --shadow: 0 0 0 1px var(--border-color);
   --shadow-hover: 0 0 0 2px var(--border-color);
 }
@@ -424,6 +440,15 @@ main.container > .container {
   border-bottom: 3px solid var(--attention-border);
   color: var(--attention-text);
   width: 100%;
+}
+
+.attention-banner--information {
+  --attention-bg: var(--attention-information-bg);
+  --attention-border: var(--attention-information-border);
+  --attention-control: var(--attention-information-control);
+  --attention-control-hover: var(--attention-information-control-hover);
+  --attention-muted: var(--attention-information-muted);
+  --attention-text: var(--attention-information-text);
 }
 
 .attention-banner[hidden] {

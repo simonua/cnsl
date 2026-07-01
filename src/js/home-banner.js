@@ -2,6 +2,22 @@
   'use strict';
 
   const MAX_TIMER_DELAY_MS = 2147483647;
+  const ATTENTION_BANNER_PRESENTATION = Object.freeze({
+    [globalThis.AttentionBannerType.VALUES.INFORMATION]: Object.freeze({
+      className: 'attention-banner--information',
+      dismissLabel: 'Dismiss information notice',
+      iconHref: '#icon-info',
+      label: 'Information notice',
+      role: 'status'
+    }),
+    [globalThis.AttentionBannerType.VALUES.WARNING]: Object.freeze({
+      className: 'attention-banner--warning',
+      dismissLabel: 'Dismiss important notice',
+      iconHref: '#icon-warning-triangle',
+      label: 'Important notice',
+      role: 'alert'
+    })
+  });
 
   /**
     * Controls the visibility, acknowledgement, and analytics for an application banner.
@@ -119,18 +135,21 @@
     const message = document.getElementById('attentionBannerMessage');
     const updated = document.getElementById('attentionBannerUpdated');
     const updatedTime = document.getElementById('attentionBannerUpdatedTime');
+    const iconUse = document.getElementById('attentionBannerIconUse');
     const closeButton = document.getElementById('closeAttentionBanner');
     const config = window.APP_ATTENTION_NOTICE;
-    if (!notice || !message || !updated || !updatedTime || !closeButton || !config) return;
+    if (!notice || !message || !updated || !updatedTime || !iconUse || !closeButton || !config) return;
 
     const expiresAt = Date.parse(config.EXPIRES_AT);
     const startsAt = Date.parse(config.STARTS_AT);
     const updatedAt = Date.parse(config.UPDATED_AT);
+    const presentation = ATTENTION_BANNER_PRESENTATION[config.TYPE];
+    const showUpdated = config.SHOW_UPDATED === true;
     const hasValidContent = typeof config.MESSAGE === 'string'
       && config.MESSAGE.trim().length > 0
-      && typeof config.UPDATED_LABEL === 'string'
-      && config.UPDATED_LABEL.trim().length > 0;
+      && (!showUpdated || (typeof config.UPDATED_LABEL === 'string' && config.UPDATED_LABEL.trim().length > 0));
     if (!hasValidContent
+      || !presentation
       || !Number.isFinite(expiresAt)
       || !Number.isFinite(startsAt)
       || !Number.isFinite(updatedAt)
@@ -151,9 +170,18 @@
     if (config.DISMISSIBLE === true && dismissedRevision === config.UPDATED_AT) return;
 
     message.textContent = config.MESSAGE;
-    updatedTime.dateTime = config.UPDATED_AT;
-    updatedTime.textContent = config.UPDATED_LABEL;
-    updated.hidden = false;
+    notice.classList.remove(...Object.values(ATTENTION_BANNER_PRESENTATION).map(value => value.className));
+    notice.classList.add(presentation.className);
+    notice.setAttribute('aria-label', presentation.label);
+    notice.setAttribute('role', presentation.role);
+    iconUse.setAttribute('href', presentation.iconHref);
+    closeButton.setAttribute('aria-label', presentation.dismissLabel);
+    closeButton.title = presentation.dismissLabel;
+    if (showUpdated) {
+      updatedTime.dateTime = config.UPDATED_AT;
+      updatedTime.textContent = config.UPDATED_LABEL;
+    }
+    updated.hidden = !showUpdated;
     notice.hidden = false;
     scheduleAttentionExpiry(notice, expiresAt);
     closeButton.hidden = config.DISMISSIBLE !== true;
