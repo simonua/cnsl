@@ -4619,9 +4619,6 @@ html[data-hide-home-intro="true"] .welcome-section {
     padding: 0.3rem 0.25rem;
   }
 
-  .schedule-calendar__today {
-    margin-left: 0;
-  }
 }
 
 .schedule-activity--public {
