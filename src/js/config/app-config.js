@@ -6,7 +6,7 @@
   if (!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(APP_VERSION)) {
     throw new Error('APP_VERSION must be initialized from package.json before application configuration.');
   }
-  const APP_LAST_UPDATED_ON = '2026-06-30';
+  const APP_LAST_UPDATED_ON = '2026-07-01';
   // Published site and active season metadata.
   const YEAR = 2026;
   const ANNUAL_DATA_PATHS = Object.freeze({

@@ -285,7 +285,7 @@ test('[WF-SETTINGS-014] preference changes update other open app tabs', async ({
   await secondPage.close();
 });
 
-test('[WF-SETTINGS-018] start page persists locally without reporting the selected page', async ({ page }) => {
+test('[WF-SETTINGS-018] start page persists locally and reports only an allowlisted selection', async ({ page }) => {
   await initializeAnalyticsRecorder(page);
   await page.goto('/settings.html');
 
@@ -300,7 +300,28 @@ test('[WF-SETTINGS-018] start page persists locally without reporting the select
   await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => (
     eventArguments[1] === 'ca_setting_change' && eventArguments[2].setting_name === 'start_page'
   )))).toEqual([
-    ['event', 'ca_setting_change', { setting_name: 'start_page' }]
+    ['event', 'ca_setting_change', { setting_name: 'start_page', selection: 'teams' }]
+  ]);
+
+  await page.evaluate(() => {
+    globalThis.cnslAnalytics.trackInteraction(globalThis.AnalyticsInteractionType.FIXED_SETTING_CHANGE, {
+      settingName: 'start_page',
+      settingValue: 'person@example.com'
+    });
+  });
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => (
+    eventArguments[1] === 'ca_setting_change' && eventArguments[2].setting_name === 'start_page'
+  )))).toHaveLength(1);
+
+  await page.locator('#maintenanceSettings summary').click();
+  const acceptedResetPrompt = page.waitForEvent('dialog').then(async dialog => dialog.accept());
+  await page.getByRole('button', { name: 'Reset all settings' }).click();
+  await acceptedResetPrompt;
+  await expect.poll(() => page.evaluate(() => globalThis.recordedAnalyticsEvents.filter(eventArguments => (
+    eventArguments[1] === 'ca_setting_change' && eventArguments[2].setting_name === 'start_page'
+  )))).toEqual([
+    ['event', 'ca_setting_change', { setting_name: 'start_page', selection: 'teams' }],
+    ['event', 'ca_setting_change', { setting_name: 'start_page', selection: 'home' }]
   ]);
 });
 

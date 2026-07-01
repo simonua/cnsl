@@ -122,6 +122,7 @@
 
   // Setting validation
 
+  const START_PAGE_SETTING_NAME = 'start_page';
   const FIXED_SETTING_VALUES = Object.freeze({
     contrast: new Set(['high', 'system']),
     favorite_pool_expanded: new Set(['collapsed', 'expanded']),
@@ -132,12 +133,13 @@
     motion: new Set(['reduced', 'system']),
     pool_schedule_layout: new Set(['calendar', 'list']),
     practice_groups: new Set(['changed']),
-    start_page: new Set(['changed']),
+    [START_PAGE_SETTING_NAME]: new Set(Object.values(globalThis.StartPage.VALUES)),
     text_size: new Set(['default', 'extra-large', 'large']),
     theme: new Set(['dark', 'light', 'system']),
     underline_links: new Set(['disabled', 'enabled']),
     weather_refresh_minutes: new Set(['0', '5', '10'])
   });
+  const FIXED_SETTING_SELECTION_NAMES = new Set([START_PAGE_SETTING_NAME]);
   const ALLOWED_PUBLISHED_SETTING_NAMES = new Set([
     'favorite_pool', 'favorite_team', 'pool_feature_filters'
   ]);
@@ -649,9 +651,11 @@
     const normalizedValue = String(settingValue);
     if (!allowedValues || !allowedValues.has(normalizedValue)) return;
 
-    publishEvent(ANALYTICS_EVENT_NAMES.SETTING_CHANGE, {
-      setting_name: settingName
-    });
+    const eventParameters = { setting_name: settingName };
+    if (FIXED_SETTING_SELECTION_NAMES.has(settingName)) {
+      eventParameters.selection = normalizedValue;
+    }
+    publishEvent(ANALYTICS_EVENT_NAMES.SETTING_CHANGE, eventParameters);
   }
 
   /**

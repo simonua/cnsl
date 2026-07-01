@@ -243,7 +243,7 @@
     } else if (changedField.name === 'hidePageHeadings' && saved.hidePageHeadings !== existing.hidePageHeadings) {
       trackFixedSettingChange('hide_page_headings', saved.hidePageHeadings ? 'enabled' : 'disabled');
     } else if (changedField.name === 'startPage' && saved.startPage !== existing.startPage) {
-      trackFixedSettingChange('start_page', 'changed');
+      trackFixedSettingChange('start_page', saved.startPage);
     } else if (changedField.name === 'experimentalFeatures'
       && saved.experimentalFeatures.join('|') !== existing.experimentalFeatures.join('|')) {
       trackExperimentalFeatureChange(changedField.value, saved.experimentalFeatures.includes(changedField.value));
@@ -279,7 +279,7 @@
     if (existing.underlineLinks !== reset.underlineLinks) trackFixedSettingChange('underline_links', 'disabled');
     if (existing.hideHomeIntro !== reset.hideHomeIntro) trackFixedSettingChange('hide_home_intro', 'disabled');
     if (existing.hidePageHeadings !== reset.hidePageHeadings) trackFixedSettingChange('hide_page_headings', 'disabled');
-    if (existing.startPage !== reset.startPage) trackFixedSettingChange('start_page', 'changed');
+    if (existing.startPage !== reset.startPage) trackFixedSettingChange('start_page', reset.startPage);
     existing.experimentalFeatures
       .filter(featureId => !reset.experimentalFeatures.includes(featureId))
       .forEach(featureId => trackExperimentalFeatureChange(featureId, false));
