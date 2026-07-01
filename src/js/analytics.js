@@ -165,6 +165,7 @@
   });
   const ERROR_FINGERPRINT_OFFSET = 2166136261;
   const ERROR_FINGERPRINT_PRIME = 16777619;
+  const EXPECTED_VIEW_TRANSITION_ABORT_MESSAGE = 'Transition was skipped';
   const MAX_ERROR_EVENTS_PER_PAGE = 5;
   const reportedErrorFingerprints = new Set();
 
@@ -291,6 +292,21 @@
   }
 
   /**
+   * Identifies the browser-owned cancellation emitted when a cross-document view transition is skipped.
+   * @param {*} candidateError - Promise rejection reason raised by the browser
+   * @returns {boolean} Whether the rejection is an expected skipped transition
+   * @private
+   */
+  function isExpectedViewTransitionAbort(candidateError) {
+    try {
+      return candidateError?.name === 'AbortError'
+        && candidateError?.message === EXPECTED_VIEW_TRANSITION_ABORT_MESSAGE;
+    } catch (_error) {
+      return false;
+    }
+  }
+
+  /**
    * Produces a stable grouping value from privacy-reviewed error fields.
    * @param {string[]} signatureParts - Privacy-reviewed error signature fields
    * @returns {string} Eight-character hexadecimal fingerprint
@@ -391,6 +407,10 @@
       );
     });
     window.addEventListener('unhandledrejection', event => {
+      if (isExpectedViewTransitionAbort(event.reason)) {
+        event.preventDefault();
+        return;
+      }
       trackError(ERROR_CONTEXTS.PROMISE_REJECTION, event.reason, '', 0, 0);
     });
   }

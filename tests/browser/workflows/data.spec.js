@@ -43,34 +43,35 @@ for (const scenario of directoryScenarios) {
   });
 }
 
-for (const scenario of directoryScenarios.filter(({ reference }) => reference !== 'TEAMS')) {
-  test(`[WF-DATA-005-${scenario.reference}] ${scenario.path} does not flash a visible loading placeholder`, async ({ page }) => {
-    let resumePoolRequest;
-    const poolRequestPaused = new Promise(resolve => {
-      resumePoolRequest = resolve;
+for (const scenario of directoryScenarios.filter(({ reference }) => reference !== 'MEETS')) {
+  test(`[WF-DATA-005-${scenario.reference}] ${scenario.path} shows a stable loading state instead of the search summary`, async ({ page }) => {
+    const primaryDomain = scenario.reference.toLowerCase();
+    let resumePrimaryRequest;
+    const primaryRequestPaused = new Promise(resolve => {
+      resumePrimaryRequest = resolve;
     });
-    await page.route(getAnnualDataRoute('pools'), async route => {
-      await poolRequestPaused;
+    await page.route(getAnnualDataRoute(primaryDomain), async route => {
+      await primaryRequestPaused;
       await route.continue();
     });
 
     try {
       await page.goto(scenario.path, { waitUntil: 'domcontentloaded' });
-      if (scenario.reference === 'MEETS') {
-        await expect(page.locator(scenario.list)).toHaveAttribute('aria-busy', 'false');
-        await expect(page.locator(`${scenario.list} ${scenario.item}`).first()).toBeVisible();
-      } else {
-        await expect(page.locator(scenario.list)).toHaveAttribute('aria-busy', 'true');
-        await expect(page.locator(`${scenario.list} .search-directory-summary`)).toBeVisible();
-        await expect(page.locator(`${scenario.list} .search-directory-summary__item`).first()).toBeVisible();
-        await expect(page.locator(`${scenario.list} ${scenario.item}`)).toHaveCount(0);
-        await expect(page.locator('#poolStatusLegend')).toBeHidden();
-      }
+      await expect(page.locator(scenario.list)).toHaveAttribute('aria-busy', 'true');
+      await expect(page.locator(scenario.list)).toHaveAttribute('data-directory-enhancing', 'true');
+      await expect(page.locator(`${scenario.list} .directory-loading`)).toBeVisible();
+      await expect(page.locator(`${scenario.list} .search-directory-summary`)).toBeHidden();
+      await expect(page.locator(`${scenario.list} .search-directory-summary__item`).first()).toBeHidden();
+      await expect(page.locator(`${scenario.list} ${scenario.item}`)).toHaveCount(0);
+      if (scenario.reference === 'POOLS') await expect(page.locator('#poolStatusLegend')).toBeHidden();
     } finally {
-      resumePoolRequest();
+      resumePrimaryRequest();
     }
 
     await expect(page.locator(scenario.list)).toHaveAttribute('aria-busy', 'false');
+    await expect(page.locator(scenario.list)).not.toHaveAttribute('data-directory-enhancing');
+    await expect(page.locator(`${scenario.list} .directory-loading`)).toHaveCount(0);
+    await expect(page.locator(`${scenario.list} .search-directory-summary`)).toHaveCount(0);
     await expect(page.locator(`${scenario.list} ${scenario.item}`).first()).toBeVisible();
     if (scenario.reference === 'POOLS') {
       await expect(page.locator('#poolStatusLegend')).toBeVisible();
@@ -281,6 +282,7 @@ test('[WF-DATA-013-POOLS] pool summaries remain usable when detail scripts fail'
   await page.goto('/pools.html');
 
   await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
+  await expect(page.locator('#poolList')).not.toHaveAttribute('data-directory-enhancing');
   const firstPool = page.locator('#poolList .pool-card').first();
   await expect(firstPool).toBeVisible();
   await firstPool.locator('.pool-header__toggle').click();
@@ -332,6 +334,7 @@ test('[WF-DATA-010-TEAMS] team summaries remain usable when optional detail scri
   await page.goto('/teams.html');
 
   await expect(page.locator('#teamList')).toHaveAttribute('aria-busy', 'false');
+  await expect(page.locator('#teamList')).not.toHaveAttribute('data-directory-enhancing');
   await expect(page.locator('#teamList .team-card').first()).toBeVisible();
   await expect.poll(() => page.evaluate(() => (
     performance.getEntriesByName('cnsl:teams:optional-enrichment-settled').length
@@ -464,7 +467,21 @@ test('[WF-DATA-003] pool load failures are announced and do not leave the direct
 
   await expect(page.locator('#poolListStatus')).toHaveText('The pool directory did not load. Please check your connection and refresh the page to try again.');
   await expect(page.locator('#poolList')).toHaveAttribute('aria-busy', 'false');
+  await expect(page.locator('#poolList .directory-loading')).toBeHidden();
+  await expect(page.locator('#poolList .directory-fallback-notice')).toBeVisible();
+  await expect(page.locator('#poolList .search-directory-summary')).toBeVisible();
   await expect(page.locator('#seasonInfo')).toBeHidden();
+});
+
+test('[WF-DATA-009] team load failures reveal the static directory and do not leave it busy', async ({ page }) => {
+  await page.route(getAnnualDataRoute('teams'), route => route.fulfill({ status: 503, body: '{}' }));
+  await page.goto('/teams.html');
+
+  await expect(page.locator('#teamListStatus')).toHaveText('The team directory did not load. Please check your connection and refresh the page to try again.');
+  await expect(page.locator('#teamList')).toHaveAttribute('aria-busy', 'false');
+  await expect(page.locator('#teamList .directory-loading')).toBeHidden();
+  await expect(page.locator('#teamList .directory-fallback-notice')).toBeVisible();
+  await expect(page.locator('#teamList .search-directory-summary')).toBeVisible();
 });
 
 test('[WF-DATA-004] malformed published pool responses are announced as unavailable', async ({ page }) => {

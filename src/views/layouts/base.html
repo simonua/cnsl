@@ -20,6 +20,9 @@
   <!-- Runs before stylesheets so the first painted canvas matches the saved theme. -->
   <script data-cfasync="false" data-theme-bootstrap="true">
     document.documentElement.dataset.startPagePending = 'true';
+    addEventListener('load', () => {
+      delete document.documentElement.dataset.startPagePending;
+    }, { once: true });
     let selectedTheme = 'system';
     try {
       const storedPreferences = JSON.parse(localStorage.getItem('{{ PREFERENCES_STORAGE_KEY }}') || '{}');

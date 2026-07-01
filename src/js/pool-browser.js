@@ -1305,6 +1305,8 @@ async function startPoolBrowser() {
     return;
   }
 
+  const poolList = document.getElementById('poolList');
+  poolList.dataset.directoryEnhancing = 'true';
   setPoolListStatus('Loading pool information.', true);
 
   try {
@@ -1322,6 +1324,7 @@ async function startPoolBrowser() {
 
     // Always render pools first with no location data
     renderPools(pools);
+    delete poolList.dataset.directoryEnhancing;
     markPoolPerformance('summary-visible');
     poolSummaryVisible = true;
     startPoolLiveStatusUpdates();
@@ -1339,7 +1342,9 @@ async function startPoolBrowser() {
     console.error("Failed to load pool data:", error);
     const list = document.getElementById("poolList");
     if (list) {
-      list.innerHTML = `<p>${IconCatalog.getTextGlyph('warning')} The pool directory did not load. Please check your connection and refresh the page to try again.</p>`;
+      delete list.dataset.directoryEnhancing;
+      const fallbackNotice = list.querySelector('.directory-fallback-notice');
+      if (fallbackNotice) fallbackNotice.hidden = false;
     }
     setPoolListStatus('The pool directory did not load. Please check your connection and refresh the page to try again.', false);
     globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.READY);

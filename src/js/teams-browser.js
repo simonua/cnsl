@@ -906,6 +906,7 @@ async function startTeamsBrowser() {
   }
 
   const teamList = document.getElementById("teamList");
+  teamList.dataset.directoryEnhancing = 'true';
   setTeamListStatus('Loading team information.', true);
   teamList.addEventListener('click', event => {
     const toggleButton = event.target.closest('[data-team-card-action="toggle"]');
@@ -931,6 +932,7 @@ async function startTeamsBrowser() {
     teamsBrowserTeams = teams;
 
     renderTeams(teams);
+    delete teamList.dataset.directoryEnhancing;
     markTeamPerformance('summary-visible');
     setTeamListStatus(`Team directory loaded. ${teams.length} teams available.`, false);
     globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.READY);
@@ -940,7 +942,9 @@ async function startTeamsBrowser() {
     console.error("Failed to load team data:", error);
     const list = document.getElementById("teamList");
     if (list) {
-      list.innerHTML = `<p>${IconCatalog.getTextGlyph('warning')} The team directory did not load. Please check your connection and refresh the page to try again.</p>`;
+      delete list.dataset.directoryEnhancing;
+      const fallbackNotice = list.querySelector('.directory-fallback-notice');
+      if (fallbackNotice) fallbackNotice.hidden = false;
     }
     setTeamListStatus('The team directory did not load. Please check your connection and refresh the page to try again.', false);
     globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.READY);

@@ -203,13 +203,31 @@ analyticsTest('[WF-ANALYTICS-020] analytics groups runtime failures without publ
     });
     globalThis.dispatchEvent(rejectionEvent);
 
-    return globalThis.dataLayer
-      .map(argumentsList => Array.from(argumentsList))
-      .filter(command => command[0] === 'event' && command[1] === 'ca_error');
+    const skippedTransitionEvent = new Event('unhandledrejection', { cancelable: true });
+    Object.defineProperty(skippedTransitionEvent, 'reason', {
+      value: new DOMException('Transition was skipped', 'AbortError')
+    });
+    globalThis.dispatchEvent(skippedTransitionEvent);
+
+    const otherAbortEvent = new Event('unhandledrejection', { cancelable: true });
+    Object.defineProperty(otherAbortEvent, 'reason', {
+      value: new DOMException('A different operation was aborted', 'AbortError')
+    });
+    globalThis.dispatchEvent(otherAbortEvent);
+
+    return {
+      errorEvents: globalThis.dataLayer
+        .map(argumentsList => Array.from(argumentsList))
+        .filter(command => command[0] === 'event' && command[1] === 'ca_error'),
+      otherAbortPrevented: otherAbortEvent.defaultPrevented,
+      skippedTransitionPrevented: skippedTransitionEvent.defaultPrevented
+    };
   });
 
-  expect(errorEvents).toHaveLength(2);
-  expect(errorEvents.map(command => command[2])).toEqual([
+  expect(errorEvents.skippedTransitionPrevented).toBe(true);
+  expect(errorEvents.otherAbortPrevented).toBe(false);
+  expect(errorEvents.errorEvents).toHaveLength(3);
+  expect(errorEvents.errorEvents.map(command => command[2])).toEqual([
     expect.objectContaining({
       app_version: AppConfig.APP_VERSION,
       error_column: 7,
@@ -225,12 +243,20 @@ analyticsTest('[WF-ANALYTICS-020] analytics groups runtime failures without publ
       error_line: 0,
       error_name: 'RangeError',
       error_source: 'unknown_source'
+    }),
+    expect.objectContaining({
+      app_version: AppConfig.APP_VERSION,
+      error_column: 0,
+      error_context: 'promise_rejection',
+      error_line: 0,
+      error_name: 'UnknownError',
+      error_source: 'unknown_source'
     })
   ]);
-  for (const command of errorEvents) {
+  for (const command of errorEvents.errorEvents) {
     expect(command[2].error_fingerprint).toMatch(/^[a-f0-9]{8}$/);
   }
-  expect(JSON.stringify(errorEvents)).not.toMatch(/simon|example\.test|secret|swimmer|410-555/i);
+  expect(JSON.stringify(errorEvents.errorEvents)).not.toMatch(/simon|example\.test|secret|swimmer|410-555/i);
 });
 
 analyticsTest('[WF-ANALYTICS-018] analytics reports installed PWA mode once per browser session', async ({ page }) => {

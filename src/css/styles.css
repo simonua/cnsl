@@ -3470,6 +3470,32 @@ button.pool-filter__clear:focus-visible {
   padding: 1rem;
 }
 
+.directory-loading {
+  align-items: start;
+  color: var(--text-muted);
+  display: none;
+  justify-content: center;
+  margin: 0;
+  min-height: 50vh;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.pool-list[data-directory-enhancing="true"] > .directory-loading,
+.team-list[data-directory-enhancing="true"] > .directory-loading {
+  display: grid;
+}
+
+.pool-list[data-directory-enhancing="true"] > .search-directory-summary,
+.team-list[data-directory-enhancing="true"] > .search-directory-summary {
+  display: none;
+}
+
+.directory-fallback-notice {
+  margin: 0;
+  padding: 1rem 1rem 0;
+}
+
 .search-directory-summary__heading {
   font-size: 1rem;
   margin: 0 0 0.25rem;
