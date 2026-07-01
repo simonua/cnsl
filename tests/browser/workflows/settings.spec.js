@@ -24,6 +24,7 @@ test('[WF-SETTINGS-003] first-visit welcome presents key value and is dismissed 
   const welcome = page.getByRole('dialog', { name: 'Welcome to the CA Pool & CNSL Assistant!' });
   await expect(welcome).toBeVisible();
   await expect(welcome.locator('.welcome-dialog__benefits li')).toHaveCount(6);
+  await expect(welcome.locator('.welcome-dialog__benefits')).toContainText('Choose a simple list or a richer calendar view');
   await expect(welcome.locator('.welcome-dialog__benefits use[href="#icon-smartphone"]')).toHaveCount(1);
   await expect(welcome.locator('#welcomeDialogPrivacy')).toHaveText(
     'Free and private: Always free and anonymous. Your preferences stay on your device, and no personal data is tracked.'

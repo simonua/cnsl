@@ -13,6 +13,7 @@ const teamsSchema = require('../../src/assets/data/2026/teams/teams.schema.json'
 const {
   collectIntegrityErrors,
   validateActiveSeason,
+  validateIndependenceDayPoolHours,
   validateRetainedDocuments,
   validateSchema
 } = require('../../scripts/validate-season-data');
@@ -22,6 +23,43 @@ function assertDiagnostic(errors, ...fragments) {
 }
 
 describe('season data validation', () => {
+  describe('validateIndependenceDayPoolHours', () => {
+    const schedule = {
+      DATE: '2030-07-04',
+      PUBLIC_END_TIME: '7:00pm',
+      PUBLIC_START_TIME: '12:00pm'
+    };
+    const validOverride = {
+      endDate: schedule.DATE,
+      hours: [{ accessStatus: 'public', startTime: schedule.PUBLIC_START_TIME, endTime: schedule.PUBLIC_END_TIME }],
+      overrideMode: 'replace-day',
+      startDate: schedule.DATE
+    };
+
+    it('should accept each pool with the configured public replacement hours', () => {
+      const errors = validateIndependenceDayPoolHours({
+        pools: [{ name: 'Fixture Pool', scheduleOverrides: [validOverride] }]
+      }, schedule);
+
+      assert.deepEqual(errors, []);
+    });
+
+    it('should identify pools with missing or inconsistent holiday hours', () => {
+      const errors = validateIndependenceDayPoolHours({
+        pools: [{ name: 'Missing Pool', scheduleOverrides: [] }, {
+          name: 'Early Pool',
+          scheduleOverrides: [{ ...validOverride, hours: [{ ...validOverride.hours[0], endTime: '6:00pm' }] }]
+        }, {
+          name: 'Additive Pool',
+          scheduleOverrides: [{ ...validOverride, overrideMode: 'additive' }]
+        }]
+      }, schedule);
+
+      assert.equal(errors.length, 3);
+      ['Missing Pool', 'Early Pool', 'Additive Pool'].forEach((poolName) => assertDiagnostic(errors, poolName));
+    });
+  });
+
   describe('validateSchema', () => {
     it('should enforce date, URI, and email formats from annual schemas', () => {
       const schema = {

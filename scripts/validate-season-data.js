@@ -6,6 +6,7 @@ const Ajv = require('ajv');
 const addFormats = require('ajv-formats');
 const { isValidArtifactDate, parseReadmePdfSources, resolveLatestPoolSchedulePaths } = require('./season-data-agent');
 const TeamScheduleService = require('./adapters/team-schedule-service.js');
+const AppConfig = require('./adapters/app-config.js');
 
 const DOMAINS = Object.freeze(['pools', 'meets', 'teams']);
 const REPOSITORY_ROOT = path.resolve(__dirname, '..');
@@ -193,6 +194,30 @@ function validatePoolFeatureOverrides(errors, pool, season) {
       season
     );
   });
+}
+
+function validateIndependenceDayPoolHours(poolsData, schedule = AppConfig.INDEPENDENCE_DAY_NOTICE_SCHEDULE) {
+  const errors = [];
+  poolsData.pools.forEach((pool) => {
+    const matchingOverrides = (pool.scheduleOverrides || []).filter((override) => (
+      override.startDate === schedule.DATE && override.endDate === schedule.DATE
+    ));
+    const hasPublishedHours = matchingOverrides.some((override) => (
+      override.overrideMode === 'replace-day'
+      && override.hours.some((hours) => (
+        hours.accessStatus === 'public'
+        && hours.startTime === schedule.PUBLIC_START_TIME
+        && hours.endTime === schedule.PUBLIC_END_TIME
+      ))
+    ));
+    if (!hasPublishedHours) {
+      errors.push(
+        `${pool.name} must publish Independence Day replacement hours from ` +
+        `${schedule.PUBLIC_START_TIME} to ${schedule.PUBLIC_END_TIME} on ${schedule.DATE}.`
+      );
+    }
+  });
+  return errors;
 }
 
 function hasRecognizedPoolLocation(location, poolNames) {
@@ -453,6 +478,7 @@ async function validateActiveSeason({ repositoryRoot = REPOSITORY_ROOT } = {}) {
       season,
       teamsData: domains.teams.data
     }));
+    errors.push(...validateIndependenceDayPoolHours(domains.pools.data));
     retainedDocuments = await validateRetainedDocuments({
       annualReadme,
       dataRoot,
@@ -500,6 +526,7 @@ if (require.main === module) {
 
 module.exports = {
   collectIntegrityErrors,
+  validateIndependenceDayPoolHours,
   validateActiveSeason,
   validateRetainedDocuments,
   validateSchema

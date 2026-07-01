@@ -21,7 +21,19 @@
   const HOME_PAGE_URL = `https://${HOME_PAGE_HOSTNAME}`;
   const AUTHOR_NAME = 'Simon Kurtz';
   const AUTHOR_EMAIL = 'simonkurtz+pool-app@gmail.com';
-  const APP_ATTENTION_NOTICE = null;
+  const INDEPENDENCE_DAY_NOTICE_SCHEDULE = Object.freeze({
+    DATE: `${YEAR}-07-04`,
+    PUBLIC_END_TIME: '7:00pm',
+    PUBLIC_START_TIME: '12:00pm'
+  });
+  const APP_ATTENTION_NOTICE = Object.freeze({
+    DISMISSIBLE: true,
+    EXPIRES_AT: `${YEAR}-07-05T00:00:00-04:00`,
+    MESSAGE: 'All CA outdoor pools are open from noon to 7:00 PM on Independence Day, July 4.',
+    STARTS_AT: `${YEAR}-06-27T00:00:00-04:00`,
+    UPDATED_AT: `${YEAR}-06-27T00:00:00-04:00`,
+    UPDATED_LABEL: `June 27, ${YEAR} at 12:00 AM`
+  });
 
   // Published campaign attribution and share destinations.
   const PUBLISHED_CAMPAIGN_NAME = `${YEAR}_pool_season`;
@@ -312,6 +324,7 @@
     GOOGLE_MAPS_SEARCH_BASE_URL,
     HOME_PAGE_HOSTNAME,
     HOME_PAGE_URL,
+    INDEPENDENCE_DAY_NOTICE_SCHEDULE,
     LOCAL_DEVELOPMENT_HOSTNAMES,
     LOCAL_DEVELOPMENT_PORT,
     MY_MEET_DAY_HOME_LOOKAHEAD_DAYS,

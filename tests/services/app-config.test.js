@@ -55,7 +55,7 @@ describe('app-config', () => {
     assert.equal(context.ANALYTICS_APP_VERSION_STORAGE_KEY, config.ANALYTICS_APP_VERSION_STORAGE_KEY);
     assert.equal(context.ANALYTICS_UPGRADE_PATH_STORAGE_KEY, config.ANALYTICS_UPGRADE_PATH_STORAGE_KEY);
     assert.equal(context.ANALYTICS_VERSION_REPORTED_STORAGE_KEY, config.ANALYTICS_VERSION_REPORTED_STORAGE_KEY);
-    assert.equal(context.APP_ATTENTION_NOTICE, null);
+    assert.deepEqual({ ...context.APP_ATTENTION_NOTICE }, config.APP_ATTENTION_NOTICE);
     assert.equal(context.APP_ATTENTION_NOTICE_DISMISSED_STORAGE_KEY, config.APP_ATTENTION_NOTICE_DISMISSED_STORAGE_KEY);
     assert.equal(context.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY, config.SERVICE_WORKER_UPDATE_CHECKED_AT_STORAGE_KEY);
     assert.equal(context.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY, config.SERVICE_WORKER_UPGRADE_FROM_VERSION_STORAGE_KEY);
@@ -134,8 +134,16 @@ describe('app-config', () => {
     assert.equal(config.PUBLISHED_CAMPAIGNS.every(campaign => Object.isFrozen(campaign)), true);
   });
 
-  it('publishes the dormant attention notice capability and its revision storage key', () => {
-    assert.equal(config.APP_ATTENTION_NOTICE, null);
+  it('publishes the scheduled Independence Day notice and its revision storage key', () => {
+    assert.equal(config.APP_ATTENTION_NOTICE.STARTS_AT, `${config.YEAR}-06-27T00:00:00-04:00`);
+    assert.equal(config.APP_ATTENTION_NOTICE.EXPIRES_AT, `${config.YEAR}-07-05T00:00:00-04:00`);
+    assert.deepEqual(config.INDEPENDENCE_DAY_NOTICE_SCHEDULE, {
+      DATE: `${config.YEAR}-07-04`,
+      PUBLIC_END_TIME: '7:00pm',
+      PUBLIC_START_TIME: '12:00pm'
+    });
+    assert.equal(Object.isFrozen(config.APP_ATTENTION_NOTICE), true);
+    assert.equal(Object.isFrozen(config.INDEPENDENCE_DAY_NOTICE_SCHEDULE), true);
     assert.equal(config.APP_ATTENTION_NOTICE_DISMISSED_STORAGE_KEY, 'cnsl_attention_notice_dismissed');
   });
 

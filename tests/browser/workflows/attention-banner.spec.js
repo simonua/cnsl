@@ -15,6 +15,7 @@ const NOTICE_REFERENCE_TIME = activeSeasonDate('06-22T10:00:00-04:00');
 const NOTICE_UPDATED_AT = activeSeasonDate('06-22T09:00:00-04:00').toISOString();
 const NOTICE_UPDATED_LABEL = `June 22, ${ACTIVE_SEASON_YEAR} at 9:00 AM`;
 const NOTICE_EXPIRES_AT = activeSeasonDate('06-22T10:01:00-04:00').toISOString();
+const NOTICE_STARTS_AT = activeSeasonDate('06-22T09:30:00-04:00').toISOString();
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 
 test.setTimeout(90000);
@@ -30,6 +31,7 @@ async function configureAttentionNotice(page, overrides = {}) {
     DISMISSIBLE: true,
     EXPIRES_AT: NOTICE_EXPIRES_AT,
     MESSAGE: 'Fixture-owned important notice',
+    STARTS_AT: NOTICE_STARTS_AT,
     UPDATED_AT: NOTICE_UPDATED_AT,
     UPDATED_LABEL: NOTICE_UPDATED_LABEL,
     ...overrides
@@ -37,7 +39,7 @@ async function configureAttentionNotice(page, overrides = {}) {
   await page.route('**/js/config/app-config.js*', async route => {
     const response = await route.fetch();
     const source = await response.text();
-    const declarationPattern = /const APP_ATTENTION_NOTICE = null;/;
+    const declarationPattern = /const APP_ATTENTION_NOTICE = Object\.freeze\(\{[\s\S]*?\n[ ]{2}\}\);/;
     if (!declarationPattern.test(source)) throw new Error('Attention notice configuration seam was not found.');
     const configuredSource = source.replace(
       declarationPattern,
@@ -138,6 +140,18 @@ test('[WF-ATTENTION-004] attention banner hides at its configured deadline', asy
 
   await page.reload();
   await expect(notice).toBeHidden();
+});
+
+test('[WF-ATTENTION-005] attention banner appears at its configured start time', async ({ page }) => {
+  const beforeStart = activeSeasonDate('06-22T09:29:00-04:00');
+  await page.clock.install({ time: beforeStart });
+  await configureAttentionNotice(page);
+  await page.goto('/pools.html');
+
+  const notice = page.getByRole('alert', { name: 'Important notice' });
+  await expect(notice).toBeHidden();
+  await page.clock.fastForward(60001);
+  await expect(notice).toBeVisible();
 });
 
 for (const { contrast, reference, theme } of [

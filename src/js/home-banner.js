@@ -124,12 +124,25 @@
     if (!notice || !message || !updated || !updatedTime || !closeButton || !config) return;
 
     const expiresAt = Date.parse(config.EXPIRES_AT);
+    const startsAt = Date.parse(config.STARTS_AT);
     const updatedAt = Date.parse(config.UPDATED_AT);
     const hasValidContent = typeof config.MESSAGE === 'string'
       && config.MESSAGE.trim().length > 0
       && typeof config.UPDATED_LABEL === 'string'
       && config.UPDATED_LABEL.trim().length > 0;
-    if (!hasValidContent || !Number.isFinite(expiresAt) || !Number.isFinite(updatedAt) || Date.now() >= expiresAt) return;
+    if (!hasValidContent
+      || !Number.isFinite(expiresAt)
+      || !Number.isFinite(startsAt)
+      || !Number.isFinite(updatedAt)
+      || startsAt >= expiresAt
+      || Date.now() >= expiresAt) return;
+    if (Date.now() < startsAt) {
+      window.setTimeout(
+        () => showAttentionBanner(storage, bannerNames),
+        Math.min(startsAt - Date.now(), MAX_TIMER_DELAY_MS)
+      );
+      return;
+    }
 
     let dismissedRevision = null;
     try {
