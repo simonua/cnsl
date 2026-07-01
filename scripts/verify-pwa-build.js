@@ -181,7 +181,7 @@ function createMemoryStorage() {
   };
 }
 
-async function verifyAnalyticsArtifact(appConfigSource, interactionTypeSource, devicePlatformSource, analyticsSource) {
+async function verifyAnalyticsArtifact(attentionBannerTypeSource, appConfigSource, interactionTypeSource, devicePlatformSource, analyticsSource) {
   const appendedScripts = [];
   const lockRequests = [];
   let scriptLoadListener;
@@ -240,6 +240,7 @@ async function verifyAnalyticsArtifact(appConfigSource, interactionTypeSource, d
   };
 
   vm.createContext(context);
+  vm.runInContext(attentionBannerTypeSource, context, { filename: 'js/types/attention-banner-type.js' });
   vm.runInContext(appConfigSource, context, { filename: 'js/config/app-config.js' });
   // Seed the canonical app-version marker so the artifact represents a returning visitor.
   // App-mode reporting is intentionally suppressed on a profile's first-ever visit, where a
@@ -449,11 +450,13 @@ assert.match(worker, /cacheRequiredResources/, 'Service worker installation must
 assert.doesNotMatch(worker, /cacheOptionalResources/, 'Service worker installation must not wait for optional cache warming.');
 
 const analytics = fs.readFileSync(path.join(outDir, 'js', 'analytics.js'), 'utf8');
+const attentionBannerType = fs.readFileSync(path.join(outDir, 'js', 'types', 'attention-banner-type.js'), 'utf8');
 const analyticsInteractionType = fs.readFileSync(path.join(outDir, 'js', 'types', 'analytics-interaction-type.js'), 'utf8');
 const devicePlatform = fs.readFileSync(path.join(outDir, 'js', 'services', 'device-platform-service.js'), 'utf8');
 const appConfig = fs.readFileSync(path.join(outDir, 'js', 'config', 'app-config.js'), 'utf8');
 const pwa = fs.readFileSync(path.join(outDir, 'js', 'pwa.js'), 'utf8');
 const appConfigBrowserContext = { URL };
+vm.runInNewContext(attentionBannerType, appConfigBrowserContext);
 vm.runInNewContext(appConfig, appConfigBrowserContext);
 assert.ok(!fs.existsSync(path.join(outDir, 'js', 'config', 'app-version.js')), 'Build output must not contain a standalone application-version resource.');
 const expectedAnalyticsDeployment = process.env.CNSL_ANALYTICS_DEPLOYMENT
@@ -633,7 +636,7 @@ const customDomain = fs.readFileSync(path.join(outDir, 'CNAME'), 'utf8').trim();
 assert.equal(customDomain, HOME_PAGE_HOSTNAME, 'Published GitHub Pages output must retain the configured custom domain.');
 
 Promise.all([
-  verifyAnalyticsArtifact(appConfig, analyticsInteractionType, devicePlatform, analytics),
+  verifyAnalyticsArtifact(attentionBannerType, appConfig, analyticsInteractionType, devicePlatform, analytics),
   verifyMeetDateSummaryArtifact()
 ])
   .then(() => {

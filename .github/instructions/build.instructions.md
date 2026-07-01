@@ -87,6 +87,7 @@ Run `\.\start.ps1` from PowerShell for the interactive developer menu. It covers
 ## Testing
 
 - Tests are in `tests/` using Node.js built-in test runner.
+- After changing the build pipeline, build dependency registration, classic-script dependency order, shared application configuration consumed by build tools or the service worker, PWA resource policy, service-worker behavior, or `scripts/verify-pwa-build.js`, run `pnpm run build` followed by `pnpm run verify:pwa`. Treat this as a required affected-scope testing gate even when focused unit or browser tests pass, because the verifier exercises the generated artifact and its browser-like script contexts.
 - Test files follow the pattern `tests/**/*.test.js`.
 - Test-only loaders, manifests, fixtures, and mocks belong under `tests/` and must not be copied into `out/`. Narrow adapters for genuine build-time Node consumers belong under `scripts/adapters/`.
 - `pnpm run test:coverage` still executes tests that import `scripts/**`, but reports only delivered application JavaScript (`src/js/**` and `service-worker.js`) and excludes maintenance/validation implementations.
