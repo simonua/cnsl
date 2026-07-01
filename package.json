@@ -1,6 +1,6 @@
 {
   "name": "cnsl",
-  "version": "2.28.0",
+  "version": "2.28.1",
   "description": "![GitHub Pages](https://img.shields.io/badge/hosted%20on-GitHub%20Pages-121013?logo=github&logoColor=white&style=flat-square)\r ![PWA Ready](https://img.shields.io/badge/PWA-ready-0abf53?logo=googlechrome&logoColor=white&style=flat-square)\r ![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)",
   "main": "service-worker.js",
   "scripts": {
