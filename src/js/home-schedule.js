@@ -4,43 +4,8 @@
  */
 
 (function initializeHomeSchedule() {
-  const controllerSource = document.currentScript && document.currentScript.src
-    ? new URL(document.currentScript.src, document.baseURI)
-    : null;
-  const assetVersion = controllerSource ? controllerSource.searchParams.get('v') : '';
+  const assetVersion = ClassicScriptLoader.getAssetVersion(document.currentScript);
   let dependenciesPromise;
-
-  /**
-   * Applies the controller asset version to a lazily loaded dependency URL.
-   * @param {string} source - Relative dependency source
-   * @returns {string} Versioned dependency URL or the unchanged relative source
-   * @private
-   */
-  function getDependencySource(source) {
-    if (!assetVersion) return source;
-
-    const dependencySource = new URL(source, document.baseURI);
-    dependencySource.searchParams.set('v', assetVersion);
-    return dependencySource.toString();
-  }
-
-  /**
-   * Appends a classic script dependency and resolves after it loads.
-   * @param {string} source - Relative dependency source
-   * @returns {Promise<void>} Promise settled when the script loads or fails
-   * @private
-   */
-  function loadScript(source) {
-    return new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = getDependencySource(source);
-      script.async = false;
-      script.dataset.homeScheduleDependency = source;
-      script.addEventListener('load', resolve, { once: true });
-      script.addEventListener('error', () => reject(new Error(`Unable to load ${source}.`)), { once: true });
-      document.head.appendChild(script);
-    });
-  }
 
   /**
    * Loads the favorite-team agenda dependencies once in their required order.
@@ -49,9 +14,10 @@
    */
   function loadAgendaDependencies() {
     if (!dependenciesPromise) {
-      dependenciesPromise = Promise.all(
-        globalThis.TEAM_AGENDA_DEPENDENCIES.map(source => loadScript(source))
-      ).then(() => undefined);
+      dependenciesPromise = ClassicScriptLoader.load(globalThis.TEAM_AGENDA_DEPENDENCIES, {
+        assetVersion,
+        dataset: source => ({ homeScheduleDependency: source })
+      });
     }
     return dependenciesPromise;
   }

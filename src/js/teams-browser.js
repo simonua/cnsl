@@ -23,12 +23,7 @@ const TEAM_DETAILS_DEPENDENCIES = Object.freeze([
   'js/managers/meets-manager.js',
   'js/services/team-agenda-display.js'
 ]);
-const teamsBrowserControllerSource = document.currentScript && document.currentScript.src
-  ? new URL(document.currentScript.src, document.baseURI)
-  : null;
-const teamsBrowserAssetVersion = teamsBrowserControllerSource
-  ? teamsBrowserControllerSource.searchParams.get('v')
-  : '';
+const teamsBrowserAssetVersion = ClassicScriptLoader.getAssetVersion(document.currentScript);
 let teamsBrowserDependenciesPromise = null;
 
 globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.PREPARING);
@@ -44,44 +39,16 @@ function markTeamPerformance(markName) {
 }
 
 /**
- * Applies the controller asset version to a team-detail dependency URL.
- * @param {string} source - Relative dependency source
- * @returns {string} Versioned dependency URL or the unchanged relative source
- */
-function getTeamDependencySource(source) {
-  if (!teamsBrowserAssetVersion) return source;
-
-  const dependencySource = new URL(source, document.baseURI);
-  dependencySource.searchParams.set('v', teamsBrowserAssetVersion);
-  return dependencySource.toString();
-}
-
-/**
- * Appends one classic team-detail dependency and resolves after it loads.
- * @param {string} source - Relative dependency source
- * @returns {Promise<void>} Promise settled when the dependency loads or fails
- */
-function loadTeamDependency(source) {
-  return new Promise((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = getTeamDependencySource(source);
-    script.dataset.teamDetailsDependency = source;
-    script.addEventListener('load', resolve, { once: true });
-    script.addEventListener('error', () => reject(new Error(`Unable to load ${source}.`)), { once: true });
-    document.head.appendChild(script);
-  });
-}
-
-/**
  * Loads team-detail dependencies once in their classic-script order.
  * @returns {Promise<void>} Promise settled when all team-detail dependencies load
  */
 function loadTeamDetailDependencies() {
   if (!teamsBrowserDependenciesPromise) {
-    teamsBrowserDependenciesPromise = TEAM_DETAILS_DEPENDENCIES.reduce(
-      (loadPromise, source) => loadPromise.then(() => loadTeamDependency(source)),
-      Promise.resolve()
-    );
+    teamsBrowserDependenciesPromise = ClassicScriptLoader.load(TEAM_DETAILS_DEPENDENCIES, {
+      assetVersion: teamsBrowserAssetVersion,
+      dataset: source => ({ teamDetailsDependency: source }),
+      mode: ClassicScriptLoader.LOAD_MODES.SEQUENTIAL
+    });
   }
   return teamsBrowserDependenciesPromise;
 }

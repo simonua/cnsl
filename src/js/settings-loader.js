@@ -4,24 +4,8 @@
   'use strict';
 
   const SETTINGS_CONTROLLER_SOURCE = 'js/settings.js';
-  const loaderSource = document.currentScript && document.currentScript.src
-    ? new URL(document.currentScript.src, document.baseURI)
-    : null;
-  const assetVersion = loaderSource ? loaderSource.searchParams.get('v') : '';
+  const assetVersion = ClassicScriptLoader.getAssetVersion(document.currentScript);
   let controllerPromise = null;
-
-  /**
-   * Applies the current build version to the Settings controller URL.
-   * @returns {string} Versioned controller URL or its relative source
-   * @private
-   */
-  function getControllerSource() {
-    if (!assetVersion) return SETTINGS_CONTROLLER_SOURCE;
-
-    const controllerSource = new URL(SETTINGS_CONTROLLER_SOURCE, document.baseURI);
-    controllerSource.searchParams.set('v', assetVersion);
-    return controllerSource.toString();
-  }
 
   /**
    * Loads the Settings controller once.
@@ -32,19 +16,16 @@
     if (globalScope.cnslSettings) return Promise.resolve();
     if (controllerPromise) return controllerPromise;
 
-    controllerPromise = new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = getControllerSource();
-      script.dataset.settingsController = 'true';
-      script.addEventListener('load', () => {
-        if (globalScope.cnslSettings) {
-          resolve();
-          return;
-        }
-        reject(new Error('Settings controller did not initialize.'));
-      }, { once: true });
-      script.addEventListener('error', () => reject(new Error('Unable to load the Settings controller.')), { once: true });
-      document.body.appendChild(script);
+    controllerPromise = ClassicScriptLoader.load([{
+      source: SETTINGS_CONTROLLER_SOURCE,
+      ready: () => Boolean(globalScope.cnslSettings)
+    }], {
+      assetVersion,
+      dataset: () => ({ settingsController: 'true' }),
+      parent: document.body
+    }).catch(error => {
+      controllerPromise = null;
+      throw error;
     });
     return controllerPromise;
   }

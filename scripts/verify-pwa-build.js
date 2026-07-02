@@ -13,29 +13,27 @@ const {
   YEAR
 } = require('./adapters/app-config.js');
 const { CACHE_ON_USE_SCRIPT_RESOURCES, INSTALL_CRITICAL_PAGES } = require('./lib/pwa-resource-policy.js');
+const {
+  ROOT_ICON_ALIASES,
+  SITE_VERIFICATION_FILES,
+  SITE_VERIFICATION_SOURCE_DIRECTORY
+} = require('./lib/publication-policy.js');
 const WeatherAlertService = require('./adapters/weather-alert-service.js');
 
 const outDir = path.join(__dirname, '..', 'out');
 const siteOrigin = HOME_PAGE_URL;
-const socialPreviewImage = `${siteOrigin}/assets/images/cnsl-logo.jpg`;
+const socialPreviewImage = `${siteOrigin}/assets/images/ca-pool-cnsl-assistant-social-preview.png`;
 const unpublishedAnnualEvidenceDirectories = [
   `assets/data/${YEAR}/pools/pool-schedules`,
   `assets/data/${YEAR}/meets/meet-schedules`,
   `assets/data/${YEAR}/teams/team-schedules`
 ];
-const rootIconAliases = Object.freeze({
-  'apple-touch-icon-120x120-precomposed.png': 'apple-touch-icon.png',
-  'apple-touch-icon-120x120.png': 'apple-touch-icon.png',
-  'apple-touch-icon-precomposed.png': 'apple-touch-icon.png',
-  'apple-touch-icon.png': 'apple-touch-icon.png',
-  'favicon.ico': 'favicon.ico'
-});
 const requiredArtifacts = [
   'BingSiteAuth.xml',
   'b95676755a0a47f2965553d9f994f87f.txt',
   'CNAME',
   DEPLOYMENT_VERSION_FILE,
-  ...Object.keys(rootIconAliases),
+  ...Object.keys(ROOT_ICON_ALIASES),
   'google3dd9d57115818ebb.html',
   'index.html',
   'lessons.html',
@@ -104,14 +102,13 @@ assert.ok(fs.existsSync(outDir), 'Build output is missing. Run pnpm run build be
 requiredArtifacts.forEach(resource => {
   assert.ok(fs.existsSync(path.join(outDir, resource)), `Required published artifact is missing: ${resource}`);
 });
-Object.entries(rootIconAliases).forEach(([alias, sourceFile]) => {
-  const sourceContent = fs.readFileSync(path.join(__dirname, '..', 'src', 'assets', 'favicons', sourceFile));
+Object.entries(ROOT_ICON_ALIASES).forEach(([alias, sourceFile]) => {
+  const sourceContent = fs.readFileSync(path.join(__dirname, '..', sourceFile));
   const publishedContent = fs.readFileSync(path.join(outDir, alias));
   assert.deepEqual(publishedContent, sourceContent, `Published root icon alias is invalid: ${alias}`);
 });
-const siteVerificationFiles = ['BingSiteAuth.xml', 'b95676755a0a47f2965553d9f994f87f.txt', 'google3dd9d57115818ebb.html'];
-siteVerificationFiles.forEach(file => {
-  const sourceContent = fs.readFileSync(path.join(__dirname, '..', 'src', 'site-verification', file));
+SITE_VERIFICATION_FILES.forEach(file => {
+  const sourceContent = fs.readFileSync(path.join(__dirname, '..', SITE_VERIFICATION_SOURCE_DIRECTORY, file));
   const publishedContent = fs.readFileSync(path.join(outDir, file));
   assert.deepEqual(publishedContent, sourceContent, `Published site verification content is invalid: ${file}`);
 });
@@ -455,9 +452,9 @@ CACHE_ON_USE_SCRIPT_RESOURCES.forEach(resource => {
 assert.ok(precacheOptionalResources.includes('assets/images/logos/team-logos@2x.png'), 'Large visual assets must remain optional during installation.');
 assert.ok(precacheOptionalResources.includes('faq.html'), 'Informational routes without an offline requirement must remain optional during installation.');
 requiredArtifacts
-  .filter(resource => !['CNAME', DEPLOYMENT_VERSION_FILE, 'robots.txt', 'sitemap.xml', 'precache-manifest.js', 'service-worker.js', ...siteVerificationFiles].includes(resource))
+  .filter(resource => !['CNAME', DEPLOYMENT_VERSION_FILE, 'robots.txt', 'sitemap.xml', 'precache-manifest.js', 'service-worker.js', ...SITE_VERIFICATION_FILES].includes(resource))
   .forEach(resource => assert.ok(precacheResources.includes(resource), `Precache inventory is missing: ${resource}`));
-siteVerificationFiles.forEach(resource => {
+SITE_VERIFICATION_FILES.forEach(resource => {
   assert.ok(!precacheResources.includes(resource), `Site verification files must not be precached: ${resource}`);
 });
 assert.ok(!precacheResources.some(resource => resource.includes('/data/2025/')), 'Archived season data must not be precached.');
@@ -561,10 +558,10 @@ Object.entries(canonicalPages).forEach(([page, canonical]) => {
     assert.doesNotThrow(() => JSON.parse(structuredData), `${page} must publish valid JSON-LD.`);
   });
   assert.ok(html.includes(`<meta property="og:image" content="${socialPreviewImage}">`), `${page} must publish its absolute Open Graph image URL.`);
-  assert.match(html, /<meta property="og:image:type" content="image\/jpeg">/, `${page} must identify the social preview image type.`);
-  assert.match(html, /<meta property="og:image:width" content="230">/, `${page} must identify the social preview image width.`);
-  assert.match(html, /<meta property="og:image:height" content="180">/, `${page} must identify the social preview image height.`);
-  assert.match(html, /<meta name="twitter:card" content="summary">/, `${page} must use the preview card supported by its logo image.`);
+  assert.match(html, /<meta property="og:image:type" content="image\/png">/, `${page} must identify the social preview image type.`);
+  assert.match(html, /<meta property="og:image:width" content="1200">/, `${page} must identify the social preview image width.`);
+  assert.match(html, /<meta property="og:image:height" content="630">/, `${page} must identify the social preview image height.`);
+  assert.match(html, /<meta name="twitter:card" content="summary_large_image">/, `${page} must use the large-image preview card.`);
   assert.ok(html.includes(`<meta name="twitter:image" content="${socialPreviewImage}">`), `${page} must publish its absolute Twitter image URL.`);
   if (indexablePages.has(page)) {
     assert.match(html, /<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">/, `${page} must allow enhanced search previews.`);

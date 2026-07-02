@@ -11,6 +11,7 @@ const TIME = 'services/time-utils.js';
 const WEATHER_HAZARD = 'types/weather-hazard.js';
 const WEATHER_SOURCE = 'types/weather-alert-source.js';
 const START_PAGE = 'types/start-page.js';
+const SCRIPT_LOADER = 'classic-script-loader.js';
 
 const BROWSER_MODULE_MANIFESTS = Object.freeze({
   'analytics-interaction-type': { scripts: [ANALYTICS_TYPES], exports: ['AnalyticsExternalLinkPurpose', 'AnalyticsInteractionType'] },
@@ -23,6 +24,7 @@ const BROWSER_MODULE_MANIFESTS = Object.freeze({
   'html-safety': { scripts: ['services/html-safety.js'], exports: ['HtmlSafety'] },
   'icon-catalog': { scripts: [ICONS], exports: ['IconCatalog'] },
   'lesson-provider-service': { scripts: ['services/lesson-provider-service.js'], exports: ['LessonProviderService'] },
+  'classic-script-loader': { scripts: [SCRIPT_LOADER], exports: ['ClassicScriptLoader'] },
   meet: { scripts: [SCHEDULE_STATE, 'models/meet.js'], exports: ['Meet', 'MeetLiveStatus'] },
   'meet-day-guide-service': { scripts: [ATTENTION_BANNER_TYPE, CONFIG, START_PAGE, ICONS, TIME, SCHEDULE_STATE, 'models/meet.js', 'services/preferences-service.js', 'services/html-safety.js', 'services/device-platform-service.js', 'services/pool-link-helper.js', 'types/meet-team-role.js', PAYMENT_METHOD, 'services/team-schedule-service.js', 'services/team-agenda-display.js', 'services/meet-day-guide-service.js'], exports: ['Meet', 'MeetDayGuideService', 'MeetTeamRole', 'PaymentMethod', 'PreferencesService', 'TeamAgendaDisplay'], realmExports: ['PaymentMethod'] },
   'meet-team-role': { scripts: ['types/meet-team-role.js'], exports: ['MeetTeamRole'] },

@@ -2,6 +2,7 @@
   'use strict';
 
   const MAX_TIMER_DELAY_MS = 2147483647;
+  const SETTINGS_PAGE_PATH = new URL('settings.html', document.baseURI).pathname;
   const ATTENTION_BANNER_PRESENTATION = Object.freeze({
     [globalThis.AttentionBannerType.VALUES.INFORMATION]: Object.freeze({
       className: 'attention-banner--information',
@@ -237,6 +238,7 @@
     if (!(dialog instanceof HTMLDialogElement)
       || !closeButton
       || actions.some(action => !action.link)
+      || window.location.pathname === SETTINGS_PAGE_PATH
       || !window.WelcomeDialogService
       || !window.WelcomeDialogService.shouldShow(storage, window.WELCOME_DIALOG_DISMISSED_STORAGE_KEY)) return;
     if (window.WelcomeDialogService.consumeNavigationSuppression(

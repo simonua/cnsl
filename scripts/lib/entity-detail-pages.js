@@ -1,15 +1,6 @@
-const ENTITY_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const HTML_ESCAPES = Object.freeze({
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '"': '&quot;',
-  "'": '&#39;'
-});
+const { escapeHtml } = require('./html-escaping.js');
 
-function escapeHtml(value) {
-  return String(value).replace(/[&<>"']/g, character => HTML_ESCAPES[character]);
-}
+const ENTITY_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 function requireText(value, fieldName) {
   if (typeof value !== 'string' || value.trim() === '') {

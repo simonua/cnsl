@@ -11,45 +11,10 @@
     'myMeetDayTeamUnavailable',
     'myMeetDayUnavailable'
   ]);
-  const controllerSource = document.currentScript && document.currentScript.src
-    ? new URL(document.currentScript.src, document.baseURI)
-    : null;
-  const assetVersion = controllerSource ? controllerSource.searchParams.get('v') : '';
+  const assetVersion = ClassicScriptLoader.getAssetVersion(document.currentScript);
   let optionalDependenciesPromise;
   let primaryDependenciesPromise;
   let renderSequence = 0;
-
-  /**
-   * Applies the controller asset version to a lazily loaded dependency URL.
-   * @param {string} source - Relative dependency source
-   * @returns {string} Versioned dependency URL or the unchanged relative source
-   * @private
-   */
-  function getDependencySource(source) {
-    if (!assetVersion) return source;
-
-    const dependencySource = new URL(source, document.baseURI);
-    dependencySource.searchParams.set('v', assetVersion);
-    return dependencySource.toString();
-  }
-
-  /**
-   * Appends a classic script dependency and resolves after it loads.
-   * @param {string} source - Relative dependency source
-   * @returns {Promise<void>} Promise settled when the script loads or fails
-   * @private
-   */
-  function loadScript(source) {
-    return new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = getDependencySource(source);
-      script.async = false;
-      script.dataset.myMeetDayDependency = source;
-      script.addEventListener('load', resolve, { once: true });
-      script.addEventListener('error', () => reject(new Error(`Unable to load ${source}.`)), { once: true });
-      document.head.appendChild(script);
-    });
-  }
 
   /**
    * Loads dependencies required for the primary meet-day guide.
@@ -58,9 +23,10 @@
    */
   function loadPrimaryDependencies() {
     if (!primaryDependenciesPromise) {
-      primaryDependenciesPromise = Promise.all(
-        globalThis.MY_MEET_DAY_PRIMARY_DEPENDENCIES.map(source => loadScript(source))
-      ).then(() => undefined);
+      primaryDependenciesPromise = ClassicScriptLoader.load(globalThis.MY_MEET_DAY_PRIMARY_DEPENDENCIES, {
+        assetVersion,
+        dataset: source => ({ myMeetDayDependency: source })
+      });
     }
     return primaryDependenciesPromise;
   }
@@ -72,9 +38,10 @@
    */
   function loadOptionalDependencies() {
     if (!optionalDependenciesPromise) {
-      optionalDependenciesPromise = Promise.all(
-        globalThis.MY_MEET_DAY_OPTIONAL_DEPENDENCIES.map(source => loadScript(source))
-      ).then(() => undefined);
+      optionalDependenciesPromise = ClassicScriptLoader.load(globalThis.MY_MEET_DAY_OPTIONAL_DEPENDENCIES, {
+        assetVersion,
+        dataset: source => ({ myMeetDayDependency: source })
+      });
     }
     return optionalDependenciesPromise;
   }

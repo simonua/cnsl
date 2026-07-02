@@ -68,6 +68,7 @@ module.exports = [
         ...globals.browser,
         // App globals loaded via <script> tags
         AnalyticsInteractionType: 'readonly',
+        ClassicScriptLoader: 'readonly',
         DataManager: 'readonly',
         getDataManager: 'readonly',
         PoolsManager: 'readonly',

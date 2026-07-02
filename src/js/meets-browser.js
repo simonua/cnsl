@@ -18,10 +18,7 @@ const MEETS_ENRICHMENT_DEPENDENCIES = Object.freeze([
   'js/managers/pools-manager.js',
   'js/managers/teams-manager.js'
 ]);
-const meetsControllerSource = document.currentScript && document.currentScript.src
-  ? new URL(document.currentScript.src, document.baseURI)
-  : null;
-const meetsAssetVersion = meetsControllerSource ? meetsControllerSource.searchParams.get('v') : '';
+const meetsAssetVersion = ClassicScriptLoader.getAssetVersion(document.currentScript);
 const meetDetailsHydrationPromises = new WeakMap();
 let meetPrimaryDataReady = false;
 let meetSummaryReady = false;
@@ -66,44 +63,15 @@ function reportMeetSummaryReady() {
 }
 
 /**
- * Applies the controller asset version to a lazily loaded dependency URL.
- * @param {string} source - Relative dependency source
- * @returns {string} Versioned dependency URL or the unchanged relative source
- */
-function getMeetsDependencySource(source) {
-  if (!meetsAssetVersion) return source;
-
-  const dependencySource = new URL(source, document.baseURI);
-  dependencySource.searchParams.set('v', meetsAssetVersion);
-  return dependencySource.toString();
-}
-
-/**
- * Appends one ordered classic-script dependency for concurrent download.
- * @param {string} source - Relative dependency source
- * @returns {Promise<void>} Promise settled after the script loads
- */
-function loadMeetsDependency(source) {
-  return new Promise((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = getMeetsDependencySource(source);
-    script.async = false;
-    script.dataset.meetsEnrichmentDependency = source;
-    script.addEventListener('load', resolve, { once: true });
-    script.addEventListener('error', () => reject(new Error(`Unable to load ${source}.`)), { once: true });
-    document.head.appendChild(script);
-  });
-}
-
-/**
  * Loads optional pool and team presentation dependencies once in execution order.
  * @returns {Promise<void>} Promise settled after every dependency loads
  */
 function loadMeetsEnrichmentDependencies() {
   if (!meetsBrowserDependenciesPromise) {
-    meetsBrowserDependenciesPromise = Promise.all(
-      MEETS_ENRICHMENT_DEPENDENCIES.map(source => loadMeetsDependency(source))
-    ).then(() => undefined);
+    meetsBrowserDependenciesPromise = ClassicScriptLoader.load(MEETS_ENRICHMENT_DEPENDENCIES, {
+      assetVersion: meetsAssetVersion,
+      dataset: source => ({ meetsEnrichmentDependency: source })
+    });
   }
   return meetsBrowserDependenciesPromise;
 }

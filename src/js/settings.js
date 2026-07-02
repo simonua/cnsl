@@ -1,10 +1,7 @@
 (function initializeSettingsDialog() {
   'use strict';
 
-  const controllerSource = document.currentScript && document.currentScript.src
-    ? new URL(document.currentScript.src, document.baseURI)
-    : null;
-  const assetVersion = controllerSource ? controllerSource.searchParams.get('v') : '';
+  const assetVersion = ClassicScriptLoader.getAssetVersion(document.currentScript);
   let openSettingsDialogRequest = null;
   const dependencyScripts = [
     { source: 'js/services/time-utils.js', ready: () => Boolean(window.TimeUtils) },
@@ -19,70 +16,16 @@
   ];
 
   /**
-   * Applies the Settings controller build version to a dependency URL.
-   * @param {string} source - Relative dependency source
-   * @returns {string} Versioned dependency URL or the unchanged source
-   * @private
-   */
-  function getDependencySource(source) {
-    if (!assetVersion) return source;
-
-    const dependencySource = new URL(source, document.baseURI);
-    dependencySource.searchParams.set('v', assetVersion);
-    return dependencySource.toString();
-  }
-
-  /**
-   * Loads one settings dependency unless its global is already ready.
-   * @param {Object} dependency - Dependency source and readiness test
-   * @returns {Promise<void>} Promise settled after dependency initialization
-   * @private
-   */
-  function loadScript(dependency) {
-    if (dependency.ready()) return Promise.resolve();
-
-    return new Promise((resolve, reject) => {
-      const existing = Array.from(document.scripts).find(script => {
-        const scriptSource = script.getAttribute('src');
-        return scriptSource && new URL(scriptSource, document.baseURI).pathname
-          === new URL(dependency.source, document.baseURI).pathname;
-      });
-      const script = existing || document.createElement('script');
-      /**
-       * Resolves after verifying that the loaded dependency initialized.
-       * @private
-       */
-      const handleLoad = () => {
-        if (dependency.ready()) {
-          resolve();
-        } else {
-          reject(new Error(`Settings dependency did not initialize: ${dependency.source}`));
-        }
-      };
-      /**
-       * Rejects when the dependency script cannot be loaded.
-       * @private
-       */
-      const handleError = () => reject(new Error(`Unable to load settings dependency: ${dependency.source}`));
-
-      script.addEventListener('load', handleLoad, { once: true });
-      script.addEventListener('error', handleError, { once: true });
-      if (!existing) {
-        script.src = getDependencySource(dependency.source);
-        document.body.appendChild(script);
-      }
-    });
-  }
-
-  /**
    * Loads all data dependencies in their required order.
    * @returns {Promise<void>} Promise settled after all dependencies initialize
    * @private
    */
   async function ensureDataDependencies() {
-    for (const dependency of dependencyScripts) {
-      await loadScript(dependency);
-    }
+    await ClassicScriptLoader.load(dependencyScripts, {
+      assetVersion,
+      mode: ClassicScriptLoader.LOAD_MODES.SEQUENTIAL,
+      parent: document.body
+    });
   }
 
   /**

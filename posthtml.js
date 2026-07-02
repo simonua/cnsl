@@ -13,6 +13,12 @@ const { createMeetDateSummaryNode } = require('./scripts/lib/meet-date-summary.j
 const { createEntityDetailPages } = require('./scripts/lib/entity-detail-pages.js');
 const { createPoolSummaryNode, createTeamSummaryNode } = require('./scripts/lib/search-directory-summary.js');
 const { createBrowserConfigSource, readPackageVersion } = require('./scripts/lib/package-version.js');
+const {
+  REQUIRED_ROOT_STATIC_FILES,
+  ROOT_ICON_ALIASES,
+  SITE_VERIFICATION_FILES,
+  SITE_VERIFICATION_SOURCE_DIRECTORY
+} = require('./scripts/lib/publication-policy.js');
 const annualDataSourceDir = './src/assets/data';
 const activeSeason = String(appConfig.YEAR);
 const activeSeasonPoolsPath = path.join(annualDataSourceDir, activeSeason, 'pools', 'pools.json');
@@ -299,8 +305,7 @@ function writeWeatherOperatingWindowsArtifact() {
 writeWeatherOperatingWindowsArtifact();
 
 // Copy required publishing artifacts, including GitHub Pages domain ownership.
-const requiredRootStaticFiles = ['browserconfig.xml', 'CNAME', 'LICENSE', 'manifest.webmanifest', 'robots.txt', 'sitemap.xml'];
-requiredRootStaticFiles.forEach(file => {
+REQUIRED_ROOT_STATIC_FILES.forEach(file => {
   if (!fs.existsSync(file)) {
     throw new Error(`Required static file not found: ${file}`);
   }
@@ -308,10 +313,8 @@ requiredRootStaticFiles.forEach(file => {
   console.log(`Copied static file: ${file}`);
 });
 
-const siteVerificationSourceDir = path.join('src', 'site-verification');
-const siteVerificationFiles = ['BingSiteAuth.xml', 'b95676755a0a47f2965553d9f994f87f.txt', 'google3dd9d57115818ebb.html'];
-siteVerificationFiles.forEach(file => {
-  const sourcePath = path.join(siteVerificationSourceDir, file);
+SITE_VERIFICATION_FILES.forEach(file => {
+  const sourcePath = path.join(SITE_VERIFICATION_SOURCE_DIRECTORY, file);
   if (!fs.existsSync(sourcePath)) {
     throw new Error(`Required site verification file not found: ${sourcePath}`);
   }
@@ -319,14 +322,7 @@ siteVerificationFiles.forEach(file => {
   console.log(`Copied site verification file: ${file}`);
 });
 
-const rootIconAliases = Object.freeze({
-  'apple-touch-icon-120x120-precomposed.png': path.join('src', 'assets', 'favicons', 'apple-touch-icon.png'),
-  'apple-touch-icon-120x120.png': path.join('src', 'assets', 'favicons', 'apple-touch-icon.png'),
-  'apple-touch-icon-precomposed.png': path.join('src', 'assets', 'favicons', 'apple-touch-icon.png'),
-  'apple-touch-icon.png': path.join('src', 'assets', 'favicons', 'apple-touch-icon.png'),
-  'favicon.ico': path.join('src', 'assets', 'favicons', 'favicon.ico')
-});
-Object.entries(rootIconAliases).forEach(([alias, sourcePath]) => {
+Object.entries(ROOT_ICON_ALIASES).forEach(([alias, sourcePath]) => {
   if (!fs.existsSync(sourcePath)) {
     throw new Error(`Required icon not found: ${sourcePath}`);
   }
@@ -347,7 +343,7 @@ function collectPrecacheResources(directory, rootDirectory = directory) {
 
     const relativePath = path.relative(rootDirectory, entryPath).replace(/\\/g, '/');
     if (['LICENSE', 'robots.txt', 'sitemap.xml', 'service-worker.js', 'precache-manifest.js'].includes(relativePath)) continue;
-    if (siteVerificationFiles.includes(relativePath)) continue;
+    if (SITE_VERIFICATION_FILES.includes(relativePath)) continue;
     if (relativePath === appConfig.EXPERIMENTAL_SETTINGS_URL) {
       resources.push(relativePath);
       continue;

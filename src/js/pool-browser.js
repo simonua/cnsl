@@ -20,12 +20,7 @@ const POOL_LOCATION_REQUEST_OPTIONS = Object.freeze([
   Object.freeze({ enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 }),
   Object.freeze({ enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 })
 ]);
-const poolBrowserControllerSource = document.currentScript && document.currentScript.src
-  ? new URL(document.currentScript.src, document.baseURI)
-  : null;
-const poolBrowserAssetVersion = poolBrowserControllerSource
-  ? poolBrowserControllerSource.searchParams.get('v')
-  : '';
+const poolBrowserAssetVersion = ClassicScriptLoader.getAssetVersion(document.currentScript);
 
 globalThis.cnslRouteWarmupReadiness.report(globalThis.ROUTE_WARMUP_READINESS_STATES.PREPARING);
 
@@ -52,45 +47,16 @@ function _getTimeUtils() {
 }
 
 /**
- * Applies the Pool controller asset version to a lazily loaded dependency URL.
- * @param {string} source - Relative dependency source
- * @returns {string} Versioned dependency URL or the unchanged relative source
- */
-function getPoolDependencySource(source) {
-  if (!poolBrowserAssetVersion) return source;
-
-  const dependencySource = new URL(source, document.baseURI);
-  dependencySource.searchParams.set('v', poolBrowserAssetVersion);
-  return dependencySource.toString();
-}
-
-/**
- * Appends one classic Pool dependency and settles after it loads.
- * @param {string} source - Relative dependency source
- * @param {string} group - Pool dependency group
- * @returns {Promise<void>} Promise settled when the script loads or fails
- */
-function loadPoolScript(source, group) {
-  return new Promise((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = getPoolDependencySource(source);
-    script.async = false;
-    script.dataset.poolDependency = source;
-    script.dataset.poolDependencyGroup = group;
-    script.addEventListener('load', resolve, { once: true });
-    script.addEventListener('error', () => reject(new Error(`Unable to load ${source}.`)), { once: true });
-    document.head.appendChild(script);
-  });
-}
-
-/**
  * Loads a Pool dependency group in deterministic classic-script order.
  * @param {ReadonlyArray<string>} sources - Ordered dependency sources
  * @param {string} group - Pool dependency group
  * @returns {Promise<void>} Promise settled when every dependency has loaded
  */
 function loadPoolDependencies(sources, group) {
-  return Promise.all(sources.map(source => loadPoolScript(source, group))).then(() => undefined);
+  return ClassicScriptLoader.load(sources, {
+    assetVersion: poolBrowserAssetVersion,
+    dataset: source => ({ poolDependency: source, poolDependencyGroup: group })
+  });
 }
 
 /**
