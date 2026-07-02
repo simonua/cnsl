@@ -46,6 +46,12 @@ for (const scenario of directoryScenarios) {
 for (const scenario of directoryScenarios.filter(({ reference }) => reference !== 'MEETS')) {
   test(`[WF-DATA-005-${scenario.reference}] ${scenario.path} shows a stable loading state instead of the search summary`, async ({ page }) => {
     const primaryDomain = scenario.reference.toLowerCase();
+    let initialDirectoryMarkup;
+    page.on('response', async response => {
+      if (response.request().resourceType() === 'document') {
+        initialDirectoryMarkup = await response.text();
+      }
+    });
     let resumePrimaryRequest;
     const primaryRequestPaused = new Promise(resolve => {
       resumePrimaryRequest = resolve;
@@ -67,6 +73,9 @@ for (const scenario of directoryScenarios.filter(({ reference }) => reference !=
 
     try {
       await page.goto(scenario.path, { waitUntil: 'domcontentloaded' });
+      expect(initialDirectoryMarkup).toMatch(new RegExp(
+        `<div[^>]+id=["']${scenario.list.slice(1)}["'][^>]+data-directory-enhancing=["']true["'][^>]+aria-busy=["']true["']`
+      ));
       expect(await page.evaluate(() => globalThis.directoryLoadingVisibilityAtFirstPaint)).toBe('hidden');
       await expect(page.locator(scenario.list)).toHaveAttribute('aria-busy', 'true');
       await expect(page.locator(scenario.list)).toHaveAttribute('data-directory-enhancing', 'true');
